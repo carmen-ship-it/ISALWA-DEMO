@@ -78,7 +78,7 @@ export function ExperienceHeader({
         </p>
         <h1
           className="mt-2 text-[var(--isalwa-text-2xl)] leading-[1.15] text-[var(--isalwa-kiln)] md:text-[var(--isalwa-text-3xl)]"
-          style={{ fontFamily: 'var(--isalwa-font-display)' }}
+          style={{ fontFamily: 'var(--isalwa-font-display)', fontStyle: 'italic', fontWeight: 400, letterSpacing: '-0.01em' }}
         >
           {title}
         </h1>

@@ -17,10 +17,10 @@ export default function MemoriaPage() {
             description="Abra un dossier — la línea de tiempo, el briefing y la evidencia son Memoria en acción."
             action={
               <div className="flex flex-wrap gap-3">
-                <Link href="/personas" className="text-[var(--isalwa-glaze)] hover:underline">
-                  Ir a Personas
+                <Link href="/personas" className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+                  Ir a Personas →
                 </Link>
-                <Link href="/pulso" className="text-[var(--isalwa-slate)] hover:underline">
+                <Link href="/pulso" className="text-[var(--isalwa-slate)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
                   Volver a Pulso
                 </Link>
               </div>

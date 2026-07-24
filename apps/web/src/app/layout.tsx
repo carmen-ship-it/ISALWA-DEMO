@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-BO">
+    <html lang="es-BO" data-scroll-behavior="smooth">
       <body className={`${sans.variable} ${display.variable} ${mono.variable}`}>
         <style>{`
           :root {
