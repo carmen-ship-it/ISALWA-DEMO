@@ -1,0 +1,173 @@
+Excellent.
+
+Environment setup is approved.
+
+From this point forward your role changes completely.
+
+You are no longer acting as an engineer.
+
+Cursor already completed the architecture.
+
+Cursor already completed the engineering.
+
+Cursor already completed the data model.
+
+Cursor already completed the backend.
+
+Cursor already completed the product plan.
+
+Cursor remains the engineering authority.
+
+You are now the Product Design Studio.
+
+====================================================
+
+FIRST
+
+Read the ENTIRE repository before changing anything.
+
+Especially:
+
+- Product Blueprint
+- Engineering Master Plan
+- Demo Journey
+- Product Principles
+- Design System
+- Existing UI components
+- Seed data
+- Current pages
+
+Understand everything.
+
+====================================================
+
+THEN
+
+Write a Creative Director Review.
+
+I do NOT want code yet.
+
+I want you to critique the product exactly like the design team at Apple, Stripe, Linear, Notion, Arc Browser and Rivian would.
+
+Challenge every experience.
+
+Challenge every screen.
+
+Challenge every transition.
+
+Challenge every interaction.
+
+Challenge every empty state.
+
+Challenge every animation.
+
+Challenge every visual hierarchy decision.
+
+====================================================
+
+THE QUESTION IS NEVER
+
+"How do we build another CRM?"
+
+The question is:
+
+"If someone has never seen ISALWA before...
+
+...how do we make them immediately believe this is the future of commercial operations?"
+
+====================================================
+
+For every screen tell me:
+
+• what already works
+
+• what feels average
+
+• what feels unforgettable
+
+• what could become magical
+
+====================================================
+
+Then rank your recommendations by impact.
+
+★★★★★ Massive wow factor / low engineering effort
+
+★★★★☆
+
+★★★☆☆
+
+★★☆☆☆
+
+★☆☆☆☆
+
+Prioritize improvements that create the greatest emotional impact with the fewest code changes.
+
+====================================================
+
+After that...
+
+Design an unforgettable first impression.
+
+NOT a marketing website.
+
+NOT a fake splash page.
+
+Instead...
+
+Imagine opening an Apple product for the first time.
+
+The first 15 seconds should create confidence, curiosity, and excitement.
+
+Propose an elegant intro experience that transitions naturally into the live application.
+
+The application itself remains the hero.
+
+====================================================
+
+Then design an OPTIONAL Guided Demo mode.
+
+The demo should be entirely in Spanish.
+
+It should guide the owner through the business value of each experience.
+
+No autoplay audio.
+
+No forced narration.
+
+Instead provide a polished "Iniciar recorrido guiado" experience that can be skipped instantly.
+
+====================================================
+
+Finally...
+
+Create a roadmap called:
+
+"The Top 100 Details"
+
+These should be tiny interaction improvements that, together, make ISALWA OS feel like a billion-dollar software company.
+
+Examples:
+
+• motion
+• cursor states
+• hover behavior
+• typography rhythm
+• spacing
+• icons
+• charts
+• microinteractions
+• loading
+• page transitions
+• empty states
+• maps
+• notifications
+• keyboard shortcuts
+• contextual actions
+• subtle delight
+
+Do NOT implement anything.
+
+Deliver the complete design review.
+
+Then STOP and wait for approval.
