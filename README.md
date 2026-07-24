@@ -7,11 +7,11 @@ Engineering language: English
 
 ## Current milestone
 
-**Milestone 4 — Commercial Loop (Cierre)** — see `docs/milestones/M4-commercial-loop.md`  
+**Product Elevation Sprint** — see `docs/product/PRODUCT_ELEVATION.md`  
+Last feature milestone approved: **M4 Commercial Loop**
+
 Product law: `docs/product/PRODUCT_PRINCIPLES.md`  
 Demo journey: `docs/product/DEMO_JOURNEY.md`
-
-**Approved behind it:** M1 Platform · M2 Living Model · M3 Demo Journey Experiences
 
 ### Preview (Carmen Cursor XL)
 

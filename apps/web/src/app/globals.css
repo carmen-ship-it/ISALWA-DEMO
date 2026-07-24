@@ -9,11 +9,14 @@ body {
 body {
   margin: 0;
   background: var(--isalwa-porcelain);
+  background-image: var(--isalwa-surface-hero);
+  background-attachment: fixed;
   color: var(--isalwa-kiln);
   font-family: var(--isalwa-font-sans);
   font-size: var(--isalwa-text-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -25,6 +28,17 @@ a {
   text-decoration: none;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--isalwa-glaze) 22%, white);
+  color: var(--isalwa-kiln);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
+/* Elevation motion */
 @keyframes isalwa-whisper-in {
   from {
     opacity: 0;
@@ -36,14 +50,10 @@ a {
   }
 }
 
-.isalwa-whisper {
-  animation: isalwa-whisper-in 280ms ease-out;
-}
-
-@keyframes isalwa-fade-up {
+@keyframes isalwa-enter {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -51,18 +61,130 @@ a {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .isalwa-whisper,
-  main > header,
-  main > .grid,
-  main > section {
-    animation: none;
+@keyframes isalwa-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--isalwa-glaze) 35%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
-main > header,
-main > .grid,
-main > section {
-  animation: isalwa-fade-up 420ms ease-out;
+@keyframes isalwa-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 
+@keyframes isalwa-map-pin {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes isalwa-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.isalwa-whisper {
+  animation: isalwa-whisper-in var(--isalwa-motion-slow) var(--isalwa-ease-out);
+}
+
+.isalwa-enter {
+  animation: isalwa-enter var(--isalwa-motion-deliberate) var(--isalwa-ease-out) both;
+}
+
+.isalwa-enter-delay-1 {
+  animation-delay: 60ms;
+}
+.isalwa-enter-delay-2 {
+  animation-delay: 120ms;
+}
+.isalwa-enter-delay-3 {
+  animation-delay: 180ms;
+}
+.isalwa-enter-delay-4 {
+  animation-delay: 240ms;
+}
+
+.isalwa-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--isalwa-mist) 80%, white) 0%,
+    color-mix(in srgb, var(--isalwa-mist) 35%, white) 50%,
+    color-mix(in srgb, var(--isalwa-mist) 80%, white) 100%
+  );
+  background-size: 200% 100%;
+  animation: isalwa-shimmer 1.2s var(--isalwa-ease-in-out) infinite;
+}
+
+.isalwa-alive-dot {
+  animation: isalwa-breathe 2.4s var(--isalwa-ease-in-out) infinite;
+}
+
+.isalwa-risk-bar {
+  height: 3px;
+  border-radius: var(--isalwa-radius-pill);
+  background: var(--isalwa-mist);
+  overflow: hidden;
+}
+
+.isalwa-risk-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  animation: isalwa-enter var(--isalwa-motion-deliberate) var(--isalwa-ease-out) both;
+}
+
+.isalwa-map-pin {
+  animation: isalwa-map-pin var(--isalwa-motion-deliberate) var(--isalwa-ease-spring) both;
+  transition:
+    transform var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+
+.isalwa-map-pin:hover,
+.isalwa-map-pin:focus-visible {
+  transform: translate(-50%, -50%) scale(1.55);
+  z-index: 2;
+  box-shadow: var(--isalwa-shadow-lift);
+}
+
+.isalwa-message-in {
+  animation: isalwa-enter var(--isalwa-motion-base) var(--isalwa-ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isalwa-whisper,
+  .isalwa-enter,
+  .isalwa-skeleton,
+  .isalwa-alive-dot,
+  .isalwa-map-pin,
+  .isalwa-message-in,
+  .isalwa-risk-bar > span {
+    animation: none !important;
+  }
+
+  .isalwa-map-pin:hover,
+  .isalwa-map-pin:focus-visible {
+    transform: translate(-50%, -50%);
+  }
+}

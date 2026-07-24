@@ -1,20 +1,31 @@
 import Link from 'next/link';
-import { Panel } from '@isalwa/ui';
+import { EmptyState, ExperienceHeader, Panel } from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 
 export default function MemoriaPage() {
   return (
     <AppShell active="/memoria">
       <main className="px-5 py-8 md:px-8">
-        <Panel className="max-w-2xl p-6">
-          <h1 className="text-[var(--isalwa-text-xl)] font-semibold">Memoria</h1>
-          <p className="mt-3 text-[var(--isalwa-slate)]">
-            Las historias ejecutivas llegan en un milestone posterior. Mientras tanto, la memoria del cliente vive
-            dentro de cada dossier (timeline + precios + visitas).
-          </p>
-          <Link href="/pulso" className="mt-4 inline-block text-[var(--isalwa-glaze)]">
-            Volver a Pulso →
-          </Link>
+        <ExperienceHeader
+          kicker="Memoria"
+          title="Historias detrás de los números"
+          subtitle="Memoria completa llega después de Auth. Hoy, cada dossier ya cuenta su propia historia."
+        />
+        <Panel className="p-6">
+          <EmptyState
+            title="Las historias viven en el cliente"
+            description="Abra un dossier — la línea de tiempo, el briefing y la evidencia son Memoria en acción."
+            action={
+              <div className="flex flex-wrap gap-3">
+                <Link href="/personas" className="text-[var(--isalwa-glaze)] hover:underline">
+                  Ir a Personas
+                </Link>
+                <Link href="/pulso" className="text-[var(--isalwa-slate)] hover:underline">
+                  Volver a Pulso
+                </Link>
+              </div>
+            }
+          />
         </Panel>
       </main>
     </AppShell>

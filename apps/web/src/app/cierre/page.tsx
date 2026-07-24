@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Panel, StatusPill } from '@isalwa/ui';
+import { EmptyState, ExperienceHeader, Panel, StatusPill } from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 import { QuoteCanvas } from '@/components/quote-canvas';
 import { apiGet } from '@/lib/api';
@@ -55,27 +55,24 @@ export default async function CierrePage({
   return (
     <AppShell active="/cierre">
       <main className="px-5 py-8 md:px-8">
-        <header className="mb-6 max-w-3xl">
-          <p className="text-[var(--isalwa-text-sm)] font-medium tracking-[0.12em] text-[var(--isalwa-glaze)] uppercase">
-            Cierre
-          </p>
-          <h1
-            className="mt-2 text-[var(--isalwa-text-2xl)] text-[var(--isalwa-kiln)]"
-            style={{ fontFamily: 'var(--isalwa-font-display)' }}
-          >
-            Cotizar con memoria. Cerrar con claridad.
-          </h1>
-          <p className="mt-2 text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)]">
-            El margen deja de vivir en WhatsApp. Cada línea recuerda la relación.
-          </p>
-        </header>
+        <ExperienceHeader
+          kicker="Cierre"
+          title="Cotizar con memoria. Cerrar con claridad."
+          subtitle="Agregue un producto. El susurro de último precio es el momento. Enviar y aceptar genera la factura real."
+          actions={
+            <Link
+              href="/personas"
+              className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-text-sm)] hover:border-[var(--isalwa-glaze)]"
+            >
+              Cambiar cliente
+            </Link>
+          }
+        />
 
         {accountId ? (
           <QuoteCanvas accountId={accountId} accountName={accountName} />
         ) : (
-          <Panel className="p-5 text-[var(--isalwa-slate)]">
-            No hay cuentas disponibles. ¿API y seed en línea?
-          </Panel>
+          <EmptyState title="Sin cuentas disponibles" description="¿API y seed en línea?" />
         )}
 
         <section className="mt-8">
@@ -85,7 +82,7 @@ export default async function CierrePage({
           </div>
           <div className="space-y-2">
             {quotes.items.slice(0, 8).map((q) => (
-              <Panel key={q.id} className="p-4">
+              <Panel key={q.id} interactive className="p-4">
                 <Link
                   href={`/cierre/cotizaciones/${q.id}`}
                   className="flex flex-wrap items-center justify-between gap-2"
@@ -103,19 +100,13 @@ export default async function CierrePage({
               </Panel>
             ))}
             {quotes.items.length === 0 ? (
-              <Panel className="p-4 text-[var(--isalwa-slate)]">
-                Aún no hay cotizaciones para este cliente — cree la primera arriba.
-              </Panel>
+              <EmptyState
+                title="Aún no hay cotizaciones para este cliente"
+                description="Cree la primera arriba — el susurro de precio es el momento."
+              />
             ) : null}
           </div>
         </section>
-
-        <p className="mt-6 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-          ¿Otro cliente?{' '}
-          <Link href="/personas" className="text-[var(--isalwa-glaze)] underline-offset-2 hover:underline">
-            Abrir Personas
-          </Link>
-        </p>
       </main>
     </AppShell>
   );

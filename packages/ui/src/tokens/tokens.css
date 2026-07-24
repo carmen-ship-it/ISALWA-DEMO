@@ -24,8 +24,9 @@
   --isalwa-space-12: 48px;
   --isalwa-space-16: 64px;
 
-  --isalwa-radius-control: 6px;
-  --isalwa-radius-panel: 10px;
+  --isalwa-radius-control: 8px;
+  --isalwa-radius-panel: 14px;
+  --isalwa-radius-pill: 999px;
 
   --isalwa-font-sans: "Plus Jakarta Sans", "Segoe UI", sans-serif;
   --isalwa-font-display: "Newsreader", "Georgia", serif;
@@ -40,12 +41,25 @@
   --isalwa-text-2xl: 32px;
   --isalwa-text-3xl: 40px;
 
-  --isalwa-motion-fast: 120ms;
-  --isalwa-motion-base: 180ms;
-  --isalwa-motion-slow: 240ms;
+  --isalwa-motion-fast: 140ms;
+  --isalwa-motion-base: 220ms;
+  --isalwa-motion-slow: 360ms;
+  --isalwa-motion-deliberate: 520ms;
   --isalwa-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --isalwa-ease-in-out: cubic-bezier(0.45, 0, 0.15, 1);
+  --isalwa-ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
 
   --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.04), 0 8px 24px rgba(28, 36, 48, 0.06);
+  --isalwa-shadow-lift: 0 2px 0 rgba(28, 36, 48, 0.03), 0 16px 40px rgba(28, 36, 48, 0.1);
+  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
+
+  --isalwa-surface-hero: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--isalwa-glaze) 8%, var(--isalwa-porcelain)) 0%,
+    var(--isalwa-porcelain) 42%,
+    color-mix(in srgb, var(--isalwa-copper) 6%, var(--isalwa-porcelain)) 100%
+  );
+  --isalwa-surface-map: linear-gradient(160deg, #d6e4df 0%, #f7f5f2 48%, #e4ebf1 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -53,5 +67,6 @@
     --isalwa-motion-fast: 0ms;
     --isalwa-motion-base: 0ms;
     --isalwa-motion-slow: 0ms;
+    --isalwa-motion-deliberate: 0ms;
   }
 }
