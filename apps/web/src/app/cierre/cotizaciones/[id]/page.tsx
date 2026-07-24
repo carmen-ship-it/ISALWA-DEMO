@@ -45,20 +45,47 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
             <p className="text-[var(--isalwa-text-sm)] uppercase tracking-[0.12em] text-[var(--isalwa-glaze)]">
               Cotización
             </p>
-            <h1 className="mt-1 text-[var(--isalwa-text-2xl)] font-semibold">{quote.number}</h1>
+            <h1
+              className="mt-1"
+              style={{
+                fontFamily: 'var(--isalwa-font-mono)',
+                fontSize: 'clamp(1.1rem, 1.8vw, 1.4rem)',
+                fontWeight: 600,
+                letterSpacing: '-0.01em',
+                color: 'var(--isalwa-kiln)',
+              }}
+            >
+              {quote.number}
+            </h1>
             <div className="mt-2 flex flex-wrap gap-2">
-              <StatusPill tone="info">{quote.status}</StatusPill>
+              <StatusPill tone="info">
+                {quote.status === 'draft' ? 'Borrador' : quote.status === 'sent' ? 'Enviado' : quote.status === 'accepted' ? 'Aceptado' : quote.status === 'rejected' ? 'Rechazado' : quote.status}
+              </StatusPill>
               <StatusPill tone="neutral">{quote.ownerName}</StatusPill>
             </div>
             <p className="mt-2 text-[var(--isalwa-slate)]">
-              <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] hover:underline">
+              <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
                 {quote.accountName}
               </Link>
             </p>
           </div>
-          <p className="text-[var(--isalwa-text-2xl)]" style={{ fontFamily: 'var(--isalwa-font-mono)' }}>
-            {quote.total.label}
-          </p>
+          <div className="text-right">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-slate)]">Total</p>
+            <p
+              className="mt-1"
+              style={{
+                fontFamily: 'var(--isalwa-font-mono)',
+                fontSize: 'clamp(1.25rem, 2vw, 1.6rem)',
+                fontWeight: 600,
+                color: 'var(--isalwa-kiln)',
+                letterSpacing: '-0.02em',
+                fontVariantNumeric: 'tabular-nums',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {quote.total.label}
+            </p>
+          </div>
         </header>
 
         <Panel className="p-5">
@@ -95,11 +122,11 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3 text-[var(--isalwa-text-md)]">
-          <Link href={`/cierre?account=${quote.accountId}`} className="text-[var(--isalwa-glaze)] hover:underline">
-            Nueva cotización
+          <Link href={`/cierre?account=${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+            Nueva cotización →
           </Link>
-          <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] hover:underline">
-            Volver al dossier
+          <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+            ← Volver al dossier
           </Link>
         </div>
       </main>

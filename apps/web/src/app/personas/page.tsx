@@ -18,6 +18,24 @@ type ListResponse = {
   }>;
 };
 
+// ── Credit status helpers ──────────────────────────────────────────────────────
+
+function creditLabel(status: string): string {
+  if (status === 'ok')    return 'Crédito OK';
+  if (status === 'watch') return 'Vigilar';
+  if (status === 'hold')  return 'Bloqueado';
+  return status;
+}
+
+function creditTone(status: string): 'success' | 'warning' | 'danger' | 'neutral' {
+  if (status === 'ok')    return 'success';
+  if (status === 'watch') return 'warning';
+  if (status === 'hold')  return 'danger';
+  return 'neutral';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default async function PersonasPage({
   searchParams,
 }: {
@@ -44,39 +62,50 @@ export default async function PersonasPage({
           subtitle="No es una lista. Es el elenco de ISALWA — héroes primero, el resto con densidad limpia."
           actions={
             <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-              ⌘K encuentra en un latido
+              <kbd className="rounded border border-[var(--isalwa-mist)] border-b-2 bg-[var(--isalwa-porcelain)] px-1 py-px font-[var(--isalwa-font-mono)] text-[10px] leading-none">⌘K</kbd>
+              {' '}encuentra en un latido
             </p>
           }
         />
 
+        {/* ── Héroe cards ─────────────────────────────────────────────────── */}
         {heroes.length > 0 ? (
           <section className="mb-8">
             <h2 className="mb-3 text-[var(--isalwa-text-sm)] font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
               Cuentas que todos conocen
             </h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div data-tour="personas-heroes" className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {heroes.map((a, idx) => (
                 <Panel
                   key={a.id}
                   interactive
-                  className={`isalwa-enter isalwa-enter-delay-${Math.min(idx + 1, 4)} p-5`}
+                  className={`group isalwa-enter isalwa-enter-delay-${Math.min(idx + 1, 4)} p-5`}
                 >
-                  <Link href={`/personas/${a.id}`} className="block">
+                  <Link href={`/personas/${a.id}`} className="block" tabIndex={-1}>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-semibold">{a.name}</h3>
                       <StatusPill tone="info">Seg. {a.segment}</StatusPill>
-                      <StatusPill tone={a.creditStatus === 'ok' ? 'success' : 'danger'}>
-                        {a.creditStatus}
+                      <StatusPill tone={creditTone(a.creditStatus)}>
+                        {creditLabel(a.creditStatus)}
                       </StatusPill>
                     </div>
                     <p className="mt-3 line-clamp-3 text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
                       {a.aiSummary}
                     </p>
-                    <div className="mt-4 flex items-center justify-between text-[var(--isalwa-text-xs)] text-[var(--isalwa-glaze)]">
-                      <span>
-                        Score {a.relationshipScore} · {a.ownerName}
+                    <div className="mt-4 flex items-center justify-between text-[var(--isalwa-text-xs)]">
+                      <span className="text-[var(--isalwa-slate)]">
+                        Score{' '}
+                        <span style={{ fontFamily: 'var(--isalwa-font-mono)', fontVariantNumeric: 'tabular-nums' }}>
+                          {a.relationshipScore}
+                        </span>
+                        {' '}· {a.ownerName}
                       </span>
-                      <span className="opacity-0 transition-opacity group-hover:opacity-100">Abrir →</span>
+                      <span
+                        className="text-[var(--isalwa-glaze)] opacity-0 transition-opacity duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] group-hover:opacity-100"
+                        aria-hidden
+                      >
+                        Abrir →
+                      </span>
                     </div>
                   </Link>
                 </Panel>
@@ -85,53 +114,71 @@ export default async function PersonasPage({
           </section>
         ) : null}
 
+        {/* ── Rest table ──────────────────────────────────────────────────── */}
         {rest.length === 0 && heroes.length === 0 ? (
           <EmptyState
             title="Sin clientes"
             description="Seedee el universo demo para llenar Personas."
           />
-        ) : (
+        ) : rest.length > 0 ? (
           <div className="overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-soft)]">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-[var(--isalwa-text-md)]">
-                <thead className="bg-[var(--isalwa-porcelain)] text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Cliente</th>
-                    <th className="px-4 py-3 font-medium">Seg.</th>
-                    <th className="px-4 py-3 font-medium">Score</th>
-                    <th className="px-4 py-3 font-medium">Crédito</th>
-                    <th className="hidden px-4 py-3 font-medium md:table-cell">Asesor</th>
+                <thead>
+                  <tr className="bg-[var(--isalwa-porcelain)] text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
+                    <th className="px-4 py-3 font-medium border-b border-[var(--isalwa-mist)]">Cliente</th>
+                    <th className="px-4 py-3 font-medium border-b border-[var(--isalwa-mist)]">Seg.</th>
+                    <th className="px-4 py-3 font-medium border-b border-[var(--isalwa-mist)]">Score</th>
+                    <th className="px-4 py-3 font-medium border-b border-[var(--isalwa-mist)]">Crédito</th>
+                    <th className="hidden px-4 py-3 font-medium border-b border-[var(--isalwa-mist)] md:table-cell">Asesor</th>
+                    <th className="w-8 border-b border-[var(--isalwa-mist)]" aria-hidden />
                   </tr>
                 </thead>
                 <tbody>
                   {rest.map((a) => (
                     <tr
                       key={a.id}
-                      className="border-t border-[var(--isalwa-mist)] transition-colors hover:bg-[color-mix(in_srgb,var(--isalwa-glaze)_4%,white)]"
+                      className="group border-t border-[var(--isalwa-mist)] cursor-pointer transition-colors duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:bg-[color-mix(in_srgb,var(--isalwa-glaze)_4%,white)]"
                     >
                       <td className="px-4 py-3">
-                        <Link href={`/personas/${a.id}`} className="font-medium hover:text-[var(--isalwa-glaze)]">
+                        <Link
+                          href={`/personas/${a.id}`}
+                          className="font-medium transition-colors duration-[var(--isalwa-motion-fast)] hover:text-[var(--isalwa-glaze)] focus-visible:text-[var(--isalwa-glaze)] focus-visible:outline-none"
+                        >
                           {a.name}
                         </Link>
                         <div className="text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">{a.code}</div>
                       </td>
-                      <td className="px-4 py-3">{a.segment}</td>
-                      <td className="px-4 py-3" style={{ fontFamily: 'var(--isalwa-font-mono)' }}>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-block rounded px-1.5 py-0.5 text-[var(--isalwa-text-xs)] font-semibold tracking-wide bg-[var(--isalwa-mist)] text-[var(--isalwa-slate)]"
+                        >
+                          {a.segment}
+                        </span>
+                      </td>
+                      <td
+                        className="px-4 py-3 text-[var(--isalwa-kiln)]"
+                        style={{ fontFamily: 'var(--isalwa-font-mono)', fontVariantNumeric: 'tabular-nums' }}
+                      >
                         {a.relationshipScore}
                       </td>
                       <td className="px-4 py-3">
-                        <StatusPill tone={a.creditStatus === 'ok' ? 'success' : 'warning'}>
-                          {a.creditStatus}
+                        <StatusPill tone={creditTone(a.creditStatus)}>
+                          {creditLabel(a.creditStatus)}
                         </StatusPill>
                       </td>
-                      <td className="hidden px-4 py-3 md:table-cell">{a.ownerName}</td>
+                      <td className="hidden px-4 py-3 text-[var(--isalwa-slate)] md:table-cell">{a.ownerName}</td>
+                      {/* Row navigate indicator */}
+                      <td className="pr-4 text-right text-[var(--isalwa-slate)]" aria-hidden>
+                        <span className="opacity-0 transition-opacity duration-[var(--isalwa-motion-fast)] group-hover:opacity-60 text-xs text-[var(--isalwa-glaze)]">→</span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-        )}
+        ) : null}
       </main>
     </AppShell>
   );

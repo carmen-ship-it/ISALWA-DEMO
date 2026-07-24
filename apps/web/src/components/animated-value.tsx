@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 export function AnimatedValue({
   value,
-  duration = 700,
+  duration = 520,
   className,
 }: {
   value: string;

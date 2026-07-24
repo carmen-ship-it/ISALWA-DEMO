@@ -48,7 +48,7 @@ export default async function RadarPage() {
           <EmptyState title={error} description="Reintente cuando la API esté en línea." />
         ) : null}
 
-        <div className="space-y-3">
+        <div data-tour="radar-list" className="space-y-3">
           {data.items.map((item, idx) => {
             const reason =
               typeof item.reason === 'string'
@@ -61,29 +61,42 @@ export default async function RadarPage() {
               <Panel
                 key={item.id}
                 interactive
-                className={`isalwa-enter isalwa-enter-delay-${Math.min((idx % 4) + 1, 4)} overflow-hidden p-0`}
+                className={`group isalwa-enter isalwa-enter-delay-${Math.min((idx % 4) + 1, 4)} overflow-hidden p-0`}
               >
-                <Link href={item.href} className="block p-4 md:p-5">
+                <Link
+                  href={item.href}
+                  className="block p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)] focus-visible:ring-inset md:p-5"
+                >
                   <div className="isalwa-risk-bar mb-3">
                     <span style={{ width: riskWidth(item.score), background: bar }} />
                   </div>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold">{item.title}</h2>
+                        <h2 className="font-semibold leading-snug">{item.title}</h2>
                         {item.segment ? <StatusPill tone="info">Seg. {item.segment}</StatusPill> : null}
                         <StatusPill tone={tone}>{kindLabel(item.kind)}</StatusPill>
                       </div>
-                      <p className="mt-1 text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)]">{reason}</p>
+                      <p className="mt-1.5 text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">{reason}</p>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-1 shrink-0">
                       <span
-                        style={{ fontFamily: 'var(--isalwa-font-mono)' }}
-                        className="text-[var(--isalwa-text-lg)] text-[var(--isalwa-glaze)]"
+                        style={{
+                          fontFamily: 'var(--isalwa-font-mono)',
+                          fontVariantNumeric: 'tabular-nums',
+                          fontSize: 'clamp(18px, 1.5vw, 22px)',
+                          fontWeight: 600,
+                          color: bar,
+                          letterSpacing: '-0.02em',
+                        }}
                       >
                         {item.score}
                       </span>
-                      <span className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">Abrir →</span>
+                      <span
+                        className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)] opacity-50 transition-opacity duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] group-hover:opacity-100"
+                      >
+                        Abrir →
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -95,7 +108,7 @@ export default async function RadarPage() {
               title="Sin alertas abiertas"
               description="El Radar está en calma. Eso también es una señal."
               action={
-                <Link href="/pulso" className="text-[var(--isalwa-glaze)] hover:underline">
+                <Link href="/pulso" className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
                   Volver a Pulso
                 </Link>
               }

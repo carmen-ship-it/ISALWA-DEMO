@@ -65,7 +65,7 @@ export function CommandPalette() {
   }, [q, open]);
 
   const emptyHint = useMemo(
-    () => 'Pruebe “Cerámica”, “Don Julio”, “Valle Andino”, “Negocia”…',
+    () => 'Pruebe "Cerámica", "Don Julio", "Valle Andino", "Negocia"…',
     [],
   );
 
@@ -89,6 +89,7 @@ export function CommandPalette() {
         aria-label="Comando ISALWA"
         aria-modal="true"
       >
+        {/* Search input */}
         <div className="relative">
           <input
             autoFocus
@@ -107,42 +108,97 @@ export function CommandPalette() {
               }
             }}
             placeholder="Buscar o ir a un cliente…"
-            className="w-full border-b border-[var(--isalwa-mist)] bg-transparent px-4 py-3.5 text-[var(--isalwa-text-base)] outline-none placeholder:text-[var(--isalwa-slate)]"
+            aria-label="Buscar clientes o ir a cualquier pantalla"
             aria-autocomplete="list"
             aria-controls="comando-results"
+            className="w-full border-b border-[var(--isalwa-mist)] bg-transparent px-4 py-3.5 text-[var(--isalwa-text-base)] outline-none placeholder:text-[var(--isalwa-slate)]"
           />
+          {/* Loading indicator — three dots instead of ellipsis */}
           {loading ? (
-            <span className="absolute top-1/2 right-4 -translate-y-1/2 text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
-              …
+            <span className="absolute top-1/2 right-4 -translate-y-1/2 flex items-center gap-[3px] text-[var(--isalwa-slate)]">
+              <span className="isalwa-loading-dot" />
+              <span className="isalwa-loading-dot" />
+              <span className="isalwa-loading-dot" />
             </span>
           ) : null}
         </div>
+
+        {/* Results list */}
         <ul id="comando-results" className="max-h-80 overflow-auto p-2" role="listbox">
           {results.length === 0 ? (
-            <li className="px-3 py-5 text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)]">
-              {q.trim() ? 'Sin coincidencias — pruebe otro nombre o código H-.' : emptyHint}
+            <li className="px-4 py-6">
+              {q.trim() ? (
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 text-base opacity-30" aria-hidden>◎</span>
+                  <span className="text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)]">
+                    Sin coincidencias — pruebe otro nombre o código H-.
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-slate)] opacity-50">
+                    Pruebe buscar
+                  </p>
+                  <p className="text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)] leading-relaxed">
+                    {emptyHint}
+                  </p>
+                </div>
+              )}
             </li>
           ) : (
             results.map((r, idx) => (
               <li key={`${r.type}-${r.id}`} role="option" aria-selected={idx === active}>
                 <button
                   type="button"
-                  className={`flex w-full flex-col rounded-[var(--isalwa-radius-control)] px-3 py-2.5 text-left transition-colors ${
-                    idx === active ? 'bg-[var(--isalwa-porcelain)]' : 'hover:bg-[var(--isalwa-porcelain)]'
+                  className={`group relative flex w-full items-center gap-3 rounded-[var(--isalwa-radius-control)] px-3 py-2.5 text-left cursor-pointer transition-colors duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] ${
+                    idx === active
+                      ? 'bg-[var(--isalwa-porcelain)]'
+                      : 'hover:bg-[var(--isalwa-porcelain)]'
                   }`}
                   onMouseEnter={() => setActive(idx)}
                   onClick={() => go(r.href)}
                 >
-                  <span className="font-medium text-[var(--isalwa-kiln)]">{r.title}</span>
-                  <span className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">{r.subtitle}</span>
+                  {/* Active accent bar */}
+                  {idx === active && (
+                    <span
+                      className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-[var(--isalwa-glaze)]"
+                      aria-hidden
+                    />
+                  )}
+                  {/* Title + subtitle */}
+                  <div className="min-w-0 flex-1 pl-1">
+                    <span className="block font-medium text-[var(--isalwa-kiln)]">{r.title}</span>
+                    <span className="block text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
+                      {r.subtitle}
+                    </span>
+                  </div>
+                  {/* Navigate arrow — appears on hover/active */}
+                  <span
+                    className="shrink-0 text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)] opacity-0 transition-opacity duration-[var(--isalwa-motion-fast)] group-hover:opacity-60"
+                    aria-hidden
+                  >
+                    →
+                  </span>
                 </button>
               </li>
             ))
           )}
         </ul>
+
+        {/* Footer — keyboard hints */}
         <div className="flex items-center justify-between border-t border-[var(--isalwa-mist)] px-4 py-2 text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
-          <span>↑↓ navegar · Enter abrir · Esc cerrar</span>
-          <span>Comando</span>
+          <span className="flex items-center gap-1.5">
+            <kbd className="rounded border border-[var(--isalwa-mist)] border-b-2 bg-[var(--isalwa-porcelain)] px-1 py-px font-[var(--isalwa-font-mono)] text-[10px] leading-none">↑</kbd>
+            <kbd className="rounded border border-[var(--isalwa-mist)] border-b-2 bg-[var(--isalwa-porcelain)] px-1 py-px font-[var(--isalwa-font-mono)] text-[10px] leading-none">↓</kbd>
+            <span>navegar</span>
+            <span className="opacity-30">·</span>
+            <kbd className="rounded border border-[var(--isalwa-mist)] border-b-2 bg-[var(--isalwa-porcelain)] px-1 py-px font-[var(--isalwa-font-mono)] text-[10px] leading-none">⏎</kbd>
+            <span>abrir</span>
+            <span className="opacity-30">·</span>
+            <kbd className="rounded border border-[var(--isalwa-mist)] border-b-2 bg-[var(--isalwa-porcelain)] px-1 py-px font-[var(--isalwa-font-mono)] text-[10px] leading-none">Esc</kbd>
+            <span>cerrar</span>
+          </span>
+          <span className="opacity-40 font-[var(--isalwa-font-mono)] text-[10px]">⌘K</span>
         </div>
       </div>
     </div>
