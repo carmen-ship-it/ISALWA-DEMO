@@ -1,0 +1,1 @@
+export const PROVIDER_REGISTRY = Symbol('PROVIDER_REGISTRY');

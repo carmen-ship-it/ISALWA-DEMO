@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+.pnpm-store
+dist
+.next
+.turbo
+coverage
+playwright-report
+test-results
+storybook-static
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# OS / IDE
+.DS_Store
+*.log
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Generated
+*.tsbuildinfo
+packages/database/src/generated
+.pgdata

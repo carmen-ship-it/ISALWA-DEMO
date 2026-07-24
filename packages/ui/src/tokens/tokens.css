@@ -1,0 +1,57 @@
+:root {
+  /* ISALWA design tokens — law. Do not invent colors outside this file. */
+  --isalwa-porcelain: #f7f5f2;
+  --isalwa-white: #ffffff;
+  --isalwa-kiln: #1c2430;
+  --isalwa-slate: #3d4a5c;
+  --isalwa-mist: #e6eaf0;
+  --isalwa-glaze: #2f6f68;
+  --isalwa-glaze-deep: #1f4f4a;
+  --isalwa-copper: #b08a5b;
+  --isalwa-success: #2f7d4a;
+  --isalwa-warning: #c48a1a;
+  --isalwa-danger: #b42318;
+  --isalwa-info: #2e5a8c;
+
+  --isalwa-space-1: 4px;
+  --isalwa-space-2: 8px;
+  --isalwa-space-3: 12px;
+  --isalwa-space-4: 16px;
+  --isalwa-space-5: 20px;
+  --isalwa-space-6: 24px;
+  --isalwa-space-8: 32px;
+  --isalwa-space-10: 40px;
+  --isalwa-space-12: 48px;
+  --isalwa-space-16: 64px;
+
+  --isalwa-radius-control: 6px;
+  --isalwa-radius-panel: 10px;
+
+  --isalwa-font-sans: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --isalwa-font-display: "Newsreader", "Georgia", serif;
+  --isalwa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --isalwa-text-xs: 12px;
+  --isalwa-text-sm: 13px;
+  --isalwa-text-md: 14px;
+  --isalwa-text-base: 16px;
+  --isalwa-text-lg: 18px;
+  --isalwa-text-xl: 24px;
+  --isalwa-text-2xl: 32px;
+  --isalwa-text-3xl: 40px;
+
+  --isalwa-motion-fast: 120ms;
+  --isalwa-motion-base: 180ms;
+  --isalwa-motion-slow: 240ms;
+  --isalwa-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.04), 0 8px 24px rgba(28, 36, 48, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --isalwa-motion-fast: 0ms;
+    --isalwa-motion-base: 0ms;
+    --isalwa-motion-slow: 0ms;
+  }
+}

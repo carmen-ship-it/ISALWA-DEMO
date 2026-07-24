@@ -1,0 +1,68 @@
+@import "@isalwa/ui/tokens.css";
+@import "tailwindcss";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--isalwa-porcelain);
+  color: var(--isalwa-kiln);
+  font-family: var(--isalwa-font-sans);
+  font-size: var(--isalwa-text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@keyframes isalwa-whisper-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.isalwa-whisper {
+  animation: isalwa-whisper-in 280ms ease-out;
+}
+
+@keyframes isalwa-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isalwa-whisper,
+  main > header,
+  main > .grid,
+  main > section {
+    animation: none;
+  }
+}
+
+main > header,
+main > .grid,
+main > section {
+  animation: isalwa-fade-up 420ms ease-out;
+}
+

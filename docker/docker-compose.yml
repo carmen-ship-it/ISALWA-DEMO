@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: isalwa
+      POSTGRES_PASSWORD: isalwa
+      POSTGRES_DB: isalwa
+    volumes:
+      - isalwa_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U isalwa -d isalwa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: isalwa
+      MINIO_ROOT_PASSWORD: isalwadevpassword
+    volumes:
+      - isalwa_minio:/data
+
+volumes:
+  isalwa_pg:
+  isalwa_minio:
