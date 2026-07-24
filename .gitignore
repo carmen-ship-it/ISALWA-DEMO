@@ -1,28 +1,66 @@
-# Dependencies
-node_modules
-.pnpm-store
-dist
-.next
-.turbo
-coverage
-playwright-report
-test-results
-storybook-static
+# Dependencies & build
+node_modules/
+.pnpm-store/
+dist/
+build/
+out/
+.next/
+.turbo/
+.vercel/
+.cache/
+*.tsbuildinfo
 
-# Env
+# Test & coverage
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+storybook-static/
+*.lcov
+
+# Environment & secrets — never commit
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
+*.pem
+*.p12
+*.key
+id_rsa*
+credentials.json
+secrets/
+.preview-logs/
 
-# OS / IDE
-.DS_Store
+# Database / local runtime
+.pgdata/
+*.sqlite
+*.db
+dump.sql
+dump.rdb
+
+# Logs & temp
 *.log
-.idea
+logs/
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
 
-# Generated
-*.tsbuildinfo
-packages/database/src/generated
-.pgdata
+# OS
+.AppleDouble
+.LSOverride
+
+# Prisma generated (if ever emitted into src)
+packages/database/src/generated/
+
+# Local tooling
+.eslintcache
+.stylelintcache
+.prettiercache

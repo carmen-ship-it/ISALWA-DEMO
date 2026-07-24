@@ -1,0 +1,8 @@
+# Example CODEOWNERS — enable after GitHub org/teams exist.
+# Uncomment and replace @org/team handles.
+
+# *       @ORG/isalwa-maintainers
+# /apps/api/       @ORG/isalwa-platform
+# /apps/web/       @ORG/isalwa-experience
+# /packages/database/  @ORG/isalwa-data
+# /docs/           @ORG/isalwa-maintainers

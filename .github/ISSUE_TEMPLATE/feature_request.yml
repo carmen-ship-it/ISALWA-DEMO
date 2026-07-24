@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a capability aligned to the Master Plan
+labels: ["type:feat"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / decision
+      description: What decision does this help the owner or advisor make faster?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Product principles check
+      options:
+        - label: Beautiful, fast, intuitive, useful, believable, connected, production-quality, demo-worthy
+        - label: Does not hardcode demo data
+        - label: Fits Engineering Master Plan phase
