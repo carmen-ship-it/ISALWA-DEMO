@@ -31,7 +31,7 @@
 ## Structure (as maintained)
 
 ```
-isalwa-os/
+ISALWA-DEMO/
 ├── apps/web, apps/api
 ├── packages/* (ui, contracts, providers, database, domain, …)
 ├── docs/ (product, architecture, milestones, github)
