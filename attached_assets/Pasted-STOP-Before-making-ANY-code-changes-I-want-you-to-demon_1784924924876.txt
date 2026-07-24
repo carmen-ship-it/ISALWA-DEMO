@@ -1,0 +1,129 @@
+STOP.
+
+Before making ANY code changes, I want you to demonstrate that you fully understand this project.
+
+DO NOT convert frameworks.
+
+DO NOT migrate to Vite.
+
+DO NOT create a new application.
+
+DO NOT replace Next.js.
+
+DO NOT replace the monorepo.
+
+DO NOT move files.
+
+DO NOT rewrite architecture.
+
+DO NOT create a Replit Artifact.
+
+========================================================
+YOUR FIRST MISSION
+========================================================
+
+Treat this repository as production software.
+
+Your only job right now is to understand it.
+
+Read:
+
+• README
+• Architecture documentation
+• Engineering Master Plan
+• Product Blueprint
+• Demo Journey
+• Repository structure
+• Design System
+• Existing components
+
+Then produce a report.
+
+========================================================
+I WANT THE REPORT TO INCLUDE
+========================================================
+
+1. Your understanding of the product.
+
+Explain ISALWA OS in your own words.
+
+2. Your understanding of the architecture.
+
+Explain:
+
+- Frontend
+- Backend
+- Packages
+- Providers
+- Database
+- Design System
+
+3. Demo understanding.
+
+Walk me through the current 8-minute demo exactly as you understand it.
+
+4. Strengths.
+
+List the 20 strongest parts of the existing project.
+
+5. Opportunities.
+
+List the 25 highest-impact visual improvements.
+
+IMPORTANT:
+
+Do NOT suggest backend rewrites.
+
+Do NOT suggest changing frameworks.
+
+Only improvements that preserve the existing architecture.
+
+Examples:
+
+• spacing
+• typography
+• motion
+• charts
+• cards
+• loading
+• transitions
+• onboarding
+• map polish
+• microinteractions
+• visual storytelling
+
+6. Credit Budget.
+
+Estimate which improvements require:
+
+🟢 Small effort (under 30 minutes)
+
+🟡 Medium effort
+
+🔴 Large effort
+
+Prioritize the highest visual impact for the lowest engineering effort.
+
+========================================================
+MOST IMPORTANT
+========================================================
+
+You are NOT the architect.
+
+Cursor already performed that role.
+
+You are acting as the Product Design Studio hired after engineering was completed.
+
+Respect every engineering decision unless there is a compelling reason not to.
+
+========================================================
+STOP
+========================================================
+
+After producing your report...
+
+STOP.
+
+Do not modify a single file.
+
+Wait for my approval before making any code changes.
