@@ -82,6 +82,7 @@ docs/           Product, architecture, ADRs, milestones
 | [`docs/product/DEMO_JOURNEY.md`](docs/product/DEMO_JOURNEY.md) | 8-minute owner demo |
 | [`docs/product/PRODUCT_ELEVATION.md`](docs/product/PRODUCT_ELEVATION.md) | Polish sprint scores |
 | [`docs/architecture/ENGINEERING_MASTER_PLAN.md`](docs/architecture/ENGINEERING_MASTER_PLAN.md) | Binding engineering contract |
+| [`docs/architecture/DESIGN_INTEGRATION_PROTOCOL.md`](docs/architecture/DESIGN_INTEGRATION_PROTOCOL.md) | Replit ↔ Cursor merge law |
 | [`docs/architecture/overview.md`](docs/architecture/overview.md) | Architecture overview |
 | [`docs/milestones/`](docs/milestones/) | M1–M4 delivery records |
 | [`docs/github/`](docs/github/) | Branching, labels, readiness |

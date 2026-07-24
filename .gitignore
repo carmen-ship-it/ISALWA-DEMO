@@ -64,3 +64,12 @@ packages/database/src/generated/
 .eslintcache
 .stylelintcache
 .prettiercache
+
+# Replit / parallel-stack artifacts (never commit — see DESIGN_INTEGRATION_PROTOCOL.md)
+.migration-backup/
+artifacts/
+attached_assets/
+.agents/
+.replit
+.replitignore
+replit.md
