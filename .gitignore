@@ -1,66 +1,49 @@
-# Dependencies & build
-node_modules/
-.pnpm-store/
-dist/
-build/
-out/
-.next/
-.turbo/
-.vercel/
-.cache/
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
 *.tsbuildinfo
+.expo
+.expo-shared
 
-# Test & coverage
-coverage/
-.nyc_output/
-playwright-report/
-test-results/
-storybook-static/
-*.lcov
+# dependencies
+node_modules
 
-# Environment & secrets — never commit
-.env
-.env.*
-!.env.example
-*.pem
-*.p12
-*.key
-id_rsa*
-credentials.json
-secrets/
-.preview-logs/
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# Database / local runtime
-.pgdata/
-*.sqlite
-*.db
-dump.sql
-dump.rdb
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# Logs & temp
-*.log
-logs/
-tmp/
-temp/
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
 Thumbs.db
 
-# IDE / editor
-.idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json.example
-*.swp
-*.swo
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 
-# OS
-.AppleDouble
-.LSOverride
-
-# Prisma generated (if ever emitted into src)
-packages/database/src/generated/
-
-# Local tooling
-.eslintcache
-.stylelintcache
-.prettiercache
+# Replit
+.cache/
+.local/

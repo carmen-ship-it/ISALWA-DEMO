@@ -1,28 +1,19 @@
 {
-  "name": "isalwa",
-  "private": true,
-  "packageManager": "pnpm@9.15.4",
-  "engines": {
-    "node": ">=22"
-  },
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "dev:web": "pnpm --filter @isalwa/web dev",
-    "dev:api": "pnpm --filter @isalwa/api dev",
-    "dev:deps": "docker compose -f docker/docker-compose.yml up -d",
-    "db:migrate": "pnpm --filter @isalwa/database migrate:deploy",
-    "seed:demo": "pnpm --filter @isalwa/database seed:demo",
-    "seed:ci": "pnpm --filter @isalwa/database seed:ci",
-    "seed:validate": "pnpm --filter @isalwa/database seed:validate",
-    "format": "prettier --write ."
+    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+  },
+  "private": true,
+  "dependencies": {
+    "@replit/connectors-sdk": "^0.4.1"
   },
   "devDependencies": {
-    "prettier": "^3.5.3",
-    "turbo": "^2.5.0",
-    "typescript": "^5.8.2"
+    "prettier": "^3.9.5",
+    "typescript": "~5.9.3"
   }
 }
