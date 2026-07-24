@@ -9,6 +9,7 @@ export function CheckInButton({ accountId }: { accountId: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [tone, setTone] = useState<'success' | 'error'>('success');
 
   async function run() {
     setBusy(true);
@@ -25,13 +26,15 @@ export function CheckInButton({ accountId }: { accountId: string }) {
       });
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { nextHref?: string };
-      setMsg('Visita registrada');
+      setTone('success');
+      setMsg('✓ Visita registrada');
       router.refresh();
       if (json.nextHref) {
         setTimeout(() => router.push(json.nextHref!), 600);
       }
     } catch {
-      setMsg('No se pudo registrar la visita');
+      setTone('error');
+      setMsg('No se pudo registrar');
     } finally {
       setBusy(false);
     }
@@ -40,9 +43,16 @@ export function CheckInButton({ accountId }: { accountId: string }) {
   return (
     <div className="flex flex-col items-stretch gap-1">
       <Button variant="secondary" disabled={busy} onClick={() => void run()}>
-        Registrar visita
+        {busy ? 'Registrando…' : 'Registrar visita'}
       </Button>
-      {msg ? <span className="text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">{msg}</span> : null}
+      {msg ? (
+        <span
+          className="text-[var(--isalwa-text-xs)]"
+          style={{ color: tone === 'success' ? 'var(--isalwa-success)' : 'var(--isalwa-danger)' }}
+        >
+          {msg}
+        </span>
+      ) : null}
     </div>
   );
 }

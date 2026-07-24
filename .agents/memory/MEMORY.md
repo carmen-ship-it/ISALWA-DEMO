@@ -1,0 +1,4 @@
+- [Motion system](motion-system.md) — unified CSS + JS motion tokens; all hardcoded ms must use token vars or motion.ts helpers
+- [Status label patterns](status-label-patterns.md) — all raw API status strings must be mapped to Spanish before display; helpers live in each page file
+- [Hover interaction pattern](hover-interaction-pattern.md) — never use hover:underline; use transition-opacity/duration token or bg-porcelain group pattern consistently
+- [Guided tour](guided-tour.md) — optional overlay tour; AppShell renders GuidedTour inside Fragment; data-tour attributes on 9 elements across 7 files

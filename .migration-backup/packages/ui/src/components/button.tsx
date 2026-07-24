@@ -27,7 +27,7 @@ export function Button({
     <button
       type={type}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] px-4 py-2 text-[var(--isalwa-text-md)] font-medium',
+        'inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] px-4 py-2 text-[var(--isalwa-text-md)] font-medium cursor-pointer',
         'transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)]',
         'focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
         'disabled:opacity-50 disabled:pointer-events-none',

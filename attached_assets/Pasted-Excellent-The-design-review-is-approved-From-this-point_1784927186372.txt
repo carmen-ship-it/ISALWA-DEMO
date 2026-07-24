@@ -1,0 +1,103 @@
+Excellent.
+
+The design review is approved.
+
+From this point forward we improve the application one experience at a time.
+
+Do NOT redesign the architecture.
+
+Do NOT modify the backend.
+
+Do NOT change APIs.
+
+Do NOT change data models.
+
+Do NOT replace the design system.
+
+Everything must build on top of the existing foundation.
+
+==================================================
+
+MISSION 01
+
+The first 15 seconds.
+
+==================================================
+
+The moment someone opens ISALWA OS...
+
+I want them to think:
+
+"This is unlike any CRM I've ever seen."
+
+Without fake marketing.
+
+Without flashy gimmicks.
+
+Without unnecessary animations.
+
+The application itself should create the emotion.
+
+==================================================
+
+Redesign only the opening experience.
+
+The goal is to transition naturally into the live application.
+
+Requirements:
+
+• elegant
+• premium
+• fast
+• skippable
+• fully in Spanish
+• accessible
+• works on desktop and tablet
+• respects reduced-motion preferences
+
+Do NOT create a landing page.
+
+Do NOT create a marketing website.
+
+Instead create an onboarding experience that immediately hands control to the live application.
+
+Think Apple product setup.
+
+Think Arc Browser welcome.
+
+Think Linear onboarding.
+
+Think Stripe dashboard confidence.
+
+==================================================
+
+Possible ideas (use only if they genuinely improve the experience):
+
+• subtle logo reveal
+• animated business pulse
+• system status initialization
+• "Conectando operación..."
+• "Cargando inteligencia comercial..."
+• smooth transition into Pulso
+• progressive KPI reveal
+• beautiful motion
+• elegant typography
+• refined sound design ONLY if optional and muted by default
+
+==================================================
+
+The application must remain the hero.
+
+The intro should last approximately 5–10 seconds if uninterrupted.
+
+It must be dismissible instantly.
+
+==================================================
+
+Before implementing, explain your concept in detail.
+
+Then implement only this experience.
+
+Do not touch any other screen.
+
+Stop after completion.

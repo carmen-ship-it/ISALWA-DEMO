@@ -53,14 +53,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             <h1 className="mt-1 text-[var(--isalwa-text-2xl)] font-semibold">{invoice.number}</h1>
             <div className="mt-2 flex flex-wrap gap-2">
               <StatusPill tone={invoice.balance.centavos > 0 ? 'warning' : 'success'}>
-                {invoice.status}
+                {invoice.status === 'paid' ? 'Pagado' : invoice.status === 'overdue' ? 'Vencido' : invoice.status === 'partial' ? 'Parcial' : invoice.status === 'open' ? 'Abierto' : invoice.status}
               </StatusPill>
               <StatusPill tone="neutral">
                 Vence {new Date(invoice.dueAt).toLocaleDateString('es-BO')}
               </StatusPill>
             </div>
             <p className="mt-2">
-              <Link href={`/personas/${invoice.accountId}`} className="text-[var(--isalwa-glaze)] hover:underline">
+              <Link href={`/personas/${invoice.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
                 {invoice.accountName}
               </Link>
               {invoice.quoteId ? (
@@ -69,7 +69,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                   ·{' '}
                   <Link
                     href={`/cierre/cotizaciones/${invoice.quoteId}`}
-                    className="text-[var(--isalwa-glaze)] hover:underline"
+                    className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
                   >
                     {invoice.quoteNumber}
                   </Link>
@@ -127,15 +127,15 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href={`/personas/${invoice.accountId}`}
-            className="rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-glaze)] px-4 py-2 text-white"
+            className="rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-glaze)] px-4 py-2 text-sm font-medium text-white cursor-pointer transition-[background-color] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:bg-[var(--isalwa-glaze-deep)] active:scale-[0.97] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
             Seguimiento en dossier
           </Link>
           <Link
             href={`/cierre?account=${invoice.accountId}`}
-            className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-4 py-2"
+            className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 py-2 text-sm font-medium text-[var(--isalwa-kiln)] cursor-pointer transition-[border-color,color] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:border-[var(--isalwa-glaze)] hover:text-[var(--isalwa-glaze)] active:scale-[0.97] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
-            Nueva oportunidad
+            Nueva oportunidad →
           </Link>
         </div>
       </main>
