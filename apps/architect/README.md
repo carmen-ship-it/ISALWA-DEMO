@@ -30,7 +30,7 @@ Every company owns a **living consulting workspace**, a **Knowledge Center**, an
 | Language | TypeScript (strict, no `any`) |
 | Styling | Tailwind CSS + shadcn/ui |
 | Motion | Motion |
-| Persistence | Interfaces + local company memory (Supabase later) |
+| Persistence | Supabase JSONB when configured; localStorage fallback for local/dev |
 | Knowledge | Contracts + mock vault (ingestion later) |
 | Blueprint | Versioned Business OS model (generation later) |
 | AI | OpenAI-compatible provider abstraction (no vendor lock) |

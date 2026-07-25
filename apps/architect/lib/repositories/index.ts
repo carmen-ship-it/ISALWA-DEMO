@@ -283,7 +283,7 @@ export class LocalCompanyMemoryStore implements CompanyMemoryStore {
       this.bundle = migrateBundle(existing);
       writeBundle(storage, this.bundle);
     } else if (seedIfEmpty) {
-      this.bundle = createSeedBundle();
+      this.bundle = migrateBundle(createSeedBundle());
       writeBundle(storage, this.bundle);
     } else {
       this.bundle = { workspaces: [], conversations: [] };

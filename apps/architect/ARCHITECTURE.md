@@ -246,4 +246,4 @@ Local `CompanyMemoryStore` holds workspaces including `blueprints[]` and `curren
 2. **Proposals / PRDs / Cursor prompts** → generate from current blueprint version
 3. **Live ingestion** → richer Knowledge → richer blueprint versions
 4. **ISALWA OS** → configure product from blueprint modules/entities/rules
-5. **Supabase** → durable multi-user blueprint history
+5. **Supabase** → durable shared ISALWA company memory (pilot) — see `supabase/OPERATOR_GUIDE.md`

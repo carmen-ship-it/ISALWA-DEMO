@@ -240,7 +240,7 @@ create policy architect_active_interviews_select
   to authenticated
   using (public.architect_is_member(workspace_id));
 
-drop policy if exists architect_active_interviews_upsert on public.architect_active_interviews;
+drop policy if exists architect_active_interviews_insert on public.architect_active_interviews;
 create policy architect_active_interviews_insert
   on public.architect_active_interviews for insert
   to authenticated
