@@ -578,7 +578,7 @@ function enqueueFollowUps(
       queue.push({
         ...item,
         kind: "long_text",
-        reason: `Deep follow-up after ${trigger} was mentioned.`,
+        reason: `Seguimiento profundo tras mencionar ${trigger}.`,
       });
     }
   };

@@ -265,7 +265,7 @@ class MemoryConversationRepository implements ConversationRepository {
 
 /**
  * In-memory + optional localStorage persistence.
- * Temporary source of truth until Supabase (designed, not wired).
+ * Used when Supabase env is unset (local/dev pilot cookie auth).
  */
 export class LocalCompanyMemoryStore implements CompanyMemoryStore {
   readonly provider = "local" as const;

@@ -46,7 +46,34 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
 
   useEffect(() => {
-    void store.workspaces.get(workspaceId).then(setWorkspace);
+    let cancelled = false;
+    void store.workspaces.get(workspaceId).then((next) => {
+      if (!cancelled) setWorkspace(next);
+    });
+
+    // Live shared updates when Supabase Realtime is available.
+    const supabaseStore = store as {
+      subscribe?: (
+        id: string,
+        handler: (ws: CompanyWorkspace) => void,
+      ) => () => void;
+    };
+    const unsubscribe = supabaseStore.subscribe?.(workspaceId, (next) => {
+      if (!cancelled) setWorkspace(next);
+    });
+
+    const onFocus = () => {
+      void store.workspaces.get(workspaceId).then((next) => {
+        if (!cancelled && next) setWorkspace(next);
+      });
+    };
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+      window.removeEventListener("focus", onFocus);
+    };
   }, [store, workspaceId]);
 
   const executive = useMemo(
