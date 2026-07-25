@@ -1,6 +1,7 @@
 /**
- * Executive Experience — Mission 9.5 presentation derivation.
+ * Executive Experience — Mission 10 presentation derivation.
  * No new engines. Pure projection of existing workspace models.
+ * Never falls back to seed/mock recommendations or modules.
  */
 
 import type {
@@ -27,10 +28,12 @@ export interface ModuleInsightCard {
   id: string;
   name: string;
   why: string[];
-  expectedRoi: "High" | "Moderate" | "Strategic";
-  priority: string;
-  phase: string;
+  expectedRoi: "High" | "Moderate" | "Strategic" | null;
+  priority: string | null;
+  phase: string | null;
   confidence: number;
+  businessValue: string | null;
+  departments: string[];
 }
 
 export interface ReasoningCard {
@@ -39,6 +42,22 @@ export interface ReasoningCard {
   subject: string;
   evidence: string[];
   confidence: number;
+  priority: string | null;
+  businessValue: string | null;
+  departments: string[];
+  phase: string | null;
+}
+
+export interface ProcessInsightCard {
+  id: string;
+  name: string;
+  purpose: string;
+  priority: string | null;
+  confidence: number;
+  businessValue: string | null;
+  evidence: string[];
+  departments: string[];
+  phase: string | null;
 }
 
 export interface ExecutiveDashboardModel {
@@ -52,6 +71,9 @@ export interface ExecutiveDashboardModel {
   investmentAreas: string[];
   estimatedPhases: string[];
   consultingConfidence: number | null;
+  topOpportunities: string[];
+  aiReadiness: number | null;
+  executiveRecommendation: string | null;
 }
 
 export interface AnimatedBlueprintModel {
@@ -65,6 +87,7 @@ export interface ExecutiveExperienceModel {
   dashboard: ExecutiveDashboardModel;
   modules: ModuleInsightCard[];
   reasoning: ReasoningCard[];
+  processes: ProcessInsightCard[];
   blueprint: AnimatedBlueprintModel;
   dayLabel: string;
 }
@@ -82,53 +105,51 @@ export function deriveExecutiveExperience(
   const journey: JourneyStage[] = [
     {
       id: "interview",
-      label: "Interview",
+      label: "Entrevista",
       detail:
         meetings > 0
-          ? `${meetings} discovery session${meetings === 1 ? "" : "s"} captured`
-          : "Ready for first discovery session",
+          ? `${meetings} sesión${meetings === 1 ? "" : "es"} de descubrimiento registrada${meetings === 1 ? "" : "s"}`
+          : "Listo para la primera sesión de descubrimiento",
       complete: meetings > 0 || workspace.businessUnderstanding > 0,
     },
     {
       id: "learned",
-      label: "Business learned",
+      label: "Negocio comprendido",
       detail:
         workspace.businessUnderstanding >= 40
-          ? `${workspace.businessUnderstanding}% business understanding`
-          : "Still mapping how the company operates",
+          ? `${workspace.businessUnderstanding}% de comprensión del negocio`
+          : "Aún mapeando cómo opera la empresa",
       complete: workspace.businessUnderstanding >= 40,
     },
     {
       id: "problems",
-      label: "Problems identified",
+      label: "Problemas identificados",
       detail:
         workspace.painPoints.length > 0
-          ? `${workspace.painPoints.length} pain points evidenced`
-          : "Pains surface as discovery deepens",
+          ? `${workspace.painPoints.length} punto${workspace.painPoints.length === 1 ? "" : "s"} de dolor con evidencia`
+          : "Los dolores emergen conforme profundiza el descubrimiento",
       complete: workspace.painPoints.length > 0,
     },
     {
       id: "architecture",
-      label: "Architecture generated",
+      label: "Arquitectura generada",
       detail: solution
-        ? `${solution.modules.length} modules · Blueprint v${solution.blueprintVersion}`
+        ? `${solution.modules.length} módulos · Blueprint v${solution.blueprintVersion}`
         : blueprint
-          ? `Blueprint v${blueprint.version} ready`
-          : "Awaiting Business Blueprint",
+          ? `Blueprint v${blueprint.version} disponible`
+          : "Pendiente de Business Blueprint",
       complete: solution != null || blueprint != null,
     },
     {
       id: "recommended",
-      label: "Software recommended",
+      label: "Software recomendado",
       detail: workspace.deliverables
-        ? "Consulting package ready"
-        : workspace.modules.length > 0
-          ? `${workspace.modules.length} modules suggested`
-          : "Recommendations evolve with evidence",
+        ? "Paquete de consultoría listo"
+        : (solution?.modules.length ?? 0) > 0
+          ? `${solution!.modules.length} módulos sugeridos con evidencia`
+          : "Las recomendaciones evolucionan con evidencia",
       complete:
-        workspace.deliverables != null ||
-        (solution?.modules.length ?? 0) > 0 ||
-        workspace.modules.length > 0,
+        workspace.deliverables != null || (solution?.modules.length ?? 0) > 0,
     },
   ];
 
@@ -141,19 +162,30 @@ export function deriveExecutiveExperience(
     .slice(0, 4)
     .map((o) => o.title);
 
+  const topOpportunities = (consulting?.opportunities ?? [])
+    .slice()
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 4)
+    .map((o) => o.title);
+
   const priorities = (consulting?.recommendations ?? [])
     .filter((r) => r.priority === "now" || r.priority === "next")
     .slice(0, 4)
     .map((r) => r.title);
 
-  const investmentAreas =
-    solution?.modules.slice(0, 5).map((m) => m.name) ??
-    workspace.modules.slice(0, 5).map((m) => m.name);
+  const investmentAreas = solution?.modules.slice(0, 5).map((m) => m.name) ?? [];
 
   const estimatedPhases =
-    solution?.roadmap.map((p) => `Phase ${p.phase}: ${p.name}`) ??
-    workspace.currentReport?.suggestedRoadmap.map((p) => p.name) ??
-    [];
+    solution?.roadmap.map((p) => `Fase ${p.phase}: ${p.name}`) ?? [];
+
+  const aiDimension = consulting?.health.gauges.find(
+    (d) => d.id === "ai_readiness",
+  );
+
+  const executiveRecommendation =
+    consulting?.recommendations.find((r) => r.priority === "now")?.rationale ??
+    workspace.deliverables?.executiveSummary.executiveRecommendation ??
+    null;
 
   const dashboard: ExecutiveDashboardModel = {
     businessUnderstanding: workspace.businessUnderstanding,
@@ -161,19 +193,20 @@ export function deriveExecutiveExperience(
     health: consulting?.health.overall ?? null,
     topRisk: topRisk?.title ?? null,
     riskLevel: (topRisk?.severity as ProcessRiskLevel | undefined) ?? "unknown",
-    priorities: priorities.length
-      ? priorities
-      : workspace.recommendations.slice(0, 4).map((r) => r.title),
-    quickWins: quickWins.length
-      ? quickWins
-      : workspace.opportunities.slice(0, 4).map((o) => o.title),
+    priorities,
+    quickWins,
     investmentAreas,
     estimatedPhases,
     consultingConfidence: consulting?.confidence.overall ?? null,
+    topOpportunities,
+    aiReadiness: aiDimension?.score ?? null,
+    executiveRecommendation,
   };
 
   const modules = buildModuleCards(workspace, solution?.modules ?? []);
   const reasoning = buildReasoningCards(workspace);
+  const processes = buildProcessCards(workspace);
+
   const animated: AnimatedBlueprintModel = {
     departments:
       blueprint?.departments.map((d) => d.name) ??
@@ -191,13 +224,14 @@ export function deriveExecutiveExperience(
   };
 
   const dayLabel =
-    meetings <= 1 ? "Day 1" : meetings === 2 ? "Day 2" : `Day ${meetings}`;
+    meetings <= 1 ? "Día 1" : meetings === 2 ? "Día 2" : `Día ${meetings}`;
 
   return {
     journey,
     dashboard,
     modules,
     reasoning,
+    processes,
     blueprint: animated,
     dayLabel,
   };
@@ -207,25 +241,14 @@ function buildModuleCards(
   workspace: CompanyWorkspace,
   solutionModules: SolutionModule[],
 ): ModuleInsightCard[] {
-  const pains = workspace.painPoints;
-  const source =
-    solutionModules.length > 0
-      ? solutionModules.map((m, index) => ({
-          id: m.id,
-          name: m.name,
-          purpose: m.purpose,
-          confidence: m.confidence,
-          index,
-        }))
-      : workspace.modules.map((m, index) => ({
-          id: m.id,
-          name: m.name,
-          purpose: m.purpose,
-          confidence: 0.72,
-          index,
-        }));
+  if (solutionModules.length === 0) return [];
 
-  return source.slice(0, 6).map((mod) => {
+  const pains = workspace.painPoints;
+  const blueprint = workspace.blueprints.find(
+    (b) => b.id === workspace.currentBlueprintId,
+  );
+
+  return solutionModules.slice(0, 6).map((mod, index) => {
     const relatedPains = pains
       .filter((p) =>
         matchesModule(mod.name, `${p.title} ${p.description} ${p.category}`),
@@ -238,58 +261,81 @@ function buildModuleCards(
         ? relatedPains
         : mod.purpose
           ? [mod.purpose]
-          : [`Evidence points to a ${mod.name} capability gap`];
+          : [];
 
-    const phase =
-      workspace.solutionArchitecture?.roadmap.find((p) =>
-        p.modules.some((n) => n.toLowerCase() === mod.name.toLowerCase()),
-      );
+    const phaseEntry = workspace.solutionArchitecture?.roadmap.find((p) =>
+      p.modules.some((n) => n.toLowerCase() === mod.name.toLowerCase()),
+    );
+
+    const deptNames =
+      blueprint?.departments
+        .filter((d) => {
+          const caps =
+            blueprint.capabilities
+              .filter((c) => d.capabilityIds.includes(c.id))
+              .map((c) => c.name)
+              .join(" ") ?? "";
+          return matchesModule(mod.name, caps);
+        })
+        .map((d) => d.name) ?? [];
 
     return {
       id: mod.id,
       name: mod.name,
       why,
-      expectedRoi:
-        mod.index < 2 ? "High" : mod.index < 4 ? "Moderate" : "Strategic",
-      priority: phase
-        ? `Phase ${phase.phase}`
-        : mod.index < 2
-          ? "Phase 1"
-          : mod.index < 4
-            ? "Phase 2"
-            : "Later",
-      phase: phase ? `Phase ${phase.phase}` : mod.index < 2 ? "Phase 1" : "Later",
+      expectedRoi: phaseEntry?.businessValue
+        ? index < 2
+          ? "High"
+          : index < 4
+            ? "Moderate"
+            : "Strategic"
+        : null,
+      priority: phaseEntry ? `Fase ${phaseEntry.phase}` : null,
+      phase: phaseEntry ? `Fase ${phaseEntry.phase}` : null,
       confidence: mod.confidence,
+      businessValue: phaseEntry?.businessValue ?? mod.purpose,
+      departments: deptNames,
     };
   });
 }
 
 function buildReasoningCards(workspace: CompanyWorkspace): ReasoningCard[] {
   const consulting = workspace.conversationMemory?.consulting;
-  const fromConsulting = (consulting?.recommendations ?? []).slice(0, 4).map(
-    (rec) => ({
+  if (!consulting) return [];
+
+  return consulting.recommendations
+    .filter((rec) => rec.evidence.length > 0 || rec.rationale)
+    .slice(0, 6)
+    .map((rec) => ({
       id: rec.id,
-      question: `Why did I recommend`,
+      question: "¿Por qué recomendamos",
       subject: stripRecommendVerb(rec.title),
       evidence:
         rec.evidence.length > 0
           ? rec.evidence.slice(0, 4)
           : [rec.rationale],
-      confidence: consulting?.confidence.overall ?? 0.8,
-    }),
-  );
+      confidence: consulting.confidence.overall,
+      priority: rec.priority,
+      businessValue: rec.rationale,
+      departments: [],
+      phase: null,
+    }));
+}
 
-  if (fromConsulting.length > 0) return fromConsulting;
+function buildProcessCards(workspace: CompanyWorkspace): ProcessInsightCard[] {
+  const processes = workspace.businessProcesses;
+  if (!processes) return [];
 
-  return workspace.recommendations.slice(0, 4).map((rec) => ({
-    id: rec.id,
-    question: "Why did I recommend",
-    subject: stripRecommendVerb(rec.title),
-    evidence:
-      rec.relatedPainPoints.length > 0
-        ? rec.relatedPainPoints.slice(0, 4)
-        : [rec.rationale],
-    confidence: 0.75,
+  return processes.workflows.slice(0, 6).map((wf) => ({
+    id: wf.id,
+    name: wf.name,
+    purpose: wf.purpose,
+    priority: null,
+    confidence: processes.overallConfidence ?? 0.7,
+    businessValue: wf.purpose,
+    evidence: wf.steps.slice(0, 3).map((s) => `${s.name} · ${s.actor}`),
+    departments: wf.department ? [wf.department] : [],
+    phase: null,
   }));
 }
 
@@ -313,7 +359,7 @@ function matchesModule(moduleName: string, blob: string): boolean {
 
 function stripRecommendVerb(title: string): string {
   return title
-    .replace(/^(recommend|implement|build|add|introduce)\s+/i, "")
+    .replace(/^(recommend|implement|build|add|introduce|recomendar|implementar)\s+/i, "")
     .replace(/\?$/, "")
     .trim() || title;
 }

@@ -32,6 +32,7 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import { deriveBrandExperience } from "@/lib/brand";
 import { createId } from "@/lib/utils";
 
 export const WORKSPACE_STORAGE_KEY = "isalwa.architect.company_memory.v1";
@@ -54,7 +55,7 @@ function writeBundle(storage: StorageLike | null, bundle: WorkspaceBundle): void
   storage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(bundle));
 }
 
-/** Mission 3+4+6+7+9 migration — Knowledge, Blueprint, Solution, Processes, Deliverables. */
+/** Mission 3+4+6+7+9+10 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand. */
 function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
   return {
     ...bundle,
@@ -64,6 +65,7 @@ function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         solutionArchitecture: workspace.solutionArchitecture ?? null,
         businessProcesses: workspace.businessProcesses ?? null,
         deliverables: workspace.deliverables ?? null,
+        brandExperience: workspace.brandExperience ?? null,
       };
 
       if (!next.knowledge?.assets) {
@@ -96,6 +98,7 @@ function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
           currentBlueprintId: null,
           solutionArchitecture: null,
           businessProcesses: null,
+          brandExperience: null,
           deliverables: null,
         });
         const existingTitles = new Set(next.timeline.map((e) => e.title));
@@ -203,6 +206,36 @@ function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
                   title,
                   description: deliverables.summary,
                   category: "deliverable" as const,
+                },
+                ...next.timeline,
+              ].sort((a, b) => b.date.localeCompare(a.date)),
+        };
+      }
+
+      if (
+        current &&
+        (!next.brandExperience ||
+          next.brandExperience.blueprintId !== current.id)
+      ) {
+        const brandExperience = deriveBrandExperience({
+          workspace: next,
+          blueprint: current,
+        });
+        const existingTitles = new Set(next.timeline.map((e) => e.title));
+        const title = `Brand & Experience · Blueprint v${brandExperience.blueprintVersion}`;
+        next = {
+          ...next,
+          brandExperience,
+          timeline: existingTitles.has(title)
+            ? next.timeline
+            : [
+                {
+                  id: createId("timeline"),
+                  workspaceId: next.id,
+                  date: brandExperience.generatedAt,
+                  title,
+                  description: brandExperience.summary,
+                  category: "brand" as const,
                 },
                 ...next.timeline,
               ].sort((a, b) => b.date.localeCompare(a.date)),

@@ -583,6 +583,40 @@ export type {
 } from "./knowledge";
 
 export type {
+  AccessibilityProfile,
+  BrandAssetKind,
+  BrandAssetUploadProvider,
+  BrandEvidenceRef,
+  BrandEvidenceSource,
+  BrandExperienceModel,
+  BrandFutureIntakeKind,
+  BrandFutureOutput,
+  BrandFutureOutputKind,
+  BrandProfile,
+  BrandRecommendation,
+  ColorToken,
+  ColorTokenRole,
+  ContrastTarget,
+  DesignTokens,
+  ExperienceDensity,
+  ExperienceProfile,
+  FormalityLevel,
+  FutureWhiteLabelConfig,
+  LogoAssetRef,
+  MotionPreference,
+  NavigationPattern,
+  NavigationPreference,
+  NotificationChannelPreference,
+  RegionalFormatPreference,
+  SpacingRhythm,
+  TerminologyEntry,
+  TerminologyProfile,
+  ThemeMode,
+  ThemeRecommendation,
+  TypographyToken,
+} from "./brand";
+
+export type {
   ArchitectureHorizon,
   ArchitectureState,
   BlueprintCapability,
@@ -698,3 +732,14 @@ export type {
   SprintBacklogDeliverable,
   TechnicalArchitectureDeliverable,
 } from "./deliverables";
+
+export type {
+  ArchitectRole,
+  ArchitectSession,
+  AuthCapability,
+  AuthProfile,
+  AuthRepository,
+  CompanyMembership,
+  CompanyMembershipKind,
+  LoginCredentials,
+} from "./auth";

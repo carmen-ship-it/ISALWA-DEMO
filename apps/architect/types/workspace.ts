@@ -42,7 +42,8 @@ export type TimelineCategory =
   | "blueprint"
   | "solution"
   | "process"
-  | "deliverable";
+  | "deliverable"
+  | "brand";
 
 export type FutureIntakeSource =
   | "voice_recording"
@@ -96,6 +97,11 @@ export interface CompanyWorkspace {
    * Regenerated on demand via generateDeliverables / after blueprint advances.
    */
   deliverables: import("./deliverables").DeliverablesPackage | null;
+  /**
+   * Mission 10 — Brand & Experience Studio derived from current blueprint.
+   * Regenerated when blueprint versions advance.
+   */
+  brandExperience: import("./brand").BrandExperienceModel | null;
   people: Person[];
   openQuestions: string[];
   painPoints: import("./index").PainPoint[];
@@ -229,7 +235,8 @@ export type SearchTargetKind =
   | "blueprint"
   | "solution"
   | "process"
-  | "deliverable";
+  | "deliverable"
+  | "brand";
 
 export interface SearchHit {
   id: string;

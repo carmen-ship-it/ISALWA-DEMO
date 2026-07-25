@@ -2,16 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOutAction } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
-const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/companies", label: "Companies" },
-] as const;
-
 /**
- * Minimal navigation — four product concepts without dashboard chrome.
- * Workspace and Interview appear contextually, not as persistent tabs.
+ * Minimal navigation — role-aware. Clients do not see company selector links.
  */
 export function ArchitectNav({
   workspaceHref,
@@ -21,14 +17,23 @@ export function ArchitectNav({
   interviewHref?: string | null;
 }) {
   const pathname = usePathname();
+  const { session } = useAuth();
+
+  const base =
+    session?.role === "consultant"
+      ? [
+          { href: "/", label: "Empresas" },
+          { href: "/companies", label: "Panel" },
+        ]
+      : [];
 
   const items = [
-    ...LINKS,
+    ...base,
     ...(workspaceHref
       ? [{ href: workspaceHref, label: "Workspace" as const }]
       : []),
     ...(interviewHref
-      ? [{ href: interviewHref, label: "Interview" as const }]
+      ? [{ href: interviewHref, label: "Entrevista" as const }]
       : []),
   ];
 
@@ -54,6 +59,16 @@ export function ArchitectNav({
           </Link>
         );
       })}
+      {session ? (
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-50 hover:text-neutral-800"
+          >
+            Salir
+          </button>
+        </form>
+      ) : null}
     </nav>
   );
 }

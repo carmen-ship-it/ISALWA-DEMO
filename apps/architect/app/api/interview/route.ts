@@ -18,6 +18,12 @@ interface InterviewRequestBody {
  * LLM enhancement can plug in later without changing this contract.
  */
 export async function POST(request: Request) {
+  const { getServerSession } = await import("@/lib/auth");
+  const session = await getServerSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = (await request.json()) as InterviewRequestBody;
   const action = body.action ?? "answer";
 

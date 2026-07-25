@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
+import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -321,18 +322,24 @@ export function ReportView() {
           Complete a discovery session to generate the living report.
         </p>
         <div className="mt-8">
-          <Button asChild>
-            <Link href={workspaceId ? `/workspace/${workspaceId}` : "/"}>
-              Back to workspace
-            </Link>
-          </Button>
+          <BackLink
+            href={workspaceId ? `/workspace/${workspaceId}` : "/"}
+            label="Volver al workspace"
+          />
         </div>
       </main>
     );
   }
 
+  const backHref = workspaceId ? `/workspace/${workspaceId}` : "/";
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-16 sm:px-8">
+      <BackLink
+        href={backHref}
+        label="Volver al workspace"
+        className="mb-8"
+      />
       <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
         Living Report
       </p>
@@ -353,14 +360,10 @@ export function ReportView() {
         <ReportBody report={report} />
       </div>
 
-      <div className="mt-16 flex flex-wrap gap-3">
-        <Button asChild variant="secondary">
-          <Link href={workspaceId ? `/workspace/${workspaceId}` : "/"}>
-            Back to workspace
-          </Link>
-        </Button>
+      <div className="mt-16 flex flex-wrap items-center gap-4">
+        <BackLink href={backHref} label="Volver al workspace" />
         <Button asChild variant="ghost">
-          <Link href="/">All companies</Link>
+          <Link href="/">Todas las empresas</Link>
         </Button>
       </div>
     </main>

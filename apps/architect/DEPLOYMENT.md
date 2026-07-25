@@ -77,7 +77,7 @@ Promote to production only after a green preview build.
 
 ## Required environment variables
 
-**None are required** for a working production deploy today.
+**None are required** for a working pilot deploy. Without Supabase keys, Architect uses **pilot cookie auth** (Carmen / Álvaro).
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -85,14 +85,25 @@ Promote to production only after a green preview build.
 | `OPENAI_API_KEY` | No | Alias for the same key |
 | `ARCHITECT_LLM_BASE_URL` | No | Default `https://api.openai.com/v1` |
 | `ARCHITECT_LLM_MODEL` | No | Default `gpt-4o-mini` |
-| `NEXT_PUBLIC_SUPABASE_URL` | No | Future persistence |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | Future persistence |
-| `SUPABASE_SERVICE_ROLE_KEY` | No | Future server-side Supabase |
+| `NEXT_PUBLIC_SUPABASE_URL` | No* | Enables real Supabase Auth when set with anon key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No* | Enables real Supabase Auth |
+| `SUPABASE_SERVICE_ROLE_KEY` | No | Server-side admin (future seed / persistence) |
+| `ARCHITECT_PILOT_CARMEN_PASSWORD` | No | Override pilot password (default `Architect2026!`) |
+| `ARCHITECT_PILOT_ALVARO_PASSWORD` | No | Override pilot password |
 | `NEXT_PUBLIC_ARCHITECT_URL` | No | Future absolute site URL |
+
+\* For production customer pilots, configure Supabase Auth and create matching users for Carmen / Álvaro emails. See [MISSION10.md](./MISSION10.md).
 
 See `.env.example` for the full list.
 
 Set variables in Vercel → Project → Settings → Environment Variables for Production / Preview / Development as needed.
+
+### Pilot login (no Supabase)
+
+| User | Email | Role | Default password |
+| --- | --- | --- | --- |
+| Carmen | `carmen@isalwa.demo` | Consultant | `Architect2026!` |
+| Álvaro | `alvaro@abc.demo` | Client | `Architect2026!` |
 
 ---
 
@@ -110,15 +121,15 @@ Set variables in Vercel → Project → Settings → Environment Variables for P
 
 ## Future Supabase setup
 
-Today Architect uses interfaces + local/browser company memory.
+**Auth (Mission 10):** Set `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`, then create email/password users for the seeded pilot emails. App roles still resolve from the access directory (Carmen = consultant, Álvaro = client).
 
-When wiring Supabase:
+**Company memory:** Still interfaces + local/browser store today.
 
-1. Create a Supabase project dedicated to Architect (or a clearly separated schema).
-2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` on Vercel.
-3. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only (never `NEXT_PUBLIC_`).
-4. Implement the existing repository interfaces — do not invent a parallel memory model.
-5. Migrate local workspaces carefully; never silently drop company memory.
+When wiring persistence:
+
+1. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only (never `NEXT_PUBLIC_`).
+2. Implement the existing repository interfaces — do not invent a parallel memory model.
+3. Migrate local workspaces carefully; never silently drop company memory.
 
 ---
 

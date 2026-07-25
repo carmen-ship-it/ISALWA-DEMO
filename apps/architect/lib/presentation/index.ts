@@ -1,0 +1,17 @@
+export {
+  coverageBand,
+  healthLabel,
+  humanizeDependencies,
+  humanizeDependency,
+  maturityLabel,
+  recommendationStrength,
+  revisionLabel,
+  riskLevelLabel,
+  strengthBand,
+  strengthHint,
+  toPercent,
+  understandingLevel,
+  understandingSentence,
+  type CoverageBand,
+  type StrengthBand,
+} from "./executive-language";

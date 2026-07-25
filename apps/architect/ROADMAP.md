@@ -83,7 +83,24 @@
 - Presentation-only — derives from existing models
 - See [MISSION9_5.md](./MISSION9_5.md)
 
-## Mission 10 — Senior Consultant Thinking
+## Mission 10 — Brand & Experience Studio (complete)
+
+- Deterministic brand & experience model from Blueprint + workspace evidence
+- Brand profile · experience profile · design tokens · theme · terminology · navigation · accessibility
+- Multi-tenant white-label contracts · future upload/export interfaces
+- Read-only Brand & Experience workspace panel
+- Regenerates when blueprint advances
+- See [MISSION10.md](./MISSION10.md)
+
+## Mission 10 — Authentication Foundation (pilot, complete)
+
+- Supabase Auth (email/password) + pilot cookie fallback
+- Roles: Consultant (Carmen) · Client (Álvaro)
+- Seed company: ABC Manufacturing
+- Route protection · Spanish login · role-based home
+- Documented alongside Mission 10 in [MISSION10.md](./MISSION10.md#auth-pilot-parallel-track)
+
+## Mission 11 — Senior Consultant Thinking
 
 Make interviews feel like a real senior consultant — not a form.
 
@@ -91,15 +108,15 @@ Make interviews feel like a real senior consultant — not a form.
 - Example: “Only one person knows purchasing — if they resigned tomorrow, what happens?”
 - Deeper adaptive probing without new discovery engines as the headline
 
-## Mission 11 — Live evidence intake
+## Mission 12 — Live evidence intake
 
 Implement Knowledge pipeline + connectors (upload, CRM/ERP, transcripts).
 
-## Mission 12 — Blueprint → ISALWA OS
+## Mission 13 — Blueprint → ISALWA OS
 
 Map current blueprint + solution architecture + processes into OS project genesis.
 
-## Mission 13 — Voice & live workshop mode
+## Mission 14 — Voice & live workshop mode
 
 Voice interviews, multi-participant sessions, facilitator view.
 
@@ -109,4 +126,4 @@ Voice interviews, multi-participant sessions, facilitator view.
 - Using LLMs for consulting, solution, process, or deliverable scoring
 - Generating production code, SQL, OpenAPI, or binary exports before dedicated missions
 - Editable process designer (visualization is read-only)
-- Live uploads / AI extraction before Mission 11
+- Live uploads / AI extraction before Mission 12

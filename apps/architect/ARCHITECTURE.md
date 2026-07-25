@@ -2,9 +2,9 @@
 
 ## Why this shape
 
-Mission 0 prioritizes an elegant, extensible foundation. Mission 2 adds durable **Company Memory**. Mission 3 adds a **Knowledge Ingestion Engine**. Mission 4 adds the **Business OS Blueprint**. Mission 5 adds **Consulting Intelligence**. Mission 6 adds the **Solution Architect**. Mission 7 adds the **Business Process Engine**. Mission 8 adds **Process Visualization**. Mission 9 adds the **Deliverables Engine**. Mission 9.5 polishes the **Executive Experience** so the workspace feels like a senior consulting engagement.
+Mission 0 prioritizes an elegant, extensible foundation. Mission 2 adds durable **Company Memory**. Mission 3 adds a **Knowledge Ingestion Engine**. Mission 4 adds the **Business OS Blueprint**. Mission 5 adds **Consulting Intelligence**. Mission 6 adds the **Solution Architect**. Mission 7 adds the **Business Process Engine**. Mission 8 adds **Process Visualization**. Mission 9 adds the **Deliverables Engine**. Mission 9.5 polishes the **Executive Experience**. Mission 10 adds **Brand & Experience Studio** (identity + UX contracts). An auth pilot (Carmen / Álvaro / ABC) runs in parallel under `lib/auth/`.
 
-Reports remember conversations. Blueprints describe operating systems. Solution Architecture designs the software. Process Engine models how work moves. Process Studio visualizes it. Deliverables package it for the client. The executive workspace makes understanding feel inevitable.
+Reports remember conversations. Blueprints describe operating systems. Solution Architecture designs the software. Process Engine models how work moves. Process Studio visualizes it. Deliverables package it for the client. Brand & Experience captures how software should look and feel. Auth gates who sees which company — without becoming a full SaaS yet.
 
 ## Folder structure
 
@@ -23,13 +23,15 @@ apps/architect/
     processes/   # Mission 7 — workflows, steps, handoffs, bottlenecks
     process-visualization/ # Mission 8 — deterministic layouts + studio model
     deliverables/ # Mission 9 — consulting package builders
+    brand/       # Mission 10 — brand & experience studio
     executive/   # Mission 9.5 — executive presentation projection
+    auth/        # Auth pilot — session, roles, Supabase + pilot
     repositories/# Local/mock CompanyMemoryStore
     resume/      # Resume Engine
     timeline/    # Timeline builders
     reports/     # Living narrative report evolution
     documents/   # Legacy stubs
-    search/      # Memory + knowledge + blueprint + solution + process + deliverable search
+    search/      # Memory + knowledge + blueprint + solution + process + deliverable + brand search
     llm/ · persistence/ · prompts/
   domain/ · prompts/ · agents/ · types/ · data/ · styles/
 ```
@@ -45,6 +47,19 @@ apps/architect/
 - **BusinessProcessModel** — workflows, steps, handoffs, approvals, bottlenecks (Mission 7)
 - **ProcessVisualizationModel** — presentation graph + metrics over processes (Mission 8)
 - **DeliverablesPackage** — executive summary, PRD, Cursor Context, backlog, … (Mission 9)
+- **BrandExperienceModel** — brand profile, experience, tokens, theme, terminology, navigation, accessibility (Mission 10)
+
+## Brand & Experience Studio (Mission 10)
+
+`deriveBrandExperience(blueprint, workspace)` produces:
+
+- Brand profile (voice, tagline, positioning — evidence-backed)
+- Experience profile (employee UX vision, density, regional formats, notifications)
+- Design tokens (industry-inferred colors/typography with explicit low confidence)
+- Theme recommendation · terminology · navigation · accessibility
+- White-label readiness contracts
+
+Stored on `CompanyWorkspace.brandExperience`. Regenerates when blueprint versions advance. Never replaces Blueprint / Solution / Consulting. Upload providers and exports are **contracts only**.
 
 ## Consulting Intelligence (Mission 5)
 
@@ -122,6 +137,14 @@ Stored on `CompanyWorkspace.deliverables`. Documentation only. Export targets (P
 
 Presentation only. No new business engines. No LLM.
 
+## Authentication (pilot)
+
+- Supabase Auth (email/password) when configured; otherwise pilot cookie sessions
+- Roles: `consultant` | `client` with capability matrix
+- Seed: Carmen (consultant), Álvaro (client / ABC owner), company `ws_abc`
+- `middleware.ts` protects routes; clients land in assigned workspace
+- Access directory under `lib/auth/` is future-ready for multi-company memberships
+
 ## Company Memory (Mission 2)
 
 ```text
@@ -130,6 +153,7 @@ Interview completes
     → Meeting · People · Timeline · Living report · Memory
     → Knowledge preserved
     → Business Blueprint version appended (Mission 4)
+    → Solution · Processes · Brand & Experience · Deliverables regenerated
 ```
 
 ## Knowledge Ingestion (Mission 3)

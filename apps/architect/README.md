@@ -55,10 +55,11 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for local ports, Vercel setup, and environm
 
 ## Experience
 
-1. **Home / Companies** — Your Companies list + New Company
-2. **Workspace** — Memory · Blueprint · Solution · Process Studio · Deliverables · Knowledge
-3. **Interview** — Guided adaptive discovery (knowledge-aware)
-4. **Living Report** — Narrative blueprint companion (evolves across meetings)
+1. **Login** — Spanish premium sign-in (Consultant / Client)
+2. **Home** — Consultant company dashboard · Client opens assigned workspace
+3. **Workspace** — Memory · Blueprint · Solution · Process Studio · Deliverables · Brand & Experience · Knowledge
+4. **Interview** — Guided adaptive discovery (knowledge-aware)
+5. **Living Report** — Narrative blueprint companion (evolves across meetings)
 
 ## Missions included
 
@@ -74,8 +75,10 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for local ports, Vercel setup, and environm
 | 8 | Business Process Visualization |
 | 9 | Deliverables Engine |
 | 9.5 | Executive Experience Polish |
+| 10 | Brand & Experience Studio |
+| 10 (auth) | Authentication Foundation (pilot) |
 
-See [MISSION9_5.md](./MISSION9_5.md).
+See [MISSION10.md](./MISSION10.md).
 
 ## Docs
 
@@ -93,6 +96,8 @@ See [MISSION9_5.md](./MISSION9_5.md).
 - [MISSION8.md](./MISSION8.md)
 - [MISSION9.md](./MISSION9.md)
 - [MISSION9_5.md](./MISSION9_5.md)
+- [MISSION10.md](./MISSION10.md)
+- [MISSION10.md](./MISSION10.md)
 
 ## Independence
 

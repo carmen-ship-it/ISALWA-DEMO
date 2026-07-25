@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { architectAgent } from "@/agents";
 import { ArchitectNav } from "@/components/nav/architect-nav";
+import { BackLink } from "@/components/nav/back-link";
 import { DiscoveryScoreCard } from "@/components/discovery/discovery-score-card";
 import { LivingWhiteboard } from "@/components/discovery/living-whiteboard";
 import { OpportunityList } from "@/components/discovery/opportunity-list";
@@ -224,6 +225,11 @@ export function DiscoveryExperience() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 py-8 sm:px-10">
+      <BackLink
+        href={`/workspace/${workspace.id}`}
+        label="Volver al workspace"
+        className="mb-6"
+      />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">

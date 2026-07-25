@@ -7,6 +7,7 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import { deriveBrandExperience } from "@/lib/brand";
 import { createId, nowIso } from "@/lib/utils";
 import type {
   CompanyWorkspace,
@@ -223,6 +224,7 @@ function seedWorkspace(input: {
     currentBlueprintId: null as string | null,
     solutionArchitecture: null,
     businessProcesses: null,
+    brandExperience: null,
     deliverables: null,
     people: [person],
     openQuestions: input.openQuestions,
@@ -309,9 +311,34 @@ function seedWorkspace(input: {
     businessProcesses,
   };
 
-  const deliverables = currentBlueprint
-    ? buildDeliverablesPackage(seededWorkspace)
+  const brandExperience = currentBlueprint
+    ? deriveBrandExperience({
+        workspace: seededWorkspace,
+        blueprint: currentBlueprint,
+      })
     : null;
+
+  const workspaceWithBrand = {
+    ...seededWorkspace,
+    brandExperience,
+  };
+
+  const deliverables = currentBlueprint
+    ? buildDeliverablesPackage(workspaceWithBrand)
+    : null;
+
+  const brandEvents: TimelineEvent[] = brandExperience
+    ? [
+        {
+          id: createId("timeline"),
+          workspaceId: input.id,
+          date: brandExperience.generatedAt,
+          title: `Brand & Experience · Blueprint v${brandExperience.blueprintVersion}`,
+          description: brandExperience.summary,
+          category: "brand",
+        },
+      ]
+    : [];
 
   const deliverableEvents: TimelineEvent[] = deliverables
     ? [
@@ -328,9 +355,11 @@ function seedWorkspace(input: {
 
   return {
     ...seededWorkspace,
+    brandExperience,
     deliverables,
     timeline: [
       ...deliverableEvents,
+      ...brandEvents,
       ...processEvents,
       ...solutionEvents,
       ...blueprintEvents,
@@ -426,7 +455,7 @@ export function createSeedWorkspaces(): CompanyWorkspace[] {
         "Family-owned plant with ~80 employees.",
         "Production schedule lives in a whiteboard and Excel.",
       ],
-      personName: "Miguel",
+      personName: "Álvaro",
       personRole: "owner",
     }),
   ];
@@ -468,6 +497,7 @@ export function createEmptyWorkspace(
     currentBlueprintId: null,
     solutionArchitecture: null,
     businessProcesses: null,
+    brandExperience: null,
     deliverables: null,
     people: [],
     openQuestions: [],

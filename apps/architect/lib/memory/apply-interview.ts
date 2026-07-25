@@ -16,6 +16,9 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import {
+  deriveBrandExperience,
+} from "@/lib/brand";
 import { evolveLivingReport } from "@/lib/reports/living-report";
 import { buildTimelineEventsFromInterview } from "@/lib/timeline/events";
 import { placeholderTranscriptDocument } from "@/lib/documents/placeholders";
@@ -159,9 +162,19 @@ export function applyInterviewToWorkspace(
     blueprint: nextBlueprint,
   });
 
-  const workspaceForDeliverables: CompanyWorkspace = {
+  const workspaceForBrand: CompanyWorkspace = {
     ...workspaceForProcesses,
     businessProcesses,
+  };
+
+  const brandExperience = deriveBrandExperience({
+    workspace: workspaceForBrand,
+    blueprint: nextBlueprint,
+  });
+
+  const workspaceForDeliverables: CompanyWorkspace = {
+    ...workspaceForBrand,
+    brandExperience,
   };
 
   const deliverables = buildDeliverablesPackage(workspaceForDeliverables);
@@ -183,6 +196,16 @@ export function applyInterviewToWorkspace(
     title: `Business Processes · Blueprint v${nextBlueprint.version}`,
     description: businessProcesses.summary,
     category: "process",
+    meetingId: meeting.id,
+  };
+
+  const brandEvent: TimelineEvent = {
+    id: createId("timeline"),
+    workspaceId: workspace.id,
+    date: stamp,
+    title: `Brand & Experience · Blueprint v${nextBlueprint.version}`,
+    description: brandExperience.summary,
+    category: "brand",
     meetingId: meeting.id,
   };
 
@@ -217,6 +240,7 @@ export function applyInterviewToWorkspace(
     modules: report?.potentialModules ?? workspace.modules,
     timeline: [
       deliverableEvent,
+      brandEvent,
       processEvent,
       solutionEvent,
       blueprintEvent,
@@ -228,6 +252,7 @@ export function applyInterviewToWorkspace(
     currentBlueprintId: nextBlueprint.id,
     solutionArchitecture,
     businessProcesses,
+    brandExperience,
     deliverables,
     people,
     openQuestions:
