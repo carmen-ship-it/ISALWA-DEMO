@@ -11,7 +11,7 @@ import {
   mentionsTrigger,
 } from "@/lib/reasoning/industry/signals";
 import {
-  computeDiscoveryScore,
+  applyDiscoveryScore,
   createEmptyScore,
 } from "@/lib/reasoning/confidence/score";
 import {
@@ -46,17 +46,17 @@ export function createEmptyMemory(): ConversationMemory {
       painPoints: [],
       opportunities: [],
       missingInformation: [
-        "Sales",
-        "Customers",
-        "Geography",
-        "Team",
-        "Operations",
-        "Finance",
-        "Production",
-        "Systems",
+        "Ventas",
+        "Clientes",
+        "Geografía",
+        "Equipo",
+        "Operaciones",
+        "Finanzas",
+        "Producción",
+        "Sistemas",
       ],
-      confidenceScore: 8,
-      belief: "I am just beginning to understand this company.",
+      confidenceScore: 0,
+      belief: "Estamos empezando a comprender esta empresa.",
     },
     knownFacts: [],
     unknownFacts: [],
@@ -117,40 +117,45 @@ function extractCountHint(text: string, patterns: RegExp[]): string | null {
 }
 
 function extractDepartments(text: string): string[] {
-  const departments = [
-    "Sales",
-    "Operations",
-    "Finance",
-    "Production",
-    "Support",
-    "Purchasing",
-    "Logistics",
-    "Warehouse",
-    "Marketing",
-    "HR",
+  const departments: Array<{ label: string; pattern: RegExp }> = [
+    { label: "Ventas", pattern: /\b(sales|ventas|comercial)\b/i },
+    { label: "Operaciones", pattern: /\b(operations|operaciones)\b/i },
+    { label: "Finanzas", pattern: /\b(finance|finanzas|contabilidad)\b/i },
+    { label: "Producción", pattern: /\b(production|producción|produccion)\b/i },
+    { label: "Soporte", pattern: /\b(support|soporte|atención|atencion)\b/i },
+    { label: "Compras", pattern: /\b(purchasing|compras|procurement)\b/i },
+    { label: "Logística", pattern: /\b(logistics|logística|logistica)\b/i },
+    { label: "Almacén", pattern: /\b(warehouse|almacén|almacen|bodega)\b/i },
+    { label: "Marketing", pattern: /\bmarketing\b/i },
+    { label: "RR.HH.", pattern: /\b(hr|rr\.?hh|recursos humanos)\b/i },
   ];
-  return departments.filter((dept) =>
-    new RegExp(`\\b${dept}\\b`, "i").test(text),
-  );
+  return departments
+    .filter((dept) => dept.pattern.test(text))
+    .map((dept) => dept.label);
 }
 
 function extractRevenueStage(text: string): string | null {
-  if (/startup|early stage/i.test(text)) return "Early stage";
-  if (/growing|growth|scaling/i.test(text)) return "Growth";
-  if (/mature|established|decades/i.test(text)) return "Established";
-  if (/\$\s?\d|\bmillion\b|\brevenue\b/i.test(text)) return "Revenue discussed";
+  if (/startup|early stage|etapa temprana|recién empez|recien empez/i.test(text))
+    return "Etapa temprana";
+  if (/growing|growth|scaling|creciendo|crecimiento|escalando/i.test(text))
+    return "Crecimiento";
+  if (/mature|established|decades|consolidada|establecida|décadas|decadas/i.test(text))
+    return "Consolidada";
+  if (/\$\s?\d|\bmillion\b|\brevenue\b|ingresos|facturaci[oó]n/i.test(text))
+    return "Ingresos mencionados";
   return null;
 }
 
 function extractCompanySize(text: string): string | null {
   const employees = extractCountHint(text, [
-    /(\d{1,4})\s*(?:employees|people|staff|advisors|sellers|salespeople)/i,
-    /team of\s*(\d{1,4})/i,
+    /(\d{1,4})\s*(?:employees|people|staff|advisors|sellers|salespeople|empleados|personas|asesores|vendedores)/i,
+    /(?:team of|equipo de)\s*(\d{1,4})/i,
   ]);
-  if (employees) return `${employees} people`;
-  if (/small (company|team|business)/i.test(text)) return "Small company";
-  if (/mid[- ]?size|medium/i.test(text)) return "Mid-size";
-  if (/large|enterprise/i.test(text)) return "Large";
+  if (employees) return `${employees} personas`;
+  if (/small (company|team|business)|empresa pequeñ|equipo pequeñ/i.test(text))
+    return "Empresa pequeña";
+  if (/mid[- ]?size|medium|mediana/i.test(text)) return "Empresa mediana";
+  if (/large|enterprise|grande|corporaci/i.test(text)) return "Empresa grande";
   return null;
 }
 
@@ -261,19 +266,21 @@ export function absorbAnswerIntoMemory(
   const belief = composeIndustryBelief(quote, industry);
   const customerHint =
     extractCountHint(quote, [
-      /(\d{2,5})\s*(?:customers|clients|accounts)/i,
+      /(\d{2,5})\s*(?:customers|clients|accounts|clientes|cuentas)/i,
     ]) ?? memory.summary.customerCountHint;
   const teamHint =
     extractCountHint(quote, [
-      /(\d{1,4})\s*(?:advisors|sellers|salespeople|reps|employees|people)/i,
+      /(\d{1,4})\s*(?:advisors|sellers|salespeople|reps|employees|people|asesores|vendedores|empleados|personas)/i,
     ]) ??
     extractCompanySize(quote) ??
     memory.summary.teamHint;
   const geographyHint =
     extractCountHint(quote, [
-      /(\d{1,3})\s*(?:cities|regions|states|countries|branches|locations)/i,
+      /(\d{1,3})\s*(?:cities|regions|states|countries|branches|locations|ciudades|regiones|estados|países|paises|sucursales|ubicaciones)/i,
     ]) ??
-    (/nationwide|national|local|regional|international/i.exec(quote)?.[0] ??
+    (/nationwide|national|local|regional|international|nacional|internacional|todo el país|todo el pais/i.exec(
+      quote,
+    )?.[0] ??
       memory.summary.geographyHint);
   const companySize = extractCompanySize(quote) ?? memory.summary.companySize;
   const revenueStage =
@@ -424,37 +431,29 @@ export function absorbAnswerIntoMemory(
   // Queue dig-deeper follow-ups when triggers appear — never continue past them.
   nextMemory = enqueueFollowUps(nextMemory, quote);
 
+  nextMemory = applyDiscoveryScore(nextMemory);
   nextMemory = {
     ...nextMemory,
-    score: computeDiscoveryScore(nextMemory),
-  };
-  nextMemory = {
-    ...nextMemory,
-    summary: {
-      ...nextMemory.summary,
-      confidenceScore: nextMemory.score.overall,
-      missingInformation: nextMemory.score.stillNeed,
-    },
     whiteboard: buildWhiteboard(nextMemory),
     unknownFacts: nextMemory.score.dimensions
-      .filter((d) => !d.covered)
+      .filter((d) => d.applicable !== false && !d.covered)
       .map((d) => ({
         id: `unknown_${d.id}`,
         key: d.id,
         label: d.label,
         priority: 100 - d.confidence,
         dimension: d.id,
-        reason: `Still need clearer understanding of ${d.label}.`,
+        reason: `Aún falta claridad sobre ${d.label}.`,
       })),
     questionsRemaining: nextMemory.score.dimensions
-      .filter((d) => !d.covered)
+      .filter((d) => d.applicable !== false && !d.covered)
       .map((d) => ({
         id: `remaining_${d.id}`,
         key: d.id,
         label: d.label,
         priority: 100 - d.confidence,
         dimension: d.id,
-        reason: `Priority unknown: ${d.label}`,
+        reason: `Prioridad pendiente: ${d.label}`,
       })),
   };
 
@@ -471,35 +470,35 @@ function enqueueFollowUps(
   const excelFollowUps = [
     {
       key: "excel_how_many",
-      prompt: "How many Excel files are actually in active use?",
+      prompt: "¿Cuántos archivos de Excel están en uso activo realmente?",
       priority: 98,
       dimension: "systems" as const,
       followUpOf: "excel",
     },
     {
       key: "excel_owners",
-      prompt: "Who owns those spreadsheets?",
+      prompt: "¿Quién es dueño de esas hojas de cálculo?",
       priority: 97,
       dimension: "systems" as const,
       followUpOf: "excel",
     },
     {
       key: "excel_deleted",
-      prompt: "What would happen if those Excel files were deleted tomorrow?",
+      prompt: "¿Qué pasaría si mañana se borraran esos archivos de Excel?",
       priority: 96,
       dimension: "systems" as const,
       followUpOf: "excel",
     },
     {
       key: "excel_editors",
-      prompt: "How many people edit them?",
+      prompt: "¿Cuántas personas los editan?",
       priority: 95,
       dimension: "systems" as const,
       followUpOf: "excel",
     },
     {
       key: "excel_versions",
-      prompt: "Do different versions of the same file exist?",
+      prompt: "¿Existen distintas versiones del mismo archivo?",
       priority: 94,
       dimension: "team" as const,
       followUpOf: "excel",
@@ -509,35 +508,35 @@ function enqueueFollowUps(
   const whatsappFollowUps = [
     {
       key: "wa_numbers",
-      prompt: "How many corporate WhatsApp numbers do you use?",
+      prompt: "¿Cuántos números corporativos de WhatsApp usan?",
       priority: 98,
       dimension: "systems" as const,
       followUpOf: "whatsapp",
     },
     {
       key: "wa_who_answers",
-      prompt: "Who answers those conversations?",
+      prompt: "¿Quién responde esas conversaciones?",
       priority: 97,
       dimension: "customers" as const,
       followUpOf: "whatsapp",
     },
     {
       key: "wa_assignment",
-      prompt: "How are conversations assigned across the team?",
+      prompt: "¿Cómo se asignan las conversaciones en el equipo?",
       priority: 96,
       dimension: "sales" as const,
       followUpOf: "whatsapp",
     },
     {
       key: "wa_departure",
-      prompt: "What happens to history when someone leaves?",
+      prompt: "¿Qué pasa con el historial cuando alguien se va?",
       priority: 95,
       dimension: "customers" as const,
       followUpOf: "whatsapp",
     },
     {
       key: "wa_search",
-      prompt: "How do you search old conversations today?",
+      prompt: "¿Cómo buscan hoy conversaciones antiguas?",
       priority: 94,
       dimension: "systems" as const,
       followUpOf: "whatsapp",
@@ -547,14 +546,15 @@ function enqueueFollowUps(
   const paperFollowUps = [
     {
       key: "paper_why",
-      prompt: "Why does paper still play a role — legal, habit, or offline necessity?",
+      prompt:
+        "¿Por qué el papel sigue presente — requisito legal, costumbre o necesidad offline?",
       priority: 98,
       dimension: "operations" as const,
       followUpOf: "paper",
     },
     {
       key: "paper_where",
-      prompt: "Where does paper enter the process, and where does it stop?",
+      prompt: "¿Dónde entra el papel al proceso y dónde deja de usarse?",
       priority: 96,
       dimension: "operations" as const,
       followUpOf: "paper",

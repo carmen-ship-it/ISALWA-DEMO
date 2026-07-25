@@ -13,41 +13,17 @@ import type {
 } from "@/types";
 import {
   createSeedBundle,
-  createSeedWorkspaces,
   type WorkspaceBundle,
 } from "@/lib/workspace/seed";
+import { isSupabaseConfigured } from "@/lib/auth/config";
 import {
-  createSeedKnowledge,
-  emptyWorkspaceKnowledge,
-  ensureWorkspaceKnowledge,
-  knowledgeTimelineEvents,
-} from "@/lib/knowledge";
-import {
-  blueprintTimelineEvent,
-  createSeedBlueprints,
-  emptyBlueprints,
-  ensureBlueprints,
-  ensureCurrentBlueprintId,
-  latestBlueprint,
-} from "@/lib/blueprint";
-import { deriveSolutionArchitecture } from "@/lib/solution";
-import { deriveBusinessProcesses } from "@/lib/processes";
-import { buildDeliverablesPackage } from "@/lib/deliverables";
-import { deriveBrandExperience } from "@/lib/brand";
-import { createId } from "@/lib/utils";
-import {
-  PILOT_COMPANY_NAME,
-  PILOT_COMPANY_WORKSPACE_ID,
-} from "@/lib/auth/constants";
+  migrateBundle,
+  WORKSPACE_STORAGE_KEY,
+} from "@/lib/repositories/migrate";
+import { SupabaseCompanyMemoryStore } from "@/lib/repositories/supabase-store";
 
-export const WORKSPACE_STORAGE_KEY = "isalwa.architect.company_memory.v1";
-
-/** Legacy placeholder companies that must never reach the pilot UI. */
-const REMOVED_DEMO_WORKSPACE_IDS = new Set([
-  "ws_acme",
-  "ws_viaggio",
-  "ws_abc",
-]);
+export { WORKSPACE_STORAGE_KEY, migrateBundle } from "@/lib/repositories/migrate";
+export { SupabaseCompanyMemoryStore } from "@/lib/repositories/supabase-store";
 
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -65,221 +41,6 @@ function readBundle(storage: StorageLike | null): WorkspaceBundle | null {
 function writeBundle(storage: StorageLike | null, bundle: WorkspaceBundle): void {
   if (!storage) return;
   storage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(bundle));
-}
-
-/** Drop placeholder tenants and ensure the pilot ISALWA workspace exists. */
-function purgeDemoWorkspaces(bundle: WorkspaceBundle): WorkspaceBundle {
-  const workspaces = bundle.workspaces
-    .filter((workspace) => !REMOVED_DEMO_WORKSPACE_IDS.has(workspace.id))
-    .map((workspace) =>
-      workspace.id === PILOT_COMPANY_WORKSPACE_ID
-        ? { ...workspace, companyName: PILOT_COMPANY_NAME }
-        : workspace,
-    );
-
-  const hasPilot = workspaces.some(
-    (workspace) => workspace.id === PILOT_COMPANY_WORKSPACE_ID,
-  );
-
-  return {
-    ...bundle,
-    workspaces: hasPilot
-      ? workspaces
-      : [...createSeedWorkspaces(), ...workspaces],
-  };
-}
-
-/** Mission 3+4+6+7+9+10 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand. */
-function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
-  const purged = purgeDemoWorkspaces(bundle);
-  return {
-    ...purged,
-    workspaces: purged.workspaces.map((workspace) => {
-      let next: CompanyWorkspace = {
-        ...workspace,
-        solutionArchitecture: workspace.solutionArchitecture ?? null,
-        businessProcesses: workspace.businessProcesses ?? null,
-        deliverables: workspace.deliverables ?? null,
-        brandExperience: workspace.brandExperience ?? null,
-      };
-
-      if (!next.knowledge?.assets) {
-        const knowledge =
-          next.id.startsWith("ws_")
-            ? createSeedKnowledge(next.id)
-            : emptyWorkspaceKnowledge();
-        const knowledgeEvents = knowledgeTimelineEvents(next.id, knowledge);
-        const existingIds = new Set(next.timeline.map((e) => e.title));
-        next = {
-          ...next,
-          knowledge,
-          timeline: [
-            ...knowledgeEvents.filter((e) => !existingIds.has(e.title)),
-            ...next.timeline,
-          ].sort((a, b) => b.date.localeCompare(a.date)),
-        };
-      } else {
-        next = {
-          ...next,
-          knowledge: ensureWorkspaceKnowledge(next.knowledge),
-        };
-      }
-
-      const blueprints = ensureBlueprints(next.blueprints);
-      if (blueprints.length === 0) {
-        const seeded = createSeedBlueprints({
-          ...next,
-          blueprints: emptyBlueprints(),
-          currentBlueprintId: null,
-          solutionArchitecture: null,
-          businessProcesses: null,
-          brandExperience: null,
-          deliverables: null,
-        });
-        const existingTitles = new Set(next.timeline.map((e) => e.title));
-        const blueprintEvents = seeded
-          .map(blueprintTimelineEvent)
-          .filter((e) => !existingTitles.has(e.title));
-        next = {
-          ...next,
-          blueprints: seeded,
-          currentBlueprintId: seeded[0]?.id ?? null,
-          timeline: [...blueprintEvents, ...next.timeline].sort((a, b) =>
-            b.date.localeCompare(a.date),
-          ),
-        };
-      } else {
-        next = {
-          ...next,
-          blueprints,
-          currentBlueprintId: ensureCurrentBlueprintId({
-            blueprints,
-            currentBlueprintId: next.currentBlueprintId ?? null,
-          }),
-        };
-      }
-
-      const current = latestBlueprint(next.blueprints);
-      if (
-        current &&
-        (!next.solutionArchitecture ||
-          next.solutionArchitecture.blueprintId !== current.id)
-      ) {
-        const solutionArchitecture = deriveSolutionArchitecture({
-          workspace: next,
-          blueprint: current,
-        });
-        const existingTitles = new Set(next.timeline.map((e) => e.title));
-        const title = `Solution Architecture · Blueprint v${solutionArchitecture.blueprintVersion}`;
-        next = {
-          ...next,
-          solutionArchitecture,
-          timeline: existingTitles.has(title)
-            ? next.timeline
-            : [
-                {
-                  id: createId("timeline"),
-                  workspaceId: next.id,
-                  date: solutionArchitecture.generatedAt,
-                  title,
-                  description: solutionArchitecture.summary,
-                  category: "solution" as const,
-                },
-                ...next.timeline,
-              ].sort((a, b) => b.date.localeCompare(a.date)),
-        };
-      }
-
-      if (
-        current &&
-        (!next.businessProcesses ||
-          next.businessProcesses.blueprintId !== current.id)
-      ) {
-        const businessProcesses = deriveBusinessProcesses({
-          workspace: next,
-          blueprint: current,
-        });
-        const existingTitles = new Set(next.timeline.map((e) => e.title));
-        const title = `Business Processes · Blueprint v${businessProcesses.blueprintVersion}`;
-        next = {
-          ...next,
-          businessProcesses,
-          timeline: existingTitles.has(title)
-            ? next.timeline
-            : [
-                {
-                  id: createId("timeline"),
-                  workspaceId: next.id,
-                  date: businessProcesses.generatedAt,
-                  title,
-                  description: businessProcesses.summary,
-                  category: "process" as const,
-                },
-                ...next.timeline,
-              ].sort((a, b) => b.date.localeCompare(a.date)),
-        };
-      }
-
-      if (
-        current &&
-        (!next.deliverables ||
-          next.deliverables.blueprintId !== current.id)
-      ) {
-        const deliverables = buildDeliverablesPackage(next);
-        const existingTitles = new Set(next.timeline.map((e) => e.title));
-        const title = `Deliverables · Blueprint v${deliverables.blueprintVersion ?? current.version}`;
-        next = {
-          ...next,
-          deliverables,
-          timeline: existingTitles.has(title)
-            ? next.timeline
-            : [
-                {
-                  id: createId("timeline"),
-                  workspaceId: next.id,
-                  date: deliverables.generatedAt,
-                  title,
-                  description: deliverables.summary,
-                  category: "deliverable" as const,
-                },
-                ...next.timeline,
-              ].sort((a, b) => b.date.localeCompare(a.date)),
-        };
-      }
-
-      if (
-        current &&
-        (!next.brandExperience ||
-          next.brandExperience.blueprintId !== current.id)
-      ) {
-        const brandExperience = deriveBrandExperience({
-          workspace: next,
-          blueprint: current,
-        });
-        const existingTitles = new Set(next.timeline.map((e) => e.title));
-        const title = `Brand & Experience · Blueprint v${brandExperience.blueprintVersion}`;
-        next = {
-          ...next,
-          brandExperience,
-          timeline: existingTitles.has(title)
-            ? next.timeline
-            : [
-                {
-                  id: createId("timeline"),
-                  workspaceId: next.id,
-                  date: brandExperience.generatedAt,
-                  title,
-                  description: brandExperience.summary,
-                  category: "brand" as const,
-                },
-                ...next.timeline,
-              ].sort((a, b) => b.date.localeCompare(a.date)),
-        };
-      }
-
-      return next;
-    }),
-  };
 }
 
 class MemoryWorkspaceRepository implements WorkspaceRepository {
@@ -559,65 +320,23 @@ export class MemoryCompanyMemoryStore implements CompanyMemoryStore {
   }
 }
 
-/**
- * @future Supabase — same CompanyMemoryStore shape.
- * Designed, not implemented in Mission 2.
- */
-export class SupabaseCompanyMemoryStore implements CompanyMemoryStore {
-  readonly provider = "supabase" as const;
-  readonly workspaces: WorkspaceRepository;
-  readonly meetings: MeetingRepository;
-  readonly people: PersonRepository;
-  readonly documents: DocumentRepository;
-  readonly conversations: ConversationRepository;
 
-  constructor() {
-    const reject = async (): Promise<never> => {
-      throw new Error("Supabase company memory is not implemented in Mission 2.");
-    };
-    this.workspaces = {
-      get: reject,
-      save: reject,
-      list: reject,
-      delete: reject,
-    };
-    this.meetings = {
-      get: reject,
-      listByWorkspace: reject,
-      save: reject,
-      delete: reject,
-    };
-    this.people = {
-      get: reject,
-      listByWorkspace: reject,
-      save: reject,
-      upsertByName: reject,
-      delete: reject,
-    };
-    this.documents = {
-      get: reject,
-      listByWorkspace: reject,
-      save: reject,
-      delete: reject,
-    };
-    this.conversations = {
-      get: reject,
-      getByWorkspace: reject,
-      save: reject,
-      delete: reject,
-    };
-  }
-}
+/** Client singleton — Supabase when configured, else localStorage. */
+let clientStore: CompanyMemoryStore | null = null;
 
-/** Client singleton helpers — browser only. */
-let clientStore: LocalCompanyMemoryStore | null = null;
-
-export function getClientCompanyMemoryStore(): LocalCompanyMemoryStore {
+export function getClientCompanyMemoryStore(): CompanyMemoryStore {
   if (typeof window === "undefined") {
+    // SSR/server helpers — ephemeral memory seed (no browser storage).
+    if (isSupabaseConfigured()) {
+      // Server components should not touch company memory; return empty local.
+      return new LocalCompanyMemoryStore(null, false);
+    }
     return new LocalCompanyMemoryStore(null, true);
   }
   if (!clientStore) {
-    clientStore = new LocalCompanyMemoryStore(window.localStorage, true);
+    clientStore = isSupabaseConfigured()
+      ? new SupabaseCompanyMemoryStore()
+      : new LocalCompanyMemoryStore(window.localStorage, true);
   }
   return clientStore;
 }

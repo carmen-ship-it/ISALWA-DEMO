@@ -13,80 +13,130 @@ interface SignalRule {
 const SIGNAL_RULES: SignalRule[] = [
   {
     id: "excel",
-    label: "Spreadsheet dependency",
+    label: "Dependencia de hojas de cálculo",
     category: "spreadsheet",
-    patterns: [/\bexcel\b/i, /\bspreadsheet/i, /\bgoogle sheets?\b/i],
+    patterns: [
+      /\bexcel\b/i,
+      /\bspreadsheet/i,
+      /\bgoogle sheets?\b/i,
+      /\bhojas?\s+de\s+c[aá]lculo/i,
+    ],
   },
   {
     id: "whatsapp",
-    label: "Messaging as workflow",
+    label: "Mensajería como flujo de trabajo",
     category: "messaging",
     patterns: [/\bwhatsapp\b/i, /\btelegram\b/i, /\btext message/i, /\bsms\b/i],
   },
   {
     id: "paper",
-    label: "Paper-based process",
+    label: "Proceso en papel",
     category: "paper",
-    patterns: [/\bpaper\b/i, /\bprint(ed|out)?\b/i, /\bhandwritten\b/i],
+    patterns: [
+      /\bpaper\b/i,
+      /\bpapel\b/i,
+      /\bprint(ed|out)?\b/i,
+      /\bimpres/i,
+      /\bhandwritten\b/i,
+      /\ba\s+mano\b/i,
+    ],
   },
   {
     id: "duplicate",
-    label: "Duplicate data entry",
+    label: "Captura duplicada de datos",
     category: "duplicate_work",
     patterns: [
       /\btwice\b/i,
+      /\bdos veces\b/i,
       /\bre-?enter/i,
+      /\bvolver a capturar\b/i,
       /\bduplicate/i,
+      /\bduplicad/i,
       /\bsame information\b/i,
+      /\bla misma informaci/i,
     ],
   },
   {
     id: "manual",
-    label: "Manual work",
+    label: "Trabajo manual",
     category: "manual_work",
-    patterns: [/\bmanual(ly)?\b/i, /\bby hand\b/i],
+    patterns: [/\bmanual(ly|mente)?\b/i, /\bby hand\b/i, /\ba\s+mano\b/i],
   },
   {
     id: "approvals",
-    label: "Approval bottleneck",
+    label: "Cuello de botella en aprobaciones",
     category: "approvals",
-    patterns: [/\bapprov/i, /\bone person\b/i, /\bwaiting on\b/i],
+    patterns: [
+      /\bapprov/i,
+      /\baprobaci/i,
+      /\bone person\b/i,
+      /\buna sola persona\b/i,
+      /\bwaiting on\b/i,
+      /\besperando (a|por)\b/i,
+    ],
   },
   {
     id: "visibility",
-    label: "Missing visibility",
+    label: "Falta de visibilidad",
     category: "visibility",
     patterns: [
       /\bdon'?t know\b/i,
+      /\bno s[eé]\b/i,
       /\bno (one )?can see\b/i,
+      /\bnadie (lo )?ve\b/i,
       /\bvisibility\b/i,
+      /\bvisibilidad\b/i,
       /\blost\b/i,
-      /\bno (central|shared) (history|record)/i,
+      /\bse pierde\b/i,
+      /\bno (central|shared|centralizad|compartid) (history|record|historial|registro)/i,
     ],
   },
   {
     id: "reports",
-    label: "Manual reporting",
+    label: "Reportes manuales",
     category: "reporting",
-    patterns: [/\breport/i, /\bend of (the )?month\b/i],
+    patterns: [
+      /\breport/i,
+      /\breporte?s?\b/i,
+      /\bend of (the )?month\b/i,
+      /\bfin de mes\b/i,
+    ],
   },
   {
     id: "phone",
-    label: "Phone-driven coordination",
+    label: "Coordinación por teléfono",
     category: "phone",
-    patterns: [/\bphone\b/i, /\bcall(s|ing)?\b/i],
+    patterns: [
+      /\bphone\b/i,
+      /\btel[eé]fono\b/i,
+      /\bcall(s|ing)?\b/i,
+      /\bllamad/i,
+    ],
   },
   {
     id: "repeated",
-    label: "Repeated work",
+    label: "Trabajo repetido",
     category: "repeated_work",
-    patterns: [/\brepeat/i, /\brework\b/i, /\bstart over\b/i],
+    patterns: [
+      /\brepeat/i,
+      /\brepite/i,
+      /\brework\b/i,
+      /\bretrabajo\b/i,
+      /\bstart over\b/i,
+      /\bempezar de nuevo\b/i,
+    ],
   },
   {
     id: "email",
-    label: "Email as system of record",
+    label: "Correo como sistema de registro",
     category: "tool",
-    patterns: [/\bemail\b/i, /\binbox\b/i, /\boutlook\b/i],
+    patterns: [
+      /\bemail\b/i,
+      /\bcorreo\b/i,
+      /\binbox\b/i,
+      /\bbandeja\b/i,
+      /\boutlook\b/i,
+    ],
   },
 ];
 
@@ -152,10 +202,14 @@ export function mentionsTrigger(
   trigger: "excel" | "whatsapp" | "paper",
 ): boolean {
   if (trigger === "excel") {
-    return /\bexcel\b|\bspreadsheet|\bgoogle sheets?\b/i.test(text);
+    return /\bexcel\b|\bspreadsheet|\bgoogle sheets?\b|\bhojas?\s+de\s+c[aá]lculo/i.test(
+      text,
+    );
   }
   if (trigger === "whatsapp") {
     return /\bwhatsapp\b/i.test(text);
   }
-  return /\bpaper\b|\bhandwritten\b|\bprint(ed|out)?\b/i.test(text);
+  return /\bpaper\b|\bpapel\b|\bhandwritten\b|\ba\s+mano\b|\bprint(ed|out)?\b|\bimpres/i.test(
+    text,
+  );
 }

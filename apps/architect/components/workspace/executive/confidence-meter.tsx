@@ -9,7 +9,7 @@ import {
 
 export function ConfidenceMeter({
   value,
-  label = "Business understanding",
+  label = "Entendimiento del negocio",
 }: {
   value: number;
   label?: string;
@@ -26,7 +26,12 @@ export function ConfidenceMeter({
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
           {label}
         </p>
-        <p className="architect-serif text-3xl text-neutral-950">{level}</p>
+        <p className="architect-serif text-3xl text-neutral-950">
+          {level}
+          <span className="ml-2 text-lg font-sans text-neutral-400">
+            · {clamped}%
+          </span>
+        </p>
       </div>
       <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-neutral-200/80">
         <motion.div

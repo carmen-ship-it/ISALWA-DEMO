@@ -10,142 +10,142 @@ import type {
 const CATALOG: QuestionCandidate[] = [
   {
     key: "sales_motion",
-    prompt: "How do sales currently work, from first contact to closed order?",
+    prompt: "¿Cómo funcionan hoy las ventas, del primer contacto al pedido cerrado?",
     kind: "long_text",
     dimension: "sales",
     priority: 90,
-    reason: "Sales motion is unknown.",
-    placeholder: "Walk me through a typical sale…",
+    reason: "Aún no conocemos cómo venden.",
+    placeholder: "Cuénteme una venta típica…",
   },
   {
     key: "customer_contact",
-    prompt: "How do customers contact you day to day?",
+    prompt: "¿Cómo lo contactan los clientes día a día?",
     kind: "long_text",
     dimension: "customers",
     priority: 88,
-    reason: "Customer contact channels are unknown.",
+    reason: "Aún no conocemos los canales de contacto.",
   },
   {
     key: "customer_count",
-    prompt: "Roughly how many active customers do you serve?",
+    prompt: "¿Cuántos clientes activos atienden, aproximadamente?",
     kind: "text",
     dimension: "customers",
     priority: 84,
-    reason: "Customer scale is unknown.",
+    reason: "Aún no conocemos la escala de clientes.",
   },
   {
     key: "geography",
-    prompt: "Where do you operate — cities, regions, or countries?",
+    prompt: "¿Dónde operan — ciudades, regiones o países?",
     kind: "text",
     dimension: "geography",
     priority: 82,
-    reason: "Geography is unknown.",
+    reason: "Aún no conocemos la geografía.",
   },
   {
     key: "team_structure",
-    prompt: "How is the commercial or operating team structured today?",
+    prompt: "¿Cómo está estructurado hoy el equipo comercial u operativo?",
     kind: "long_text",
     dimension: "team",
     priority: 86,
-    reason: "Team structure is unknown.",
-    placeholder: "Roles, headcount, who owns what…",
+    reason: "Aún no conocemos la estructura del equipo.",
+    placeholder: "Roles, tamaño del equipo, quién responde por qué…",
   },
   {
     key: "order_intake",
-    prompt: "How do you receive orders?",
+    prompt: "¿Cómo reciben los pedidos?",
     kind: "long_text",
     dimension: "operations",
     priority: 87,
-    reason: "Order intake is unknown.",
+    reason: "Aún no conocemos la recepción de pedidos.",
   },
   {
     key: "bottlenecks",
-    prompt: "What slows people down the most in a normal week?",
+    prompt: "¿Qué es lo que más frena al equipo en una semana normal?",
     kind: "long_text",
     dimension: "operations",
     priority: 85,
-    reason: "Operational bottlenecks are unknown.",
+    reason: "Aún no conocemos los cuellos de botella.",
   },
   {
     key: "finance_process",
-    prompt: "How do invoicing, collections, and financial approvals work today?",
+    prompt: "¿Cómo funcionan hoy la facturación, el cobro y las aprobaciones financieras?",
     kind: "long_text",
     dimension: "finance",
     priority: 80,
-    reason: "Finance process is unknown.",
+    reason: "Aún no conocemos el proceso financiero.",
   },
   {
     key: "approvals",
-    prompt: "Where do approvals get stuck, and who must say yes?",
+    prompt: "¿Dónde se traban las aprobaciones y quién debe decir que sí?",
     kind: "long_text",
     dimension: "finance",
     priority: 81,
-    reason: "Approval ownership is unknown.",
+    reason: "Aún no conocemos quién aprueba.",
   },
   {
     key: "production_planning",
-    prompt: "How does production planning work today?",
+    prompt: "¿Cómo funciona hoy la planificación de producción?",
     kind: "long_text",
     dimension: "production",
     priority: 89,
-    reason: "Production planning is unknown.",
+    reason: "Aún no conocemos la planificación de producción.",
   },
   {
     key: "inventory_flow",
-    prompt: "How does inventory flow from purchase to fulfillment?",
+    prompt: "¿Cómo fluye el inventario desde la compra hasta la entrega?",
     kind: "long_text",
     dimension: "operations",
     priority: 91,
-    reason: "Inventory flow is unknown.",
+    reason: "Aún no conocemos el flujo de inventario.",
   },
   {
     key: "purchasing_approvals",
-    prompt: "How do purchasing approvals work?",
+    prompt: "¿Cómo funcionan las aprobaciones de compra?",
     kind: "long_text",
     dimension: "finance",
     priority: 88,
-    reason: "Purchasing approvals are unknown.",
+    reason: "Aún no conocemos las aprobaciones de compra.",
   },
   {
     key: "current_software",
-    prompt: "What software do you currently use to run the business?",
+    prompt: "¿Qué software usan hoy para operar el negocio?",
     kind: "long_text",
     dimension: "systems",
     priority: 83,
-    reason: "Current systems are unknown.",
+    reason: "Aún no conocemos los sistemas actuales.",
   },
   {
     key: "information_storage",
-    prompt: "Where is important information stored today?",
+    prompt: "¿Dónde se guarda hoy la información importante?",
     kind: "long_text",
     dimension: "systems",
     priority: 84,
-    reason: "System of record is unknown.",
+    reason: "Aún no conocemos el sistema de registro.",
   },
   {
     key: "mistakes",
-    prompt: "What causes mistakes most often?",
+    prompt: "¿Qué causa errores con más frecuencia?",
     kind: "long_text",
     dimension: "operations",
     priority: 79,
-    reason: "Error sources are unknown.",
+    reason: "Aún no conocemos las fuentes de error.",
   },
   {
     key: "one_fix",
-    prompt: "If you could fix one thing next week, what would it be?",
+    prompt: "Si pudieran arreglar una sola cosa la próxima semana, ¿qué sería?",
     kind: "long_text",
     dimension: "operations",
     priority: 70,
-    reason: "Priority improvement is unknown.",
+    reason: "Aún no conocemos la mejora prioritaria.",
   },
   {
     key: "disappearance_test",
     prompt:
-      "If your most important tool or process disappeared tomorrow, what would happen?",
+      "Si mañana desapareciera su herramienta o proceso más importante, ¿qué pasaría?",
     kind: "long_text",
     dimension: "systems",
     priority: 72,
-    reason: "Critical dependency is unknown.",
+    reason: "Aún no conocemos la dependencia crítica.",
   },
 ];
 
@@ -157,27 +157,27 @@ function industryCandidates(memory: ConversationMemory): QuestionCandidate[] {
     extras.push(
       {
         key: "inventory_flow",
-        prompt: "How does inventory flow from purchase to fulfillment?",
+        prompt: "¿Cómo fluye el inventario desde la compra hasta la entrega?",
         kind: "long_text",
         dimension: "operations",
         priority: 93,
-        reason: "Inventory flow is critical for this industry.",
+        reason: "El flujo de inventario es crítico en esta industria.",
       },
       {
         key: "purchasing_approvals",
-        prompt: "How do purchasing approvals work?",
+        prompt: "¿Cómo funcionan las aprobaciones de compra?",
         kind: "long_text",
         dimension: "finance",
         priority: 92,
-        reason: "Purchasing approvals are critical for this industry.",
+        reason: "Las aprobaciones de compra son críticas en esta industria.",
       },
       {
         key: "production_planning",
-        prompt: "How does production or replenishment planning work?",
+        prompt: "¿Cómo funciona la planificación de producción o reposición?",
         kind: "long_text",
         dimension: "production",
         priority: 92,
-        reason: "Planning is critical for this industry.",
+        reason: "La planificación es crítica en esta industria.",
       },
     );
   }
@@ -191,7 +191,7 @@ function industryCandidates(memory: ConversationMemory): QuestionCandidate[] {
         kind: "long_text",
         dimension: index === 0 ? "sales" : "operations",
         priority: 86 - index,
-        reason: `Industry lens for ${profile.label}.`,
+        reason: `Enfoque de industria: ${profile.label}.`,
       });
     });
   }
@@ -214,9 +214,11 @@ export function planNextQuestion(
     return candidateToQuestion(followUp);
   }
 
-  // 2) Unknown dimensions first
+  // 2) Unknown applicable dimensions first
   const uncovered = memory.score.dimensions
-    .filter((dimension) => !dimension.covered)
+    .filter(
+      (dimension) => dimension.applicable !== false && !dimension.covered,
+    )
     .sort((a, b) => a.confidence - b.confidence);
 
   const pool = [...industryCandidates(memory), ...CATALOG]
@@ -242,7 +244,7 @@ function candidateToQuestion(candidate: QuestionCandidate): Question {
     questionKey: candidate.key,
     dimension: candidate.dimension as DiscoveryDimension,
     priority: candidate.priority,
-    placeholder: candidate.placeholder ?? "Share what is true in practice…",
+    placeholder: candidate.placeholder ?? "Cuéntenos cómo es en la práctica…",
     helpText: candidate.reason,
   };
 }
@@ -269,11 +271,11 @@ export function formatThinkingPreamble(memory: ConversationMemory): string {
   const lines = [
     memory.summary.belief,
     "",
-    `Confidence: ${confidence}%`,
+    `Estimación basada en la entrevista: ${confidence}%`,
   ];
 
   if (still.length > 0) {
-    lines.push("", "Still need:", ...still.map((item) => `• ${item}`));
+    lines.push("", "Aún necesitamos:", ...still.map((item) => `• ${item}`));
   }
 
   return lines.join("\n");

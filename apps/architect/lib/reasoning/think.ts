@@ -94,7 +94,7 @@ export function think(
 
   if (shouldConclude) {
     const preamble = formatThinkingPreamble(memory);
-    const message = `${preamble}\n\nI have enough confidence to draft the blueprint. Give me a moment to synthesize.`;
+    const message = `${preamble}\n\nYa tengo suficiente comprensión para redactar el blueprint. Déme un momento para sintetizar.`;
 
     const nextInterview: Interview = {
       ...interview,
@@ -143,7 +143,7 @@ export function think(
 
   const message = nextQuestion
     ? `${preamble}\n\n${nextQuestion.prompt}`
-    : `${preamble}\n\nI have enough to draft the first blueprint.`;
+    : `${preamble}\n\nYa tengo suficiente para redactar el primer blueprint.`;
 
   const nextInterview: Interview = {
     ...interview,

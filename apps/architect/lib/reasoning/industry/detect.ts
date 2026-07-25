@@ -59,21 +59,21 @@ export function composeIndustryBelief(
 
   if (hasManufacturing && hasDistribution) {
     return {
-      belief: "I believe they are a manufacturing distributor.",
+      belief: "Creo que operan como fabricante-distribuidor.",
       confidence: 0.74,
     };
   }
 
   if (primary === "unknown") {
     return {
-      belief: "I am still forming a view of what kind of company this is.",
+      belief: "Todavía estamos formando una idea del tipo de empresa que es.",
       confidence: 0.35,
     };
   }
 
   const label = industryLabel(primary).toLowerCase();
   return {
-    belief: `I believe they operate primarily as a ${label} business.`,
+    belief: `Creo que operan principalmente como un negocio de ${label}.`,
     confidence: 0.62,
   };
 }

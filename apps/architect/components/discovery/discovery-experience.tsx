@@ -14,7 +14,7 @@ import { TypingIndicator } from "@/components/shared/typing-indicator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { applyInterviewToWorkspace } from "@/lib/memory";
-import { createLocalInterviewPersistence } from "@/lib/persistence";
+import { createClientInterviewPersistence } from "@/lib/persistence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { emptyConsultingIntelligence, emptyConsultingWhiteboardFields } from "@/lib/consulting";
 import { createEmptyMemory } from "@/lib/reasoning";
@@ -82,11 +82,7 @@ export function DiscoveryExperience() {
 
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const persistence = useMemo(
-    () =>
-      createLocalInterviewPersistence(
-        typeof window !== "undefined" ? window.localStorage : null,
-        workspaceId,
-      ),
+    () => createClientInterviewPersistence(workspaceId),
     [workspaceId],
   );
 
@@ -107,7 +103,7 @@ export function DiscoveryExperience() {
       if (cancelled) return;
       setWorkspace(ws);
 
-      const existing = persistence.load();
+      const existing = await persistence.load();
       if (
         existing &&
         existing.phase !== "complete" &&
@@ -123,7 +119,7 @@ export function DiscoveryExperience() {
           : "begin";
       const fresh = createWorkspaceInterview(ws, mode);
       setInterview(fresh);
-      persistence.save(fresh);
+      await persistence.save(fresh);
 
       await store.workspaces.save({
         ...ws,
@@ -140,7 +136,7 @@ export function DiscoveryExperience() {
 
   useEffect(() => {
     if (!interview || interview.phase === "complete") return;
-    persistence.save(interview);
+    void persistence.save(interview);
   }, [interview, persistence]);
 
   useEffect(() => {
@@ -161,7 +157,7 @@ export function DiscoveryExperience() {
       );
       await store.workspaces.save(next);
       await store.conversations.save(conversation);
-      persistence.clear();
+      await persistence.clear();
       setPersistedComplete(true);
       setWorkspace(next);
       router.push(`/workspace/${next.id}?completed=1`);
@@ -227,16 +223,16 @@ export function DiscoveryExperience() {
     <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 py-8 sm:px-10">
       <BackLink
         href={`/workspace/${workspace.id}`}
-        label="Volver al workspace"
+        label="Volver al espacio de trabajo"
         className="mb-6"
       />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
-            Interview · {workspace.companyName}
+            Entrevista · {workspace.companyName}
           </p>
           <p className="mt-1 text-sm text-neutral-500">
-            ~{interview.estimatedMinutesRemaining} min remaining
+            ~{interview.estimatedMinutesRemaining} min restantes
           </p>
         </div>
         <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -262,7 +258,7 @@ export function DiscoveryExperience() {
             >
               <Card className="px-7 py-8 sm:px-10 sm:py-10">
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-                  Architect
+                  Arquitecto
                 </p>
                 <div className="prose-architect mt-5 text-lg leading-relaxed text-neutral-900 sm:text-xl">
                   {latestArchitect?.content}
@@ -270,7 +266,7 @@ export function DiscoveryExperience() {
                 {thinking || isPending || interview.phase === "synthesizing" ? (
                   <div className="mt-8 flex items-center gap-3 text-sm text-neutral-500">
                     <TypingIndicator />
-                    <span>Updating working memory…</span>
+                    <span>Actualizando la comprensión…</span>
                   </div>
                 ) : null}
               </Card>
@@ -312,7 +308,9 @@ export function DiscoveryExperience() {
                     <textarea
                       value={draft}
                       onChange={(event) => setDraft(event.target.value)}
-                      placeholder={question.placeholder ?? "Share what is true…"}
+                      placeholder={
+                        question.placeholder ?? "Cuéntenos cómo es en la práctica…"
+                      }
                       rows={5}
                       className="w-full resize-none rounded-3xl border border-neutral-200 bg-white px-5 py-4 text-base leading-relaxed text-neutral-900 shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-neutral-400"
                     />
@@ -320,12 +318,12 @@ export function DiscoveryExperience() {
                     <input
                       value={draft}
                       onChange={(event) => setDraft(event.target.value)}
-                      placeholder={question.placeholder ?? "Your answer"}
+                      placeholder={question.placeholder ?? "Su respuesta"}
                       className="w-full rounded-full border border-neutral-200 bg-white px-5 py-4 text-base text-neutral-900 shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-neutral-400"
                     />
                   )}
                   <Button type="submit" size="lg" disabled={!draft.trim()}>
-                    Continue
+                    Continuar
                   </Button>
                 </form>
               )}
@@ -339,17 +337,17 @@ export function DiscoveryExperience() {
 
           <div className="rounded-3xl border border-neutral-200/80 bg-white/70 px-5 py-4">
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Consultant insights
+              Hallazgos del consultor
             </p>
             <p className="mt-2 text-sm text-neutral-500">
-              Appear when confidence and evidence support them.
+              Aparecen cuando hay evidencia suficiente.
             </p>
           </div>
 
           <div className="space-y-3">
             {interview.observations.length === 0 ? (
               <Card className="px-5 py-6 text-sm text-neutral-500">
-                No observations yet — the Architect will not invent them.
+                Aún no hay hallazgos — el Arquitecto no inventa conclusiones.
               </Card>
             ) : (
               interview.observations.map((observation, index) => (
@@ -364,7 +362,7 @@ export function DiscoveryExperience() {
 
           <div className="rounded-3xl border border-neutral-200/80 bg-white/70 px-5 py-4">
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Opportunities
+              Oportunidades
             </p>
           </div>
           <OpportunityList opportunities={interview.opportunities} />

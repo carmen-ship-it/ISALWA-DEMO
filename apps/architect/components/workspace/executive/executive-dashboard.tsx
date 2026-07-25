@@ -22,11 +22,11 @@ export function ExecutiveDashboard({
   const nextStep =
     model.executiveRecommendation ??
     model.priorities[0] ??
-    "Continue discovery to sharpen priorities.";
+    "Continuar el descubrimiento para afinar prioridades.";
   const impact =
     model.topOpportunities[0] ??
     model.quickWins[0] ??
-    "Impact will clarify as recommendations firm up.";
+    "El impacto se aclarará cuando las recomendaciones se consoliden.";
   const systems =
     model.investmentAreas.length > 0
       ? model.investmentAreas.slice(0, 4)
@@ -40,40 +40,40 @@ export function ExecutiveDashboard({
     detail?: string;
   }> = [
     {
-      question: "How well do we understand the business?",
+      question: "¿Qué tan bien entendemos el negocio?",
       answer: understanding,
       detail: understandingSentence(model.businessUnderstanding),
       tone: "executive",
     },
     {
-      question: "Biggest risk?",
-      answer: model.topRisk ?? "No critical risk surfaced yet",
+      question: "¿Cuál es el mayor riesgo?",
+      answer: model.topRisk ?? "Aún no aparece un riesgo crítico",
       detail: riskHint || undefined,
       tone: "risks",
     },
     {
-      question: "Top priorities?",
+      question: "¿Cuáles son las prioridades?",
       answer:
         model.priorities.length > 0
           ? model.priorities.slice(0, 3).join(" · ")
-          : "Priorities emerge as evidence accumulates",
+          : "Las prioridades aparecen a medida que crece la evidencia",
       tone: "executive",
     },
     {
-      question: "What should happen next?",
+      question: "¿Qué debe pasar ahora?",
       answer: nextStep,
       tone: "health",
     },
     {
-      question: "Recommended systems?",
+      question: "¿Qué sistemas recomendamos?",
       answer:
         systems.length > 0
           ? systems.join(" · ")
-          : "System recommendations appear after architecture takes shape",
+          : "Las recomendaciones de sistemas aparecen cuando el diseño toma forma",
       tone: "blueprint",
     },
     {
-      question: "Expected business impact?",
+      question: "¿Qué impacto esperamos?",
       answer: impact,
       tone: "health",
     },
@@ -83,10 +83,10 @@ export function ExecutiveDashboard({
     <div className="space-y-6">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Thirty-second brief
+          Resumen en 30 segundos
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Clarity for the decision room.
+          Claridad para decidir.
         </h3>
       </div>
 
@@ -117,19 +117,19 @@ export function ExecutiveDashboard({
 
       <div className="grid gap-3 sm:grid-cols-3">
         <MetricTile
-          label="Operating maturity"
+          label="Madurez operativa"
           value={maturityLabel(model.maturity)}
         />
         <MetricTile
-          label="Business health"
+          label="Salud del negocio"
           value={healthLabel(model.health)}
         />
         <MetricTile
-          label="Evidence quality"
+          label="Calidad de la evidencia"
           value={
             model.consultingConfidence != null
               ? recommendationStrength(model.consultingConfidence).replace(
-                  "Recommendation strength: ",
+                  "Fortaleza de la recomendación: ",
                   "",
                 )
               : "—"
@@ -143,10 +143,10 @@ export function ExecutiveDashboard({
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <DashList title="Priorities" items={model.priorities} />
-        <DashList title="Quick wins" items={model.quickWins} />
-        <DashList title="Investment focus" items={model.investmentAreas} />
-        <DashList title="Delivery phases" items={model.estimatedPhases} />
+        <DashList title="Prioridades" items={model.priorities} />
+        <DashList title="Victorias rápidas" items={model.quickWins} />
+        <DashList title="Enfoque de inversión" items={model.investmentAreas} />
+        <DashList title="Fases de entrega" items={model.estimatedPhases} />
       </div>
     </div>
   );
@@ -182,7 +182,7 @@ function DashList({ title, items }: { title: string; items: string[] }) {
       </p>
       {items.length === 0 ? (
         <p className="mt-3 text-sm text-neutral-400">
-          Emerging as evidence accumulates…
+          Aparecerá a medida que crezca la evidencia…
         </p>
       ) : (
         <ul className="mt-3 space-y-2">

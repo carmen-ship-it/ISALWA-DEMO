@@ -9,7 +9,7 @@ import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { createLocalInterviewPersistence } from "@/lib/persistence";
+import { createClientInterviewPersistence } from "@/lib/persistence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type { DiscoveryReport } from "@/types";
 
@@ -281,11 +281,7 @@ export function ReportView() {
   const [companyName, setCompanyName] = useState("Company");
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const persistence = useMemo(
-    () =>
-      createLocalInterviewPersistence(
-        typeof window !== "undefined" ? window.localStorage : null,
-        workspaceId,
-      ),
+    () => createClientInterviewPersistence(workspaceId),
     [workspaceId],
   );
 
@@ -299,13 +295,13 @@ export function ReportView() {
           return;
         }
       }
-      const interview = persistence.load();
+      const interview = await persistence.load();
       if (interview?.report) {
         setReport(interview.report);
         setCompanyName(
           interview.business.companyName ??
             interview.participant.companyName ??
-            "Company",
+            "Empresa",
         );
       }
     }

@@ -4,4 +4,8 @@ export {
   createSeedBundle,
   createEmptyBundle,
 } from "./seed";
-export { formatRelativeActivity } from "./format";
+export {
+  formatRelativeActivity,
+  formatStageLabel,
+  formatIndustryLabel,
+} from "./format";

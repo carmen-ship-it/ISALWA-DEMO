@@ -10,19 +10,20 @@ function humanizeJourneyDetail(detail: string): string {
     /(\d+)\s*%\s*de comprensión del negocio/i,
     (_m, n: string) => {
       const level = understandingLevel(Number(n));
-      return `Comprensión del negocio: ${level === "Strong" ? "sólida" : level === "Developing" ? "en desarrollo" : level === "Early" ? "inicial" : "en formación"}`;
+      return `Comprensión del negocio: ${understandingLevel(Number(n)).toLowerCase()}`;
     },
   );
   next = next.replace(
     /(\d+)\s*%\s*(business understanding|understanding)/i,
-    (_m, n: string) => `Business understanding: ${understandingLevel(Number(n))}`,
+    (_m, n: string) =>
+      `Comprensión del negocio: ${understandingLevel(Number(n)).toLowerCase()}`,
   );
-  next = next.replace(/Blueprint\s*v\d+/gi, "Business blueprint available");
+  next = next.replace(/Blueprint\s*v\d+/gi, "Modelo del negocio disponible");
   next = next.replace(/·\s*Blueprint[^·]*/gi, "");
   next = next.replace(/\b\d+\s*módulos\b/gi, (m) =>
     m.replace("módulos", "capacidades"),
   );
-  next = next.replace(/\bmodules\b/gi, "capabilities");
+  next = next.replace(/\bmodules\b/gi, "capacidades");
   return next.trim();
 }
 

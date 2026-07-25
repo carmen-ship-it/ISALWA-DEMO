@@ -31,7 +31,11 @@ import { deriveExecutiveExperience } from "@/lib/executive";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
-import { formatRelativeActivity } from "@/lib/workspace";
+import {
+  formatIndustryLabel,
+  formatRelativeActivity,
+  formatStageLabel,
+} from "@/lib/workspace";
 import type { CompanyWorkspace } from "@/types";
 
 export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
@@ -53,7 +57,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   if (!workspace || !executive) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <p className="text-neutral-500">Loading workspace…</p>
+        <p className="text-neutral-500">Cargando espacio de trabajo…</p>
       </main>
     );
   }
@@ -68,9 +72,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="executive"
-          kicker="Executive summary"
-          title="Where we stand"
-          description="A decision-ready view of understanding, risk, priorities, and next moves."
+          kicker="Resumen ejecutivo"
+          title="Dónde estamos"
+          description="Una vista lista para decidir: comprensión, riesgo, prioridades y siguientes pasos."
         >
           <Card className="border-sky-100/60 bg-white/80 px-6 py-6 shadow-none">
             <ConfidenceMeter value={workspace.businessUnderstanding} />
@@ -81,8 +85,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             </Button>
             {briefing.estimatedMinutesRemaining ? (
               <p className="mt-3 text-sm text-neutral-500">
-                About {briefing.estimatedMinutesRemaining} minutes remaining in
-                discovery.
+                Quedan unos {briefing.estimatedMinutesRemaining} minutos de descubrimiento.
               </p>
             ) : null}
           </div>
@@ -95,12 +98,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionShell
             tone="risks"
-            kicker="Open questions"
+            kicker="Preguntas abiertas"
             className="sm:px-6 sm:py-6"
           >
             {workspace.openQuestions.length === 0 ? (
               <p className="text-sm text-neutral-600">
-                No open questions right now.
+                No hay preguntas abiertas por ahora.
               </p>
             ) : (
               <ul className="space-y-2">
@@ -115,11 +118,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
           <SectionShell
             tone="health"
-            kicker="Suggested next meeting"
+            kicker="Próxima reunión sugerida"
             className="sm:px-6 sm:py-6"
           >
             <p className="text-base leading-relaxed text-neutral-800">
-              {workspace.suggestedNextMeeting ?? "Continue discovery"}
+              {workspace.suggestedNextMeeting ?? "Continuar el descubrimiento"}
             </p>
           </SectionShell>
         </div>
@@ -127,13 +130,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         {workspace.currentReport ? (
           <SectionShell
             tone="deliverables"
-            kicker="Living report"
-            title="Client narrative"
+            kicker="Informe vivo"
+            title="Narrativa para el cliente"
             description={workspace.currentReport.executiveSummary}
           >
             <Button asChild variant="secondary">
               <Link href={`/report?workspaceId=${workspace.id}`}>
-                Open living report
+                Abrir informe vivo
               </Link>
             </Button>
           </SectionShell>
@@ -145,9 +148,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="health"
-          kicker="Assessment"
-          title="Discovery progress"
-          description="How far engagement has come — and what evidence supports the picture."
+          kicker="Diagnóstico"
+          title="Avance del descubrimiento"
+          description="Hasta dónde ha llegado el trabajo — y qué evidencia sostiene el panorama."
         >
           <Card className="border-emerald-100/50 bg-white/80 px-6 py-6 shadow-none">
             <DiscoveryJourney
@@ -159,23 +162,23 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
         <SectionShell
           tone="executive"
-          kicker="Brand & experience"
-          title="How the company should feel"
-          description="Read-only guidance inferred from discovery — identity, tone, and experience expectations."
+          kicker="Marca y experiencia"
+          title="Cómo debe sentirse la empresa"
+          description="Guía de solo lectura inferida del descubrimiento — identidad, tono y expectativas de experiencia."
         >
           <BrandExperiencePanel model={workspace.brandExperience} />
         </SectionShell>
 
         <SectionShell
           tone="health"
-          kicker="Knowledge"
-          title="Evidence base"
-          description="What company knowledge has been absorbed into the assessment."
+          kicker="Conocimiento"
+          title="Base de evidencia"
+          description="Qué conocimiento de la empresa se ha incorporado al diagnóstico."
         >
           <KnowledgeCenter knowledge={workspace.knowledge} />
         </SectionShell>
 
-        <SectionShell tone="deliverables" kicker="Activity" title="Recent progress">
+        <SectionShell tone="deliverables" kicker="Actividad" title="Avance reciente">
           <ol className="space-y-5">
             {timeline.map((event) => (
               <li key={event.id} className="relative pl-6">
@@ -198,9 +201,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="blueprint"
-          kicker="Blueprint"
-          title="Operating model"
-          description="How the business works today — and the future state we are designing toward."
+          kicker="Modelo del negocio"
+          title="Modelo operativo"
+          description="Cómo opera el negocio hoy — y el estado futuro que estamos diseñando."
         >
           <AnimatedBlueprint model={executive.blueprint} />
         </SectionShell>
@@ -213,9 +216,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     architecture: (
       <SectionShell
         tone="blueprint"
-        kicker="Architecture"
-        title="Recommended operating system"
-        description="The software capabilities the business needs — designed, not built."
+        kicker="Sistemas"
+        title="Sistema operativo recomendado"
+        description="Las capacidades de software que el negocio necesita — diseñadas, no construidas."
       >
         <SolutionArchitecturePanel
           architecture={workspace.solutionArchitecture}
@@ -226,9 +229,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     processes: (
       <SectionShell
         tone="processes"
-        kicker="Processes"
-        title="How work moves"
-        description="Critical workflows, handoffs, and opportunities to remove friction."
+        kicker="Procesos"
+        title="Cómo se mueve el trabajo"
+        description="Flujos críticos, traspasos y oportunidades para quitar fricción."
       >
         <BusinessProcessesPanel
           context={
@@ -256,9 +259,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="executive"
-          kicker="Recommendations"
-          title="What we recommend"
-          description="Capabilities and rationale grounded in discovery evidence — not generic software lists."
+          kicker="Recomendaciones"
+          title="Lo que recomendamos"
+          description="Capacidades y fundamentos con evidencia del descubrimiento — no listas genéricas de software."
         >
           <ModuleInsightCards modules={executive.modules} />
         </SectionShell>
@@ -268,12 +271,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         {workspace.currentReport ? (
           <SectionShell tone="deliverables" kicker="Narrative">
             <p className="text-sm text-neutral-700">
-              For the full client narrative, open the living report.
+              Para la narrativa completa del cliente, abra el informe vivo.
             </p>
             <div className="mt-4">
               <Button asChild variant="secondary">
                 <Link href={`/report?workspaceId=${workspace.id}`}>
-                  Open living report
+                  Abrir informe vivo
                 </Link>
               </Button>
             </div>
@@ -285,16 +288,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     roadmap: (
       <SectionShell
         tone="processes"
-        kicker="Roadmap"
-        title="Phased path forward"
-        description="A practical sequence from current operations to the recommended future state."
+        kicker="Hoja de ruta"
+        title="Camino por fases"
+        description="Una secuencia práctica desde las operaciones actuales hasta el estado futuro recomendado."
       >
         {roadmapPhases.length === 0 &&
         executive.dashboard.estimatedPhases.length === 0 ? (
           <Card className="border-orange-100/50 bg-white/80 px-5 py-5 shadow-none">
             <p className="text-sm text-neutral-600">
-              The delivery roadmap appears once recommended capabilities are
-              sequenced from discovery evidence.
+              La hoja de ruta aparece cuando las capacidades recomendadas
+              se ordenan a partir de la evidencia del descubrimiento.
             </p>
           </Card>
         ) : (
@@ -318,7 +321,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
                     </p>
                     {phase.modules.length > 0 ? (
                       <p className="mt-2 text-xs text-neutral-500">
-                        Capabilities: {phase.modules.join(" · ")}
+                        Capacidades: {phase.modules.join(" · ")}
                       </p>
                     ) : null}
                   </li>
@@ -341,9 +344,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     deliverables: (
       <SectionShell
         tone="deliverables"
-        kicker="Deliverables"
-        title="Consulting package"
-        description="Board-ready documentation generated from company memory — for decisions, not code."
+        kicker="Entregables"
+        title="Paquete de consultoría"
+        description="Documentación lista para dirección, generada desde la memoria de la empresa — para decidir, no para programar."
       >
         <DeliverablesPanel
           workspace={workspace}
@@ -361,16 +364,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-500">
-            Company workspace
+            Espacio de la empresa
           </p>
           <h1 className="architect-serif mt-4 text-4xl leading-tight text-neutral-950 sm:text-5xl">
             {workspace.companyName}
           </h1>
           <p className="mt-3 max-w-xl text-neutral-500">
-            {workspace.industry === "unknown"
-              ? "Industry not yet classified"
-              : workspace.industry}{" "}
-            · {workspace.currentStage} phase ·{" "}
+            {formatIndustryLabel(workspace.industry)} ·{" "}
+            {formatStageLabel(workspace.currentStage)} ·{" "}
             {formatRelativeActivity(workspace.lastActivityAt)}
           </p>
         </div>

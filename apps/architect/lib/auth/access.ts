@@ -81,13 +81,16 @@ export function primaryWorkspaceIdForRole(
   role: ArchitectRole,
   email: string,
 ): string | null {
-  if (role !== "client") return null;
   const memberships = listMembershipsForEmail(email);
-  return (
-    memberships.find((m) => m.kind === "owner")?.workspaceId ??
-    memberships[0]?.workspaceId ??
-    PILOT_COMPANY_WORKSPACE_ID
-  );
+  if (role === "client") {
+    return (
+      memberships.find((m) => m.kind === "owner")?.workspaceId ??
+      memberships[0]?.workspaceId ??
+      PILOT_COMPANY_WORKSPACE_ID
+    );
+  }
+  // Pilot: consultant opens ISALWA directly (no company picker required).
+  return memberships[0]?.workspaceId ?? PILOT_COMPANY_WORKSPACE_ID;
 }
 
 export function pilotCompanySummary(): {

@@ -39,8 +39,9 @@ export function canInviteUsers(session: ArchitectSession): boolean {
 }
 
 export function postLoginPath(session: ArchitectSession): string {
-  if (session.role === "client" && session.primaryWorkspaceId) {
-    return `/workspace/${session.primaryWorkspaceId}`;
+  const workspaceId = session.primaryWorkspaceId ?? session.assignedWorkspaceIds[0];
+  if (workspaceId) {
+    return `/workspace/${workspaceId}`;
   }
   return "/";
 }

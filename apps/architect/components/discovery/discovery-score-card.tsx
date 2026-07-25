@@ -2,14 +2,20 @@
 
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
-import type { DiscoveryScore } from "@/types";
+import type { DiscoveryScore, DimensionStatus } from "@/types";
 import { cn } from "@/lib/utils";
+
+function dimensionDisplay(dimension: DimensionStatus): string {
+  if (dimension.applicable === false) return "No aplica";
+  if (dimension.confidence <= 0) return "Sin evidencia";
+  return `${dimension.confidence}%`;
+}
 
 export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
   return (
     <Card className="overflow-hidden px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-        Business Understanding
+        Entendimiento del negocio
       </p>
       <div className="mt-3 flex items-end gap-2">
         <motion.span
@@ -22,6 +28,10 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
         </motion.span>
         <span className="mb-1 text-lg text-neutral-400">%</span>
       </div>
+      <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+        Estimación basada en la entrevista — promedio de las dimensiones con
+        evidencia, no un modelo de precisión.
+      </p>
 
       <ul className="mt-6 space-y-2.5">
         {score.dimensions.map((dimension) => (
@@ -33,18 +43,31 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
               <span
                 className={cn(
                   "inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px]",
-                  dimension.covered
-                    ? "bg-neutral-900 text-white"
-                    : "border border-neutral-300 text-neutral-400",
+                  dimension.applicable === false
+                    ? "border border-dashed border-neutral-300 text-neutral-300"
+                    : dimension.covered
+                      ? "bg-neutral-900 text-white"
+                      : "border border-neutral-300 text-neutral-400",
                 )}
                 aria-hidden
               >
-                {dimension.covered ? "✓" : "○"}
+                {dimension.applicable === false
+                  ? "—"
+                  : dimension.covered
+                    ? "✓"
+                    : "○"}
               </span>
               {dimension.label}
             </span>
-            <span className="text-xs text-neutral-400">
-              {dimension.confidence}%
+            <span
+              className={cn(
+                "text-xs",
+                dimension.confidence <= 0 || dimension.applicable === false
+                  ? "text-neutral-400"
+                  : "text-neutral-500",
+              )}
+            >
+              {dimensionDisplay(dimension)}
             </span>
           </li>
         ))}
@@ -53,7 +76,7 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
       {score.stillNeed.length > 0 ? (
         <div className="mt-5 border-t border-neutral-100 pt-4">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
-            Still need
+            Aún falta
           </p>
           <ul className="mt-2 space-y-1">
             {score.stillNeed.slice(0, 4).map((item) => (

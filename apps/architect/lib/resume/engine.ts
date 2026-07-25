@@ -5,7 +5,7 @@ import {
   hasProcessedKnowledge,
   mergeKnowledgeIntoMemory,
 } from "@/lib/knowledge";
-import { createEmptyMemory } from "@/lib/reasoning";
+import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
 import { createId, nowIso } from "@/lib/utils";
 import type {
   CompanyWorkspace,
@@ -18,7 +18,7 @@ export interface ResumeBriefing {
   rememberedFacts: string[];
   continueFocus: string | null;
   estimatedMinutesRemaining: number;
-  ctaLabel: "Continue Discovery" | "Begin Discovery";
+  ctaLabel: "Continuar descubrimiento" | "Comenzar descubrimiento";
   knowledgeLines: string[];
 }
 
@@ -49,16 +49,16 @@ export function buildResumeBriefing(
 
   if (!hasMemory && !hasKnowledge) {
     return {
-      greeting: `Welcome to ${workspace.companyName}.\n\nWe'll begin discovery carefully — one clear question at a time.`,
+      greeting: `Bienvenido a ${workspace.companyName}.\n\nEmpezaremos el descubrimiento con calma — una pregunta clara a la vez.`,
       rememberedFacts: [],
       continueFocus: null,
       estimatedMinutesRemaining: ESTIMATED_INTERVIEW_MINUTES,
-      ctaLabel: "Begin Discovery",
+      ctaLabel: "Comenzar descubrimiento",
       knowledgeLines: [],
     };
   }
 
-  const name = person ?? "there";
+  const name = person ?? "usted";
   const knowledgeBlock =
     knowledgeLines.length > 0
       ? `\n\n${knowledgeLines.join("\n")}`
@@ -70,15 +70,15 @@ export function buildResumeBriefing(
       .map((theme) => `• ${theme}`)
       .join("\n");
     const focusLine = continueFocus
-      ? `\n\nI still have questions about ${continueFocus}.\n\nShall we start there?`
-      : `\n\nShall we discuss what I found?`;
+      ? `\n\nTodavía tengo preguntas sobre ${continueFocus}.\n\n¿Empezamos por ahí?`
+      : `\n\n¿Hablamos de lo que encontré?`;
 
     return {
-      greeting: `Welcome, ${name}.\n\nI've already analyzed your documents.${knowledgeBlock}\n\nThemes I noticed:\n\n${themeLines}${focusLine}`,
+      greeting: `Bienvenido, ${name}.\n\nYa revisé sus documentos.${knowledgeBlock}\n\nTemas que noté:\n\n${themeLines}${focusLine}`,
       rememberedFacts: knowledgeContext.themes,
       continueFocus,
       estimatedMinutesRemaining: estimateRemainingMinutes(workspace),
-      ctaLabel: "Begin Discovery",
+      ctaLabel: "Comenzar descubrimiento",
       knowledgeLines,
     };
   }
@@ -89,15 +89,15 @@ export function buildResumeBriefing(
     .join("\n");
 
   const focusLine = continueFocus
-    ? `\n\nLast time we still needed to understand ${continueFocus}.\n\nShould we continue there?`
-    : `\n\nShall we continue from where we left off?`;
+    ? `\n\nLa última vez aún necesitábamos entender ${continueFocus}.\n\n¿Seguimos por ahí?`
+    : `\n\n¿Continuamos donde lo dejamos?`;
 
   return {
-    greeting: `Welcome back, ${name}.\n\nSince our last session I remember:\n\n${factLines}${knowledgeBlock}${focusLine}`,
+    greeting: `Bienvenido de nuevo, ${name}.\n\nDesde la última sesión recuerdo:\n\n${factLines}${knowledgeBlock}${focusLine}`,
     rememberedFacts: facts,
     continueFocus,
     estimatedMinutesRemaining,
-    ctaLabel: "Continue Discovery",
+    ctaLabel: "Continuar descubrimiento",
     knowledgeLines,
   };
 }
@@ -138,7 +138,9 @@ export function createWorkspaceInterview(
   const briefing = buildResumeBriefing(workspace);
   const knowledgeContext = buildKnowledgeReasoningContext(workspace);
   const priorMemory = workspace.conversationMemory ?? createEmptyMemory();
-  const memory = mergeKnowledgeIntoMemory(priorMemory, knowledgeContext);
+  const memory = applyDiscoveryScore(
+    mergeKnowledgeIntoMemory(priorMemory, knowledgeContext),
+  );
 
   if (mode === "begin" || !workspace.conversationMemory) {
     const beginWithKnowledge =
@@ -148,12 +150,12 @@ export function createWorkspaceInterview(
     if (beginWithKnowledge) {
       const continueQuestion: Question = {
         id: "q_ready_knowledge",
-        prompt: "Ready to discuss what I found?",
+        prompt: "¿Listo para hablar de lo que encontré?",
         kind: "confirmation",
         questionKey: "ready",
         choices: [
-          { id: "ready_yes", label: "Yes, let's begin", value: "yes" },
-          { id: "ready_later", label: "Not right now", value: "later" },
+          { id: "ready_yes", label: "Sí, empecemos", value: "yes" },
+          { id: "ready_later", label: "Ahora no", value: "later" },
         ],
       };
 
@@ -215,12 +217,12 @@ export function createWorkspaceInterview(
 
   const continueQuestion: Question = {
     id: "q_continue",
-    prompt: "Ready to continue?",
+    prompt: "¿Listo para continuar?",
     kind: "confirmation",
     questionKey: "ready",
     choices: [
-      { id: "continue_yes", label: "Yes, continue", value: "yes" },
-      { id: "continue_later", label: "Not right now", value: "later" },
+      { id: "continue_yes", label: "Sí, continuar", value: "yes" },
+      { id: "continue_later", label: "Ahora no", value: "later" },
     ],
   };
 

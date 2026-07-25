@@ -15,14 +15,14 @@ export type WorkspaceTabId =
   | "deliverables";
 
 export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
-  { id: "executive", label: "Executive Summary" },
-  { id: "assessment", label: "Assessment" },
-  { id: "blueprint", label: "Blueprint" },
-  { id: "architecture", label: "Architecture" },
-  { id: "processes", label: "Processes" },
-  { id: "recommendations", label: "Recommendations" },
-  { id: "roadmap", label: "Roadmap" },
-  { id: "deliverables", label: "Deliverables" },
+  { id: "executive", label: "Resumen ejecutivo" },
+  { id: "assessment", label: "Diagnóstico" },
+  { id: "blueprint", label: "Modelo del negocio" },
+  { id: "architecture", label: "Sistemas" },
+  { id: "processes", label: "Procesos" },
+  { id: "recommendations", label: "Recomendaciones" },
+  { id: "roadmap", label: "Hoja de ruta" },
+  { id: "deliverables", label: "Entregables" },
 ];
 
 export function WorkspaceTabs({
@@ -69,7 +69,7 @@ export function WorkspaceTabs({
       <div className="sticky top-0 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
         <div
           role="tablist"
-          aria-label="Workspace sections"
+          aria-label="Secciones del espacio de trabajo"
           id={listId}
           className="flex gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >

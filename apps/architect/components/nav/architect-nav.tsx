@@ -30,7 +30,7 @@ export function ArchitectNav({
   const items = [
     ...base,
     ...(workspaceHref
-      ? [{ href: workspaceHref, label: "Workspace" as const }]
+      ? [{ href: workspaceHref, label: "Espacio de trabajo" as const }]
       : []),
     ...(interviewHref
       ? [{ href: interviewHref, label: "Entrevista" as const }]

@@ -1,7 +1,11 @@
 export { think, createEmptyMemory } from "./think";
 export type { ThoughtResult } from "./think";
 export { absorbAnswerIntoMemory } from "./memory/absorb";
-export { computeDiscoveryScore, CONCLUSION_THRESHOLD } from "./confidence/score";
+export {
+  applyDiscoveryScore,
+  computeDiscoveryScore,
+  CONCLUSION_THRESHOLD,
+} from "./confidence/score";
 export { planNextQuestion, formatThinkingPreamble } from "./planner/next-question";
 export { generateInsights } from "./observations/insights";
 export { generateOpportunities, impactLabel } from "./recommendations/opportunities";

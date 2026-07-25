@@ -1,5 +1,5 @@
 /**
- * Presentation-only helpers for executive-facing workspace copy.
+ * Presentation-only helpers for executive-facing workspace copy (Spanish).
  * Does not alter engine outputs — maps raw scores/phrases for display.
  */
 
@@ -36,113 +36,130 @@ export function coverageBand(
   return "Early";
 }
 
-export function recommendationStrength(score: number, scale: "unit" | "percent" = "unit"): string {
-  return `Recommendation strength: ${strengthBand(score, scale)}`;
+function strengthBandEs(band: StrengthBand): string {
+  switch (band) {
+    case "High":
+      return "Alta";
+    case "Medium":
+      return "Media";
+    case "Low":
+      return "Baja";
+    default:
+      return "Emergente";
+  }
+}
+
+export function recommendationStrength(
+  score: number,
+  scale: "unit" | "percent" = "unit",
+): string {
+  return `Fortaleza de la recomendación: ${strengthBandEs(strengthBand(score, scale))}`;
 }
 
 export function understandingLevel(score0to100: number): string {
   const band = strengthBand(score0to100, "percent");
   switch (band) {
     case "High":
-      return "Strong";
+      return "Sólida";
     case "Medium":
-      return "Developing";
+      return "En progreso";
     case "Low":
-      return "Early";
+      return "Inicial";
     default:
-      return "Forming";
+      return "En formación";
   }
 }
 
 export function understandingSentence(score0to100: number): string {
   const level = understandingLevel(score0to100);
+  const honesty = " Estimación basada en la entrevista.";
   switch (level) {
-    case "Strong":
-      return "We have a clear, evidence-backed picture of how the business operates.";
-    case "Developing":
-      return "Core operations are understood; a few areas still need validation.";
-    case "Early":
-      return "Initial patterns are visible; deeper discovery will sharpen the picture.";
+    case "Sólida":
+      return `Tenemos una imagen clara y respaldada de cómo opera el negocio.${honesty}`;
+    case "En progreso":
+      return `Las operaciones centrales se entienden; algunas áreas aún requieren validación.${honesty}`;
+    case "Inicial":
+      return `Ya se ven patrones iniciales; un descubrimiento más profundo afinará el panorama.${honesty}`;
     default:
-      return "Discovery is underway — structured understanding is still forming.";
+      return `El descubrimiento está en marcha — la comprensión estructurada aún se está formando.${honesty}`;
   }
 }
 
 export function maturityLabel(score: number | null | undefined): string {
-  if (score == null) return "Not yet assessed";
+  if (score == null) return "Aún sin evaluar";
   const band = strengthBand(score, "unit");
   switch (band) {
     case "High":
-      return "Mature";
+      return "Madura";
     case "Medium":
-      return "Developing";
+      return "En desarrollo";
     case "Low":
-      return "Foundational";
+      return "Fundacional";
     default:
-      return "Emerging";
+      return "Emergente";
   }
 }
 
 export function healthLabel(score: number | null | undefined): string {
-  if (score == null) return "Not yet assessed";
+  if (score == null) return "Aún sin evaluar";
   const band = strengthBand(score, "unit");
   switch (band) {
     case "High":
-      return "Healthy";
+      return "Saludable";
     case "Medium":
-      return "Stable with gaps";
+      return "Estable con brechas";
     case "Low":
-      return "Under strain";
+      return "Bajo presión";
     default:
-      return "Needs attention";
+      return "Requiere atención";
   }
 }
 
 export function strengthHint(score: number, scale: "unit" | "percent" = "unit"): string {
   switch (strengthBand(score, scale)) {
     case "High":
-      return "Well supported by discovery evidence";
+      return "Bien respaldada por la evidencia del descubrimiento";
     case "Medium":
-      return "Supported, with room to validate further";
+      return "Respaldada, con espacio para validar más";
     case "Low":
-      return "Indicative — confirm with stakeholders";
+      return "Indicativa — conviene confirmar con el equipo";
     default:
-      return "Early signal — treat as directional";
+      return "Señal temprana — tómese como orientación";
   }
 }
 
 const DEPENDENCY_PHRASES: Record<string, string> = {
-  crm: "Requires customer information",
-  customers: "Requires customer records",
-  customer: "Requires customer records",
-  contacts: "Requires contact information",
-  accounts: "Requires account records",
-  inventory: "Requires inventory data",
-  products: "Requires product catalog",
-  product: "Requires product catalog",
-  orders: "Requires order information",
-  order: "Requires order information",
-  invoices: "Requires billing information",
-  billing: "Requires billing information",
-  payments: "Requires payment information",
-  finance: "Requires financial records",
-  hr: "Requires people information",
-  employees: "Requires employee records",
-  users: "Requires user accounts",
-  auth: "Requires secure sign-in",
-  authentication: "Requires secure sign-in",
-  permissions: "Requires access controls",
-  reporting: "Requires reporting capability",
-  analytics: "Requires analytics capability",
-  documents: "Requires document management",
-  files: "Requires document storage",
-  notifications: "Requires notifications",
-  calendar: "Requires scheduling capability",
-  projects: "Requires project tracking",
-  tasks: "Requires task management",
-  workflow: "Requires workflow orchestration",
-  integrations: "Requires system integrations",
-  api: "Requires system connectivity",
+  crm: "Requiere información de clientes",
+  customers: "Requiere registros de clientes",
+  customer: "Requiere registros de clientes",
+  contacts: "Requiere información de contactos",
+  accounts: "Requiere registros de cuentas",
+  inventory: "Requiere datos de inventario",
+  products: "Requiere catálogo de productos",
+  product: "Requiere catálogo de productos",
+  orders: "Requiere información de pedidos",
+  order: "Requiere información de pedidos",
+  invoices: "Requiere información de facturación",
+  billing: "Requiere información de facturación",
+  payments: "Requiere información de pagos",
+  finance: "Requiere registros financieros",
+  hr: "Requiere información de personas",
+  employees: "Requiere registros de empleados",
+  users: "Requiere cuentas de usuario",
+  auth: "Requiere inicio de sesión seguro",
+  authentication: "Requiere inicio de sesión seguro",
+  permissions: "Requiere controles de acceso",
+  reporting: "Requiere capacidad de reportes",
+  analytics: "Requiere capacidad de analítica",
+  documents: "Requiere gestión documental",
+  files: "Requiere almacenamiento de documentos",
+  notifications: "Requiere notificaciones",
+  calendar: "Requiere agenda y programación",
+  projects: "Requiere seguimiento de proyectos",
+  tasks: "Requiere gestión de tareas",
+  workflow: "Requiere orquestación de flujos",
+  integrations: "Requiere integraciones entre sistemas",
+  api: "Requiere conectividad entre sistemas",
 };
 
 /** Map engine dependency tokens / module names → executive phrases. */
@@ -160,9 +177,8 @@ export function humanizeDependency(raw: string): string {
     if (key.includes(token) || compact.includes(token)) return phrase;
   }
 
-  // Strip "Depends on" style prefixes if engines ever emit them.
   const cleaned = trimmed.replace(/^depends\s+on\s+/i, "").trim();
-  return `Requires ${cleaned} to be in place`;
+  return `Requiere que ${cleaned} esté en su lugar`;
 }
 
 export function humanizeDependencies(deps: string[]): string {
@@ -176,18 +192,18 @@ export function revisionLabel(
   indexFromNewest: number,
   superseded: boolean,
 ): string {
-  if (indexFromNewest === 0 && !superseded) return "Current";
+  if (indexFromNewest === 0 && !superseded) return "Actual";
   if (superseded || indexFromNewest > 0) {
-    return indexFromNewest === 0 ? "Previous" : `Earlier revision`;
+    return indexFromNewest === 0 ? "Anterior" : "Revisión anterior";
   }
-  return "Current";
+  return "Actual";
 }
 
 export function riskLevelLabel(level: string | null | undefined): string {
   if (!level || level === "unknown") return "";
   const normalized = level.toLowerCase();
-  if (normalized === "critical" || normalized === "high") return "High priority";
-  if (normalized === "medium" || normalized === "moderate") return "Monitor closely";
-  if (normalized === "low") return "Contained";
+  if (normalized === "critical" || normalized === "high") return "Alta prioridad";
+  if (normalized === "medium" || normalized === "moderate") return "Vigilar de cerca";
+  if (normalized === "low") return "Contenido";
   return level;
 }

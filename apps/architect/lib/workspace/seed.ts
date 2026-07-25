@@ -22,7 +22,7 @@ import type {
   Recommendation,
   TimelineEvent,
 } from "@/types";
-import { createEmptyMemory } from "@/lib/reasoning";
+import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
 import { emptyConsultingWhiteboardFields } from "@/lib/consulting";
 import {
   createSeedKnowledge,
@@ -36,6 +36,8 @@ function daysAgo(days: number): string {
   return date.toISOString();
 }
 
+type SeedFact = { key: string; statement: string };
+
 function seedMemory(overrides: Partial<ConversationMemory["summary"]>): ConversationMemory {
   const memory = createEmptyMemory();
   return {
@@ -43,11 +45,10 @@ function seedMemory(overrides: Partial<ConversationMemory["summary"]>): Conversa
     summary: {
       ...memory.summary,
       ...overrides,
-      confidenceScore: overrides.confidenceScore ?? memory.summary.confidenceScore,
-    },
-    score: {
-      ...memory.score,
-      overall: overrides.confidenceScore ?? 0,
+      industryConfidence:
+        overrides.industryConfidence ??
+        (overrides.industry && overrides.industry !== "unknown" ? 0.75 : 0),
+      confidenceScore: 0,
     },
   };
 }
@@ -56,35 +57,33 @@ function seedWorkspace(input: {
   id: string;
   companyName: string;
   industry: Industry;
-  understanding: number;
   stage: CompanyWorkspace["currentStage"];
   lastLabel: string;
   daysSinceActivity: number;
   painTitles: string[];
   modules: string[];
   openQuestions: string[];
-  facts: string[];
+  facts: SeedFact[];
   personName: string;
   personRole: string;
 }): CompanyWorkspace {
   const createdAt = daysAgo(input.daysSinceActivity + 14);
   const updatedAt = daysAgo(input.daysSinceActivity);
   const meetingId = createId("meeting");
-  const memory = seedMemory({
+  let memory = seedMemory({
     companyName: input.companyName,
     industry: input.industry,
     industryLabel: input.industry,
-    confidenceScore: input.understanding,
     painPoints: input.painTitles,
     missingInformation: input.openQuestions,
-    belief: `${input.companyName} · Discovery in progress`,
+    belief: `${input.companyName} · Descubrimiento en curso`,
   });
 
-  memory.knownFacts = input.facts.map((statement, index) => ({
+  memory.knownFacts = input.facts.map((fact) => ({
     id: createId("fact"),
-    key: `seed_fact_${index}`,
-    statement,
-    evidence: ["Prior discovery session"],
+    key: fact.key,
+    statement: fact.statement,
+    evidence: ["Sesión de descubrimiento anterior"],
     confidence: 0.85,
     createdAt: updatedAt,
   }));
@@ -96,11 +95,11 @@ function seedWorkspace(input: {
     currentSystems:
       input.industry === "manufacturing"
         ? ["Excel", "WhatsApp"]
-        : ["Email", "Spreadsheets"],
+        : ["Correo", "Hojas de cálculo"],
     ...emptyConsultingWhiteboardFields(),
-    facts: input.facts,
+    facts: input.facts.map((f) => f.statement),
     unknowns: input.openQuestions,
-    risks: input.painTitles.map((title) => `${title} (notable)`),
+    risks: input.painTitles.map((title) => `${title} (relevante)`),
   };
 
   memory.painPoints = input.painTitles.map((title) => ({
@@ -109,8 +108,11 @@ function seedWorkspace(input: {
     description: title,
     category: "manual_work" as const,
     severity: "notable" as const,
-    evidence: ["Prior meeting"],
+    evidence: ["Reunión anterior"],
   }));
+
+  memory = applyDiscoveryScore(memory);
+  const understanding = memory.score.overall;
 
   const timeline: TimelineEvent[] = [
     {
@@ -126,7 +128,7 @@ function seedWorkspace(input: {
       workspaceId: input.id,
       date: daysAgo(input.daysSinceActivity + 7),
       title: "Commercial context captured",
-      description: input.facts[0] ?? "Initial business facts recorded.",
+      description: input.facts[0]?.statement ?? "Hechos iniciales del negocio registrados.",
       category: "discovery",
       meetingId,
     },
@@ -162,11 +164,11 @@ function seedWorkspace(input: {
     conversationId: null,
     interviewId: null,
     summary: `Covered commercial motion and current tools for ${input.companyName}.`,
-    discoveries: input.facts,
-    questionsAnswered: input.facts,
+    discoveries: input.facts.map((f) => f.statement),
+    questionsAnswered: input.facts.map((f) => f.statement),
     questionsRemaining: input.openQuestions,
     generatedReport: null,
-    businessUnderstandingAfter: input.understanding,
+    businessUnderstandingAfter: understanding,
   };
 
   const modules: Module[] = input.modules.map((name, index) => ({
@@ -208,7 +210,7 @@ function seedWorkspace(input: {
     createdAt,
     updatedAt,
     currentStage: input.stage,
-    businessUnderstanding: input.understanding,
+    businessUnderstanding: understanding,
     currentReport: null as null,
     meetings: [meeting],
     observations: [] as [],
@@ -233,8 +235,8 @@ function seedWorkspace(input: {
     lastActivityAt: updatedAt,
     lastActivityLabel: input.lastLabel,
     suggestedNextMeeting: input.openQuestions[0]
-      ? `Continue discovery — focus on ${input.openQuestions[0]}`
-      : "Review recommendations with leadership",
+      ? `Continuar descubrimiento — foco en ${input.openQuestions[0]}`
+      : "Revisar recomendaciones con liderazgo",
     conversationMemory: memory,
     activeInterviewId: null as string | null,
     lastMeetingId: meetingId,
@@ -375,19 +377,40 @@ export function createSeedWorkspaces(): CompanyWorkspace[] {
       id: "ws_isalwa",
       companyName: "ISALWA",
       industry: "services",
-      understanding: 71,
       stage: "Design",
-      lastLabel: "Last meeting 3 days ago",
+      lastLabel: "Última reunión hace 3 días",
       daysSinceActivity: 3,
       painTitles: [
-        "Consulting knowledge lives in people",
-        "Project handoffs lose context",
+        "El conocimiento de consultoría vive en las personas",
+        "Los traspasos de proyecto pierden contexto",
       ],
-      modules: ["CRM", "Projects", "Knowledge"],
-      openQuestions: ["Delivery capacity", "Pricing model"],
+      modules: ["CRM", "Proyectos", "Conocimiento"],
+      openQuestions: ["Capacidad de entrega", "Modelo de precios"],
       facts: [
-        "ISALWA builds operating systems for mid-market companies.",
-        "Discovery currently happens through Architect interviews.",
+        {
+          key: "fact_sales",
+          statement:
+            "ISALWA construye sistemas operativos para empresas de mercado medio.",
+        },
+        {
+          key: "fact_customers",
+          statement:
+            "Los clientes son empresas que necesitan ordenar operaciones y decisiones.",
+        },
+        {
+          key: "current_software",
+          statement:
+            "El descubrimiento hoy ocurre mediante entrevistas en Architect.",
+        },
+        {
+          key: "team_structure",
+          statement: "Álvaro es el contacto principal del lado cliente.",
+        },
+        {
+          key: "bottlenecks",
+          statement:
+            "El conocimiento de proyectos se pierde entre reuniones y personas.",
+        },
       ],
       personName: "Álvaro",
       personRole: "owner",

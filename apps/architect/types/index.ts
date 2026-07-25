@@ -369,6 +369,8 @@ export interface DimensionStatus {
   label: string;
   covered: boolean;
   confidence: number;
+  /** false when the dimension is not relevant for this industry (e.g. production for services). */
+  applicable?: boolean;
 }
 
 export interface DiscoveryScore {

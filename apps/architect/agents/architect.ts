@@ -39,7 +39,7 @@ export class IsalwaArchitectAgent implements ArchitectAgent {
     const first = context.conversation.turns.find(
       (turn) => turn.role === "architect",
     );
-    return first?.content ?? "Hello. I'm the ISALWA Architect.";
+    return first?.content ?? "Hola. Soy el Arquitecto de ISALWA.";
   }
 
   async nextQuestion(context: AgentContext): Promise<ArchitectTurnResult> {
@@ -47,7 +47,7 @@ export class IsalwaArchitectAgent implements ArchitectAgent {
       interview: context.interview,
       architectMessage:
         context.interview.conversation.currentQuestion?.prompt ??
-        "Tell me more.",
+        "Cuénteme más.",
       observations: context.interview.observations,
       report: context.interview.report,
     };
@@ -90,7 +90,7 @@ export class IsalwaArchitectAgent implements ArchitectAgent {
               id: createId("turn"),
               role: "architect",
               content:
-                "The discovery blueprint is ready. It is a working document — not a final architecture — and it should guide what we build next.",
+                "El blueprint de descubrimiento está listo. Es un documento de trabajo — no una arquitectura final — y debe guiar lo que construimos después.",
               createdAt: nowIso(),
             },
           ],

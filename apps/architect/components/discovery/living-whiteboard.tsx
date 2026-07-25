@@ -72,41 +72,41 @@ export function LivingWhiteboard({ board }: { board: WhiteboardState }) {
   return (
     <Card className="px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-        Living Whiteboard
+        Pizarra viva
       </p>
       <p className="mt-2 text-sm text-neutral-500">
-        Continuously updated consulting view. Not editable.
+        Vista de consultoría que se actualiza sola. No es editable.
       </p>
 
       {empty ? (
         <p className="mt-5 text-sm text-neutral-400">
-          The whiteboard fills as understanding deepens.
+          La pizarra se llena a medida que profundiza el entendimiento.
         </p>
       ) : (
         <div className="mt-5 space-y-5">
-          <WhiteboardBlock label="Business Model" value={board.businessModel} />
+          <WhiteboardBlock label="Modelo de negocio" value={board.businessModel} />
           <WhiteboardBlock
-            label="Commercial Team"
+            label="Equipo comercial"
             value={board.commercialTeam}
           />
-          <WhiteboardBlock label="Customers" value={board.customers} />
+          <WhiteboardBlock label="Clientes" value={board.customers} />
           <WhiteboardBlock
-            label="Current Systems"
+            label="Sistemas actuales"
             value={board.currentSystems}
           />
-          <WhiteboardBlock label="Pain Points" value={board.painPoints} />
+          <WhiteboardBlock label="Dolores" value={board.painPoints} />
           <WhiteboardBlock
-            label="Potential Modules"
+            label="Módulos potenciales"
             value={board.potentialModules}
           />
-          <WhiteboardBlock label="Facts" value={facts} />
-          <WhiteboardBlock label="Hypotheses" value={hypotheses} />
-          <WhiteboardBlock label="Risks" value={risks} />
-          <WhiteboardBlock label="Unknowns" value={unknowns} />
-          <WhiteboardBlock label="Assumptions" value={assumptions} />
-          <WhiteboardBlock label="Contradictions" value={contradictions} />
+          <WhiteboardBlock label="Hechos" value={facts} />
+          <WhiteboardBlock label="Hipótesis" value={hypotheses} />
+          <WhiteboardBlock label="Riesgos" value={risks} />
+          <WhiteboardBlock label="Incógnitas" value={unknowns} />
+          <WhiteboardBlock label="Supuestos" value={assumptions} />
+          <WhiteboardBlock label="Contradicciones" value={contradictions} />
           <WhiteboardBlock label="Ideas" value={ideas} />
-          <WhiteboardBlock label="Opportunities" value={opportunities} />
+          <WhiteboardBlock label="Oportunidades" value={opportunities} />
         </div>
       )}
     </Card>

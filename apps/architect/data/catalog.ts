@@ -6,25 +6,25 @@ import type {
 } from "@/types";
 
 export const ROLE_CHOICES: Choice[] = [
-  { id: "founder", label: "Founder", value: "founder" },
-  { id: "owner", label: "Owner", value: "owner" },
-  { id: "sales", label: "Sales", value: "sales" },
-  { id: "operations", label: "Operations", value: "operations" },
-  { id: "finance", label: "Finance", value: "finance" },
-  { id: "production", label: "Production", value: "production" },
-  { id: "support", label: "Support", value: "support" },
-  { id: "other", label: "Other", value: "other" },
+  { id: "founder", label: "Fundador", value: "founder" },
+  { id: "owner", label: "Dueño", value: "owner" },
+  { id: "sales", label: "Ventas", value: "sales" },
+  { id: "operations", label: "Operaciones", value: "operations" },
+  { id: "finance", label: "Finanzas", value: "finance" },
+  { id: "production", label: "Producción", value: "production" },
+  { id: "support", label: "Soporte", value: "support" },
+  { id: "other", label: "Otro", value: "other" },
 ];
 
 export const ROLE_LABELS: Record<ParticipantRole, string> = {
-  founder: "Founder",
-  owner: "Owner",
-  sales: "Sales",
-  operations: "Operations",
-  finance: "Finance",
-  production: "Production",
-  support: "Support",
-  other: "Other",
+  founder: "Fundador",
+  owner: "Dueño",
+  sales: "Ventas",
+  operations: "Operaciones",
+  finance: "Finanzas",
+  production: "Producción",
+  support: "Soporte",
+  other: "Otro",
 };
 
 export const ESTIMATED_INTERVIEW_MINUTES = 25;
@@ -172,15 +172,22 @@ export const INDUSTRY_PROFILES: IndustryProfile[] = [
   },
   {
     id: "services",
-    label: "Services",
+    label: "Servicios",
     keywords: [
       "services",
+      "servicios",
       "agency",
+      "agencia",
       "consulting",
+      "consultoría",
+      "consultoria",
       "professional services",
+      "servicios profesionales",
       "clients",
+      "clientes",
       "retainer",
       "engagement",
+      "entregables",
       "deliverables",
     ],
     focusAreas: [
@@ -191,10 +198,10 @@ export const INDUSTRY_PROFILES: IndustryProfile[] = [
       "knowledge",
     ],
     starterQuestions: [
-      "How do new engagements begin?",
-      "How is work assigned and tracked?",
-      "Where does client context live between people?",
-      "What causes missed handoffs or scope creep?",
+      "¿Cómo comienzan los nuevos encargos o proyectos?",
+      "¿Cómo se asigna y se da seguimiento al trabajo?",
+      "¿Dónde vive el contexto del cliente entre personas?",
+      "¿Qué causa traspasos fallidos o aumento de alcance?",
     ],
   },
 ];
@@ -274,14 +281,14 @@ export const FUTURE_CAPABILITIES: FutureCapability[] = [
   },
 ];
 
-export const WELCOME_MESSAGE = `Hello.
+export const WELCOME_MESSAGE = `Hola.
 
-I'm the ISALWA Architect.
+Soy el Arquitecto de ISALWA.
 
-I'll help design your future operating system.
+Le ayudaré a diseñar el sistema operativo de su empresa.
 
-Before we discuss software, I need to understand how your business actually works.
+Antes de hablar de software, necesito entender cómo funciona realmente el negocio.
 
-This usually takes about 20–30 minutes.
+Esto suele tomar entre 20 y 30 minutos.
 
-Ready?`;
+¿Listo?`;

@@ -52,12 +52,12 @@ function enterResumedInterview(interview: Interview): Interview {
   const nextQuestion = planNextQuestion(interview.memory);
   const preamble = formatThinkingPreamble(interview.memory);
   const bridge = focus
-    ? `Good. Let's continue with ${focus}.`
-    : "Good. Let's continue from where we left off.";
+    ? `Bien. Continuemos con ${focus}.`
+    : "Bien. Continuemos donde lo dejamos.";
 
   const message = nextQuestion
     ? `${bridge}\n\n${preamble}\n\n${nextQuestion.prompt}`
-    : `${bridge}\n\n${preamble}\n\nI have enough to refine the living report.`;
+    : `${bridge}\n\n${preamble}\n\nYa tengo suficiente para afinar el informe vivo.`;
 
   return touch({
     ...interview,
@@ -77,12 +77,12 @@ function enterResumedInterview(interview: Interview): Interview {
 export function createInterview(): Interview {
   const welcomeQuestion: Question = {
     id: "q_ready",
-    prompt: "Ready?",
+    prompt: "¿Listo?",
     kind: "confirmation",
     questionKey: "ready",
     choices: [
-      { id: "ready_yes", label: "Yes, let's begin", value: "yes" },
-      { id: "ready_later", label: "Not right now", value: "later" },
+      { id: "ready_yes", label: "Sí, empecemos", value: "yes" },
+      { id: "ready_later", label: "Ahora no", value: "later" },
     ],
   };
 
@@ -199,7 +199,7 @@ function recordAnswer(
 export function submitAnswer(interview: Interview, value: string): Interview {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new Error("Answer cannot be empty.");
+    throw new Error("La respuesta no puede estar vacía.");
   }
 
   const previousQuestion = interview.conversation.currentQuestion;
@@ -210,18 +210,18 @@ export function submitAnswer(interview: Interview, value: string): Interview {
     if (trimmed === "later") {
       const readyQuestion: Question = {
         id: "q_ready",
-        prompt: "Ready?",
+        prompt: "¿Listo?",
         kind: "confirmation",
         questionKey: "ready",
         choices: [
-          { id: "ready_yes", label: "Yes, let's begin", value: "yes" },
-          { id: "ready_later", label: "Not right now", value: "later" },
+          { id: "ready_yes", label: "Sí, empecemos", value: "yes" },
+          { id: "ready_later", label: "Ahora no", value: "later" },
         ],
       };
 
       return appendArchitect(
         withAnswer,
-        "No rush. When you are ready, return here and we will begin properly.",
+        "Sin prisa. Cuando esté listo, regrese aquí y empezamos bien.",
         readyQuestion,
         "welcome",
       );
@@ -234,7 +234,7 @@ export function submitAnswer(interview: Interview, value: string): Interview {
 
     const roleQuestion: Question = {
       id: "q_role",
-      prompt: "Who are you?",
+      prompt: "¿Quién es usted?",
       kind: "choice",
       questionKey: "role",
       dimension: "team",
@@ -249,7 +249,7 @@ export function submitAnswer(interview: Interview, value: string): Interview {
           readyConfirmed: true,
         },
       },
-      "Good. First — who are you in this company?",
+      "Bien. Primero — ¿quién es usted en esta empresa?",
       roleQuestion,
       "role",
     );
@@ -259,10 +259,10 @@ export function submitAnswer(interview: Interview, value: string): Interview {
     const role = trimmed as ParticipantRole;
     const nameQuestion: Question = {
       id: "q_name",
-      prompt: "What's your name?",
+      prompt: "¿Cómo se llama?",
       kind: "text",
       questionKey: "name",
-      placeholder: "Your name",
+      placeholder: "Su nombre",
     };
 
     return appendArchitect(
@@ -270,7 +270,7 @@ export function submitAnswer(interview: Interview, value: string): Interview {
         ...withAnswer,
         participant: { ...withAnswer.participant, role },
       },
-      "Thank you. What's your name?",
+      "Gracias. ¿Cómo se llama?",
       nameQuestion,
       "name",
     );
@@ -279,10 +279,10 @@ export function submitAnswer(interview: Interview, value: string): Interview {
   if (phase === "name") {
     const companyQuestion: Question = {
       id: "q_company",
-      prompt: "What company do you work for?",
+      prompt: "¿En qué empresa trabaja?",
       kind: "text",
       questionKey: "company",
-      placeholder: "Company name",
+      placeholder: "Nombre de la empresa",
     };
 
     return appendArchitect(
@@ -297,7 +297,7 @@ export function submitAnswer(interview: Interview, value: string): Interview {
           },
         },
       },
-      `Nice to meet you, ${trimmed}. What company do you work for?`,
+      `Mucho gusto, ${trimmed}. ¿En qué empresa trabaja?`,
       companyQuestion,
       "company",
     );
@@ -306,12 +306,12 @@ export function submitAnswer(interview: Interview, value: string): Interview {
   if (phase === "company") {
     const businessQuestion: Question = {
       id: "q_business",
-      prompt: "Tell me about your business.",
+      prompt: "Cuénteme sobre su negocio.",
       kind: "long_text",
       questionKey: "business_overview",
       dimension: "operations",
       placeholder:
-        "What you do, who you serve, how work typically moves through the company…",
+        "Qué hacen, a quién sirven, cómo se mueve el trabajo en la empresa…",
     };
 
     return appendArchitect(
@@ -333,7 +333,7 @@ export function submitAnswer(interview: Interview, value: string): Interview {
           },
         },
       },
-      "Understood. Tell me about your business.",
+      "Entendido. Cuénteme sobre su negocio.",
       businessQuestion,
       "business",
     );
