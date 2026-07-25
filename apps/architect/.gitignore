@@ -40,3 +40,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Supabase CLI link cache (may contain connection metadata)
+supabase/.temp
