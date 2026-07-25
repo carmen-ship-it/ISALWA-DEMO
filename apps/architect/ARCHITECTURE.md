@@ -141,7 +141,7 @@ Presentation only. No new business engines. No LLM.
 
 - Supabase Auth (email/password) when configured; otherwise pilot cookie sessions
 - Roles: `consultant` | `client` with capability matrix
-- Seed: Carmen (consultant), Álvaro (client / ABC owner), company `ws_abc`
+- Seed: Carmen (consultant), Álvaro (client / ISALWA owner), company `ws_isalwa`
 - `middleware.ts` protects routes; clients land in assigned workspace
 - Access directory under `lib/auth/` is future-ready for multi-company memberships
 

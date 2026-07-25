@@ -13,6 +13,7 @@ import type {
 } from "@/types";
 import {
   createSeedBundle,
+  createSeedWorkspaces,
   type WorkspaceBundle,
 } from "@/lib/workspace/seed";
 import {
@@ -34,8 +35,19 @@ import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
 import { deriveBrandExperience } from "@/lib/brand";
 import { createId } from "@/lib/utils";
+import {
+  PILOT_COMPANY_NAME,
+  PILOT_COMPANY_WORKSPACE_ID,
+} from "@/lib/auth/constants";
 
 export const WORKSPACE_STORAGE_KEY = "isalwa.architect.company_memory.v1";
+
+/** Legacy placeholder companies that must never reach the pilot UI. */
+const REMOVED_DEMO_WORKSPACE_IDS = new Set([
+  "ws_acme",
+  "ws_viaggio",
+  "ws_abc",
+]);
 
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -55,11 +67,34 @@ function writeBundle(storage: StorageLike | null, bundle: WorkspaceBundle): void
   storage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(bundle));
 }
 
-/** Mission 3+4+6+7+9+10 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand. */
-function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
+/** Drop placeholder tenants and ensure the pilot ISALWA workspace exists. */
+function purgeDemoWorkspaces(bundle: WorkspaceBundle): WorkspaceBundle {
+  const workspaces = bundle.workspaces
+    .filter((workspace) => !REMOVED_DEMO_WORKSPACE_IDS.has(workspace.id))
+    .map((workspace) =>
+      workspace.id === PILOT_COMPANY_WORKSPACE_ID
+        ? { ...workspace, companyName: PILOT_COMPANY_NAME }
+        : workspace,
+    );
+
+  const hasPilot = workspaces.some(
+    (workspace) => workspace.id === PILOT_COMPANY_WORKSPACE_ID,
+  );
+
   return {
     ...bundle,
-    workspaces: bundle.workspaces.map((workspace) => {
+    workspaces: hasPilot
+      ? workspaces
+      : [...createSeedWorkspaces(), ...workspaces],
+  };
+}
+
+/** Mission 3+4+6+7+9+10 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand. */
+function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
+  const purged = purgeDemoWorkspaces(bundle);
+  return {
+    ...purged,
+    workspaces: purged.workspaces.map((workspace) => {
       let next: CompanyWorkspace = {
         ...workspace,
         solutionArchitecture: workspace.solutionArchitecture ?? null,

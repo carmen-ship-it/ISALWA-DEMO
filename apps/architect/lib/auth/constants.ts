@@ -1,8 +1,8 @@
 import type { ArchitectRole, AuthCapability, CompanyMembershipKind } from "@/types/auth";
 
-/** Canonical pilot company — matches existing company memory seed. */
-export const PILOT_COMPANY_WORKSPACE_ID = "ws_abc";
-export const PILOT_COMPANY_NAME = "ABC Manufacturing";
+/** Canonical pilot company — matches company memory seed. */
+export const PILOT_COMPANY_WORKSPACE_ID = "ws_isalwa";
+export const PILOT_COMPANY_NAME = "ISALWA";
 
 export const PILOT_USERS = {
   carmen: {
@@ -13,7 +13,7 @@ export const PILOT_USERS = {
     defaultPassword: "Architect2026!",
   },
   alvaro: {
-    email: "alvaro@abc.demo",
+    email: "alvaro@isalwa.demo",
     displayName: "Álvaro",
     role: "client" as ArchitectRole,
     passwordEnv: "ARCHITECT_PILOT_ALVARO_PASSWORD",

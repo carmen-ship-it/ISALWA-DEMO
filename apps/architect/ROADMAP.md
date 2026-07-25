@@ -96,7 +96,7 @@
 
 - Supabase Auth (email/password) + pilot cookie fallback
 - Roles: Consultant (Carmen) · Client (Álvaro)
-- Seed company: ABC Manufacturing
+- Seed company: ISALWA (`ws_isalwa`)
 - Route protection · Spanish login · role-based home
 - Documented alongside Mission 10 in [MISSION10.md](./MISSION10.md#auth-pilot-parallel-track)
 

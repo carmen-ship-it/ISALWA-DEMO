@@ -103,7 +103,7 @@ Set variables in Vercel → Project → Settings → Environment Variables for P
 | User | Email | Role | Default password |
 | --- | --- | --- | --- |
 | Carmen | `carmen@isalwa.demo` | Consultant | `Architect2026!` |
-| Álvaro | `alvaro@abc.demo` | Client | `Architect2026!` |
+| Álvaro | `alvaro@isalwa.demo` | Client | `Architect2026!` |
 
 ---
 

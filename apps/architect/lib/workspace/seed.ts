@@ -368,33 +368,9 @@ function seedWorkspace(input: {
   };
 }
 
-/** Demo companies so Home never feels like a blank chatbot. */
+/** Pilot seed — single real company only (no placeholder multi-tenant demos). */
 export function createSeedWorkspaces(): CompanyWorkspace[] {
   return [
-    seedWorkspace({
-      id: "ws_acme",
-      companyName: "Acme",
-      industry: "manufacturing",
-      understanding: 83,
-      stage: "Discovery",
-      lastLabel: "Last meeting yesterday",
-      daysSinceActivity: 1,
-      painTitles: [
-        "Excel everywhere",
-        "Lost WhatsApp history",
-        "No purchasing workflow",
-      ],
-      modules: ["Sales", "Purchasing", "Production", "Collections"],
-      openQuestions: ["Inventory", "Maintenance"],
-      facts: [
-        "You have 3 sales advisors.",
-        "Around 500 customers.",
-        "Customer history lives mostly in WhatsApp.",
-        "Purchasing approvals are manual.",
-      ],
-      personName: "Álvaro",
-      personRole: "founder",
-    }),
     seedWorkspace({
       id: "ws_isalwa",
       companyName: "ISALWA",
@@ -412,48 +388,6 @@ export function createSeedWorkspaces(): CompanyWorkspace[] {
       facts: [
         "ISALWA builds operating systems for mid-market companies.",
         "Discovery currently happens through Architect interviews.",
-      ],
-      personName: "Carmen",
-      personRole: "founder",
-    }),
-    seedWorkspace({
-      id: "ws_viaggio",
-      companyName: "Viaggio",
-      industry: "distribution",
-      understanding: 62,
-      stage: "Discovery",
-      lastLabel: "Last meeting last week",
-      daysSinceActivity: 7,
-      painTitles: [
-        "Orders tracked in chat",
-        "No shared inventory view",
-      ],
-      modules: ["Orders", "Inventory", "Logistics"],
-      openQuestions: ["Warehouse process", "Customer credit"],
-      facts: [
-        "Regional distribution across three cities.",
-        "Sales reps close deals by phone and WhatsApp.",
-      ],
-      personName: "Sofia",
-      personRole: "operations",
-    }),
-    seedWorkspace({
-      id: "ws_abc",
-      companyName: "ABC Manufacturing",
-      industry: "manufacturing",
-      understanding: 54,
-      stage: "Discovery",
-      lastLabel: "Last meeting 2 weeks ago",
-      daysSinceActivity: 14,
-      painTitles: [
-        "Shop floor status is verbal",
-        "BOM changes are emailed",
-      ],
-      modules: ["Production", "Inventory", "Quality"],
-      openQuestions: ["Production", "Quality holds", "Shipping"],
-      facts: [
-        "Family-owned plant with ~80 employees.",
-        "Production schedule lives in a whiteboard and Excel.",
       ],
       personName: "Álvaro",
       personRole: "owner",

@@ -14,7 +14,7 @@ Every interview becomes a permanent project. The Architect remembers companies a
 
 ### Product surfaces
 
-1. **Home / Companies** — “Your Companies” list (Acme, ISALWA, Viaggio, ABC Manufacturing) + New Company
+1. **Home / Companies** — assigned companies from session + memory store (pilot: ISALWA only)
 2. **Workspace** — calm living company memory (not a SaaS dashboard)
 3. **Interview** — existing guided adaptive experience, now attached to a workspace
 4. **Living Report** — evolves across meetings
