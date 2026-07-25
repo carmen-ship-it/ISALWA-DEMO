@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import type { AnimatedBlueprintModel } from "@/lib/executive";
 
 export function AnimatedBlueprint({
@@ -13,8 +14,8 @@ export function AnimatedBlueprint({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-500">
-          The living blueprint animates once modules and departments emerge from
-          discovery.
+          The operating model view appears once departments and capabilities
+          emerge from discovery.
         </p>
       </Card>
     );
@@ -24,10 +25,10 @@ export function AnimatedBlueprint({
     <div className="space-y-5">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Living Blueprint
+          Living blueprint
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Watch the operating system take shape.
+          Watch the operating model take shape.
         </h3>
       </div>
 
@@ -76,36 +77,30 @@ export function AnimatedBlueprint({
         </div>
 
         {model.connections.length > 0 ? (
-          <div className="mt-8 space-y-2 border-t border-neutral-100 pt-6">
+          <ExecutiveDetail
+            className="mt-8 border-t border-neutral-100 pt-6"
+            labelExpand="View how capabilities connect"
+            labelCollapse="Hide connections"
+          >
             <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
               Connections
             </p>
-            <ul className="space-y-1.5">
+            <ul className="mt-2 space-y-1.5">
               {model.connections.slice(0, 6).map((c, i) => (
                 <motion.li
                   key={`${c.from}-${c.to}-${i}`}
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.07, duration: 0.35 }}
+                  transition={{ delay: 0.1 + i * 0.05, duration: 0.35 }}
                   className="text-sm text-neutral-600"
                 >
                   <span className="text-neutral-950">{c.from}</span>
-                  <motion.span
-                    className="mx-2 inline-block text-neutral-300"
-                    animate={{ opacity: [0.35, 1, 0.35] }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2.2,
-                      delay: i * 0.15,
-                    }}
-                  >
-                    →
-                  </motion.span>
+                  <span className="mx-2 text-neutral-300">→</span>
                   <span className="text-neutral-950">{c.to}</span>
                 </motion.li>
               ))}
             </ul>
-          </div>
+          </ExecutiveDetail>
         ) : null}
       </div>
     </div>

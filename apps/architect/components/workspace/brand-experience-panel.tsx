@@ -2,10 +2,16 @@
 
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import {
   BRAND_ASSET_UPLOAD_PROVIDERS,
   BRAND_FUTURE_OUTPUTS,
 } from "@/lib/brand";
+import {
+  recommendationStrength,
+  strengthBand,
+  strengthHint,
+} from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type {
   AccessibilityProfile,
@@ -25,9 +31,9 @@ export function BrandExperiencePanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          Brand & Experience Studio appears once a Business Blueprint exists. It
-          learns how the company wants to look, feel, and be experienced in
-          software — inferred from discovery evidence, never invented.
+          Brand and experience guidance appears once the business blueprint is
+          in place. It captures how the company wants to look, feel, and be
+          experienced in software — inferred from discovery, never invented.
         </p>
       </Card>
     );
@@ -37,14 +43,14 @@ export function BrandExperiencePanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Brand & Experience Studio
+          Brand & experience
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Identity · Blueprint v{model.blueprintVersion}
+          Identity and experience direction
         </h3>
         <p className="mt-3 text-neutral-600">{model.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
-          Confidence {Math.round(model.overallConfidence * 100)}% ·{" "}
+          {recommendationStrength(model.overallConfidence)} ·{" "}
           {formatRelativeActivity(model.generatedAt)} · read-only
         </p>
       </Card>
@@ -106,7 +112,7 @@ export function BrandExperiencePanel({
                 {pref.enabled == null ? "unknown" : pref.enabled ? "on" : "off"}
                 <span className="text-neutral-400">
                   {" "}
-                  · {Math.round(pref.confidence * 100)}% — {pref.reasoning}
+                  · {strengthBand(pref.confidence)} — {pref.reasoning}
                 </span>
               </li>
             ))}
@@ -159,33 +165,38 @@ export function BrandExperiencePanel({
         <AccessibilityView profile={model.accessibility} />
       </Block>
 
-      <Block title="Confidence & Reasoning">
-        <Confidence value={model.overallConfidence} />
-        <ul className="mt-4 space-y-2">
+      <ExecutiveDetail
+        labelExpand="View rationale & sources"
+        labelCollapse="Hide rationale & sources"
+        summary={
+          <p className="text-sm text-neutral-600">
+            {recommendationStrength(model.overallConfidence)}.{" "}
+            {strengthHint(model.overallConfidence)}.
+          </p>
+        }
+      >
+        <ul className="space-y-2">
           {model.reasoning.map((line) => (
             <li key={line} className="text-sm text-neutral-700">
               {line}
             </li>
           ))}
         </ul>
-      </Block>
-
-      <Block title="Evidence">
-        <ul className="flex flex-wrap gap-2">
+        <ul className="mt-4 flex flex-wrap gap-2">
           {model.evidence.map((ref) => (
             <li
               key={`${ref.source}-${ref.id}`}
               className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-500"
             >
-              {ref.source}: {ref.label}
+              {ref.label}
             </li>
           ))}
         </ul>
-      </Block>
+      </ExecutiveDetail>
 
-      <Block title="Future Asset Intake">
+      <Block title="Future brand assets">
         <p className="mb-3 text-sm text-neutral-500">
-          Upload providers — designed, not implemented in Mission 10.
+          Asset intake channels — designed for a later release.
         </p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {BRAND_ASSET_UPLOAD_PROVIDERS.map((provider) => (
@@ -205,7 +216,7 @@ export function BrandExperiencePanel({
         </ul>
       </Block>
 
-      <Block title="Future Outputs">
+      <Block title="Future experience outputs">
         <ul className="grid gap-2 sm:grid-cols-2">
           {BRAND_FUTURE_OUTPUTS.map((output) => (
             <li
@@ -222,8 +233,15 @@ export function BrandExperiencePanel({
         </ul>
       </Block>
 
-      <Block title="White Label Readiness">
-        <Meta label="Tenant ID" value={model.whiteLabel.tenantId ?? "—"} />
+      <ExecutiveDetail
+        labelExpand="View white-label readiness"
+        labelCollapse="Hide white-label readiness"
+        summary={
+          <p className="text-sm text-neutral-600">
+            Partner branding readiness for future deployment — optional detail.
+          </p>
+        }
+      >
         <Meta label="Status" value={model.whiteLabel.status} />
         <RecField label="Custom domain" rec={model.whiteLabel.customDomain} />
         <RecField
@@ -231,7 +249,7 @@ export function BrandExperiencePanel({
           rec={model.whiteLabel.hideIsalwaBranding}
         />
         <RecField label="Partner name" rec={model.whiteLabel.partnerName} />
-      </Block>
+      </ExecutiveDetail>
     </div>
   );
 }
@@ -279,7 +297,7 @@ function RecField<T>({
       <p className="mt-1 text-sm text-neutral-800">{display}</p>
       {rec.confidence > 0 ? (
         <p className="mt-1 text-xs text-neutral-400">
-          {Math.round(rec.confidence * 100)}% — {rec.reasoning}
+          {strengthBand(rec.confidence)} — {rec.reasoning}
         </p>
       ) : (
         <p className="mt-1 text-xs text-neutral-400">{rec.reasoning}</p>
@@ -325,10 +343,7 @@ function Confidence({
 }) {
   return (
     <p className="text-sm text-neutral-700">
-      Overall confidence:{" "}
-      <span className="font-medium text-neutral-950">
-        {Math.round(value * 100)}%
-      </span>
+      {recommendationStrength(value)}
       {reasoning ? (
         <span className="text-neutral-400"> — {reasoning}</span>
       ) : null}
@@ -357,7 +372,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
                 {color.hex ? `(${color.hex})` : "(unknown)"}
               </span>
               <span className="text-neutral-400">
-                {Math.round(color.confidence * 100)}%
+                {strengthBand(color.confidence)}
               </span>
             </li>
           ))}
@@ -403,9 +418,9 @@ function NavigationList({ items }: { items: NavigationPreference[] }) {
           <p className="text-neutral-950">{nav.label}</p>
           <p className="mt-1 text-sm text-neutral-500">{nav.rationale}</p>
           <p className="mt-1 text-xs text-neutral-400">
-            {nav.pattern} · {Math.round(nav.confidence * 100)}%
+            {nav.pattern} · {strengthBand(nav.confidence)}
             {nav.modules.length > 0
-              ? ` · Modules: ${nav.modules.join(" · ")}`
+              ? ` · Capabilities: ${nav.modules.join(" · ")}`
               : ""}
           </p>
         </li>

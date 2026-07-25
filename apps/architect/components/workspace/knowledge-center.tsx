@@ -2,12 +2,14 @@
 
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import {
   KNOWLEDGE_CATEGORIES,
   KNOWLEDGE_CONNECTORS,
   KNOWLEDGE_PIPELINE,
   ensureWorkspaceKnowledge,
 } from "@/lib/knowledge";
+import { coverageBand } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { KnowledgeCategory, WorkspaceKnowledge } from "@/types";
 
@@ -24,19 +26,19 @@ export function KnowledgeCenter({
     <div className="space-y-8">
       <Card className="px-5 py-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Knowledge Summary
+          Evidence summary
         </p>
         <p className="mt-3 text-neutral-800">
           {vault.summary ??
-            "No company knowledge analyzed yet. Future uploads will land here as evidence."}
+            "No company knowledge analyzed yet. Future uploads will appear here as evidence."}
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <Meta
-            label="Documents"
+            label="Documents reviewed"
             value={String(processed.length)}
           />
           <Meta
-            label="Last Analysis"
+            label="Last review"
             value={
               vault.lastAnalysisAt
                 ? formatRelativeActivity(vault.lastAnalysisAt)
@@ -44,53 +46,66 @@ export function KnowledgeCenter({
             }
           />
           <Meta
-            label="Entities Found"
+            label="Topics identified"
             value={String(vault.entities.length)}
           />
         </div>
         {vault.unknownAreas.length > 0 ? (
           <p className="mt-5 text-sm text-neutral-500">
-            Unknown areas: {vault.unknownAreas.join(" · ")}
+            Still unclear: {vault.unknownAreas.join(" · ")}
           </p>
         ) : null}
       </Card>
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Coverage
+          Coverage by area
         </p>
         <ul className="mt-4 space-y-3">
-          {vault.coverage.map((slice) => (
-            <li
-              key={slice.area}
-              className="flex items-center justify-between gap-4"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-neutral-800">{slice.area}</span>
-                  <span className="tabular-nums text-neutral-950">
-                    {slice.percent}%
-                  </span>
+          {vault.coverage.map((slice) => {
+            const band = coverageBand(slice.percent, "percent");
+            const width =
+              band === "Strong"
+                ? 90
+                : band === "Solid"
+                  ? 70
+                  : band === "Partial"
+                    ? 50
+                    : band === "Limited"
+                      ? 30
+                      : 14;
+            return (
+              <li
+                key={slice.area}
+                className="flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-neutral-800">{slice.area}</span>
+                    <span className="text-neutral-950">{band}</span>
+                  </div>
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-100">
+                    <div
+                      className="h-full rounded-full bg-neutral-800 transition-all"
+                      style={{ width: `${width}%` }}
+                      aria-hidden
+                    />
+                  </div>
+                  <p className="mt-1.5 text-xs text-neutral-400">{slice.note}</p>
                 </div>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-100">
-                  <div
-                    className="h-full rounded-full bg-neutral-800 transition-all"
-                    style={{ width: `${slice.percent}%` }}
-                  />
-                </div>
-                <p className="mt-1.5 text-xs text-neutral-400">{slice.note}</p>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Knowledge Vault
+          Evidence library
         </p>
         <p className="mt-2 text-sm text-neutral-500">
-          Evidence — not attachments. Upload is designed, not built.
+          Structured evidence from company materials — upload arrives in a later
+          release.
         </p>
         <div className="mt-5 space-y-6">
           {KNOWLEDGE_CATEGORIES.map((category) => {
@@ -130,7 +145,7 @@ export function KnowledgeCenter({
       {vault.entities.length > 0 ? (
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Knowledge Graph · Entities
+            Topics identified
           </p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {vault.entities.map((entity) => (
@@ -138,27 +153,31 @@ export function KnowledgeCenter({
                 key={entity.id}
                 className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
               >
-                {entity.kind}: {entity.name}
+                {entity.name}
               </li>
             ))}
           </ul>
           {vault.relationships.length > 0 ? (
             <ul className="mt-4 space-y-2 text-sm text-neutral-600">
               {vault.relationships.slice(0, 5).map((relationship) => (
-                <li key={relationship.id}>
-                  {relationship.kind} — {relationship.label}
-                </li>
+                <li key={relationship.id}>{relationship.label}</li>
               ))}
             </ul>
           ) : null}
         </div>
       ) : null}
 
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Processing Pipeline
-        </p>
-        <ol className="mt-4 space-y-2">
+      <ExecutiveDetail
+        labelExpand="View how evidence is processed"
+        labelCollapse="Hide processing detail"
+        summary={
+          <p className="text-sm text-neutral-600">
+            Company materials move through a structured review path before they
+            inform recommendations.
+          </p>
+        }
+      >
+        <ol className="space-y-2">
           {KNOWLEDGE_PIPELINE.map((stage, index) => (
             <li
               key={stage.id}
@@ -171,18 +190,15 @@ export function KnowledgeCenter({
                 <span className="text-neutral-900">{stage.title}</span>
                 {" — "}
                 {stage.description}
-                <span className="ml-2 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                  {stage.status}
-                </span>
               </span>
             </li>
           ))}
         </ol>
-      </div>
+      </ExecutiveDetail>
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Future Connectors
+          Future data sources
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {KNOWLEDGE_CONNECTORS.slice(0, 8).map((connector) => (
@@ -192,7 +208,7 @@ export function KnowledgeCenter({
             >
               <p className="text-sm text-neutral-900">{connector.title}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                {connector.status}
+                {connector.status === "planned" ? "Planned" : connector.status}
               </p>
             </li>
           ))}

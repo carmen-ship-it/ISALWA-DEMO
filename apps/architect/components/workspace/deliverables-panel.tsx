@@ -8,6 +8,11 @@ import {
   DELIVERABLE_EXPORT_CONTRACTS,
   generateDeliverables,
 } from "@/lib/deliverables";
+import {
+  healthLabel,
+  maturityLabel,
+  recommendationStrength,
+} from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { CompanyWorkspace, DeliverablesPackage } from "@/types";
@@ -30,15 +35,15 @@ const TABS: Array<{ id: TabId; label: string }> = [
   { id: "executive", label: "Executive Summary" },
   { id: "assessment", label: "Business Assessment" },
   { id: "blueprint", label: "Blueprint" },
-  { id: "solution", label: "Solution" },
+  { id: "solution", label: "Architecture" },
   { id: "processes", label: "Processes" },
-  { id: "prd", label: "PRD" },
+  { id: "prd", label: "Requirements" },
   { id: "roadmap", label: "Roadmap" },
-  { id: "cursor", label: "Cursor Context" },
+  { id: "cursor", label: "Build Brief" },
   { id: "implementation", label: "Implementation Plan" },
-  { id: "backlog", label: "Sprint Backlog" },
+  { id: "backlog", label: "Work Backlog" },
   { id: "proposal", label: "Proposal" },
-  { id: "exports", label: "Future Exports" },
+  { id: "exports", label: "Export Options" },
 ];
 
 export function DeliverablesPanel({
@@ -84,13 +89,13 @@ export function DeliverablesPanel({
           Consulting package
         </h3>
         <p className="mt-3 text-neutral-600">
-          Generate a complete McKinsey-grade package from Company Memory,
-          Blueprint, Solution Architecture, Processes, and Consulting
-          Intelligence — documentation only, no production code.
+          Generate a complete consulting package from discovery evidence,
+          blueprint, architecture, and processes — documentation for decisions,
+          not production software.
         </p>
         <div className="mt-6">
           <Button onClick={() => void generate()} disabled={busy}>
-            {busy ? "Generating…" : "Generate Deliverables"}
+            {busy ? "Generating…" : "Generate package"}
           </Button>
         </div>
       </Card>
@@ -110,7 +115,7 @@ export function DeliverablesPanel({
             </h3>
             <p className="mt-3 max-w-2xl text-neutral-600">{pack.summary}</p>
             <p className="mt-4 text-sm text-neutral-400">
-              Confidence {Math.round(pack.overallConfidence * 100)}% ·{" "}
+              {recommendationStrength(pack.overallConfidence)} ·{" "}
               {formatRelativeActivity(pack.generatedAt)} · read-only previews
             </p>
           </div>
@@ -189,20 +194,12 @@ function DeliverablePreview({
           <List title="Current Processes" items={d.currentProcesses} />
           <List title="Departments" items={d.departments} />
           <Meta
-            label="Overall Maturity"
-            value={
-              d.overallMaturity != null
-                ? `${Math.round(d.overallMaturity * 100)}%`
-                : "—"
-            }
+            label="Operating maturity"
+            value={maturityLabel(d.overallMaturity)}
           />
           <Meta
-            label="Overall Health"
-            value={
-              d.overallHealth != null
-                ? `${Math.round(d.overallHealth * 100)}%`
-                : "—"
-            }
+            label="Business health"
+            value={healthLabel(d.overallHealth)}
           />
           <List title="Pain Points" items={d.painPoints} />
           <List
@@ -217,15 +214,15 @@ function DeliverablePreview({
       const d = pack.businessBlueprint;
       if (!d) return <Empty label="Blueprint deliverable unavailable" />;
       return (
-        <Article title={`Business Blueprint v${d.version}`}>
+        <Article title="Business Blueprint">
           <Section title="Summary" body={d.summary} />
           <List title="Capabilities" items={d.capabilities} />
           <List title="Departments" items={d.departments} />
           <List title="Workflows" items={d.workflows} />
-          <List title="Entities" items={d.entities} />
+          <List title="Core information" items={d.entities} />
           <List title="Systems" items={d.systems} />
-          <List title="Operating Rules" items={d.operatingRules} />
-          <List title="Modules" items={d.modules} />
+          <List title="Operating rules" items={d.operatingRules} />
+          <List title="Recommended capabilities" items={d.modules} />
         </Article>
       );
     }
@@ -233,13 +230,13 @@ function DeliverablePreview({
       const d = pack.solutionArchitecture;
       if (!d) return <Empty label="Solution deliverable unavailable" />;
       return (
-        <Article title="Solution Architecture">
+        <Article title="Recommended Architecture">
           <Section title="Summary" body={d.summary} />
-          <List title="Modules" items={d.modules} />
-          <List title="Entities" items={d.entities} />
+          <List title="Capabilities" items={d.modules} />
+          <List title="Core information" items={d.entities} />
           <List title="Relationships" items={d.relationships} />
           <List title="Roles" items={d.roles} />
-          <List title="Permissions" items={d.permissions} />
+          <List title="Access principles" items={d.permissions} />
           <List title="Navigation" items={d.navigation} />
           <List title="Integrations" items={d.integrations} />
           <List title="Roadmap" items={d.roadmap} />
@@ -253,8 +250,7 @@ function DeliverablePreview({
         <Article title="Process Book">
           <Section title="Summary" body={d.summary} />
           <p className="mt-2 text-xs text-neutral-400">
-            Executive diagrams: open Process Studio — workflow IDs reused, not
-            duplicated.
+            For interactive diagrams, open the Processes tab in this workspace.
           </p>
           {d.workflows.map((wf) => (
             <div key={wf.id} className="mt-6 border-t border-neutral-100 pt-5">
@@ -295,18 +291,24 @@ function DeliverablePreview({
           <List title="Risks" items={d.risks} />
           <div className="mt-6 border-t border-neutral-100 pt-5">
             <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-              Technical Architecture
+              System design concepts
             </p>
             <List
-              title="System Modules"
+              title="System capabilities"
               items={pack.technicalArchitecture.systemModules}
             />
             <List
-              title="Database Concepts"
+              title="Information concepts"
               items={pack.technicalArchitecture.databaseConcepts}
             />
-            <List title="API Concepts" items={pack.technicalArchitecture.apiConcepts} />
-            <List title="Integrations" items={pack.technicalArchitecture.integrations} />
+            <List
+              title="Connectivity concepts"
+              items={pack.technicalArchitecture.apiConcepts}
+            />
+            <List
+              title="Integrations"
+              items={pack.technicalArchitecture.integrations}
+            />
           </div>
         </Article>
       );
@@ -333,15 +335,15 @@ function DeliverablePreview({
     case "cursor": {
       const d = pack.cursorContext;
       return (
-        <Article title="Cursor Context">
+        <Article title="Build Brief">
           <Section title="Purpose" body={d.purpose} />
-          <List title="Core Modules" items={d.coreModules} />
-          <List title="Business Rules" items={d.businessRules} />
-          <List title="Critical Workflows" items={d.criticalWorkflows} />
-          <List title="Important Constraints" items={d.importantConstraints} />
-          <List title="Domain Language" items={d.domainLanguage} />
-          <List title="Success Metrics" items={d.successMetrics} />
-          <List title="Do NOT" items={d.doNot} />
+          <List title="Core capabilities" items={d.coreModules} />
+          <List title="Business rules" items={d.businessRules} />
+          <List title="Critical workflows" items={d.criticalWorkflows} />
+          <List title="Important constraints" items={d.importantConstraints} />
+          <List title="Domain language" items={d.domainLanguage} />
+          <List title="Success measures" items={d.successMetrics} />
+          <List title="Out of bounds" items={d.doNot} />
           <div className="mt-6 rounded-2xl border border-neutral-200 bg-stone-50/80 px-4 py-4">
             <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
               Master narrative
@@ -422,10 +424,10 @@ function DeliverablePreview({
 function ExportsPreview() {
   const contracts = useMemo(() => DELIVERABLE_EXPORT_CONTRACTS, []);
   return (
-    <Article title="Future Export Contracts">
+    <Article title="Export options">
       <p className="text-sm text-neutral-500">
-        Interfaces only — no PDF, Word, PowerPoint, or Jira implementation in
-        Mission 9.
+        Planned export formats for client handoff — available in a later
+        release.
       </p>
       <ul className="mt-5 grid gap-3 sm:grid-cols-2">
         {contracts.map((c) => (

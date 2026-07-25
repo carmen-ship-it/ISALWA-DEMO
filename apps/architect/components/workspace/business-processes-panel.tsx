@@ -25,6 +25,7 @@ import {
   type ProcessVisualizationContext,
   type VizNode,
 } from "@/lib/process-visualization";
+import { healthLabel, coverageBand } from "@/lib/presentation";
 import type { BusinessProcessModel } from "@/types";
 
 const selectClassName =
@@ -39,8 +40,8 @@ export function BusinessProcessesPanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          Process Studio appears once a Business Blueprint exists. Visualizations
-          render the canonical Process Engine — read-only, never invented.
+          Process views appear once the business blueprint is in place. Diagrams
+          reflect discovered workflows — read-only, never invented.
         </p>
       </Card>
     );
@@ -164,7 +165,7 @@ function ProcessStudio({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          No workflows available in the Process Engine.
+          No workflows available yet from discovery.
         </p>
       </Card>
     );
@@ -174,16 +175,14 @@ function ProcessStudio({
     <div className="space-y-5">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Process Studio
+          Process view
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
           {viz.workflowName}
         </h3>
         <p className="mt-3 text-neutral-600">{processes.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
-          Blueprint v{processes.blueprintVersion} ·{" "}
-          {formatRelativeActivity(processes.generatedAt)} · read-only
-          visualization
+          {formatRelativeActivity(processes.generatedAt)} · read-only view
         </p>
       </Card>
 
@@ -567,22 +566,22 @@ function MetricsSidebar({
   >["metrics"];
 }) {
   const rows: Array<[string, string]> = [
-    ["Total Steps", String(metrics.totalSteps)],
+    ["Total steps", String(metrics.totalSteps)],
     ["Departments", String(metrics.departments)],
-    ["Manual Steps", String(metrics.manualSteps)],
-    ["Automation Opportunities", String(metrics.automationOpportunities)],
+    ["Manual steps", String(metrics.manualSteps)],
+    ["Automation opportunities", String(metrics.automationOpportunities)],
     ["Approvals", String(metrics.approvals)],
     ["Documents", String(metrics.documents)],
-    ["Average Duration", metrics.averageDurationLabel],
-    ["Risk Level", metrics.riskLevel],
-    ["Process Health", `${Math.round(metrics.processHealth * 100)}%`],
-    ["Coverage", `${Math.round(metrics.coverage * 100)}%`],
+    ["Average duration", metrics.averageDurationLabel],
+    ["Risk level", metrics.riskLevel],
+    ["Process health", healthLabel(metrics.processHealth)],
+    ["Coverage", coverageBand(metrics.coverage, "unit")],
   ];
 
   return (
     <aside className="h-fit rounded-3xl border border-neutral-200/80 bg-white/90 px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-        Metrics
+        Snapshot
       </p>
       <ul className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
@@ -596,7 +595,7 @@ function MetricsSidebar({
         ))}
       </ul>
       <p className="mt-4 text-[11px] leading-relaxed text-neutral-400">
-        Derived from the Process Engine. Never manually entered.
+        Derived from discovered workflows — never manually entered.
       </p>
     </aside>
   );

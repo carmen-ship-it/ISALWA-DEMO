@@ -117,7 +117,7 @@ export function deriveExecutiveExperience(
       label: "Negocio comprendido",
       detail:
         workspace.businessUnderstanding >= 40
-          ? `${workspace.businessUnderstanding}% de comprensión del negocio`
+          ? "Comprensión del negocio en buen camino"
           : "Aún mapeando cómo opera la empresa",
       complete: workspace.businessUnderstanding >= 40,
     },
@@ -134,10 +134,10 @@ export function deriveExecutiveExperience(
       id: "architecture",
       label: "Arquitectura generada",
       detail: solution
-        ? `${solution.modules.length} módulos · Blueprint v${solution.blueprintVersion}`
+        ? `${solution.modules.length} capacidades recomendadas`
         : blueprint
-          ? `Blueprint v${blueprint.version} disponible`
-          : "Pendiente de Business Blueprint",
+          ? "Blueprint de negocio disponible"
+          : "Pendiente de blueprint de negocio",
       complete: solution != null || blueprint != null,
     },
     {
@@ -146,7 +146,7 @@ export function deriveExecutiveExperience(
       detail: workspace.deliverables
         ? "Paquete de consultoría listo"
         : (solution?.modules.length ?? 0) > 0
-          ? `${solution!.modules.length} módulos sugeridos con evidencia`
+          ? `${solution!.modules.length} capacidades sugeridas con evidencia`
           : "Las recomendaciones evolucionan con evidencia",
       complete:
         workspace.deliverables != null || (solution?.modules.length ?? 0) > 0,

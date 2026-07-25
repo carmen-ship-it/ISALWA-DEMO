@@ -2,6 +2,29 @@
 
 import { motion } from "motion/react";
 import type { JourneyStage } from "@/lib/executive";
+import { understandingLevel } from "@/lib/presentation";
+
+function humanizeJourneyDetail(detail: string): string {
+  // Soften residual presentation strings that still carry scores/versions.
+  let next = detail.replace(
+    /(\d+)\s*%\s*de comprensión del negocio/i,
+    (_m, n: string) => {
+      const level = understandingLevel(Number(n));
+      return `Comprensión del negocio: ${level === "Strong" ? "sólida" : level === "Developing" ? "en desarrollo" : level === "Early" ? "inicial" : "en formación"}`;
+    },
+  );
+  next = next.replace(
+    /(\d+)\s*%\s*(business understanding|understanding)/i,
+    (_m, n: string) => `Business understanding: ${understandingLevel(Number(n))}`,
+  );
+  next = next.replace(/Blueprint\s*v\d+/gi, "Business blueprint available");
+  next = next.replace(/·\s*Blueprint[^·]*/gi, "");
+  next = next.replace(/\b\d+\s*módulos\b/gi, (m) =>
+    m.replace("módulos", "capacidades"),
+  );
+  next = next.replace(/\bmodules\b/gi, "capabilities");
+  return next.trim();
+}
 
 export function DiscoveryJourney({
   dayLabel,
@@ -44,7 +67,9 @@ export function DiscoveryJourney({
                 >
                   {stage.label}
                 </p>
-                <p className="mt-1 text-sm text-neutral-500">{stage.detail}</p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {humanizeJourneyDetail(stage.detail)}
+                </p>
                 {index < stages.length - 1 ? (
                   <p className="mt-3 text-neutral-300">↓</p>
                 ) : null}

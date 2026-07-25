@@ -3,9 +3,16 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { BLUEPRINT_FUTURE_OUTPUTS, latestBlueprint } from "@/lib/blueprint";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { BusinessBlueprint } from "@/types";
+
+function blueprintRevisionLabel(indexFromNewest: number): string {
+  if (indexFromNewest === 0) return "Current";
+  if (indexFromNewest === 1) return "Previous";
+  return `Older · ${indexFromNewest}`;
+}
 
 export function BusinessBlueprintPanel({
   blueprints,
@@ -24,9 +31,9 @@ export function BusinessBlueprintPanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          The Business OS Blueprint will appear after discovery produces enough
-          structured understanding. It becomes the canonical source for process
-          maps, proposals, PRDs, and future ISALWA configuration.
+          The business operating blueprint appears after discovery produces
+          enough structured understanding. It becomes the foundation for process
+          maps, proposals, and future configuration.
         </p>
       </Card>
     );
@@ -36,15 +43,14 @@ export function BusinessBlueprintPanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Business OS Blueprint
+          Business operating blueprint
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
           {selected.title}
         </h3>
         <p className="mt-3 text-neutral-600">{selected.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
-          Version {selected.version}
-          {selected.superseded ? " · archived" : " · current"} ·{" "}
+          {selected.superseded ? "Earlier revision" : "Current assessment"} ·{" "}
           {formatRelativeActivity(selected.generatedAt)}
         </p>
       </Card>
@@ -52,10 +58,10 @@ export function BusinessBlueprintPanel({
       {sorted.length > 1 ? (
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Versions
+            Revisions
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
-            {sorted.map((blueprint) => (
+            {sorted.map((blueprint, index) => (
               <li key={blueprint.id}>
                 <button
                   type="button"
@@ -66,28 +72,29 @@ export function BusinessBlueprintPanel({
                       : "rounded-full border border-neutral-200 px-3 py-1.5 text-xs text-neutral-600 hover:border-neutral-400"
                   }
                 >
-                  v{blueprint.version}
+                  {blueprintRevisionLabel(index)}
                 </button>
               </li>
             ))}
           </ul>
           <p className="mt-2 text-xs text-neutral-400">
-            Versions are append-only. Interviews never overwrite prior blueprints.
+            Earlier assessments are preserved — discovery never overwrites prior
+            findings.
           </p>
         </div>
       ) : null}
 
-      <BlueprintBlock title="Current State">
+      <BlueprintBlock title="Current state">
         <p>{selected.currentState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Future State">
+      <BlueprintBlock title="Future state">
         <p>{selected.futureState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Future Architecture">
+      <BlueprintBlock title="Transformation path">
         <ArchitectureLine
-          label="Current"
+          label="Today"
           summary={selected.futureArchitecture.current.summary}
         />
         <ArchitectureLine
@@ -108,7 +115,7 @@ export function BusinessBlueprintPanel({
               <p className="mt-1 text-sm text-neutral-500">{cap.purpose}</p>
               {cap.painPoints.length > 0 ? (
                 <p className="mt-1 text-xs text-neutral-400">
-                  Pain: {cap.painPoints.slice(0, 2).join(" · ")}
+                  Friction: {cap.painPoints.slice(0, 2).join(" · ")}
                 </p>
               ) : null}
             </li>
@@ -122,144 +129,158 @@ export function BusinessBlueprintPanel({
         </p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Workflows">
-        <ul className="space-y-5">
-          {selected.workflows.map((workflow) => (
-            <li key={workflow.id}>
-              <p className="text-neutral-950">{workflow.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">
-                Trigger: {workflow.trigger}
-              </p>
-              <ol className="mt-3 space-y-2">
-                {workflow.steps.map((step, index) => (
-                  <li
-                    key={step.id}
-                    className="flex gap-3 text-sm text-neutral-700"
-                  >
-                    <span className="text-neutral-400">{index + 1}.</span>
-                    <span>
-                      {step.name}
-                      <span className="text-neutral-400">
-                        {" "}
-                        · {step.actor}
-                        {step.manual ? " · manual" : ""}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+      <ExecutiveDetail
+        labelExpand="View workflows & operating detail"
+        labelCollapse="Hide workflows & operating detail"
+        summary={
+          <p className="text-sm text-neutral-600">
+            Key workflows, operating rules, systems in use, and opportunity
+            areas — available when you need the supporting detail.
+          </p>
+        }
+      >
+        <div className="space-y-8">
+          <BlueprintBlock title="Workflows">
+            <ul className="space-y-5">
+              {selected.workflows.map((workflow) => (
+                <li key={workflow.id}>
+                  <p className="text-neutral-950">{workflow.name}</p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    Starts when: {workflow.trigger}
+                  </p>
+                  <ol className="mt-3 space-y-2">
+                    {workflow.steps.map((step, index) => (
+                      <li
+                        key={step.id}
+                        className="flex gap-3 text-sm text-neutral-700"
+                      >
+                        <span className="text-neutral-400">{index + 1}.</span>
+                        <span>
+                          {step.name}
+                          <span className="text-neutral-400">
+                            {" "}
+                            · {step.actor}
+                            {step.manual ? " · manual" : ""}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Entity Catalog">
-        <ul className="flex flex-wrap gap-2">
-          {selected.entities.map((entity) => (
-            <li
-              key={entity.id}
-              className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
-            >
-              {entity.name}
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Core business information">
+            <ul className="flex flex-wrap gap-2">
+              {selected.entities.map((entity) => (
+                <li
+                  key={entity.id}
+                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
+                >
+                  {entity.name}
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Operating Rules">
-        <ul className="space-y-2">
-          {selected.operatingRules.map((rule) => (
-            <li key={rule.id} className="text-neutral-700">
-              {rule.statement}
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Operating rules">
+            <ul className="space-y-2">
+              {selected.operatingRules.map((rule) => (
+                <li key={rule.id} className="text-neutral-700">
+                  {rule.statement}
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="System Inventory">
-        <ul className="space-y-4">
-          {selected.systems.map((system) => (
-            <li key={system.id}>
-              <p className="text-neutral-950">{system.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{system.purpose}</p>
-              <p className="mt-1 text-xs text-neutral-400">
-                Replace: {system.replacementStrategy}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Systems in use">
+            <ul className="space-y-4">
+              {selected.systems.map((system) => (
+                <li key={system.id}>
+                  <p className="text-neutral-950">{system.name}</p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {system.purpose}
+                  </p>
+                  <p className="mt-1 text-xs text-neutral-400">
+                    Replacement approach: {system.replacementStrategy}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Pain Point Matrix">
-        <ul className="space-y-2">
-          {selected.painPoints.map((pain) => (
-            <li key={pain.id} className="flex gap-3 text-sm">
-              <span className="w-28 shrink-0 text-neutral-400">
-                {pain.category}
-              </span>
-              <span className="text-neutral-800">{pain.title}</span>
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Pain points">
+            <ul className="space-y-2">
+              {selected.painPoints.map((pain) => (
+                <li key={pain.id} className="flex gap-3 text-sm">
+                  <span className="w-28 shrink-0 text-neutral-400">
+                    {pain.category}
+                  </span>
+                  <span className="text-neutral-800">{pain.title}</span>
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Opportunity Matrix">
-        <ul className="space-y-3">
-          {selected.opportunities.map((opp) => (
-            <li key={opp.id}>
-              <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                {opp.horizon}
-              </p>
-              <p className="mt-1 text-neutral-950">{opp.title}</p>
-              <p className="mt-1 text-sm text-neutral-500">{opp.description}</p>
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Opportunities">
+            <ul className="space-y-3">
+              {selected.opportunities.map((opp) => (
+                <li key={opp.id}>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                    {opp.horizon}
+                  </p>
+                  <p className="mt-1 text-neutral-950">{opp.title}</p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {opp.description}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Modules">
-        <p className="text-neutral-800">
-          {selected.modules.map((m) => m.name).join(" · ") || "—"}
-        </p>
-      </BlueprintBlock>
+          <BlueprintBlock title="Recommended capabilities">
+            <p className="text-neutral-800">
+              {selected.modules.map((m) => m.name).join(" · ") || "—"}
+            </p>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Open Questions">
-        <p className="text-neutral-800">
-          {selected.openQuestions.join(" · ") || "None recorded."}
-        </p>
-      </BlueprintBlock>
+          <BlueprintBlock title="Open questions">
+            <p className="text-neutral-800">
+              {selected.openQuestions.join(" · ") || "None recorded."}
+            </p>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Evidence Lineage">
-        <ul className="flex flex-wrap gap-2">
-          {selected.evidence.slice(0, 10).map((ref) => (
-            <li
-              key={`${ref.source}-${ref.id}`}
-              className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-500"
-            >
-              {ref.source}: {ref.label}
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Sources consulted">
+            <ul className="flex flex-wrap gap-2">
+              {selected.evidence.slice(0, 10).map((ref) => (
+                <li
+                  key={`${ref.source}-${ref.id}`}
+                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-500"
+                >
+                  {ref.label}
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
 
-      <BlueprintBlock title="Future Outputs">
-        <p className="mb-3 text-sm text-neutral-500">
-          Designed generation targets — nothing generated in Mission 4.
-        </p>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {BLUEPRINT_FUTURE_OUTPUTS.map((output) => (
-            <li
-              key={output.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
-            >
-              <p className="text-sm text-neutral-900">{output.title}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                {output.status}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </BlueprintBlock>
+          <BlueprintBlock title="Future documentation">
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {BLUEPRINT_FUTURE_OUTPUTS.map((output) => (
+                <li
+                  key={output.id}
+                  className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+                >
+                  <p className="text-sm text-neutral-900">{output.title}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                    {output.status === "planned" ? "Planned" : output.status}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </BlueprintBlock>
+        </div>
+      </ExecutiveDetail>
     </div>
   );
 }

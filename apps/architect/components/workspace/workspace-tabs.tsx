@@ -66,7 +66,7 @@ export function WorkspaceTabs({
 
   return (
     <div className="mt-10">
-      <div className="sticky top-0 z-30 -mx-6 border-b border-neutral-200/80 bg-[color-mix(in_oklab,var(--background)_92%,white)] px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
+      <div className="sticky top-0 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
         <div
           role="tablist"
           aria-label="Workspace sections"
