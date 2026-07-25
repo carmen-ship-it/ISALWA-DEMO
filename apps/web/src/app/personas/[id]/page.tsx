@@ -1,9 +1,17 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Panel, StatusPill } from '@isalwa/ui';
+import {
+  Panel,
+  StatusPill,
+  InsightCard,
+  CommercialEventIcon,
+  IconSpark,
+  resolveCommercialEventIconKind,
+} from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 import { CheckInButton } from '@/components/check-in-button';
 import { AnimatedValue } from '@/components/animated-value';
+import { ReadingProgress } from '@/components/reading-progress';
 import { apiGet } from '@/lib/api';
 
 // ── Full dossier type — mirrors accounts.service.ts output ───────────────────
@@ -197,17 +205,16 @@ function invoiceTone(status: string): 'success' | 'warning' | 'danger' | 'neutra
 // We match by prefix so any visit.* / invoice.* variant resolves correctly.
 const TIMELINE_EVENT_PREFIXES: Array<{
   prefix: string;
-  icon: string;
   color: string;
   bg: string;
 }> = [
-  { prefix: 'visit',    icon: '◉', color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 13%, white)' },
-  { prefix: 'invoice',  icon: '▪', color: 'var(--isalwa-slate)',   bg: 'color-mix(in srgb, var(--isalwa-slate) 10%, white)' },
-  { prefix: 'quote',    icon: '◇', color: 'var(--isalwa-info)',    bg: 'color-mix(in srgb, var(--isalwa-info) 13%, white)' },
-  { prefix: 'payment',  icon: '✦', color: 'var(--isalwa-success)', bg: 'color-mix(in srgb, var(--isalwa-success) 12%, white)' },
-  { prefix: 'order',    icon: '□', color: 'var(--isalwa-copper)',  bg: 'color-mix(in srgb, var(--isalwa-copper) 12%, white)' },
-  { prefix: 'whatsapp', icon: '○', color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 9%, white)' },
-  { prefix: 'message',  icon: '○', color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 9%, white)' },
+  { prefix: 'visit',    color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 13%, white)' },
+  { prefix: 'invoice',  color: 'var(--isalwa-slate)',   bg: 'color-mix(in srgb, var(--isalwa-slate) 10%, white)' },
+  { prefix: 'quote',    color: 'var(--isalwa-info)',    bg: 'color-mix(in srgb, var(--isalwa-info) 13%, white)' },
+  { prefix: 'payment',  color: 'var(--isalwa-success)', bg: 'color-mix(in srgb, var(--isalwa-success) 12%, white)' },
+  { prefix: 'order',    color: 'var(--isalwa-copper)',  bg: 'color-mix(in srgb, var(--isalwa-copper) 12%, white)' },
+  { prefix: 'whatsapp', color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 9%, white)' },
+  { prefix: 'message',  color: 'var(--isalwa-glaze)',   bg: 'color-mix(in srgb, var(--isalwa-glaze) 9%, white)' },
 ];
 
 // Maps known raw API body strings from timeline events to Spanish
@@ -234,7 +241,6 @@ function getEventMeta(type: string) {
   const t = type.toLowerCase();
   return (
     TIMELINE_EVENT_PREFIXES.find((e) => t.startsWith(e.prefix)) ?? {
-      icon: '·',
       color: 'var(--isalwa-slate)',
       bg: 'var(--isalwa-mist)',
     }
@@ -243,39 +249,39 @@ function getEventMeta(type: string) {
 
 // ── Relationship score — SVG gauge (semicircle) ───────────────────────────────
 function ScoreGauge({ score }: { score: number }) {
-  const r = 36;
-  const arc = Math.PI * r; // ≈ 113.1 — half-circumference
-  const dashoffset = arc * (1 - Math.min(100, Math.max(0, score)) / 100);
+  const r = 34;
+  const arc = Math.PI * r;
+  const clamped = Math.min(100, Math.max(0, score));
+  const dashoffset = arc * (1 - clamped / 100);
   const color = scoreColor(score);
-  // M 14 46 A 36 36 0 0 0 86 46 → upper semicircle (sweep-flag=0 CCW)
-  const d = `M 14 46 A ${r} ${r} 0 0 0 86 46`;
+  const d = `M 16 44 A ${r} ${r} 0 0 0 84 44`;
 
   return (
     <svg
       width="100"
-      height="52"
-      viewBox="0 0 100 52"
+      height="50"
+      viewBox="0 0 100 50"
       aria-hidden
       focusable="false"
       style={{ display: 'block', margin: '0 auto' }}
     >
-      {/* Track */}
       <path
         d={d}
         fill="none"
         stroke="var(--isalwa-mist)"
-        strokeWidth="7"
+        strokeWidth="6"
         strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
       />
-      {/* Fill */}
       <path
         d={d}
         fill="none"
         stroke={color}
-        strokeWidth="7"
+        strokeWidth="6"
         strokeLinecap="round"
         strokeDasharray={arc}
         strokeDashoffset={dashoffset}
+        vectorEffect="non-scaling-stroke"
       />
     </svg>
   );
@@ -324,6 +330,7 @@ export default async function DossierPage({
 
   return (
     <AppShell active="/personas">
+      <ReadingProgress />
 
       {/* ── Sticky identity bar ────────────────────────────────────────────── */}
       <div
@@ -397,10 +404,10 @@ export default async function DossierPage({
         </div>
       </div>
 
-      <main className="px-5 pb-16 pt-7 md:px-8">
+      <main className="isalwa-page pt-6 md:pt-8">
 
         {/* ── Customer hero ──────────────────────────────────────────────────── */}
-        <header className="isalwa-enter mb-7">
+        <header className="isalwa-enter mb-8">
 
           {/* Metadata — code, legal name, NIT, contact */}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -476,22 +483,7 @@ export default async function DossierPage({
 
           {/* AI summary — editorial voice, Newsreader italic */}
           {dossier.aiSummary && (
-            <blockquote
-              style={{
-                margin: '20px 0 0',
-                padding: '16px 20px',
-                borderLeft: '3px solid var(--isalwa-glaze)',
-                background: 'color-mix(in srgb, var(--isalwa-glaze) 5%, white)',
-                borderRadius: '0 var(--isalwa-radius-control) var(--isalwa-radius-control) 0',
-                fontFamily: 'var(--isalwa-font-display)',
-                fontStyle: 'italic',
-                fontSize: 'clamp(14px, 1.2vw, 16px)',
-                lineHeight: 1.6,
-                color: 'var(--isalwa-kiln)',
-              }}
-            >
-              {dossier.aiSummary}
-            </blockquote>
+            <InsightCard className="mt-6">{dossier.aiSummary}</InsightCard>
           )}
 
           {/* Evidence chips */}
@@ -506,7 +498,7 @@ export default async function DossierPage({
 
         {/* ── Vitals strip — 3 numbers that answer "how are we doing?" ──────── */}
         <div
-          className="isalwa-enter isalwa-enter-delay-1 mb-5 grid grid-cols-3 gap-3"
+          className="isalwa-enter isalwa-enter-delay-1 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3"
           role="region"
           aria-label="Indicadores clave"
         >
@@ -628,9 +620,14 @@ export default async function DossierPage({
           >
             <span
               aria-hidden
-              style={{ fontSize: 13, color: 'var(--isalwa-info)', flexShrink: 0 }}
+              style={{
+                color: 'var(--isalwa-info)',
+                flexShrink: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
             >
-              ◈
+              <IconSpark size={15} />
             </span>
             <p style={{ fontSize: 13, color: 'var(--isalwa-kiln)', margin: 0, flex: 1 }}>
               <span style={{ fontWeight: 600 }}>Próximo pedido predicho:</span>{' '}
@@ -751,13 +748,15 @@ export default async function DossierPage({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: 13,
                           flexShrink: 0,
                           border: '2px solid var(--isalwa-white)',
                           boxShadow: '0 0 0 1px var(--isalwa-mist)',
                         }}
                       >
-                        {meta.icon}
+                        <CommercialEventIcon
+                          kind={resolveCommercialEventIconKind(ev.type)}
+                          size={15}
+                        />
                       </div>
 
                       {/* Content */}

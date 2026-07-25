@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { getPrisma } from '@isalwa/database';
+import { emitCommercialEvent, getPrisma } from '@isalwa/database';
 import { createId } from '@isalwa/ts-utils';
 import type { ProviderRegistry } from '@isalwa/providers';
 import { PROVIDER_REGISTRY } from '../providers/providers.tokens';
@@ -176,18 +176,17 @@ export class CommerceService {
       },
     });
 
-    await prisma.activityEvent.create({
-      data: {
-        id: createId(),
-        organizationId: account.organizationId,
-        accountId: account.id,
-        actorUserId: account.ownerUserId,
-        type: 'quote_created',
-        title: `Cotización ${number} creada`,
-        body: `${lines.length} líneas · ${money(subtotal).label}`,
-        payloadJson: { quoteId },
-        occurredAt: new Date(),
-      },
+    await emitCommercialEvent(prisma, {
+      id: createId(),
+      type: 'quote.created',
+      organizationId: account.organizationId,
+      accountId: account.id,
+      actor: { kind: 'user', userId: account.ownerUserId },
+      occurredAt: new Date(),
+      title: `Cotización ${number} creada`,
+      body: `${lines.length} líneas · ${money(subtotal).label}`,
+      related: { type: 'quote', id: quoteId },
+      metadata: { quoteId, totalCentavos: subtotal.toString() },
     });
 
     return this.getQuote(quoteId);
@@ -241,18 +240,17 @@ export class CommerceService {
       });
     }
 
-    await prisma.activityEvent.create({
-      data: {
-        id: createId(),
-        organizationId: q.organizationId,
-        accountId: q.accountId,
-        actorUserId: q.ownerUserId,
-        type: 'quote_sent',
-        title: `Cotización ${q.number} enviada`,
-        body: `PDF mock ${pdfBytes.byteLength} bytes · lista para WhatsApp`,
-        payloadJson: { quoteId: q.id, pdfBytes: pdfBytes.byteLength },
-        occurredAt: new Date(),
-      },
+    await emitCommercialEvent(prisma, {
+      id: createId(),
+      type: 'quote.sent',
+      organizationId: q.organizationId,
+      accountId: q.accountId,
+      actor: { kind: 'user', userId: q.ownerUserId },
+      occurredAt: new Date(),
+      title: `Cotización ${q.number} enviada`,
+      body: `PDF mock ${pdfBytes.byteLength} bytes · lista para WhatsApp`,
+      related: { type: 'quote', id: q.id },
+      metadata: { quoteId: q.id, pdfBytes: pdfBytes.byteLength },
     });
 
     return this.getQuote(id);
@@ -336,18 +334,44 @@ export class CommerceService {
           },
         },
       });
-      await tx.activityEvent.create({
-        data: {
-          id: createId(),
-          organizationId: q.organizationId,
-          accountId: q.accountId,
-          actorUserId: q.ownerUserId,
-          type: 'quote_accepted',
-          title: `Cotización ${q.number} aceptada`,
-          body: 'Pedido y factura generados automáticamente',
-          payloadJson: { quoteId: q.id, orderId, invoiceId },
-          occurredAt: now,
-        },
+      await emitCommercialEvent(tx, {
+        id: createId(),
+        type: 'quote.accepted',
+        organizationId: q.organizationId,
+        accountId: q.accountId,
+        actor: { kind: 'user', userId: q.ownerUserId },
+        occurredAt: now,
+        title: `Cotización ${q.number} aceptada`,
+        body: 'Pedido y factura generados automáticamente',
+        related: { type: 'quote', id: q.id },
+        evidence: [
+          { kind: 'entity', ref: { type: 'quote', id: q.id } },
+          { kind: 'entity', ref: { type: 'order', id: orderId } },
+          { kind: 'entity', ref: { type: 'invoice', id: invoiceId } },
+        ],
+        metadata: { quoteId: q.id, orderId, invoiceId },
+      });
+      await emitCommercialEvent(tx, {
+        id: createId(),
+        type: 'order.confirmed',
+        organizationId: q.organizationId,
+        accountId: q.accountId,
+        actor: { kind: 'user', userId: q.ownerUserId },
+        occurredAt: now,
+        title: 'Pedido confirmado',
+        related: { type: 'order', id: orderId },
+        metadata: { orderId, quoteId: q.id },
+      });
+      await emitCommercialEvent(tx, {
+        id: createId(),
+        type: 'invoice.issued',
+        organizationId: q.organizationId,
+        accountId: q.accountId,
+        actor: { kind: 'user', userId: q.ownerUserId },
+        occurredAt: now,
+        title: 'Factura emitida',
+        related: { type: 'invoice', id: invoiceId },
+        metadata: { invoiceId, orderId, quoteId: q.id },
       });
     });
 
@@ -424,6 +448,9 @@ export class CommerceService {
     const status = newBalance === 0n ? 'paid' : 'partial';
 
     await prisma.$transaction(async (tx) => {
+      const ownerUserId = (
+        await tx.account.findUniqueOrThrow({ where: { id: inv.accountId } })
+      ).ownerUserId;
       await tx.payment.create({
         data: {
           id: paymentId,
@@ -433,9 +460,7 @@ export class CommerceService {
           method: input.method ?? 'transfer',
           paidAt: new Date(),
           reference: input.reference ?? `PAY-${paymentId.slice(0, 8)}`,
-          recordedById: (
-            await tx.account.findUniqueOrThrow({ where: { id: inv.accountId } })
-          ).ownerUserId,
+          recordedById: ownerUserId,
           allocations: {
             create: {
               id: createId(),
@@ -449,17 +474,21 @@ export class CommerceService {
         where: { id: inv.id },
         data: { balanceCentavos: newBalance, status },
       });
-      await tx.activityEvent.create({
-        data: {
-          id: createId(),
-          organizationId: inv.organizationId,
-          accountId: inv.accountId,
-          type: 'payment_recorded',
-          title: `Pago ${money(amount).label} aplicado a ${inv.number}`,
-          body: status === 'paid' ? 'Factura saldada' : `Saldo restante ${money(newBalance).label}`,
-          payloadJson: { paymentId, invoiceId: inv.id },
-          occurredAt: new Date(),
-        },
+      await emitCommercialEvent(tx, {
+        id: createId(),
+        type: 'payment.allocated',
+        organizationId: inv.organizationId,
+        accountId: inv.accountId,
+        actor: { kind: 'user', userId: ownerUserId },
+        occurredAt: new Date(),
+        title: `Pago ${money(amount).label} aplicado a ${inv.number}`,
+        body: status === 'paid' ? 'Factura saldada' : `Saldo restante ${money(newBalance).label}`,
+        related: { type: 'payment', id: paymentId },
+        evidence: [
+          { kind: 'entity', ref: { type: 'payment', id: paymentId } },
+          { kind: 'entity', ref: { type: 'invoice', id: inv.id } },
+        ],
+        metadata: { paymentId, invoiceId: inv.id, amountCentavos: amount.toString() },
       });
     });
 

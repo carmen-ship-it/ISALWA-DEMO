@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { EmptyState, ExperienceHeader, Panel, StatusPill } from '@isalwa/ui';
+import { EmptyState, ExperienceHeader, PageContainer, Panel, StatusPill, cx } from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 import { apiGet } from '@/lib/api';
 
@@ -37,16 +37,14 @@ export default async function RadarPage() {
 
   return (
     <AppShell active="/radar">
-      <main className="px-5 py-8 md:px-8">
+      <PageContainer label="Radar">
         <ExperienceHeader
           kicker="Radar"
           title="¿Quién necesita atención hoy?"
           subtitle="La urgencia se ve antes de leer. La barra es el riesgo — el texto confirma."
         />
 
-        {error ? (
-          <EmptyState title={error} description="Reintente cuando la API esté en línea." />
-        ) : null}
+        {error ? <EmptyState title={error} description="Reintente cuando la API esté en línea." /> : null}
 
         <div data-tour="radar-list" className="space-y-3">
           {data.items.map((item, idx) => {
@@ -54,47 +52,50 @@ export default async function RadarPage() {
               typeof item.reason === 'string'
                 ? item.reason
                 : String((item.reason as { reason?: string })?.reason ?? 'Requiere seguimiento');
-            const tone = item.kind === 'collections' ? 'danger' : 'warning';
+            const critical = item.score >= 90;
+            const tone = item.kind === 'collections' || critical ? 'danger' : 'warning';
             const bar =
-              item.kind === 'collections' ? 'var(--isalwa-danger)' : 'var(--isalwa-warning)';
+              item.kind === 'collections' || critical
+                ? 'var(--isalwa-danger)'
+                : 'var(--isalwa-warning)';
             return (
               <Panel
                 key={item.id}
                 interactive
-                className={`group isalwa-enter isalwa-enter-delay-${Math.min((idx % 4) + 1, 4)} overflow-hidden p-0`}
+                className={cx(
+                  `group isalwa-enter isalwa-enter-delay-${Math.min((idx % 4) + 1, 4)} overflow-hidden p-0`,
+                  critical && 'ring-1 ring-[color-mix(in_srgb,var(--isalwa-danger)_18%,transparent)]',
+                )}
               >
                 <Link
                   href={item.href}
-                  className="block p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)] focus-visible:ring-inset md:p-5"
+                  className="block p-5 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_color-mix(in_srgb,var(--isalwa-glaze)_35%,transparent)] md:p-6"
                 >
-                  <div className="isalwa-risk-bar mb-3">
+                  <div className={cx('isalwa-risk-bar mb-4', critical && 'h-1')}>
                     <span style={{ width: riskWidth(item.score), background: bar }} />
                   </div>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold leading-snug">{item.title}</h2>
+                        <h2 className="text-[var(--isalwa-text-base)] font-semibold leading-snug tracking-[-0.01em]">
+                          {item.title}
+                        </h2>
                         {item.segment ? <StatusPill tone="info">Seg. {item.segment}</StatusPill> : null}
                         <StatusPill tone={tone}>{kindLabel(item.kind)}</StatusPill>
+                        {critical ? <StatusPill tone="danger">Crítico</StatusPill> : null}
                       </div>
-                      <p className="mt-1.5 text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">{reason}</p>
+                      <p className="mt-2 text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">
+                        {reason}
+                      </p>
                     </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex shrink-0 flex-col items-end gap-1">
                       <span
-                        style={{
-                          fontFamily: 'var(--isalwa-font-mono)',
-                          fontVariantNumeric: 'tabular-nums',
-                          fontSize: 'clamp(18px, 1.5vw, 22px)',
-                          fontWeight: 600,
-                          color: bar,
-                          letterSpacing: '-0.02em',
-                        }}
+                        className="isalwa-metric text-[clamp(20px,1.6vw,26px)]"
+                        style={{ color: bar, fontWeight: critical ? 600 : 500 }}
                       >
                         {item.score}
                       </span>
-                      <span
-                        className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)] opacity-50 transition-opacity duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] group-hover:opacity-100"
-                      >
+                      <span className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)] opacity-40 transition-opacity duration-[var(--isalwa-motion-fast)] group-hover:opacity-100">
                         Abrir →
                       </span>
                     </div>
@@ -105,17 +106,26 @@ export default async function RadarPage() {
           })}
           {data.items.length === 0 && !error ? (
             <EmptyState
-              title="Sin alertas abiertas"
-              description="El Radar está en calma. Eso también es una señal."
+              title="Radar en calma"
+              description="Hoy no hay clientes empujando urgencia. Eso también es una señal — el sistema vigila mientras usted decide el siguiente movimiento."
+              example="Cuando un cliente acumula silencio o cartera en riesgo, aparece aquí con una barra de urgencia y un motivo claro."
+              walkthrough={
+                <Link href="/personas" className="text-[var(--isalwa-glaze)] hover:opacity-70">
+                  Revisar Personas mientras el Radar descansa →
+                </Link>
+              }
               action={
-                <Link href="/pulso" className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+                <Link
+                  href="/pulso"
+                  className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+                >
                   Volver a Pulso
                 </Link>
               }
             />
           ) : null}
         </div>
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

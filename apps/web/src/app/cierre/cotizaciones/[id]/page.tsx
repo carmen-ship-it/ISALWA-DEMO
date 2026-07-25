@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Panel, StatusPill } from '@isalwa/ui';
+import { ExperienceHeader, PageContainer, Panel, StatusPill } from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 import { apiGet } from '@/lib/api';
 import { QuoteActions } from '@/components/quote-actions';
@@ -39,59 +39,49 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
 
   return (
     <AppShell active="/cierre">
-      <main className="px-5 py-8 md:px-8">
-        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-[var(--isalwa-text-sm)] uppercase tracking-[0.12em] text-[var(--isalwa-glaze)]">
-              Cotización
-            </p>
-            <h1
-              className="mt-1"
-              style={{
-                fontFamily: 'var(--isalwa-font-mono)',
-                fontSize: 'clamp(1.1rem, 1.8vw, 1.4rem)',
-                fontWeight: 600,
-                letterSpacing: '-0.01em',
-                color: 'var(--isalwa-kiln)',
-              }}
-            >
-              {quote.number}
-            </h1>
-            <div className="mt-2 flex flex-wrap gap-2">
+      <PageContainer label={`Cotización ${quote.number}`}>
+        <ExperienceHeader
+          kicker="Cotización"
+          title={<span className="isalwa-metric not-italic font-semibold">{quote.number}</span>}
+          subtitle={
+            <span className="flex flex-wrap items-center gap-2">
               <StatusPill tone="info">
-                {quote.status === 'draft' ? 'Borrador' : quote.status === 'sent' ? 'Enviado' : quote.status === 'accepted' ? 'Aceptado' : quote.status === 'rejected' ? 'Rechazado' : quote.status}
+                {quote.status === 'draft'
+                  ? 'Borrador'
+                  : quote.status === 'sent'
+                    ? 'Enviado'
+                    : quote.status === 'accepted'
+                      ? 'Aceptado'
+                      : quote.status === 'rejected'
+                        ? 'Rechazado'
+                        : quote.status}
               </StatusPill>
               <StatusPill tone="neutral">{quote.ownerName}</StatusPill>
-            </div>
-            <p className="mt-2 text-[var(--isalwa-slate)]">
-              <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+              <Link
+                href={`/personas/${quote.accountId}`}
+                className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+              >
                 {quote.accountName}
               </Link>
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-slate)]">Total</p>
-            <p
-              className="mt-1"
-              style={{
-                fontFamily: 'var(--isalwa-font-mono)',
-                fontSize: 'clamp(1.25rem, 2vw, 1.6rem)',
-                fontWeight: 600,
-                color: 'var(--isalwa-kiln)',
-                letterSpacing: '-0.02em',
-                fontVariantNumeric: 'tabular-nums',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {quote.total.label}
-            </p>
-          </div>
-        </header>
+            </span>
+          }
+          actions={
+            <div className="text-right">
+              <p className="isalwa-section-label">Total</p>
+              <p className="isalwa-metric mt-1 text-[clamp(1.25rem,2vw,1.6rem)] font-semibold">
+                {quote.total.label}
+              </p>
+            </div>
+          }
+        />
 
-        <Panel className="p-5">
+        <Panel className="p-5 md:p-6">
           <ul className="space-y-3">
             {quote.items.map((i) => (
-              <li key={i.id} className="flex flex-wrap justify-between gap-2 border-b border-[var(--isalwa-mist)] pb-3">
+              <li
+                key={i.id}
+                className="flex flex-wrap justify-between gap-2 border-b border-[var(--isalwa-mist)] pb-3 last:border-0"
+              >
                 <div>
                   <p className="font-medium">
                     {i.qty} × {i.name}
@@ -103,7 +93,7 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
                     </p>
                   ) : null}
                 </div>
-                <div className="text-right" style={{ fontFamily: 'var(--isalwa-font-mono)' }}>
+                <div className="text-right font-[var(--isalwa-font-mono)]">
                   <p>{i.unitPrice.label}</p>
                   <p className="font-medium">{i.lineTotal.label}</p>
                 </div>
@@ -122,14 +112,20 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3 text-[var(--isalwa-text-md)]">
-          <Link href={`/cierre?account=${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+          <Link
+            href={`/cierre?account=${quote.accountId}`}
+            className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+          >
             Nueva cotización →
           </Link>
-          <Link href={`/personas/${quote.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+          <Link
+            href={`/personas/${quote.accountId}`}
+            className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+          >
             ← Volver al dossier
           </Link>
         </div>
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

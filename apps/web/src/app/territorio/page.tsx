@@ -1,24 +1,20 @@
+import { Suspense } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { TerritoryMap } from '@/components/territory-map';
 import { apiGet } from '@/lib/api';
+import type { TerritoryPoint } from '@/lib/territorio/points';
 
-type Point = {
-  accountId: string;
-  name: string;
-  code: string;
-  segment: string;
-  creditStatus: string;
-  lat: number;
-  lng: number;
-  territoryCode: string;
-  href: string;
-  personaKey?: string | null;
-};
+export default async function TerritorioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  // searchParams reserved for RSC filter hint; client syncs via URL
+  await searchParams;
 
-export default async function TerritorioPage() {
-  let points: Point[] = [];
+  let points: TerritoryPoint[] = [];
   try {
-    const data = await apiGet<{ points: Point[] }>('/territorio/points?take=200');
+    const data = await apiGet<{ points: TerritoryPoint[] }>('/territorio/points?take=200');
     points = data.points;
   } catch {
     points = [];
@@ -26,7 +22,21 @@ export default async function TerritorioPage() {
 
   return (
     <AppShell active="/territorio">
-      <TerritoryMap points={points} />
+      <Suspense
+        fallback={
+          <div className="isalwa-page">
+            <p className="isalwa-kicker">Territorio</p>
+            <p
+              className="mt-4 text-[var(--isalwa-slate)]"
+              style={{ fontFamily: 'var(--isalwa-font-display)', fontStyle: 'italic' }}
+            >
+              Cargando territorio…
+            </p>
+          </div>
+        }
+      >
+        <TerritoryMap points={points} />
+      </Suspense>
     </AppShell>
   );
 }

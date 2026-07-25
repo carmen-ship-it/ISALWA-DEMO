@@ -10,6 +10,20 @@ import type { ProviderRegistry } from './types/index';
 export * from './types/index';
 export { MockMessagingProvider } from './messaging/mock';
 export { MockMapsProvider } from './maps/mock';
+export {
+  createMapProvider,
+  MockMapProvider,
+  MapboxMapProvider,
+  SANTA_CRUZ_CENTER,
+  SANTA_CRUZ_MAX_BOUNDS,
+} from './maps/index';
+export type {
+  MapProvider,
+  MapViewConfig,
+  MapEngine,
+  TerritoryLayerId,
+  CreateMapProviderInput,
+} from './maps/index';
 export { MockAiProvider } from './ai/mock';
 export { MockStorageProvider } from './storage/mock';
 export { MockSearchProvider } from './search/mock';

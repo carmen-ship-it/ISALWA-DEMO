@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { isDemoMode, isIntroDone, markIntroDone } from '@/lib/preferences';
 
 type Phase = 'wordmark' | 'tagline' | 'init' | 'kpi' | 'ready';
 
@@ -14,7 +15,7 @@ type Phase = 'wordmark' | 'tagline' | 'init' | 'kpi' | 'ready';
  * By the time the owner sees her number, the machine already did the work.
  *
  * Rules:
- * - Plays once per browser session (sessionStorage).
+ * - Plays once per browser (localStorage), unless demo mode forces it.
  * - Dismissible instantly via click or ESC.
  * - Respects prefers-reduced-motion.
  * - Uses the same porcelain gradient as the app body → zero visual cut on exit.
@@ -41,19 +42,18 @@ export function IntroExperience() {
     cancelAnimationFrame(rafRef.current);
     setExiting(true);
     const t = setTimeout(() => {
-      try { sessionStorage.setItem('isalwa_intro_done', '1'); } catch { /* private mode */ }
+      markIntroDone();
       router.replace('/pulso');
     }, 420);
     timers.current.push(t);
   }, [router]);
 
-  // ── Skip if already seen this session ─────────────────────────────────────
+  // ── Skip if already seen (unless demo mode) ────────────────────────────────
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem('isalwa_intro_done')) {
-        router.replace('/pulso');
-      }
-    } catch { /* private mode — show intro */ }
+    if (isDemoMode()) return;
+    if (isIntroDone()) {
+      router.replace('/pulso');
+    }
   }, [router]);
 
   // ── Fetch live KPI (Dinero cobrado este mes) ──────────────────────────────

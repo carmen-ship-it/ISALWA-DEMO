@@ -1,0 +1,96 @@
+import type { KnowledgeConnector } from "@/types";
+
+/** Future connector hooks — design only. No OAuth or sync. */
+export const KNOWLEDGE_CONNECTORS: readonly KnowledgeConnector[] = [
+  {
+    id: "google_drive",
+    title: "Google Drive",
+    description: "Import company folders into the Knowledge Center.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "dropbox",
+    title: "Dropbox",
+    description: "Sync shared Dropbox documents as evidence.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "onedrive",
+    title: "OneDrive",
+    description: "Pull OneDrive files into company knowledge.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "sharepoint",
+    title: "SharePoint",
+    description: "Ingest SharePoint libraries and process packs.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "zoho",
+    title: "Zoho",
+    description: "CRM and docs connectors for Zoho workspaces.",
+    status: "designed",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "hubspot",
+    title: "HubSpot",
+    description: "Commercial pipeline and contact evidence.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "salesforce",
+    title: "Salesforce",
+    description: "Accounts, opportunities, and activity history.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "sap",
+    title: "SAP",
+    description: "ERP master data and operational exports.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "quickbooks",
+    title: "QuickBooks",
+    description: "Invoices, AR/AP, and finance structure.",
+    status: "designed",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "xero",
+    title: "Xero",
+    description: "Accounting evidence for finance coverage.",
+    status: "designed",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "whatsapp",
+    title: "WhatsApp",
+    description: "Chat export intake for shadow processes.",
+    status: "designed",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "google_workspace",
+    title: "Google Workspace",
+    description: "Docs, Sheets, and Meet artifacts.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+  {
+    id: "microsoft_365",
+    title: "Microsoft 365",
+    description: "Word, Excel, Outlook, and Teams artifacts.",
+    status: "planned",
+    feedsInto: "knowledge_center",
+  },
+] as const;

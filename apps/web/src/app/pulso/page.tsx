@@ -1,27 +1,29 @@
 import Link from 'next/link';
-import { Panel } from '@isalwa/ui';
+import {
+  DashboardGrid,
+  MetricCard,
+  PageContainer,
+  PageSection,
+} from '@isalwa/ui';
 import type { PulseResponse } from '@isalwa/contracts';
 import { AppShell } from '@/components/app-shell';
 import { AnimatedValue } from '@/components/animated-value';
 import { apiGet } from '@/lib/api';
 
-// ── Tone → accent color ───────────────────────────────────────────────────────
 const ACCENT: Record<string, string> = {
   success: 'var(--isalwa-success)',
   warning: 'var(--isalwa-warning)',
-  danger:  'var(--isalwa-danger)',
-  info:    'var(--isalwa-info)',
+  danger: 'var(--isalwa-danger)',
+  info: 'var(--isalwa-info)',
   neutral: 'var(--isalwa-glaze)',
 };
 
-// Urgency score → color token
 function urgencyColor(score: number): string {
   if (score >= 90) return 'var(--isalwa-danger)';
   if (score >= 75) return 'var(--isalwa-warning)';
   return 'var(--isalwa-glaze)';
 }
 
-// Format the asOf ISO timestamp to a short local time
 function fmtTime(iso: string): string {
   try {
     return new Date(iso).toLocaleTimeString('es-BO', {
@@ -33,8 +35,6 @@ function fmtTime(iso: string): string {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default async function PulsoPage() {
   let pulse: PulseResponse | null = null;
   let error: string | null = null;
@@ -45,65 +45,26 @@ export default async function PulsoPage() {
     error = 'No se pudo conectar con la API.';
   }
 
-  // ── Error state ─────────────────────────────────────────────────────────────
   if (!pulse) {
     return (
       <AppShell active="/pulso">
-        <main
-          className="flex min-h-[70vh] flex-col items-center justify-center px-8"
-          aria-label="Error de Pulso"
-        >
-          <div style={{ maxWidth: 340, textAlign: 'center' }}>
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--isalwa-warning)',
-                marginBottom: 12,
-              }}
-            >
+        <PageContainer label="Error de Pulso" className="flex min-h-[70vh] flex-col items-center justify-center">
+          <div className="max-w-sm text-center">
+            <p className="isalwa-kicker" style={{ color: 'var(--isalwa-warning)' }}>
               Sin señal
             </p>
-            <h1
-              style={{
-                fontFamily: 'var(--isalwa-font-display)',
-                fontStyle: 'italic',
-                fontWeight: 400,
-                fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-                lineHeight: 1.2,
-                color: 'var(--isalwa-kiln)',
-                margin: 0,
-              }}
-            >
-              El pulso no responde.
-            </h1>
-            <p
-              style={{
-                marginTop: 12,
-                fontSize: 13,
-                color: 'var(--isalwa-slate)',
-                lineHeight: 1.5,
-              }}
-            >
+            <h1 className="isalwa-page-title mt-3">El pulso no responde.</h1>
+            <p className="mt-3 text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">
               {error ?? 'Verifique que la API y la base de datos estén en línea.'}
             </p>
             <Link
               href="/"
-              style={{
-                display: 'inline-block',
-                marginTop: 20,
-                fontSize: 13,
-                color: 'var(--isalwa-glaze)',
-                fontWeight: 500,
-              }}
-              className="transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+              className="mt-6 inline-block text-[var(--isalwa-text-md)] font-medium text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
             >
               Volver al inicio
             </Link>
           </div>
-        </main>
+        </PageContainer>
       </AppShell>
     );
   }
@@ -112,392 +73,136 @@ export default async function PulsoPage() {
 
   return (
     <AppShell active="/pulso">
-      <main
-        className="min-h-screen px-5 pb-16 pt-8 md:px-8 md:pt-10"
-        aria-label="Pulso — salud del negocio"
-      >
-
-        {/* ── Header ────────────────────────────────────────────────────────── */}
-        <header className="isalwa-enter mb-9 flex flex-wrap items-start justify-between gap-4 md:mb-11">
-          <div style={{ maxWidth: 700 }}>
-
-            {/* Kicker + live timestamp */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <p
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--isalwa-glaze)',
-                  margin: 0,
-                }}
-              >
-                Pulso
-              </p>
-              {time && (
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--isalwa-slate)',
-                    fontFamily: 'var(--isalwa-font-mono)',
-                    opacity: 0.7,
-                  }}
-                >
+      <PageContainer label="Pulso — salud del negocio">
+        <header className="isalwa-enter mb-8 flex flex-wrap items-start justify-between gap-4 md:mb-10">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-3">
+              <p className="isalwa-kicker">Pulso</p>
+              {time ? (
+                <span className="font-[var(--isalwa-font-mono)] text-[var(--isalwa-text-2xs)] text-[var(--isalwa-slate)] opacity-70">
                   · {time}
                 </span>
-              )}
+              ) : null}
             </div>
-
-            {/* System sentence — Newsreader italic.
-                This is the machine's voice. One sentence. The whole business. */}
-            <h1
-              data-tour="pulso-sentence"
-              style={{
-                marginTop: 10,
-                fontFamily: 'var(--isalwa-font-display)',
-                fontStyle: 'italic',
-                fontWeight: 400,
-                fontSize: 'clamp(1.4rem, 2.6vw, 2.1rem)',
-                lineHeight: 1.22,
-                color: 'var(--isalwa-kiln)',
-                letterSpacing: '-0.01em',
-              }}
-            >
+            <h1 data-tour="pulso-sentence" className="isalwa-page-title mt-3">
               {pulse.sentence}
             </h1>
           </div>
-
-          {/* Radar shortcut — understated, confident */}
           <Link
             href="/radar"
-            className="shrink-0 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 py-2 text-sm font-medium text-[var(--isalwa-kiln)] transition-[border-color,color,background-color] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:border-[var(--isalwa-glaze)] hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-glaze)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+            className="isalwa-interactive shrink-0 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 py-2.5 text-[var(--isalwa-text-sm)] font-medium text-[var(--isalwa-kiln)] shadow-[var(--isalwa-shadow-soft)] hover:border-[var(--isalwa-glaze)] hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-glaze)] hover:shadow-[var(--isalwa-shadow-lift)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
             Radar →
           </Link>
         </header>
 
-        {/* ── Vitals — four numbers that summarize the company ──────────────── */}
-        <div data-tour="pulso-vitals" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <DashboardGrid data-tour="pulso-vitals" cols={4}>
           {pulse.vitals.map((v, idx) => {
             const accentColor = ACCENT[v.tone] ?? ACCENT.neutral;
-
-            // Parse percentage values for the mini progress bar
             const isPercent = v.valueLabel.includes('%');
             const pctNum = isPercent ? parseFloat(v.valueLabel) : null;
-
             return (
-              <Panel
+              <MetricCard
                 key={v.key}
                 interactive
-                className={`isalwa-enter isalwa-enter-delay-${Math.min(idx + 1, 4)} overflow-hidden`}
-                style={{ padding: 0 }}
-              >
-                {/* Tone accent bar — 2px, precise */}
-                <span
-                  aria-hidden
-                  style={{
-                    display: 'block',
-                    height: 2,
-                    background: accentColor,
-                    flexShrink: 0,
-                  }}
-                />
-
-                <div style={{ padding: '18px 20px 20px' }}>
-
-                  {/* Label — small, uppercase, slate */}
-                  <p
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      letterSpacing: '0.12em',
-                      textTransform: 'uppercase',
-                      color: 'var(--isalwa-slate)',
-                      margin: 0,
-                    }}
-                  >
-                    {v.label}
-                  </p>
-
-                  {/* Value — IBM Plex Mono, forced single line, counts up on load */}
-                  <p
-                    style={{
-                      marginTop: 10,
-                      fontFamily: 'var(--isalwa-font-mono)',
-                      fontSize: 'clamp(18px, 1.75vw, 24px)',
-                      fontWeight: 500,
-                      letterSpacing: '-0.02em',
-                      color: 'var(--isalwa-kiln)',
-                      whiteSpace: 'nowrap',
-                      fontVariantNumeric: 'tabular-nums',
-                      lineHeight: 1.15,
-                      margin: '10px 0 0',
-                    }}
-                  >
-                    <AnimatedValue value={v.valueLabel} />
-                  </p>
-
-                  {/* Progress bar for percentage vitals (Motor comercial, Respuesta) */}
-                  {isPercent && pctNum !== null && (
+                label={v.label}
+                accent={accentColor}
+                value={<AnimatedValue value={v.valueLabel} />}
+                hint={v.hint}
+                className={`isalwa-enter isalwa-enter-delay-${Math.min(idx + 1, 4)}`}
+                footer={
+                  isPercent && pctNum !== null ? (
                     <div
                       aria-hidden
-                      style={{
-                        marginTop: 10,
-                        height: 3,
-                        background: 'var(--isalwa-mist)',
-                        borderRadius: 'var(--isalwa-radius-pill)',
-                        overflow: 'hidden',
-                      }}
+                      className="mt-3 h-[3px] overflow-hidden rounded-[var(--isalwa-radius-pill)] bg-[var(--isalwa-mist)]"
                     >
                       <div
-                        className="isalwa-bar-expand"
+                        className="isalwa-bar-expand h-full rounded-[inherit]"
                         style={{
-                          height: '100%',
                           width: `${Math.min(Math.max(pctNum, 0), 100)}%`,
                           background: accentColor,
                           transformOrigin: 'left center',
-                          borderRadius: 'inherit',
                         }}
                       />
                     </div>
-                  )}
-
-                  {/* Hint — answers "so what?" */}
-                  <p
-                    style={{
-                      marginTop: 10,
-                      fontSize: 12,
-                      color: 'var(--isalwa-slate)',
-                      lineHeight: 1.4,
-                      margin: '10px 0 0',
-                    }}
-                  >
-                    {v.hint}
-                  </p>
-                </div>
-              </Panel>
+                  ) : null
+                }
+              />
             );
           })}
-        </div>
+        </DashboardGrid>
 
-        {/* ── Focus — who needs attention right now ─────────────────────────── */}
-        <section
-          className="isalwa-enter isalwa-enter-delay-4 mt-6"
+        <PageSection
+          card
+          className="isalwa-enter isalwa-enter-delay-4 mt-8"
           aria-label="Focos de atención"
-          style={{
-            background: 'var(--isalwa-white)',
-            border: '1px solid var(--isalwa-mist)',
-            borderRadius: 'var(--isalwa-radius-panel)',
-            boxShadow: 'var(--isalwa-shadow-soft)',
-            overflow: 'hidden',
-          }}
         >
-          {/* Section header */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              padding: '16px 24px',
-              borderBottom: pulse.focus.length > 0
-                ? '1px solid var(--isalwa-mist)'
-                : undefined,
-            }}
-          >
-            <h2
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: '-0.01em',
-                color: 'var(--isalwa-kiln)',
-                margin: 0,
-              }}
-            >
+          <div className="flex items-center justify-between gap-4 border-b border-[var(--isalwa-mist)] px-5 py-4 md:px-6">
+            <h2 className="text-[var(--isalwa-text-md)] font-semibold tracking-[-0.01em] text-[var(--isalwa-kiln)]">
               Necesitan atención
             </h2>
             <Link
               href="/radar"
-              style={{
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--isalwa-glaze)',
-                flexShrink: 0,
-              }}
-              className="transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+              className="shrink-0 text-[var(--isalwa-text-xs)] font-medium text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
             >
               Ver Radar →
             </Link>
           </div>
 
-          {/* ── Empty state — all clear ──────────────────────────────────── */}
-          {pulse.focus.length === 0 && (
-            <div
-              style={{
-                padding: '36px 24px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                gap: 10,
-              }}
-            >
+          {pulse.focus.length === 0 ? (
+            <div className="flex flex-col items-start gap-3 px-5 py-10 md:px-6">
               <span
                 aria-hidden
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: 'color-mix(in srgb, var(--isalwa-success) 12%, white)',
-                  color: 'var(--isalwa-success)',
-                  fontSize: 18,
-                }}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--isalwa-success)_10%,white)] text-lg text-[var(--isalwa-success)]"
               >
                 ◎
               </span>
-              <p
-                style={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: 'var(--isalwa-kiln)',
-                  margin: 0,
-                }}
-              >
-                Todo en calma
-              </p>
-              <p
-                style={{
-                  fontSize: 13,
-                  color: 'var(--isalwa-slate)',
-                  maxWidth: 380,
-                  lineHeight: 1.5,
-                  margin: 0,
-                }}
-              >
+              <p className="text-[var(--isalwa-text-base)] font-semibold text-[var(--isalwa-kiln)]">Todo en calma</p>
+              <p className="max-w-md text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">
                 No hay focos críticos en este momento. El Radar tiene la vista completa.
               </p>
               <Link
                 href="/radar"
-                className="transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
-                style={{
-                  fontSize: 13,
-                  color: 'var(--isalwa-glaze)',
-                  fontWeight: 500,
-                  marginTop: 4,
-                }}
+                className="mt-1 text-[var(--isalwa-text-md)] font-medium text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
               >
                 Ver Radar →
               </Link>
             </div>
-          )}
-
-          {/* ── Focus items list ─────────────────────────────────────────── */}
-          {pulse.focus.length > 0 && (
-            <ul style={{ margin: 0, padding: '4px 0 8px', listStyle: 'none' }}>
+          ) : (
+            <ul className="m-0 list-none p-0">
               {pulse.focus.map((f, i) => {
                 const uColor = urgencyColor(f.score);
                 return (
                   <li
                     key={f.id}
-                    className={`isalwa-enter isalwa-enter-delay-${Math.min(i + 1, 4)}`}
+                    className={`isalwa-enter isalwa-enter-delay-${Math.min(i + 1, 4)} border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] last:border-b-0`}
                   >
-                    {/*
-                      Row is a flex container so the left urgency strip
-                      can stretch to full row height via align-items: stretch.
-                    */}
                     <Link
                       href={f.href}
-                      className="group flex items-stretch transition-colors duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:bg-[var(--isalwa-porcelain)] focus-visible:outline-none focus-visible:bg-[var(--isalwa-porcelain)]"
+                      className="isalwa-inbox-row group flex items-stretch focus-visible:outline-none focus-visible:bg-[color-mix(in_srgb,var(--isalwa-glaze)_4%,white)]"
                     >
-                      {/* Left urgency strip — color-coded by score */}
                       <span
                         aria-hidden
-                        style={{
-                          display: 'block',
-                          width: 3,
-                          flexShrink: 0,
-                          background: uColor,
-                          borderRadius: '0 2px 2px 0',
-                          margin: '8px 0',
-                          opacity: 0.85,
-                        }}
+                        className="my-3 w-[3px] shrink-0 rounded-r-[2px]"
+                        style={{ background: uColor, opacity: 0.9 }}
                       />
-
-                      {/* Content */}
-                      <div
-                        style={{
-                          flex: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 16,
-                          padding: '13px 24px 13px 16px',
-                        }}
-                      >
-                        {/* Client + reason */}
-                        <div style={{ minWidth: 0 }}>
-                          <p
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color: 'var(--isalwa-kiln)',
-                              letterSpacing: '-0.01em',
-                              margin: 0,
-                            }}
-                          >
+                      <div className="flex flex-1 items-center justify-between gap-4 px-4 py-4 md:px-5">
+                        <div className="min-w-0">
+                          <p className="text-[var(--isalwa-text-md)] font-semibold tracking-[-0.01em] text-[var(--isalwa-kiln)]">
                             {f.title}
                           </p>
-                          <p
-                            style={{
-                              marginTop: 2,
-                              fontSize: 12,
-                              color: 'var(--isalwa-slate)',
-                              lineHeight: 1.35,
-                              margin: '2px 0 0',
-                            }}
-                          >
+                          <p className="mt-1 text-[var(--isalwa-text-xs)] leading-snug text-[var(--isalwa-slate)]">
                             {f.reason}
                           </p>
                         </div>
-
-                        {/* Right: "Abrir →" on hover + urgency score */}
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {/* "Abrir →" — hidden at rest, appears on hover */}
+                        <div className="flex shrink-0 items-center gap-3">
                           <span
-                            className="opacity-0 transition-opacity duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] group-hover:opacity-100"
-                            style={{
-                              fontSize: 12,
-                              color: 'var(--isalwa-glaze)',
-                              fontWeight: 500,
-                            }}
+                            className="text-[var(--isalwa-text-xs)] font-medium text-[var(--isalwa-glaze)] opacity-0 transition-opacity duration-[var(--isalwa-motion-fast)] group-hover:opacity-100"
                             aria-hidden
                           >
                             Abrir →
                           </span>
-
-                          {/* Urgency score — colored by severity */}
-                          <span
-                            style={{
-                              fontFamily: 'var(--isalwa-font-mono)',
-                              fontSize: 16,
-                              fontWeight: 500,
-                              color: uColor,
-                              letterSpacing: '-0.02em',
-                              fontVariantNumeric: 'tabular-nums',
-                              minWidth: 26,
-                              textAlign: 'right',
-                            }}
-                          >
+                          <span className="isalwa-metric min-w-[28px] text-right text-[16px]" style={{ color: uColor }}>
                             {f.score}
                           </span>
                         </div>
@@ -508,9 +213,8 @@ export default async function PulsoPage() {
               })}
             </ul>
           )}
-        </section>
-
-      </main>
+        </PageSection>
+      </PageContainer>
     </AppShell>
   );
 }

@@ -247,10 +247,15 @@ export function SignalConversation({
         gap:            2,
       }}>
         {detail.messages.length === 0 && (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.3 }}>
-            <p style={{ fontFamily: 'var(--isalwa-font-display)', fontStyle: 'italic', color: 'var(--isalwa-slate)' }}>
-              Sin mensajes en este hilo
-            </p>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <div style={{ maxWidth: 280, textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--isalwa-font-display)', fontStyle: 'italic', color: 'var(--isalwa-kiln)', marginBottom: 8 }}>
+                Hilo listo para el primer mensaje
+              </p>
+              <p style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--isalwa-slate)' }}>
+                Aquí aparecerá el ritmo de la conversación — entrante y saliente — con la calma de un instrumento.
+              </p>
+            </div>
           </div>
         )}
 

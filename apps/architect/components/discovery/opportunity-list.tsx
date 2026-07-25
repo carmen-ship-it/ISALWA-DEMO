@@ -1,0 +1,57 @@
+"use client";
+
+import { motion } from "motion/react";
+import { Card } from "@/components/ui/card";
+import type { Opportunity, OpportunityImpact } from "@/types";
+
+function impactLabel(impact: OpportunityImpact): string {
+  switch (impact) {
+    case "quick_win":
+      return "Quick Win";
+    case "medium":
+      return "Medium Impact";
+    case "high":
+      return "High Impact";
+    case "strategic":
+      return "Strategic";
+  }
+}
+
+export function OpportunityList({
+  opportunities,
+}: {
+  opportunities: Opportunity[];
+}) {
+  if (opportunities.length === 0) {
+    return (
+      <Card className="px-5 py-5 text-sm text-neutral-500">
+        Opportunities appear as patterns become clear.
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {opportunities.map((opportunity, index) => (
+        <motion.div
+          key={opportunity.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: index * 0.05 }}
+        >
+          <Card className="px-5 py-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+              {impactLabel(opportunity.impact)}
+            </p>
+            <h3 className="mt-2 text-sm font-medium text-neutral-950">
+              {opportunity.title}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+              {opportunity.description}
+            </p>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  );
+}

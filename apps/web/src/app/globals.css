@@ -188,7 +188,44 @@ video {
   cursor: pointer;
 }
 .isalwa-interactive:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(var(--isalwa-scale-press));
+}
+
+/* ── Page content transition (sidebar/header stay put) ─────────────────────── */
+
+.isalwa-page-transition {
+  opacity: 0;
+  transform: translateY(var(--isalwa-distance-enter));
+  transition:
+    opacity var(--isalwa-motion-base) var(--isalwa-ease-out),
+    transform var(--isalwa-motion-base) var(--isalwa-ease-out);
+  will-change: opacity, transform;
+}
+.isalwa-page-transition.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Sticky section labels on long pages */
+.isalwa-sticky-section {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: var(--isalwa-space-2);
+  padding-bottom: var(--isalwa-space-2);
+  background: color-mix(in srgb, var(--isalwa-porcelain) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Anchor targets — room under sticky chrome */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Selection feedback */
+::selection {
+  background: color-mix(in srgb, var(--isalwa-glaze) 22%, transparent);
+  color: var(--isalwa-kiln);
 }
 
 /* ── Enter animations ─────────────────────────────────────────────────────── */
@@ -247,7 +284,7 @@ video {
   );
   background-size: 200% 100%;
   animation: isalwa-shimmer 1.2s var(--isalwa-ease-in-out) infinite;
-  border-radius: 4px;
+  border-radius: var(--isalwa-radius-control);
 }
 
 /* Three-dot loading indicator */
@@ -309,25 +346,250 @@ video {
     isalwa-danger-pulse 1.9s var(--isalwa-ease-out) 0.8s infinite;
 }
 
+/* ── Page chrome (Mission 11) ────────────────────────────────────────────── */
+
+.isalwa-page {
+  min-height: 100%;
+  max-width: var(--isalwa-page-max);
+  margin-inline: auto;
+  padding: var(--isalwa-space-6) var(--isalwa-space-4) var(--isalwa-space-12);
+}
+@media (min-width: 768px) {
+  .isalwa-page {
+    padding: var(--isalwa-space-8) var(--isalwa-space-6) var(--isalwa-space-12);
+  }
+}
+
+.isalwa-kicker {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--isalwa-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--isalwa-glaze);
+}
+
+.isalwa-page-title {
+  margin: 0;
+  font-family: var(--isalwa-font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.8vw, var(--isalwa-text-3xl));
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--isalwa-kiln);
+}
+
+.isalwa-section-label {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--isalwa-slate);
+}
+
+.isalwa-metric {
+  font-family: var(--isalwa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--isalwa-kiln);
+}
+
+.isalwa-inbox-row {
+  transition: background-color var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-inbox-row:hover {
+  background-color: color-mix(in srgb, var(--isalwa-glaze) 4%, white);
+}
+
+.isalwa-field {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--isalwa-mist);
+  border-radius: var(--isalwa-radius-control);
+  background: var(--isalwa-white);
+  color: var(--isalwa-kiln);
+  font-size: var(--isalwa-text-md);
+  font-family: inherit;
+  transition:
+    border-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-field:hover {
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 28%, var(--isalwa-mist));
+}
+.isalwa-field:focus {
+  outline: none;
+  border-color: var(--isalwa-glaze);
+  box-shadow: var(--isalwa-shadow-focus);
+}
+.isalwa-field::placeholder {
+  color: color-mix(in srgb, var(--isalwa-slate) 55%, white);
+}
+
+.isalwa-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--isalwa-radius-pill);
+  border: 1px solid var(--isalwa-mist);
+  background: var(--isalwa-white);
+  color: var(--isalwa-slate);
+  font-size: var(--isalwa-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    border-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    transform var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-chip:hover {
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 30%, var(--isalwa-mist));
+  color: var(--isalwa-kiln);
+}
+.isalwa-chip[aria-pressed="true"],
+.isalwa-chip.is-active {
+  background: color-mix(in srgb, var(--isalwa-glaze) 10%, white);
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 35%, var(--isalwa-mist));
+  color: var(--isalwa-glaze-deep);
+}
+.isalwa-chip:active {
+  transform: scale(0.97);
+}
+
+.isalwa-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--isalwa-text-md);
+}
+.isalwa-table th {
+  padding: 14px 16px;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--isalwa-slate);
+  background: color-mix(in srgb, var(--isalwa-porcelain) 80%, white);
+  border-bottom: 1px solid var(--isalwa-mist);
+}
+.isalwa-table td {
+  padding: 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--isalwa-mist) 85%, white);
+  vertical-align: middle;
+}
+.isalwa-table tbody tr {
+  transition: background-color var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-table tbody tr:hover {
+  background: color-mix(in srgb, var(--isalwa-glaze) 3.5%, white);
+}
+.isalwa-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 /* ── Page-specific utilities ─────────────────────────────────────────────── */
 
 /* Cierre — quote history row hover + focus */
 .cierre-quote-row {
   transition:
-    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out);
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    padding var(--isalwa-motion-fast) var(--isalwa-ease-out);
 }
 .cierre-quote-row:hover {
-  background-color: var(--isalwa-porcelain);
+  background-color: color-mix(in srgb, var(--isalwa-glaze) 4%, white);
 }
 .cierre-quote-row:focus-visible {
   outline: none;
-  background-color: var(--isalwa-porcelain);
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--isalwa-glaze) 40%, transparent);
+  background-color: color-mix(in srgb, var(--isalwa-glaze) 4%, white);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--isalwa-glaze) 35%, transparent);
 }
 
 /* Señal — conversation list row hover */
 .senal-convo-row:not([aria-current="true"]):hover {
   background-color: color-mix(in srgb, var(--isalwa-glaze) 4%, white) !important;
+}
+
+/* Señal — desktop dual pane; mobile master-detail */
+@media (max-width: 767px) {
+  .senal-pane-hidden-mobile {
+    display: none !important;
+  }
+  .senal-workspace {
+    flex-direction: column;
+  }
+  .senal-list-pane,
+  .senal-detail-pane {
+    width: 100% !important;
+    min-height: 0;
+    flex: 1;
+  }
+}
+
+/* Skip-link helper if Tailwind sr-only missing */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.sr-only:focus,
+.sr-only:focus-visible,
+a.sr-only:focus {
+  position: fixed;
+  width: auto;
+  height: auto;
+  margin: 0;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Personas — stack as cards on small screens (no horizontal scroll) */
+@media (max-width: 767px) {
+  .personas-table-wrap {
+    display: none;
+  }
+}
+@media (min-width: 768px) {
+  .personas-mobile-cards {
+    display: none;
+  }
+}
+
+/* Quote canvas sticky actions on mobile */
+.cierre-quote-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: auto;
+  border-top: 1px solid var(--isalwa-mist);
+  background: color-mix(in srgb, var(--isalwa-white) 92%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* Territory GIS — calm canvas chrome (Mission 16) */
+.territorio-map-root .maplibregl-ctrl-attrib,
+.territorio-map-root .mapboxgl-ctrl-attrib {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.territorio-map-root .maplibregl-ctrl-group button,
+.territorio-map-root .mapboxgl-ctrl-group button {
+  width: 32px;
+  height: 32px;
 }
 
 /* ── Tooltip — small floating label ─────────────────────────────────────────── */
@@ -342,7 +604,7 @@ video {
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
-  border-radius: 5px;
+  border-radius: var(--isalwa-radius-control);
   pointer-events: none;
   animation: isalwa-fade var(--isalwa-motion-fast) var(--isalwa-ease-out) both;
   z-index: 10;
@@ -399,10 +661,12 @@ video {
   .isalwa-map-pin,
   .isalwa-hero-pin,
   .isalwa-risk-pin,
-  .isalwa-success-flash {
+  .isalwa-success-flash,
+  .isalwa-page-transition {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
   }
 
   /* Keep skeleton readable but static */

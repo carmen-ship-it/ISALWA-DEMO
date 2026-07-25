@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { computeRelationshipScore } from '@isalwa/domain';
+import { buildActivityCreateManyInput } from '../timeline/emit';
 import {
   BUSINESS_NAMES,
   FIRST_NAMES,
@@ -383,11 +384,21 @@ export async function seedUniverse(
     const predStart = addDays(config.asOf, Math.max(3, Math.round((persona.orderEveryDays[0] + persona.orderEveryDays[1]) / 2) - quiet * 5));
     const predEnd = addDays(predStart, 14);
 
+    const purchaseDaysLabel = Math.max(0, Math.round(daysSincePurchase));
+    const visitDaysLabel = Math.max(0, Math.round(daysSinceVisit));
     const evidence = [
-      lastPurchase ? `Última compra hace ${Math.round(daysSincePurchase)} días` : 'Sin compras registradas',
+      lastPurchase
+        ? purchaseDaysLabel === 0
+          ? 'Última compra hoy'
+          : `Última compra hace ${purchaseDaysLabel} días`
+        : 'Sin compras registradas',
       `${timeline.orderCount} pedidos en el historial`,
       openBalance > 0n ? `Saldo abierto Bs ${(Number(openBalance) / 100).toFixed(0)}` : 'Sin deuda abierta',
-      lastVisitAt ? `Última visita hace ${Math.round(daysSinceVisit)} días` : 'Sin visitas',
+      lastVisitAt
+        ? visitDaysLabel === 0
+          ? 'Última visita hoy'
+          : `Última visita hace ${visitDaysLabel} días`
+        : 'Sin visitas',
     ];
     if (hero?.story) evidence.unshift(hero.story);
 
@@ -484,6 +495,20 @@ export async function seedUniverse(
       },
     });
 
+    activityBatch.push(
+      buildActivityCreateManyInput({
+        id: stableId('act', 'account', accountId),
+        type: 'account.created',
+        organizationId: ORG.id,
+        accountId,
+        actor: { kind: 'system', systemId: 'seed' },
+        occurredAt: daysAgo(config.asOf, rng.int(200, 800)),
+        title: 'Cliente creado',
+        related: { type: 'account', id: accountId },
+        metadata: { code: hero?.code ?? undefined, segment: persona.segment },
+      }),
+    );
+
     // Persist commerce chain
     for (const q of timeline.quotes) {
       await prisma.quote.create({ data: q.quote });
@@ -501,48 +526,85 @@ export async function seedUniverse(
           createdBy: ownerId,
         });
       }
-      activityBatch.push({
-        id: stableId('act', 'quote', q.quote.id),
-        organizationId: ORG.id,
-        accountId,
-        actorUserId: ownerId,
-        type: 'quote.created',
-        title: `Cotización ${q.quote.number}`,
-        body: `Estado: ${q.quote.status}`,
-        occurredAt: q.quote.createdAt,
-        payloadJson: { totalCentavos: q.quote.totalCentavos.toString() },
-      });
+      activityBatch.push(
+        buildActivityCreateManyInput({
+          id: stableId('act', 'quote', q.quote.id),
+          type: 'quote.created',
+          organizationId: ORG.id,
+          accountId,
+          actor: { kind: 'user', userId: ownerId },
+          occurredAt: q.quote.createdAt,
+          title: `Cotización ${q.quote.number}`,
+          body: `Estado: ${q.quote.status}`,
+          related: { type: 'quote', id: q.quote.id },
+          metadata: { totalCentavos: q.quote.totalCentavos.toString(), status: q.quote.status },
+        }),
+      );
+      if (q.quote.status === 'accepted' || q.quote.status === 'sent') {
+        activityBatch.push(
+          buildActivityCreateManyInput({
+            id: stableId('act', 'quote-sent', q.quote.id),
+            type: 'quote.sent',
+            organizationId: ORG.id,
+            accountId,
+            actor: { kind: 'user', userId: ownerId },
+            occurredAt: q.quote.sentAt ?? q.quote.createdAt,
+            title: `Cotización ${q.quote.number} enviada`,
+            related: { type: 'quote', id: q.quote.id },
+          }),
+        );
+      }
+      if (q.quote.status === 'accepted') {
+        activityBatch.push(
+          buildActivityCreateManyInput({
+            id: stableId('act', 'quote-acc', q.quote.id),
+            type: 'quote.accepted',
+            organizationId: ORG.id,
+            accountId,
+            actor: { kind: 'user', userId: ownerId },
+            occurredAt: q.quote.acceptedAt ?? q.quote.createdAt,
+            title: `Cotización ${q.quote.number} aceptada`,
+            related: { type: 'quote', id: q.quote.id },
+          }),
+        );
+      }
     }
     for (const o of timeline.orders) {
       await prisma.order.create({ data: o.order });
       await prisma.orderItem.createMany({ data: o.items });
-      activityBatch.push({
-        id: stableId('act', 'order', o.order.id),
-        organizationId: ORG.id,
-        accountId,
-        actorUserId: ownerId,
-        type: 'order.confirmed',
-        title: `Pedido ${o.order.number}`,
-        occurredAt: o.order.orderedAt,
-        payloadJson: { totalCentavos: o.order.totalCentavos.toString() },
-      });
+      activityBatch.push(
+        buildActivityCreateManyInput({
+          id: stableId('act', 'order', o.order.id),
+          type: 'order.confirmed',
+          organizationId: ORG.id,
+          accountId,
+          actor: { kind: 'user', userId: ownerId },
+          occurredAt: o.order.orderedAt,
+          title: `Pedido ${o.order.number}`,
+          related: { type: 'order', id: o.order.id },
+          metadata: { totalCentavos: o.order.totalCentavos.toString() },
+        }),
+      );
     }
     for (const inv of timeline.invoices) {
       await prisma.invoice.create({ data: inv.invoice });
       await prisma.invoiceItem.createMany({ data: inv.items });
-      activityBatch.push({
-        id: stableId('act', 'invoice', inv.invoice.id),
-        organizationId: ORG.id,
-        accountId,
-        actorUserId: userIds.get('facturacion')!,
-        type: 'invoice.issued',
-        title: `Factura ${inv.invoice.number}`,
-        occurredAt: inv.invoice.issuedAt,
-        payloadJson: {
-          totalCentavos: inv.invoice.totalCentavos.toString(),
-          balanceCentavos: inv.invoice.balanceCentavos.toString(),
-        },
-      });
+      activityBatch.push(
+        buildActivityCreateManyInput({
+          id: stableId('act', 'invoice', inv.invoice.id),
+          type: 'invoice.issued',
+          organizationId: ORG.id,
+          accountId,
+          actor: { kind: 'user', userId: userIds.get('facturacion')! },
+          occurredAt: inv.invoice.issuedAt,
+          title: `Factura ${inv.invoice.number}`,
+          related: { type: 'invoice', id: inv.invoice.id },
+          metadata: {
+            totalCentavos: inv.invoice.totalCentavos.toString(),
+            balanceCentavos: inv.invoice.balanceCentavos.toString(),
+          },
+        }),
+      );
     }
     for (const pay of timeline.payments) {
       paymentSeq += 1;
@@ -554,21 +616,56 @@ export async function seedUniverse(
         },
       });
       await prisma.paymentAllocation.createMany({ data: pay.allocations });
-      activityBatch.push({
-        id: stableId('act', 'pay', pay.payment.id),
-        organizationId: ORG.id,
-        accountId,
-        actorUserId: userIds.get('cobranzas')!,
-        type: 'payment.recorded',
-        title: 'Pago registrado',
-        occurredAt: pay.payment.paidAt,
-        payloadJson: { amountCentavos: pay.payment.amountCentavos.toString() },
-      });
+      activityBatch.push(
+        buildActivityCreateManyInput({
+          id: stableId('act', 'pay', pay.payment.id),
+          type: 'payment.allocated',
+          organizationId: ORG.id,
+          accountId,
+          actor: { kind: 'user', userId: userIds.get('cobranzas')! },
+          occurredAt: pay.payment.paidAt,
+          title: 'Pago asignado',
+          related: { type: 'payment', id: pay.payment.id },
+          metadata: { amountCentavos: pay.payment.amountCentavos.toString() },
+        }),
+      );
     }
     for (const pr of timeline.promises) {
       await prisma.paymentPromise.create({
         data: { ...pr, ownerUserId: userIds.get('cobranzas')! },
       });
+      activityBatch.push(
+        buildActivityCreateManyInput({
+          id: stableId('act', 'promise', pr.id),
+          type: 'promise.made',
+          organizationId: ORG.id,
+          accountId,
+          actor: { kind: 'user', userId: userIds.get('cobranzas')! },
+          occurredAt: pr.promisedAt,
+          title: 'Promesa de pago',
+          body: pr.notes ?? undefined,
+          related: { type: 'payment_promise', id: pr.id },
+          metadata: {
+            amountCentavos: pr.amountCentavos.toString(),
+            dueAt: pr.dueAt.toISOString(),
+            status: pr.status,
+          },
+        }),
+      );
+      if (pr.status === 'broken' || pr.status === 'overdue') {
+        activityBatch.push(
+          buildActivityCreateManyInput({
+            id: stableId('act', 'promise-brk', pr.id),
+            type: 'promise.broken',
+            organizationId: ORG.id,
+            accountId,
+            actor: { kind: 'system', systemId: 'collections' },
+            occurredAt: pr.dueAt,
+            title: 'Promesa incumplida',
+            related: { type: 'payment_promise', id: pr.id },
+          }),
+        );
+      }
     }
 
     if (visits.length) {
@@ -589,17 +686,36 @@ export async function seedUniverse(
           withinGeofence: v.withinGeofence,
         })),
       });
-      for (const v of visits.filter((x) => x.status === 'completed')) {
-        activityBatch.push({
-          id: stableId('act', 'visit', v.id),
-          organizationId: ORG.id,
-          accountId,
-          actorUserId: ownerId,
-          type: 'visit.completed',
-          title: 'Visita completada',
-          body: v.result ?? undefined,
-          occurredAt: v.completedAt!,
-        });
+      for (const v of visits) {
+        activityBatch.push(
+          buildActivityCreateManyInput({
+            id: stableId('act', 'visit-plan', v.id),
+            type: 'visit.scheduled',
+            organizationId: ORG.id,
+            accountId,
+            actor: { kind: 'user', userId: ownerId },
+            occurredAt: v.plannedAt,
+            title: 'Visita programada',
+            related: { type: 'visit', id: v.id },
+            metadata: { status: v.status },
+          }),
+        );
+        if (v.status === 'completed' && v.completedAt) {
+          activityBatch.push(
+            buildActivityCreateManyInput({
+              id: stableId('act', 'visit', v.id),
+              type: 'visit.completed',
+              organizationId: ORG.id,
+              accountId,
+              actor: { kind: 'user', userId: ownerId },
+              occurredAt: v.completedAt,
+              title: 'Visita completada',
+              body: v.result ?? undefined,
+              related: { type: 'visit', id: v.id },
+              metadata: { result: v.result },
+            }),
+          );
+        }
       }
     }
 
@@ -645,16 +761,27 @@ export async function seedUniverse(
         where: { id: accountId },
         data: { lastWhatsappAt: lastAt },
       });
-      activityBatch.push({
-        id: stableId('act', 'wa', convId),
-        organizationId: ORG.id,
-        accountId,
-        actorUserId: ownerId,
-        type: 'whatsapp.thread',
-        title: `WhatsApp · ${channelPurpose}`,
-        occurredAt: lastAt,
-        payloadJson: { messages: messages.length },
-      });
+      for (const m of messages) {
+        activityBatch.push(
+          buildActivityCreateManyInput({
+            id: stableId('act', 'wa-msg', m.id),
+            type: m.direction === 'in' ? 'whatsapp.received' : 'whatsapp.sent',
+            organizationId: ORG.id,
+            accountId,
+            actor:
+              m.direction === 'out' && m.senderUserId
+                ? { kind: 'user', userId: m.senderUserId }
+                : m.direction === 'out'
+                  ? { kind: 'user', userId: ownerId }
+                  : { kind: 'system', systemId: 'whatsapp-inbound' },
+            occurredAt: m.sentAt,
+            title: m.direction === 'in' ? 'WhatsApp recibido' : 'WhatsApp enviado',
+            body: m.body.slice(0, 160),
+            related: { type: 'message', id: m.id },
+            metadata: { conversationId: convId, channelPurpose, direction: m.direction },
+          }),
+        );
+      }
     }
 
     // Attention items for demo Radar
@@ -1062,7 +1189,7 @@ function buildAccountTimeline(args: {
         amountCentavos: balance,
         promisedAt: daysAgo(config.asOf, rng.int(1, 10)),
         dueAt: addDays(config.asOf, rng.int(2, 14)),
-        status: 'open',
+        status: dueAt < config.asOf && rng.chance(0.45) ? 'broken' : 'open',
         notes: 'Promesa generada por disciplina de pago del persona',
         ownerUserId: ownerId,
       });

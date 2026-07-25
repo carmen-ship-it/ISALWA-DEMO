@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./events": {
+      "types": "./dist/events/index.d.ts",
+      "default": "./dist/events/index.js"
     }
   },
   "scripts": {
@@ -16,6 +20,7 @@
     "lint": "echo \"lint: deferred to M2\""
   },
   "dependencies": {
+    "@isalwa/domain": "workspace:*",
     "zod": "^3.24.2"
   },
   "devDependencies": {

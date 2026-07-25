@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { dur } from '@/lib/motion';
 
 /**
  * Smooth count-up for numeric labels. Keeps non-digit prefixes/suffixes intact.
@@ -8,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 export function AnimatedValue({
   value,
-  duration = 520,
+  duration,
   className,
 }: {
   value: string;
@@ -17,12 +18,10 @@ export function AnimatedValue({
 }) {
   const [display, setDisplay] = useState(value);
   const prev = useRef(value);
+  const ms = duration ?? dur('deliberate');
 
   useEffect(() => {
-    const reduce =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce || prev.current === value) {
+    if (ms === 0 || prev.current === value) {
       setDisplay(value);
       prev.current = value;
       return;
@@ -53,7 +52,7 @@ export function AnimatedValue({
     const start = performance.now();
     let raf = 0;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.min(1, (now - start) / ms);
       const eased = 1 - Math.pow(1 - t, 3);
       const current = from + (to - from) * eased;
       const formatted =
@@ -72,7 +71,7 @@ export function AnimatedValue({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [value, duration]);
+  }, [value, ms]);
 
   return <span className={className}>{display}</span>;
 }

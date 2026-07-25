@@ -8,30 +8,33 @@
   --isalwa-glaze: #2f6f68;
   --isalwa-glaze-deep: #1f4f4a;
   --isalwa-copper: #b08a5b;
-  --isalwa-success: #2f7d4a;
-  --isalwa-warning: #c48a1a;
-  --isalwa-danger: #b42318;
-  --isalwa-info: #2e5a8c;
+  /* Soft status — muted, never neon */
+  --isalwa-success: #3a7a52;
+  --isalwa-warning: #b8872e;
+  --isalwa-danger: #a63d36;
+  --isalwa-info: #3a5f82;
 
+  /* 8px rhythm (space-1 = half-step for hairlines / icons) */
   --isalwa-space-1: 4px;
   --isalwa-space-2: 8px;
   --isalwa-space-3: 12px;
   --isalwa-space-4: 16px;
-  --isalwa-space-5: 20px;
-  --isalwa-space-6: 24px;
-  --isalwa-space-8: 32px;
-  --isalwa-space-10: 40px;
-  --isalwa-space-12: 48px;
+  --isalwa-space-5: 24px;
+  --isalwa-space-6: 32px;
+  --isalwa-space-8: 40px;
+  --isalwa-space-10: 48px;
+  --isalwa-space-12: 64px;
   --isalwa-space-16: 64px;
 
   --isalwa-radius-control: 8px;
-  --isalwa-radius-panel: 14px;
+  --isalwa-radius-panel: 16px;
   --isalwa-radius-pill: 999px;
 
   --isalwa-font-sans: "Plus Jakarta Sans", "Segoe UI", sans-serif;
   --isalwa-font-display: "Newsreader", "Georgia", serif;
   --isalwa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  --isalwa-text-2xs: 11px;
   --isalwa-text-xs: 12px;
   --isalwa-text-sm: 13px;
   --isalwa-text-md: 14px;
@@ -40,18 +43,30 @@
   --isalwa-text-xl: 24px;
   --isalwa-text-2xl: 32px;
   --isalwa-text-3xl: 40px;
+  --isalwa-tracking-kicker: 0.16em;
 
   --isalwa-motion-fast: 140ms;
   --isalwa-motion-base: 220ms;
   --isalwa-motion-slow: 360ms;
   --isalwa-motion-deliberate: 520ms;
+  /* Aliases (Mission 14) — map to the same clock; never invent parallel timings */
+  --isalwa-motion-instant: 40ms;
+  --isalwa-motion-normal: var(--isalwa-motion-base);
+  --isalwa-distance-enter: 8px;
+  --isalwa-distance-whisper: 6px;
+  --isalwa-opacity-muted: 0.45;
+  --isalwa-scale-press: 0.98;
+  --isalwa-stagger-step: 40ms;
   --isalwa-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --isalwa-ease-in-out: cubic-bezier(0.45, 0, 0.15, 1);
   --isalwa-ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
 
-  --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.04), 0 8px 24px rgba(28, 36, 48, 0.06);
-  --isalwa-shadow-lift: 0 2px 0 rgba(28, 36, 48, 0.03), 0 16px 40px rgba(28, 36, 48, 0.1);
-  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
+  --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.03), 0 10px 28px rgba(28, 36, 48, 0.05);
+  --isalwa-shadow-lift: 0 2px 0 rgba(28, 36, 48, 0.02), 0 18px 44px rgba(28, 36, 48, 0.09);
+  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 26%, transparent);
+
+  --isalwa-border-subtle: color-mix(in srgb, var(--isalwa-mist) 88%, var(--isalwa-kiln));
+  --isalwa-page-max: 1120px;
 
   --isalwa-surface-hero: linear-gradient(
     165deg,
@@ -64,9 +79,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
+    --isalwa-motion-instant: 0ms;
     --isalwa-motion-fast: 0ms;
     --isalwa-motion-base: 0ms;
+    --isalwa-motion-normal: 0ms;
     --isalwa-motion-slow: 0ms;
     --isalwa-motion-deliberate: 0ms;
+    --isalwa-distance-enter: 0px;
+    --isalwa-distance-whisper: 0px;
+    --isalwa-stagger-step: 0ms;
   }
 }

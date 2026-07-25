@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Panel, StatusPill } from '@isalwa/ui';
+import { ExperienceHeader, PageContainer, Panel, StatusPill } from '@isalwa/ui';
 import { AppShell } from '@/components/app-shell';
 import { PaymentForm } from '@/components/payment-form';
 import { apiGet } from '@/lib/api';
@@ -44,49 +44,46 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
   return (
     <AppShell active="/cierre">
-      <main className="px-5 py-8 md:px-8">
-        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-[var(--isalwa-text-sm)] uppercase tracking-[0.12em] text-[var(--isalwa-glaze)]">
-              Factura
-            </p>
-            <h1 className="mt-1 text-[var(--isalwa-text-2xl)] font-semibold">{invoice.number}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
+      <PageContainer label={`Factura ${invoice.number}`}>
+        <ExperienceHeader
+          kicker="Factura"
+          title={invoice.number}
+          subtitle={
+            <span className="flex flex-wrap items-center gap-2">
               <StatusPill tone={invoice.balance.centavos > 0 ? 'warning' : 'success'}>
-                {invoice.status === 'paid' ? 'Pagado' : invoice.status === 'overdue' ? 'Vencido' : invoice.status === 'partial' ? 'Parcial' : invoice.status === 'open' ? 'Abierto' : invoice.status}
+                {invoice.status === 'paid'
+                  ? 'Pagado'
+                  : invoice.status === 'overdue'
+                    ? 'Vencido'
+                    : invoice.status === 'partial'
+                      ? 'Parcial'
+                      : invoice.status === 'open'
+                        ? 'Abierto'
+                        : invoice.status}
               </StatusPill>
               <StatusPill tone="neutral">
                 Vence {new Date(invoice.dueAt).toLocaleDateString('es-BO')}
               </StatusPill>
-            </div>
-            <p className="mt-2">
-              <Link href={`/personas/${invoice.accountId}`} className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70">
+              <Link
+                href={`/personas/${invoice.accountId}`}
+                className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
+              >
                 {invoice.accountName}
               </Link>
-              {invoice.quoteId ? (
-                <>
-                  {' '}
-                  ·{' '}
-                  <Link
-                    href={`/cierre/cotizaciones/${invoice.quoteId}`}
-                    className="text-[var(--isalwa-glaze)] transition-opacity duration-[var(--isalwa-motion-fast)] hover:opacity-70"
-                  >
-                    {invoice.quoteNumber}
-                  </Link>
-                </>
-              ) : null}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">Saldo</p>
-            <p className="text-[var(--isalwa-text-2xl)] font-semibold" style={{ fontFamily: 'var(--isalwa-font-mono)' }}>
-              {invoice.balance.label}
-            </p>
-            <p className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-              Total {invoice.total.label}
-            </p>
-          </div>
-        </header>
+            </span>
+          }
+          actions={
+            <div className="text-right">
+              <p className="isalwa-section-label">Saldo</p>
+              <p className="isalwa-metric mt-1 text-[clamp(1.25rem,2vw,1.6rem)] font-semibold">
+                {invoice.balance.label}
+              </p>
+              <p className="mt-1 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
+                Total {invoice.total.label}
+              </p>
+            </div>
+          }
+        />
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel className="p-5">
@@ -138,7 +135,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             Nueva oportunidad →
           </Link>
         </div>
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

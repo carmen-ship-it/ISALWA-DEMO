@@ -240,6 +240,7 @@ export function QuoteCanvas({
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  // Visual tokens only — mirror CSS vars (no parallel palette).
   const TOKEN = {
     glaze:    'var(--isalwa-glaze)',
     kiln:     'var(--isalwa-kiln)',
@@ -265,10 +266,9 @@ export function QuoteCanvas({
       style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1.15fr',
-        gap: 16,
+        gap: 24,
         alignItems: 'start',
       }}
-      // Single column on narrow viewports handled via className
       className="cierre-grid"
     >
 
@@ -301,21 +301,8 @@ export function QuoteCanvas({
             onChange={(e) => { setQuery(e.target.value); setCategory(null); }}
             placeholder="Buscar — inodoro, lavamanos, repuesto…"
             aria-label="Buscar producto"
-            style={{
-              width:        '100%',
-              padding:      '9px 14px',
-              fontSize:     13,
-              fontFamily:   TOKEN.sans,
-              border:       `1px solid ${TOKEN.mist}`,
-              borderRadius: TOKEN.control,
-              outline:      'none',
-              color:        TOKEN.kiln,
-              background:   TOKEN.porcelain,
-              boxSizing:    'border-box',
-              transition:   'border-color var(--isalwa-motion-fast) var(--isalwa-ease-out), box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out)',
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = TOKEN.glaze)}
-            onBlur={(e)  => (e.currentTarget.style.borderColor = TOKEN.mist)}
+            className="isalwa-field"
+            style={{ background: TOKEN.porcelain }}
           />
 
           {/* Category pills */}
@@ -765,7 +752,7 @@ export function QuoteCanvas({
           )}
 
           {/* Buttons */}
-          <div style={{ display: 'flex', gap: 8, justifyContent: lines.length > 0 ? 'flex-end' : 'center' }}>
+          <div className="cierre-quote-actions" style={{ display: 'flex', gap: 8, justifyContent: lines.length > 0 ? 'flex-end' : 'center' }}>
             {lines.length > 0 && (
               <button
                 type="button"

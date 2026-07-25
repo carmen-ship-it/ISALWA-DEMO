@@ -1,13 +1,11 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/app-shell';
 import { QuoteCanvas } from '@/components/quote-canvas';
-import { StatusPill } from '@isalwa/ui';
+import { ExperienceHeader, PageContainer, StatusPill } from '@isalwa/ui';
 import { apiGet } from '@/lib/api';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 type AccountItem = {
-  id:   string;
+  id: string;
   name: string;
   code: string;
 };
@@ -15,31 +13,29 @@ type AccountItem = {
 type AccountList = { items: AccountItem[] };
 
 type QuoteItem = {
-  id:          string;
-  number:      string;
-  status:      string;
+  id: string;
+  number: string;
+  status: string;
   accountName: string;
-  lineCount:   number;
-  total:       { label: string };
-  createdAt:   string;
-  sentAt:      string | null;
+  lineCount: number;
+  total: { label: string };
+  createdAt: string;
+  sentAt: string | null;
 };
 
 type QuoteList = { items: QuoteItem[] };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function statusTone(s: string): 'neutral' | 'info' | 'success' | 'danger' | 'warning' {
-  if (s === 'draft')    return 'neutral';
-  if (s === 'sent')     return 'info';
+  if (s === 'draft') return 'neutral';
+  if (s === 'sent') return 'info';
   if (s === 'accepted') return 'success';
   if (s === 'rejected') return 'danger';
   return 'warning';
 }
 
 function statusLabel(s: string): string {
-  if (s === 'draft')    return 'Borrador';
-  if (s === 'sent')     return 'Enviada';
+  if (s === 'draft') return 'Borrador';
+  if (s === 'sent') return 'Enviada';
   if (s === 'accepted') return 'Aceptada';
   if (s === 'rejected') return 'Rechazada';
   return s;
@@ -49,11 +45,9 @@ function formatRelDate(dateStr: string): string {
   const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000);
   if (days === 0) return 'Hoy';
   if (days === 1) return 'Ayer';
-  if (days < 30)  return `Hace ${days} días`;
+  if (days < 30) return `Hace ${days} días`;
   return new Date(dateStr).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' });
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function CierrePage({
   searchParams,
@@ -62,9 +56,9 @@ export default async function CierrePage({
 }) {
   const sp = await searchParams;
 
-  let accountId:   string | undefined = sp.account;
-  let accountName  = 'Cliente';
-  let accountCode  = '';
+  let accountId: string | undefined = sp.account;
+  let accountName = 'Cliente';
+  let accountCode = '';
   let quotes: QuoteList = { items: [] };
 
   try {
@@ -73,19 +67,17 @@ export default async function CierrePage({
       apiGet<AccountList>('/accounts?take=24'),
     ]);
 
-    // Resolve which account to quote
-    const all      = [...hero.items, ...accounts.items];
+    const all = [...hero.items, ...accounts.items];
     const selected = accountId
       ? all.find((a) => a.id === accountId)
-      : hero.items.find((a) => a.code === 'H-NEG-001') ?? accounts.items[0];
+      : (hero.items.find((a) => a.code === 'H-NEG-001') ?? accounts.items[0]);
 
     if (selected) {
-      accountId   = selected.id;
+      accountId = selected.id;
       accountName = selected.name;
       accountCode = selected.code;
     }
 
-    // Fetch recent quotes for this account
     if (accountId) {
       quotes = await apiGet<QuoteList>(`/quotes?accountId=${accountId}`);
     }
@@ -97,243 +89,96 @@ export default async function CierrePage({
 
   return (
     <AppShell active="/cierre">
-      <main className="px-5 pb-12 pt-7 md:px-8 md:pt-8">
-
-        {/* ── Page header ────────────────────────────────────────────────── */}
-        <header style={{ marginBottom: 24 }}>
-          <div
-            style={{
-              display:        'flex',
-              alignItems:     'flex-start',
-              justifyContent: 'space-between',
-              gap:            24,
-              flexWrap:       'wrap',
-            }}
-          >
-            {/* Identity */}
-            <div>
-              <p
-                style={{
-                  fontSize:      11,
-                  fontWeight:    700,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color:         'var(--isalwa-glaze)',
-                  margin:        0,
-                }}
-              >
-                Cierre
-              </p>
-              <h1
-                style={{
-                  fontFamily:    'var(--isalwa-font-display)',
-                  fontStyle:     'italic',
-                  fontWeight:    400,
-                  fontSize:      'clamp(1.3rem, 2.2vw, 1.9rem)',
-                  color:         'var(--isalwa-kiln)',
-                  letterSpacing: '-0.01em',
-                  lineHeight:    1.2,
-                  marginTop:     8,
-                }}
-              >
-                {accountName}
-              </h1>
-              {accountCode && (
-                <p
-                  style={{
-                    fontFamily:    'var(--isalwa-font-mono)',
-                    fontSize:      11,
-                    color:         'var(--isalwa-slate)',
-                    marginTop:     4,
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {accountCode}
-                  {recentQuotes.length > 0 && (
-                    <span style={{ marginLeft: 10, opacity: 0.7 }}>
-                      · {recentQuotes.length} cotización{recentQuotes.length !== 1 ? 'es' : ''} previas
-                    </span>
-                  )}
-                </p>
-              )}
-            </div>
-
-            {/* Change customer */}
+      <PageContainer label="Cierre">
+        <ExperienceHeader
+          kicker="Cierre"
+          title={accountName}
+          subtitle={
+            accountCode ? (
+              <span className="font-[var(--isalwa-font-mono)] text-[var(--isalwa-text-2xs)] tracking-[0.04em]">
+                {accountCode}
+                {recentQuotes.length > 0 ? (
+                  <span className="ml-2 opacity-70">
+                    · {recentQuotes.length} cotización{recentQuotes.length !== 1 ? 'es' : ''} previas
+                  </span>
+                ) : (
+                  ' · Construya la cotización con precios que el cliente ya conoce'
+                )}
+              </span>
+            ) : (
+              'Construya la cotización con precios que el cliente ya conoce'
+            )
+          }
+          actions={
             <Link
               href="/personas"
-              style={{
-                padding:       '8px 16px',
-                borderRadius:  'var(--isalwa-radius-control)',
-                border:        '1px solid var(--isalwa-mist)',
-                background:    'white',
-                color:         'var(--isalwa-kiln)',
-                fontSize:      12,
-                fontWeight:    600,
-                letterSpacing: '-0.01em',
-                display:       'flex',
-                alignItems:    'center',
-                gap:           6,
-                flexShrink:    0,
-                boxShadow:     'var(--isalwa-shadow-soft)',
-                transition:    'border-color var(--isalwa-motion-fast) var(--isalwa-ease-out), background-color var(--isalwa-motion-fast) var(--isalwa-ease-out)',
-              }}
+              className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-[var(--isalwa-text-sm)] font-medium text-[var(--isalwa-kiln)] shadow-[var(--isalwa-shadow-soft)] transition-[border-color,background-color,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] hover:border-[var(--isalwa-glaze)] hover:bg-[var(--isalwa-porcelain)] hover:shadow-[var(--isalwa-shadow-lift)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
             >
               ← Cambiar cliente
             </Link>
-          </div>
-        </header>
+          }
+        />
 
-        {/* ── Quote canvas ────────────────────────────────────────────────── */}
         {accountId ? (
-          <QuoteCanvas
-            accountId={accountId}
-            accountName={accountName}
-            accountCode={accountCode}
-          />
+          <QuoteCanvas accountId={accountId} accountName={accountName} accountCode={accountCode} />
         ) : (
-          <div
-            style={{
-              padding:      '48px 32px',
-              textAlign:    'center',
-              background:   'white',
-              border:       '1px solid var(--isalwa-mist)',
-              borderRadius: 'var(--isalwa-radius-panel)',
-              color:        'var(--isalwa-slate)',
-            }}
-          >
+          <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-8 py-12 text-center shadow-[var(--isalwa-shadow-soft)]">
             <p
-              style={{
-                fontFamily: 'var(--isalwa-font-display)',
-                fontStyle:  'italic',
-                fontSize:   '1.2rem',
-              }}
+              className="text-[1.2rem] text-[var(--isalwa-kiln)]"
+              style={{ fontFamily: 'var(--isalwa-font-display)', fontStyle: 'italic' }}
             >
               Sin cuentas disponibles
             </p>
-            <p style={{ fontSize: 12, marginTop: 8, opacity: 0.6 }}>
+            <p className="mt-2 text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)] opacity-60">
               ¿API y seed en línea?
             </p>
           </div>
         )}
 
-        {/* ── Recent quotes ───────────────────────────────────────────────── */}
-        {recentQuotes.length > 0 && (
-          <section style={{ marginTop: 40 }}>
-            {/* Section header */}
-            <div
-              style={{
-                display:        'flex',
-                alignItems:     'center',
-                justifyContent: 'space-between',
-                marginBottom:   12,
-              }}
-            >
-              <h2
-                style={{
-                  fontSize:      10,
-                  fontWeight:    700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color:         'var(--isalwa-slate)',
-                  margin:        0,
-                }}
-              >
-                Historial de cotizaciones
-              </h2>
-              <span
-                style={{
-                  fontFamily:    'var(--isalwa-font-mono)',
-                  fontSize:      11,
-                  color:         'var(--isalwa-slate)',
-                  opacity:       0.6,
-                }}
-              >
+        {recentQuotes.length > 0 ? (
+          <section className="mt-10">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 className="isalwa-section-label">Historial de cotizaciones</h2>
+              <span className="font-[var(--isalwa-font-mono)] text-[var(--isalwa-text-2xs)] text-[var(--isalwa-slate)] opacity-60">
                 {quotes.items.length} total
               </span>
             </div>
 
-            {/* Quote table */}
-            <div
-              style={{
-                background:   'white',
-                border:       '1px solid var(--isalwa-mist)',
-                borderRadius: 'var(--isalwa-radius-panel)',
-                overflow:     'hidden',
-                boxShadow:    'var(--isalwa-shadow-soft)',
-              }}
-            >
+            <div className="overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white shadow-[var(--isalwa-shadow-soft)]">
               {recentQuotes.map((q, i) => (
                 <Link
                   key={q.id}
                   href={`/cierre/cotizaciones/${q.id}`}
+                  className="cierre-quote-row grid grid-cols-[auto_1fr_auto_auto_20px] items-center gap-4 px-5 py-4 no-underline md:px-6"
                   style={{
-                    display:        'grid',
-                    gridTemplateColumns: 'auto 1fr auto auto 20px',
-                    alignItems:     'center',
-                    gap:            16,
-                    padding:        '13px 20px',
-                    borderBottom:   i < recentQuotes.length - 1
-                      ? '1px solid var(--isalwa-mist)'
-                      : 'none',
-                    transition:     'background-color var(--isalwa-motion-fast) var(--isalwa-ease-out)',
-                    textDecoration: 'none',
+                    borderBottom:
+                      i < recentQuotes.length - 1
+                        ? '1px solid color-mix(in srgb, var(--isalwa-mist) 85%, white)'
+                        : 'none',
                   }}
-                  // hover via CSS class below
-                  className="cierre-quote-row"
                 >
-                  {/* Quote number */}
-                  <span
-                    style={{
-                      fontFamily:    'var(--isalwa-font-mono)',
-                      fontSize:      12,
-                      fontWeight:    600,
-                      color:         'var(--isalwa-kiln)',
-                      letterSpacing: '-0.01em',
-                      whiteSpace:    'nowrap',
-                    }}
-                  >
+                  <span className="isalwa-metric whitespace-nowrap text-[var(--isalwa-text-xs)] font-semibold">
                     {q.number}
                   </span>
-
-                  {/* Date + lines */}
-                  <span style={{ fontSize: 12, color: 'var(--isalwa-slate)' }}>
+                  <span className="text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
                     {formatRelDate(q.createdAt)}
-                    {q.lineCount != null && (
-                      <span style={{ marginLeft: 8, opacity: 0.55 }}>
+                    {q.lineCount != null ? (
+                      <span className="ml-2 opacity-55">
                         · {q.lineCount} {q.lineCount === 1 ? 'línea' : 'líneas'}
                       </span>
-                    )}
+                    ) : null}
                   </span>
-
-                  {/* Status pill */}
-                  <StatusPill tone={statusTone(q.status)}>
-                    {statusLabel(q.status)}
-                  </StatusPill>
-
-                  {/* Total */}
-                  <span
-                    style={{
-                      fontFamily:    'var(--isalwa-font-mono)',
-                      fontSize:      13,
-                      fontWeight:    600,
-                      color:         'var(--isalwa-kiln)',
-                      letterSpacing: '-0.02em',
-                      whiteSpace:    'nowrap',
-                    }}
-                  >
+                  <StatusPill tone={statusTone(q.status)}>{statusLabel(q.status)}</StatusPill>
+                  <span className="isalwa-metric whitespace-nowrap text-[var(--isalwa-text-sm)] font-semibold">
                     {q.total.label}
                   </span>
-
-                  {/* Arrow */}
-                  <span style={{ color: 'var(--isalwa-slate)', opacity: 0.35, fontSize: 14 }}>
-                    →
-                  </span>
+                  <span className="text-[14px] text-[var(--isalwa-slate)] opacity-35">→</span>
                 </Link>
               ))}
             </div>
           </section>
-        )}
-      </main>
+        ) : null}
+      </PageContainer>
     </AppShell>
   );
 }

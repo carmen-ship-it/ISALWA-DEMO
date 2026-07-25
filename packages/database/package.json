@@ -12,6 +12,10 @@
     "./seed": {
       "types": "./dist/seed/universe.d.ts",
       "default": "./dist/seed/universe.js"
+    },
+    "./timeline": {
+      "types": "./dist/timeline/index.d.ts",
+      "default": "./dist/timeline/index.js"
     }
   },
   "scripts": {

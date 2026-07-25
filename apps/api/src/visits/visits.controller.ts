@@ -5,7 +5,7 @@ import {
   NotFoundException,
   Post,
 } from '@nestjs/common';
-import { getPrisma } from '@isalwa/database';
+import { emitCommercialEvent, getPrisma } from '@isalwa/database';
 import { createId } from '@isalwa/ts-utils';
 
 @Controller('visits')
@@ -58,18 +58,17 @@ export class VisitsController {
       data: { lastVisitAt: now },
     });
 
-    await prisma.activityEvent.create({
-      data: {
-        id: createId(),
-        organizationId: account.organizationId,
-        accountId: account.id,
-        actorUserId: account.ownerUserId,
-        type: 'visit_completed',
-        title: 'Visita registrada',
-        body: body.notes ?? `Resultado: ${result}`,
-        payloadJson: { visitId, result },
-        occurredAt: now,
-      },
+    await emitCommercialEvent(prisma, {
+      id: createId(),
+      type: 'visit.completed',
+      organizationId: account.organizationId,
+      accountId: account.id,
+      actor: { kind: 'user', userId: account.ownerUserId },
+      occurredAt: now,
+      title: 'Visita registrada',
+      body: body.notes ?? `Resultado: ${result}`,
+      related: { type: 'visit', id: visitId },
+      metadata: { visitId, result },
     });
 
     // Close open visit_gap attention for this account when possible

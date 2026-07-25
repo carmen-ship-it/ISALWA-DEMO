@@ -12,6 +12,7 @@ export class TerritorioController {
       include: {
         locations: { where: { isPrimary: true }, take: 1 },
         territory: true,
+        owner: { select: { id: true, name: true } },
       },
     });
     return {
@@ -25,6 +26,10 @@ export class TerritorioController {
           creditStatus: a.creditStatus,
           personaKey: a.personaKey,
           territoryCode: a.territory.code,
+          relationshipScore: a.relationshipScore,
+          lastVisitAt: a.lastVisitAt?.toISOString() ?? null,
+          ownerId: a.ownerUserId,
+          ownerName: a.owner.name,
           lat: Number(a.locations[0]!.lat),
           lng: Number(a.locations[0]!.lng),
           href: `/personas/${a.id}`,

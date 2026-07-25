@@ -13,10 +13,21 @@
 
 /** Mirrors --isalwa-motion-* tokens. Use dur() to get 0 on reduced-motion. */
 export const DURATION = {
+  instant:    40,   // Micro feedback
   fast:       140,  // Hover feedback, chip toggles, icon swaps
   base:       220,  // Panel reveals, message entrance, standard enter
+  normal:     220,  // Alias of base
   slow:       360,  // Overlay fades, whisper tooltips, success flash
   deliberate: 520,  // Page-level enters, bar fills, map pin entry
+} as const;
+
+/** Distance / opacity / scale — mirror CSS motion tokens (Mission 14). */
+export const MOTION = {
+  distanceEnter: 8,
+  distanceWhisper: 6,
+  opacityMuted: 0.45,
+  scalePress: 0.98,
+  staggerStep: 40,
 } as const;
 
 // ── Easing strings ─────────────────────────────────────────────────────────
@@ -58,7 +69,7 @@ export function dur(key: keyof typeof DURATION): number {
  */
 export function stagger(index: number, offset = 0): number {
   if (reducedMotion()) return 0;
-  return offset + Math.min(index, 12) * 40;
+  return offset + Math.min(index, 12) * MOTION.staggerStep;
 }
 
 // ── Inline transition builder ──────────────────────────────────────────────

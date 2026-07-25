@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { IconSpark } from '@isalwa/ui';
+import { clearTourDone, isDemoMode, isTourDone, markTourDone } from '@/lib/preferences';
 
 // ── Tour step definitions ─────────────────────────────────────────────────────
 
@@ -125,9 +127,34 @@ export function GuidedTour() {
   const [rect,       setRect]       = useState<DOMRect | null>(null);
   const [navigating, setNavigating] = useState(false);
   const [cardIn,     setCardIn]     = useState(false);
+  const [tourDone,   setTourDone]   = useState(false);
 
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const step = STEPS[stepIdx];
+
+  useEffect(() => {
+    setTourDone(isTourDone() && !isDemoMode());
+  }, []);
+
+  useEffect(() => {
+    const start = () => {
+      clearTourDone();
+      setTourDone(false);
+      startTour();
+    };
+    window.addEventListener('isalwa:start-tour', start);
+    return () => window.removeEventListener('isalwa:start-tour', start);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-start once in demo mode if tour not completed in this demo session
+  useEffect(() => {
+    if (!isDemoMode()) return;
+    if (isTourDone()) return;
+    const t = window.setTimeout(() => startTour(), 900);
+    return () => window.clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Find element, retry up to ~3 s ───────────────────────────────────────
   const findElement = useCallback((selector: string) => {
@@ -216,29 +243,35 @@ export function GuidedTour() {
     setActive(true);
   }, []);
 
-  const advance = useCallback(() => {
-    if (stepIdx < STEPS.length - 1) {
-      setStepIdx((i) => i + 1);
-    } else {
-      endTour();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepIdx]);
-
-  const goBack = useCallback(() => {
-    if (stepIdx > 0) setStepIdx((i) => i - 1);
-  }, [stepIdx]);
-
-  const endTour = useCallback(() => {
+  const endTour = useCallback((completed = true) => {
     if (retryRef.current) clearTimeout(retryRef.current);
     setActive(false);
     setRect(null);
     setCardIn(false);
     setNavigating(false);
+    if (completed) {
+      markTourDone();
+      setTourDone(true);
+    }
   }, []);
+
+  const advance = useCallback(() => {
+    if (stepIdx < STEPS.length - 1) {
+      setStepIdx((i) => i + 1);
+    } else {
+      endTour(true);
+    }
+  }, [stepIdx, endTour]);
+
+  const goBack = useCallback(() => {
+    if (stepIdx > 0) setStepIdx((i) => i - 1);
+  }, [stepIdx]);
 
   // ── Render: trigger button ────────────────────────────────────────────────
   if (!active) {
+    if (tourDone && !isDemoMode()) {
+      return null;
+    }
     return (
       <button
         onClick={startTour}
@@ -256,9 +289,9 @@ export function GuidedTour() {
           fontWeight:    600,
           letterSpacing: '0.07em',
           textTransform: 'uppercase',
-          color:         'color-mix(in srgb, white 38%, transparent)',
+          color:         'color-mix(in srgb, white 48%, transparent)',
           background:    'transparent',
-          border:        '1px solid color-mix(in srgb, white 10%, transparent)',
+          border:        '1px solid color-mix(in srgb, white 14%, transparent)',
           borderRadius:  '100px',
           cursor:        'pointer',
           transition:    `color 140ms ease-out,
@@ -267,14 +300,14 @@ export function GuidedTour() {
         }}
         onMouseEnter={(e) => {
           const b = e.currentTarget;
-          b.style.color = 'color-mix(in srgb, white 72%, transparent)';
-          b.style.borderColor = 'color-mix(in srgb, white 22%, transparent)';
+          b.style.color = 'color-mix(in srgb, white 78%, transparent)';
+          b.style.borderColor = 'color-mix(in srgb, white 24%, transparent)';
           b.style.background = 'color-mix(in srgb, white 5%, transparent)';
         }}
         onMouseLeave={(e) => {
           const b = e.currentTarget;
-          b.style.color = 'color-mix(in srgb, white 38%, transparent)';
-          b.style.borderColor = 'color-mix(in srgb, white 10%, transparent)';
+          b.style.color = 'color-mix(in srgb, white 48%, transparent)';
+          b.style.borderColor = 'color-mix(in srgb, white 14%, transparent)';
           b.style.background = 'transparent';
         }}
       >
@@ -302,13 +335,13 @@ export function GuidedTour() {
       {/* ── Spotlight dark panels ── */}
       {panels ? (
         <>
-          <div aria-hidden onClick={endTour} style={{ ...darkPanel, ...panels.top    }} />
-          <div aria-hidden onClick={endTour} style={{ ...darkPanel, ...panels.bottom }} />
-          <div aria-hidden onClick={endTour} style={{ ...darkPanel, ...panels.left   }} />
-          <div aria-hidden onClick={endTour} style={{ ...darkPanel, ...panels.right  }} />
+          <div aria-hidden onClick={() => endTour()} style={{ ...darkPanel, ...panels.top    }} />
+          <div aria-hidden onClick={() => endTour()} style={{ ...darkPanel, ...panels.bottom }} />
+          <div aria-hidden onClick={() => endTour()} style={{ ...darkPanel, ...panels.left   }} />
+          <div aria-hidden onClick={() => endTour()} style={{ ...darkPanel, ...panels.right  }} />
         </>
       ) : (
-        <div aria-hidden onClick={endTour} style={{ ...darkPanel, position: 'fixed', inset: 0 }} />
+        <div aria-hidden onClick={() => endTour()} style={{ ...darkPanel, position: 'fixed', inset: 0 }} />
       )}
 
       {/* ── Highlight ring around target ── */}
@@ -366,7 +399,7 @@ export function GuidedTour() {
             {stepIdx + 1} / {STEPS.length}
           </span>
           <button
-            onClick={endTour}
+            onClick={() => endTour()}
             aria-label="Saltar recorrido"
             style={{
               background: 'none',
@@ -422,7 +455,17 @@ export function GuidedTour() {
           gap:          8,
           alignItems:   'flex-start',
         }}>
-          <span aria-hidden style={{ fontSize: 13, color: 'var(--isalwa-glaze)', flexShrink: 0, marginTop: 1 }}>◈</span>
+          <span
+            aria-hidden
+            style={{
+              color: 'var(--isalwa-glaze)',
+              flexShrink: 0,
+              marginTop: 1,
+              display: 'inline-flex',
+            }}
+          >
+            <IconSpark size={14} />
+          </span>
           <p style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--isalwa-glaze)', margin: 0, fontWeight: 500 }}>
             {step.insight}
           </p>

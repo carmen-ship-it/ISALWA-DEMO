@@ -1,7 +1,9 @@
 /**
  * Pure domain helpers — no I/O.
  * Relationship score is explainable: weighted components 0–100.
+ * Commercial timeline events live under ./events (Mission 17).
  */
+
 export type RelationshipScoreComponents = {
   recency: number;
   frequency: number;
@@ -38,3 +40,5 @@ export function slaRemainingFraction(nowMs: number, dueMs: number, windowMs: num
   const remaining = dueMs - nowMs;
   return Math.max(0, Math.min(1, remaining / windowMs));
 }
+
+export * from './events/index';

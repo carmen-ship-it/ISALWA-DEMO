@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { getPrisma } from '@isalwa/database';
+import { getPrisma, listAccountTimeline } from '@isalwa/database';
 
 function money(centavos: bigint | number | null | undefined) {
   const n = Number(centavos ?? 0);
@@ -180,22 +180,31 @@ export class AccountsService {
     };
   }
 
-  async timeline(id: string) {
+  async timeline(id: string): Promise<{
+    items: Array<{
+      id: string;
+      type: string;
+      title: string;
+      body: string | null;
+      occurredAt: string;
+      payload: unknown;
+      canonicalType: string | null;
+      family: string;
+    }>;
+  }> {
     const prisma = getPrisma();
     if (!prisma) return { items: [] };
-    const items = await prisma.activityEvent.findMany({
-      where: { accountId: id },
-      orderBy: { occurredAt: 'desc' },
-      take: 40,
-    });
+    const { items } = await listAccountTimeline(prisma, id, { take: 40 });
     return {
       items: items.map((e) => ({
         id: e.id,
-        type: e.type,
+        type: e.canonicalType ?? e.type,
         title: e.title,
         body: e.body,
         occurredAt: e.occurredAt,
-        payload: e.payloadJson,
+        payload: e.payload,
+        canonicalType: e.canonicalType,
+        family: e.family,
       })),
     };
   }

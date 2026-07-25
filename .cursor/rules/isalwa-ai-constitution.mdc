@@ -1,0 +1,43 @@
+---
+description: ISALWA AI Constitution — product maturity rules (reuse design system, never parallel stacks)
+alwaysApply: true
+---
+
+# ISALWA AI Constitution
+
+This repo is in **PRODUCT MATURITY**. Optimize for consistency, maintainability, and enterprise quality. This constitution outranks implementation convenience.
+
+## Core principles
+
+1. Never rewrite working systems.
+2. Never create parallel implementations.
+3. Extend before replacing.
+4. Reuse before creating.
+5. Every UI element belongs to the design system (`@isalwa/ui` + tokens).
+6. Business logic wins over aesthetics.
+7. Architecture stability > visual novelty.
+8. Prefer smaller PRs over large refactors.
+9. New features must feel like they always existed.
+10. If unsure, preserve existing behavior.
+
+## Frozen design language
+
+Porcelain backgrounds · kiln sidebar · glaze accents · Newsreader italic titles · uppercase kickers · 8px rhythm · soft elevation · calm motion · premium enterprise feel.
+
+Do **not** introduce another visual language. Tokens: `packages/ui/src/tokens/tokens.css`. Spec: `docs/design/MISSION11_*.md`, `docs/design/MISSION12_*.md`. Full text: `docs/architecture/AI_CONSTITUTION.md`.
+
+## Never / Always
+
+**Never:** replace frameworks, migrate stacks, competing component systems, duplicate primitives, move business logic without approval, add deps without justification.
+
+**Always:** extend `@isalwa/ui`, reuse primitives, document ADRs when needed, compose over duplicate.
+
+## Before creating a component
+
+Search first: `MetricCard`, `Panel`, `ExperienceHeader`, `Chip`, `Button`, `Timeline`, `SectionHeader`, `InsightCard`, `DashboardGrid`, `ActionBar`, `SearchField`, `PageContainer`, `PageSection`, `StatGroup`, `ListRow`, `EmptyPanel`, `StatusPill`, `EmptyState`.
+
+If it exists → **reuse**. Do not build another.
+
+## Definition of done
+
+Consistent UI · mobile works · a11y preserved · no duplicated components · no dead code · docs updated · types pass · build passes · behavior unchanged.
