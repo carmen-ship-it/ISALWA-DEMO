@@ -577,22 +577,6 @@ export type {
   WorkspaceStatus,
 } from "./workspace";
 
-export type {
-  CompanyEvolutionHistory,
-  CompanySnapshot,
-  EvolutionChangeArea,
-  EvolutionChangeItem,
-  EvolutionChangePolarity,
-  EvolutionMilestone,
-  EvolutionMilestoneKind,
-  EvolutionTimelineEntry,
-  SnapshotComparison,
-  SnapshotModuleRef,
-  SnapshotProcessSummary,
-  SnapshotRecommendationRef,
-  SnapshotRiskRef,
-  SnapshotRoadmapPhase,
-} from "./history";
 
 export type {
   KnowledgeAsset,

@@ -516,6 +516,7 @@ export function createEmptyWorkspace(
     deliverables: null,
     companyModel: null,
     implementationPackage: null,
+    evolutionHistory: emptyEvolutionHistory(),
     people: [],
     openQuestions: [],
     painPoints: [],

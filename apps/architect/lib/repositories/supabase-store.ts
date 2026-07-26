@@ -91,15 +91,17 @@ class BundleWorkspaceRepository implements WorkspaceRepository {
 
   async save(workspace: CompanyWorkspace): Promise<CompanyWorkspace> {
     await this.refresh();
+    const { evolveCompanyHistory } = await import("@/lib/history");
+    const { workspace: evolved } = evolveCompanyHistory(workspace);
     const bundle = this.getBundle();
-    const index = bundle.workspaces.findIndex((w) => w.id === workspace.id);
+    const index = bundle.workspaces.findIndex((w) => w.id === evolved.id);
     if (index >= 0) {
-      bundle.workspaces[index] = workspace;
+      bundle.workspaces[index] = evolved;
     } else {
-      bundle.workspaces.push(workspace);
+      bundle.workspaces.push(evolved);
     }
     await this.persist();
-    return workspace;
+    return evolved;
   }
 
   async list(): Promise<CompanyWorkspace[]> {

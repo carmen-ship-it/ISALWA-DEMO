@@ -118,7 +118,7 @@ export interface CompanyWorkspace {
    * Mission 15 — Continuous company evolution history.
    * Append-only snapshots / milestones — never overwrite prior captures.
    */
-  evolutionHistory?: import("./history").CompanyEvolutionHistory | null;
+  evolutionHistory: import("./history").CompanyEvolutionHistory;
   people: Person[];
   openQuestions: string[];
   painPoints: import("./index").PainPoint[];
