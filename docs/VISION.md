@@ -53,6 +53,9 @@ Everything else is downstream of that sentence.
 
 # Product Principles
 
+> **Long-term principles (DO NOT REMOVE)** — override individual missions:  
+> [`apps/architect/PRODUCT_PRINCIPLES.md`](../apps/architect/PRODUCT_PRINCIPLES.md)
+
 - **Evidence over opinions** — Recommendations earn their place. Speculation does not.
 - **Understand before recommending** — Diagnosis precedes prescription.
 - **One source of truth** — Memory, Knowledge, Blueprint, Solution, Processes, Deliverables. No parallel realities.

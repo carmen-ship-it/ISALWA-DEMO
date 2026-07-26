@@ -4,7 +4,8 @@ Working title. Future rename possible.
 
 **Design your company before you build software.**
 
-> Product north star: [docs/VISION.md](../../docs/VISION.md)
+> Product north star: [docs/VISION.md](../../docs/VISION.md)  
+> **Long-term principles (override missions):** [PRODUCT_PRINCIPLES.md](./PRODUCT_PRINCIPLES.md)
 
 ISALWA Architect is a separate application from the ISALWA OS product. It interviews companies before software is built — not as customer support, but as a senior architect sitting across the table.
 

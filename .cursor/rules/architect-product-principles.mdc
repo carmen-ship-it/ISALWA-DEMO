@@ -1,0 +1,25 @@
+---
+description: ISALWA Architect long-term product principles — override individual missions
+globs:
+  - apps/architect/**/*
+alwaysApply: false
+---
+
+# Architect product principles
+
+Canonical text: `apps/architect/PRODUCT_PRINCIPLES.md` (DO NOT REMOVE).
+
+When working in `apps/architect`, these override individual `MISSION*.md` prompts:
+
+1. Architect is consulting intelligence — not software/codegen-first.
+2. Every feature must improve business understanding.
+3. Everything derives from evidence — no fake scores or invented workflows.
+4. Never ask unnecessary questions — senior consultant, not survey.
+5. One evolving Business Blueprint is the source of truth.
+6. Multi-tenant first — isolated, namespaced, permission-aware.
+7. White-label by design.
+8. Continuous consulting — institutional memory never "finishes."
+9. Human-first — assist judgment; explain recommendations; show evidence and confidence.
+10. Architect is the front door; other products execute.
+
+Work **one task at a time** unless the user asks otherwise.
