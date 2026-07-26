@@ -1,4 +1,4 @@
-export { think, createEmptyMemory } from "./think";
+export { think, createEmptyMemory, MAX_ADAPTIVE_QUESTIONS } from "./think";
 export type { ThoughtResult } from "./think";
 export { absorbAnswerIntoMemory } from "./memory/absorb";
 export {

@@ -2,6 +2,8 @@
 
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { understandingSentence } from "@/lib/presentation";
 import type { DiscoveryScore, DimensionStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +14,13 @@ function dimensionDisplay(dimension: DimensionStatus): string {
 }
 
 export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
+  const applicableDimensions = score.dimensions.filter(
+    (dimension) => dimension.applicable !== false,
+  );
+  const coveredCount = applicableDimensions.filter((d) => d.covered).length;
+  const totalCount = applicableDimensions.length;
+  const topicsProgress = totalCount > 0 ? Math.round((coveredCount / totalCount) * 100) : 0;
+
   return (
     <Card className="overflow-hidden px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
@@ -28,10 +37,22 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
         </motion.span>
         <span className="mb-1 text-lg text-neutral-400">%</span>
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-        Estimación basada en la entrevista — promedio de las dimensiones con
-        evidencia, no un modelo de precisión.
+      {/* Confidence in plain, human language — never the raw score alone. */}
+      <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+        {understandingSentence(score.overall)}
       </p>
+
+      {totalCount > 0 ? (
+        <div className="mt-5 border-t border-neutral-100 pt-4">
+          <div className="flex items-center justify-between text-xs text-neutral-500">
+            <span>Temas cubiertos</span>
+            <span>
+              {coveredCount} de {totalCount}
+            </span>
+          </div>
+          <Progress value={topicsProgress} className="mt-1.5" />
+        </div>
+      ) : null}
 
       <ul className="mt-6 space-y-2.5">
         {score.dimensions.map((dimension) => (

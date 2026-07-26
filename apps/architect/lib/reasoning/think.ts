@@ -20,7 +20,12 @@ export interface ThoughtResult {
   nextQuestion: Question | null;
 }
 
-const MAX_ADAPTIVE_QUESTIONS = 18;
+/**
+ * Hard cap that forces conclusion once reached (see `forceConclude` below).
+ * Exported read-only so the Guided Assessment UI can show an honest
+ * "question N of up to M" estimate — never a fabricated total.
+ */
+export const MAX_ADAPTIVE_QUESTIONS = 18;
 
 /**
  * Consultant brain — runs after every substantive answer.

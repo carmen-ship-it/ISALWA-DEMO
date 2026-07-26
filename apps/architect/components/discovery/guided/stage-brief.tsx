@@ -18,6 +18,7 @@ import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { SectionShell } from "@/components/workspace/section-shell";
+import type { QuestionProgress } from "@/lib/discovery/question-progress";
 import { stagePosition, type GuidedStageDefinition } from "@/lib/discovery/stages";
 
 const STAGE_ICON: Record<GuidedStageDefinition["id"], LucideIcon> = {
@@ -36,6 +37,7 @@ export function StageBrief({
   stage,
   overallScore,
   estimatedMinutes,
+  questionProgress,
   pauseHref,
   onSkipQuestion,
   onSkipStage,
@@ -43,6 +45,7 @@ export function StageBrief({
   stage: GuidedStageDefinition;
   overallScore: number;
   estimatedMinutes: number;
+  questionProgress?: QuestionProgress | null;
   pauseHref: string;
   onSkipQuestion?: () => void;
   onSkipStage?: () => void;
@@ -67,10 +70,18 @@ export function StageBrief({
           <Progress value={overallScore} className="mt-1.5" />
         </div>
 
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-neutral-600 ring-1 ring-sky-100">
-          <Clock3 className="h-3.5 w-3.5" aria-hidden />
-          ~{estimatedMinutes} min restantes
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {questionProgress ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-neutral-600 ring-1 ring-sky-100">
+              <ListChecks className="h-3.5 w-3.5" aria-hidden />
+              Pregunta {questionProgress.current} de hasta {questionProgress.max}
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-neutral-600 ring-1 ring-sky-100">
+            <Clock3 className="h-3.5 w-3.5" aria-hidden />
+            ~{estimatedMinutes} min restantes
+          </span>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2.5">

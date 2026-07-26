@@ -36,6 +36,7 @@ import {
   skipCurrentQuestion,
   skipCurrentStage,
 } from "@/lib/discovery/guided-actions";
+import { estimateQuestionProgress } from "@/lib/discovery/question-progress";
 import {
   GUIDED_STAGES,
   computeStageCompletion,
@@ -44,7 +45,7 @@ import {
 } from "@/lib/discovery/stages";
 import type { Answer, CompanyWorkspace, Interview, Question } from "@/types";
 
-/** Same defensive backfill discovery-experience.tsx used — schema kept identical. */
+/** Defensive backfill for older persisted interviews — schema kept identical. */
 function ensureMemory(interview: Interview): Interview {
   const baseMemory =
     interview.memory?.score && interview.memory.whiteboard
@@ -391,6 +392,7 @@ export function GuidedAssessment() {
                   stage={stageDef}
                   overallScore={interview.memory.score.overall}
                   estimatedMinutes={interview.estimatedMinutesRemaining}
+                  questionProgress={estimateQuestionProgress(interview)}
                   pauseHref={`/workspace/${workspace.id}`}
                   onSkipQuestion={canSkipQuestion ? handleSkipQuestion : undefined}
                   onSkipStage={
