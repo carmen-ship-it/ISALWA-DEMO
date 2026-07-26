@@ -1,6 +1,12 @@
 import { createId, nowIso } from "@/lib/utils";
 import { emptyConsultingIntelligence } from "@/lib/consulting";
-import { phaseLabel, severityLabel, timelineEstimateLabel } from "@/lib/presentation";
+import {
+  healthStatusLabel,
+  maturityLabel,
+  phaseLabel,
+  severityLabel,
+  timelineEstimateLabel,
+} from "@/lib/presentation";
 import type {
   ComplexityLevel,
   DepartmentAnalysis,
@@ -273,10 +279,10 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
   const maturityLine = memory.consulting.maturity.dimensions
-    .map((d) => `${d.label} ${d.score}%`)
+    .map((d) => `${d.label}: ${maturityLabel(d.score, "percent").toLowerCase()}`)
     .join(" · ");
   const healthLine = memory.consulting.health.gauges
-    .map((g) => `${g.label} ${g.score}%`)
+    .map((g) => `${g.label}: ${healthStatusLabel(g.score, "percent").toLowerCase()}`)
     .join(" · ");
 
   const consultingOpps = memory.consulting.opportunities.map(

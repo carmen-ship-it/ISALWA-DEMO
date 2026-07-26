@@ -88,7 +88,7 @@ function deriveBusinessHealth(
   }
   return {
     overall: health.overall,
-    label: healthLabel(health.overall),
+    label: healthLabel(health.overall, "percent"),
     gauges: health.gauges.map((g) => ({
       id: g.id,
       label: gaugeLabelEs(g.id, g.label),

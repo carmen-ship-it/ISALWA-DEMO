@@ -312,11 +312,11 @@ function DeliverablePreview({
           <List title="Departamentos" items={d.departments.map(departmentLabel)} />
           <Meta
             label="Madurez operativa"
-            value={maturityLabel(d.overallMaturity)}
+            value={maturityLabel(d.overallMaturity, "percent")}
           />
           <Meta
             label="Salud del negocio"
-            value={healthLabel(d.overallHealth)}
+            value={healthLabel(d.overallHealth, "percent")}
           />
           <List title="Puntos de dolor" items={d.painPoints} />
           <List

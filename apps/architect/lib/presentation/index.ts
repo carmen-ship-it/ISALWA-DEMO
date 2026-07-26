@@ -14,6 +14,7 @@ export {
   fontScaleLabel,
   futureOutputStatusLabel,
   healthLabel,
+  healthStatusLabel,
   humanizeDependencies,
   humanizeDependency,
   integrationStatusLabel,

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { SectionShell } from "@/components/workspace/section-shell";
 import {
+  healthStatusLabel,
   maturityLabel,
   recommendationStrength,
   riskLevelLabel,
@@ -133,7 +134,7 @@ export function ExecutiveDashboard({
         </Card>
         <MetricTile
           label="Madurez operativa"
-          value={maturityLabel(model.maturity)}
+          value={maturityLabel(model.maturity, "percent")}
         />
         <MetricTile
           label="Calidad de la evidencia"
@@ -186,7 +187,10 @@ export function ExecutiveDashboard({
         </div>
       </div>
 
-      <CockpitSection title="Salud por departamento">
+      <CockpitSection
+        title="Salud por departamento"
+        hint="Qué tan sólida se ve la operación de cada área, según la madurez y los problemas detectados en el diagnóstico."
+      >
         {cockpit.departmentHealth.length === 0 ? (
           <EmptyHint />
         ) : (
@@ -326,7 +330,10 @@ export function ExecutiveDashboard({
       </div>
 
       {cockpit.businessHealth.gauges.length > 0 ? (
-        <CockpitSection title="Indicadores de salud">
+        <CockpitSection
+          title="Indicadores de salud"
+          hint="Salud relativa de cada área del negocio — Saludable, Requiere atención o Crítico."
+        >
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {cockpit.businessHealth.gauges.map((g) => (
               <div
@@ -336,17 +343,14 @@ export function ExecutiveDashboard({
                 <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                   {g.label}
                 </p>
-                <p className="mt-1 text-lg tabular-nums text-[var(--isalwa-kiln)]">
-                  {g.score}
+                <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">
+                  {healthStatusLabel(g.score)}
                 </p>
               </div>
             ))}
           </div>
           <p className="mt-3 text-xs text-[var(--isalwa-slate)]/80">
             Lectura consultiva: {cockpit.businessHealth.label}
-            {cockpit.businessHealth.overall != null
-              ? ` (${cockpit.businessHealth.overall})`
-              : ""}
           </p>
         </CockpitSection>
       ) : null}
@@ -406,9 +410,12 @@ function MetricTile({
 
 function CockpitSection({
   title,
+  hint,
   children,
 }: {
   title: string;
+  /** One-line plain-language explanation of what this metric means. */
+  hint?: string;
   children: ReactNode;
 }) {
   return (
@@ -416,6 +423,9 @@ function CockpitSection({
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
+      {hint ? (
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">{hint}</p>
+      ) : null}
       <div className="mt-3">{children}</div>
     </div>
   );

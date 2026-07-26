@@ -37,7 +37,10 @@ export function ContextBar({
         <span className="text-white/85">{stageLabel}</span>
       </span>
       <span className="h-3 w-px shrink-0 bg-white/15" aria-hidden />
-      <span className="inline-flex shrink-0 items-center gap-1.5">
+      <span
+        className="inline-flex shrink-0 items-center gap-1.5"
+        title="Qué tanto entendemos su negocio hoy, según la evidencia reunida hasta ahora."
+      >
         <span className="uppercase tracking-[0.14em] text-white/45">
           Comprensión
         </span>

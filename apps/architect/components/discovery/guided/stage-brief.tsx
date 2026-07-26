@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { SectionShell } from "@/components/workspace/section-shell";
 import type { QuestionProgress } from "@/lib/discovery/question-progress";
 import { stagePosition, type GuidedStageDefinition } from "@/lib/discovery/stages";
+import { understandingLevel } from "@/lib/presentation";
 
 const STAGE_ICON: Record<GuidedStageDefinition["id"], LucideIcon> = {
   welcome: Compass,
@@ -65,7 +66,9 @@ export function StageBrief({
         <div className="min-w-[160px] flex-1">
           <div className="flex items-center justify-between text-xs text-[var(--isalwa-slate)]/80">
             <span>Comprensión del negocio</span>
-            <span>{overallScore}%</span>
+            <span>
+              {overallScore}% · {understandingLevel(overallScore).toLowerCase()}
+            </span>
           </div>
           <Progress value={overallScore} className="mt-1.5" />
         </div>

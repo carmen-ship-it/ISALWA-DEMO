@@ -23,6 +23,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionShell } from "@/components/workspace/section-shell";
+import {
+  coverageBand,
+  coverageBandLabelEs,
+  understandingLevel,
+} from "@/lib/presentation";
 import { prepareCompany } from "@/lib/preparation";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatIndustryLabel, formatStageLabel } from "@/lib/workspace";
@@ -171,10 +176,14 @@ export function PreparationBriefPanel({
       >
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Comprensión previa: {prep.confidence.approximatePercent}%
+            Comprensión previa: {prep.confidence.approximatePercent}% ·{" "}
+            {understandingLevel(prep.confidence.approximatePercent).toLowerCase()}
           </span>
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Cobertura de información: {prep.coverage.averagePercent}%
+            Cobertura de información: {prep.coverage.averagePercent}% ·{" "}
+            {coverageBandLabelEs(
+              coverageBand(prep.coverage.averagePercent, "percent"),
+            ).toLowerCase()}
           </span>
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />

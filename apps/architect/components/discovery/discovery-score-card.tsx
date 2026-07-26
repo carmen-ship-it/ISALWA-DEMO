@@ -54,7 +54,10 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
         </div>
       ) : null}
 
-      <ul className="mt-6 space-y-2.5">
+      <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+        Confianza por tema
+      </p>
+      <ul className="mt-3 space-y-2.5">
         {score.dimensions.map((dimension) => (
           <li
             key={dimension.id}

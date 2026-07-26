@@ -7,7 +7,11 @@ import {
   getSinceLastVisitComparison,
   sortEvolutionTimeline,
 } from "@/lib/history";
-import { evolutionKindLabel } from "@/lib/presentation";
+import {
+  evolutionKindLabel,
+  maturityLabel,
+  understandingLevel,
+} from "@/lib/presentation";
 import type {
   CompanyEvolutionHistory,
   EvolutionChangeItem,
@@ -61,15 +65,11 @@ export function CompanyEvolutionPanel({
         <dl className="mt-5 grid gap-3 sm:grid-cols-3">
           <Stat
             label="Comprensión"
-            value={`${latest.businessUnderstanding}%`}
+            value={`${latest.businessUnderstanding}% · ${understandingLevel(latest.businessUnderstanding).toLowerCase()}`}
           />
           <Stat
             label="Madurez"
-            value={
-              latest.maturityOverall != null
-                ? String(latest.maturityOverall)
-                : "—"
-            }
+            value={maturityLabel(latest.maturityOverall, "percent")}
           />
           <Stat
             label="Última visita"

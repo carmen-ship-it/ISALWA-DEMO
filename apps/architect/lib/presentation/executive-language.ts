@@ -108,9 +108,13 @@ export function understandingSentence(score0to100: number): string {
   }
 }
 
-export function maturityLabel(score: number | null | undefined): string {
+/** @param scale — most engine `maturity.overall` / dimension scores are already 0–100 ("percent"); pass "unit" only for genuine 0–1 fractions. */
+export function maturityLabel(
+  score: number | null | undefined,
+  scale: "unit" | "percent" = "unit",
+): string {
   if (score == null) return "Aún sin evaluar";
-  const band = strengthBand(score, "unit");
+  const band = strengthBand(score, scale);
   switch (band) {
     case "High":
       return "Madura";
@@ -123,9 +127,13 @@ export function maturityLabel(score: number | null | undefined): string {
   }
 }
 
-export function healthLabel(score: number | null | undefined): string {
+/** @param scale — most engine `health.overall` / gauge scores are already 0–100 ("percent"); pass "unit" only for genuine 0–1 fractions (e.g. `processHealth`). */
+export function healthLabel(
+  score: number | null | undefined,
+  scale: "unit" | "percent" = "unit",
+): string {
   if (score == null) return "Aún sin evaluar";
-  const band = strengthBand(score, "unit");
+  const band = strengthBand(score, scale);
   switch (band) {
     case "High":
       return "Saludable";
@@ -136,6 +144,23 @@ export function healthLabel(score: number | null | undefined): string {
     default:
       return "Requiere atención";
   }
+}
+
+/**
+ * Mission 11 — canonical 3-tier health status for standalone health gauges
+ * that today show a raw number with no qualitative word at all (e.g. the
+ * executive cockpit's "Indicadores de salud"). Same thresholds as
+ * `strengthBand` — no new health engine, just a coarser, always-present label.
+ */
+export function healthStatusLabel(
+  score: number | null | undefined,
+  scale: "unit" | "percent" = "percent",
+): string {
+  if (score == null) return "Sin evaluar";
+  const band = strengthBand(score, scale);
+  if (band === "High") return "Saludable";
+  if (band === "Medium") return "Requiere atención";
+  return "Crítico";
 }
 
 export function strengthHint(score: number, scale: "unit" | "percent" = "unit"): string {

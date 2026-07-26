@@ -38,7 +38,7 @@ export function deriveDailySummary(
 
   const healthBit =
     consulting?.health.overall != null
-      ? healthLabel(consulting.health.overall)
+      ? healthLabel(consulting.health.overall, "percent")
       : score.label;
 
   const parts: string[] = [];
