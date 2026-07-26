@@ -14,6 +14,7 @@ import { SolutionArchitecturePanel } from "@/components/workspace/solution-archi
 import { BusinessProcessesPanel } from "@/components/workspace/business-processes-panel";
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
+import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
 import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
@@ -28,6 +29,7 @@ import {
   type WorkspaceTabId,
 } from "@/components/workspace/workspace-tabs";
 import { useAuth } from "@/hooks/use-auth";
+import { evolveCompanyHistory } from "@/lib/history";
 import { deriveExecutiveExperience } from "@/lib/executive";
 import {
   explainSolutionModules,
@@ -52,9 +54,25 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    void store.workspaces.get(workspaceId).then((next) => {
-      if (!cancelled) setWorkspace(next);
-    });
+
+    const loadAndEvolve = async () => {
+      const next = await store.workspaces.get(workspaceId);
+      if (!next || cancelled) return;
+
+      const { workspace: evolved } = evolveCompanyHistory(next);
+      const historyChanged =
+        JSON.stringify(next.evolutionHistory ?? null) !==
+        JSON.stringify(evolved.evolutionHistory);
+
+      if (historyChanged) {
+        const saved = await store.workspaces.save(evolved);
+        if (!cancelled) setWorkspace(saved);
+      } else if (!cancelled) {
+        setWorkspace(next);
+      }
+    };
+
+    void loadAndEvolve();
 
     // Live shared updates when Supabase Realtime is available.
     const supabaseStore = store as {
@@ -68,9 +86,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     });
 
     const onFocus = () => {
-      void store.workspaces.get(workspaceId).then((next) => {
-        if (!cancelled && next) setWorkspace(next);
-      });
+      void loadAndEvolve();
     };
     window.addEventListener("focus", onFocus);
 
@@ -204,6 +220,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               stages={executive.journey}
             />
           </Card>
+        </SectionShell>
+
+        <SectionShell
+          tone="health"
+          kicker="Evolución de la empresa"
+          title="Memoria continua del engagement"
+          description="Cada visita actualiza la memoria. Nada se sobrescribe — el historial solo crece."
+        >
+          <CompanyEvolutionPanel history={workspace.evolutionHistory} />
         </SectionShell>
 
         <SectionShell

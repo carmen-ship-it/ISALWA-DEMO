@@ -28,6 +28,7 @@ import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { deriveCompanyModel } from "@/lib/company-model";
 import { applyDiscoveryScore } from "@/lib/reasoning";
+import { ensureCompanyEvolution } from "@/lib/history";
 import { createId } from "@/lib/utils";
 import {
   PILOT_COMPANY_NAME,
@@ -79,6 +80,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         brandExperience: workspace.brandExperience ?? null,
         companyModel: workspace.companyModel ?? null,
         implementationPackage: workspace.implementationPackage ?? null,
+        evolutionHistory: workspace.evolutionHistory,
       };
 
       if (!next.knowledge?.assets) {
@@ -358,6 +360,8 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
           next = { ...next, implementationPackage: null };
         }
       }
+
+      next = ensureCompanyEvolution(next);
 
       return next;
     }),
