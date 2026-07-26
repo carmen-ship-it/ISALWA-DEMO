@@ -28,10 +28,12 @@ auto-composed description; unaffected by this mission.
 Reuses the existing `session.role` (`consultant` | `client`) — no new auth surface.
 
 - **`workspace-tabs.tsx`** — `CLIENT_VISIBLE_TAB_IDS` restricts the main workspace tabs a
-  client sees to: Ejecutivo, Cómo funciona su empresa (Blueprint), Empresa, Recomendaciones,
-  Hoja de ruta, Entregables. Everything else (Discovery internals, Architecture, Processes,
-  Knowledge, Simulator debug surfaces) is only rendered for consultants via `visibleTabIds`.
-  `CLIENT_TAB_LABELS` renames a subset of tabs to plain-language labels for clients only.
+  client sees to: Ejecutivo, Cómo funciona su empresa (Blueprint), Empresa, Conocimiento del
+  negocio, Perspectivas ejecutivas, Recomendaciones, ¿Qué pasa si…? (Simulator, added by the
+  Executive Simulator mission — client-safe by construction), Hoja de ruta, Entregables.
+  Everything else (Discovery internals, Architecture, Processes) is only rendered for
+  consultants via `visibleTabIds`. `CLIENT_TAB_LABELS` renames a subset of tabs to
+  plain-language labels for clients only.
 - **`workspace-view.tsx`** — computes `isConsultant`, `visibleTabIds`, and
   `tabLabelOverrides` once from the session and threads them through `WorkspaceTabs`. CTAs
   that used to hard-link to a consultant-only tab (e.g. the Blueprint panel's "next step" card)
@@ -65,8 +67,9 @@ Translated to natural, non-literal CEO Spanish:
 - `app/layout.tsx` — page metadata description localized.
 
 Not touched (outside this mission's client-visible surface — left for the missions that own
-them): Knowledge Center, Solution Architecture, Business Processes, Brand/White Label settings,
-Simulator — these remain consultant-only or belong to other queued missions.
+them): Knowledge Center, Solution Architecture, Business Processes, Brand/White Label settings —
+these remain consultant-only or belong to other queued missions. (Simulator was later made
+client-visible by the Executive Simulator mission — see `EXECUTIVE_SIMULATOR.md`.)
 
 ## D. Guidance basics
 

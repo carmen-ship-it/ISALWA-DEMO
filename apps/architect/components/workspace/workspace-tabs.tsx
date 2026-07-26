@@ -28,19 +28,20 @@ export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
   { id: "architecture", label: "Sistema recomendado" },
   { id: "processes", label: "Cómo opera" },
   { id: "recommendations", label: "Recomendaciones" },
-  // Client-safe: read-only "what if" scenarios over lib/simulation. Kept
-  // consultant-only for now per Executive Client Experience mission — the
-  // client-facing simulator entry point is a follow-up, not removed here.
+  // Client-safe: read-only "what if" scenarios over lib/simulation — no
+  // company data is changed and no raw engine internals are shown.
   { id: "simulator", label: "¿Qué pasa si…?" },
   { id: "roadmap", label: "Plan de implementación" },
   { id: "deliverables", label: "Documentos" },
 ];
 
 /**
- * Client Mode — the polished subset Álvaro sees. Everything else
- * (Diagnóstico, Sistema recomendado, Cómo opera, ¿Qué pasa si…?) stays
- * inside Consultant Mode: reasoning internals, engineering detail, and
- * future contracts, per the Executive Client Experience mission scope.
+ * Client Mode — the polished subset Álvaro sees. Diagnóstico, Sistema
+ * recomendado and Cómo opera stay inside Consultant Mode: reasoning
+ * internals, engineering detail, and future contracts, per the Executive
+ * Client Experience mission scope. ¿Qué pasa si…? (Simulator) is
+ * client-safe by construction (Executive Simulator mission) — read-only,
+ * Spanish-only, no raw engine ids — so it is included here.
  */
 export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "executive",
@@ -49,6 +50,7 @@ export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "knowledge",
   "insights",
   "recommendations",
+  "simulator",
   "roadmap",
   "deliverables",
 ];

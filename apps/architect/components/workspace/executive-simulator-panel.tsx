@@ -321,6 +321,7 @@ function SimulationResultView({
   result: SimulationResult;
 }) {
   const baseline = describeBaseline(signals, result.signalsUsed);
+  const rationale = humanizeRationale(result);
 
   return (
     <motion.div
@@ -487,7 +488,7 @@ function SimulationResultView({
           </span>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-neutral-700">
-          {result.confidence.rationale}
+          {rationale}
         </p>
 
         {result.domainsApplied.length > 0 ? (
@@ -567,6 +568,20 @@ function describeBaseline(
   }
 
   return lines;
+}
+
+/**
+ * The engine's own rationale text sometimes quotes the raw `scenarioId`
+ * (e.g. «hire_salespeople») — fine for logs, not for an executive-facing
+ * screen (Álvaro included). Swap it for the scenario's own Spanish `name`,
+ * already present on the same result — a display fix only, no new wording
+ * or logic invented.
+ */
+function humanizeRationale(result: SimulationResult): string {
+  return result.confidence.rationale.replace(
+    `«${result.scenarioId}»`,
+    `«${result.scenarioName}»`,
+  );
 }
 
 function formatMaturity(score: number | null): string {

@@ -1,6 +1,7 @@
 # Executive Simulator — UI Layer (Mission 17 exposure)
 
-**Status:** UI complete, read-only, presentation-only.
+**Status:** UI complete, read-only, presentation-only, wired into the workspace for
+**both** Consultant Mode and Client Mode (Mission 6).
 **App:** `apps/architect`
 **Engine:** `lib/simulation/` (Mission 17, already complete — **not modified**)
 
@@ -101,12 +102,19 @@ import {
   decision logic — they do not affect what `simulate()` returns.
 - No consulting / reasoning / blueprint / process engine file was touched.
 
-## Client Mode / access
+## Client Mode / access (Mission 6 — done)
 
-There is currently no Client Mode tab-hiding allowlist implemented in this
-app yet (checked `lib/auth/*`, `workspace-tabs.tsx`, `workspace-view.tsx` —
-no hide-list exists at the time of this mission). The Simulator tab was
-built to be **client-safe by construction**:
+The Executive Client Experience mission (Mission 1) added a Client Mode
+tab-hiding allowlist (`CLIENT_VISIBLE_TAB_IDS` in `workspace-tabs.tsx`) but
+deliberately left `simulator` out of it as a follow-up ("client-facing
+simulator entry point is a follow-up, not removed here"). **This mission
+(Mission 6) closes that follow-up**: `simulator` is now included in
+`CLIENT_VISIBLE_TAB_IDS`, so Álvaro (Client Mode) and Carmen (Consultant
+Mode) see the exact same panel — one implementation, no parallel
+client/consultant variants, per the constitution's "extend before
+replace" / "reuse before create" principles.
+
+The tab was already built to be **client-safe by construction**:
 
 - Spanish-only, non-technical labels throughout (no scenario ids, domain
   codes, or signal keys are ever shown raw to the user — everything is
@@ -114,10 +122,17 @@ built to be **client-safe by construction**:
 - No diagnostic/internal data exposed (no raw workspace JSON, no engine
   internals).
 
-**Coordination note for the agent adding Client Mode tab filtering:**
-`simulator` should be included in the client-visible tab set alongside
-`executive`, `blueprint`, `recommendations`, etc. — it is an intended
-executive-facing feature, not a diagnostics/internal tab.
+**One presentation bug fixed this mission:** `SimulationConfidence.rationale`
+(an engine string, e.g. `Resultado basado en reglas del escenario
+«hire_salespeople» sin señales de workspace; confianza acotada.`) quotes the
+raw `scenarioId` — an English snake_case identifier, not fit for an
+executive screen. The panel now swaps that literal substring for the
+scenario's own Spanish `name` (already present on the same
+`SimulationResult`, e.g. «Contratar vendedores») before rendering
+(`humanizeRationale` in `executive-simulator-panel.tsx`). This is a display
+fix only — it does not touch `lib/simulation/`, does not change what the
+engine computed, and invents no new wording; it reuses a field the engine
+already returns.
 
 ## Gaps / honestly documented limitations
 
@@ -148,7 +163,7 @@ executive-facing feature, not a diagnostics/internal tab.
   Mission 17's own deferred scope ("Persisting simulation runs" was
   explicitly out of scope).
 
-## Verification
+## Verification (Mission 1, original UI build)
 
 - `npm run typecheck` — no errors in `executive-simulator-panel.tsx`,
   `workspace-view.tsx`, or `workspace-tabs.tsx` (the only pre-existing
@@ -158,6 +173,26 @@ executive-facing feature, not a diagnostics/internal tab.
   mission).
 - `npm run lint` — no errors or warnings in any file this mission added or
   edited.
+
+## Mission 6 changelog (Client Mode follow-up)
+
+Files touched, all presentation/wiring only:
+
+- `components/workspace/workspace-tabs.tsx` — added `"simulator"` to
+  `CLIENT_VISIBLE_TAB_IDS`; updated the surrounding comments (the
+  consultant-only note was now stale).
+- `components/workspace/executive-simulator-panel.tsx` — added
+  `humanizeRationale()` so `confidence.rationale` never shows a raw
+  `scenarioId` to either Álvaro or Carmen.
+- `EXECUTIVE_CLIENT_EXPERIENCE.md` — updated the Client Mode tab list and
+  "not touched" note, which had gone stale after this mission and Missions
+  2–5 (Knowledge, Insights) expanded `CLIENT_VISIBLE_TAB_IDS`.
+- `EXECUTIVE_SIMULATOR.md` — this changelog.
+- No file under `lib/simulation/` touched. No new scenario, rule, band, or
+  signal. No workspace write path touched.
+
+Verification: `npm run typecheck` (workspace) — pass. Committed and pushed
+per Mission 6 DoD.
 
 ## Note on concurrent work in this repo
 
