@@ -30,7 +30,7 @@ export function BrandExperiencePanel({
   if (!model) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           La guía de marca y experiencia aparece una vez que el plan de
           negocio está listo. Captura cómo la empresa quiere verse, sentirse
           y vivirse en el software — inferido del diagnóstico, nunca
@@ -43,21 +43,21 @@ export function BrandExperiencePanel({
   return (
     <div className="space-y-8">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Marca y experiencia
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Dirección de identidad y experiencia
         </h3>
-        <p className="mt-3 text-neutral-600">{model.summary}</p>
-        <p className="mt-4 text-sm text-neutral-400">
+        <p className="mt-3 text-[var(--isalwa-slate)]">{model.summary}</p>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
           {recommendationStrength(model.overallConfidence)} ·{" "}
           {formatRelativeActivity(model.generatedAt)} · solo lectura
         </p>
       </Card>
 
       <Block title="Resumen ejecutivo">
-        <p className="text-neutral-800">{model.executiveSummary}</p>
+        <p className="text-[var(--isalwa-slate)]">{model.executiveSummary}</p>
       </Block>
 
       <Block title="Perfil de marca">
@@ -68,15 +68,15 @@ export function BrandExperiencePanel({
         <RecField label="Posicionamiento de industria" rec={model.brandProfile.industryPositioning} />
         <RecField label="Diferenciación" rec={model.brandProfile.differentiation} />
         <div className="mt-4">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
             Logotipos
           </p>
           <ul className="mt-2 space-y-2">
             {model.brandProfile.logos.map((logo) => (
-              <li key={logo.kind} className="text-sm text-neutral-700">
+              <li key={logo.kind} className="text-sm text-[var(--isalwa-slate)]">
                 {logo.kind} · {logo.status}
                 {logo.notes ? (
-                  <span className="text-neutral-400"> — {logo.notes}</span>
+                  <span className="text-[var(--isalwa-slate)]/60"> — {logo.notes}</span>
                 ) : null}
               </li>
             ))}
@@ -103,19 +103,19 @@ export function BrandExperiencePanel({
         />
         <RegionalFormats model={model} />
         <div className="mt-4">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
             Preferencias de notificación
           </p>
           <ul className="mt-2 space-y-1.5">
             {model.experienceProfile.notificationPreferences.map((pref) => (
-              <li key={pref.channel} className="text-sm text-neutral-700">
+              <li key={pref.channel} className="text-sm text-[var(--isalwa-slate)]">
                 {pref.channel}:{" "}
                 {pref.enabled == null
                   ? "sin definir"
                   : pref.enabled
                     ? "activado"
                     : "desactivado"}
-                <span className="text-neutral-400">
+                <span className="text-[var(--isalwa-slate)]/60">
                   {" "}
                   · {strengthBand(pref.confidence)} — {pref.reasoning}
                 </span>
@@ -128,7 +128,7 @@ export function BrandExperiencePanel({
       <Block title="Recomendación de tema">
         <Meta label="Tema" value={model.themeRecommendation.name} />
         <Meta label="Modo" value={model.themeRecommendation.mode} />
-        <p className="mt-2 text-sm text-neutral-600">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
           {model.themeRecommendation.rationale}
         </p>
         <RecField label="Estética" rec={model.themeRecommendation.aesthetic} />
@@ -146,7 +146,7 @@ export function BrandExperiencePanel({
         <RecField label="Idioma predeterminado" rec={model.terminology.localeDefault} />
         <RecField label="Formalidad" rec={model.terminology.formality} />
         {model.terminology.entries.length === 0 ? (
-          <p className="mt-2 text-sm text-neutral-500">
+          <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
             Aún no hay mapeos de terminología — las entidades y departamentos
             del plan de negocio irán completando esta sección.
           </p>
@@ -157,7 +157,7 @@ export function BrandExperiencePanel({
 
       <Block title="Recomendaciones de navegación">
         {model.navigation.length === 0 ? (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-[var(--isalwa-slate)]/80">
             Los patrones de navegación requieren capacidades de software o
             departamentos del plan de negocio.
           </p>
@@ -174,7 +174,7 @@ export function BrandExperiencePanel({
         labelExpand="Ver justificación y fuentes"
         labelCollapse="Ocultar justificación y fuentes"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             {recommendationStrength(model.overallConfidence)}.{" "}
             {strengthHint(model.overallConfidence)}.
           </p>
@@ -182,7 +182,7 @@ export function BrandExperiencePanel({
       >
         <ul className="space-y-2">
           {model.reasoning.map((line) => (
-            <li key={line} className="text-sm text-neutral-700">
+            <li key={line} className="text-sm text-[var(--isalwa-slate)]">
               {line}
             </li>
           ))}
@@ -191,7 +191,7 @@ export function BrandExperiencePanel({
           {model.evidence.map((ref) => (
             <li
               key={`${ref.source}-${ref.id}`}
-              className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-500"
+              className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]/80"
             >
               {ref.label}
             </li>
@@ -200,7 +200,7 @@ export function BrandExperiencePanel({
       </ExecutiveDetail>
 
       <Block title="Futuros activos de marca">
-        <p className="mb-3 text-sm text-neutral-500">
+        <p className="mb-3 text-sm text-[var(--isalwa-slate)]/80">
           Canales de recepción de activos — pensados para una versión
           posterior.
         </p>
@@ -208,13 +208,13 @@ export function BrandExperiencePanel({
           {BRAND_ASSET_UPLOAD_PROVIDERS.map((provider) => (
             <li
               key={provider.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <p className="text-sm text-neutral-900">{provider.title}</p>
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="text-sm text-[var(--isalwa-kiln)]">{provider.title}</p>
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">
                 {provider.description}
               </p>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 {provider.status}
               </p>
             </li>
@@ -227,11 +227,11 @@ export function BrandExperiencePanel({
           {BRAND_FUTURE_OUTPUTS.map((output) => (
             <li
               key={output.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <p className="text-sm text-neutral-900">{output.title}</p>
-              <p className="mt-1 text-xs text-neutral-500">{output.description}</p>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="text-sm text-[var(--isalwa-kiln)]">{output.title}</p>
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">{output.description}</p>
+              <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 {output.status}
               </p>
             </li>
@@ -243,7 +243,7 @@ export function BrandExperiencePanel({
         labelExpand="Ver preparación para marca blanca"
         labelCollapse="Ocultar preparación para marca blanca"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Preparación de marca de socio para un despliegue futuro — detalle
             opcional.
           </p>
@@ -264,7 +264,7 @@ export function BrandExperiencePanel({
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {title}
       </h4>
       <div className="mt-3 text-base leading-relaxed">{children}</div>
@@ -274,8 +274,8 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <p className="text-sm text-neutral-700">
-      <span className="text-neutral-400">{label}:</span> {value}
+    <p className="text-sm text-[var(--isalwa-slate)]">
+      <span className="text-[var(--isalwa-slate)]/60">{label}:</span> {value}
     </p>
   );
 }
@@ -298,16 +298,16 @@ function RecField<T>({
 
   return (
     <div className="mt-3">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-1 text-sm text-neutral-800">{display}</p>
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{display}</p>
       {rec.confidence > 0 ? (
-        <p className="mt-1 text-xs text-neutral-400">
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
           {strengthBand(rec.confidence)} — {rec.reasoning}
         </p>
       ) : (
-        <p className="mt-1 text-xs text-neutral-400">{rec.reasoning}</p>
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">{rec.reasoning}</p>
       )}
     </div>
   );
@@ -323,15 +323,15 @@ function RecList<T>({
   const items = Array.isArray(rec.value) ? rec.value : [];
   return (
     <div className="mt-3">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
       {items.length === 0 ? (
-        <p className="mt-1 text-sm text-neutral-500">{rec.reasoning}</p>
+        <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{rec.reasoning}</p>
       ) : (
         <ul className="mt-1 space-y-1">
           {(items as string[]).map((item) => (
-            <li key={item} className="text-sm text-neutral-700">
+            <li key={item} className="text-sm text-[var(--isalwa-slate)]">
               {item}
             </li>
           ))}
@@ -349,10 +349,10 @@ function Confidence({
   reasoning?: string;
 }) {
   return (
-    <p className="text-sm text-neutral-700">
+    <p className="text-sm text-[var(--isalwa-slate)]">
       {recommendationStrength(value)}
       {reasoning ? (
-        <span className="text-neutral-400"> — {reasoning}</span>
+        <span className="text-[var(--isalwa-slate)]/60"> — {reasoning}</span>
       ) : null}
     </p>
   );
@@ -362,23 +362,23 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+        <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
           Colores
         </p>
         <ul className="mt-2 space-y-2">
           {tokens.colors.map((color) => (
             <li key={color.name} className="flex items-center gap-3 text-sm">
               <span
-                className="h-6 w-6 shrink-0 rounded-full border border-neutral-200"
+                className="h-6 w-6 shrink-0 rounded-full border border-[var(--isalwa-mist)]"
                 style={{
                   background: color.hex ?? "transparent",
                 }}
               />
-              <span className="text-neutral-800">
+              <span className="text-[var(--isalwa-slate)]">
                 {color.role}: {color.name}{" "}
                 {color.hex ? `(${color.hex})` : "(sin definir)"}
               </span>
-              <span className="text-neutral-400">
+              <span className="text-[var(--isalwa-slate)]/60">
                 {strengthBand(color.confidence)}
               </span>
             </li>
@@ -386,12 +386,12 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
         </ul>
       </div>
       <div>
-        <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+        <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
           Tipografía
         </p>
         <ul className="mt-2 space-y-1.5">
           {tokens.typography.map((t) => (
-            <li key={t.role} className="text-sm text-neutral-700">
+            <li key={t.role} className="text-sm text-[var(--isalwa-slate)]">
               {t.role}: {t.family ?? "—"} {t.weight ?? ""}
             </li>
           ))}
@@ -407,10 +407,10 @@ function TerminologyTable({ entries }: { entries: TerminologyEntry[] }) {
   return (
     <ul className="mt-3 space-y-2">
       {entries.map((entry) => (
-        <li key={entry.id} className="text-sm text-neutral-700">
-          <span className="text-neutral-950">{entry.preferredLabel}</span>
-          <span className="text-neutral-400"> · {entry.term}</span>
-          <span className="text-neutral-400"> — {entry.context}</span>
+        <li key={entry.id} className="text-sm text-[var(--isalwa-slate)]">
+          <span className="text-[var(--isalwa-kiln)]">{entry.preferredLabel}</span>
+          <span className="text-[var(--isalwa-slate)]/60"> · {entry.term}</span>
+          <span className="text-[var(--isalwa-slate)]/60"> — {entry.context}</span>
         </li>
       ))}
     </ul>
@@ -422,9 +422,9 @@ function NavigationList({ items }: { items: NavigationPreference[] }) {
     <ul className="space-y-4">
       {items.map((nav) => (
         <li key={nav.id}>
-          <p className="text-neutral-950">{nav.label}</p>
-          <p className="mt-1 text-sm text-neutral-500">{nav.rationale}</p>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="text-[var(--isalwa-kiln)]">{nav.label}</p>
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{nav.rationale}</p>
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
             {nav.pattern} · {strengthBand(nav.confidence)}
             {nav.modules.length > 0
               ? ` · Capacidades: ${nav.modules.join(" · ")}`
@@ -446,7 +446,7 @@ function AccessibilityView({ profile }: { profile: AccessibilityProfile }) {
       {profile.notes.length > 0 ? (
         <ul className="mt-3 space-y-1">
           {profile.notes.map((note) => (
-            <li key={note} className="text-sm text-neutral-600">
+            <li key={note} className="text-sm text-[var(--isalwa-slate)]">
               {note}
             </li>
           ))}

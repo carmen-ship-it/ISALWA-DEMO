@@ -341,7 +341,7 @@ export function GuidedAssessment() {
       />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
             Evaluación guiada · {workspace.companyName}
           </p>
         </div>
@@ -417,18 +417,18 @@ export function GuidedAssessment() {
             <DiscoveryScoreCard score={interview.memory.score} />
             <LivingWhiteboard board={interview.memory.whiteboard} />
 
-            <div className="rounded-3xl border border-neutral-200/80 bg-white/70 px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/70 px-5 py-4">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
                 Hallazgos del consultor
               </p>
-              <p className="mt-2 text-sm text-neutral-500">
+              <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
                 Aparecen cuando hay evidencia suficiente.
               </p>
             </div>
 
             <div className="space-y-3">
               {interview.observations.length === 0 ? (
-                <Card className="px-5 py-6 text-sm text-neutral-500">
+                <Card className="px-5 py-6 text-sm text-[var(--isalwa-slate)]/80">
                   Aún no hay hallazgos — el Arquitecto no inventa conclusiones.
                 </Card>
               ) : (
@@ -442,8 +442,8 @@ export function GuidedAssessment() {
               )}
             </div>
 
-            <div className="rounded-3xl border border-neutral-200/80 bg-white/70 px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/70 px-5 py-4">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
                 Oportunidades
               </p>
             </div>

@@ -28,10 +28,10 @@ function IdentityField({
     return (
       <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/80 px-4 py-3">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
             {label}
           </p>
-          <p className="mt-1 text-sm text-neutral-900">{value || placeholder}</p>
+          <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">{value || placeholder}</p>
         </div>
         <Button
           type="button"
@@ -61,7 +61,7 @@ function IdentityField({
         autoFocus
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
-        className="flex-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-400"
+        className="flex-1 rounded-full border border-[var(--isalwa-mist)] bg-white px-3 py-1.5 text-sm text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)]"
       />
       <Button type="submit" size="sm">
         Guardar
@@ -91,9 +91,9 @@ function TopicRow({
   onCancelEdit: () => void;
 }) {
   return (
-    <li className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-neutral-100">
+    <li className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-[var(--isalwa-mist)]">
       {topic.prompt ? (
-        <p className="text-sm font-medium text-neutral-800">{topic.prompt}</p>
+        <p className="text-sm font-medium text-[var(--isalwa-slate)]">{topic.prompt}</p>
       ) : null}
 
       {isEditing ? (
@@ -109,7 +109,7 @@ function TopicRow({
             value={draft}
             onChange={(event) => onChangeDraft(event.target.value)}
             rows={3}
-            className="w-full resize-none rounded-2xl border border-neutral-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-neutral-900 outline-none focus:border-neutral-400"
+            className="w-full resize-none rounded-2xl border border-[var(--isalwa-mist)] bg-white px-3.5 py-2.5 text-sm leading-relaxed text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)]"
           />
           <div className="flex gap-2">
             <Button type="submit" size="sm" disabled={!draft.trim()}>
@@ -122,7 +122,7 @@ function TopicRow({
         </form>
       ) : (
         <div className="mt-1.5 flex items-start justify-between gap-3">
-          <p className="text-sm leading-relaxed text-neutral-600">{topic.statement}</p>
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{topic.statement}</p>
           <Button
             type="button"
             variant="ghost"
@@ -171,7 +171,7 @@ export function ReviewPanel({
   return (
     <div className="space-y-6">
       <Card className="px-6 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Datos básicos
         </p>
         <div className="mt-3 space-y-2">
@@ -188,7 +188,7 @@ export function ReviewPanel({
             onSave={(value) => onUpdateIdentity("companyName", value)}
           />
           <div className="rounded-2xl bg-white/80 px-4 py-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
               Rol
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -200,8 +200,8 @@ export function ReviewPanel({
                   className={cn(
                     "rounded-full px-3 py-1.5 text-xs transition-colors",
                     interview.participant.role === (choice.value as ParticipantRole)
-                      ? "bg-neutral-950 text-white"
-                      : "bg-white text-neutral-600 ring-1 ring-neutral-200 hover:bg-neutral-50",
+                      ? "bg-[var(--isalwa-kiln)] text-white"
+                      : "bg-white text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-mist)] hover:bg-[var(--isalwa-porcelain)]",
                   )}
                 >
                   {choice.label}
@@ -213,7 +213,7 @@ export function ReviewPanel({
       </Card>
 
       {totalTopics === 0 ? (
-        <Card className="px-6 py-6 text-sm text-neutral-500">
+        <Card className="px-6 py-6 text-sm text-[var(--isalwa-slate)]/80">
           Aún no hay respuestas registradas para revisar.
         </Card>
       ) : (
@@ -223,7 +223,7 @@ export function ReviewPanel({
           const stage = GUIDED_STAGES[stageId];
           return (
             <Card key={stageId} className="px-6 py-6">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
                 {stage.title}
               </p>
               <ul className="mt-3 space-y-2.5">

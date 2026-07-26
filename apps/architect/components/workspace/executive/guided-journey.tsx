@@ -52,12 +52,12 @@ export function GuidedJourney({
               transition={{ delay: index * 0.05, duration: 0.35 }}
               aria-current={isCurrent ? "step" : undefined}
               className={cn(
-                "flex h-full w-full flex-col gap-2 rounded-2xl border px-4 py-3.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2",
+                "isalwa-t-fast flex h-full w-full flex-col gap-2 rounded-[var(--isalwa-radius-panel)] border px-4 py-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
                 isCurrent
-                  ? "border-neutral-900 bg-neutral-950 text-white shadow-sm"
+                  ? "border-[var(--isalwa-kiln)] bg-[var(--isalwa-kiln)] text-white shadow-[var(--isalwa-shadow-resting)]"
                   : stage.complete
-                    ? "border-emerald-100 bg-white/80 text-neutral-800 hover:border-emerald-200"
-                    : "border-neutral-200/80 bg-white/60 text-neutral-500 hover:border-neutral-300",
+                    ? "isalwa-surface-green text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-tint-green-ink)]/40"
+                    : "border-[var(--isalwa-mist)] bg-white/60 text-[var(--isalwa-slate)]/80 hover:border-[var(--isalwa-slate)]/40",
               )}
             >
               <span className="flex items-center gap-2">
@@ -65,10 +65,10 @@ export function GuidedJourney({
                   className={cn(
                     "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-medium",
                     isCurrent
-                      ? "bg-white text-neutral-950"
+                      ? "bg-white text-[var(--isalwa-kiln)]"
                       : stage.complete
-                        ? "bg-emerald-600 text-white"
-                        : "border border-neutral-300 text-neutral-400",
+                        ? "bg-[var(--isalwa-success)] text-white"
+                        : "border border-[var(--isalwa-mist)] text-[var(--isalwa-slate)]/60",
                   )}
                   aria-hidden
                 >
@@ -81,7 +81,7 @@ export function GuidedJourney({
                 <span
                   className={cn(
                     "text-[10px] font-medium uppercase tracking-[0.14em]",
-                    isCurrent ? "text-neutral-300" : "text-neutral-400",
+                    isCurrent ? "text-white/55" : "text-[var(--isalwa-slate)]/60",
                   )}
                 >
                   Paso {index + 1} de {stages.length}
@@ -93,7 +93,7 @@ export function GuidedJourney({
               <span
                 className={cn(
                   "text-xs leading-relaxed",
-                  isCurrent ? "text-neutral-300" : "text-neutral-500",
+                  isCurrent ? "text-white/70" : "text-[var(--isalwa-slate)]/80",
                 )}
               >
                 {stage.detail}

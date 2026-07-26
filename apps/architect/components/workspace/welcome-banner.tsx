@@ -43,21 +43,21 @@ export function WelcomeBanner({
         `Hoy entendemos aproximadamente el ${pct}% de su negocio (${level.toLowerCase()}). ${focusHint}`
       }
     >
-      <div className="mb-4 h-1.5 max-w-sm overflow-hidden rounded-full bg-white/70">
-        <div
-          className="h-full rounded-full bg-sky-500/80 transition-[width] duration-500 ease-out"
+      <div className="isalwa-risk-bar mb-4 max-w-sm !h-1.5 bg-white/70">
+        <span
+          className="!rounded-full bg-[var(--isalwa-info)] transition-[width] duration-500 ease-out"
           style={{ width: `${Math.max(4, pct)}%` }}
           aria-hidden
         />
       </div>
 
       {todayRecommendation ? (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl bg-white/85 px-4 py-3.5 ring-1 ring-sky-100">
-          <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+        <div className="mb-6 flex items-start gap-3 rounded-[var(--isalwa-radius-panel)] bg-white/85 px-4 py-3.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
+          <span className="isalwa-icon-chip isalwa-ink-blue !h-7 !w-7">
             <Sparkles className="h-3.5 w-3.5" aria-hidden />
           </span>
-          <p className="text-sm leading-relaxed text-neutral-800">
-            <span className="font-medium text-neutral-950">
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            <span className="font-medium text-[var(--isalwa-kiln)]">
               Recomendación de hoy:{" "}
             </span>
             {todayRecommendation}
@@ -65,9 +65,9 @@ export function WelcomeBanner({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]">
         {estimatedMinutes ? (
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-sky-100">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
             Tiempo estimado: {estimatedMinutes} minutos
           </span>

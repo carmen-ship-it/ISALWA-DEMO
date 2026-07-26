@@ -29,7 +29,7 @@ import { healthLabel, coverageBand, riskLevelLabel } from "@/lib/presentation";
 import type { BusinessProcessModel } from "@/types";
 
 const selectClassName =
-  "w-full rounded-full border border-neutral-200/80 bg-white/90 px-3.5 py-1.5 text-[13px] text-neutral-900 outline-none focus:border-neutral-400";
+  "w-full rounded-full border border-[var(--isalwa-mist)]/80 bg-white/90 px-3.5 py-1.5 text-[13px] text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)]";
 
 export function BusinessProcessesPanel({
   context,
@@ -39,7 +39,7 @@ export function BusinessProcessesPanel({
   if (!context?.processes) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           Las vistas de proceso aparecen una vez que el plan de negocio está
           listo. Los diagramas reflejan flujos de trabajo descubiertos — solo
           lectura, nunca inventados.
@@ -165,7 +165,7 @@ function ProcessStudio({
   if (!viz) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           Aún no hay flujos de trabajo disponibles del diagnóstico.
         </p>
       </Card>
@@ -175,14 +175,14 @@ function ProcessStudio({
   return (
     <div className="space-y-5">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Vista de proceso
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           {viz.workflowName}
         </h3>
-        <p className="mt-3 text-neutral-600">{processes.summary}</p>
-        <p className="mt-4 text-sm text-neutral-400">
+        <p className="mt-3 text-[var(--isalwa-slate)]">{processes.summary}</p>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
           {formatRelativeActivity(processes.generatedAt)} · vista de solo
           lectura
         </p>
@@ -283,7 +283,7 @@ function ProcessStudio({
           <Legend overlay={overlay} />
 
           <div
-            className="relative overflow-hidden rounded-3xl border border-neutral-200/80 bg-gradient-to-b from-stone-50/80 to-white"
+            className="relative overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-gradient-to-b from-[var(--isalwa-tint-gray)]/80 to-white"
             style={{ height: 520 }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
@@ -333,7 +333,7 @@ function ProcessStudio({
                 <button
                   key={lane.id}
                   type="button"
-                  className="absolute rounded-2xl border border-neutral-200/70 bg-stone-50/60 text-left transition-colors hover:bg-stone-100/70"
+                  className="absolute rounded-2xl border border-[var(--isalwa-mist)]/70 bg-[var(--isalwa-tint-gray)]/60 text-left transition-colors hover:bg-[var(--isalwa-mist)]/70"
                   style={{
                     left: (() => {
                       const node = viz.nodes.find((n) =>
@@ -347,7 +347,7 @@ function ProcessStudio({
                   }}
                   onClick={() => toggleCollapse(lane.department)}
                 >
-                  <span className="block px-4 pt-3 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+                  <span className="block px-4 pt-3 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                     {lane.label}
                     {collapsed.has(lane.department) ? " · expandir" : " · contraer"}
                   </span>
@@ -473,7 +473,7 @@ function ProcessStudio({
 
           {overlay === "dependency" && deps ? (
             <Card className="px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                 Dependencias · {selectedStep?.name ?? "Seleccione un paso"}
               </p>
               <DependencyList title="Requiere" items={deps.inputs} />
@@ -494,7 +494,7 @@ function ProcessStudio({
 
 function Toolbar({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-wrap gap-3 rounded-3xl border border-neutral-200/80 bg-white/80 px-4 py-3">
+    <div className="flex flex-wrap gap-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/80 px-4 py-3">
       {children}
     </div>
   );
@@ -509,7 +509,7 @@ function Field({
 }) {
   return (
     <label className="min-w-[140px] flex-1">
-      <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {label}
       </span>
       {children}
@@ -520,7 +520,7 @@ function Field({
 function Legend({ overlay }: { overlay: ProcessOverlayKind }) {
   if (overlay === "none" || overlay === "time" || overlay === "dependency") {
     return (
-      <p className="text-xs text-neutral-400">
+      <p className="text-xs text-[var(--isalwa-slate)]/60">
         Pase el cursor sobre un paso · clic para seleccionar · desplace para
         acercar · arrastre el lienzo para mover · clic en el encabezado del
         carril para contraer
@@ -529,7 +529,7 @@ function Legend({ overlay }: { overlay: ProcessOverlayKind }) {
   }
   if (overlay === "pain") {
     return (
-      <div className="flex flex-wrap gap-3 text-xs text-neutral-500">
+      <div className="flex flex-wrap gap-3 text-xs text-[var(--isalwa-slate)]/80">
         {(Object.keys(PAIN_COLORS) as Array<keyof typeof PAIN_COLORS>).map(
           (k) => (
             <span key={k} className="inline-flex items-center gap-1.5">
@@ -545,7 +545,7 @@ function Legend({ overlay }: { overlay: ProcessOverlayKind }) {
     );
   }
   return (
-    <div className="flex flex-wrap gap-3 text-xs text-neutral-500">
+    <div className="flex flex-wrap gap-3 text-xs text-[var(--isalwa-slate)]/80">
       {(
         Object.keys(AUTOMATION_COLORS) as Array<keyof typeof AUTOMATION_COLORS>
       ).map((k) => (
@@ -593,22 +593,22 @@ function MetricsSidebar({
   ];
 
   return (
-    <aside className="h-fit rounded-3xl border border-neutral-200/80 bg-white/90 px-5 py-5">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
+    <aside className="h-fit rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/90 px-5 py-5">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/60">
         Panorama
       </p>
       <ul className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
           <li
             key={label}
-            className="flex items-baseline justify-between gap-3 border-b border-neutral-100 pb-2 last:border-0"
+            className="flex items-baseline justify-between gap-3 border-b border-[var(--isalwa-mist)]/70 pb-2 last:border-0"
           >
-            <span className="text-xs text-neutral-500">{label}</span>
-            <span className="text-sm font-medium text-neutral-900">{value}</span>
+            <span className="text-xs text-[var(--isalwa-slate)]/80">{label}</span>
+            <span className="text-sm font-medium text-[var(--isalwa-kiln)]">{value}</span>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-[11px] leading-relaxed text-neutral-400">
+      <p className="mt-4 text-[11px] leading-relaxed text-[var(--isalwa-slate)]/60">
         Derivado de los flujos de trabajo descubiertos — nunca ingresado
         manualmente.
       </p>
@@ -626,12 +626,12 @@ function DependencyList({
   if (items.length === 0) return null;
   return (
     <div className="mt-3">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
       <ul className="mt-1.5 space-y-1">
         {items.map((item) => (
-          <li key={item} className="text-sm text-neutral-700">
+          <li key={item} className="text-sm text-[var(--isalwa-slate)]">
             ✓ {item}
           </li>
         ))}
@@ -654,7 +654,7 @@ function IconButton({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="rounded-full border border-neutral-200 bg-white/90 px-3 py-1 text-xs text-neutral-600 shadow-sm backdrop-blur"
+      className="rounded-full border border-[var(--isalwa-mist)] bg-white/90 px-3 py-1 text-xs text-[var(--isalwa-slate)] shadow-sm backdrop-blur"
     >
       {children}
     </button>

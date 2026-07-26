@@ -21,8 +21,8 @@ export function CompanyEvolutionPanel({
 }) {
   if (!history || history.snapshots.length === 0) {
     return (
-      <Card className="border-emerald-100/50 bg-white/80 px-5 py-5 shadow-none">
-        <p className="text-sm text-neutral-600">
+      <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-5 py-5 shadow-none">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           La evolución de la empresa aparece cuando Architect captura el estado
           del engagement. Cada visita conserva la historia — nada se sobrescribe.
         </p>
@@ -43,14 +43,14 @@ export function CompanyEvolutionPanel({
 
   return (
     <div className="space-y-5">
-      <Card className="border-emerald-100/50 bg-white/80 px-5 py-6 shadow-none">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-5 py-6 shadow-none">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Memoria continua
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Relación de consultoría en el tiempo
         </h3>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {history.snapshots.length} captura
           {history.snapshots.length === 1 ? "" : "s"} ·{" "}
           {history.milestones.length} hito
@@ -120,12 +120,12 @@ export function CompanyEvolutionPanel({
         tone="focus"
       />
 
-      <Card className="border-neutral-200/70 bg-white/70 px-5 py-5 shadow-none">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <Card className="border-[var(--isalwa-mist)]/70 bg-white/70 px-5 py-5 shadow-none">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           Línea de tiempo evolutiva
         </p>
         {timeline.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-600">
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
             Los hitos aparecerán cuando el estado del engagement cambie.
           </p>
         ) : (
@@ -142,11 +142,11 @@ export function CompanyEvolutionPanel({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-emerald-100/60 bg-emerald-50/40 px-4 py-3">
-      <dt className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+    <div className="rounded-2xl border border-[var(--isalwa-tint-green-border)]/60 bg-[var(--isalwa-tint-green)]/40 px-4 py-3">
+      <dt className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </dt>
-      <dd className="mt-1 text-lg text-neutral-950">{value}</dd>
+      <dd className="mt-1 text-lg text-[var(--isalwa-kiln)]">{value}</dd>
     </div>
   );
 }
@@ -166,28 +166,28 @@ function ChangeSection({
 }) {
   const border =
     tone === "progress"
-      ? "border-emerald-100/60"
+      ? "border-[var(--isalwa-tint-green-border)]/60"
       : tone === "regression"
-        ? "border-rose-100/60"
+        ? "border-[var(--isalwa-tint-red-border)]/60"
         : tone === "focus"
-          ? "border-sky-100/60"
-          : "border-neutral-200/70";
+          ? "border-[var(--isalwa-tint-blue-border)]/60"
+          : "border-[var(--isalwa-mist)]/70";
 
   return (
     <Card className={`bg-white/80 px-5 py-5 shadow-none ${border}`}>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
-      <p className="mt-2 text-sm text-neutral-500">{description}</p>
+      <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">{description}</p>
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-600">{empty}</p>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">{empty}</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {items.map((change) => (
             <li key={change.id} className="text-sm leading-relaxed">
-              <span className="text-neutral-950">{change.title}</span>
-              <span className="text-neutral-400"> · </span>
-              <span className="text-neutral-600">{change.description}</span>
+              <span className="text-[var(--isalwa-kiln)]">{change.title}</span>
+              <span className="text-[var(--isalwa-slate)]/60"> · </span>
+              <span className="text-[var(--isalwa-slate)]">{change.description}</span>
             </li>
           ))}
         </ul>
@@ -199,21 +199,21 @@ function ChangeSection({
 function TimelineRow({ entry }: { entry: EvolutionTimelineEntry }) {
   const dot =
     entry.polarity === "progress"
-      ? "bg-emerald-500"
+      ? "bg-[var(--isalwa-success)]"
       : entry.polarity === "regression"
-        ? "bg-rose-400"
+        ? "bg-[var(--isalwa-danger)]"
         : entry.polarity === "focus"
-          ? "bg-sky-500"
-          : "bg-neutral-400";
+          ? "bg-[var(--isalwa-info)]"
+          : "bg-[var(--isalwa-slate)]/60";
 
   return (
     <li className="relative pl-6">
       <span className={`absolute left-0 top-2 h-1.5 w-1.5 rounded-full ${dot}`} />
-      <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {formatTimelineDate(entry.at)} · {entry.kind.replace(/_/g, " ")}
       </p>
-      <p className="mt-1 text-neutral-950">{entry.title}</p>
-      <p className="mt-1 text-sm text-neutral-500">{entry.description}</p>
+      <p className="mt-1 text-[var(--isalwa-kiln)]">{entry.title}</p>
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{entry.description}</p>
     </li>
   );
 }

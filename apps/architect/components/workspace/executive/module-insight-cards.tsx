@@ -10,7 +10,7 @@ export function ModuleInsightCards({
 }) {
   if (recommendations.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-[var(--isalwa-slate)]/80">
         Las capacidades recomendadas aparecen conforme se acumula evidencia del
         descubrimiento.
       </p>
@@ -20,10 +20,10 @@ export function ModuleInsightCards({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Capacidades recomendadas
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           No un catálogo. Un caso por cada capacidad.
         </h3>
       </div>

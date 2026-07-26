@@ -89,10 +89,10 @@ export function KnowledgeCenter({
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Subir evidencia
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           Cada documento se clasifica por su nombre y tipo de archivo — sin
           lectura de contenido — y suma a la cobertura de conocimiento.
         </p>
@@ -102,10 +102,10 @@ export function KnowledgeCenter({
       </div>
 
       <Card className="px-5 py-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Resumen de conocimiento
         </p>
-        <p className="mt-3 text-neutral-800">
+        <p className="mt-3 text-[var(--isalwa-slate)]">
           {vault.summary ??
             "Aún no se ha analizado conocimiento de la empresa. Los documentos que suba aparecerán aquí como evidencia."}
         </p>
@@ -126,7 +126,7 @@ export function KnowledgeCenter({
           />
         </div>
         {vault.unknownAreas.length > 0 ? (
-          <p className="mt-5 text-sm text-neutral-500">
+          <p className="mt-5 text-sm text-[var(--isalwa-slate)]/80">
             Aún no está claro: {vault.unknownAreas.join(" · ")} — el Architect
             preguntará por esto en la próxima sesión de descubrimiento.
           </p>
@@ -134,10 +134,10 @@ export function KnowledgeCenter({
       </Card>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Entidades encontradas
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           Lo que el motor de conocimiento ya identificó — en ceros cuando el
           formato aún no tiene lectura de contenido activa.
         </p>
@@ -162,7 +162,7 @@ export function KnowledgeCenter({
       </div>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Cobertura por área
         </p>
         <ul className="mt-4 space-y-3">
@@ -185,19 +185,19 @@ export function KnowledgeCenter({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-neutral-800">{slice.area}</span>
-                    <span className="text-neutral-950">
+                    <span className="text-[var(--isalwa-slate)]">{slice.area}</span>
+                    <span className="text-[var(--isalwa-kiln)]">
                       {coverageBandLabelEs(band)}
                     </span>
                   </div>
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-100">
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--isalwa-mist)]">
                     <div
-                      className="h-full rounded-full bg-neutral-800 transition-all"
+                      className="h-full rounded-full bg-[var(--isalwa-glaze-deep)] transition-all"
                       style={{ width: `${width}%` }}
                       aria-hidden
                     />
                   </div>
-                  <p className="mt-1.5 text-xs text-neutral-400">{slice.note}</p>
+                  <p className="mt-1.5 text-xs text-[var(--isalwa-slate)]/60">{slice.note}</p>
                 </div>
               </li>
             );
@@ -206,10 +206,10 @@ export function KnowledgeCenter({
       </div>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Biblioteca de evidencia
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           Evidencia estructurada a partir de los materiales de la empresa.
         </p>
         <div className="mt-5 space-y-6">
@@ -217,26 +217,26 @@ export function KnowledgeCenter({
             const items = byCategory.get(category) ?? [];
             return (
               <div key={category}>
-                <p className="text-sm text-neutral-950">
+                <p className="text-sm text-[var(--isalwa-kiln)]">
                   {CATEGORY_LABELS_ES[category]}
                 </p>
                 {items.length === 0 ? (
-                  <p className="mt-2 text-sm text-neutral-400">Vacío</p>
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]/60">Vacío</p>
                 ) : (
                   <ul className="mt-3 space-y-2">
                     {items.map((item) => (
                       <li
                         key={item.id}
-                        className="flex items-start justify-between gap-3 rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+                        className="flex items-start justify-between gap-3 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
                       >
                         <div>
-                          <p className="text-sm text-neutral-900">{item.title}</p>
-                          <p className="mt-1 text-xs text-neutral-500">
+                          <p className="text-sm text-[var(--isalwa-kiln)]">{item.title}</p>
+                          <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">
                             {item.source}
                             {item.summary ? ` · ${item.summary}` : ""}
                           </p>
                         </div>
-                        <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                        <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                           {STATUS_LABELS_ES[item.status] ?? item.status}
                         </span>
                       </li>
@@ -251,21 +251,21 @@ export function KnowledgeCenter({
 
       {vault.entities.length > 0 ? (
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Temas identificados
           </p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {vault.entities.map((entity) => (
               <li
                 key={entity.id}
-                className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
+                className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
               >
                 {entity.name}
               </li>
             ))}
           </ul>
           {vault.relationships.length > 0 ? (
-            <ul className="mt-4 space-y-2 text-sm text-neutral-600">
+            <ul className="mt-4 space-y-2 text-sm text-[var(--isalwa-slate)]">
               {vault.relationships.slice(0, 5).map((relationship) => (
                 <li key={relationship.id}>{relationship.label}</li>
               ))}
@@ -278,7 +278,7 @@ export function KnowledgeCenter({
         labelExpand="Ver cómo se procesa la evidencia"
         labelCollapse="Ocultar detalle de procesamiento"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Los materiales de la empresa pasan por una ruta de revisión
             estructurada antes de convertirse en recomendaciones.
           </p>
@@ -291,12 +291,12 @@ export function KnowledgeCenter({
               description: stage.description,
             };
             return (
-              <li key={stage.id} className="flex gap-3 text-sm text-neutral-600">
-                <span className="tabular-nums text-neutral-400">
+              <li key={stage.id} className="flex gap-3 text-sm text-[var(--isalwa-slate)]">
+                <span className="tabular-nums text-[var(--isalwa-slate)]/60">
                   {index + 1}.
                 </span>
                 <span>
-                  <span className="text-neutral-900">{label.title}</span>
+                  <span className="text-[var(--isalwa-kiln)]">{label.title}</span>
                   {" — "}
                   {label.description}
                 </span>
@@ -307,17 +307,17 @@ export function KnowledgeCenter({
       </ExecutiveDetail>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Próximas fuentes de datos
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {KNOWLEDGE_CONNECTORS.slice(0, 8).map((connector) => (
             <li
               key={connector.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <p className="text-sm text-neutral-900">{connector.title}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="text-sm text-[var(--isalwa-kiln)]">{connector.title}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 {connector.status === "planned" ? "Planeado" : "Diseñado"}
               </p>
             </li>
@@ -331,10 +331,10 @@ export function KnowledgeCenter({
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-1 text-neutral-950">{value}</p>
+      <p className="mt-1 text-[var(--isalwa-kiln)]">{value}</p>
     </div>
   );
 }
@@ -349,13 +349,13 @@ function EntityCount({
   emptyHint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+    <div className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-1 text-lg text-neutral-950">{value}</p>
+      <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">{value}</p>
       {value === 0 && emptyHint ? (
-        <p className="mt-1 text-xs text-neutral-400">{emptyHint}</p>
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">{emptyHint}</p>
       ) : null}
     </div>
   );
@@ -383,7 +383,7 @@ export function KnowledgeSectionShell({
 }) {
   return (
     <section>
-      <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+      <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
         {title}
       </h2>
       <div className="mt-4">{children}</div>

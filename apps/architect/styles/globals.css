@@ -1,15 +1,24 @@
 @import "tailwindcss";
 @import "@isalwa/ui/tokens.css";
+@import "@isalwa/ui/chrome.css";
 
+/*
+ * Mission 9 — Premium Executive Design System.
+ * Architect renders on the same ISALWA law as every other surface: porcelain
+ * backgrounds, kiln ink, glaze accents, Newsreader italic titles. The
+ * `--background` / `--foreground` aliases below exist only so Tailwind's
+ * `@theme inline` block (and any leftover `bg-background` utility) resolve
+ * to law colors instead of inventing a second palette.
+ */
 :root {
-  --background: #fafafa;
-  --foreground: #171717;
-  --muted: #737373;
-  --card: #ffffff;
-  --border: #e5e5e5;
-  --accent: #262626;
-  --ring: #a3a3a3;
-  --observation: #3f4f5f;
+  --background: var(--isalwa-porcelain);
+  --foreground: var(--isalwa-kiln);
+  --muted: var(--isalwa-slate);
+  --card: var(--isalwa-white);
+  --border: var(--isalwa-mist);
+  --accent: var(--isalwa-glaze);
+  --ring: var(--isalwa-glaze);
+  --observation: var(--isalwa-slate);
 }
 
 @theme inline {
@@ -19,8 +28,8 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-accent: var(--accent);
-  --font-sans: var(--font-dm-sans);
-  --font-serif: var(--font-instrument);
+  --font-sans: var(--isalwa-font-sans);
+  --font-serif: var(--isalwa-font-display);
 }
 
 * {
@@ -32,24 +41,83 @@ body {
   min-height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  background: var(--isalwa-porcelain);
+  background-image: var(--isalwa-surface-hero);
+  background-attachment: fixed;
+  color: var(--isalwa-kiln);
+  font-family: var(--isalwa-font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--isalwa-text-base);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-::selection {
-  background: #e7e5e4;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--isalwa-glaze) 22%, white);
+  color: var(--isalwa-kiln);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
+/* Anchor targets — room under sticky chrome (context bar + tabs). */
+[id] {
+  scroll-margin-top: 6.5rem;
+}
+
+/*
+ * architect-serif — Newsreader italic, the frozen law's page-title voice.
+ * Kept as a class name (rather than renaming ~150 call sites) so every
+ * existing heading picks up the correct typeface from one place.
+ */
 .architect-serif {
-  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-family: var(--isalwa-font-display), ui-serif, Georgia, serif;
   font-style: italic;
+  letter-spacing: -0.01em;
 }
 
 .prose-architect {
   white-space: pre-wrap;
   line-height: 1.7;
+}
+
+/* ── Scrollbars — thin, tinted, elegant (shared law) ─────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--isalwa-kiln) 13%, transparent);
+  border-radius: var(--isalwa-radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--isalwa-kiln) 24%, transparent);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Sticky section labels on long pages (context bar / workspace tabs) ──── */
+.isalwa-sticky-section {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--isalwa-porcelain) 92%, transparent);
+  backdrop-filter: blur(8px);
 }

@@ -44,7 +44,7 @@ export function ArchitectNav({
   ];
 
   return (
-    <nav className="flex flex-wrap items-center gap-1 text-sm text-neutral-500">
+    <nav className="flex flex-wrap items-center gap-1 text-sm text-[var(--isalwa-slate)]/80">
       {items.map((item) => {
         const active =
           item.href === "/"
@@ -57,8 +57,8 @@ export function ArchitectNav({
             className={cn(
               "rounded-full px-3 py-1.5 transition-colors",
               active
-                ? "bg-neutral-100 text-neutral-950"
-                : "hover:bg-neutral-50 hover:text-neutral-800",
+                ? "bg-[var(--isalwa-mist)] text-[var(--isalwa-kiln)]"
+                : "hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-slate)]",
             )}
           >
             {item.label}
@@ -69,7 +69,7 @@ export function ArchitectNav({
         <form action={signOutAction}>
           <button
             type="submit"
-            className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-50 hover:text-neutral-800"
+            className="rounded-full px-3 py-1.5 transition-colors hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-slate)]"
           >
             Salir
           </button>

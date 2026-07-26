@@ -43,7 +43,7 @@ export function LoginForm() {
       <div>
         <label
           htmlFor="email"
-          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400"
+          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
         >
           Correo
         </label>
@@ -54,13 +54,13 @@ export function LoginForm() {
           autoComplete="email"
           required
           defaultValue={PILOT_USERS.carmen.email}
-          className="w-full rounded-full border border-neutral-200 bg-white px-5 py-3.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+          className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
         />
       </div>
       <div>
         <label
           htmlFor="password"
-          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400"
+          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
         >
           Contraseña
         </label>
@@ -70,12 +70,12 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          className="w-full rounded-full border border-neutral-200 bg-white px-5 py-3.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+          className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
         />
       </div>
 
       {error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
           {error}
         </p>
       ) : null}
@@ -84,7 +84,7 @@ export function LoginForm() {
         {pending ? "Entrando…" : "Iniciar sesión"}
       </Button>
 
-      <p className="text-center text-xs leading-relaxed text-neutral-400">
+      <p className="text-center text-xs leading-relaxed text-[var(--isalwa-slate)]/60">
         Piloto: {PILOT_USERS.carmen.email} (Consultora) ·{" "}
         {PILOT_USERS.alvaro.email} (Cliente)
       </p>

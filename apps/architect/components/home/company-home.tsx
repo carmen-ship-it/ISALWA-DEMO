@@ -27,7 +27,7 @@ export function CompanyHome() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-      <p className="text-neutral-500">Cargando ISALWA…</p>
+      <p className="text-[var(--isalwa-slate)]/80">Cargando ISALWA…</p>
     </main>
   );
 }

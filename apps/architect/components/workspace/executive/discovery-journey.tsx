@@ -36,7 +36,7 @@ export function DiscoveryJourney({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {dayLabel}
       </p>
       <ol className="mt-6 space-y-0">
@@ -52,27 +52,27 @@ export function DiscoveryJourney({
                 <span
                   className={`mt-1.5 h-2.5 w-2.5 rounded-full ${
                     stage.complete
-                      ? "bg-neutral-950"
-                      : "border border-neutral-300 bg-white"
+                      ? "bg-[var(--isalwa-kiln)]"
+                      : "border border-[var(--isalwa-mist)] bg-white"
                   }`}
                 />
                 {index < stages.length - 1 ? (
-                  <span className="my-1 w-px flex-1 bg-neutral-200" />
+                  <span className="my-1 w-px flex-1 bg-[var(--isalwa-mist)]" />
                 ) : null}
               </div>
               <div className={index < stages.length - 1 ? "pb-7" : ""}>
                 <p
                   className={`text-base ${
-                    stage.complete ? "text-neutral-950" : "text-neutral-400"
+                    stage.complete ? "text-[var(--isalwa-kiln)]" : "text-[var(--isalwa-slate)]/60"
                   }`}
                 >
                   {stage.label}
                 </p>
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                   {humanizeJourneyDetail(stage.detail)}
                 </p>
                 {index < stages.length - 1 ? (
-                  <p className="mt-3 text-neutral-300">↓</p>
+                  <p className="mt-3 text-[var(--isalwa-slate)]/40">↓</p>
                 ) : null}
               </div>
             </motion.div>

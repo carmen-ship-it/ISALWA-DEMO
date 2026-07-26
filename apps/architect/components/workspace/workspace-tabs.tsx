@@ -110,7 +110,7 @@ export function WorkspaceTabs({
 
   return (
     <div className="mt-8">
-      <div className="sticky top-11 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
+      <div className="sticky top-11 z-30 -mx-6 border-b border-[var(--isalwa-mist)]/80 bg-[var(--isalwa-porcelain)]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
         <div
           role="tablist"
           aria-label="Secciones del espacio de trabajo"
@@ -135,10 +135,10 @@ export function WorkspaceTabs({
                 onClick={() => onChange(tab.id)}
                 onKeyDown={(e) => onKeyDown(e, index)}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-2 text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2",
+                  "shrink-0 rounded-full px-3.5 py-2 text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
                   selected
-                    ? "bg-neutral-950 text-white"
-                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900",
+                    ? "bg-[var(--isalwa-kiln)] text-white"
+                    : "text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-kiln)]",
                 )}
               >
                 {label}
@@ -146,14 +146,14 @@ export function WorkspaceTabs({
             );
           })}
         </div>
-        <div className="mt-3 h-1 overflow-hidden rounded-full bg-neutral-200/80">
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-[var(--isalwa-mist)]/80">
           <div
-            className="h-full rounded-full bg-neutral-900 transition-[width] duration-300 ease-out"
+            className="h-full rounded-full bg-[var(--isalwa-kiln)] transition-[width] duration-300 ease-out"
             style={{ width: `${progress}%` }}
             aria-hidden
           />
         </div>
-        <p className="mt-2 text-[11px] text-neutral-400">
+        <p className="mt-2 text-[11px] text-[var(--isalwa-slate)]/60">
           Sección {activeIndex + 1} de {tabs.length}
         </p>
       </div>

@@ -39,18 +39,18 @@ export function Beat({
     <li className="flex gap-3">
       <span
         aria-hidden
-        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-[11px] font-medium text-neutral-500"
+        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--isalwa-mist)] text-[11px] font-medium text-[var(--isalwa-slate)]/80"
       >
         {step}
       </span>
-      <div className="min-w-0 flex-1 border-b border-neutral-100 pb-5 last:border-b-0 last:pb-0">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <div className="min-w-0 flex-1 border-b border-[var(--isalwa-mist)]/70 pb-5 last:border-b-0 last:pb-0">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           {title}
         </p>
         {lead ? (
-          <p className="mt-1.5 text-xs italic text-neutral-400">{lead}</p>
+          <p className="mt-1.5 text-xs italic text-[var(--isalwa-slate)]/60">{lead}</p>
         ) : null}
-        <div className="mt-2 text-sm leading-relaxed text-neutral-700">
+        <div className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {children}
         </div>
       </div>
@@ -60,7 +60,7 @@ export function Beat({
 
 export function BeatSubLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
       {children}
     </p>
   );
@@ -84,5 +84,5 @@ export function BeatList({
 }
 
 export function BeatEmpty({ text }: { text: string }) {
-  return <p className="text-neutral-500">{text}</p>;
+  return <p className="text-[var(--isalwa-slate)]/80">{text}</p>;
 }

@@ -1,0 +1,393 @@
+/*
+ * ISALWA shared chrome — canonical `.isalwa-*` utility classes that sit on
+ * top of tokens.css. Extracted from the original apps/web implementation so
+ * every host app shares one law instead of maintaining parallel copies.
+ * Import alongside tokens.css:
+ *
+ *   @import "@isalwa/ui/tokens.css";
+ *   @import "@isalwa/ui/chrome.css";
+ *
+ * Do not fork this file per app. Add app-specific one-offs in the host's
+ * own globals.css; add anything reusable here instead.
+ */
+
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
+
+@keyframes isalwa-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes isalwa-whisper-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes isalwa-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes isalwa-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@keyframes isalwa-bar-expand {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes isalwa-dot-bounce {
+  0%, 80%, 100% { transform: translateY(0);   opacity: 0.35; }
+  40%           { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ── Transition utilities ─────────────────────────────────────────────── */
+
+.isalwa-t-fast {
+  transition:
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    border-color     var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    color            var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow       var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    transform        var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    opacity          var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+
+.isalwa-t-base {
+  transition:
+    background-color var(--isalwa-motion-base) var(--isalwa-ease-out),
+    border-color     var(--isalwa-motion-base) var(--isalwa-ease-out),
+    color            var(--isalwa-motion-base) var(--isalwa-ease-out),
+    box-shadow       var(--isalwa-motion-base) var(--isalwa-ease-out),
+    transform        var(--isalwa-motion-base) var(--isalwa-ease-out),
+    opacity          var(--isalwa-motion-base) var(--isalwa-ease-out);
+}
+
+.isalwa-interactive {
+  transition:
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    border-color     var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    color            var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow       var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    transform        var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    opacity          var(--isalwa-motion-fast) var(--isalwa-ease-out);
+  cursor: pointer;
+}
+.isalwa-interactive:active:not(:disabled) {
+  transform: scale(var(--isalwa-scale-press));
+}
+
+/* ── Enter animations ─────────────────────────────────────────────────── */
+
+.isalwa-enter {
+  animation: isalwa-enter var(--isalwa-motion-deliberate) var(--isalwa-ease-out) both;
+}
+
+.isalwa-whisper {
+  animation: isalwa-whisper-in var(--isalwa-motion-slow) var(--isalwa-ease-out);
+}
+
+.isalwa-fade-in {
+  animation: isalwa-fade var(--isalwa-motion-base) var(--isalwa-ease-out) both;
+}
+
+.isalwa-enter-delay-1  { animation-delay:  60ms; }
+.isalwa-enter-delay-2  { animation-delay: 120ms; }
+.isalwa-enter-delay-3  { animation-delay: 180ms; }
+.isalwa-enter-delay-4  { animation-delay: 240ms; }
+.isalwa-enter-delay-5  { animation-delay: 320ms; }
+.isalwa-enter-delay-6  { animation-delay: 400ms; }
+
+/* ── Loading states ────────────────────────────────────────────────────── */
+
+.isalwa-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--isalwa-mist) 80%, white) 0%,
+    color-mix(in srgb, var(--isalwa-mist) 35%, white) 50%,
+    color-mix(in srgb, var(--isalwa-mist) 80%, white) 100%
+  );
+  background-size: 200% 100%;
+  animation: isalwa-shimmer 1.2s var(--isalwa-ease-in-out) infinite;
+  border-radius: var(--isalwa-radius-control);
+}
+
+.isalwa-loading-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: isalwa-dot-bounce 1.1s var(--isalwa-ease-in-out) infinite both;
+}
+.isalwa-loading-dot:nth-child(2) { animation-delay: 160ms; }
+.isalwa-loading-dot:nth-child(3) { animation-delay: 320ms; }
+
+/* ── Data visualization ───────────────────────────────────────────────── */
+
+.isalwa-bar-expand {
+  animation: isalwa-bar-expand var(--isalwa-motion-deliberate) var(--isalwa-ease-out) 280ms both;
+}
+
+.isalwa-risk-bar {
+  height: 3px;
+  border-radius: var(--isalwa-radius-pill);
+  background: var(--isalwa-mist);
+  overflow: hidden;
+}
+.isalwa-risk-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  animation: isalwa-bar-expand var(--isalwa-motion-deliberate) var(--isalwa-ease-out) both;
+}
+
+/* ── Page chrome ───────────────────────────────────────────────────────── */
+
+.isalwa-page {
+  min-height: 100%;
+  max-width: var(--isalwa-page-max);
+  margin-inline: auto;
+  padding: var(--isalwa-space-6) var(--isalwa-space-4) var(--isalwa-space-12);
+}
+@media (min-width: 768px) {
+  .isalwa-page {
+    padding: var(--isalwa-space-8) var(--isalwa-space-6) var(--isalwa-space-12);
+  }
+}
+
+.isalwa-kicker {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--isalwa-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--isalwa-glaze);
+}
+
+.isalwa-page-title {
+  margin: 0;
+  font-family: var(--isalwa-font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.8vw, var(--isalwa-text-3xl));
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--isalwa-kiln);
+}
+
+.isalwa-section-label {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--isalwa-slate);
+}
+
+.isalwa-metric {
+  font-family: var(--isalwa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--isalwa-kiln);
+}
+
+.isalwa-inbox-row {
+  transition: background-color var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-inbox-row:hover {
+  background-color: color-mix(in srgb, var(--isalwa-glaze) 4%, white);
+}
+
+.isalwa-field {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--isalwa-mist);
+  border-radius: var(--isalwa-radius-control);
+  background: var(--isalwa-white);
+  color: var(--isalwa-kiln);
+  font-size: var(--isalwa-text-md);
+  font-family: inherit;
+  transition:
+    border-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-field:hover {
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 28%, var(--isalwa-mist));
+}
+.isalwa-field:focus {
+  outline: none;
+  border-color: var(--isalwa-glaze);
+  box-shadow: var(--isalwa-shadow-focus);
+}
+.isalwa-field::placeholder {
+  color: color-mix(in srgb, var(--isalwa-slate) 55%, white);
+}
+
+.isalwa-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--isalwa-radius-pill);
+  border: 1px solid var(--isalwa-mist);
+  background: var(--isalwa-white);
+  color: var(--isalwa-slate);
+  font-size: var(--isalwa-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    border-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    transform var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+.isalwa-chip:hover {
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 30%, var(--isalwa-mist));
+  color: var(--isalwa-kiln);
+}
+.isalwa-chip[aria-pressed="true"],
+.isalwa-chip.is-active {
+  background: color-mix(in srgb, var(--isalwa-glaze) 10%, white);
+  border-color: color-mix(in srgb, var(--isalwa-glaze) 35%, var(--isalwa-mist));
+  color: var(--isalwa-glaze-deep);
+}
+.isalwa-chip:active {
+  transform: scale(0.97);
+}
+
+.isalwa-divider {
+  border: none;
+  border-top: 1px solid var(--isalwa-mist);
+  margin: 0;
+}
+
+.isalwa-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--isalwa-glaze);
+  color: white;
+  font-family: var(--isalwa-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--isalwa-radius-pill);
+  letter-spacing: 0;
+}
+
+/* ── Section identity (Mission 9) ─────────────────────────────────────── */
+/*
+ * Soft, unsaturated surfaces so a reader knows "where am I" without the
+ * page tipping into bright SaaS chrome. Pair `.isalwa-surface-*` (card
+ * background + border) with `.isalwa-ink-*` (kicker / accent text) for a
+ * complete section identity. Never use raw Tailwind palette colors for
+ * this purpose — extend this set instead of inventing a new one.
+ */
+
+.isalwa-surface-blue {
+  background: var(--isalwa-tint-blue);
+  border-color: var(--isalwa-tint-blue-border);
+}
+.isalwa-surface-teal {
+  background: var(--isalwa-tint-teal);
+  border-color: var(--isalwa-tint-teal-border);
+}
+.isalwa-surface-amber {
+  background: var(--isalwa-tint-amber);
+  border-color: var(--isalwa-tint-amber-border);
+}
+.isalwa-surface-red {
+  background: var(--isalwa-tint-red);
+  border-color: var(--isalwa-tint-red-border);
+}
+.isalwa-surface-violet {
+  background: var(--isalwa-tint-violet);
+  border-color: var(--isalwa-tint-violet-border);
+}
+.isalwa-surface-green {
+  background: var(--isalwa-tint-green);
+  border-color: var(--isalwa-tint-green-border);
+}
+.isalwa-surface-gray {
+  background: var(--isalwa-tint-gray);
+  border-color: var(--isalwa-tint-gray-border);
+}
+
+.isalwa-ink-blue   { color: var(--isalwa-tint-blue-ink); }
+.isalwa-ink-teal   { color: var(--isalwa-tint-teal-ink); }
+.isalwa-ink-amber  { color: var(--isalwa-tint-amber-ink); }
+.isalwa-ink-red    { color: var(--isalwa-tint-red-ink); }
+.isalwa-ink-violet { color: var(--isalwa-tint-violet-ink); }
+.isalwa-ink-green  { color: var(--isalwa-tint-green-ink); }
+.isalwa-ink-gray   { color: var(--isalwa-tint-gray-ink); }
+
+/* Icon chip that sits inside a section header — inherits the section's ink
+   color so the whole header reads as one coherent identity. */
+.isalwa-icon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--isalwa-radius-control);
+  background: color-mix(in srgb, currentColor 12%, white);
+  box-shadow: var(--isalwa-shadow-resting);
+  flex-shrink: 0;
+}
+
+/* Status chip — compact tone-aware pill for state ("Alto riesgo", "Al día",
+   evidence counts, etc). Extends StatusPill's tone vocabulary for places
+   that render plain markup instead of the React component. */
+.isalwa-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--isalwa-radius-pill);
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.isalwa-status-chip[data-tone="blue"]   { background: var(--isalwa-tint-blue);   color: var(--isalwa-tint-blue-ink); }
+.isalwa-status-chip[data-tone="teal"]   { background: var(--isalwa-tint-teal);   color: var(--isalwa-tint-teal-ink); }
+.isalwa-status-chip[data-tone="amber"]  { background: var(--isalwa-tint-amber);  color: var(--isalwa-tint-amber-ink); }
+.isalwa-status-chip[data-tone="red"]    { background: var(--isalwa-tint-red);    color: var(--isalwa-tint-red-ink); }
+.isalwa-status-chip[data-tone="violet"] { background: var(--isalwa-tint-violet); color: var(--isalwa-tint-violet-ink); }
+.isalwa-status-chip[data-tone="green"]  { background: var(--isalwa-tint-green);  color: var(--isalwa-tint-green-ink); }
+.isalwa-status-chip[data-tone="gray"]   { background: var(--isalwa-tint-gray);   color: var(--isalwa-tint-gray-ink); }
+
+/* ── Reduced motion overrides ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .isalwa-enter,
+  .isalwa-whisper,
+  .isalwa-fade-in,
+  .isalwa-bar-expand,
+  .isalwa-risk-bar > span {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .isalwa-skeleton {
+    animation: none !important;
+    background: color-mix(in srgb, var(--isalwa-mist) 60%, white);
+  }
+  .isalwa-loading-dot {
+    animation: none !important;
+    opacity: 0.6;
+  }
+  .isalwa-interactive:active {
+    transform: none !important;
+  }
+}

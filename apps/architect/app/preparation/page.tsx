@@ -6,7 +6,7 @@ export default function PreparationPage() {
     <Suspense
       fallback={
         <main className="mx-auto flex min-h-screen max-w-3xl items-center px-6">
-          <p className="text-neutral-500">Cargando…</p>
+          <p className="text-[var(--isalwa-slate)]/80">Cargando…</p>
         </main>
       }
     >

@@ -37,10 +37,10 @@ export function StageStepper({
               className={cn(
                 "flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-sm transition-colors",
                 isCurrent
-                  ? "bg-neutral-950 text-white"
+                  ? "bg-[var(--isalwa-kiln)] text-white"
                   : isCovered
-                    ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-100 hover:bg-emerald-100"
-                    : "bg-white text-neutral-500 ring-1 ring-neutral-200 hover:bg-neutral-50 hover:text-neutral-800",
+                    ? "bg-[var(--isalwa-tint-green)] text-[var(--isalwa-tint-green-ink)] ring-1 ring-[var(--isalwa-tint-green-border)] hover:bg-[var(--isalwa-tint-green-border)]"
+                    : "bg-white text-[var(--isalwa-slate)]/80 ring-1 ring-[var(--isalwa-mist)] hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-slate)]",
               )}
             >
               <span
@@ -49,8 +49,8 @@ export function StageStepper({
                   isCurrent
                     ? "bg-white/15 text-white"
                     : isCovered
-                      ? "bg-emerald-600 text-white"
-                      : "border border-neutral-300 text-neutral-400",
+                      ? "bg-[var(--isalwa-success)] text-white"
+                      : "border border-[var(--isalwa-mist)] text-[var(--isalwa-slate)]/60",
                 )}
                 aria-hidden
               >

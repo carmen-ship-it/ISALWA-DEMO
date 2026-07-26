@@ -24,7 +24,7 @@ export function OpportunityList({
 }) {
   if (opportunities.length === 0) {
     return (
-      <Card className="px-5 py-5 text-sm text-neutral-500">
+      <Card className="px-5 py-5 text-sm text-[var(--isalwa-slate)]/80">
         Las oportunidades aparecen a medida que los patrones se aclaran.
       </Card>
     );
@@ -40,13 +40,13 @@ export function OpportunityList({
           transition={{ duration: 0.4, delay: index * 0.05 }}
         >
           <Card className="px-5 py-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
               {impactLabel(opportunity.impact)}
             </p>
-            <h3 className="mt-2 text-sm font-medium text-neutral-950">
+            <h3 className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
               {opportunity.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
               {opportunity.description}
             </p>
           </Card>

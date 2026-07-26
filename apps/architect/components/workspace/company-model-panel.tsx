@@ -41,7 +41,7 @@ export function CompanyModelPanel({
   if (!model) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           El modelo de la empresa aparece cuando el blueprint está disponible.
           Es un gemelo digital operativo construido solo con evidencia —
           departamentos, relaciones, propiedad y dependencias — sin inventar
@@ -58,17 +58,17 @@ export function CompanyModelPanel({
   return (
     <div className="space-y-8">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Modelo de la empresa
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Gemelo digital operativo
         </h3>
-        <p className="mt-3 text-neutral-600">{model.summary}</p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-3 text-[var(--isalwa-slate)]">{model.summary}</p>
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           {model.organization.summary}
         </p>
-        <p className="mt-4 text-sm text-neutral-400">
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
           {recommendationStrength(model.overallConfidence)} · salud{" "}
           {strengthBandLabelEs(model.health.overallScore, "percent")} ·{" "}
           {formatRelativeActivity(model.generatedAt)} · solo lectura
@@ -76,7 +76,7 @@ export function CompanyModelPanel({
         {model.health.notes.length > 0 ? (
           <ul className="mt-4 space-y-1">
             {model.health.notes.map((note) => (
-              <li key={note} className="text-sm text-neutral-600">
+              <li key={note} className="text-sm text-[var(--isalwa-slate)]">
                 {note}
               </li>
             ))}
@@ -164,7 +164,7 @@ function Section({
 }) {
   return (
     <Card className="px-5 py-5">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {title}
       </p>
       <div className="mt-4">{children}</div>
@@ -173,7 +173,7 @@ function Section({
 }
 
 function EmptyHint({ text }: { text: string }) {
-  return <p className="text-sm text-neutral-500">{text}</p>;
+  return <p className="text-sm text-[var(--isalwa-slate)]/80">{text}</p>;
 }
 
 function DepartmentRow({
@@ -184,15 +184,15 @@ function DepartmentRow({
   displayName: string;
 }) {
   return (
-    <li className="rounded-xl border border-neutral-200/70 px-4 py-3">
+    <li className="rounded-xl border border-[var(--isalwa-mist)]/70 px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="font-medium text-neutral-900">{displayName}</p>
-        <span className="text-xs text-neutral-400">
+        <p className="font-medium text-[var(--isalwa-kiln)]">{displayName}</p>
+        <span className="text-xs text-[var(--isalwa-slate)]/60">
           {strengthBandLabelEs(dept.confidence)}
         </span>
       </div>
-      <p className="mt-1 text-sm text-neutral-600">{dept.purpose}</p>
-      <p className="mt-2 text-xs text-neutral-400">
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{dept.purpose}</p>
+      <p className="mt-2 text-xs text-[var(--isalwa-slate)]/60">
         {dept.personIds.length} personas · {dept.workflowIds.length} flujos ·{" "}
         {dept.systemIds.length} sistemas
         {dept.headcountHint != null
@@ -205,14 +205,14 @@ function DepartmentRow({
 
 function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
   return (
-    <li className="text-sm text-neutral-700">
-      <span className="text-neutral-900">{rel.fromLabel}</span>
-      <span className="mx-1.5 text-neutral-400">→</span>
-      <span className="text-neutral-900">{rel.toLabel}</span>
-      <span className="ml-2 text-xs uppercase tracking-[0.12em] text-neutral-400">
+    <li className="text-sm text-[var(--isalwa-slate)]">
+      <span className="text-[var(--isalwa-kiln)]">{rel.fromLabel}</span>
+      <span className="mx-1.5 text-[var(--isalwa-slate)]/60">→</span>
+      <span className="text-[var(--isalwa-kiln)]">{rel.toLabel}</span>
+      <span className="ml-2 text-xs uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
         {rel.label}
       </span>
-      <span className="ml-2 text-xs text-neutral-400">
+      <span className="ml-2 text-xs text-[var(--isalwa-slate)]/60">
         {strengthBandLabelEs(rel.confidence)}
       </span>
     </li>
@@ -221,14 +221,14 @@ function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
 
 function OwnershipRow({ own }: { own: CompanyOwnership }) {
   return (
-    <li className="text-sm text-neutral-700">
-      <span className="font-medium text-neutral-900">{own.ownerLabel}</span>
-      <span className="mx-1.5 text-neutral-400">posee</span>
-      <span className="text-neutral-900">{own.targetLabel}</span>
-      <span className="ml-2 text-xs uppercase tracking-[0.12em] text-neutral-400">
+    <li className="text-sm text-[var(--isalwa-slate)]">
+      <span className="font-medium text-[var(--isalwa-kiln)]">{own.ownerLabel}</span>
+      <span className="mx-1.5 text-[var(--isalwa-slate)]/60">posee</span>
+      <span className="text-[var(--isalwa-kiln)]">{own.targetLabel}</span>
+      <span className="ml-2 text-xs uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
         {ownershipKindLabel(own.kind)}
       </span>
-      <span className="ml-2 text-xs text-neutral-400">
+      <span className="ml-2 text-xs text-[var(--isalwa-slate)]/60">
         {strengthBandLabelEs(own.confidence)}
       </span>
     </li>
@@ -237,15 +237,15 @@ function OwnershipRow({ own }: { own: CompanyOwnership }) {
 
 function InformationFlowRow({ flow }: { flow: CompanyInformationFlow }) {
   return (
-    <li className="rounded-xl border border-neutral-200/70 px-4 py-3">
-      <p className="text-sm font-medium text-neutral-900">{flow.name}</p>
-      <p className="mt-1 text-xs text-neutral-400">
+    <li className="rounded-xl border border-[var(--isalwa-mist)]/70 px-4 py-3">
+      <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{flow.name}</p>
+      <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
         Riesgo: {riskLevelLabel(flow.risk) || flow.risk} ·{" "}
         {strengthBandLabelEs(flow.confidence)} ·{" "}
         {flow.informationIds.length} nodos de información
       </p>
       {flow.missingInformation.length > 0 ? (
-        <p className="mt-2 text-sm text-amber-800/90">
+        <p className="mt-2 text-sm text-[var(--isalwa-tint-amber-ink)]/90">
           Falta: {flow.missingInformation.join(", ")}
         </p>
       ) : null}
@@ -255,17 +255,17 @@ function InformationFlowRow({ flow }: { flow: CompanyInformationFlow }) {
 
 function DependencyRow({ dep }: { dep: CompanyDependency }) {
   return (
-    <li className="rounded-xl border border-neutral-200/70 px-4 py-3">
+    <li className="rounded-xl border border-[var(--isalwa-mist)]/70 px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-sm font-medium text-neutral-900">
+        <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
           {dep.fromLabel} → {dep.toLabel}
         </p>
-        <span className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
+        <span className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/80">
           {criticalityLabel(dep.criticality)}
         </span>
       </div>
-      <p className="mt-1 text-sm text-neutral-600">{dep.reason}</p>
-      <p className="mt-2 text-xs text-neutral-400">
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{dep.reason}</p>
+      <p className="mt-2 text-xs text-[var(--isalwa-slate)]/60">
         {dependencyKindLabel(dep.kind)} · {strengthBandLabelEs(dep.confidence)}
       </p>
     </li>

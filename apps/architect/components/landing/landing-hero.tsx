@@ -11,7 +11,7 @@ export function LandingHero() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-500"
+        className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--isalwa-slate)]/80"
       >
         ISALWA Architect
       </motion.p>
@@ -20,7 +20,7 @@ export function LandingHero() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.08 }}
-        className="architect-serif mt-8 max-w-3xl text-5xl leading-[1.05] text-neutral-950 sm:text-6xl md:text-7xl"
+        className="architect-serif mt-8 max-w-3xl text-5xl leading-[1.05] text-[var(--isalwa-kiln)] sm:text-6xl md:text-7xl"
       >
         Diseñe su empresa antes de construir software.
       </motion.h1>
@@ -29,7 +29,7 @@ export function LandingHero() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.18 }}
-        className="mt-8 max-w-2xl text-lg leading-relaxed text-neutral-600 sm:text-xl"
+        className="mt-8 max-w-2xl text-lg leading-relaxed text-[var(--isalwa-slate)] sm:text-xl"
       >
         El Arquitecto entrevista a su equipo, entiende su operación,
         descubre cuellos de botella y produce el plano de su futuro
@@ -51,7 +51,7 @@ export function LandingHero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="mt-16 text-sm text-neutral-400"
+        className="mt-16 text-sm text-[var(--isalwa-slate)]/60"
       >
         Una sesión de descubrimiento guiada. Entre 20 y 30 minutos.
       </motion.p>

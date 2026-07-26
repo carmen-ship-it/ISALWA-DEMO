@@ -87,9 +87,9 @@ const CONFIDENCE_LABELS: Record<ConfidenceBand, string> = {
 };
 
 const CONFIDENCE_TONE: Record<ConfidenceBand, string> = {
-  low: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/80",
-  moderate: "bg-sky-50 text-sky-800 ring-1 ring-sky-200/80",
-  high: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80",
+  low: "bg-[var(--isalwa-tint-amber)] text-[var(--isalwa-tint-amber-ink)] ring-1 ring-[var(--isalwa-tint-amber-border)]/80",
+  moderate: "bg-[var(--isalwa-tint-blue)] text-[var(--isalwa-tint-blue-ink)] ring-1 ring-[var(--isalwa-tint-blue-border)]/80",
+  high: "bg-[var(--isalwa-tint-green)] text-[var(--isalwa-tint-green-ink)] ring-1 ring-[var(--isalwa-tint-green-border)]/80",
 };
 
 /**
@@ -165,14 +165,14 @@ export function ExecutiveSimulatorPanel({
 
   return (
     <div className="space-y-8">
-      <p className="text-sm leading-relaxed text-neutral-600">
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Estas simulaciones no cambian la información real de su empresa. Son
         exploraciones de &ldquo;qué pasaría si&rdquo;, basadas en reglas — no
         son pronósticos ni promesas financieras.
       </p>
 
       <div>
-        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Elija qué área quiere explorar
         </p>
         <div className="flex flex-wrap gap-2">
@@ -214,7 +214,7 @@ export function ExecutiveSimulatorPanel({
       </div>
 
       {visibleScenarios.length === 0 ? (
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-[var(--isalwa-slate)]/80">
           No hay escenarios disponibles para esta área todavía.
         </p>
       ) : null}
@@ -222,8 +222,8 @@ export function ExecutiveSimulatorPanel({
       {selectedId && result ? (
         <SimulationResultView signals={signals} result={result} />
       ) : (
-        <div className="rounded-2xl border border-dashed border-neutral-200 bg-white/70 px-5 py-6">
-          <p className="text-sm leading-relaxed text-neutral-700">
+        <div className="rounded-2xl border border-dashed border-[var(--isalwa-mist)] bg-white/70 px-5 py-6">
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Elija un escenario arriba para ver el punto de partida, el
             cambio propuesto y el impacto esperado — con la razón detrás de
             cada resultado.
@@ -250,27 +250,27 @@ function ScenarioCard({
       aria-pressed={selected}
       onClick={onSelect}
       className={cn(
-        "rounded-3xl border px-5 py-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2",
+        "rounded-[var(--isalwa-radius-panel)] border px-5 py-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
         selected
-          ? "border-neutral-950 bg-neutral-950 text-white shadow-lg"
-          : "border-neutral-200/80 bg-white hover:border-neutral-300 hover:shadow-sm",
+          ? "border-[var(--isalwa-kiln)] bg-[var(--isalwa-kiln)] text-white shadow-lg"
+          : "border-[var(--isalwa-mist)]/80 bg-white hover:border-[var(--isalwa-mist)] hover:shadow-sm",
       )}
     >
       <span
         className={cn(
           "inline-flex h-9 w-9 items-center justify-center rounded-2xl",
-          selected ? "bg-white/15" : "bg-neutral-100",
+          selected ? "bg-white/15" : "bg-[var(--isalwa-mist)]",
         )}
       >
         <Icon
-          className={cn("h-4 w-4", selected ? "text-white" : "text-neutral-700")}
+          className={cn("h-4 w-4", selected ? "text-white" : "text-[var(--isalwa-slate)]")}
           aria-hidden
         />
       </span>
       <p
         className={cn(
           "mt-3 text-base font-medium",
-          selected ? "text-white" : "text-neutral-950",
+          selected ? "text-white" : "text-[var(--isalwa-kiln)]",
         )}
       >
         {scenario.name}
@@ -278,7 +278,7 @@ function ScenarioCard({
       <p
         className={cn(
           "mt-1.5 text-sm leading-relaxed",
-          selected ? "text-white/75" : "text-neutral-600",
+          selected ? "text-white/75" : "text-[var(--isalwa-slate)]",
         )}
       >
         {scenario.description}
@@ -302,10 +302,10 @@ function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2",
+        "rounded-full border px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
         active
-          ? "border-neutral-950 bg-neutral-950 text-white"
-          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50",
+          ? "border-[var(--isalwa-kiln)] bg-[var(--isalwa-kiln)] text-white"
+          : "border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-porcelain)]",
       )}
     >
       {children}
@@ -333,14 +333,14 @@ function SimulationResultView({
     >
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="px-5 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
             Punto de partida
           </p>
-          <p className="mt-1 text-lg text-neutral-950">
+          <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">
             Lo que ya sabemos hoy
           </p>
           {baseline.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-500">
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
               Aún no hay suficiente información del diagnóstico para
               describir el punto de partida en esta área. El escenario se
               calcula igual, pero con confianza acotada.
@@ -348,7 +348,7 @@ function SimulationResultView({
           ) : (
             <ul className="mt-3 space-y-2">
               {baseline.map((line) => (
-                <li key={line} className="text-sm leading-relaxed text-neutral-700">
+                <li key={line} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
                   • {line}
                 </li>
               ))}
@@ -357,13 +357,13 @@ function SimulationResultView({
         </Card>
 
         <Card className="px-5 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
             Escenario · &ldquo;{result.scenarioName}&rdquo;
           </p>
-          <p className="mt-1 text-lg text-neutral-950">
+          <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">
             {result.description}
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Esta es la pregunta que se está simulando — no un cambio ya
             decidido.
           </p>
@@ -371,18 +371,18 @@ function SimulationResultView({
       </div>
 
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           Impacto esperado para el negocio
         </p>
         {result.likelyImpact.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
             El motor no devolvió impacto esperado para este escenario con la
             información actual.
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
             {result.likelyImpact.map((line) => (
-              <li key={line} className="text-sm leading-relaxed text-neutral-800">
+              <li key={line} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
                 • {line}
               </li>
             ))}
@@ -391,7 +391,7 @@ function SimulationResultView({
 
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
               Inversión relativa
             </p>
             <div className="mt-2 flex items-center gap-3">
@@ -402,28 +402,28 @@ function SimulationResultView({
                     className={cn(
                       "h-2 w-6 rounded-full",
                       n <= result.investment.scale
-                        ? "bg-neutral-900"
-                        : "bg-neutral-200",
+                        ? "bg-[var(--isalwa-kiln)]"
+                        : "bg-[var(--isalwa-mist)]",
                     )}
                   />
                 ))}
               </div>
-              <span className="text-sm font-medium text-neutral-900">
+              <span className="text-sm font-medium text-[var(--isalwa-kiln)]">
                 {INVESTMENT_LABELS[result.investment.band]}
               </span>
             </div>
-            <p className="mt-2 text-sm text-neutral-600">
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
               {result.investment.summary}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
               Horizonte de tiempo
             </p>
-            <p className="mt-2 text-sm font-medium text-neutral-900">
+            <p className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
               {TIMELINE_LABELS[result.timeline.band]}
             </p>
-            <p className="mt-2 text-sm text-neutral-600">
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
               {result.timeline.summary}
             </p>
           </div>
@@ -432,18 +432,18 @@ function SimulationResultView({
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="px-5 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
             Riesgos a vigilar
           </p>
           {result.risks.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-500">
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
               El motor no identificó riesgos adicionales para este escenario
               con la información actual.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
               {result.risks.map((line) => (
-                <li key={line} className="text-sm leading-relaxed text-neutral-700">
+                <li key={line} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
                   • {line}
                 </li>
               ))}
@@ -452,18 +452,18 @@ function SimulationResultView({
         </Card>
 
         <Card className="px-5 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
             De qué depende
           </p>
           {result.dependencies.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-500">
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
               El motor no identificó dependencias adicionales para este
               escenario con la información actual.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
               {result.dependencies.map((line) => (
-                <li key={line} className="text-sm leading-relaxed text-neutral-700">
+                <li key={line} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
                   • {line}
                 </li>
               ))}
@@ -473,7 +473,7 @@ function SimulationResultView({
       </div>
 
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           Por qué el simulador llega a este resultado
         </p>
         <div className="mt-3">
@@ -487,20 +487,20 @@ function SimulationResultView({
             {Math.round(result.confidence.score * 100)}%
           </span>
         </div>
-        <p className="mt-3 text-sm leading-relaxed text-neutral-700">
+        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {rationale}
         </p>
 
         {result.domainsApplied.length > 0 ? (
           <div className="mt-4">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
               Áreas del negocio consideradas
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {result.domainsApplied.map((domain) => (
                 <span
                   key={domain}
-                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-700"
+                  className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
                 >
                   {DOMAIN_LABELS[domain]}
                 </span>
@@ -511,19 +511,19 @@ function SimulationResultView({
 
         {result.signalsUsed.length > 0 ? (
           <div className="mt-4">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
               Evidencia del diagnóstico usada para ajustar este resultado
             </p>
             <ul className="mt-2 space-y-1.5">
               {result.signalsUsed.map((key) => (
-                <li key={key} className="text-sm text-neutral-700">
+                <li key={key} className="text-sm text-[var(--isalwa-slate)]">
                   • {SIGNAL_DESCRIPTIONS[key]?.(signals) ?? key}
                 </li>
               ))}
             </ul>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-neutral-500">
+          <p className="mt-4 text-sm text-[var(--isalwa-slate)]/80">
             Este resultado usa solo las reglas del escenario — todavía no
             hay evidencia del diagnóstico que lo ajuste. A medida que el
             diagnóstico avance, el simulador podrá afinar este resultado.

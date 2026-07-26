@@ -82,19 +82,19 @@ export function DiscoveryCelebration({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-start gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/70 px-4 py-3.5"
+          className="flex items-start gap-3 rounded-2xl border border-[var(--isalwa-tint-amber-border)]/70 bg-[var(--isalwa-tint-amber)]/70 px-4 py-3.5"
         >
-          <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm ring-1 ring-amber-200/80">
+          <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[var(--isalwa-tint-amber-ink)] shadow-sm ring-1 ring-[var(--isalwa-tint-amber-border)]/80">
             <Sparkle className="h-3.5 w-3.5" aria-hidden />
           </span>
-          <p className="flex-1 text-sm leading-relaxed text-amber-950/90">
+          <p className="flex-1 text-sm leading-relaxed text-[var(--isalwa-tint-amber-ink)]/90">
             {messageFor(milestone, companyName)}
           </p>
           <button
             type="button"
             onClick={dismiss}
             aria-label="Cerrar aviso"
-            className="shrink-0 rounded-full p-1 text-amber-700/70 transition-colors hover:bg-amber-100 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            className="shrink-0 rounded-full p-1 text-[var(--isalwa-tint-amber-ink)]/70 transition-colors hover:bg-[var(--isalwa-tint-amber-border)] hover:text-[var(--isalwa-tint-amber-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-warning)]/45"
           >
             <X className="h-3.5 w-3.5" aria-hidden />
           </button>

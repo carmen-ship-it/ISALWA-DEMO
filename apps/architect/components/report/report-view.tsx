@@ -34,14 +34,14 @@ function Section({
       className="space-y-4"
     >
       <div>
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
           {title}
         </h2>
         {intro ? (
-          <p className="mt-1.5 text-sm italic text-neutral-400">{intro}</p>
+          <p className="mt-1.5 text-sm italic text-[var(--isalwa-slate)]/60">{intro}</p>
         ) : null}
       </div>
-      <div className="text-base leading-relaxed text-neutral-800">{children}</div>
+      <div className="text-base leading-relaxed text-[var(--isalwa-slate)]">{children}</div>
     </motion.section>
   );
 }
@@ -75,7 +75,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       <Separator />
 
       <Section title="Panorama del negocio" delay={0.08}>
-        <pre className="whitespace-pre-wrap font-sans text-neutral-700">
+        <pre className="whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
           {report.businessSnapshot}
         </pre>
       </Section>
@@ -86,13 +86,13 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
           <Section title="Evaluación consultiva" delay={0.09}>
             {report.consultingMaturity ? (
               <p className="mb-3">
-                <span className="text-neutral-500">Madurez — </span>
+                <span className="text-[var(--isalwa-slate)]/80">Madurez — </span>
                 {report.consultingMaturity}
               </p>
             ) : null}
             {report.consultingHealth ? (
               <p>
-                <span className="text-neutral-500">Salud del negocio — </span>
+                <span className="text-[var(--isalwa-slate)]/80">Salud del negocio — </span>
                 {report.consultingHealth}
               </p>
             ) : null}
@@ -147,14 +147,14 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         <div className="space-y-6">
           {report.currentWorkflow.map((workflow) => (
             <div key={workflow.id}>
-              <h3 className="architect-serif text-2xl text-neutral-950">
+              <h3 className="architect-serif text-2xl text-[var(--isalwa-kiln)]">
                 {workflow.name}
               </h3>
-              <p className="mt-2 text-neutral-600">{workflow.summary}</p>
+              <p className="mt-2 text-[var(--isalwa-slate)]">{workflow.summary}</p>
               <ol className="mt-4 space-y-2">
                 {workflow.steps.map((step) => (
-                  <li key={step} className="flex gap-3 text-neutral-700">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                  <li key={step} className="flex gap-3 text-[var(--isalwa-slate)]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--isalwa-slate)]/60" />
                     <span>{step}</span>
                   </li>
                 ))}
@@ -169,12 +169,12 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       <Section title="Sistemas actuales" delay={0.12}>
         <div className="flex flex-wrap gap-2">
           {report.currentSystems.length === 0 ? (
-            <p className="text-neutral-500">Aún no se registran sistemas.</p>
+            <p className="text-[var(--isalwa-slate)]/80">Aún no se registran sistemas.</p>
           ) : (
             report.currentSystems.map((system) => (
               <span
                 key={system}
-                className="rounded-full border border-neutral-200 px-3 py-1 text-sm"
+                className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-sm"
               >
                 {system}
               </span>
@@ -191,7 +191,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         delay={0.14}
       >
         {report.painPoints.length === 0 ? (
-          <p className="text-neutral-500">
+          <p className="text-[var(--isalwa-slate)]/80">
             Aún no hay puntos de dolor registrados — continúe el diagnóstico
             para identificarlos.
           </p>
@@ -199,8 +199,8 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
           <ul className="space-y-3">
             {report.painPoints.map((pain) => (
               <li key={pain.id}>
-                <p className="font-medium text-neutral-950">{pain.title}</p>
-                <p className="mt-1 text-neutral-600">{pain.description}</p>
+                <p className="font-medium text-[var(--isalwa-kiln)]">{pain.title}</p>
+                <p className="mt-1 text-[var(--isalwa-slate)]">{pain.description}</p>
               </li>
             ))}
           </ul>
@@ -215,21 +215,21 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         delay={0.16}
       >
         {report.opportunities.length === 0 ? (
-          <p className="text-neutral-500">
+          <p className="text-[var(--isalwa-slate)]/80">
             Las recomendaciones aparecerán cuando el diagnóstico tenga
             evidencia suficiente.
           </p>
         ) : (
           <ul className="space-y-4">
             {report.opportunities.map((item) => (
-              <li key={item.id} className="border-b border-neutral-100 pb-4 last:border-b-0 last:pb-0">
+              <li key={item.id} className="border-b border-[var(--isalwa-mist)]/70 pb-4 last:border-b-0 last:pb-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium text-neutral-950">{item.title}</p>
-                  <span className="shrink-0 rounded-full border border-neutral-200 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-500">
+                  <p className="font-medium text-[var(--isalwa-kiln)]">{item.title}</p>
+                  <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/80">
                     {recommendationPriorityLabel(item.priority)}
                   </span>
                 </div>
-                <p className="mt-1.5 text-neutral-600">{item.rationale}</p>
+                <p className="mt-1.5 text-[var(--isalwa-slate)]">{item.rationale}</p>
               </li>
             ))}
           </ul>
@@ -243,7 +243,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
           {report.potentialModules.map((module) => (
             <span
               key={module.id}
-              className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-800"
+              className="rounded-full bg-[var(--isalwa-mist)] px-3 py-1 text-sm text-[var(--isalwa-slate)]"
             >
               {module.name}
             </span>
@@ -257,13 +257,13 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         <div className="space-y-6">
           {report.suggestedRoadmap.map((phase) => (
             <div key={phase.id}>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                 {phase.horizon}
               </p>
-              <h3 className="architect-serif mt-1 text-2xl text-neutral-950">
+              <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
                 {phase.name}
               </h3>
-              <ul className="mt-3 space-y-1 text-neutral-700">
+              <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
                 {phase.outcomes.map((outcome) => (
                   <li key={outcome}>{outcome}</li>
                 ))}
@@ -277,12 +277,12 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       <div className="grid gap-8 sm:grid-cols-2">
         <Section title="Complejidad estimada" delay={0.28}>
-          <p className="architect-serif text-3xl capitalize text-neutral-950">
+          <p className="architect-serif text-3xl capitalize text-[var(--isalwa-kiln)]">
             {report.estimatedComplexity.replace("_", " ")}
           </p>
         </Section>
         <Section title="Tiempo estimado" delay={0.3}>
-          <p className="architect-serif text-3xl text-neutral-950">
+          <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
             {report.estimatedTimeline}
           </p>
         </Section>
@@ -325,7 +325,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         intro="Siguiente paso — llevar la historia a una decisión."
         delay={0.36}
       >
-        <p className="text-lg leading-relaxed text-neutral-800">
+        <p className="text-lg leading-relaxed text-[var(--isalwa-slate)]">
           {report.executiveConclusion}
         </p>
       </Section>
@@ -379,10 +379,10 @@ export function ReportView() {
   if (!report) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-20">
-        <h1 className="architect-serif text-4xl text-neutral-950">
+        <h1 className="architect-serif text-4xl text-[var(--isalwa-kiln)]">
           Aún no hay un plan de negocio.
         </h1>
-        <p className="mt-4 text-neutral-600">
+        <p className="mt-4 text-[var(--isalwa-slate)]">
           Complete una sesión de descubrimiento para generar el informe vivo.
         </p>
         <div className="mt-8">
@@ -404,7 +404,7 @@ export function ReportView() {
         label="Volver al espacio de trabajo"
         className="mb-8"
       />
-      <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+      <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
         Informe vivo
       </p>
       <div className="mt-4 flex items-center gap-3">
@@ -413,7 +413,7 @@ export function ReportView() {
           <img
             src={brand.logoUrl.value}
             alt={`Logo de ${companyName}`}
-            className="h-10 w-10 shrink-0 rounded-xl border-2 border-neutral-200 bg-white object-contain p-1"
+            className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
             style={
               brand.primaryColor.value
                 ? { borderColor: brand.primaryColor.value }
@@ -421,16 +421,16 @@ export function ReportView() {
             }
           />
         ) : null}
-        <h1 className="architect-serif text-5xl leading-tight text-neutral-950">
+        <h1 className="architect-serif text-5xl leading-tight text-[var(--isalwa-kiln)]">
           Plan de negocio de {companyName}
         </h1>
       </div>
-      <p className="mt-4 max-w-2xl text-lg text-neutral-600">
+      <p className="mt-4 max-w-2xl text-lg text-[var(--isalwa-slate)]">
         Un plan operativo de calidad consultora que evoluciona con cada
         reunión — respaldado por evidencia, claro y útil para decidir.
       </p>
 
-      <Card className="mt-8 px-5 py-4 text-sm text-neutral-500">
+      <Card className="mt-8 px-5 py-4 text-sm text-[var(--isalwa-slate)]/80">
         Este informe se actualiza con cada sesión de descubrimiento. Los
         hallazgos anteriores se conservan y se combinan — nunca se descartan.
       </Card>
@@ -447,7 +447,7 @@ export function ReportView() {
       </div>
 
       {brand?.reportBranding.footerText ? (
-        <p className="mt-8 text-xs text-neutral-400">
+        <p className="mt-8 text-xs text-[var(--isalwa-slate)]/60">
           {brand.reportBranding.footerText}
         </p>
       ) : null}

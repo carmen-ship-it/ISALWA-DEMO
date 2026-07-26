@@ -10,7 +10,7 @@ export function ReasoningCards({
 }) {
   if (recommendations.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-[var(--isalwa-slate)]/80">
         La justificación aparece cuando las recomendaciones tienen evidencia.
       </p>
     );
@@ -19,10 +19,10 @@ export function ReasoningCards({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Por qué recomendamos esto
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Evidencia antes que opinión.
         </h3>
       </div>

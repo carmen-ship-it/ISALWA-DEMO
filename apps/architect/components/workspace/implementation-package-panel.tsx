@@ -56,26 +56,26 @@ export function ImplementationPackagePanel({
   return (
     <div className="space-y-6">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Paquete de implementación
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           {gate.ready ? "Listo" : "No listo"}
         </h3>
-        <p className="mt-3 text-neutral-600">
+        <p className="mt-3 text-[var(--isalwa-slate)]">
           Umbral de comprensión: {IMPLEMENTATION_PACKAGE_THRESHOLD}% · actual{" "}
           {gate.businessUnderstanding}%
           {gate.thresholdMet ? " · umbral alcanzado" : " · umbral pendiente"}
         </p>
         <ul className="mt-4 space-y-2">
           {gate.notes.map((note) => (
-            <li key={note} className="text-sm text-neutral-700">
+            <li key={note} className="text-sm text-[var(--isalwa-slate)]">
               {note}
             </li>
           ))}
         </ul>
         {gate.missingPrerequisites.length > 0 ? (
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
             Falta: {gate.missingPrerequisites.join(" · ")}
           </p>
         ) : null}
@@ -93,25 +93,25 @@ export function ImplementationPackagePanel({
 
       {pack ? (
         <Card className="px-5 py-6">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+          <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
             Secciones · {formatRelativeActivity(pack.generatedAt)}
           </p>
-          <p className="mt-2 text-sm text-neutral-600">{pack.summary}</p>
+          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{pack.summary}</p>
           <ol className="mt-6 space-y-4">
             {pack.sections.map((section) => (
               <li
                 key={section.id}
-                className="rounded-2xl border border-neutral-200/70 bg-white/70 px-4 py-3"
+                className="rounded-2xl border border-[var(--isalwa-mist)]/70 bg-white/70 px-4 py-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-medium text-neutral-950">
+                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
                       {section.title}
                     </p>
-                    <p className="mt-1 text-sm text-neutral-600">
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                       {section.summary}
                     </p>
-                    <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-neutral-400">
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
                       {section.sourceEngine}
                       {section.artifacts[0]
                         ? ` · ${section.artifacts.length} refs`
@@ -121,8 +121,8 @@ export function ImplementationPackagePanel({
                   <span
                     className={
                       section.available
-                        ? "shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-800"
-                        : "shrink-0 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500"
+                        ? "shrink-0 rounded-full bg-[var(--isalwa-tint-green)] px-2.5 py-1 text-[11px] font-medium text-[var(--isalwa-tint-green-ink)]"
+                        : "shrink-0 rounded-full bg-[var(--isalwa-mist)] px-2.5 py-1 text-[11px] font-medium text-[var(--isalwa-slate)]/80"
                     }
                   >
                     {section.available ? "Disponible" : "Pendiente"}
@@ -134,12 +134,12 @@ export function ImplementationPackagePanel({
         </Card>
       ) : (
         <Card className="px-5 py-5">
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             El paquete aparece cuando la comprensión del negocio alcanza el
             umbral de conclusión ({IMPLEMENTATION_PACKAGE_THRESHOLD}%). Hasta
             entonces Architect sigue en descubrimiento — sin código ni prompts.
           </p>
-          <p className="mt-3 text-xs text-neutral-400">
+          <p className="mt-3 text-xs text-[var(--isalwa-slate)]/60">
             Gate actual: {evaluateImplementationGate(workspace).status}
           </p>
         </Card>

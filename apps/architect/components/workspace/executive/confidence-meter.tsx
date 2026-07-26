@@ -35,33 +35,33 @@ export function ConfidenceMeter({
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           {label}
         </p>
-        <p className="architect-serif text-3xl text-neutral-950">
+        <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
           {level}
-          <span className="ml-2 text-lg font-sans text-neutral-400">
+          <span className="ml-2 text-lg font-sans text-[var(--isalwa-slate)]/60">
             · {clamped}%
           </span>
         </p>
       </div>
       <div
-        className="mt-4 h-3 overflow-hidden rounded-full bg-neutral-200/80"
+        className="isalwa-risk-bar mt-4 !h-3 bg-[var(--isalwa-mist)]/80"
         role="meter"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={clamped}
         aria-label={label}
       >
-        <motion.div
-          className="h-full rounded-full bg-neutral-950"
+        <motion.span
+          className="!rounded-full bg-[var(--isalwa-glaze)]"
           initial={{ width: 0 }}
           animate={{ width: `${width}%` }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <p className="mt-3 text-sm font-medium text-neutral-800">{bandLabel}</p>
-      <p className="mt-1 text-sm leading-relaxed text-neutral-600">
+      <p className="mt-3 text-sm font-medium text-[var(--isalwa-slate)]">{bandLabel}</p>
+      <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {understandingSentence(clamped)}
       </p>
       {evidence.length > 0 ? (
@@ -69,9 +69,9 @@ export function ConfidenceMeter({
           {evidence.map((item) => (
             <li
               key={item}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs text-neutral-700 ring-1 ring-neutral-200/80"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-mist)]/80"
             >
-              <Check className="h-3 w-3 text-emerald-600" aria-hidden />
+              <Check className="h-3 w-3 text-[var(--isalwa-success)]" aria-hidden />
               {item}
             </li>
           ))}

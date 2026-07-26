@@ -103,29 +103,27 @@ export function ExecutiveDashboard({
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Cabina ejecutiva
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Claridad para decidir.
         </h3>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {cockpit.dailySummary}
         </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Card className="border-sky-100/70 bg-white/85 px-5 py-5 shadow-none sm:col-span-1">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
-            Salud del negocio
-          </p>
-          <p className="architect-serif mt-3 text-4xl text-neutral-950">
+        <Card className="border-[var(--isalwa-tint-blue-border)]/70 bg-white/85 px-5 py-5 shadow-[var(--isalwa-shadow-resting)] sm:col-span-1">
+          <p className="isalwa-kicker isalwa-ink-blue">Salud del negocio</p>
+          <p className="architect-serif mt-3 text-4xl text-[var(--isalwa-kiln)]">
             {cockpit.score.overall}
           </p>
-          <p className="mt-1 text-sm text-neutral-600">{cockpit.score.label}</p>
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-neutral-100">
-            <motion.div
-              className="h-full rounded-full bg-sky-500/80"
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{cockpit.score.label}</p>
+          <div className="isalwa-risk-bar mt-4 !h-1.5">
+            <motion.span
+              className="!rounded-full bg-[var(--isalwa-info)]"
               initial={{ width: 0 }}
               animate={{ width: `${cockpit.score.overall}%` }}
               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -155,7 +153,7 @@ export function ExecutiveDashboard({
       </div>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Resumen en 30 segundos
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -170,14 +168,14 @@ export function ExecutiveDashboard({
                 tone={item.tone}
                 className="h-full px-5 py-4 sm:px-5 sm:py-4"
               >
-                <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-500">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
                   {item.question}
                 </p>
-                <p className="mt-2 text-base leading-snug text-neutral-950">
+                <p className="mt-2 text-base leading-snug text-[var(--isalwa-kiln)]">
                   {item.answer}
                 </p>
                 {item.detail ? (
-                  <p className="mt-2 text-xs leading-relaxed text-neutral-500">
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
                     {item.detail}
                   </p>
                 ) : null}
@@ -195,19 +193,19 @@ export function ExecutiveDashboard({
             {cockpit.departmentHealth.map((dept) => (
               <Card
                 key={dept.id}
-                className="border-neutral-200/70 bg-white/80 px-4 py-4 shadow-none"
+                className="border-[var(--isalwa-mist)]/70 bg-white/80 px-4 py-4 shadow-none"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-neutral-900">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
                     {dept.name}
                   </p>
-                  <p className="text-xs text-neutral-500">{dept.label}</p>
+                  <p className="text-xs text-[var(--isalwa-slate)]/80">{dept.label}</p>
                 </div>
-                <p className="mt-2 text-2xl tabular-nums text-neutral-950">
+                <p className="mt-2 text-2xl tabular-nums text-[var(--isalwa-kiln)]">
                   {dept.score != null ? dept.score : "—"}
                 </p>
                 {dept.evidence[0] ? (
-                  <p className="mt-2 line-clamp-2 text-xs text-neutral-500">
+                  <p className="mt-2 line-clamp-2 text-xs text-[var(--isalwa-slate)]/80">
                     {dept.evidence[0]}
                   </p>
                 ) : null}
@@ -220,7 +218,7 @@ export function ExecutiveDashboard({
       <div className="grid gap-6 lg:grid-cols-2">
         {cockpitRecs.length > 0 ? (
           <div className="space-y-3 lg:col-span-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
               Prioridades justificadas
             </p>
             <div className="grid gap-3 lg:grid-cols-2">
@@ -332,18 +330,18 @@ export function ExecutiveDashboard({
             {cockpit.businessHealth.gauges.map((g) => (
               <div
                 key={g.id}
-                className="rounded-2xl border border-emerald-100/60 bg-white/70 px-4 py-3"
+                className="rounded-2xl border border-[var(--isalwa-tint-green-border)]/60 bg-white/70 px-4 py-3"
               >
-                <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                   {g.label}
                 </p>
-                <p className="mt-1 text-lg tabular-nums text-neutral-950">
+                <p className="mt-1 text-lg tabular-nums text-[var(--isalwa-kiln)]">
                   {g.score}
                 </p>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-neutral-500">
+          <p className="mt-3 text-xs text-[var(--isalwa-slate)]/80">
             Lectura consultiva: {cockpit.businessHealth.label}
             {cockpit.businessHealth.overall != null
               ? ` (${cockpit.businessHealth.overall})`
@@ -360,12 +358,12 @@ export function ExecutiveDashboard({
                 key={`${phase.phase}-${phase.name}`}
                 className="flex items-start gap-3 text-sm"
               >
-                <span className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+                <span className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                   Fase {phase.phase}
                 </span>
                 <div>
-                  <p className="text-neutral-900">{phase.name}</p>
-                  <p className="mt-0.5 text-xs text-neutral-500">
+                  <p className="text-[var(--isalwa-kiln)]">{phase.name}</p>
+                  <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
                     {phase.status === "designed"
                       ? "Enfoque inmediato"
                       : "Planificada"}
@@ -394,12 +392,12 @@ function MetricTile({
 }) {
   return (
     <Card className="px-5 py-4">
-      <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-2 text-lg leading-snug text-neutral-950">{value}</p>
+      <p className="mt-2 text-lg leading-snug text-[var(--isalwa-kiln)]">{value}</p>
       {hint ? (
-        <p className="mt-1 text-xs text-neutral-400">{hint}</p>
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">{hint}</p>
       ) : null}
     </Card>
   );
@@ -414,7 +412,7 @@ function CockpitSection({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
       <div className="mt-3">{children}</div>
@@ -424,7 +422,7 @@ function CockpitSection({
 
 function EmptyHint() {
   return (
-    <p className="text-sm text-neutral-400">
+    <p className="text-sm text-[var(--isalwa-slate)]/60">
       Aparecerá a medida que crezca la evidencia…
     </p>
   );
@@ -444,7 +442,7 @@ function CockpitList({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
       {items.length === 0 ? (
@@ -454,15 +452,15 @@ function CockpitList({
           {items.map((item) => (
             <li key={item.id} className="text-sm">
               <div className="flex items-start justify-between gap-3">
-                <p className="text-neutral-800">{item.primary}</p>
+                <p className="text-[var(--isalwa-slate)]">{item.primary}</p>
                 {item.meta ? (
-                  <span className="shrink-0 text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+                  <span className="shrink-0 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
                     {item.meta}
                   </span>
                 ) : null}
               </div>
               {item.secondary ? (
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-neutral-500">
+                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
                   {item.secondary}
                 </p>
               ) : null}
@@ -486,16 +484,16 @@ function ProgressCard({
   detail: string | null;
 }) {
   return (
-    <Card className="border-neutral-200/70 bg-white/80 px-5 py-4 shadow-none">
-      <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+    <Card className="border-[var(--isalwa-mist)]/70 bg-white/80 px-5 py-4 shadow-none">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
-      <p className="mt-2 text-2xl tabular-nums text-neutral-950">
+      <p className="mt-2 text-2xl tabular-nums text-[var(--isalwa-kiln)]">
         {score != null ? score : "—"}
       </p>
-      <p className="mt-1 text-sm text-neutral-600">{label}</p>
+      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{label}</p>
       {detail ? (
-        <p className="mt-2 line-clamp-2 text-xs text-neutral-500">{detail}</p>
+        <p className="mt-2 line-clamp-2 text-xs text-[var(--isalwa-slate)]/80">{detail}</p>
       ) : null}
     </Card>
   );

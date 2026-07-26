@@ -114,13 +114,13 @@ export function DeliverablesPanel({
           onUpdated={onUpdated}
         />
         <Card className="px-5 py-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Documentos
           </p>
-          <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+          <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
             Paquete de consultoría
           </h3>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-3 text-[var(--isalwa-slate)]">
             Genere un paquete de consultoría completo a partir de la evidencia
             del diagnóstico, el plan de negocio, el sistema recomendado y los
             procesos — documentación para decidir, no software en producción.
@@ -144,14 +144,14 @@ export function DeliverablesPanel({
       <Card className="px-5 py-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
               Documentos
             </p>
-            <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+            <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
               {pack.companyName}
             </h3>
-            <p className="mt-3 max-w-2xl text-neutral-600">{pack.summary}</p>
-            <p className="mt-4 text-sm text-neutral-400">
+            <p className="mt-3 max-w-2xl text-[var(--isalwa-slate)]">{pack.summary}</p>
+            <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
               {recommendationStrength(pack.overallConfidence)} ·{" "}
               {formatRelativeActivity(pack.generatedAt)} · vistas previas de
               solo lectura
@@ -175,8 +175,8 @@ export function DeliverablesPanel({
             onClick={() => setTab(t.id)}
             className={`rounded-full px-3.5 py-1.5 text-xs tracking-wide transition-colors ${
               tab === t.id
-                ? "bg-neutral-950 text-white"
-                : "border border-neutral-200 bg-white/80 text-neutral-600 hover:bg-neutral-50"
+                ? "bg-[var(--isalwa-kiln)] text-white"
+                : "border border-[var(--isalwa-mist)] bg-white/80 text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-porcelain)]"
             }`}
           >
             {t.label}
@@ -213,7 +213,7 @@ function DeliverablePreview({
       const d = pack.executiveSummary;
       return (
         <Article title="Resumen ejecutivo">
-          <p className="-mt-2 text-sm text-neutral-500">
+          <p className="-mt-2 text-sm text-[var(--isalwa-slate)]/80">
             Una sola historia, en orden: qué encontramos, por qué importa, la
             evidencia detrás, qué cuesta hoy, qué recomendamos, el resultado
             esperado y qué sigue.
@@ -240,7 +240,7 @@ function DeliverablePreview({
                 <ul className="space-y-1.5">
                   {d.evidence.map((ref) => (
                     <li key={`${ref.source}-${ref.id}`}>
-                      <span className="text-neutral-400">[{ref.source}]</span>{" "}
+                      <span className="text-[var(--isalwa-slate)]/60">[{ref.source}]</span>{" "}
                       {ref.label}
                     </li>
                   ))}
@@ -256,10 +256,10 @@ function DeliverablePreview({
             </Beat>
             <Beat step={5} title="Solución recomendada">
               <p>{d.executiveRecommendation}</p>
-              <p className="mt-2 text-neutral-600">{d.vision}</p>
+              <p className="mt-2 text-[var(--isalwa-slate)]">{d.vision}</p>
               {d.investmentAreas.length > 0 ? (
                 <div className="mt-3">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     Áreas de inversión
                   </p>
                   <BeatList items={d.investmentAreas} className="mt-1.5" />
@@ -273,7 +273,7 @@ function DeliverablePreview({
             >
               {d.immediateOpportunities.length > 0 ? (
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     Inmediato
                   </p>
                   <BeatList items={d.immediateOpportunities} className="mt-1.5" />
@@ -281,7 +281,7 @@ function DeliverablePreview({
               ) : null}
               {d.strategicOpportunities.length > 0 ? (
                 <div className="mt-3">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     Estratégico
                   </p>
                   <BeatList items={d.strategicOpportunities} className="mt-1.5" />
@@ -361,17 +361,17 @@ function DeliverablePreview({
       return (
         <Article title="Libro de procesos">
           <Section title="Resumen" body={d.summary} />
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-[var(--isalwa-slate)]/60">
             Para diagramas interactivos, abra la pestaña Cómo opera en este
             espacio de trabajo.
           </p>
           {d.workflows.map((wf) => (
-            <div key={wf.id} className="mt-6 border-t border-neutral-100 pt-5">
-              <p className="text-lg text-neutral-950">{wf.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{wf.purpose}</p>
+            <div key={wf.id} className="mt-6 border-t border-[var(--isalwa-mist)]/70 pt-5">
+              <p className="text-lg text-[var(--isalwa-kiln)]">{wf.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{wf.purpose}</p>
               <ol className="mt-3 space-y-1.5">
                 {wf.steps.map((s) => (
-                  <li key={`${wf.id}-${s.order}`} className="text-sm text-neutral-700">
+                  <li key={`${wf.id}-${s.order}`} className="text-sm text-[var(--isalwa-slate)]">
                     {s.order}. {s.name} · {s.actor}
                     {s.manual ? " · manual" : ""}
                     {s.duration ? ` · ${s.duration}` : ""}
@@ -402,8 +402,8 @@ function DeliverablePreview({
           <List title="Alcance futuro" items={d.futureScope} />
           <List title="Fuera de alcance" items={d.outOfScope} />
           <List title="Riesgos" items={d.risks} />
-          <div className="mt-6 border-t border-neutral-100 pt-5">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+          <div className="mt-6 border-t border-[var(--isalwa-mist)]/70 pt-5">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
               Conceptos de diseño del sistema
             </p>
             <List
@@ -432,11 +432,11 @@ function DeliverablePreview({
         <Article title="Plan de implementación">
           {d.phases.map((p) => (
             <div key={p.phase} className="mt-5 first:mt-0">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 Fase {p.phase} · {p.complexity}
               </p>
-              <p className="mt-1 text-lg text-neutral-950">{p.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{p.businessValue}</p>
+              <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">{p.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{p.businessValue}</p>
               <List title="Objetivos" items={p.goals} />
               <List title="Capacidades" items={p.modules} />
             </div>
@@ -457,11 +457,11 @@ function DeliverablePreview({
           <List title="Lenguaje del dominio" items={d.domainLanguage} />
           <List title="Medidas de éxito" items={d.successMetrics} />
           <List title="Fuera de límites" items={d.doNot} />
-          <div className="mt-6 rounded-2xl border border-neutral-200 bg-stone-50/80 px-4 py-4">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+          <div className="mt-6 rounded-2xl border border-[var(--isalwa-mist)] bg-[var(--isalwa-tint-gray)]/80 px-4 py-4">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
               Narrativa general
             </p>
-            <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-neutral-700">
+            <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-[var(--isalwa-slate)]">
               {d.narrative}
             </pre>
           </div>
@@ -474,7 +474,7 @@ function DeliverablePreview({
         <Article title="Plan de implementación técnica">
           {d.phases.map((p) => (
             <div key={p.name} className="mt-5 first:mt-0">
-              <p className="text-lg text-neutral-950">{p.name}</p>
+              <p className="text-lg text-[var(--isalwa-kiln)]">{p.name}</p>
               <List title="Objetivos" items={p.objectives} />
               <List title="Frentes de trabajo" items={p.workstreams} />
               <List title="Criterios de cierre" items={p.exitCriteria} />
@@ -490,16 +490,16 @@ function DeliverablePreview({
         <Article title="Backlog de trabajo">
           {d.epics.map((epic) => (
             <div key={epic.id} className="mt-5 first:mt-0">
-              <p className="text-lg text-neutral-950">{epic.title}</p>
+              <p className="text-lg text-[var(--isalwa-kiln)]">{epic.title}</p>
               {epic.features.map((f) => (
                 <div key={f.id} className="mt-3 pl-3">
-                  <p className="text-sm font-medium text-neutral-800">{f.title}</p>
+                  <p className="text-sm font-medium text-[var(--isalwa-slate)]">{f.title}</p>
                   <ul className="mt-2 space-y-2">
                     {f.stories.map((s) => (
-                      <li key={s.id} className="text-sm text-neutral-600">
-                        <span className="text-neutral-400">{s.priority}</span>{" "}
+                      <li key={s.id} className="text-sm text-[var(--isalwa-slate)]">
+                        <span className="text-[var(--isalwa-slate)]/60">{s.priority}</span>{" "}
                         {s.title}
-                        <ul className="mt-1 space-y-0.5 pl-4 text-xs text-neutral-400">
+                        <ul className="mt-1 space-y-0.5 pl-4 text-xs text-[var(--isalwa-slate)]/60">
                           {s.acceptanceCriteria.map((c) => (
                             <li key={c}>✓ {c}</li>
                           ))}
@@ -538,7 +538,7 @@ function ExportsPreview() {
   const contracts = useMemo(() => DELIVERABLE_EXPORT_CONTRACTS, []);
   return (
     <Article title="Opciones de exportación">
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-[var(--isalwa-slate)]/80">
         Formatos de exportación planeados para la entrega al cliente —
         disponibles en una versión posterior.
       </p>
@@ -546,11 +546,11 @@ function ExportsPreview() {
         {contracts.map((c) => (
           <li
             key={c.id}
-            className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+            className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
           >
-            <p className="text-sm text-neutral-900">{c.title}</p>
-            <p className="mt-1 text-xs text-neutral-500">{c.description}</p>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+            <p className="text-sm text-[var(--isalwa-kiln)]">{c.title}</p>
+            <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">{c.description}</p>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
               {c.status}
             </p>
           </li>
@@ -563,7 +563,7 @@ function ExportsPreview() {
 function Article({ title, children }: { title: string; children: ReactNode }) {
   return (
     <article>
-      <h4 className="architect-serif text-2xl text-neutral-950">{title}</h4>
+      <h4 className="architect-serif text-2xl text-[var(--isalwa-kiln)]">{title}</h4>
       <div className="mt-5 space-y-5">{children}</div>
     </article>
   );
@@ -572,10 +572,10 @@ function Article({ title, children }: { title: string; children: ReactNode }) {
 function Section({ title, body }: { title: string; body: string }) {
   return (
     <section>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
-      <p className="mt-2 text-base leading-relaxed text-neutral-700">{body}</p>
+      <p className="mt-2 text-base leading-relaxed text-[var(--isalwa-slate)]">{body}</p>
     </section>
   );
 }
@@ -584,12 +584,12 @@ function List({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <section>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
       <ul className="mt-2 space-y-1.5">
         {items.map((item) => (
-          <li key={item} className="text-sm leading-relaxed text-neutral-700">
+          <li key={item} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
             {item}
           </li>
         ))}
@@ -600,12 +600,12 @@ function List({ title, items }: { title: string; items: string[] }) {
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <p className="text-sm text-neutral-600">
-      <span className="text-neutral-400">{label}:</span> {value}
+    <p className="text-sm text-[var(--isalwa-slate)]">
+      <span className="text-[var(--isalwa-slate)]/60">{label}:</span> {value}
     </p>
   );
 }
 
 function Empty({ label }: { label: string }) {
-  return <p className="text-sm text-neutral-500">{label}</p>;
+  return <p className="text-sm text-[var(--isalwa-slate)]/80">{label}</p>;
 }

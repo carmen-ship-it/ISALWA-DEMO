@@ -23,7 +23,7 @@ function WhiteboardBlock({
       transition={{ duration: 0.35 }}
       className="space-y-1.5"
     >
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
         {label}
       </p>
       {Array.isArray(value) ? (
@@ -34,7 +34,7 @@ function WhiteboardBlock({
                 key={item}
                 initial={{ opacity: 0, x: 6 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-sm text-neutral-800"
+                className="text-sm text-[var(--isalwa-slate)]"
               >
                 {item}
               </motion.li>
@@ -42,7 +42,7 @@ function WhiteboardBlock({
           </AnimatePresence>
         </ul>
       ) : (
-        <p className="text-sm font-medium text-neutral-900">{value}</p>
+        <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{value}</p>
       )}
     </motion.div>
   );
@@ -71,15 +71,15 @@ export function LivingWhiteboard({ board }: { board: WhiteboardState }) {
 
   return (
     <Card className="px-5 py-5">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         Pizarra viva
       </p>
-      <p className="mt-2 text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
         Vista de consultoría que se actualiza sola. No es editable.
       </p>
 
       {empty ? (
-        <p className="mt-5 text-sm text-neutral-400">
+        <p className="mt-5 text-sm text-[var(--isalwa-slate)]/60">
           La pizarra se llena a medida que profundiza el entendimiento.
         </p>
       ) : (

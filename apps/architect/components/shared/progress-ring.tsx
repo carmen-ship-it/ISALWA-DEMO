@@ -46,7 +46,7 @@ export function ProgressRing({
         />
       </svg>
       {label ? (
-        <span className="absolute text-[10px] font-medium tracking-wide text-neutral-600">
+        <span className="absolute text-[10px] font-medium tracking-wide text-[var(--isalwa-slate)]">
           {label}
         </span>
       ) : null}

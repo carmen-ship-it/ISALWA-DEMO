@@ -53,14 +53,14 @@ export function AnsweringPanel({
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <Card className="px-7 py-8 sm:px-10 sm:py-10">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
               Arquitecto
             </p>
-            <div className="prose-architect mt-5 text-lg leading-relaxed text-neutral-900 sm:text-xl">
+            <div className="prose-architect mt-5 text-lg leading-relaxed text-[var(--isalwa-kiln)] sm:text-xl">
               {latestArchitect?.content}
             </div>
             {thinking || isPending || interview.phase === "synthesizing" ? (
-              <div className="mt-8 flex items-center gap-3 text-sm text-neutral-500">
+              <div className="mt-8 flex items-center gap-3 text-sm text-[var(--isalwa-slate)]/80">
                 <TypingIndicator />
                 <span>Actualizando la comprensión…</span>
               </div>
@@ -78,15 +78,15 @@ export function AnsweringPanel({
           className="mt-8"
         >
           {helpTextLines(question).length > 0 ? (
-            <div className="mb-5 flex gap-3 rounded-2xl bg-sky-50/70 px-4 py-3.5 ring-1 ring-sky-100">
-              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" aria-hidden />
+            <div className="mb-5 flex gap-3 rounded-2xl bg-[var(--isalwa-tint-blue)]/70 px-4 py-3.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
+              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[var(--isalwa-tint-blue-ink)]" aria-hidden />
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-sky-800">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-tint-blue-ink)]">
                   Por qué preguntamos esto
                 </p>
                 <ul className="mt-1.5 space-y-1">
                   {helpTextLines(question).map((line) => (
-                    <li key={line} className="text-sm leading-relaxed text-neutral-700">
+                    <li key={line} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
                       {line}
                     </li>
                   ))}
@@ -124,14 +124,14 @@ export function AnsweringPanel({
                     question.placeholder ?? "Cuéntenos cómo es en la práctica…"
                   }
                   rows={5}
-                  className="w-full resize-none rounded-3xl border border-neutral-200 bg-white px-5 py-4 text-base leading-relaxed text-neutral-900 shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-neutral-400"
+                  className="w-full resize-none rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-5 py-4 text-base leading-relaxed text-[var(--isalwa-kiln)] shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-[var(--isalwa-glaze)]"
                 />
               ) : (
                 <input
                   value={draft}
                   onChange={(event) => onDraftChange(event.target.value)}
                   placeholder={question.placeholder ?? "Su respuesta"}
-                  className="w-full rounded-full border border-neutral-200 bg-white px-5 py-4 text-base text-neutral-900 shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-neutral-400"
+                  className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-4 text-base text-[var(--isalwa-kiln)] shadow-[0_8px_30px_rgba(0,0,0,0.03)] outline-none transition focus:border-[var(--isalwa-glaze)]"
                 />
               )}
               <Button type="submit" size="lg" disabled={!draft.trim()}>

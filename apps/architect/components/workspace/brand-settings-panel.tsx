@@ -96,19 +96,19 @@ export function BrandSettingsPanel({
   return (
     <div className="space-y-6">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Marca blanca
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Personalizar la experiencia de {workspace.companyName}
         </h3>
-        <p className="mt-3 max-w-2xl text-neutral-600">
+        <p className="mt-3 max-w-2xl text-[var(--isalwa-slate)]">
           Lo que configure aquí se aplica automáticamente en el espacio de
           trabajo, el resumen de bienvenida y el reporte — sin tocar el motor
           de marca. Los campos vacíos siguen usando la recomendación derivada
           del diagnóstico.
         </p>
-        <p className="mt-4 text-sm text-neutral-400">
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
           {savedAt
             ? `Guardado · ${formatRelativeActivity(savedAt)} · por ${draft.updatedBy ?? updatedByLabel}`
             : "Aún sin personalizar — usando valores derivados del motor de marca."}
@@ -214,7 +214,7 @@ export function BrandSettingsPanel({
         ) : null}
 
         <FieldGroup title="Marca en reportes">
-          <label className="flex items-center gap-3 text-sm text-neutral-700">
+          <label className="flex items-center gap-3 text-sm text-[var(--isalwa-slate)]">
             <input
               type="checkbox"
               checked={draft.reportBranding.showLogoOnReports}
@@ -227,7 +227,7 @@ export function BrandSettingsPanel({
                   },
                 }))
               }
-              className="h-4 w-4 rounded border-neutral-300"
+              className="h-4 w-4 rounded border-[var(--isalwa-mist)]"
             />
             Mostrar el logo en los reportes
           </label>
@@ -244,7 +244,7 @@ export function BrandSettingsPanel({
           />
         </FieldGroup>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-5">
+        <div className="flex flex-wrap items-center gap-3 border-t border-[var(--isalwa-mist)]/70 pt-5">
           <Button onClick={() => void save(draft)} disabled={busy}>
             {busy ? "Guardando…" : "Guardar configuración de marca"}
           </Button>
@@ -260,7 +260,7 @@ export function BrandSettingsPanel({
       </Card>
 
       <Card className="px-5 py-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Vista previa
         </p>
         <div className="mt-3 flex items-center gap-3">
@@ -269,21 +269,21 @@ export function BrandSettingsPanel({
             <img
               src={draftPreview.logoUrl.value}
               alt={`Logo de ${workspace.companyName}`}
-              className="h-8 w-8 rounded-lg border border-neutral-200 object-contain"
+              className="h-8 w-8 rounded-lg border border-[var(--isalwa-mist)] object-contain"
             />
           ) : null}
           <span
-            className="h-6 w-6 rounded-full border border-neutral-200"
+            className="h-6 w-6 rounded-full border border-[var(--isalwa-mist)]"
             style={{ background: draftPreview.primaryColor.value ?? "transparent" }}
             title="Color primario"
           />
           <span
-            className="h-6 w-6 rounded-full border border-neutral-200"
+            className="h-6 w-6 rounded-full border border-[var(--isalwa-mist)]"
             style={{ background: draftPreview.accentColor.value ?? "transparent" }}
             title="Color de acento"
           />
         </div>
-        <p className="mt-3 text-sm text-neutral-700">
+        <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
           {draftPreview.homepageMessage.value ??
             "Sin mensaje personalizado — se usa el mensaje automático de bienvenida."}
         </p>
@@ -301,7 +301,7 @@ function FieldGroup({
 }) {
   return (
     <section>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
         {title}
       </p>
       <div className="mt-3 space-y-4">{children}</div>
@@ -324,7 +324,7 @@ function TextField({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </label>
       <input
@@ -332,9 +332,9 @@ function TextField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+        className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-4 py-2.5 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
       />
-      {help ? <p className="mt-1.5 text-xs text-neutral-400">{help}</p> : null}
+      {help ? <p className="mt-1.5 text-xs text-[var(--isalwa-slate)]/60">{help}</p> : null}
     </div>
   );
 }
@@ -354,7 +354,7 @@ function TextAreaField({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </label>
       <textarea
@@ -362,9 +362,9 @@ function TextAreaField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         rows={2}
-        className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm leading-relaxed text-neutral-900 outline-none transition focus:border-neutral-400"
+        className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
       />
-      {help ? <p className="mt-1.5 text-xs text-neutral-400">{help}</p> : null}
+      {help ? <p className="mt-1.5 text-xs text-[var(--isalwa-slate)]/60">{help}</p> : null}
     </div>
   );
 }
@@ -383,7 +383,7 @@ function ColorField({
   const swatch = value ?? derivedHex ?? "#e5e5e5";
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+      <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </label>
       <div className="flex items-center gap-2">
@@ -391,7 +391,7 @@ function ColorField({
           type="color"
           value={/^#[0-9a-fA-F]{6}$/.test(swatch) ? swatch : "#e5e5e5"}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-neutral-200 bg-white p-0.5"
+          className="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-[var(--isalwa-mist)] bg-white p-0.5"
           aria-label={label}
         />
         <input
@@ -399,11 +399,11 @@ function ColorField({
           value={value ?? ""}
           placeholder={derivedHex ?? "#000000"}
           onChange={(e) => onChange(e.target.value || null)}
-          className="w-full rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+          className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-4 py-2 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
         />
       </div>
       {derivedHex && !value ? (
-        <p className="mt-1.5 text-xs text-neutral-400">
+        <p className="mt-1.5 text-xs text-[var(--isalwa-slate)]/60">
           Sugerido por el motor de marca: {derivedHex}
         </p>
       ) : null}
@@ -425,10 +425,10 @@ function TerminologyRow({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-neutral-100 bg-stone-50/60 px-4 py-3">
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--isalwa-mist)]/70 bg-[var(--isalwa-tint-gray)]/60 px-4 py-3">
       <div className="min-w-[160px] flex-1">
-        <p className="text-sm text-neutral-800">{derivedLabel}</p>
-        <p className="text-xs text-neutral-400">
+        <p className="text-sm text-[var(--isalwa-slate)]">{derivedLabel}</p>
+        <p className="text-xs text-[var(--isalwa-slate)]/60">
           {term} · {context}
         </p>
       </div>
@@ -437,7 +437,7 @@ function TerminologyRow({
         value={value}
         placeholder={derivedLabel}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full max-w-[220px] rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+        className="w-full max-w-[220px] rounded-full border border-[var(--isalwa-mist)] bg-white px-4 py-2 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
       />
     </div>
   );

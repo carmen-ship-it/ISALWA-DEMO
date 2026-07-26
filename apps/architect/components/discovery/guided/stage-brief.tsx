@@ -63,7 +63,7 @@ export function StageBrief({
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-[160px] flex-1">
-          <div className="flex items-center justify-between text-xs text-neutral-500">
+          <div className="flex items-center justify-between text-xs text-[var(--isalwa-slate)]/80">
             <span>Comprensión del negocio</span>
             <span>{overallScore}%</span>
           </div>
@@ -72,12 +72,12 @@ export function StageBrief({
 
         <div className="flex flex-wrap items-center gap-2">
           {questionProgress ? (
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-neutral-600 ring-1 ring-sky-100">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-blue-border)]">
               <ListChecks className="h-3.5 w-3.5" aria-hidden />
               Pregunta {questionProgress.current} de hasta {questionProgress.max}
             </span>
           ) : null}
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-neutral-600 ring-1 ring-sky-100">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-sm text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
             ~{estimatedMinutes} min restantes
           </span>
@@ -88,7 +88,7 @@ export function StageBrief({
         <BackLink
           href={pauseHref}
           label="Pausar y volver al espacio de trabajo"
-          className="rounded-full bg-white/70 px-3.5 py-2 text-sm ring-1 ring-neutral-200 hover:bg-white"
+          className="rounded-full bg-white/70 px-3.5 py-2 text-sm ring-1 ring-[var(--isalwa-mist)] hover:bg-white"
         />
         {onSkipQuestion ? (
           <Button type="button" variant="ghost" size="sm" onClick={onSkipQuestion}>

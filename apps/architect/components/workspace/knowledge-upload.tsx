@@ -143,18 +143,18 @@ export function KnowledgeUpload({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          "flex cursor-pointer flex-col items-center gap-3 rounded-3xl border-2 border-dashed px-6 py-10 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center gap-3 rounded-[var(--isalwa-radius-panel)] border-2 border-dashed px-6 py-10 text-center transition-colors",
           dragOver
-            ? "border-neutral-400 bg-neutral-50"
-            : "border-neutral-200 bg-white/60 hover:border-neutral-300 hover:bg-neutral-50/70",
+            ? "border-[var(--isalwa-glaze)] bg-[var(--isalwa-porcelain)]"
+            : "border-[var(--isalwa-mist)] bg-white/60 hover:border-[var(--isalwa-mist)] hover:bg-[var(--isalwa-porcelain)]/70",
         )}
       >
-        <UploadCloud className="h-8 w-8 text-neutral-400" aria-hidden />
+        <UploadCloud className="h-8 w-8 text-[var(--isalwa-slate)]/60" aria-hidden />
         <div>
-          <p className="text-neutral-900">
+          <p className="text-[var(--isalwa-kiln)]">
             Arrastre documentos aquí o haga clic para seleccionarlos
           </p>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
             PDF, Word, Excel, PowerPoint e imágenes · máximo {MAX_MB}MB por
             archivo
           </p>
@@ -193,15 +193,15 @@ export function KnowledgeUpload({
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-start justify-between gap-3 rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="flex items-start justify-between gap-3 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
               <div className="flex min-w-0 items-start gap-3">
                 <StatusIcon status={item.status} />
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-neutral-900">
+                  <p className="truncate text-sm text-[var(--isalwa-kiln)]">
                     {item.fileName}
                   </p>
-                  <p className="mt-0.5 text-xs text-neutral-500">
+                  <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
                     {item.message}
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export function KnowledgeUpload({
                 onClick={() =>
                   setItems((prev) => prev.filter((i) => i.id !== item.id))
                 }
-                className="shrink-0 rounded-full p-1 text-neutral-300 transition-colors hover:bg-neutral-100 hover:text-neutral-500"
+                className="shrink-0 rounded-full p-1 text-[var(--isalwa-slate)]/40 transition-colors hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-slate)]/80"
                 aria-label="Ocultar de la lista"
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
@@ -229,21 +229,21 @@ function StatusIcon({ status }: { status: UploadItemStatus }) {
     case "processing":
       return (
         <Loader2
-          className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-neutral-400"
+          className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-[var(--isalwa-slate)]/60"
           aria-hidden
         />
       );
     case "processed":
       return (
         <CheckCircle2
-          className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600"
+          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--isalwa-success)]"
           aria-hidden
         />
       );
     case "queued":
       return (
         <Clock3
-          className="mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--isalwa-tint-amber-ink)]"
           aria-hidden
         />
       );

@@ -20,7 +20,7 @@ export function SolutionArchitecturePanel({
   if (!architecture) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           El sistema recomendado aparece una vez que el plan de negocio está
           listo. Describe el sistema operativo que la empresa necesita — sin
           construirlo todavía.
@@ -32,18 +32,18 @@ export function SolutionArchitecturePanel({
   return (
     <div className="space-y-8">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Sistema recomendado
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           El software diseñado para cómo opera el negocio
         </h3>
-        <p className="mt-3 text-neutral-600">{architecture.summary}</p>
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-3 text-[var(--isalwa-slate)]">{architecture.summary}</p>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/80">
           {recommendationStrength(architecture.overallConfidence)} ·{" "}
           {formatRelativeActivity(architecture.generatedAt)}
         </p>
-        <p className="mt-1 text-xs text-neutral-400">
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
           {strengthHint(architecture.overallConfidence)}
         </p>
       </Card>
@@ -52,13 +52,13 @@ export function SolutionArchitecturePanel({
         <ul className="space-y-3">
           {architecture.modules.map((mod) => (
             <li key={mod.id}>
-              <p className="text-neutral-950">{mod.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{mod.purpose}</p>
-              <p className="mt-1 text-xs text-neutral-400">
+              <p className="text-[var(--isalwa-kiln)]">{mod.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{mod.purpose}</p>
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                 {recommendationStrength(mod.confidence)}
               </p>
               {mod.dependencies.length > 0 ? (
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">
                   {humanizeDependencies(mod.dependencies)}
                 </p>
               ) : null}
@@ -71,12 +71,12 @@ export function SolutionArchitecturePanel({
         <ul className="space-y-3">
           {architecture.roles.map((role) => (
             <li key={role.id}>
-              <p className="text-neutral-950">{role.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="text-[var(--isalwa-kiln)]">{role.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                 {role.responsibilities.join(" · ")}
               </p>
               {role.primaryScreens.length > 0 ? (
-                <p className="mt-1 text-xs text-neutral-400">
+                <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                   Usado en: {role.primaryScreens.join(" · ")}
                 </p>
               ) : null}
@@ -89,7 +89,7 @@ export function SolutionArchitecturePanel({
         labelExpand="Ver modelo de información y accesos"
         labelCollapse="Ocultar modelo de información y accesos"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Objetos de negocio centrales, relaciones, navegación y principios
             de acceso que dan soporte a las capacidades recomendadas.
           </p>
@@ -101,7 +101,7 @@ export function SolutionArchitecturePanel({
               {architecture.entities.map((entity) => (
                 <li
                   key={entity.id}
-                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
+                  className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
                 >
                   {entity.name}
                 </li>
@@ -112,9 +112,9 @@ export function SolutionArchitecturePanel({
           <Block title="Cómo se conecta la información">
             <ul className="space-y-2">
               {architecture.relationships.map((rel) => (
-                <li key={rel.id} className="text-sm text-neutral-700">
+                <li key={rel.id} className="text-sm text-[var(--isalwa-slate)]">
                   {rel.fromEntity}{" "}
-                  <span className="text-neutral-400">se relaciona con</span>{" "}
+                  <span className="text-[var(--isalwa-slate)]/60">se relaciona con</span>{" "}
                   {rel.toEntity}
                 </li>
               ))}
@@ -122,7 +122,7 @@ export function SolutionArchitecturePanel({
           </Block>
 
           <Block title="Navegación principal">
-            <p className="text-neutral-800">
+            <p className="text-[var(--isalwa-slate)]">
               {architecture.navigation.map((n) => n.label).join(" · ")}
             </p>
           </Block>
@@ -130,9 +130,9 @@ export function SolutionArchitecturePanel({
           <Block title="Principios de acceso">
             <ul className="space-y-2">
               {architecture.permissions.map((perm) => (
-                <li key={perm.id} className="text-sm text-neutral-700">
+                <li key={perm.id} className="text-sm text-[var(--isalwa-slate)]">
                   {perm.capability}
-                  <span className="text-neutral-400"> — {perm.description}</span>
+                  <span className="text-[var(--isalwa-slate)]/60"> — {perm.description}</span>
                 </li>
               ))}
             </ul>
@@ -144,17 +144,17 @@ export function SolutionArchitecturePanel({
         <ol className="space-y-5">
           {architecture.roadmap.map((phase) => (
             <li key={phase.id}>
-              <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 Fase {phase.phase}
                 {phase.estimatedComplexity
                   ? ` · complejidad ${phase.estimatedComplexity}`
                   : ""}
               </p>
-              <p className="mt-1 text-neutral-950">{phase.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-[var(--isalwa-kiln)]">{phase.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                 {phase.businessValue}
               </p>
-              <p className="mt-1 text-xs text-neutral-400">
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                 Capacidades: {phase.modules.join(" · ") || "—"}
               </p>
             </li>
@@ -166,7 +166,7 @@ export function SolutionArchitecturePanel({
         labelExpand="Ver integraciones y extensiones futuras"
         labelCollapse="Ocultar integraciones futuras"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Integraciones planeadas y extensiones futuras — pensadas para
             fases posteriores, no necesarias para la primera versión.
           </p>
@@ -180,8 +180,8 @@ export function SolutionArchitecturePanel({
                   key={integ.id}
                   className="flex items-center justify-between gap-3 text-sm"
                 >
-                  <span className="text-neutral-800">{integ.name}</span>
-                  <span className="text-neutral-400">{integ.status}</span>
+                  <span className="text-[var(--isalwa-slate)]">{integ.name}</span>
+                  <span className="text-[var(--isalwa-slate)]/60">{integ.status}</span>
                 </li>
               ))}
             </ul>
@@ -192,8 +192,8 @@ export function SolutionArchitecturePanel({
               <ul className="space-y-2">
                 {architecture.aiAgents.map((agent) => (
                   <li key={agent.id}>
-                    <p className="text-neutral-950">{agent.name}</p>
-                    <p className="mt-1 text-sm text-neutral-500">
+                    <p className="text-[var(--isalwa-kiln)]">{agent.name}</p>
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                       {agent.purpose}
                     </p>
                   </li>
@@ -208,7 +208,7 @@ export function SolutionArchitecturePanel({
                 {architecture.apis.map((api) => (
                   <li
                     key={api.id}
-                    className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
+                    className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
                   >
                     {api.resource}
                   </li>
@@ -222,10 +222,10 @@ export function SolutionArchitecturePanel({
               {SOLUTION_FUTURE_OUTPUTS.map((output) => (
                 <li
                   key={output.id}
-                  className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+                  className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
                 >
-                  <p className="text-sm text-neutral-900">{output.title}</p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-sm text-[var(--isalwa-kiln)]">{output.title}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     {output.status === "planned" ? "Planeado" : output.status}
                   </p>
                 </li>
@@ -241,7 +241,7 @@ export function SolutionArchitecturePanel({
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {title}
       </h4>
       <div className="mt-3 text-base leading-relaxed">{children}</div>

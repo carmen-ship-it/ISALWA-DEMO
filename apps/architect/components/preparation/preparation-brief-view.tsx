@@ -42,10 +42,10 @@ export function PreparationBriefView() {
   if (notFound) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <h1 className="architect-serif text-4xl text-neutral-950">
+        <h1 className="architect-serif text-4xl text-[var(--isalwa-kiln)]">
           No encontramos este espacio de trabajo.
         </h1>
-        <p className="mt-4 text-neutral-600">
+        <p className="mt-4 text-[var(--isalwa-slate)]">
           Vuelva a la lista de empresas e intente de nuevo.
         </p>
         <div className="mt-8">
@@ -58,7 +58,7 @@ export function PreparationBriefView() {
   if (!workspace) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <p className="text-neutral-500">Cargando…</p>
+        <p className="text-[var(--isalwa-slate)]/80">Cargando…</p>
       </main>
     );
   }

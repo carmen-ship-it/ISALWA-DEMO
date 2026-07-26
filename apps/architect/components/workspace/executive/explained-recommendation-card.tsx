@@ -41,24 +41,24 @@ export function ExplainedRecommendationCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             {!compact ? (
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                 Recomendación
               </p>
             ) : null}
             <p
               className={cn(
-                "text-neutral-950",
+                "text-[var(--isalwa-kiln)]",
                 compact ? "text-base" : "mt-1 text-xl",
               )}
             >
               {explained.title}
             </p>
-            <p className="mt-2 text-sm text-neutral-600">
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
               {explained.businessValue}
             </p>
           </div>
           {explained.priority ? (
-            <span className="shrink-0 rounded-full border border-neutral-200 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-600">
+            <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
               {priorityLabelEs(explained.priority)}
             </span>
           ) : null}
@@ -66,19 +66,19 @@ export function ExplainedRecommendationCard({
 
         <div
           className={cn(
-            "mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-neutral-500",
+            "mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--isalwa-slate)]/80",
             compact && "mt-3",
           )}
         >
           <span>
             ROI{" "}
-            <span className="font-medium text-neutral-900">
+            <span className="font-medium text-[var(--isalwa-kiln)]">
               {roiBandLabelEs(explained.expectedRoi.band)}
             </span>
           </span>
           <span>
             Confianza{" "}
-            <span className="font-medium text-neutral-900">
+            <span className="font-medium text-[var(--isalwa-kiln)]">
               {confidenceBandLabelEs(explained.confidence.band)}
             </span>
           </span>
@@ -123,7 +123,7 @@ export function ExplainedRecommendationCard({
                 <ul className="space-y-1.5">
                   {explained.evidence.map((item, i) => (
                     <li key={`${item.source}-${item.id ?? item.label}-${i}`}>
-                      <span className="text-neutral-400">
+                      <span className="text-[var(--isalwa-slate)]/60">
                         [{sourceLabelEs(item.source)}]
                       </span>{" "}
                       {item.quote ?? item.label}
@@ -148,7 +148,7 @@ export function ExplainedRecommendationCard({
               lead="Esto es lo que cuesta hoy, o lo que deja sobre la mesa:"
             >
               <p>{explained.businessConsequence}</p>
-              <p className="mt-2 text-neutral-600">
+              <p className="mt-2 text-[var(--isalwa-slate)]">
                 {explained.businessValue}
               </p>
             </Beat>

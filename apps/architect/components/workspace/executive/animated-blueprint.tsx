@@ -13,7 +13,7 @@ export function AnimatedBlueprint({
   if (model.modules.length === 0 && model.departments.length === 0) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-[var(--isalwa-slate)]/80">
           The operating model view appears once departments and capabilities
           emerge from discovery.
         </p>
@@ -24,10 +24,10 @@ export function AnimatedBlueprint({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Living blueprint
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           Watch the operating model take shape.
         </h3>
       </div>
@@ -40,7 +40,7 @@ export function AnimatedBlueprint({
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.12 * i, duration: 0.4 }}
-              className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 text-xs text-neutral-700 shadow-sm"
+              className="rounded-full border border-[var(--isalwa-mist)] bg-white px-3.5 py-1.5 text-xs text-[var(--isalwa-slate)] shadow-sm"
               style={{
                 boxShadow:
                   i % 2 === 0
@@ -54,7 +54,7 @@ export function AnimatedBlueprint({
         </div>
       ) : null}
 
-      <div className="relative overflow-hidden rounded-3xl border border-neutral-200/80 bg-gradient-to-b from-stone-50 to-white px-5 py-8">
+      <div className="relative overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-gradient-to-b from-[var(--isalwa-tint-gray)] to-white px-5 py-8">
         <div className="flex flex-wrap justify-center gap-3">
           {model.modules.map((mod, i) => (
             <motion.div
@@ -66,10 +66,10 @@ export function AnimatedBlueprint({
                 duration: 0.45,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="min-w-[140px] max-w-[180px] rounded-2xl border border-neutral-200/90 bg-white/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
+              className="min-w-[140px] max-w-[180px] rounded-2xl border border-[var(--isalwa-mist)]/90 bg-white/95 px-4 py-3 shadow-[var(--isalwa-shadow-soft)]"
             >
-              <p className="text-sm font-medium text-neutral-950">{mod.name}</p>
-              <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-neutral-400">
+              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{mod.name}</p>
+              <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[var(--isalwa-slate)]/60">
                 {mod.purpose}
               </p>
             </motion.div>
@@ -78,11 +78,11 @@ export function AnimatedBlueprint({
 
         {model.connections.length > 0 ? (
           <ExecutiveDetail
-            className="mt-8 border-t border-neutral-100 pt-6"
+            className="mt-8 border-t border-[var(--isalwa-mist)]/70 pt-6"
             labelExpand="View how capabilities connect"
             labelCollapse="Hide connections"
           >
-            <p className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
               Connections
             </p>
             <ul className="mt-2 space-y-1.5">
@@ -92,11 +92,11 @@ export function AnimatedBlueprint({
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.05, duration: 0.35 }}
-                  className="text-sm text-neutral-600"
+                  className="text-sm text-[var(--isalwa-slate)]"
                 >
-                  <span className="text-neutral-950">{c.from}</span>
-                  <span className="mx-2 text-neutral-300">→</span>
-                  <span className="text-neutral-950">{c.to}</span>
+                  <span className="text-[var(--isalwa-kiln)]">{c.from}</span>
+                  <span className="mx-2 text-[var(--isalwa-slate)]/40">→</span>
+                  <span className="text-[var(--isalwa-kiln)]">{c.to}</span>
                 </motion.li>
               ))}
             </ul>

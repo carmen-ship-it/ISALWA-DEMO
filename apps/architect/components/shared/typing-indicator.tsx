@@ -9,7 +9,7 @@ export function TypingIndicator({ className }: { className?: string }) {
       {[0, 1, 2].map((index) => (
         <motion.span
           key={index}
-          className="h-1.5 w-1.5 rounded-full bg-neutral-400"
+          className="h-1.5 w-1.5 rounded-full bg-[var(--isalwa-slate)]/60"
           animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
           transition={{
             duration: 0.9,

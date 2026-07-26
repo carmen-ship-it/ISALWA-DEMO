@@ -20,7 +20,7 @@ export function BackLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-1 py-1 text-sm text-neutral-500 transition-colors hover:text-neutral-900",
+        "inline-flex items-center gap-2 rounded-full px-1 py-1 text-sm text-[var(--isalwa-slate)]/80 transition-colors hover:text-[var(--isalwa-kiln)]",
         className,
       )}
     >

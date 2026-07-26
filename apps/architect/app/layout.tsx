@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Plus_Jakarta_Sans, Newsreader, IBM_Plex_Mono } from "next/font/google";
 import "@/styles/globals.css";
 
-const dmSans = DM_Sans({
+const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-isalwa-sans",
+  display: "swap",
 });
 
-const instrumentSerif = Instrument_Serif({
+const display = Newsreader({
   subsets: ["latin"],
-  weight: "400",
   style: ["normal", "italic"],
-  variable: "--font-instrument",
+  variable: "--font-isalwa-display",
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-isalwa-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +38,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${dmSans.variable} ${instrumentSerif.variable}`}>
+      <body className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+        <style>{`
+          :root {
+            --isalwa-font-sans: var(--font-isalwa-sans), "Segoe UI", sans-serif;
+            --isalwa-font-display: var(--font-isalwa-display), Georgia, serif;
+            --isalwa-font-mono: var(--font-isalwa-mono), ui-monospace, monospace;
+          }
+        `}</style>
         {children}
       </body>
     </html>

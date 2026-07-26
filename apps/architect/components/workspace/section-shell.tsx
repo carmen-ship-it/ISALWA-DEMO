@@ -12,15 +12,35 @@ export type SectionTone =
   | "deliverables"
   | "neutral";
 
-const TONE_CLASS: Record<SectionTone, string> = {
-  executive: "bg-sky-50/70 border-sky-100/90",
-  health: "bg-emerald-50/60 border-emerald-100/80",
-  risks: "bg-rose-50/55 border-rose-100/80",
-  problems: "bg-amber-50/60 border-amber-100/80",
-  blueprint: "bg-violet-50/55 border-violet-100/80",
-  processes: "bg-orange-50/50 border-orange-100/80",
-  deliverables: "bg-slate-50/90 border-slate-200/80",
-  neutral: "bg-white/70 border-neutral-200/80",
+/**
+ * Section identity (Mission 9 — Premium Executive Design System). Each tone
+ * maps to one soft, unsaturated hue from `@isalwa/ui`'s tint tokens so a tab
+ * reads as "where am I" at a glance:
+ *   executive → blue (Executive Summary)   health → teal (Business Understanding)
+ *   risks     → red  (Critical Risks)      problems → amber (Recommendations)
+ *   blueprint → violet (Roadmap)           processes → green (Implementation)
+ *   deliverables → gray (Knowledge)        neutral → gray (fallback)
+ */
+const TONE_SURFACE: Record<SectionTone, string> = {
+  executive: "isalwa-surface-blue",
+  health: "isalwa-surface-teal",
+  risks: "isalwa-surface-red",
+  problems: "isalwa-surface-amber",
+  blueprint: "isalwa-surface-violet",
+  processes: "isalwa-surface-green",
+  deliverables: "isalwa-surface-gray",
+  neutral: "isalwa-surface-gray",
+};
+
+const TONE_INK: Record<SectionTone, string> = {
+  executive: "isalwa-ink-blue",
+  health: "isalwa-ink-teal",
+  risks: "isalwa-ink-red",
+  problems: "isalwa-ink-amber",
+  blueprint: "isalwa-ink-violet",
+  processes: "isalwa-ink-green",
+  deliverables: "isalwa-ink-gray",
+  neutral: "isalwa-ink-gray",
 };
 
 export function SectionShell({
@@ -40,11 +60,13 @@ export function SectionShell({
   children: ReactNode;
   className?: string;
 }) {
+  const ink = TONE_INK[tone];
+
   return (
     <section
       className={cn(
-        "rounded-3xl border px-5 py-6 sm:px-7 sm:py-8",
-        TONE_CLASS[tone],
+        "rounded-[var(--isalwa-radius-panel)] border shadow-[var(--isalwa-shadow-resting)] px-5 py-6 sm:px-7 sm:py-8",
+        TONE_SURFACE[tone],
         className,
       )}
     >
@@ -52,23 +74,21 @@ export function SectionShell({
         <header className="mb-6">
           <div className="flex items-start gap-3">
             {Icon ? (
-              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-neutral-700 shadow-sm ring-1 ring-black/5">
+              <span className={cn("isalwa-icon-chip", ink)}>
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
               {kicker ? (
-                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">
-                  {kicker}
-                </p>
+                <p className={cn("isalwa-kicker", ink)}>{kicker}</p>
               ) : null}
               {title ? (
-                <h2 className="architect-serif mt-2 text-3xl leading-tight text-neutral-950">
+                <h2 className="architect-serif mt-2 text-3xl leading-tight text-[var(--isalwa-kiln)]">
                   {title}
                 </h2>
               ) : null}
               {description ? (
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-600">
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--isalwa-slate)]">
                   {description}
                 </p>
               ) : null}

@@ -203,7 +203,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   if (!workspace || !executive || !effectiveBrand || !executiveInsights) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <p className="text-neutral-500">Cargando…</p>
+        <p className="text-[var(--isalwa-slate)]/80">Cargando…</p>
       </main>
     );
   }
@@ -309,7 +309,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         />
 
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Su progreso
           </p>
           <div className="mt-4">
@@ -328,7 +328,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           title="Dónde estamos"
           description="Esta es la comprensión actual de su negocio."
         >
-          <Card className="border-emerald-100/60 bg-white/85 px-6 py-6 shadow-none">
+          <Card className="border-[var(--isalwa-tint-green-border)]/60 bg-white/85 px-6 py-6 shadow-none">
             <ConfidenceMeter
               value={workspace.businessUnderstanding}
               evidence={evidenceChips}
@@ -356,7 +356,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             className="sm:px-6 sm:py-6"
           >
             {workspace.openQuestions.length === 0 ? (
-              <p className="text-sm text-neutral-600">
+              <p className="text-sm text-[var(--isalwa-slate)]">
                 Por ahora no hay preguntas abiertas.
               </p>
             ) : (
@@ -364,7 +364,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
                 {workspace.openQuestions.slice(0, 5).map((q) => (
                   <li
                     key={q}
-                    className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-neutral-800 ring-1 ring-amber-100/80"
+                    className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-amber-border)]/80"
                   >
                     {q}
                   </li>
@@ -381,7 +381,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             description="Una sugerencia clara para la próxima conversación."
             className="sm:px-6 sm:py-6"
           >
-            <p className="text-base leading-relaxed text-neutral-800">
+            <p className="text-base leading-relaxed text-[var(--isalwa-slate)]">
               {workspace.suggestedNextMeeting ?? "Continuar el diagnóstico"}
             </p>
           </SectionShell>
@@ -406,7 +406,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           title="Avance del trabajo"
           description="Hasta dónde hemos llegado y qué evidencia lo respalda."
         >
-          <Card className="border-emerald-100/50 bg-white/80 px-6 py-6 shadow-none">
+          <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-6 py-6 shadow-none">
             <DiscoveryJourney
               dayLabel={executive.dayLabel}
               stages={executive.journey}
@@ -471,7 +471,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           description="Lo más reciente que quedó registrado."
         >
           {timeline.length === 0 ? (
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-[var(--isalwa-slate)]">
               Aún no hay actividad reciente. Continúe el diagnóstico para
               empezar.
             </p>
@@ -482,11 +482,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
                   key={event.id}
                   className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-slate-200/70"
                 >
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                     {formatTimelineDate(event.date)}
                   </p>
-                  <p className="mt-1 text-neutral-950">{event.title}</p>
-                  <p className="mt-1 text-sm text-neutral-500">
+                  <p className="mt-1 text-[var(--isalwa-kiln)]">{event.title}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                     {event.description}
                   </p>
                 </li>
@@ -767,7 +767,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
         </SectionShell>
         <SectionShell tone="health" title="¿Qué debe hacer ahora?">
-          <p className="mb-4 text-sm text-neutral-600">
+          <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
             {isConsultant
               ? "Revise el sistema recomendado que da soporte a este plan."
               : "Revise el plan de implementación que da soporte a este modelo."}
@@ -804,7 +804,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <SectionShell tone="health" title="¿Qué debe hacer ahora?">
-          <p className="mb-4 text-sm text-neutral-600">
+          <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
             Vea el orden sugerido para construir este sistema.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -836,7 +836,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       ) : null}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--isalwa-slate)]/80">
             Espacio de la empresa
           </p>
           <div className="mt-4 flex items-center gap-3">
@@ -845,7 +845,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               <img
                 src={effectiveBrand.logoUrl.value}
                 alt={`Logo de ${effectiveBrand.companyDisplayName}`}
-                className="h-10 w-10 shrink-0 rounded-xl border-2 border-neutral-200 bg-white object-contain p-1"
+                className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
                 style={
                   effectiveBrand.primaryColor.value
                     ? { borderColor: effectiveBrand.primaryColor.value }
@@ -853,11 +853,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
                 }
               />
             ) : null}
-            <h1 className="architect-serif text-4xl leading-tight text-neutral-950 sm:text-5xl">
+            <h1 className="architect-serif text-4xl leading-tight text-[var(--isalwa-kiln)] sm:text-5xl">
               {workspace.companyName}
             </h1>
           </div>
-          <p className="mt-3 max-w-xl text-neutral-500">
+          <p className="mt-3 max-w-xl text-[var(--isalwa-slate)]/80">
             {formatIndustryLabel(workspace.industry)} ·{" "}
             {formatStageLabel(workspace.currentStage)} ·{" "}
             {formatRelativeActivity(workspace.lastActivityAt)}
@@ -905,8 +905,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
 function EmptyHint({ text, href }: { text: string; href: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-neutral-200 bg-white/70 px-5 py-6">
-      <p className="text-sm leading-relaxed text-neutral-700">{text}</p>
+    <div className="rounded-2xl border border-dashed border-[var(--isalwa-mist)] bg-white/70 px-5 py-6">
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{text}</p>
       <div className="mt-4">
         <Button asChild variant="secondary">
           <Link href={href}>Continuar evaluación</Link>

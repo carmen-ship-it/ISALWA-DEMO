@@ -30,7 +30,7 @@ export function BusinessBlueprintPanel({
   if (!selected) {
     return (
       <Card className="px-5 py-5">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-[var(--isalwa-slate)]">
           El plan operativo del negocio aparece cuando el descubrimiento
           produce suficiente comprensión estructurada. Se convierte en la base
           de los mapas de procesos, las propuestas y la configuración futura.
@@ -42,14 +42,14 @@ export function BusinessBlueprintPanel({
   return (
     <div className="space-y-8">
       <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Cómo funciona su empresa
         </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           {selected.title}
         </h3>
-        <p className="mt-3 text-neutral-600">{selected.summary}</p>
-        <p className="mt-4 text-sm text-neutral-400">
+        <p className="mt-3 text-[var(--isalwa-slate)]">{selected.summary}</p>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
           {selected.superseded ? "Revisión anterior" : "Lectura actual"} ·{" "}
           {formatRelativeActivity(selected.generatedAt)}
         </p>
@@ -57,7 +57,7 @@ export function BusinessBlueprintPanel({
 
       {sorted.length > 1 ? (
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Revisiones
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -68,8 +68,8 @@ export function BusinessBlueprintPanel({
                   onClick={() => setSelectedId(blueprint.id)}
                   className={
                     blueprint.id === selected.id
-                      ? "rounded-full bg-neutral-950 px-3 py-1.5 text-xs text-white"
-                      : "rounded-full border border-neutral-200 px-3 py-1.5 text-xs text-neutral-600 hover:border-neutral-400"
+                      ? "rounded-full bg-[var(--isalwa-kiln)] px-3 py-1.5 text-xs text-white"
+                      : "rounded-full border border-[var(--isalwa-mist)] px-3 py-1.5 text-xs text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]"
                   }
                 >
                   {blueprintRevisionLabel(index)}
@@ -77,7 +77,7 @@ export function BusinessBlueprintPanel({
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-[var(--isalwa-slate)]/60">
             Las lecturas anteriores se conservan — el descubrimiento nunca
             sobrescribe hallazgos previos.
           </p>
@@ -111,10 +111,10 @@ export function BusinessBlueprintPanel({
         <ul className="space-y-4">
           {selected.capabilities.map((cap) => (
             <li key={cap.id}>
-              <p className="text-neutral-950">{cap.name}</p>
-              <p className="mt-1 text-sm text-neutral-500">{cap.purpose}</p>
+              <p className="text-[var(--isalwa-kiln)]">{cap.name}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{cap.purpose}</p>
               {cap.painPoints.length > 0 ? (
-                <p className="mt-1 text-xs text-neutral-400">
+                <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                   Fricción: {cap.painPoints.slice(0, 2).join(" · ")}
                 </p>
               ) : null}
@@ -124,7 +124,7 @@ export function BusinessBlueprintPanel({
       </BlueprintBlock>
 
       <BlueprintBlock title="Departamentos">
-        <p className="text-neutral-800">
+        <p className="text-[var(--isalwa-slate)]">
           {selected.departments.map((d) => d.name).join(" · ") || "—"}
         </p>
       </BlueprintBlock>
@@ -133,7 +133,7 @@ export function BusinessBlueprintPanel({
         labelExpand="Ver flujos de trabajo y detalle operativo"
         labelCollapse="Ocultar flujos de trabajo y detalle operativo"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Flujos de trabajo clave, reglas de operación, sistemas en uso y
             áreas de oportunidad — disponible cuando necesite el respaldo
             completo.
@@ -145,20 +145,20 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-5">
               {selected.workflows.map((workflow) => (
                 <li key={workflow.id}>
-                  <p className="text-neutral-950">{workflow.name}</p>
-                  <p className="mt-1 text-sm text-neutral-500">
+                  <p className="text-[var(--isalwa-kiln)]">{workflow.name}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                     Comienza cuando: {workflow.trigger}
                   </p>
                   <ol className="mt-3 space-y-2">
                     {workflow.steps.map((step, index) => (
                       <li
                         key={step.id}
-                        className="flex gap-3 text-sm text-neutral-700"
+                        className="flex gap-3 text-sm text-[var(--isalwa-slate)]"
                       >
-                        <span className="text-neutral-400">{index + 1}.</span>
+                        <span className="text-[var(--isalwa-slate)]/60">{index + 1}.</span>
                         <span>
                           {step.name}
-                          <span className="text-neutral-400">
+                          <span className="text-[var(--isalwa-slate)]/60">
                             {" "}
                             · {step.actor}
                             {step.manual ? " · manual" : ""}
@@ -177,7 +177,7 @@ export function BusinessBlueprintPanel({
               {selected.entities.map((entity) => (
                 <li
                   key={entity.id}
-                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-600"
+                  className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
                 >
                   {entity.name}
                 </li>
@@ -188,7 +188,7 @@ export function BusinessBlueprintPanel({
           <BlueprintBlock title="Reglas de operación">
             <ul className="space-y-2">
               {selected.operatingRules.map((rule) => (
-                <li key={rule.id} className="text-neutral-700">
+                <li key={rule.id} className="text-[var(--isalwa-slate)]">
                   {rule.statement}
                 </li>
               ))}
@@ -199,11 +199,11 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-4">
               {selected.systems.map((system) => (
                 <li key={system.id}>
-                  <p className="text-neutral-950">{system.name}</p>
-                  <p className="mt-1 text-sm text-neutral-500">
+                  <p className="text-[var(--isalwa-kiln)]">{system.name}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                     {system.purpose}
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">
+                  <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                     Enfoque de reemplazo: {system.replacementStrategy}
                   </p>
                 </li>
@@ -215,10 +215,10 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-2">
               {selected.painPoints.map((pain) => (
                 <li key={pain.id} className="flex gap-3 text-sm">
-                  <span className="w-28 shrink-0 text-neutral-400">
+                  <span className="w-28 shrink-0 text-[var(--isalwa-slate)]/60">
                     {pain.category}
                   </span>
-                  <span className="text-neutral-800">{pain.title}</span>
+                  <span className="text-[var(--isalwa-slate)]">{pain.title}</span>
                 </li>
               ))}
             </ul>
@@ -228,11 +228,11 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-3">
               {selected.opportunities.map((opp) => (
                 <li key={opp.id}>
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     {opp.horizon}
                   </p>
-                  <p className="mt-1 text-neutral-950">{opp.title}</p>
-                  <p className="mt-1 text-sm text-neutral-500">
+                  <p className="mt-1 text-[var(--isalwa-kiln)]">{opp.title}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
                     {opp.description}
                   </p>
                 </li>
@@ -241,13 +241,13 @@ export function BusinessBlueprintPanel({
           </BlueprintBlock>
 
           <BlueprintBlock title="Capacidades recomendadas">
-            <p className="text-neutral-800">
+            <p className="text-[var(--isalwa-slate)]">
               {selected.modules.map((m) => m.name).join(" · ") || "—"}
             </p>
           </BlueprintBlock>
 
           <BlueprintBlock title="Preguntas abiertas">
-            <p className="text-neutral-800">
+            <p className="text-[var(--isalwa-slate)]">
               {selected.openQuestions.join(" · ") || "Ninguna registrada."}
             </p>
           </BlueprintBlock>
@@ -257,7 +257,7 @@ export function BusinessBlueprintPanel({
               {selected.evidence.slice(0, 10).map((ref) => (
                 <li
                   key={`${ref.source}-${ref.id}`}
-                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs text-neutral-500"
+                  className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]/80"
                 >
                   {ref.label}
                 </li>
@@ -270,10 +270,10 @@ export function BusinessBlueprintPanel({
               {BLUEPRINT_FUTURE_OUTPUTS.map((output) => (
                 <li
                   key={output.id}
-                  className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+                  className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
                 >
-                  <p className="text-sm text-neutral-900">{output.title}</p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+                  <p className="text-sm text-[var(--isalwa-kiln)]">{output.title}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                     {output.status === "planned" ? "Planeado" : output.status}
                   </p>
                 </li>
@@ -295,10 +295,10 @@ function BlueprintBlock({
 }) {
   return (
     <section>
-      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <h4 className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {title}
       </h4>
-      <div className="mt-3 text-base leading-relaxed text-neutral-800">
+      <div className="mt-3 text-base leading-relaxed text-[var(--isalwa-slate)]">
         {children}
       </div>
     </section>
@@ -314,10 +314,10 @@ function ArchitectureLine({
 }) {
   return (
     <div className="mb-4 last:mb-0">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-1 text-neutral-700">{summary}</p>
+      <p className="mt-1 text-[var(--isalwa-slate)]">{summary}</p>
     </div>
   );
 }

@@ -4,14 +4,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 disabled:pointer-events-none disabled:opacity-40",
+  "isalwa-interactive inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       variant: {
-        default: "bg-neutral-950 text-white hover:bg-neutral-800",
+        default:
+          "bg-[var(--isalwa-kiln)] text-white shadow-[var(--isalwa-shadow-resting)] hover:bg-[var(--isalwa-glaze-deep)] hover:shadow-[var(--isalwa-shadow-hover)]",
         secondary:
-          "bg-white text-neutral-900 border border-neutral-200 hover:bg-neutral-50",
-        ghost: "bg-transparent text-neutral-700 hover:bg-neutral-100",
+          "bg-white text-[var(--isalwa-kiln)] border border-[var(--isalwa-mist)] hover:border-[var(--isalwa-glaze)]/30 hover:bg-[var(--isalwa-porcelain)]",
+        ghost: "bg-transparent text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-mist)]",
       },
       size: {
         default: "h-11 px-6",

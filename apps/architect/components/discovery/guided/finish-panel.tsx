@@ -21,39 +21,39 @@ export function FinishPanel({
 
   return (
     <Card className="px-7 py-8 sm:px-10 sm:py-10">
-      <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+      <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--isalwa-tint-green)] text-[var(--isalwa-tint-green-ink)] ring-1 ring-[var(--isalwa-tint-green-border)]">
         <PartyPopper className="h-5 w-5" aria-hidden />
       </span>
-      <h2 className="architect-serif mt-5 text-3xl leading-tight text-neutral-950">
+      <h2 className="architect-serif mt-5 text-3xl leading-tight text-[var(--isalwa-kiln)]">
         Sesión guardada, {interview.participant.name ?? "gracias"}.
       </h2>
-      <p className="mt-3 max-w-xl text-base leading-relaxed text-neutral-600">
+      <p className="mt-3 max-w-xl text-base leading-relaxed text-[var(--isalwa-slate)]">
         Lo que respondió ya está incorporado a la comprensión de{" "}
         {workspace.companyName}. El diagnóstico sigue vivo — cada conversación
         futura se suma a esta misma memoria, nunca la reemplaza.
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl bg-neutral-50 px-5 py-4 ring-1 ring-neutral-100">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+        <div className="rounded-2xl bg-[var(--isalwa-porcelain)] px-5 py-4 ring-1 ring-[var(--isalwa-mist)]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
             Comprensión del negocio
           </p>
-          <p className="architect-serif mt-1 text-3xl text-neutral-950">
+          <p className="architect-serif mt-1 text-3xl text-[var(--isalwa-kiln)]">
             {understanding}%
           </p>
         </div>
-        <div className="rounded-2xl bg-neutral-50 px-5 py-4 ring-1 ring-neutral-100">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+        <div className="rounded-2xl bg-[var(--isalwa-porcelain)] px-5 py-4 ring-1 ring-[var(--isalwa-mist)]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
             Hechos registrados
           </p>
-          <p className="architect-serif mt-1 text-3xl text-neutral-950">
+          <p className="architect-serif mt-1 text-3xl text-[var(--isalwa-kiln)]">
             {factsCount}
           </p>
         </div>
       </div>
 
       {interview.report?.executiveSummary ? (
-        <p className="prose-architect mt-6 text-sm leading-relaxed text-neutral-600">
+        <p className="prose-architect mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {interview.report.executiveSummary}
         </p>
       ) : null}

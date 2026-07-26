@@ -74,13 +74,13 @@ export function BusinessKnowledge({
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Conocimiento del negocio
         </p>
-        <h2 className="architect-serif mt-2 text-3xl leading-tight text-neutral-950">
+        <h2 className="architect-serif mt-2 text-3xl leading-tight text-[var(--isalwa-kiln)]">
           Ayúdenos a entender su negocio más rápido.
         </h2>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-600">
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--isalwa-slate)]">
           Cuanta más información nos dé, menos preguntas necesitamos hacerle
           en la entrevista. Manuales, procedimientos, hojas de cálculo,
           contratos, transcripciones de reuniones — todo suma a lo que ya
@@ -89,17 +89,17 @@ export function BusinessKnowledge({
       </div>
 
       <Card className="px-5 py-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Qué puede compartir hoy
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {availableSources.map((source) => (
             <li
               key={source.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <p className="text-sm text-neutral-900">{source.titleEs}</p>
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="text-sm text-[var(--isalwa-kiln)]">{source.titleEs}</p>
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">
                 {source.descriptionEs}
               </p>
             </li>
@@ -108,10 +108,10 @@ export function BusinessKnowledge({
       </Card>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Subir documentos
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           Ejemplos: manual del empleado, procedimientos (SOP), lista de
           clientes, historial de ventas, facturas, contratos, presentaciones.
         </p>
@@ -126,10 +126,10 @@ export function BusinessKnowledge({
       </div>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Notas manuales
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
           ¿No tiene un documento a la mano? Escriba lo que sabe — políticas,
           quién hace qué, cómo funciona un proceso.
         </p>
@@ -143,7 +143,7 @@ export function BusinessKnowledge({
             onChange={(event) => setNotes(event.target.value)}
             rows={5}
             placeholder="Por ejemplo: 'Las aprobaciones de compra las hace siempre el gerente de operaciones antes de $5,000…'"
-            className="w-full rounded-2xl border border-neutral-200 bg-white/80 px-4 py-3 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+            className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white/80 px-4 py-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45"
           />
           <Button
             type="button"
@@ -159,19 +159,19 @@ export function BusinessKnowledge({
 
       {reports.length > 0 ? (
         <Card className="px-5 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Lo que acabamos de aprender
           </p>
           <ul className="mt-4 space-y-4">
             {reports.map((report, index) => (
               <li key={`${report.sourceType}_${index}`} className="space-y-1.5">
                 {report.learnedLines.map((line) => (
-                  <p key={line} className="text-sm leading-relaxed text-emerald-800">
+                  <p key={line} className="text-sm leading-relaxed text-[var(--isalwa-tint-green-ink)]">
                     ✓ {line}
                   </p>
                 ))}
                 {report.stillNeedLines.map((line) => (
-                  <p key={line} className="text-sm leading-relaxed text-amber-700">
+                  <p key={line} className="text-sm leading-relaxed text-[var(--isalwa-tint-amber-ink)]">
                     — {line}
                   </p>
                 ))}
@@ -182,7 +182,7 @@ export function BusinessKnowledge({
       ) : null}
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Cobertura por área
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -207,14 +207,14 @@ export function BusinessKnowledge({
               <li key={slice.area} className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-neutral-800">{slice.area}</span>
-                    <span className="text-neutral-950">
+                    <span className="text-[var(--isalwa-slate)]">{slice.area}</span>
+                    <span className="text-[var(--isalwa-kiln)]">
                       {coverageBandLabelEs(band)}
                     </span>
                   </div>
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-100">
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--isalwa-mist)]">
                     <div
-                      className="h-full rounded-full bg-neutral-800 transition-all"
+                      className="h-full rounded-full bg-[var(--isalwa-glaze-deep)] transition-all"
                       style={{ width: `${Math.max(6, slice.percent)}%` }}
                       aria-hidden
                     />
@@ -227,11 +227,11 @@ export function BusinessKnowledge({
       </div>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Aún necesitamos
         </p>
         {stillNeed.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
             Por ahora no detectamos vacíos claros — buena señal.
           </p>
         ) : (
@@ -239,7 +239,7 @@ export function BusinessKnowledge({
             {stillNeed.map((item) => (
               <li
                 key={item}
-                className="rounded-2xl border border-amber-100/80 bg-amber-50/60 px-4 py-3 text-sm text-neutral-800"
+                className="rounded-2xl border border-[var(--isalwa-tint-amber-border)]/80 bg-[var(--isalwa-tint-amber)]/60 px-4 py-3 text-sm text-[var(--isalwa-slate)]"
               >
                 {item}
               </li>
@@ -252,7 +252,7 @@ export function BusinessKnowledge({
         labelExpand="Ver próximas fuentes de datos"
         labelCollapse="Ocultar próximas fuentes"
         summary={
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--isalwa-slate)]">
             Con el tiempo, Architect podrá aprender directamente de más
             sistemas — sin que usted tenga que exportar nada a mano.
           </p>
@@ -262,10 +262,10 @@ export function BusinessKnowledge({
           {futureSources.map((source) => (
             <li
               key={source.id}
-              className="rounded-2xl border border-neutral-200/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <p className="text-sm text-neutral-900">{source.titleEs}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+              <p className="text-sm text-[var(--isalwa-kiln)]">{source.titleEs}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
                 Próximamente
               </p>
             </li>
@@ -279,10 +279,10 @@ export function BusinessKnowledge({
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
         {label}
       </p>
-      <p className="mt-1 text-neutral-950">{value}</p>
+      <p className="mt-1 text-[var(--isalwa-kiln)]">{value}</p>
     </div>
   );
 }

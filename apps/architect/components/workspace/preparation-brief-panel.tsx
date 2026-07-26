@@ -40,7 +40,7 @@ function formatMeetingDate(iso: string): string {
 
 function EmptyLine({ text }: { text: string }) {
   return (
-    <p className="rounded-2xl border border-dashed border-neutral-200 bg-white/60 px-4 py-3 text-sm leading-relaxed text-neutral-500">
+    <p className="rounded-2xl border border-dashed border-[var(--isalwa-mist)] bg-white/60 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)]/80">
       {text}
     </p>
   );
@@ -55,16 +55,16 @@ function BulletList({
 }) {
   const ring =
     tone === "risk"
-      ? "ring-rose-100/80"
+      ? "ring-[var(--isalwa-tint-red-border)]/80"
       : tone === "problem"
-        ? "ring-amber-100/80"
+        ? "ring-[var(--isalwa-tint-amber-border)]/80"
         : "ring-slate-200/70";
   return (
     <ul className="space-y-2">
       {items.map((item) => (
         <li
           key={item}
-          className={`rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-neutral-800 ring-1 ${ring}`}
+          className={`rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ${ring}`}
         >
           {item}
         </li>
@@ -80,7 +80,7 @@ function ChipRow({ items }: { items: string[] }) {
       {items.map((item) => (
         <span
           key={item}
-          className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-700"
+          className="rounded-full bg-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
         >
           {item}
         </span>
@@ -92,8 +92,8 @@ function ChipRow({ items }: { items: string[] }) {
 function PersonCard({ person }: { person: Person }) {
   return (
     <div className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-slate-200/70">
-      <p className="font-medium text-neutral-950">{person.name}</p>
-      <p className="mt-0.5 text-sm text-neutral-500">
+      <p className="font-medium text-[var(--isalwa-kiln)]">{person.name}</p>
+      <p className="mt-0.5 text-sm text-[var(--isalwa-slate)]/80">
         {[person.role, person.department].filter(Boolean).join(" · ") ||
           "Rol no registrado"}
       </p>
@@ -105,15 +105,15 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
   return (
     <div className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-slate-200/70">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="font-medium text-neutral-950">{meeting.title}</p>
-        <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+        <p className="font-medium text-[var(--isalwa-kiln)]">{meeting.title}</p>
+        <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           {formatMeetingDate(meeting.date)}
         </p>
       </div>
       {meeting.summary ? (
-        <p className="mt-1.5 text-sm text-neutral-600">{meeting.summary}</p>
+        <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]">{meeting.summary}</p>
       ) : null}
-      <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+      <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--isalwa-slate)]/80">
         {meeting.participants.length > 0 ? (
           <span>Asistentes: {meeting.participants.join(", ")}</span>
         ) : null}
@@ -130,12 +130,12 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
 
 function ContradictionCard({ item }: { item: Contradiction }) {
   return (
-    <div className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-rose-100/80">
-      <p className="text-sm leading-relaxed text-neutral-800">
+    <div className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-[var(--isalwa-tint-red-border)]/80">
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {item.statement}
       </p>
       {item.evidence.length > 0 ? (
-        <ul className="mt-2 space-y-1 text-xs text-neutral-500">
+        <ul className="mt-2 space-y-1 text-xs text-[var(--isalwa-slate)]/80">
           {item.evidence.map((e) => (
             <li key={e}>· {e}</li>
           ))}
@@ -169,19 +169,19 @@ export function PreparationBriefPanel({
         title={`Antes de reunirse con ${workspace.companyName}`}
         description={prep.interviewOpening}
       >
-        <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-sky-100">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             Comprensión previa: {prep.confidence.approximatePercent}%
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-sky-100">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             Cobertura de información: {prep.coverage.averagePercent}%
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-sky-100">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
             Duración estimada: {briefing.estimatedMinutesRemaining} minutos
           </span>
         </div>
-        <p className="mt-4 max-w-2xl text-sm text-neutral-500">
+        <p className="mt-4 max-w-2xl text-sm text-[var(--isalwa-slate)]/80">
           {formatIndustryLabel(workspace.industry)} ·{" "}
           {formatStageLabel(workspace.currentStage)}
         </p>
@@ -209,7 +209,7 @@ export function PreparationBriefPanel({
         )}
         {prep.potentialQuickWins.length > 0 ? (
           <div className="mt-5 space-y-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
               Quick wins potenciales
             </p>
             <ChipRow items={prep.potentialQuickWins} />
@@ -217,7 +217,7 @@ export function PreparationBriefPanel({
         ) : null}
         {prep.potentialMissingSystems.length > 0 ? (
           <div className="mt-5 space-y-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
               Posibles brechas de sistemas
             </p>
             <ChipRow items={prep.potentialMissingSystems} />
@@ -327,9 +327,9 @@ export function PreparationBriefPanel({
             {prep.departmentsRequiringAttention.map((item, index) => (
               <li
                 key={item}
-                className="flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-neutral-800 ring-1 ring-violet-100/80"
+                className="flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-violet-border)]/80"
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 text-[11px] font-medium text-violet-700">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--isalwa-tint-violet-border)] text-[11px] font-medium text-[var(--isalwa-tint-violet-ink)]">
                   {index + 1}
                 </span>
                 <span>{item}</span>
