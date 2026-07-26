@@ -3,6 +3,10 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import {
+  resolveEffectiveLabel,
+  type EffectiveTerminologyEntry,
+} from "@/lib/brand";
+import {
   criticalityLabel,
   dependencyKindLabel,
   ownershipKindLabel,
@@ -22,8 +26,17 @@ import type {
 
 export function CompanyModelPanel({
   model,
+  departmentNames,
 }: {
   model: CompanyModel | null | undefined;
+  /**
+   * White Label Company Experience — effective (override-aware) department
+   * display names, keyed by original blueprint department name. Only
+   * renames the department list itself; relationship, ownership and flow
+   * labels elsewhere in this model are precomputed strings from a different
+   * derivation domain and are not renamed here (see WHITE_LABEL_EXPERIENCE.md gaps).
+   */
+  departmentNames?: EffectiveTerminologyEntry[];
 }) {
   if (!model) {
     return (
@@ -77,7 +90,15 @@ export function CompanyModelPanel({
         ) : (
           <ul className="space-y-3">
             {model.departments.map((dept) => (
-              <DepartmentRow key={dept.id} dept={dept} />
+              <DepartmentRow
+                key={dept.id}
+                dept={dept}
+                displayName={
+                  departmentNames
+                    ? resolveEffectiveLabel(departmentNames, dept.name)
+                    : dept.name
+                }
+              />
             ))}
           </ul>
         )}
@@ -155,11 +176,17 @@ function EmptyHint({ text }: { text: string }) {
   return <p className="text-sm text-neutral-500">{text}</p>;
 }
 
-function DepartmentRow({ dept }: { dept: CompanyDepartment }) {
+function DepartmentRow({
+  dept,
+  displayName,
+}: {
+  dept: CompanyDepartment;
+  displayName: string;
+}) {
   return (
     <li className="rounded-xl border border-neutral-200/70 px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="font-medium text-neutral-900">{dept.name}</p>
+        <p className="font-medium text-neutral-900">{displayName}</p>
         <span className="text-xs text-neutral-400">
           {strengthBandLabelEs(dept.confidence)}
         </span>

@@ -15,6 +15,7 @@ export { collectBrandEvidence } from "./evidence";
 export {
   applyBrandOverrides,
   emptyBrandOverrides,
+  resolveEffectiveLabel,
   terminologyOverrideKey,
 } from "./overrides";
 export type {

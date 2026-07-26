@@ -536,7 +536,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           title="Mapa vivo de la organización"
           description="Departamentos, relaciones, información y puntos críticos — en lenguaje claro."
         >
-          <CompanyModelPanel model={workspace.companyModel} />
+          <CompanyModelPanel
+            model={workspace.companyModel}
+            departmentNames={effectiveBrand.departmentTerminology}
+          />
         </SectionShell>
         <NextStepCta
           description="Si falta estructura, continúe el diagnóstico."
@@ -842,7 +845,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               <img
                 src={effectiveBrand.logoUrl.value}
                 alt={`Logo de ${effectiveBrand.companyDisplayName}`}
-                className="h-10 w-10 shrink-0 rounded-xl border border-neutral-200 bg-white object-contain p-1"
+                className="h-10 w-10 shrink-0 rounded-xl border-2 border-neutral-200 bg-white object-contain p-1"
+                style={
+                  effectiveBrand.primaryColor.value
+                    ? { borderColor: effectiveBrand.primaryColor.value }
+                    : undefined
+                }
               />
             ) : null}
             <h1 className="architect-serif text-4xl leading-tight text-neutral-950 sm:text-5xl">

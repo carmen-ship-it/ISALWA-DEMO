@@ -413,7 +413,12 @@ export function ReportView() {
           <img
             src={brand.logoUrl.value}
             alt={`Logo de ${companyName}`}
-            className="h-10 w-10 shrink-0 rounded-xl border border-neutral-200 bg-white object-contain p-1"
+            className="h-10 w-10 shrink-0 rounded-xl border-2 border-neutral-200 bg-white object-contain p-1"
+            style={
+              brand.primaryColor.value
+                ? { borderColor: brand.primaryColor.value }
+                : undefined
+            }
           />
         ) : null}
         <h1 className="architect-serif text-5xl leading-tight text-neutral-950">

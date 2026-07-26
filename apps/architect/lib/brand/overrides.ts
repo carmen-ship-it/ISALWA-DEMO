@@ -82,6 +82,23 @@ function overrideField<T extends string>(
 }
 
 /**
+ * Resolve the effective display label for a value that originated as a
+ * `TerminologyEntry.preferredLabel` (e.g. a blueprint department name).
+ * Used by presentation surfaces outside the Brand & Experience Studio
+ * (Company Model, navigation, etc.) that display names sourced from the same
+ * evidence but do not read `TerminologyEntry` objects directly. Falls back
+ * to `originalLabel` unchanged when there is no matching entry or override —
+ * never invents a name.
+ */
+export function resolveEffectiveLabel(
+  entries: EffectiveTerminologyEntry[],
+  originalLabel: string,
+): string {
+  const match = entries.find((e) => e.preferredLabel === originalLabel);
+  return match ? match.effectiveLabel : originalLabel;
+}
+
+/**
  * Merge consultant `BrandOverrides` onto a derived `BrandExperienceModel`.
  * `model` may be `null` (blueprint not derived yet) — overrides still apply
  * so early white-label configuration is not blocked on discovery progress.
