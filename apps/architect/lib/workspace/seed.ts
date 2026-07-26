@@ -9,6 +9,7 @@ import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
 import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
+import { deriveCompanyModel } from "@/lib/company-model";
 import { createId, nowIso } from "@/lib/utils";
 import type {
   CompanyWorkspace,
@@ -24,6 +25,10 @@ import type {
   TimelineEvent,
 } from "@/types";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
+import {
+  emptyEvolutionHistory,
+  ensureCompanyEvolution,
+} from "@/lib/history";
 import { emptyConsultingWhiteboardFields } from "@/lib/consulting";
 import {
   createSeedKnowledge,
@@ -229,7 +234,9 @@ function seedWorkspace(input: {
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
+    companyModel: null,
     implementationPackage: null,
+    evolutionHistory: emptyEvolutionHistory(),
     people: [person],
     openQuestions: input.openQuestions,
     painPoints: memory.painPoints,
@@ -322,13 +329,20 @@ function seedWorkspace(input: {
       })
     : null;
 
+  const companyModel = currentBlueprint
+    ? deriveCompanyModel({
+        workspace: { ...seededWorkspace, brandExperience },
+        blueprint: currentBlueprint,
+      })
+    : null;
+
   const workspaceWithBrand = {
     ...seededWorkspace,
     brandExperience,
   };
 
   const deliverables = currentBlueprint
-    ? buildDeliverablesPackage(workspaceWithBrand)
+    ? buildDeliverablesPackage({ ...workspaceWithBrand, companyModel })
     : null;
 
   const workspaceWithDeliverables = {
@@ -349,6 +363,19 @@ function seedWorkspace(input: {
           title: `Brand & Experience · Blueprint v${brandExperience.blueprintVersion}`,
           description: brandExperience.summary,
           category: "brand",
+        },
+      ]
+    : [];
+
+  const companyModelEvents: TimelineEvent[] = companyModel
+    ? [
+        {
+          id: createId("timeline"),
+          workspaceId: input.id,
+          date: companyModel.generatedAt,
+          title: `Company Model · Blueprint v${companyModel.blueprintVersion}`,
+          description: companyModel.summary,
+          category: "company_model",
         },
       ]
     : [];
@@ -381,13 +408,16 @@ function seedWorkspace(input: {
       ]
     : [];
 
-  return {
+  return ensureCompanyEvolution({
     ...seededWorkspace,
     brandExperience,
+    companyModel,
     deliverables,
     implementationPackage,
+    evolutionHistory: emptyEvolutionHistory(),
     timeline: [
       ...implementationEvents,
+      ...companyModelEvents,
       ...deliverableEvents,
       ...brandEvents,
       ...processEvents,
@@ -395,7 +425,7 @@ function seedWorkspace(input: {
       ...blueprintEvents,
       ...partialWorkspace.timeline,
     ].sort((a, b) => b.date.localeCompare(a.date)),
-  };
+  });
 }
 
 /** Pilot seed — single real company only (no placeholder multi-tenant demos). */
@@ -484,6 +514,7 @@ export function createEmptyWorkspace(
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
+    companyModel: null,
     implementationPackage: null,
     people: [],
     openQuestions: [],

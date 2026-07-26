@@ -114,6 +114,11 @@ export interface CompanyWorkspace {
    * References Blueprint / Solution / Processes / Deliverables / Consulting — never regenerates them.
    */
   implementationPackage: import("./implementation-package").ImplementationPackage | null;
+  /**
+   * Mission 15 — Continuous company evolution history.
+   * Append-only snapshots / milestones — never overwrite prior captures.
+   */
+  evolutionHistory?: import("./history").CompanyEvolutionHistory | null;
   people: Person[];
   openQuestions: string[];
   painPoints: import("./index").PainPoint[];

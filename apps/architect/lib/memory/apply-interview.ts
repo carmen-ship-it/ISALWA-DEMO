@@ -20,6 +20,7 @@ import { assembleImplementationPackage } from "@/lib/implementation-package";
 import {
   deriveBrandExperience,
 } from "@/lib/brand";
+import { deriveCompanyModel } from "@/lib/company-model";
 import { evolveLivingReport } from "@/lib/reports/living-report";
 import { buildTimelineEventsFromInterview } from "@/lib/timeline/events";
 import { placeholderTranscriptDocument } from "@/lib/documents/placeholders";
@@ -173,6 +174,16 @@ export function applyInterviewToWorkspace(
     blueprint: nextBlueprint,
   });
 
+  const companyModel = deriveCompanyModel({
+    workspace: {
+      ...workspace,
+      solutionArchitecture,
+      businessProcesses,
+      brandExperience,
+    },
+    blueprint: nextBlueprint,
+  });
+
   const workspaceForDeliverables: CompanyWorkspace = {
     ...workspaceForBrand,
     brandExperience,
@@ -216,6 +227,16 @@ export function applyInterviewToWorkspace(
     title: `Brand & Experience · Blueprint v${nextBlueprint.version}`,
     description: brandExperience.summary,
     category: "brand",
+    meetingId: meeting.id,
+  };
+
+  const companyModelEvent: TimelineEvent = {
+    id: createId("timeline"),
+    workspaceId: workspace.id,
+    date: stamp,
+    title: `Company Model · Blueprint v${nextBlueprint.version}`,
+    description: companyModel.summary,
+    category: "company_model",
     meetingId: meeting.id,
   };
 
@@ -265,6 +286,7 @@ export function applyInterviewToWorkspace(
     timeline: [
       ...(implementationEvent ? [implementationEvent] : []),
       deliverableEvent,
+      companyModelEvent,
       brandEvent,
       processEvent,
       solutionEvent,
@@ -278,6 +300,7 @@ export function applyInterviewToWorkspace(
     solutionArchitecture,
     businessProcesses,
     brandExperience,
+    companyModel,
     deliverables,
     implementationPackage,
     people,

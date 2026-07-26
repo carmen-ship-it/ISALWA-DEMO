@@ -14,6 +14,7 @@ import { SolutionArchitecturePanel } from "@/components/workspace/solution-archi
 import { BusinessProcessesPanel } from "@/components/workspace/business-processes-panel";
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
+import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
@@ -256,6 +257,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
         </SectionShell>
       </div>
+    ),
+
+    company: (
+      <SectionShell
+        tone="blueprint"
+        kicker="Modelo de la empresa"
+        title="Gemelo digital de la organización"
+        description="Un modelo vivo de cómo está estructurada la empresa — departamentos, relaciones, propiedad, información y dependencias críticas. Solo lectura; sin diagramas aún."
+      >
+        <CompanyModelPanel model={workspace.companyModel} />
+      </SectionShell>
     ),
 
     architecture: (

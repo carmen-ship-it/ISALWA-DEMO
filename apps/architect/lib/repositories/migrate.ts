@@ -26,6 +26,7 @@ import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
 import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
+import { deriveCompanyModel } from "@/lib/company-model";
 import { applyDiscoveryScore } from "@/lib/reasoning";
 import { createId } from "@/lib/utils";
 import {
@@ -76,6 +77,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         businessProcesses: workspace.businessProcesses ?? null,
         deliverables: workspace.deliverables ?? null,
         brandExperience: workspace.brandExperience ?? null,
+        companyModel: workspace.companyModel ?? null,
         implementationPackage: workspace.implementationPackage ?? null,
       };
 
@@ -110,6 +112,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
           solutionArchitecture: null,
           businessProcesses: null,
           brandExperience: null,
+          companyModel: null,
           deliverables: null,
           implementationPackage: null,
         });
@@ -248,6 +251,37 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
                   title,
                   description: brandExperience.summary,
                   category: "brand" as const,
+                },
+                ...next.timeline,
+              ].sort((a, b) => b.date.localeCompare(a.date)),
+        };
+      }
+
+      
+      if (
+        current &&
+        (!next.companyModel ||
+          next.companyModel.blueprintId !== current.id)
+      ) {
+        const companyModel = deriveCompanyModel({
+          workspace: next,
+          blueprint: current,
+        });
+        const existingTitlesCm = new Set(next.timeline.map((e) => e.title));
+        const cmTitle = `Company Model · Blueprint v${companyModel.blueprintVersion}`;
+        next = {
+          ...next,
+          companyModel,
+          timeline: existingTitlesCm.has(cmTitle)
+            ? next.timeline
+            : [
+                {
+                  id: createId("timeline"),
+                  workspaceId: next.id,
+                  date: companyModel.generatedAt,
+                  title: cmTitle,
+                  description: companyModel.summary,
+                  category: "company_model" as const,
                 },
                 ...next.timeline,
               ].sort((a, b) => b.date.localeCompare(a.date)),
