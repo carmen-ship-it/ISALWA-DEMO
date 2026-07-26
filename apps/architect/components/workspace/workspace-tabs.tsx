@@ -16,15 +16,15 @@ export type WorkspaceTabId =
   | "deliverables";
 
 export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
-  { id: "executive", label: "Resumen ejecutivo" },
+  { id: "executive", label: "Resumen" },
   { id: "assessment", label: "Diagnóstico" },
-  { id: "blueprint", label: "Modelo del negocio" },
-  { id: "company", label: "Modelo de la empresa" },
-  { id: "architecture", label: "Sistemas" },
-  { id: "processes", label: "Procesos" },
+  { id: "blueprint", label: "Plan de negocio" },
+  { id: "company", label: "Su empresa" },
+  { id: "architecture", label: "Sistema recomendado" },
+  { id: "processes", label: "Cómo opera" },
   { id: "recommendations", label: "Recomendaciones" },
-  { id: "roadmap", label: "Hoja de ruta" },
-  { id: "deliverables", label: "Entregables" },
+  { id: "roadmap", label: "Plan de implementación" },
+  { id: "deliverables", label: "Documentos" },
 ];
 
 export function WorkspaceTabs({
@@ -38,10 +38,14 @@ export function WorkspaceTabs({
 }) {
   const listId = useId();
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const activeIndex = Math.max(
+    0,
+    WORKSPACE_TABS.findIndex((tab) => tab.id === active),
+  );
+  const progress = ((activeIndex + 1) / WORKSPACE_TABS.length) * 100;
 
   const focusTab = useCallback((index: number) => {
-    const next = tabRefs.current[index];
-    next?.focus();
+    tabRefs.current[index]?.focus();
   }, []);
 
   const onKeyDown = useCallback(
@@ -59,15 +63,14 @@ export function WorkspaceTabs({
       }
       if (nextIndex == null) return;
       event.preventDefault();
-      const nextId = WORKSPACE_TABS[nextIndex]!.id;
-      onChange(nextId);
+      onChange(WORKSPACE_TABS[nextIndex]!.id);
       focusTab(nextIndex);
     },
     [focusTab, onChange],
   );
 
   return (
-    <div className="mt-10">
+    <div className="mt-8">
       <div className="sticky top-0 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
         <div
           role="tablist"
@@ -103,6 +106,16 @@ export function WorkspaceTabs({
             );
           })}
         </div>
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-neutral-200/80">
+          <div
+            className="h-full rounded-full bg-neutral-900 transition-[width] duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+            aria-hidden
+          />
+        </div>
+        <p className="mt-2 text-[11px] text-neutral-400">
+          Sección {activeIndex + 1} de {WORKSPACE_TABS.length}
+        </p>
       </div>
 
       {WORKSPACE_TABS.map((tab) => {
@@ -114,7 +127,7 @@ export function WorkspaceTabs({
             id={`workspace-panel-${tab.id}`}
             aria-labelledby={`workspace-tab-${tab.id}`}
             hidden={!selected}
-            className="mt-8 outline-none"
+            className="mt-8 scroll-mt-28 outline-none"
             tabIndex={0}
           >
             {selected ? panels[tab.id] : null}

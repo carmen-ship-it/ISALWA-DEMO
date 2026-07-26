@@ -4,6 +4,17 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
+import {
+  Building2,
+  ClipboardList,
+  FileText,
+  GitBranch,
+  Layers3,
+  Lightbulb,
+  Map,
+  Network,
+  Route,
+} from "lucide-react";
 import { ArchitectNav } from "@/components/nav/architect-nav";
 import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
@@ -23,7 +34,13 @@ import { ExecutiveDashboard } from "@/components/workspace/executive/executive-d
 import { ModuleInsightCards } from "@/components/workspace/executive/module-insight-cards";
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
+import { NextStepCta } from "@/components/workspace/next-step-cta";
+import {
+  RoadmapTimeline,
+  type RoadmapTimelineItem,
+} from "@/components/workspace/roadmap-timeline";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
   WorkspaceTabs,
   type WorkspaceTabId,
@@ -44,6 +61,8 @@ import {
   formatStageLabel,
 } from "@/lib/workspace";
 import type { CompanyWorkspace } from "@/types";
+
+const ROADMAP_LANES = ["Hoy", "Siguiente", "30 días", "90 días", "Futuro"] as const;
 
 export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const router = useRouter();
@@ -74,7 +93,6 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
     void loadAndEvolve();
 
-    // Live shared updates when Supabase Realtime is available.
     const supabaseStore = store as {
       subscribe?: (
         id: string,
@@ -115,41 +133,90 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   if (!workspace || !executive) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <p className="text-neutral-500">Cargando espacio de trabajo…</p>
+        <p className="text-neutral-500">Cargando…</p>
       </main>
     );
   }
 
   const briefing = buildResumeBriefing(workspace);
-  const timeline = sortTimelineNewestFirst(workspace.timeline).slice(0, 8);
+  const timeline = sortTimelineNewestFirst(workspace.timeline).slice(0, 5);
   const interviewHref = `/discovery?workspaceId=${workspace.id}`;
   const roadmapPhases = workspace.solutionArchitecture?.roadmap ?? [];
+  const displayName =
+    session?.displayName?.split(" ")[0] ||
+    workspace.people[0]?.name?.split(" ")[0] ||
+    "equipo";
+
+  const focusHint =
+    workspace.openQuestions[0]
+      ? `Hoy conviene enfocarse en: ${workspace.openQuestions[0]}.`
+      : workspace.suggestedNextMeeting
+        ? `Hoy conviene: ${workspace.suggestedNextMeeting}.`
+        : "Hoy puede revisar lo que ya aprendimos o continuar el diagnóstico.";
+
+  const evidenceChips = [
+    workspace.meetings.length > 0
+      ? `${workspace.meetings.length} reunión${workspace.meetings.length === 1 ? "" : "es"}`
+      : null,
+    workspace.observations.length > 0
+      ? `${workspace.observations.length} hallazgos`
+      : null,
+    workspace.painPoints.length > 0
+      ? `${workspace.painPoints.length} problemas detectados`
+      : null,
+    (workspace.knowledge?.assets?.length ?? 0) > 0
+      ? `${workspace.knowledge!.assets.length} documentos revisados`
+      : null,
+  ].filter(Boolean) as string[];
+
+  const roadmapItems: RoadmapTimelineItem[] =
+    roadmapPhases.length > 0
+      ? roadmapPhases.map((phase, index) => ({
+          id: phase.id,
+          label: ROADMAP_LANES[Math.min(index, ROADMAP_LANES.length - 1)]!,
+          title: phase.name,
+          summary: phase.businessValue,
+          detail:
+            phase.modules.length > 0
+              ? `Incluye: ${phase.modules.join(" · ")}`
+              : undefined,
+        }))
+      : executive.dashboard.estimatedPhases.map((phase, index) => ({
+          id: `est_${index}`,
+          label: ROADMAP_LANES[Math.min(index, ROADMAP_LANES.length - 1)]!,
+          title: phase,
+          summary: "Paso sugerido a partir de lo que ya sabemos.",
+        }));
 
   const panels: Record<WorkspaceTabId, ReactNode> = {
     executive: (
       <div className="space-y-8">
+        <WelcomeBanner
+          displayName={displayName}
+          understanding={workspace.businessUnderstanding}
+          focusHint={focusHint}
+          estimatedMinutes={briefing.estimatedMinutesRemaining}
+          continueHref={interviewHref}
+          continueLabel="Continuar evaluación"
+          onExplore={() => setTab("recommendations")}
+        />
+
         <SectionShell
-          tone="executive"
-          kicker="Cabina ejecutiva"
-          title="Inicio del día"
-          description="La casa diaria después del onboarding: salud del negocio, riesgos abiertos, prioridades y avance — lista para decidir."
+          tone="health"
+          icon={Layers3}
+          kicker="Resumen ejecutivo"
+          title="Dónde estamos"
+          description="Esta es la comprensión actual de su negocio."
         >
-          <Card className="border-sky-100/60 bg-white/80 px-6 py-6 shadow-none">
-            <ConfidenceMeter value={workspace.businessUnderstanding} />
+          <Card className="border-emerald-100/60 bg-white/85 px-6 py-6 shadow-none">
+            <ConfidenceMeter
+              value={workspace.businessUnderstanding}
+              evidence={evidenceChips}
+            />
           </Card>
-          <div className="mt-6">
-            <Button asChild size="lg">
-              <Link href={interviewHref}>{briefing.ctaLabel}</Link>
-            </Button>
-            {briefing.estimatedMinutesRemaining ? (
-              <p className="mt-3 text-sm text-neutral-500">
-                Quedan unos {briefing.estimatedMinutesRemaining} minutos de descubrimiento.
-              </p>
-            ) : null}
-          </div>
         </SectionShell>
 
-        <SectionShell tone="executive">
+        <SectionShell tone="executive" icon={ClipboardList}>
           <ExecutiveDashboard
             model={executive.dashboard}
             cockpit={executive.cockpit}
@@ -159,18 +226,24 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionShell
-            tone="risks"
-            kicker="Preguntas abiertas"
+            tone="problems"
+            icon={Lightbulb}
+            kicker="Lo que aún falta"
+            title="Preguntas abiertas"
+            description="Temas que todavía necesitamos aclarar."
             className="sm:px-6 sm:py-6"
           >
             {workspace.openQuestions.length === 0 ? (
               <p className="text-sm text-neutral-600">
-                No hay preguntas abiertas por ahora.
+                Por ahora no hay preguntas abiertas.
               </p>
             ) : (
               <ul className="space-y-2">
-                {workspace.openQuestions.map((q) => (
-                  <li key={q} className="text-sm leading-relaxed text-neutral-800">
+                {workspace.openQuestions.slice(0, 5).map((q) => (
+                  <li
+                    key={q}
+                    className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-neutral-800 ring-1 ring-amber-100/80"
+                  >
                     {q}
                   </li>
                 ))}
@@ -180,29 +253,25 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
           <SectionShell
             tone="health"
-            kicker="Próxima reunión sugerida"
+            icon={Map}
+            kicker="Siguiente paso"
+            title="Qué conviene hacer"
+            description="Una sugerencia clara para la próxima conversación."
             className="sm:px-6 sm:py-6"
           >
             <p className="text-base leading-relaxed text-neutral-800">
-              {workspace.suggestedNextMeeting ?? "Continuar el descubrimiento"}
+              {workspace.suggestedNextMeeting ?? "Continuar el diagnóstico"}
             </p>
           </SectionShell>
         </div>
 
-        {workspace.currentReport ? (
-          <SectionShell
-            tone="deliverables"
-            kicker="Informe vivo"
-            title="Narrativa para el cliente"
-            description={workspace.currentReport.executiveSummary}
-          >
-            <Button asChild variant="secondary">
-              <Link href={`/report?workspaceId=${workspace.id}`}>
-                Abrir informe vivo
-              </Link>
-            </Button>
-          </SectionShell>
-        ) : null}
+        <NextStepCta
+          description="Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
+          primaryHref={interviewHref}
+          primaryLabel={briefing.ctaLabel}
+          secondaryHref={`/report?workspaceId=${workspace.id}`}
+          secondaryLabel="Ver informe"
+        />
       </div>
     ),
 
@@ -210,9 +279,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="health"
+          icon={ClipboardList}
           kicker="Diagnóstico"
-          title="Avance del descubrimiento"
-          description="Hasta dónde ha llegado el trabajo — y qué evidencia sostiene el panorama."
+          title="Avance del trabajo"
+          description="Hasta dónde hemos llegado y qué evidencia lo respalda."
         >
           <Card className="border-emerald-100/50 bg-white/80 px-6 py-6 shadow-none">
             <DiscoveryJourney
@@ -223,48 +293,72 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
 
         <SectionShell
-          tone="health"
-          kicker="Evolución de la empresa"
-          title="Memoria continua del engagement"
-          description="Cada visita actualiza la memoria. Nada se sobrescribe — el historial solo crece."
+          tone="executive"
+          icon={GitBranch}
+          kicker="Evolución"
+          title="Cómo ha cambiado la empresa"
+          description="Cada visita suma memoria. No borramos lo anterior."
         >
           <CompanyEvolutionPanel history={workspace.evolutionHistory} />
         </SectionShell>
 
         <SectionShell
-          tone="executive"
+          tone="blueprint"
+          icon={Building2}
           kicker="Marca y experiencia"
           title="Cómo debe sentirse la empresa"
-          description="Guía de solo lectura inferida del descubrimiento — identidad, tono y expectativas de experiencia."
+          description="Identidad y tono inferidos del diagnóstico — solo lectura."
         >
           <BrandExperiencePanel model={workspace.brandExperience} />
         </SectionShell>
 
         <SectionShell
           tone="health"
-          kicker="Conocimiento"
-          title="Base de evidencia"
-          description="Qué conocimiento de la empresa se ha incorporado al diagnóstico."
+          icon={FileText}
+          kicker="Conocimiento del negocio"
+          title="Lo que ya sabemos"
+          description="Información de la empresa que ya usamos en el diagnóstico."
         >
           <KnowledgeCenter knowledge={workspace.knowledge} />
         </SectionShell>
 
-        <SectionShell tone="deliverables" kicker="Actividad" title="Avance reciente">
-          <ol className="space-y-5">
-            {timeline.map((event) => (
-              <li key={event.id} className="relative pl-6">
-                <span className="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-neutral-400" />
-                <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-                  {formatTimelineDate(event.date)} · {event.category}
-                </p>
-                <p className="mt-1 text-neutral-950">{event.title}</p>
-                <p className="mt-1 text-sm text-neutral-500">
-                  {event.description}
-                </p>
-              </li>
-            ))}
-          </ol>
+        <SectionShell
+          tone="deliverables"
+          icon={Route}
+          kicker="Actividad reciente"
+          title="Últimos avances"
+          description="Lo más reciente que quedó registrado."
+        >
+          {timeline.length === 0 ? (
+            <p className="text-sm text-neutral-600">
+              Aún no hay actividad reciente. Continúe el diagnóstico para
+              empezar.
+            </p>
+          ) : (
+            <ol className="space-y-4">
+              {timeline.map((event) => (
+                <li
+                  key={event.id}
+                  className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-slate-200/70"
+                >
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+                    {formatTimelineDate(event.date)}
+                  </p>
+                  <p className="mt-1 text-neutral-950">{event.title}</p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {event.description}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
         </SectionShell>
+
+        <NextStepCta
+          description="Responda lo que falta para fortalecer el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
       </div>
     ),
 
@@ -272,169 +366,244 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="blueprint"
-          kicker="Modelo del negocio"
-          title="Modelo operativo"
-          description="Cómo opera el negocio hoy — y el estado futuro que estamos diseñando."
+          icon={Layers3}
+          kicker="Plan de negocio"
+          title="Cómo debería operar la empresa"
+          description="Este es el modelo futuro que recomendamos."
         >
           <AnimatedBlueprint model={executive.blueprint} />
         </SectionShell>
         <SectionShell tone="blueprint">
           <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
         </SectionShell>
+        <NextStepCta
+          description="Revise el sistema recomendado que da soporte a este plan."
+          primaryHref="#"
+          primaryLabel="Ver sistema recomendado"
+          secondaryHref={interviewHref}
+          secondaryLabel="Seguir evaluando"
+        />
       </div>
     ),
 
     company: (
-      <SectionShell
-        tone="blueprint"
-        kicker="Modelo de la empresa"
-        title="Gemelo digital de la organización"
-        description="Un modelo vivo de cómo está estructurada la empresa — departamentos, relaciones, propiedad, información y dependencias críticas. Solo lectura; sin diagramas aún."
-      >
-        <CompanyModelPanel model={workspace.companyModel} />
-      </SectionShell>
+      <div className="space-y-8">
+        <SectionShell
+          tone="blueprint"
+          icon={Network}
+          kicker="Su empresa"
+          title="Mapa vivo de la organización"
+          description="Departamentos, relaciones, información y puntos críticos — en lenguaje claro."
+        >
+          <CompanyModelPanel model={workspace.companyModel} />
+        </SectionShell>
+        <NextStepCta
+          description="Si falta estructura, continúe el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
     ),
 
     architecture: (
-      <SectionShell
-        tone="blueprint"
-        kicker="Sistemas"
-        title="Sistema operativo recomendado"
-        description="Las capacidades de software que el negocio necesita — diseñadas, no construidas."
-      >
-        <SolutionArchitecturePanel
-          architecture={workspace.solutionArchitecture}
+      <div className="space-y-8">
+        <SectionShell
+          tone="blueprint"
+          icon={Layers3}
+          kicker="Sistema recomendado"
+          title="Software que resuelve los problemas encontrados"
+          description="Estas son las piezas de software que recomendamos — diseñadas a partir de la evidencia."
+        >
+          <SolutionArchitecturePanel
+            architecture={workspace.solutionArchitecture}
+          />
+        </SectionShell>
+        <NextStepCta
+          description="Vea el orden sugerido para construir este sistema."
+          primaryHref="#"
+          primaryLabel="Ver plan de implementación"
+          secondaryHref={interviewHref}
+          secondaryLabel="Continuar evaluación"
         />
-      </SectionShell>
+      </div>
     ),
 
     processes: (
-      <SectionShell
-        tone="processes"
-        kicker="Procesos"
-        title="Cómo se mueve el trabajo"
-        description="Flujos críticos, traspasos y oportunidades para quitar fricción."
-      >
-        <BusinessProcessesPanel
-          context={
-            workspace.businessProcesses
-              ? {
-                  processes: workspace.businessProcesses,
-                  blueprint:
-                    workspace.blueprints.find(
-                      (b) => b.id === workspace.currentBlueprintId,
-                    ) ??
-                    workspace.blueprints[0] ??
-                    null,
-                  solution: workspace.solutionArchitecture,
-                  knowledge: workspace.knowledge,
-                  consulting:
-                    workspace.conversationMemory?.consulting ?? null,
-                }
-              : null
-          }
+      <div className="space-y-8">
+        <SectionShell
+          tone="processes"
+          icon={GitBranch}
+          kicker="Cómo opera"
+          title="Cómo se mueve el trabajo hoy"
+          description="Esto muestra cómo el trabajo atraviesa su empresa."
+        >
+          <BusinessProcessesPanel
+            context={
+              workspace.businessProcesses
+                ? {
+                    processes: workspace.businessProcesses,
+                    blueprint:
+                      workspace.blueprints.find(
+                        (b) => b.id === workspace.currentBlueprintId,
+                      ) ??
+                      workspace.blueprints[0] ??
+                      null,
+                    solution: workspace.solutionArchitecture,
+                    knowledge: workspace.knowledge,
+                    consulting:
+                      workspace.conversationMemory?.consulting ?? null,
+                  }
+                : null
+            }
+          />
+        </SectionShell>
+        <NextStepCta
+          description="Si falta un proceso clave, continúe el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
         />
-      </SectionShell>
+      </div>
     ),
 
     recommendations: (
       <div className="space-y-8">
         <SectionShell
           tone="executive"
+          icon={Lightbulb}
           kicker="Recomendaciones"
-          title="Lo que recomendamos"
-          description="Capacidades y fundamentos con evidencia del descubrimiento — no listas genéricas de software."
+          title="Qué recomendamos hacer"
+          description="Cada recomendación nace de problemas reales que vimos — no de listas genéricas."
         >
-          <ModuleInsightCards recommendations={explainedModules} />
+          {explainedModules.length === 0 ? (
+            <EmptyHint
+              text="Aún no hay módulos de software recomendados. Continúe el diagnóstico."
+              href={interviewHref}
+            />
+          ) : (
+            <ModuleInsightCards recommendations={explainedModules.slice(0, 5)} />
+          )}
         </SectionShell>
-        <SectionShell tone="health">
-          <ReasoningCards recommendations={explainedRecommendations} />
+        <SectionShell tone="health" title="Más recomendaciones">
+          {explainedRecommendations.length === 0 ? (
+            <EmptyHint
+              text="Todavía no hay recomendaciones detalladas."
+              href={interviewHref}
+            />
+          ) : (
+            <ReasoningCards
+              recommendations={explainedRecommendations.slice(0, 5)}
+            />
+          )}
         </SectionShell>
-        {workspace.currentReport ? (
-          <SectionShell tone="deliverables" kicker="Narrative">
-            <p className="text-sm text-neutral-700">
-              Para la narrativa completa del cliente, abra el informe vivo.
-            </p>
-            <div className="mt-4">
-              <Button asChild variant="secondary">
-                <Link href={`/report?workspaceId=${workspace.id}`}>
-                  Abrir informe vivo
-                </Link>
-              </Button>
-            </div>
-          </SectionShell>
-        ) : null}
+        <NextStepCta
+          description="Revise el plan de implementación o siga respondiendo preguntas."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
       </div>
     ),
 
     roadmap: (
-      <SectionShell
-        tone="processes"
-        kicker="Hoja de ruta"
-        title="Camino por fases"
-        description="Una secuencia práctica desde las operaciones actuales hasta el estado futuro recomendado."
-      >
-        {roadmapPhases.length === 0 &&
-        executive.dashboard.estimatedPhases.length === 0 ? (
-          <Card className="border-orange-100/50 bg-white/80 px-5 py-5 shadow-none">
-            <p className="text-sm text-neutral-600">
-              La hoja de ruta aparece cuando las capacidades recomendadas
-              se ordenan a partir de la evidencia del descubrimiento.
-            </p>
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {roadmapPhases.length > 0 ? (
-              <ol className="space-y-5">
-                {roadmapPhases.map((phase) => (
-                  <li
-                    key={phase.id}
-                    className="rounded-2xl border border-orange-100/60 bg-white/80 px-5 py-4"
-                  >
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                      Phase {phase.phase}
-                      {phase.estimatedComplexity
-                        ? ` · ${phase.estimatedComplexity} complexity`
-                        : ""}
-                    </p>
-                    <p className="mt-1 text-lg text-neutral-950">{phase.name}</p>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      {phase.businessValue}
-                    </p>
-                    {phase.modules.length > 0 ? (
-                      <p className="mt-2 text-xs text-neutral-500">
-                        Capacidades: {phase.modules.join(" · ")}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <ul className="space-y-2">
-                {executive.dashboard.estimatedPhases.map((phase) => (
-                  <li key={phase} className="text-sm text-neutral-800">
-                    {phase}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </SectionShell>
+      <div className="space-y-8">
+        <SectionShell
+          tone="processes"
+          icon={Route}
+          kicker="Plan de implementación"
+          title="En qué orden construir"
+          description="Este es el orden que recomendamos para construir todo."
+        >
+          <RoadmapTimeline items={roadmapItems} />
+        </SectionShell>
+        <NextStepCta
+          description="Cuando el entendimiento sea suficiente, prepare el paquete de documentos."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
     ),
 
     deliverables: (
-      <SectionShell
-        tone="deliverables"
-        kicker="Entregables"
-        title="Paquete de consultoría"
-        description="Documentación lista para dirección, generada desde la memoria de la empresa — para decidir, no para programar."
-      >
-        <DeliverablesPanel
-          workspace={workspace}
-          onUpdated={(next) => setWorkspace(next)}
+      <div className="space-y-8">
+        <SectionShell
+          tone="deliverables"
+          icon={FileText}
+          kicker="Documentos"
+          title="Paquete para decidir"
+          description="Documentos listos para dirección — para decidir, no para programar."
+        >
+          <DeliverablesPanel
+            workspace={workspace}
+            onUpdated={(next) => setWorkspace(next)}
+          />
+        </SectionShell>
+        <NextStepCta
+          description="Si falta información, vuelva al diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
         />
-      </SectionShell>
+      </div>
+    ),
+  };
+
+  // Wire in-page CTAs that switch tabs without dead "#" links
+  const panelsWithTabLinks: Record<WorkspaceTabId, ReactNode> = {
+    ...panels,
+    blueprint: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="blueprint"
+          icon={Layers3}
+          kicker="Plan de negocio"
+          title="Cómo debería operar la empresa"
+          description="Este es el modelo futuro que recomendamos."
+        >
+          <AnimatedBlueprint model={executive.blueprint} />
+        </SectionShell>
+        <SectionShell tone="blueprint">
+          <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
+        </SectionShell>
+        <SectionShell tone="health" title="¿Qué debe hacer ahora?">
+          <p className="mb-4 text-sm text-neutral-600">
+            Revise el sistema recomendado que da soporte a este plan.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" onClick={() => setTab("architecture")}>
+              Ver sistema recomendado
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href={interviewHref}>Seguir evaluando</Link>
+            </Button>
+          </div>
+        </SectionShell>
+      </div>
+    ),
+    architecture: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="blueprint"
+          icon={Layers3}
+          kicker="Sistema recomendado"
+          title="Software que resuelve los problemas encontrados"
+          description="Estas son las piezas de software que recomendamos — diseñadas a partir de la evidencia."
+        >
+          <SolutionArchitecturePanel
+            architecture={workspace.solutionArchitecture}
+          />
+        </SectionShell>
+        <SectionShell tone="health" title="¿Qué debe hacer ahora?">
+          <p className="mb-4 text-sm text-neutral-600">
+            Vea el orden sugerido para construir este sistema.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" onClick={() => setTab("roadmap")}>
+              Ver plan de implementación
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href={interviewHref}>Continuar evaluación</Link>
+            </Button>
+          </div>
+        </SectionShell>
+      </div>
     ),
   };
 
@@ -468,7 +637,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <WorkspaceTabs active={tab} onChange={setTab} panels={panels} />
+        <WorkspaceTabs
+          active={tab}
+          onChange={setTab}
+          panels={panelsWithTabLinks}
+        />
       </motion.div>
 
       <Separator className="my-14" />
@@ -487,5 +660,18 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </Button>
       </div>
     </main>
+  );
+}
+
+function EmptyHint({ text, href }: { text: string; href: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-neutral-200 bg-white/70 px-5 py-6">
+      <p className="text-sm leading-relaxed text-neutral-700">{text}</p>
+      <div className="mt-4">
+        <Button asChild variant="secondary">
+          <Link href={href}>Continuar evaluación</Link>
+        </Button>
+      </div>
+    </div>
   );
 }
