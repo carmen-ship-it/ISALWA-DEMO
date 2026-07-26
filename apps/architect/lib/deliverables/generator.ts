@@ -1,3 +1,4 @@
+import { phaseLabel } from "@/lib/presentation";
 import { createId, nowIso } from "@/lib/utils";
 import type {
   CompanyWorkspace,
@@ -120,7 +121,7 @@ export function buildDeliverablesPackage(
     workspace,
     evidence,
     executiveSummary.executiveRecommendation,
-    developmentRoadmap.phases.map((p) => `Phase ${p.phase}: ${p.name}`),
+    developmentRoadmap.phases.map((p) => `Fase ${p.phase}: ${phaseLabel(p.name)}`),
   );
 
   const confidenceParts = [
@@ -147,7 +148,7 @@ export function buildDeliverablesPackage(
     blueprintVersion: blueprint?.version ?? null,
     solutionId: solution?.id ?? null,
     processModelId: processes?.id ?? null,
-    summary: `Consulting package for ${workspace.companyName} — executive summary, assessment, blueprint, solution, processes, PRD, roadmap, backlog, and Cursor Context.`,
+    summary: `Paquete de consultoría para ${workspace.companyName} — resumen ejecutivo, diagnóstico, blueprint, sistema recomendado, procesos, requisitos, plan de implementación, backlog y resumen de construcción.`,
     executiveSummary,
     businessAssessment,
     businessBlueprint,

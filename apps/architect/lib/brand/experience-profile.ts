@@ -1,3 +1,4 @@
+import { departmentLabel } from "@/lib/presentation";
 import type {
   BrandEvidenceRef,
   BrandRecommendation,
@@ -63,18 +64,18 @@ function deriveEmployeeVision(
 ): BrandRecommendation<string> {
   if (/shop floor|production|warehouse|field/i.test(factBlob)) {
     return recommendation(
-      "Software should feel field-ready: large targets, minimal steps, works on shared devices.",
+      "El software debe sentirse listo para el campo: objetivos grandes, pocos pasos, funciona en dispositivos compartidos.",
       Math.min(0.72, 0.4 + strength),
-      "Inferred from operational and shop-floor language in discovery.",
+      "Inferido del lenguaje operativo y de piso de producción en el descubrimiento.",
       evidenceSubset(evidence, ["meeting", "memory", "blueprint"], 3),
     );
   }
 
   if (blueprint.departments.length >= 3) {
     return recommendation(
-      `Employees across ${blueprint.departments.map((d) => d.name).join(", ")} need a shared system with role-appropriate views.`,
+      `Los empleados de ${blueprint.departments.map((d) => departmentLabel(d.name)).join(", ")} necesitan un sistema compartido con vistas apropiadas a cada rol.`,
       Math.min(0.68, 0.38 + strength),
-      "Inferred from blueprint department structure.",
+      "Inferido de la estructura de departamentos del blueprint.",
       evidenceSubset(evidence, ["blueprint"], 3),
     );
   }
@@ -83,15 +84,15 @@ function deriveEmployeeVision(
     return recommendation<string>(
       null,
       0,
-      "Employee experience vision requires department structure or operational discovery evidence.",
+      "La visión de experiencia del empleado requiere estructura de departamentos o evidencia operativa del descubrimiento.",
       [],
     );
   }
 
   return recommendation(
-    "Calm, structured software that reduces manual handoffs and makes status visible.",
+    "Software calmo y estructurado que reduce los traspasos manuales y hace visible el estado.",
     Math.min(0.55, 0.28 + strength),
-    "Default enterprise experience pattern from blueprint and discovery — low specificity.",
+    "Patrón de experiencia empresarial por defecto a partir del blueprint y el descubrimiento — baja especificidad.",
     evidenceSubset(evidence, ["blueprint", "memory"], 2),
   );
 }
@@ -106,23 +107,23 @@ function deriveSoftwareExpectations(
   const pains = blueprint.painPoints.map((p) => p.title.toLowerCase()).join(" ");
 
   if (/excel|spreadsheet/i.test(pains)) {
-    expectations.push("Replace spreadsheet sprawl with durable records");
+    expectations.push("Reemplazar la dispersión de hojas de cálculo con registros duraderos");
   }
   if (/whatsapp|chat|message/i.test(pains)) {
-    expectations.push("Capture conversation history inside the system of record");
+    expectations.push("Capturar el historial de conversaciones dentro del sistema de registro");
   }
   if (/manual|approval/i.test(pains)) {
-    expectations.push("Clear approval paths with audit trail");
+    expectations.push("Rutas de aprobación claras con rastro de auditoría");
   }
   if (/verbal|whiteboard/i.test(pains)) {
-    expectations.push("Visible status boards instead of verbal updates");
+    expectations.push("Tableros de estado visibles en vez de actualizaciones verbales");
   }
 
   if (expectations.length === 0) {
     return recommendation<string[]>(
       null,
       0,
-      "No software expectations inferred without evidenced pain points.",
+      "No se infirieron expectativas de software sin puntos de dolor con evidencia.",
       [],
     );
   }
@@ -130,7 +131,7 @@ function deriveSoftwareExpectations(
   return recommendation(
     expectations.slice(0, 5),
     Math.min(0.75, 0.42 + strength),
-    "Expectations derived from blueprint pain matrix — not aspirational features.",
+    "Expectativas derivadas de la matriz de puntos de dolor del blueprint — no funciones aspiracionales.",
     evidenceSubset(evidence, ["blueprint"], 3),
   );
 }
@@ -143,18 +144,18 @@ function deriveOnboardingStyle(
 ): BrandRecommendation<string> {
   if (roleCount >= 4) {
     return recommendation(
-      "Role-based onboarding: each role sees only what they need on day one.",
+      "Incorporación por rol: cada rol ve solo lo que necesita desde el primer día.",
       Math.min(0.7, 0.4 + strength),
-      "Inferred from solution role count and multi-department blueprint.",
+      "Inferido del número de roles de la solución y el blueprint multidepartamental.",
       evidenceSubset(evidence, ["solution", "blueprint"], 3),
     );
   }
 
   if (workspace.industry === "manufacturing") {
     return recommendation(
-      "Hands-on walkthrough with shop-floor champions before broad rollout.",
+      "Recorrido práctico con líderes del piso de producción antes del despliegue amplio.",
       0.55,
-      "Manufacturing onboarding pattern from industry classification.",
+      "Patrón de incorporación de manufactura según la clasificación de industria.",
       evidenceSubset(evidence, ["industry"], 1),
     );
   }
@@ -162,7 +163,7 @@ function deriveOnboardingStyle(
   return recommendation<string>(
     null,
     0,
-    "Onboarding style unknown until roles and departments are mapped.",
+    "El estilo de incorporación se desconoce hasta mapear roles y departamentos.",
     [],
   );
 }
@@ -180,7 +181,7 @@ function deriveDensityPreference(
     return recommendation<ExperienceDensity>(
       "comfortable",
       Math.min(0.65, 0.35 + strength),
-      "Field and plant users benefit from larger touch targets and readable density.",
+      "Los usuarios de campo y planta se benefician de objetivos táctiles más grandes y densidad legible.",
       evidenceSubset(evidence, ["industry"], 2),
     );
   }
@@ -189,7 +190,7 @@ function deriveDensityPreference(
     return recommendation<ExperienceDensity>(
       "compact",
       0.58,
-      "Higher technology maturity suggests power-user tolerance for information density.",
+      "Una mayor madurez tecnológica sugiere tolerancia de usuarios avanzados a mayor densidad de información.",
       evidenceSubset(evidence, ["consulting"], 2),
     );
   }
@@ -198,8 +199,8 @@ function deriveDensityPreference(
     strength >= 0.3 ? "comfortable" : "unknown",
     strength >= 0.3 ? 0.45 : 0,
     strength >= 0.3
-      ? "Default comfortable density — no explicit user preference captured."
-      : "Density preference unknown.",
+      ? "Densidad cómoda por defecto — no se capturó una preferencia explícita del usuario."
+      : "Preferencia de densidad desconocida.",
     evidenceSubset(evidence, ["consulting", "industry"], 2),
   );
 }
@@ -215,21 +216,21 @@ function deriveRegionalFormats(
   const usHint = /united states|u\.s\.|usd|\bdollar/i.test(factBlob);
 
   const language = spanishHint
-    ? { value: "es", confidence: 0.62, reasoning: "Spanish language hints in discovery or knowledge.", evidence: evidenceSubset(evidence, ["memory", "knowledge", "meeting"], 2) }
+    ? { value: "es", confidence: 0.62, reasoning: "Señales de idioma español en el descubrimiento o el conocimiento.", evidence: evidenceSubset(evidence, ["memory", "knowledge", "meeting"], 2) }
     : usHint
-      ? { value: "en-US", confidence: 0.55, reasoning: "English/US hints in discovery.", evidence: evidenceSubset(evidence, ["memory", "meeting"], 2) }
-      : { value: null, confidence: 0, reasoning: "Language not inferred — will follow tenant default.", evidence: [] as BrandEvidenceRef[] };
+      ? { value: "en-US", confidence: 0.55, reasoning: "Señales de inglés/EE. UU. en el descubrimiento.", evidence: evidenceSubset(evidence, ["memory", "meeting"], 2) }
+      : { value: null, confidence: 0, reasoning: "Idioma no inferido — seguirá el valor por defecto del tenant.", evidence: [] as BrandEvidenceRef[] };
 
   return {
     language,
-    timezone: { value: null, confidence: 0, reasoning: "Timezone not inferred without geographic evidence.", evidence: [] },
+    timezone: { value: null, confidence: 0, reasoning: "Zona horaria no inferida sin evidencia geográfica.", evidence: [] },
     dateFormat: spanishHint
-      ? { value: "DD/MM/YYYY", confidence: 0.5, reasoning: "Regional date format inferred from Spanish/LATAM context.", evidence: language.evidence }
-      : { value: null, confidence: 0, reasoning: "Date format unknown.", evidence: [] },
-    numberFormat: { value: null, confidence: 0, reasoning: "Number format unknown.", evidence: [] },
+      ? { value: "DD/MM/YYYY", confidence: 0.5, reasoning: "Formato de fecha regional inferido del contexto español/LATAM.", evidence: language.evidence }
+      : { value: null, confidence: 0, reasoning: "Formato de fecha desconocido.", evidence: [] },
+    numberFormat: { value: null, confidence: 0, reasoning: "Formato numérico desconocido.", evidence: [] },
     currency: usHint
-      ? { value: "USD", confidence: 0.5, reasoning: "Currency hint from discovery.", evidence: language.evidence }
-      : { value: null, confidence: 0, reasoning: "Currency unknown.", evidence: [] },
+      ? { value: "USD", confidence: 0.5, reasoning: "Señal de moneda del descubrimiento.", evidence: language.evidence }
+      : { value: null, confidence: 0, reasoning: "Moneda desconocida.", evidence: [] },
   };
 }
 
@@ -247,29 +248,29 @@ function deriveNotificationPreferences(
       enabled: hasApprovals ? true : null,
       confidence: hasApprovals ? 0.6 : 0,
       reasoning: hasApprovals
-        ? "Approval workflows benefit from in-app notifications."
-        : "In-app notifications not inferred.",
+        ? "Los flujos de aprobación se benefician de notificaciones dentro de la app."
+        : "No se infirieron notificaciones dentro de la app.",
       evidence: hasApprovals ? evidenceSubset(evidence, ["blueprint"], 2) : [],
     },
     {
       channel: "email",
       enabled: workspace.meetings.length > 0 ? true : null,
       confidence: workspace.meetings.length > 0 ? 0.45 : 0,
-      reasoning: "Email assumed for async summaries when discovery exists — not confirmed.",
+      reasoning: "Se asume correo para resúmenes asíncronos cuando existe descubrimiento — sin confirmar.",
       evidence: evidenceSubset(evidence, ["meeting"], 1),
     },
     {
       channel: "sms",
       enabled: null,
       confidence: 0,
-      reasoning: "SMS not inferred without field-service or mobile-first evidence.",
+      reasoning: "SMS no inferido sin evidencia de servicio de campo o enfoque móvil.",
       evidence: [],
     },
     {
       channel: "push",
       enabled: null,
       confidence: 0,
-      reasoning: "Push not inferred without mobile app scope.",
+      reasoning: "Push no inferido sin alcance de app móvil.",
       evidence: [],
     },
   ];

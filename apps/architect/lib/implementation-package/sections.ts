@@ -3,6 +3,7 @@
  * Summaries and IDs only; never regenerates deliverable / solution content.
  */
 
+import { moduleLabel, phaseLabel } from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   DeliverablesPackage,
@@ -15,31 +16,46 @@ const SECTION_META: Record<
   { title: string; sourceEngine: ImplementationSectionRef["sourceEngine"] }
 > = {
   business_blueprint: {
-    title: "Business Blueprint",
+    title: "Blueprint de negocio",
     sourceEngine: "blueprint",
   },
   solution_architecture: {
-    title: "Solution Architecture",
+    title: "Sistema recomendado",
     sourceEngine: "solution",
   },
-  modules: { title: "Modules", sourceEngine: "solution" },
-  database_model: { title: "Database Model", sourceEngine: "solution" },
-  permissions: { title: "Permissions", sourceEngine: "solution" },
-  process_maps: { title: "Process Maps", sourceEngine: "processes" },
-  navigation: { title: "Navigation", sourceEngine: "solution" },
-  api_contracts: { title: "API Contracts", sourceEngine: "solution" },
-  sprint_roadmap: { title: "Sprint Roadmap", sourceEngine: "deliverables" },
+  modules: { title: "Capacidades", sourceEngine: "solution" },
+  database_model: { title: "Modelo de información", sourceEngine: "solution" },
+  permissions: { title: "Permisos", sourceEngine: "solution" },
+  process_maps: { title: "Mapas de proceso", sourceEngine: "processes" },
+  navigation: { title: "Navegación", sourceEngine: "solution" },
+  api_contracts: { title: "Contratos de conectividad", sourceEngine: "solution" },
+  sprint_roadmap: { title: "Plan de entregas", sourceEngine: "deliverables" },
   implementation_phases: {
-    title: "Implementation Phases",
+    title: "Fases de implementación",
     sourceEngine: "deliverables",
   },
-  technical_risks: { title: "Technical Risks", sourceEngine: "consulting" },
-  cursor_context: { title: "Cursor Context", sourceEngine: "deliverables" },
+  technical_risks: { title: "Riesgos técnicos", sourceEngine: "consulting" },
+  cursor_context: { title: "Resumen de construcción", sourceEngine: "deliverables" },
   developer_handoff: {
-    title: "Developer Handoff",
+    title: "Entrega a ingeniería",
     sourceEngine: "deliverables",
   },
 };
+
+/** Implementation package section `sourceEngine` token → Spanish. */
+export function sectionSourceEngineLabel(
+  engine: ImplementationSectionRef["sourceEngine"],
+): string {
+  const labels: Record<ImplementationSectionRef["sourceEngine"], string> = {
+    blueprint: "Blueprint",
+    solution: "Sistema recomendado",
+    processes: "Procesos",
+    consulting: "Consultoría",
+    deliverables: "Entregables",
+    knowledge: "Conocimiento",
+  };
+  return labels[engine] ?? engine;
+}
 
 /**
  * Build the ordered section list pointing at existing artifacts.
@@ -112,7 +128,7 @@ function sectionFor(
           ? `Blueprint v${blueprint.version} — ${blueprint.summary}`
           : bpDel
             ? bpDel.summary
-            : "Blueprint not derived yet.",
+            : "El blueprint aún no se ha derivado.",
         artifacts: [
           ...(blueprint
             ? [
@@ -148,7 +164,7 @@ function sectionFor(
           ? solution.summary
           : solDel
             ? solDel.summary
-            : "Solution architecture not derived yet.",
+            : "El sistema recomendado aún no se ha derivado.",
         artifacts: [
           ...(solution
             ? [
@@ -180,11 +196,11 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(solution?.modules.length),
         summary: solution?.modules.length
-          ? `${solution.modules.length} modules — ${solution.modules
-              .map((m) => m.name)
+          ? `${solution.modules.length} capacidades — ${solution.modules
+              .map((m) => moduleLabel(m.name))
               .slice(0, 6)
               .join(", ")}${solution.modules.length > 6 ? "…" : ""}`
-          : "No solution modules available.",
+          : "No hay capacidades del sistema disponibles.",
         artifacts: (solution?.modules ?? []).map((m) => ({
           engine: "solution" as const,
           id: m.id,
@@ -199,10 +215,10 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(solution?.database.length),
         summary: solution?.database.length
-          ? `${solution.database.length} conceptual tables from Solution Architecture.`
+          ? `${solution.database.length} tablas conceptuales del sistema recomendado.`
           : deliverables?.technicalArchitecture.databaseConcepts.length
-            ? `${deliverables.technicalArchitecture.databaseConcepts.length} database concepts in technical architecture deliverable.`
-            : "No database model available.",
+            ? `${deliverables.technicalArchitecture.databaseConcepts.length} conceptos de información en el entregable de arquitectura técnica.`
+            : "No hay modelo de información disponible.",
         artifacts: [
           ...(solution?.database ?? []).map((t) => ({
             engine: "solution" as const,
@@ -229,8 +245,8 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(solution?.permissions.length),
         summary: solution?.permissions.length
-          ? `${solution.permissions.length} capabilities · ${solution.roles.length} roles.`
-          : "No permissions model available.",
+          ? `${solution.permissions.length} capacidades · ${solution.roles.length} roles.`
+          : "No hay modelo de permisos disponible.",
         artifacts: (solution?.permissions ?? []).map((p) => ({
           engine: "solution" as const,
           id: p.id,
@@ -246,10 +262,10 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(processes?.workflows.length || book),
         summary: processes
-          ? `${processes.workflows.length} workflows — ${processes.summary}`
+          ? `${processes.workflows.length} flujos de trabajo — ${processes.summary}`
           : book
             ? book.summary
-            : "Process maps not derived yet.",
+            : "Los mapas de proceso aún no se han derivado.",
         artifacts: [
           ...(processes
             ? [
@@ -287,11 +303,11 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(solution?.navigation.length),
         summary: solution?.navigation.length
-          ? `${solution.navigation.length} nav items — ${solution.navigation
+          ? `${solution.navigation.length} elementos de navegación — ${solution.navigation
               .map((n) => n.label)
               .slice(0, 5)
               .join(", ")}`
-          : "No navigation model available.",
+          : "No hay modelo de navegación disponible.",
         artifacts: (solution?.navigation ?? []).map((n) => ({
           engine: "solution" as const,
           id: n.id,
@@ -306,10 +322,10 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(solution?.apis.length),
         summary: solution?.apis.length
-          ? `${solution.apis.length} conceptual API resources.`
+          ? `${solution.apis.length} recursos de conectividad conceptuales.`
           : deliverables?.technicalArchitecture.apiConcepts.length
-            ? `${deliverables.technicalArchitecture.apiConcepts.length} API concepts in technical architecture.`
-            : "No API contracts available.",
+            ? `${deliverables.technicalArchitecture.apiConcepts.length} conceptos de conectividad en la arquitectura técnica.`
+            : "No hay contratos de conectividad disponibles.",
         artifacts: [
           ...(solution?.apis ?? []).map((a) => ({
             engine: "solution" as const,
@@ -343,13 +359,13 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(roadmap || backlog || solution?.roadmap.length),
         summary: roadmap
-          ? `${roadmap.phases.length} roadmap phases` +
+          ? `${roadmap.phases.length} fases del plan` +
             (backlog
-              ? ` · ${backlog.epics.length} epics · ${epicCount} stories`
+              ? ` · ${backlog.epics.length} épicas · ${epicCount} historias`
               : "")
           : solution?.roadmap.length
-            ? `${solution.roadmap.length} solution roadmap phases.`
-            : "Sprint roadmap not available.",
+            ? `${solution.roadmap.length} fases del plan de implementación.`
+            : "El plan de entregas no está disponible.",
         artifacts: [
           ...(deliverables && roadmap
             ? [
@@ -374,7 +390,7 @@ function sectionFor(
           ...(solution?.roadmap ?? []).map((p) => ({
             engine: "solution" as const,
             id: p.id,
-            label: `Phase ${p.phase}: ${p.name}`,
+            label: `Fase ${p.phase}: ${phaseLabel(p.name)}`,
             path: "solutionArchitecture.roadmap",
           })),
         ],
@@ -388,10 +404,10 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available: Boolean(plan || solution?.roadmap.length),
         summary: plan
-          ? `${plan.phases.length} implementation phases with workstreams and exit criteria.`
+          ? `${plan.phases.length} fases de implementación con frentes de trabajo y criterios de cierre.`
           : solution?.roadmap.length
-            ? `${solution.roadmap.length} solution implementation phases.`
-            : "Implementation phases not available.",
+            ? `${solution.roadmap.length} fases de implementación del sistema recomendado.`
+            : "Las fases de implementación no están disponibles.",
         artifacts: [
           ...(deliverables && plan
             ? [
@@ -406,7 +422,7 @@ function sectionFor(
           ...(solution?.roadmap ?? []).map((p) => ({
             engine: "solution" as const,
             id: p.id,
-            label: p.name,
+            label: phaseLabel(p.name),
             path: "solutionArchitecture.roadmap",
           })),
         ],
@@ -426,10 +442,10 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available,
         summary: available
-          ? `${consultingRisks.length} consulting risks` +
-            (planRisks.length ? ` · ${planRisks.length} plan risks` : "") +
-            (bpRisks.length ? ` · ${bpRisks.length} blueprint risks` : "")
-          : "No technical / operational risks captured yet.",
+          ? `${consultingRisks.length} riesgos de consultoría` +
+            (planRisks.length ? ` · ${planRisks.length} riesgos del plan` : "") +
+            (bpRisks.length ? ` · ${bpRisks.length} riesgos del blueprint` : "")
+          : "Aún no se han registrado riesgos técnicos u operativos.",
         artifacts: [
           ...consultingRisks.map((r) => ({
             engine: "consulting" as const,
@@ -467,7 +483,7 @@ function sectionFor(
         available: Boolean(ctx),
         summary: ctx
           ? ctx.purpose
-          : "Cursor context deliverable not generated yet.",
+          : "El resumen de construcción aún no se ha generado.",
         artifacts:
           ctx && deliverables
             ? [
@@ -492,8 +508,8 @@ function sectionFor(
         sourceEngine: meta.sourceEngine,
         available,
         summary: available
-          ? "Handoff index — PRD, technical architecture, and Cursor context from Deliverables (architecture only; no code or prompts)."
-          : "Developer handoff awaits deliverables package.",
+          ? "Índice de entrega — requisitos, arquitectura técnica y resumen de construcción a partir de los Entregables (solo arquitectura; sin código ni instrucciones)."
+          : "La entrega a ingeniería espera el paquete de entregables.",
         artifacts: [
           ...(deliverables && prd
             ? [

@@ -82,7 +82,10 @@ export function extractSimulationSignals(
   return {
     companyName: workspace.companyName || summary?.companyName || null,
     industry: summary?.industryLabel ?? workspace.industry ?? null,
-    understanding: clamp01(workspace.businessUnderstanding ?? 0),
+    // businessUnderstanding is 0–100 elsewhere in the app (e.g. ConfidenceMeter);
+    // this signal is 0–1, so it must be rescaled before clamping, or any
+    // workspace with understanding > 1 would incorrectly saturate to 100%.
+    understanding: clamp01((workspace.businessUnderstanding ?? 0) / 100),
     departments: unique([
       ...(summary?.departments ?? []),
       ...workspace.people

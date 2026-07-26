@@ -16,13 +16,13 @@ export function buildImplementationPlan(
   return {
     kind: "implementation_plan",
     phases: phases.map((p) => ({
-      name: `Phase ${p.phase}: ${p.name}`,
+      name: `Fase ${p.phase}: ${p.name}`,
       objectives: p.goals,
-      workstreams: p.modules.map((m) => `${m} workstream`),
+      workstreams: p.modules.map((m) => `Frente de trabajo de ${m}`),
       exitCriteria: [
-        `Modules live: ${p.modules.join(", ") || "scoped modules"}`,
-        `Business value realized: ${p.businessValue}`,
-        "Stakeholder sign-off on acceptance criteria",
+        `Módulos en vivo: ${p.modules.join(", ") || "módulos definidos"}`,
+        `Valor de negocio alcanzado: ${p.businessValue}`,
+        "Aprobación de los interesados sobre los criterios de aceptación",
       ],
     })),
     dependencies: phases.flatMap((p) => p.dependencies),

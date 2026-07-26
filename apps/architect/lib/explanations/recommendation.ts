@@ -3,6 +3,7 @@
  * Pure projection. Does not mutate consulting / blueprint / process / solution engines.
  */
 
+import { moduleLabel } from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   ConsultingRecommendation,
@@ -270,10 +271,10 @@ export function explainSolutionModule(
 
   return {
     id: module.id,
-    title: module.name,
+    title: moduleLabel(module.name),
     priority,
     problem: problemFromContext({
-      title: module.name,
+      title: moduleLabel(module.name),
       risks: relatedRisks,
       opportunities: relatedOpportunities,
       painTitles,
@@ -292,7 +293,7 @@ export function explainSolutionModule(
       rationale: module.purpose,
     }),
     recommendation: recommendationStatement({
-      title: `Implementar la capacidad ${module.name}`,
+      title: `Implementar la capacidad ${moduleLabel(module.name)}`,
       rationale: module.purpose,
     }),
     expectedRoi: roiFromModuleIndex(

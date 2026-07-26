@@ -81,19 +81,25 @@ const SYSTEM_GAP_RULES: Array<{
   },
 ];
 
-function topicLabel(topic: PreparationTopicId): string {
-  const labels: Record<PreparationTopicId, string> = {
-    Customers: "Clientes",
-    Sales: "Ventas",
-    Operations: "Operaciones",
-    Finance: "Finanzas",
-    HR: "Personas / RR.HH.",
-    Systems: "Sistemas",
-    Geography: "Geografía",
-    Production: "Producción",
-    Team: "Equipo",
-  };
-  return labels[topic] ?? topic;
+const TOPIC_LABELS_ES: Record<PreparationTopicId, string> = {
+  Customers: "Clientes",
+  Sales: "Ventas",
+  Operations: "Operaciones",
+  Finance: "Finanzas",
+  HR: "Personas / RR.HH.",
+  Systems: "Sistemas",
+  Geography: "Geografía",
+  Production: "Producción",
+  Team: "Equipo",
+};
+
+/**
+ * Translate a preparation topic id when it is a known coverage/topic area;
+ * otherwise pass the value through untouched (it may already be free-form
+ * Spanish text, e.g. a memory unknown-fact label).
+ */
+function topicLabel(topic: string): string {
+  return TOPIC_LABELS_ES[topic as PreparationTopicId] ?? topic;
 }
 
 /**
@@ -184,7 +190,7 @@ export function assemblePreparationBrief(
     ...input.painPoints.map((p) => `Riesgo operativo: ${p}`),
   ]).slice(0, 10);
 
-  const unknownAreas = unique(input.unknownAreas).slice(0, 12);
+  const unknownAreas = unique(input.unknownAreas.map(topicLabel)).slice(0, 12);
 
   const questionsToValidate = unique([
     ...input.openQuestions,

@@ -7,6 +7,7 @@ import {
   getSinceLastVisitComparison,
   sortEvolutionTimeline,
 } from "@/lib/history";
+import { evolutionKindLabel } from "@/lib/presentation";
 import type {
   CompanyEvolutionHistory,
   EvolutionChangeItem,
@@ -210,7 +211,7 @@ function TimelineRow({ entry }: { entry: EvolutionTimelineEntry }) {
     <li className="relative pl-6">
       <span className={`absolute left-0 top-2 h-1.5 w-1.5 rounded-full ${dot}`} />
       <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        {formatTimelineDate(entry.at)} · {entry.kind.replace(/_/g, " ")}
+        {formatTimelineDate(entry.at)} · {evolutionKindLabel(entry.kind)}
       </p>
       <p className="mt-1 text-[var(--isalwa-kiln)]">{entry.title}</p>
       <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{entry.description}</p>

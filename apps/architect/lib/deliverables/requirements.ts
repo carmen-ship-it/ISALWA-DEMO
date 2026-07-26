@@ -1,3 +1,15 @@
+import {
+  actorNameLabel,
+  departmentLabel,
+  entityLabel,
+  moduleLabel,
+  phaseLabel,
+  roleLabel,
+  ruleStatementLabel,
+  stepNameLabel,
+  triggerLabel,
+  workflowNameLabel,
+} from "@/lib/presentation";
 import type {
   BlueprintDeliverable,
   CompanyWorkspace,
@@ -21,13 +33,15 @@ export function buildBlueprintDeliverable(
     version: blueprint.version,
     title: blueprint.title,
     summary: blueprint.summary,
-    capabilities: blueprint.capabilities.map((c) => c.name),
-    departments: blueprint.departments.map((d) => d.name),
-    workflows: blueprint.workflows.map((w) => w.name),
-    entities: blueprint.entities.map((e) => e.name),
+    capabilities: blueprint.capabilities.map((c) => moduleLabel(c.name)),
+    departments: blueprint.departments.map((d) => departmentLabel(d.name)),
+    workflows: blueprint.workflows.map((w) => workflowNameLabel(w.name)),
+    entities: blueprint.entities.map((e) => entityLabel(e.name)),
     systems: blueprint.systems.map((s) => s.name),
-    operatingRules: blueprint.operatingRules.map((r) => r.statement),
-    modules: blueprint.modules.map((m) => m.name),
+    operatingRules: blueprint.operatingRules.map((r) =>
+      ruleStatementLabel(r.statement),
+    ),
+    modules: blueprint.modules.map((m) => moduleLabel(m.name)),
     risks: blueprint.risks,
     evidence: [
       { source: "blueprint", id: blueprint.id, label: `Blueprint v${blueprint.version}` },
@@ -48,22 +62,22 @@ export function buildSolutionDeliverable(
     solutionId: solution.id,
     blueprintVersion: solution.blueprintVersion,
     summary: solution.summary,
-    modules: solution.modules.map((m) => m.name),
-    entities: solution.entities.map((e) => e.name),
+    modules: solution.modules.map((m) => moduleLabel(m.name)),
+    entities: solution.entities.map((e) => entityLabel(e.name)),
     relationships: solution.relationships.map(
-      (r) => `${r.fromEntity} ${r.cardinality} ${r.toEntity}`,
+      (r) => `${entityLabel(r.fromEntity)} ${r.cardinality} ${entityLabel(r.toEntity)}`,
     ),
-    roles: solution.roles.map((r) => r.name),
+    roles: solution.roles.map((r) => roleLabel(r.name)),
     permissions: solution.permissions.map((p) => p.capability),
     navigation: solution.navigation.map((n) => n.label),
     integrations: solution.integrations.map(
-      (i) => `${i.name} (${i.status})`,
+      (i) => `${i.name} (${i.status === "planned" ? "Planeado" : i.status})`,
     ),
     roadmap: solution.roadmap.map(
-      (p) => `Phase ${p.phase}: ${p.name}`,
+      (p) => `Fase ${p.phase}: ${phaseLabel(p.name)}`,
     ),
     evidence: [
-      { source: "solution", id: solution.id, label: "Solution Architecture" },
+      { source: "solution", id: solution.id, label: "Arquitectura de solución" },
       ...evidence.slice(0, 3),
     ],
   };
@@ -105,14 +119,14 @@ export function buildProcessBook(
 
       return {
         id: wf.id,
-        name: wf.name,
+        name: workflowNameLabel(wf.name),
         purpose: wf.purpose,
-        trigger: wf.trigger,
+        trigger: triggerLabel(wf.trigger),
         owner: wf.owner,
         steps: wf.steps.map((s) => ({
           order: s.order,
-          name: s.name,
-          actor: s.actor,
+          name: stepNameLabel(s.name),
+          actor: actorNameLabel(s.actor),
           manual: s.manual,
           duration: s.estimatedDuration,
         })),

@@ -1,3 +1,4 @@
+import { colorTokenRoleLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
 import type {
   BrandEvidenceRef,
@@ -80,17 +81,17 @@ export function deriveDesignTokens(
         role: swatch.role,
         confidence: baseConfidence,
         reasoning: hasBrandLanguage
-          ? `Industry default ${swatch.role} with weak brand-language signals — not client-specified.`
-          : `Industry-inferred ${swatch.role} only. No primary color stated by client.`,
+          ? `${colorTokenRoleLabel(swatch.role)} por defecto de la industria con señales débiles de lenguaje de marca — no especificado por el cliente.`
+          : `${colorTokenRoleLabel(swatch.role)} inferido solo por industria. El cliente no indicó un color primario.`,
         evidence: industryEvidence,
       }))
     : [
         {
-          name: "Unknown Primary",
+          name: "Primario sin definir",
           hex: null,
           role: "primary" as const,
           confidence: 0,
-          reasoning: "Primary color unknown — industry unclassified and no brand guidelines.",
+          reasoning: "Color primario desconocido — industria sin clasificar y sin lineamientos de marca.",
           evidence: [],
         },
       ];
@@ -99,13 +100,13 @@ export function deriveDesignTokens(
   const spacing = deriveSpacing(workspace, blueprint, evidence);
 
   const borderRadius = workspace.industry === "manufacturing"
-    ? recommendation("8px", 0.42, "Operational UIs often use moderate radius for clarity.", industryEvidence)
-    : recommendation("12px", 0.4, "Professional services default to softer enterprise radius.", industryEvidence);
+    ? recommendation("8px", 0.42, "Las interfaces operativas suelen usar un radio moderado para mayor claridad.", industryEvidence)
+    : recommendation("12px", 0.4, "Los servicios profesionales por defecto usan un radio empresarial más suave.", industryEvidence);
 
   const elevation = recommendation(
-    "Subtle — 1–2px borders, soft shadows on cards only",
+    "Sutil — bordes de 1–2px, sombras suaves solo en tarjetas",
     0.45,
-    "ISALWA porcelain enterprise pattern inferred from product maturity stage.",
+    "Patrón empresarial porcelana de ISALWA inferido según la etapa de madurez del producto.",
     evidenceSubset(evidence, ["memory"], 1),
   );
 
@@ -129,7 +130,7 @@ function deriveTypography(
       family: "Newsreader",
       weight: "400 italic",
       confidence: 0.35,
-      reasoning: "Display serif inferred from ISALWA design language — override when brand guidelines exist.",
+      reasoning: "Serif de display inferida del lenguaje de diseño de ISALWA — se anula cuando existan lineamientos de marca.",
       evidence: ev,
     },
     {
@@ -137,7 +138,7 @@ function deriveTypography(
       family: "System UI",
       weight: "600",
       confidence: 0.4,
-      reasoning: "Headings use system sans until custom brand fonts uploaded.",
+      reasoning: "Los encabezados usan la fuente sans del sistema hasta que se suban fuentes de marca personalizadas.",
       evidence: ev,
     },
     {
@@ -145,7 +146,7 @@ function deriveTypography(
       family: "System UI",
       weight: "400",
       confidence: 0.45,
-      reasoning: "Body text defaults to accessible system stack.",
+      reasoning: "El cuerpo de texto usa por defecto la pila de fuentes accesible del sistema.",
       evidence: ev,
     },
     {
@@ -153,7 +154,7 @@ function deriveTypography(
       family: "UI Monospace",
       weight: "400",
       confidence: 0.3,
-      reasoning: "Monospace for metrics and IDs only.",
+      reasoning: "Monoespaciada solo para métricas e identificadores.",
       evidence: ev,
     },
     {
@@ -161,7 +162,7 @@ function deriveTypography(
       family: "System UI",
       weight: "500",
       confidence: 0.4,
-      reasoning: "Uppercase kickers at 11px tracking — ISALWA rhythm.",
+      reasoning: "Kickers en mayúsculas con tracking de 11px — ritmo de ISALWA.",
       evidence: ev,
     },
   ];
@@ -176,8 +177,8 @@ function deriveSpacing(
     baseUnit: blueprint.departments.length > 0 ? 8 : null,
     confidence: blueprint.departments.length > 0 ? 0.5 : 0,
     reasoning: blueprint.departments.length > 0
-      ? "8px rhythm inferred from enterprise OS blueprint structure."
-      : "Spacing rhythm unknown until blueprint departments exist.",
+      ? "Ritmo de 8px inferido de la estructura del blueprint del sistema operativo empresarial."
+      : "El ritmo de espaciado se desconoce hasta que existan departamentos en el blueprint.",
     evidence: evidenceSubset(evidence, ["blueprint"], 2),
   };
 }

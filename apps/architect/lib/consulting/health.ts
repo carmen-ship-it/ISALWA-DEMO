@@ -8,14 +8,14 @@ import type {
 } from "@/types";
 
 const LABELS: Record<HealthDimension, string> = {
-  commercial: "Commercial",
-  operations: "Operations",
-  technology: "Technology",
-  people: "People",
-  processes: "Processes",
-  data: "Data",
-  ai_readiness: "AI Readiness",
-  execution: "Execution",
+  commercial: "Comercial",
+  operations: "Operaciones",
+  technology: "Tecnología",
+  people: "Personas",
+  processes: "Procesos",
+  data: "Datos",
+  ai_readiness: "Preparación para IA",
+  execution: "Ejecución",
 };
 
 function clamp(n: number): number {
@@ -47,7 +47,7 @@ export function evaluateHealth(
       maturity.confidence,
       memory.summary.customerCountHint
         ? [memory.summary.customerCountHint]
-        : ["Commercial signals from discovery"],
+        : ["Señales comerciales del descubrimiento"],
     ),
     gauge(
       "operations",
@@ -91,14 +91,14 @@ export function evaluateHealth(
       ),
       Math.max(20, maturity.confidence - 15),
       [
-        "AI readiness follows data quality, process clarity, and ownership — not tooling fashion.",
+        "La preparación para IA depende de la calidad de datos, la claridad de procesos y la propiedad — no de la moda tecnológica.",
       ],
     ),
     gauge(
       "execution",
       clamp(memory.summary.confidenceScore - open * 3 - riskPenalty * 0.2),
       memory.summary.confidenceScore,
-      memory.score.stillNeed.slice(0, 3).map((item) => `Open: ${item}`),
+      memory.score.stillNeed.slice(0, 3).map((item) => `Abierto: ${item}`),
     ),
   ];
 
@@ -124,7 +124,7 @@ function gauge(
     score: clamp(score),
     confidence: clamp(confidence),
     evidence:
-      evidence.length > 0 ? evidence : [`Emerging signal for ${LABELS[id]}.`],
+      evidence.length > 0 ? evidence : [`Señal emergente para ${LABELS[id]}.`],
   };
 }
 

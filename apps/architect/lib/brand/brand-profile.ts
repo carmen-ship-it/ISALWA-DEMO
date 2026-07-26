@@ -1,3 +1,4 @@
+import { industryLabel } from "@/lib/reasoning/industry/detect";
 import type {
   BrandEvidenceRef,
   BrandProfile,
@@ -10,34 +11,34 @@ import { collectFactBlob, evidenceSubset } from "./evidence";
 
 const INDUSTRY_VOICE: Record<string, { tone: string; traits: string[]; positioning: string }> = {
   manufacturing: {
-    tone: "Direct, operational, no-nonsense",
-    traits: ["Practical", "Reliable", "Hands-on"],
-    positioning: "Operations-first mid-market manufacturer",
+    tone: "Directo, operativo, sin rodeos",
+    traits: ["Práctico", "Confiable", "Orientado a la acción"],
+    positioning: "Fabricante de mercado medio con enfoque operativo",
   },
   healthcare: {
-    tone: "Calm, precise, trustworthy",
-    traits: ["Careful", "Compliant", "Human-centered"],
-    positioning: "Regulated care organization",
+    tone: "Calmado, preciso, confiable",
+    traits: ["Cuidadoso", "Cumplido", "Centrado en las personas"],
+    positioning: "Organización de salud regulada",
   },
   distribution: {
-    tone: "Fast, clear, service-oriented",
-    traits: ["Responsive", "Logistics-minded", "Customer-aware"],
-    positioning: "Regional distribution operator",
+    tone: "Rápido, claro, orientado al servicio",
+    traits: ["Responsivo", "Enfocado en logística", "Atento al cliente"],
+    positioning: "Operador de distribución regional",
   },
   retail: {
-    tone: "Approachable, energetic, customer-facing",
-    traits: ["Friendly", "Visual", "Promotional"],
-    positioning: "Customer-facing retail brand",
+    tone: "Cercano, enérgico, orientado al cliente",
+    traits: ["Amigable", "Visual", "Promocional"],
+    positioning: "Marca de retail orientada al cliente",
   },
   services: {
-    tone: "Professional, consultative, clear",
-    traits: ["Expert", "Structured", "Partnership-oriented"],
-    positioning: "Professional services firm",
+    tone: "Profesional, consultivo, claro",
+    traits: ["Experto", "Estructurado", "Orientado a la relación"],
+    positioning: "Firma de servicios profesionales",
   },
   construction: {
-    tone: "Grounded, safety-conscious, field-ready",
-    traits: ["Rugged", "Safety-first", "Project-driven"],
-    positioning: "Construction and field operations",
+    tone: "Sólido, consciente de la seguridad, listo para campo",
+    traits: ["Resistente", "Seguridad primero", "Orientado a proyectos"],
+    positioning: "Operación de construcción y campo",
   },
 };
 
@@ -76,13 +77,13 @@ export function deriveBrandProfile(
     ? recommendation(
         industryHint.tone,
         Math.min(0.72, 0.35 + evidenceStrength),
-        `Inferred from ${industry} industry patterns and discovery context — not stated explicitly by the client.`,
+        `Inferido de los patrones de la industria de ${industryLabel(industry)} y el contexto del descubrimiento — no declarado explícitamente por el cliente.`,
         industryEvidence,
       )
     : recommendation<string>(
         null,
         0,
-        "Insufficient evidence to infer brand voice. Tagline and tone will emerge from brand guidelines or deeper discovery.",
+        "Evidencia insuficiente para inferir la voz de marca. El lema y el tono surgirán de los lineamientos de marca o de un descubrimiento más profundo.",
         [],
       );
 
@@ -90,13 +91,13 @@ export function deriveBrandProfile(
     ? recommendation(
         industryHint.traits,
         Math.min(0.68, 0.3 + evidenceStrength),
-        "Personality traits inferred from industry and operational context.",
+        "Rasgos de personalidad inferidos de la industria y el contexto operativo.",
         industryEvidence,
       )
     : recommendation<string[]>(
         null,
         0,
-        "No personality traits inferred without industry classification or brand evidence.",
+        "No se infirieron rasgos de personalidad sin clasificación de industria o evidencia de marca.",
         [],
       );
 
@@ -104,13 +105,13 @@ export function deriveBrandProfile(
     ? recommendation(
         `${workspace.companyName} — ${industryHint.positioning}`,
         Math.min(0.7, 0.32 + evidenceStrength),
-        "Positioning derived from company name, industry, and blueprint departments.",
+        "Posicionamiento derivado del nombre de la empresa, la industria y los departamentos del blueprint.",
         evidenceSubset(evidence, ["blueprint", "industry", "memory"], 4),
       )
     : recommendation<string>(
         null,
         0,
-        "Industry positioning unknown until industry is classified.",
+        "El posicionamiento de industria se desconoce hasta clasificar la industria.",
         [],
       );
 
@@ -121,7 +122,7 @@ export function deriveBrandProfile(
       kind: "primary",
       status: "unknown",
       url: null,
-      notes: "Awaiting logo upload or brand guidelines intake.",
+      notes: "En espera de carga de logotipo o lineamientos de marca.",
       confidence: 0,
     },
     {
@@ -166,9 +167,9 @@ function deriveTagline(
 ): BrandRecommendation<string> {
   if (/operating system|os for|builds operating/i.test(factBlob)) {
     return recommendation(
-      "Design your company before you build software.",
+      "Diseñe su empresa antes de construir el software.",
       Math.min(0.75, 0.45 + strength),
-      "Inferred from discovery language about operating systems and structured design.",
+      "Inferido del lenguaje del descubrimiento sobre sistemas operativos y diseño estructurado.",
       evidenceSubset(evidence, ["meeting", "memory", "knowledge"], 3),
     );
   }
@@ -179,7 +180,7 @@ function deriveTagline(
       return recommendation(
         short,
         Math.min(0.62, 0.35 + strength),
-        "Derived from knowledge summary — may reflect operational focus rather than marketing tagline.",
+        "Derivado del resumen de conocimiento — puede reflejar el enfoque operativo más que un lema de marketing.",
         evidenceSubset(evidence, ["knowledge"], 2),
       );
     }
@@ -188,7 +189,7 @@ function deriveTagline(
   return recommendation<string>(
     null,
     0,
-    "No tagline inferred. Client has not provided brand guidelines or explicit positioning language.",
+    "No se infirió un lema. El cliente no ha proporcionado lineamientos de marca ni lenguaje de posicionamiento explícito.",
     [],
   );
 }
@@ -202,18 +203,18 @@ function deriveDifferentiation(
   const pains = blueprint.painPoints.slice(0, 2).map((p) => p.title);
   if (pains.length > 0 && workspace.meetings.length > 0) {
     return recommendation(
-      `Differentiation should emphasize solving ${pains.join(" and ")} with durable workflows.`,
+      `La diferenciación debe enfatizar resolver ${pains.join(" y ")} con flujos de trabajo duraderos.`,
       0.58,
-      "Inferred from evidenced pain points — operational differentiation, not marketing claim.",
+      "Inferido de puntos de dolor con evidencia — diferenciación operativa, no un argumento de marketing.",
       evidenceSubset(evidence, ["blueprint", "meeting"], 3),
     );
   }
 
   if (/family-owned|regional|mid-market/i.test(factBlob)) {
     return recommendation(
-      "Emphasize trusted, long-term partnership over generic enterprise software.",
+      "Enfatizar una relación de confianza y largo plazo por encima del software empresarial genérico.",
       0.52,
-      "Inferred from discovery facts about company scale and ownership.",
+      "Inferido de hechos del descubrimiento sobre la escala y propiedad de la empresa.",
       evidenceSubset(evidence, ["meeting", "memory"], 2),
     );
   }
@@ -221,7 +222,7 @@ function deriveDifferentiation(
   return recommendation<string>(
     null,
     0,
-    "Differentiation not inferred without pain points, brand language, or competitive context.",
+    "No se infirió diferenciación sin puntos de dolor, lenguaje de marca o contexto competitivo.",
     [],
   );
 }

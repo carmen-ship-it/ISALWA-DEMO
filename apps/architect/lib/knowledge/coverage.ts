@@ -46,7 +46,7 @@ export function deriveKnowledgeCoverage(
         area,
         percent: 0,
         evidenceAssetIds,
-        note: "No imported evidence yet.",
+        note: "Aún no hay evidencia importada.",
       };
     }
 
@@ -65,7 +65,7 @@ export function deriveKnowledgeCoverage(
       area,
       percent,
       evidenceAssetIds,
-      note: `${evidence.length} asset${evidence.length === 1 ? "" : "s"} · avg confidence ${Math.round(avgConfidence * 100)}%`,
+      note: `${evidence.length} evidencia${evidence.length === 1 ? "" : "s"} · confianza promedio ${Math.round(avgConfidence * 100)}%`,
     };
   });
 }

@@ -135,16 +135,16 @@ export function deriveCompanyModel(input: {
         ) / 100;
 
   const reasoning = [
-    `Company model derived from Blueprint v${blueprint.version} with ${evidence.length} evidence refs.`,
-    `${departments.length} departments · ${people.length} people · ${systems.length} systems · ${workflows.length} workflows.`,
-    `${relationships.length} relationships · ${ownership.length} ownership links · ${informationFlows.length} information flows.`,
-    `${dependencies.filter((d) => d.criticality === "critical" || d.criticality === "high").length} critical/high dependencies surfaced.`,
+    `Modelo de la empresa derivado del Blueprint v${blueprint.version} con ${evidence.length} referencias de evidencia.`,
+    `${departments.length} departamentos · ${people.length} personas · ${systems.length} sistemas · ${workflows.length} flujos de trabajo.`,
+    `${relationships.length} relaciones · ${ownership.length} vínculos de propiedad · ${informationFlows.length} flujos de información.`,
+    `${dependencies.filter((d) => d.criticality === "critical" || d.criticality === "high").length} dependencias críticas/altas detectadas.`,
     overallConfidence < 0.45
-      ? "Overall confidence is low — deepen discovery and knowledge coverage to strengthen the twin."
-      : "Model is evidence-backed and ready for executive review; diagrams deferred to a future visualization mission.",
+      ? "La confianza general es baja — profundizar el descubrimiento y la cobertura de conocimiento fortalecerá el gemelo digital."
+      : "El modelo está respaldado por evidencia y listo para revisión ejecutiva; los diagramas quedan para una futura misión de visualización.",
   ];
 
-  const summary = `Company digital twin for ${workspace.companyName} — Blueprint v${blueprint.version}. ${departments.length} departments, ${people.length} people, ${systems.length} systems, ${dependencies.length} dependencies · ${Math.round(overallConfidence * 100)}% confidence.`;
+  const summary = `Gemelo digital de ${workspace.companyName} — Blueprint v${blueprint.version}. ${departments.length} departamentos, ${people.length} personas, ${systems.length} sistemas, ${dependencies.length} dependencias · ${Math.round(overallConfidence * 100)}% de confianza.`;
 
   return {
     id: createId("cmodel"),

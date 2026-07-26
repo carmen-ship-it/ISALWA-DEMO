@@ -18,7 +18,7 @@ export function buildCursorContext(
   const processes = workspace.businessProcesses;
   const company = workspace.companyName;
 
-  const purpose = `This software exists to operate ${company} as a coherent business operating system — capturing customers, orders, approvals, operations, and finance with auditability, replacing evidenced spreadsheet/chat fragility.`;
+  const purpose = `Este software existe para operar ${company} como un sistema operativo de negocio coherente — capturando clientes, pedidos, aprobaciones, operaciones y finanzas con trazabilidad, reemplazando la fragilidad evidenciada de hojas de cálculo y mensajería.`;
 
   const coreModules =
     solution?.modules.map((m) => `${m.name}: ${m.purpose}`) ??
@@ -32,17 +32,17 @@ export function buildCursorContext(
 
   const criticalWorkflows =
     processes?.workflows.map(
-      (w) => `${w.name} — trigger: ${w.trigger}; ${w.steps.length} steps`,
+      (w) => `${w.name} — disparador: ${w.trigger}; ${w.steps.length} pasos`,
     ) ??
     blueprint?.workflows.map((w) => w.name) ??
     [];
 
   const importantConstraints = [
-    "Never invent workflows or entities without evidence from the Business Blueprint / Process Engine",
-    "Respect approval authorities and thresholds captured in discovery",
-    "Prefer extending @isalwa design language when UI is in scope — but this Architect package is documentation-only",
-    "Do not introduce parallel CRM/ERP modules already marked for retirement without migration plan",
-    ...(solution?.approvalRules.map((r) => `Approval: ${r.statement}`) ?? []),
+    "Nunca inventar flujos de trabajo o entidades sin evidencia del Blueprint de negocio / motor de procesos",
+    "Respetar las autoridades de aprobación y umbrales capturados en el descubrimiento",
+    "Preferir extender el lenguaje de diseño @isalwa cuando la interfaz esté en alcance — pero este paquete de Architect es solo documentación",
+    "No introducir módulos paralelos de CRM/ERP ya marcados para retiro sin un plan de migración",
+    ...(solution?.approvalRules.map((r) => `Aprobación: ${r.statement}`) ?? []),
   ];
 
   const domainLanguage = [
@@ -56,46 +56,46 @@ export function buildCursorContext(
     ...(processes?.workflows.flatMap((w) =>
       w.metrics
         ? [
-            `${w.name}: automation ${Math.round(w.metrics.automationScore * 100)}%, coverage ${Math.round(w.metrics.documentationScore * 100)}%`,
+            `${w.name}: automatización ${Math.round(w.metrics.automationScore * 100)}%, cobertura ${Math.round(w.metrics.documentationScore * 100)}%`,
           ]
         : [],
     ) ?? []),
     ...(blueprint?.workflows.flatMap((w) => w.metrics) ?? []),
-    "Reduce manual approvals cycle time",
-    "Eliminate duplicate entry between evidenced systems",
+    "Reducir el tiempo de ciclo de aprobaciones manuales",
+    "Eliminar la doble captura entre sistemas evidenciados",
   ].slice(0, 10);
 
   const doNot = [
-    "Do NOT generate production code from this Architect app in Mission 9",
-    "Do NOT invent customers, products, or policies not present in evidence",
-    "Do NOT bypass approval rules",
-    "Do NOT replace the Process Engine with a second workflow model",
-    "Do NOT use LLM-generated diagrams as source of truth",
-    "Do NOT ship features outside the phased roadmap without updating the Blueprint",
+    "NO generar código de producción a partir de esta app de Architect en la Misión 9",
+    "NO inventar clientes, productos o políticas que no estén presentes en la evidencia",
+    "NO omitir las reglas de aprobación",
+    "NO reemplazar el motor de procesos con un segundo modelo de flujo de trabajo",
+    "NO usar diagramas generados por LLM como fuente de verdad",
+    "NO lanzar funcionalidades fuera de la hoja de ruta por fases sin actualizar el Blueprint",
   ];
 
   const narrative = [
     purpose,
     "",
-    "Core modules:",
+    "Capacidades centrales:",
     ...coreModules.map((m) => `- ${m}`),
     "",
-    "Business rules:",
+    "Reglas de negocio:",
     ...businessRules.slice(0, 12).map((r) => `- ${r}`),
     "",
-    "Critical workflows:",
+    "Flujos críticos:",
     ...criticalWorkflows.slice(0, 10).map((w) => `- ${w}`),
     "",
-    "Important constraints:",
+    "Restricciones importantes:",
     ...importantConstraints.map((c) => `- ${c}`),
     "",
-    "Domain language:",
+    "Lenguaje del dominio:",
     `- ${domainLanguage.join(", ")}`,
     "",
-    "Success metrics:",
+    "Medidas de éxito:",
     ...successMetrics.map((m) => `- ${m}`),
     "",
-    "Do NOT:",
+    "Fuera de límites:",
     ...doNot.map((d) => `- ${d}`),
   ].join("\n");
 

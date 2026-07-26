@@ -76,7 +76,7 @@ export function evolveLivingReport(
 function preferRicher(a: string, b: string): string {
   if (!a.trim()) return b;
   if (!b.trim()) return a;
-  return b.length >= a.length * 0.7 ? b : `${b}\n\n(Earlier context retained.) ${a}`;
+  return b.length >= a.length * 0.7 ? b : `${b}\n\n(Contexto anterior conservado.) ${a}`;
 }
 
 function uniqueStrings(values: string[]): string[] {

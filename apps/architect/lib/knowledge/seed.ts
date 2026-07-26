@@ -39,10 +39,10 @@ export function createSeedKnowledge(workspaceId: string): WorkspaceKnowledge {
   if (workspaceId === "ws_isalwa") {
     return seedLight(workspaceId, {
       summary:
-        "Two strategy decks and a project handoff note were reviewed before the last session.",
+        "Se revisaron dos presentaciones de estrategia y una nota de traspaso de proyecto antes de la última sesión.",
       themes: [
-        "Consulting knowledge lives in people",
-        "Project handoffs lose context",
+        "El conocimiento de consultoría vive en las personas",
+        "Los traspasos de proyecto pierden contexto",
       ],
       days: 4,
     });
@@ -57,7 +57,7 @@ function seedLight(
   const processed = daysAgo(opts.days);
   const deck = asset({
     workspaceId,
-    title: "Operating Overview Deck",
+    title: "Presentación de resumen operativo",
     type: "presentation",
     category: "Presentations",
     source: "powerpoint · mock",
@@ -73,14 +73,14 @@ function seedLight(
   });
   const processDoc = asset({
     workspaceId,
-    title: "Process Notes",
+    title: "Notas de proceso",
     type: "process_document",
     category: "Process Documents",
     source: "word · mock",
     status: "processed",
     uploadedAt: daysAgo(opts.days + 1),
     processedAt: processed,
-    summary: "Partial process notes with several unknown owners.",
+    summary: "Notas de proceso parciales con varios responsables sin definir.",
     tags: ["process"],
     confidence: 0.62,
     entities: [],

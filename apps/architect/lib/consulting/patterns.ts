@@ -15,37 +15,40 @@ interface PatternRule {
 const RULES: PatternRule[] = [
   {
     id: "shadow_crm",
-    label: "Shadow CRM in messaging",
+    label: "CRM improvisado en mensajería",
     description:
-      "Commercial context accumulates in chat rather than a durable customer system.",
+      "El contexto comercial se acumula en el chat en vez de en un sistema de clientes duradero.",
     test: (_b, signals) => signals.has("whatsapp"),
   },
   {
     id: "spreadsheet_os",
-    label: "Spreadsheet operating system",
+    label: "Hoja de cálculo como sistema operativo",
     description:
-      "Excel functions as the de facto ERP for planning, tracking, or reporting.",
+      "Excel funciona como el ERP de facto para planear, dar seguimiento o reportar.",
     test: (_b, signals) => signals.has("excel"),
   },
   {
     id: "approval_theater",
-    label: "Informal approval theater",
+    label: "Aprobaciones informales sin respaldo",
     description:
-      "Approvals exist socially but lack thresholds, backups, and trails.",
+      "Las aprobaciones existen socialmente pero carecen de umbrales, respaldos y rastro de auditoría.",
     test: (_b, signals) => signals.has("approvals"),
   },
   {
     id: "hero_operator",
-    label: "Hero operator pattern",
+    label: "Patrón de operador héroe",
     description:
-      "One person carries disproportionate operational or commercial load.",
-    test: (blob) => /one person|only i|i do everything|key person/i.test(blob),
+      "Una sola persona carga con una parte desproporcionada del trabajo operativo o comercial.",
+    test: (blob) =>
+      /una sola persona|solo yo|yo hago todo|persona clave|one person|only i|i do everything|key person/i.test(
+        blob,
+      ),
   },
   {
     id: "month_end_scramble",
-    label: "Month-end scramble",
+    label: "Carrera de fin de mes",
     description:
-      "Reporting is reconstructed under deadline instead of produced continuously.",
+      "El reporte se reconstruye contra el plazo en vez de producirse de forma continua.",
     test: (_b, signals) => signals.has("reports"),
   },
 ];

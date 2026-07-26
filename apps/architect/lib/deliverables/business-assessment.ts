@@ -1,3 +1,4 @@
+import { departmentLabel, workflowNameLabel } from "@/lib/presentation";
 import type {
   BusinessAssessmentDeliverable,
   CompanyWorkspace,
@@ -17,15 +18,16 @@ export function buildBusinessAssessment(
   return {
     kind: "business_assessment",
     currentProcesses:
-      processes?.workflows.map((w) => w.name) ??
-      blueprint?.workflows.map((w) => w.name) ??
+      processes?.workflows.map((w) => workflowNameLabel(w.name)) ??
+      blueprint?.workflows.map((w) => workflowNameLabel(w.name)) ??
       [],
     departments:
-      blueprint?.departments.map((d) => d.name) ??
+      blueprint?.departments.map((d) => departmentLabel(d.name)) ??
       processes?.workflows
         .map((w) => w.department)
         .filter((d): d is string => d != null)
-        .filter((v, i, a) => a.indexOf(v) === i) ??
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .map(departmentLabel) ??
       [],
     maturity:
       consulting?.maturity.dimensions.map((d) => ({

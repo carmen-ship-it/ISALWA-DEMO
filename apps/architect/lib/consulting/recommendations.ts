@@ -1,3 +1,4 @@
+import { opportunityHorizonLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
 import type {
   ConsultingOpportunity,
@@ -34,7 +35,7 @@ export function evaluateRecommendations(
     recs.push({
       id: createId("crec"),
       title: opportunity.title,
-      rationale: `${opportunity.estimatedImpact} (${opportunity.horizon}).`,
+      rationale: `${opportunity.estimatedImpact} (${opportunityHorizonLabel(opportunity.horizon)}).`,
       priority:
         opportunity.horizon === "Quick Wins"
           ? "now"

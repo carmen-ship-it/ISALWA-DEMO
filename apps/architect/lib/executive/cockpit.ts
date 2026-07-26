@@ -8,7 +8,7 @@ import type {
   MaturityDimension,
   ScoredDimension,
 } from "@/types";
-import { healthLabel } from "@/lib/presentation";
+import { departmentLabel, healthLabel, moduleLabel } from "@/lib/presentation";
 import { deriveCockpitAlerts } from "./alerts";
 import { deriveDailySummary } from "./daily-summary";
 import { deriveExecutiveScore } from "./executive-score";
@@ -38,18 +38,6 @@ const DEPT_MATURITY: Record<string, MaturityDimension[]> = {
   Operations: ["operations", "automation"],
   Management: ["leadership", "documentation"],
   Support: ["customer", "people"],
-};
-
-const DEPT_LABELS_ES: Record<string, string> = {
-  Sales: "Ventas",
-  Purchasing: "Compras",
-  Finance: "Finanzas",
-  Production: "Producción",
-  Warehouse: "Almacén",
-  Maintenance: "Mantenimiento",
-  Operations: "Operaciones",
-  Management: "Dirección",
-  Support: "Soporte",
 };
 
 function clamp(n: number): number {
@@ -147,7 +135,7 @@ function deriveDepartmentHealth(
 
     return {
       id: name.toLowerCase(),
-      name: DEPT_LABELS_ES[name] ?? name,
+      name: departmentLabel(name),
       score,
       label: bandLabel(score),
       evidence: evidence.slice(0, 3),
@@ -250,7 +238,7 @@ function derivePendingDecisions(
     if (cap.owner) continue;
     push(
       `cap-${cap.id}`,
-      `Definir dueño de ${cap.name}`,
+      `Definir dueño de ${moduleLabel(cap.name)}`,
       "Capacidad sin responsable claro en el blueprint",
     );
     if (decisions.length >= 6) break;

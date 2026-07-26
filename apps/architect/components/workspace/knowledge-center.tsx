@@ -11,7 +11,7 @@ import {
   ensureWorkspaceKnowledge,
   summarizeKnowledgeEntities,
 } from "@/lib/knowledge";
-import { coverageBand, coverageBandLabelEs } from "@/lib/presentation";
+import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { CompanyWorkspace, KnowledgeCategory, WorkspaceKnowledge } from "@/types";
 
@@ -127,8 +127,10 @@ export function KnowledgeCenter({
         </div>
         {vault.unknownAreas.length > 0 ? (
           <p className="mt-5 text-sm text-[var(--isalwa-slate)]/80">
-            Aún no está claro: {vault.unknownAreas.join(" · ")} — el Architect
-            preguntará por esto en la próxima sesión de descubrimiento.
+            Aún no está claro:{" "}
+            {vault.unknownAreas.map(coverageAreaLabel).join(" · ")} — el
+            Architect preguntará por esto en la próxima sesión de
+            descubrimiento.
           </p>
         ) : null}
       </Card>
@@ -185,7 +187,9 @@ export function KnowledgeCenter({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-[var(--isalwa-slate)]">{slice.area}</span>
+                    <span className="text-[var(--isalwa-slate)]">
+                      {coverageAreaLabel(slice.area)}
+                    </span>
                     <span className="text-[var(--isalwa-kiln)]">
                       {coverageBandLabelEs(band)}
                     </span>

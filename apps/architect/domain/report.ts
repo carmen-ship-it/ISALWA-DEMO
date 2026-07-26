@@ -1,5 +1,6 @@
 import { createId, nowIso } from "@/lib/utils";
 import { emptyConsultingIntelligence } from "@/lib/consulting";
+import { phaseLabel, severityLabel, timelineEstimateLabel } from "@/lib/presentation";
 import type {
   ComplexityLevel,
   DepartmentAnalysis,
@@ -43,7 +44,7 @@ function modulesFromInterview(interview: Interview): Module[] {
   const base: Module[] = names.map((name, index) => ({
     id: `mod_${name.toLowerCase().replace(/\s+/g, "_")}`,
     name,
-    purpose: `Address the ${name.toLowerCase()} gap surfaced during discovery.`,
+    purpose: `Cierra la brecha de ${name.toLowerCase()} identificada durante el descubrimiento.`,
     priority: index < 3 ? "core" : "supporting",
     dependsOn: index === 0 ? [] : [names[0] ?? "CRM"],
   }));
@@ -53,14 +54,14 @@ function modulesFromInterview(interview: Interview): Module[] {
       {
         id: "mod_crm",
         name: "CRM",
-        purpose: "One place for customer history and commercial context.",
+        purpose: "Un solo lugar para el historial de clientes y el contexto comercial.",
         priority: "core",
         dependsOn: [],
       },
       {
         id: "mod_sales",
         name: "Sales",
-        purpose: "Make the commercial motion visible and transferable.",
+        purpose: "Hace visible y transferible el movimiento comercial.",
         priority: "core",
         dependsOn: ["mod_crm"],
       },
@@ -75,20 +76,20 @@ function roadmapFromModules(modules: Module[]): RoadmapPhase[] {
     {
       id: "phase_foundation",
       name: "Foundation",
-      horizon: "Phase 1 · Weeks 1–6",
+      horizon: "Fase 1 · Semanas 1–6",
       outcomes: [
-        "Shared customer and order truth",
-        "Visible ownership for active work",
+        "Verdad compartida de clientes y pedidos",
+        "Propiedad visible del trabajo activo",
       ],
       modules: modules.filter((m) => m.priority === "core").map((m) => m.name),
     },
     {
       id: "phase_control",
       name: "Control",
-      horizon: "Phase 2 · Months 2–4",
+      horizon: "Fase 2 · Meses 2–4",
       outcomes: [
-        "Fewer duplicate entries",
-        "Exceptions become visible early",
+        "Menos registros duplicados",
+        "Las excepciones se vuelven visibles a tiempo",
       ],
       modules: modules
         .filter((m) => m.priority === "supporting")
@@ -97,12 +98,12 @@ function roadmapFromModules(modules: Module[]): RoadmapPhase[] {
     {
       id: "phase_leverage",
       name: "Leverage",
-      horizon: "Phase 3 · Months 4–8",
+      horizon: "Fase 3 · Meses 4–8",
       outcomes: [
-        "Selective automation",
-        "Executive visibility without spreadsheet theater",
+        "Automatización selectiva",
+        "Visibilidad ejecutiva sin teatro de hojas de cálculo",
       ],
-      modules: ["Executive Command Center"],
+      modules: ["Centro de mando ejecutivo"],
     },
   ];
 }
@@ -130,13 +131,13 @@ function departmentAnalysis(interview: Interview): DepartmentAnalysis[] {
       department,
       findings:
         evidence.length > 0
-          ? `Discovery captured concrete signal for ${department}.`
-          : `${department} was identified, but deeper process detail remains limited.`,
+          ? `El descubrimiento capturó una señal concreta para ${department}.`
+          : `${department} fue identificado, pero el detalle del proceso sigue siendo limitado.`,
       evidence:
         evidence.length > 0
           ? evidence
           : interview.memory.score.stillNeed.includes(department)
-            ? [`Still open: clearer ${department} understanding.`]
+            ? [`Pendiente: una comprensión más clara de ${department}.`]
             : [],
     };
   });
@@ -146,24 +147,24 @@ function workflowsFromInterview(interview: Interview): Workflow[] {
   const description =
     interview.business.description ??
     interview.memory.summary.belief ??
-    "Not yet described.";
+    "Aún sin describir.";
 
   return [
     {
       id: createId("workflow"),
-      name: "Current operating motion",
+      name: "Operación actual",
       summary: description,
       steps: [
-        "Demand or inquiry arrives",
-        "Work is coordinated across people and tools",
-        "Execution happens with partial visibility",
-        "Exceptions are handled by phone, message, spreadsheet, or memory",
-        "Outcomes are reported manually",
+        "Llega la demanda o la consulta",
+        "El trabajo se coordina entre personas y herramientas",
+        "La ejecución ocurre con visibilidad parcial",
+        "Las excepciones se resuelven por teléfono, mensaje, hoja de cálculo o memoria",
+        "Los resultados se reportan manualmente",
       ],
       friction: interview.memory.summary.painPoints,
       owners: interview.participant.role
         ? [interview.participant.role]
-        : ["unspecified"],
+        : ["sin especificar"],
     },
   ];
 }
@@ -175,7 +176,7 @@ function opportunitiesAsRecommendations(
     return interview.opportunities.map((opportunity) => ({
       id: opportunity.id,
       title: opportunity.title,
-      rationale: `${opportunity.description} Evidence: “${opportunity.evidence[0] ?? "conversation"}”.`,
+      rationale: `${opportunity.description} Evidencia: “${opportunity.evidence[0] ?? "conversación"}”.`,
       priority:
         opportunity.impact === "quick_win"
           ? "now"
@@ -189,9 +190,9 @@ function opportunitiesAsRecommendations(
   return [
     {
       id: createId("rec"),
-      title: "Create one trusted system of record",
+      title: "Crear un solo sistema de registro confiable",
       rationale:
-        "Critical information currently appears fragmented across tools and people.",
+        "La información crítica hoy aparece fragmentada entre herramientas y personas.",
       priority: "now",
       relatedPainPoints: interview.memory.painPoints.map((pain) => pain.id),
     },
@@ -202,7 +203,7 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
   const company =
     interview.business.companyName ??
     interview.participant.companyName ??
-    "This company";
+    "Esta empresa";
   const memory = {
     ...interview.memory,
     consulting:
@@ -210,7 +211,7 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
   };
   const industry =
     memory.summary.industry === "unknown"
-      ? "their market"
+      ? "su mercado"
       : memory.summary.industryLabel.toLowerCase();
   const complexity = estimateComplexity(interview);
   const timeline = estimateTimeline(complexity);
@@ -222,7 +223,7 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
       : interview.business.signals.map((signal) => ({
           id: createId("pain"),
           title: signal.label,
-          description: `Evidence: “${signal.evidence}”.`,
+          description: `Evidencia: “${signal.evidence}”.`,
           category:
             signal.category === "tool" ||
             signal.category === "process" ||
@@ -240,25 +241,25 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
 
   const unanswered = [
     ...memory.score.stillNeed.map(
-      (item) => `Deeper clarity still needed on: ${item}.`,
+      (item) => `Aún falta claridad sobre: ${item}.`,
     ),
     ...memory.unknownFacts.slice(0, 3).map((item) => item.reason),
-    "Who owns each critical handoff end-to-end?",
-    "Which metrics does leadership trust today, and why?",
+    "¿Quién es dueño de cada traspaso crítico, de principio a fin?",
+    "¿En qué métricas confía hoy el liderazgo, y por qué?",
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
   const risks = [
     ...interview.memory.consulting.risks.map(
       (risk) =>
-        `${risk.title} (${risk.severity}): ${risk.businessImpact}`,
+        `${risk.title} (${severityLabel(risk.severity)}): ${risk.businessImpact}`,
     ),
     ...interview.observations
       .map((observation) => observation.risk)
       .filter((risk): risk is string => Boolean(risk)),
-    "Over-automating broken handoffs",
-    "Replacing spreadsheets without replacing ownership clarity",
+    "Sobre-automatizar traspasos que ya están rotos",
+    "Reemplazar hojas de cálculo sin resolver primero la claridad de propiedad",
     ...(interview.business.signals.some((s) => s.id === "approvals")
-      ? ["Single-person approval bottlenecks"]
+      ? ["Cuellos de botella por aprobación concentrada en una sola persona"]
       : []),
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
@@ -272,7 +273,7 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
   const maturityLine = memory.consulting.maturity.dimensions
-    .map((d) => `${d.label.replace(" maturity", "")} ${d.score}%`)
+    .map((d) => `${d.label} ${d.score}%`)
     .join(" · ");
   const healthLine = memory.consulting.health.gauges
     .map((g) => `${g.label} ${g.score}%`)
@@ -280,36 +281,36 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
 
   const consultingOpps = memory.consulting.opportunities.map(
     (o) =>
-      `${o.horizon}: ${o.title} — ${o.estimatedImpact} (difficulty: ${o.difficulty})`,
+      `${o.horizon}: ${o.title} — ${o.estimatedImpact} (dificultad: ${o.difficulty})`,
   );
 
   const consultingContradictions = memory.consulting.contradictions.map(
     (c) => c.statement,
   );
 
-  const executiveSummary = `${company} is a ${industry} operation with business understanding at ${memory.summary.confidenceScore}% and consulting confidence at ${memory.consulting.confidence.overall}%. ${memory.summary.belief} Maturity overview — ${maturityLine || "emerging"}. The constraint is not ambition — it is fragmented operational truth across people and tools, with ${memory.consulting.risks.length} material risk pattern${memory.consulting.risks.length === 1 ? "" : "s"} in view.`;
+  const executiveSummary = `${company} es una operación de ${industry} con comprensión del negocio en ${memory.summary.confidenceScore}% y confianza consultiva en ${memory.consulting.confidence.overall}%. ${memory.summary.belief} Panorama de madurez — ${maturityLine || "emergente"}. La limitante no es la ambición — es la verdad operativa fragmentada entre personas y herramientas, con ${memory.consulting.risks.length} patrón${memory.consulting.risks.length === 1 ? "" : "es"} de riesgo relevante${memory.consulting.risks.length === 1 ? "" : "s"} a la vista.`;
 
   const businessSnapshot = [
-    `Company: ${company}`,
-    `Industry: ${memory.summary.industryLabel}`,
+    `Empresa: ${company}`,
+    `Industria: ${memory.summary.industryLabel}`,
     memory.summary.businessModel
-      ? `Business model: ${memory.summary.businessModel}`
+      ? `Modelo de negocio: ${memory.summary.businessModel}`
       : null,
     memory.summary.companySize
-      ? `Scale: ${memory.summary.companySize}`
+      ? `Escala: ${memory.summary.companySize}`
       : null,
-    memory.summary.teamHint ? `Team: ${memory.summary.teamHint}` : null,
+    memory.summary.teamHint ? `Equipo: ${memory.summary.teamHint}` : null,
     memory.summary.customerCountHint
-      ? `Customers: ${memory.summary.customerCountHint}`
+      ? `Clientes: ${memory.summary.customerCountHint}`
       : null,
     memory.summary.geographyHint
-      ? `Geography: ${memory.summary.geographyHint}`
+      ? `Geografía: ${memory.summary.geographyHint}`
       : null,
     memory.summary.revenueStage
-      ? `Revenue stage: ${memory.summary.revenueStage}`
+      ? `Etapa de ingresos: ${memory.summary.revenueStage}`
       : null,
-    systems.length > 0 ? `Systems: ${systems.join(", ")}` : null,
-    `Business health: ${healthLine}`,
+    systems.length > 0 ? `Sistemas: ${systems.join(", ")}` : null,
+    `Salud del negocio: ${healthLine}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -319,7 +320,7 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
       ? memory.consulting.recommendations.map((rec) => ({
           id: rec.id,
           title: rec.title,
-          rationale: `${rec.rationale} Evidence: “${rec.evidence[0] ?? "discovery"}”.`,
+          rationale: `${rec.rationale} Evidencia: “${rec.evidence[0] ?? "descubrimiento"}”.`,
           priority: rec.priority,
           relatedPainPoints: interview.memory.painPoints.map((pain) => pain.id),
         }))
@@ -337,38 +338,38 @@ export function synthesizeReport(interview: Interview): DiscoveryReport {
     operationalBottlenecks:
       bottlenecks.length > 0
         ? bottlenecks
-        : ["Insufficient bottleneck detail captured — treat as open question."],
+        : ["Detalle insuficiente sobre cuellos de botella — tratar como pregunta abierta."],
     departmentAnalysis: departmentAnalysis(interview),
     softwareRecommendations: [
-      "Do not buy software until ownership and system-of-record decisions are clear.",
-      "Replace load-bearing spreadsheets and messaging workflows first.",
-      "Prefer modular operating capabilities over a monolithic suite.",
-      ...systems.map((system) => `Plan a deliberate exit or integration path for ${system}.`),
+      "No comprar software hasta que las decisiones de propiedad y sistema de registro estén claras.",
+      "Reemplazar primero las hojas de cálculo y los flujos de mensajería que sostienen la operación.",
+      "Preferir capacidades operativas modulares en vez de una suite monolítica.",
+      ...systems.map((system) => `Planear una salida o integración deliberada para ${system}.`),
     ],
     painPoints,
     opportunities: opportunityRecs,
     potentialModules: modules,
     suggestedRoadmap: roadmap,
     estimatedPhases: roadmap.map(
-      (phase) => `${phase.name} (${phase.horizon}): ${phase.outcomes.join("; ")}`,
+      (phase) => `${phaseLabel(phase.name)} (${phase.horizon}): ${phase.outcomes.join("; ")}`,
     ),
     estimatedComplexity: complexity,
     estimatedTimeline: timeline,
     riskAreas: risks,
     aiOpportunities: [
       memory.consulting.health.gauges.find((g) => g.id === "ai_readiness")
-        ? `AI readiness currently ${memory.consulting.health.gauges.find((g) => g.id === "ai_readiness")?.score}% — improve data and process clarity before automation theater.`
-        : "Assess AI readiness only after data and process clarity improve.",
-      "Drafting follow-ups from incomplete order or job context",
-      "Detecting duplicate work and missing fields at intake",
-      "Summarizing exception queues for managers each morning",
-      "Assisting reporting without becoming the source of truth",
+        ? `Preparación para IA actualmente en ${memory.consulting.health.gauges.find((g) => g.id === "ai_readiness")?.score}% — mejorar la calidad de datos y procesos antes de automatizar por apariencia.`
+        : "Evaluar la preparación para IA solo después de mejorar la claridad de datos y procesos.",
+      "Redactar seguimientos a partir de contexto incompleto de pedidos o trabajos",
+      "Detectar trabajo duplicado y campos faltantes en la captura",
+      "Resumir colas de excepciones para los gerentes cada mañana",
+      "Asistir en reportes sin convertirse en la fuente de verdad",
     ],
     futureIntegrations: Array.from(
-      new Set([...systems, "Email", "Accounting", "Messaging"]),
+      new Set([...systems, "Correo electrónico", "Contabilidad", "Mensajería"]),
     ),
     unansweredQuestions: unanswered,
-    executiveConclusion: `The next step is not more software conversation — it is deciding the system of record and the first module that removes the most expensive friction. With ${memory.summary.confidenceScore}% business understanding and ${memory.consulting.confidence.overall}% consulting confidence, ${company} has enough clarity to begin a disciplined foundation phase (${timeline}) while deliberately closing remaining open questions${consultingContradictions.length > 0 ? " and clarifying apparent inconsistencies" : ""}.`,
+    executiveConclusion: `El siguiente paso no es más conversación sobre software — es decidir el sistema de registro y el primer módulo que elimina la fricción más costosa. Con ${memory.summary.confidenceScore}% de comprensión del negocio y ${memory.consulting.confidence.overall}% de confianza consultiva, ${company} tiene suficiente claridad para iniciar una fase de cimientos disciplinada (${timelineEstimateLabel(timeline)}) mientras cierra deliberadamente las preguntas abiertas restantes${consultingContradictions.length > 0 ? " y aclara las inconsistencias aparentes" : ""}.`,
     consultingMaturity: maturityLine,
     consultingHealth: healthLine,
     consultingRisks: memory.consulting.risks.map(

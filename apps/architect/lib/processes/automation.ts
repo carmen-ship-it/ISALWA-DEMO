@@ -22,17 +22,17 @@ export function deriveAutomationCandidates(
         workflowId: wf.id,
         stepId: first.id,
         quickAutomation: first.manual
-          ? `Digitize “${first.name}” and capture structured inputs`
+          ? `Digitalizar “${first.name}” y capturar datos estructurados`
           : null,
         futureAutomation:
           manualSteps.length > 1
-            ? `End-to-end automation across ${manualSteps.length} manual steps`
-            : `System-enforce “${first.name}” with audit trail`,
+            ? `Automatización de extremo a extremo en ${manualSteps.length} pasos manuales`
+            : `Reforzar “${first.name}” con el sistema y dejar rastro de auditoría`,
         aiOpportunity: first.aiOpportunity,
         estimatedImpact:
           wf.metrics.automationScore < 0.4
-            ? "High — process is mostly manual today"
-            : "Moderate — selective step automation",
+            ? "Alto — el proceso hoy es mayormente manual"
+            : "Moderado — automatización selectiva de pasos",
         confidence: Math.min(0.9, first.confidence + 0.05),
         evidence: [
           {
@@ -52,9 +52,9 @@ export function deriveAutomationCandidates(
         workflowId: wf.id,
         stepId: step.id,
         quickAutomation: null,
-        futureAutomation: `Automate supporting workflow around “${step.name}”`,
+        futureAutomation: `Automatizar el flujo de soporte alrededor de “${step.name}”`,
         aiOpportunity: step.aiOpportunity,
-        estimatedImpact: "AI-assisted step reduces cycle time and rework",
+        estimatedImpact: "El paso asistido por IA reduce el tiempo de ciclo y el retrabajo",
         confidence: step.confidence,
         evidence: [
           {
@@ -76,9 +76,9 @@ export function deriveAutomationCandidates(
         workflowId: wf.id,
         stepId: null,
         quickAutomation: null,
-        futureAutomation: "Monitor for automation once steps are fully known",
+        futureAutomation: "Vigilar oportunidades de automatización una vez que los pasos estén completamente definidos",
         aiOpportunity: null,
-        estimatedImpact: "Unknown — insufficient automation evidence",
+        estimatedImpact: "Desconocido — evidencia insuficiente de automatización",
         confidence: 0.4,
         evidence: evidence.slice(0, 1),
       });

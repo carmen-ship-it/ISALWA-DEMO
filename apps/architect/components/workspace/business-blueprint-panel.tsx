@@ -5,6 +5,24 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { BLUEPRINT_FUTURE_OUTPUTS, latestBlueprint } from "@/lib/blueprint";
+import {
+  actorNameLabel,
+  capabilityPurposeLabel,
+  departmentLabel,
+  entityLabel,
+  futureOutputStatusLabel,
+  moduleLabel,
+  opportunityDescriptionLabel,
+  opportunityHorizonLabel,
+  opportunityTitleLabel,
+  painCategoryLabel,
+  replacementStrategyLabel,
+  ruleStatementLabel,
+  stepNameLabel,
+  systemPurposeLabel,
+  triggerLabel,
+  workflowNameLabel,
+} from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { BusinessBlueprint } from "@/types";
 
@@ -111,8 +129,10 @@ export function BusinessBlueprintPanel({
         <ul className="space-y-4">
           {selected.capabilities.map((cap) => (
             <li key={cap.id}>
-              <p className="text-[var(--isalwa-kiln)]">{cap.name}</p>
-              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{cap.purpose}</p>
+              <p className="text-[var(--isalwa-kiln)]">{moduleLabel(cap.name)}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
+                {capabilityPurposeLabel(cap.name, cap.purpose)}
+              </p>
               {cap.painPoints.length > 0 ? (
                 <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
                   Fricción: {cap.painPoints.slice(0, 2).join(" · ")}
@@ -125,7 +145,8 @@ export function BusinessBlueprintPanel({
 
       <BlueprintBlock title="Departamentos">
         <p className="text-[var(--isalwa-slate)]">
-          {selected.departments.map((d) => d.name).join(" · ") || "—"}
+          {selected.departments.map((d) => departmentLabel(d.name)).join(" · ") ||
+            "—"}
         </p>
       </BlueprintBlock>
 
@@ -145,9 +166,11 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-5">
               {selected.workflows.map((workflow) => (
                 <li key={workflow.id}>
-                  <p className="text-[var(--isalwa-kiln)]">{workflow.name}</p>
+                  <p className="text-[var(--isalwa-kiln)]">
+                    {workflowNameLabel(workflow.name)}
+                  </p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-                    Comienza cuando: {workflow.trigger}
+                    Comienza cuando: {triggerLabel(workflow.trigger)}
                   </p>
                   <ol className="mt-3 space-y-2">
                     {workflow.steps.map((step, index) => (
@@ -157,10 +180,10 @@ export function BusinessBlueprintPanel({
                       >
                         <span className="text-[var(--isalwa-slate)]/60">{index + 1}.</span>
                         <span>
-                          {step.name}
+                          {stepNameLabel(step.name)}
                           <span className="text-[var(--isalwa-slate)]/60">
                             {" "}
-                            · {step.actor}
+                            · {actorNameLabel(step.actor)}
                             {step.manual ? " · manual" : ""}
                           </span>
                         </span>
@@ -179,7 +202,7 @@ export function BusinessBlueprintPanel({
                   key={entity.id}
                   className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-xs text-[var(--isalwa-slate)]"
                 >
-                  {entity.name}
+                  {entityLabel(entity.name)}
                 </li>
               ))}
             </ul>
@@ -189,7 +212,7 @@ export function BusinessBlueprintPanel({
             <ul className="space-y-2">
               {selected.operatingRules.map((rule) => (
                 <li key={rule.id} className="text-[var(--isalwa-slate)]">
-                  {rule.statement}
+                  {ruleStatementLabel(rule.statement)}
                 </li>
               ))}
             </ul>
@@ -201,10 +224,11 @@ export function BusinessBlueprintPanel({
                 <li key={system.id}>
                   <p className="text-[var(--isalwa-kiln)]">{system.name}</p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-                    {system.purpose}
+                    {systemPurposeLabel(system.name, system.purpose)}
                   </p>
                   <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-                    Enfoque de reemplazo: {system.replacementStrategy}
+                    Enfoque de reemplazo:{" "}
+                    {replacementStrategyLabel(system.replacementStrategy)}
                   </p>
                 </li>
               ))}
@@ -216,7 +240,7 @@ export function BusinessBlueprintPanel({
               {selected.painPoints.map((pain) => (
                 <li key={pain.id} className="flex gap-3 text-sm">
                   <span className="w-28 shrink-0 text-[var(--isalwa-slate)]/60">
-                    {pain.category}
+                    {painCategoryLabel(pain.category)}
                   </span>
                   <span className="text-[var(--isalwa-slate)]">{pain.title}</span>
                 </li>
@@ -229,11 +253,13 @@ export function BusinessBlueprintPanel({
               {selected.opportunities.map((opp) => (
                 <li key={opp.id}>
                   <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                    {opp.horizon}
+                    {opportunityHorizonLabel(opp.horizon)}
                   </p>
-                  <p className="mt-1 text-[var(--isalwa-kiln)]">{opp.title}</p>
+                  <p className="mt-1 text-[var(--isalwa-kiln)]">
+                    {opportunityTitleLabel(opp.title)}
+                  </p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-                    {opp.description}
+                    {opportunityDescriptionLabel(opp.description)}
                   </p>
                 </li>
               ))}
@@ -242,7 +268,8 @@ export function BusinessBlueprintPanel({
 
           <BlueprintBlock title="Capacidades recomendadas">
             <p className="text-[var(--isalwa-slate)]">
-              {selected.modules.map((m) => m.name).join(" · ") || "—"}
+              {selected.modules.map((m) => moduleLabel(m.name)).join(" · ") ||
+                "—"}
             </p>
           </BlueprintBlock>
 
@@ -274,7 +301,7 @@ export function BusinessBlueprintPanel({
                 >
                   <p className="text-sm text-[var(--isalwa-kiln)]">{output.title}</p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                    {output.status === "planned" ? "Planeado" : output.status}
+                    {futureOutputStatusLabel(output.status)}
                   </p>
                 </li>
               ))}

@@ -8,9 +8,18 @@ import {
   BRAND_FUTURE_OUTPUTS,
 } from "@/lib/brand";
 import {
+  colorTokenRoleLabel,
+  fontScaleLabel,
+  futureOutputStatusLabel,
+  logoKindLabel,
+  logoStatusLabel,
+  motionPreferenceLabel,
+  navigationPatternLabel,
   recommendationStrength,
   strengthBand,
   strengthHint,
+  themeModeLabel,
+  typographyRoleLabel,
 } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type {
@@ -21,6 +30,13 @@ import type {
   NavigationPreference,
   TerminologyEntry,
 } from "@/types";
+
+const NOTIFICATION_CHANNEL_LABELS_ES: Record<string, string> = {
+  in_app: "En la aplicación",
+  email: "Correo",
+  sms: "SMS",
+  push: "Push",
+};
 
 export function BrandExperiencePanel({
   model,
@@ -74,7 +90,7 @@ export function BrandExperiencePanel({
           <ul className="mt-2 space-y-2">
             {model.brandProfile.logos.map((logo) => (
               <li key={logo.kind} className="text-sm text-[var(--isalwa-slate)]">
-                {logo.kind} · {logo.status}
+                {logoKindLabel(logo.kind)} · {logoStatusLabel(logo.status)}
                 {logo.notes ? (
                   <span className="text-[var(--isalwa-slate)]/60"> — {logo.notes}</span>
                 ) : null}
@@ -109,7 +125,7 @@ export function BrandExperiencePanel({
           <ul className="mt-2 space-y-1.5">
             {model.experienceProfile.notificationPreferences.map((pref) => (
               <li key={pref.channel} className="text-sm text-[var(--isalwa-slate)]">
-                {pref.channel}:{" "}
+                {NOTIFICATION_CHANNEL_LABELS_ES[pref.channel] ?? pref.channel}:{" "}
                 {pref.enabled == null
                   ? "sin definir"
                   : pref.enabled
@@ -127,7 +143,7 @@ export function BrandExperiencePanel({
 
       <Block title="Recomendación de tema">
         <Meta label="Tema" value={model.themeRecommendation.name} />
-        <Meta label="Modo" value={model.themeRecommendation.mode} />
+        <Meta label="Modo" value={themeModeLabel(model.themeRecommendation.mode)} />
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
           {model.themeRecommendation.rationale}
         </p>
@@ -215,7 +231,7 @@ export function BrandExperiencePanel({
                 {provider.description}
               </p>
               <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                {provider.status}
+                {futureOutputStatusLabel(provider.status)}
               </p>
             </li>
           ))}
@@ -232,7 +248,7 @@ export function BrandExperiencePanel({
               <p className="text-sm text-[var(--isalwa-kiln)]">{output.title}</p>
               <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">{output.description}</p>
               <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                {output.status}
+                {futureOutputStatusLabel(output.status)}
               </p>
             </li>
           ))}
@@ -249,7 +265,7 @@ export function BrandExperiencePanel({
           </p>
         }
       >
-        <Meta label="Estado" value={model.whiteLabel.status} />
+        <Meta label="Estado" value={futureOutputStatusLabel(model.whiteLabel.status)} />
         <RecField label="Dominio personalizado" rec={model.whiteLabel.customDomain} />
         <RecField
           label="Ocultar marca ISALWA"
@@ -283,9 +299,11 @@ function Meta({ label, value }: { label: string; value: string }) {
 function RecField<T>({
   label,
   rec,
+  format,
 }: {
   label: string;
   rec: BrandRecommendation<T>;
+  format?: (value: T) => string;
 }) {
   const display =
     rec.value == null
@@ -294,7 +312,9 @@ function RecField<T>({
         ? rec.value
           ? "sí"
           : "no"
-        : String(rec.value);
+        : format
+          ? format(rec.value)
+          : String(rec.value);
 
   return (
     <div className="mt-3">
@@ -375,7 +395,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
                 }}
               />
               <span className="text-[var(--isalwa-slate)]">
-                {color.role}: {color.name}{" "}
+                {colorTokenRoleLabel(color.role)}: {color.name}{" "}
                 {color.hex ? `(${color.hex})` : "(sin definir)"}
               </span>
               <span className="text-[var(--isalwa-slate)]/60">
@@ -392,7 +412,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
         <ul className="mt-2 space-y-1.5">
           {tokens.typography.map((t) => (
             <li key={t.role} className="text-sm text-[var(--isalwa-slate)]">
-              {t.role}: {t.family ?? "—"} {t.weight ?? ""}
+              {typographyRoleLabel(t.role)}: {t.family ?? "—"} {t.weight ?? ""}
             </li>
           ))}
         </ul>
@@ -425,7 +445,7 @@ function NavigationList({ items }: { items: NavigationPreference[] }) {
           <p className="text-[var(--isalwa-kiln)]">{nav.label}</p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{nav.rationale}</p>
           <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-            {nav.pattern} · {strengthBand(nav.confidence)}
+            {navigationPatternLabel(nav.pattern)} · {strengthBand(nav.confidence)}
             {nav.modules.length > 0
               ? ` · Capacidades: ${nav.modules.join(" · ")}`
               : ""}
@@ -440,8 +460,16 @@ function AccessibilityView({ profile }: { profile: AccessibilityProfile }) {
   return (
     <div>
       <RecField label="Meta de contraste" rec={profile.contrastTarget} />
-      <RecField label="Movimiento" rec={profile.motionPreference} />
-      <RecField label="Escala de fuente" rec={profile.fontScaleDefault} />
+      <RecField
+        label="Movimiento"
+        rec={profile.motionPreference}
+        format={motionPreferenceLabel}
+      />
+      <RecField
+        label="Escala de fuente"
+        rec={profile.fontScaleDefault}
+        format={fontScaleLabel}
+      />
       <RecField label="Prioridad de teclado" rec={profile.keyboardFirst} />
       {profile.notes.length > 0 ? (
         <ul className="mt-3 space-y-1">

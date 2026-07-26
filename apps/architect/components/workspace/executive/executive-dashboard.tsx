@@ -9,6 +9,7 @@ import {
   maturityLabel,
   recommendationStrength,
   riskLevelLabel,
+  severityLabel,
   understandingLevel,
   understandingSentence,
 } from "@/lib/presentation";
@@ -507,23 +508,6 @@ function urgencyLabel(u: "now" | "next" | "later"): string {
       return "Siguiente";
     default:
       return "Más adelante";
-  }
-}
-
-function severityLabel(s: string): string {
-  switch (s) {
-    case "critical":
-      return "Crítico";
-    case "high":
-      return "Alto";
-    case "moderate":
-      return "Moderado";
-    case "low":
-      return "Bajo";
-    case "attention":
-      return "Atención";
-    default:
-      return s;
   }
 }
 

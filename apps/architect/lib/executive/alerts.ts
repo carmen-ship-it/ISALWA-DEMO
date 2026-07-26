@@ -3,6 +3,7 @@
  * Surface-only: no push notifications, no email.
  */
 
+import { coverageAreaLabel } from "@/lib/presentation";
 import type { CompanyWorkspace, RiskSeverity } from "@/types";
 import type { CockpitAlert } from "./types";
 
@@ -89,13 +90,14 @@ export function deriveCockpitAlerts(
       ?.filter((c) => c.percent < 30)
       .slice(0, 2) ?? [];
   for (const slice of thinCoverage) {
+    const areaEs = coverageAreaLabel(slice.area);
     alerts.push({
       id: `knowledge-${slice.area}`,
-      title: `Cobertura débil: ${slice.area}`,
+      title: `Cobertura débil: ${areaEs}`,
       severity: "attention",
       detail:
         slice.note ||
-        `Área ${slice.area} con poca evidencia incorporada.`,
+        `El área de ${areaEs} tiene poca evidencia incorporada.`,
       source: "knowledge",
     });
   }

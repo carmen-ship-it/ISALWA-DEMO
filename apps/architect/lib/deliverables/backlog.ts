@@ -43,27 +43,27 @@ export function buildSprintBacklog(
     const stories = [
       {
         id: createId("story"),
-        title: `Foundation for ${mod.name}`,
+        title: `Base de ${mod.name}`,
         acceptanceCriteria: [
-          `${mod.name} module scaffold exists`,
-          "Role permissions enforced for primary actors",
-          "Audit events recorded for create/update",
+          `Existe el andamiaje del módulo ${mod.name}`,
+          "Permisos por rol aplicados a los actores principales",
+          "Eventos de auditoría registrados para crear/actualizar",
         ],
         priority,
         dependencies: phase?.dependencies ?? [],
       },
       ...relatedWorkflows.map((w) => ({
         id: createId("story"),
-        title: `Workflow: ${w.name}`,
+        title: `Flujo: ${w.name}`,
         acceptanceCriteria: [
-          `Happy path for “${w.name}” completes`,
-          "Handoffs preserve required information",
+          `El camino esperado de «${w.name}» se completa`,
+          "Los traspasos conservan la información requerida",
           w.owner
-            ? `Owner role (${w.owner}) can operate the flow`
-            : "Owner role can operate the flow",
+            ? `El rol responsable (${w.owner}) puede operar el flujo`
+            : "El rol responsable puede operar el flujo",
         ],
         priority,
-        dependencies: [`Foundation for ${mod.name}`],
+        dependencies: [`Base de ${mod.name}`],
       })),
     ];
 
@@ -73,7 +73,7 @@ export function buildSprintBacklog(
       features: [
         {
           id: createId("feature"),
-          title: `${mod.name} capability`,
+          title: `Capacidad de ${mod.name}`,
           stories,
         },
       ],

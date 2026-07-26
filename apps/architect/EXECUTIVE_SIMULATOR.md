@@ -136,14 +136,16 @@ already returns.
 
 ## Gaps / honestly documented limitations
 
-- **`understanding` signal may saturate.** `extractSimulationSignals`
-  passes `workspace.businessUnderstanding` (a 0–100 value elsewhere in the
-  app, e.g. `ConfidenceMeter`) through a `clamp01` helper that clamps to
-  `[0, 1]` without rescaling. For any real workspace with understanding
-  > 1, this always returns `1.0` (100%). This is a pre-existing behavior
-  in `lib/simulation/signals.ts`, not something introduced or fixed by
-  this mission (constitution forbids engine changes here) — flagging it
-  as a gap for a future, dedicated Mission 17 fix.
+- ~~**`understanding` signal may saturate.**~~ **Fixed (Mission 10).**
+  `extractSimulationSignals` now divides `workspace.businessUnderstanding`
+  (0–100 elsewhere in the app, e.g. `ConfidenceMeter`) by 100 before the
+  `clamp01` helper, so understanding renders as its real value instead of
+  always saturating to `1.0` (100%) for any real workspace. Same class of
+  bug also existed in `lib/deliverables/executive-summary.ts` and
+  `lib/explanations/confidence.ts` (consulting `maturity.overall` /
+  `health.overall` / `confidence.overall` are already 0–100, so multiplying
+  by 100 a second time inflated displayed percentages) — both corrected in
+  the same pass.
 - **"Modules" and "Approvals" are not first-class engine domains.** The
   engine's `SimulationDomain` union has 7 values (`capacity`, `staffing`,
   `sales`, `operations`, `inventory`, `automation`, `financial`) that

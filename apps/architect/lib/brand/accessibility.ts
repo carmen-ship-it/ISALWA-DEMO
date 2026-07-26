@@ -30,7 +30,7 @@ export function deriveAccessibilityProfile(
   let contrastTarget: BrandRecommendation<ContrastTarget> = recommendation(
     "AA",
     0.5,
-    "WCAG AA assumed as enterprise baseline until brand colors are confirmed.",
+    "Se asume WCAG AA como referencia empresarial hasta confirmar los colores de marca.",
     ev,
   );
 
@@ -41,16 +41,16 @@ export function deriveAccessibilityProfile(
     contrastTarget = recommendation(
       "AAA",
       0.62,
-      "Healthcare or explicit accessibility language suggests stricter contrast target.",
+      "El sector salud o un lenguaje explícito de accesibilidad sugiere un objetivo de contraste más estricto.",
       ev,
     );
-    notes.push("Consider AAA contrast for critical health and safety workflows.");
+    notes.push("Considerar contraste AAA para flujos críticos de salud y seguridad.");
   }
 
   let motionPreference: BrandRecommendation<MotionPreference> = recommendation(
     "standard",
     0.4,
-    "Standard motion assumed — no reduce-motion preference captured.",
+    "Se asume movimiento estándar — no se detectó preferencia de movimiento reducido.",
     ev,
   );
 
@@ -58,7 +58,7 @@ export function deriveAccessibilityProfile(
     motionPreference = recommendation(
       "reduce",
       0.7,
-      "Reduce-motion preference detected in discovery.",
+      "Se detectó preferencia de movimiento reducido en el descubrimiento.",
       ev,
     );
   }
@@ -72,22 +72,22 @@ export function deriveAccessibilityProfile(
     ? recommendation<"standard" | "large" | "unknown">(
         "large",
         0.55,
-        "Operational environments benefit from larger default type scale.",
+        "Los entornos operativos se benefician de una escala de tipografía más grande por defecto.",
         ev,
       )
     : recommendation<"standard" | "large" | "unknown">(
         "standard",
         0.45,
-        "Standard font scale for office workflows.",
+        "Escala de fuente estándar para flujos de oficina.",
         ev,
       );
 
   const keyboardFirst = shopFloor
-    ? recommendation(false, 0.5, "Touch-first environments de-prioritize keyboard-first.", ev)
-    : recommendation(true, 0.48, "Office workflows should remain keyboard navigable.", ev);
+    ? recommendation(false, 0.5, "Los entornos táctiles restan prioridad a la navegación por teclado.", ev)
+    : recommendation(true, 0.48, "Los flujos de oficina deben mantenerse navegables por teclado.", ev);
 
   if (blueprint.workflows.some((w) => w.steps.some((s) => s.manual))) {
-    notes.push("Manual workflow steps may need extra confirmation and error prevention.");
+    notes.push("Los pasos manuales del flujo pueden requerir confirmación adicional y prevención de errores.");
   }
 
   const scores = [

@@ -91,17 +91,17 @@ export function assembleImplementationPackage(
       ...gate,
       ready,
       missingPrerequisites: [
-        ...(!blueprint ? ["Business Blueprint"] : []),
-        ...(!workspace.solutionArchitecture ? ["Solution Architecture"] : []),
-        ...(!workspace.businessProcesses ? ["Process Maps"] : []),
-        ...(!deliverables ? ["Deliverables Package"] : []),
+        ...(!blueprint ? ["Blueprint de negocio"] : []),
+        ...(!workspace.solutionArchitecture ? ["Sistema recomendado"] : []),
+        ...(!workspace.businessProcesses ? ["Mapas de proceso"] : []),
+        ...(!deliverables ? ["Paquete de entregables"] : []),
       ],
       status: ready ? "ready" : "not_ready",
       notes: [
-        ...gate.notes.filter((n) => !n.startsWith("Ready —")),
+        ...gate.notes.filter((n) => !n.startsWith("Listo —")),
         ready
-          ? "Ready — architecture package references existing Blueprint, Solution, Processes, Deliverables, and Consulting artifacts."
-          : `Threshold met · ${availableCount}/${sections.length} sections have engine artifacts.`,
+          ? "Listo — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes."
+          : `Umbral alcanzado · ${availableCount}/${sections.length} secciones tienen artefactos de motor.`,
       ],
     },
     blueprintId: blueprint?.id ?? null,
@@ -109,7 +109,7 @@ export function assembleImplementationPackage(
     solutionId: workspace.solutionArchitecture?.id ?? null,
     processModelId: workspace.businessProcesses?.id ?? null,
     deliverablesId: deliverables?.id ?? null,
-    summary: `Implementation package for ${workspace.companyName} — ${availableCount}/${sections.length} architecture sections referencing existing engines (no code generation).`,
+    summary: `Paquete de implementación para ${workspace.companyName} — ${availableCount}/${sections.length} secciones de arquitectura que referencian motores existentes (sin generación de código).`,
     sections,
     overallConfidence: compositeConfidence(workspace, deliverables),
   };

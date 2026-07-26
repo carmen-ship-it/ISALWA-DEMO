@@ -2,7 +2,9 @@
  * Snapshot diffs — what changed, progress, regression, future focus.
  */
 
+import { moduleLabel, phaseLabel, severityLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
+import { formatStageLabel } from "@/lib/workspace/format";
 import type {
   CompanySnapshot,
   EvolutionChangeItem,
@@ -72,7 +74,7 @@ export function compareSnapshots(
       "stage",
       "progress",
       "Etapa actualizada",
-      `${from.stage} → ${to.stage}`,
+      `${formatStageLabel(from.stage)} → ${formatStageLabel(to.stage)}`,
     );
     whatChanged.push(change);
     progress.push(change);
@@ -139,12 +141,12 @@ export function compareSnapshots(
     to.modules.map((m) => m.name),
   );
   for (const name of moduleDiff.added) {
-    const change = item("modules", "progress", "Módulo añadido", name);
+    const change = item("modules", "progress", "Módulo añadido", moduleLabel(name));
     whatChanged.push(change);
     progress.push(change);
   }
   for (const name of moduleDiff.removed) {
-    const change = item("modules", "regression", "Módulo retirado", name);
+    const change = item("modules", "regression", "Módulo retirado", moduleLabel(name));
     whatChanged.push(change);
     regression.push(change);
   }
@@ -203,7 +205,7 @@ export function compareSnapshots(
       "progress",
       "Hoja de ruta ampliada",
       roadmapDiff.added.length > 0
-        ? roadmapDiff.added.join(" · ")
+        ? roadmapDiff.added.map(phaseLabel).join(" · ")
         : `${from.roadmap.length} → ${to.roadmap.length} fases`,
     );
     whatChanged.push(change);
@@ -279,7 +281,7 @@ function buildFutureFocus(snapshot: CompanySnapshot): EvolutionChangeItem[] {
         "risks",
         "focus",
         "Riesgo a vigilar",
-        `${risk.title} (${risk.severity})`,
+        `${risk.title} (${severityLabel(risk.severity)})`,
       ),
     );
   }
@@ -291,7 +293,7 @@ function buildFutureFocus(snapshot: CompanySnapshot): EvolutionChangeItem[] {
         "roadmap",
         "focus",
         "Siguiente fase",
-        `Fase ${nextPhase.phase}: ${nextPhase.name}`,
+        `Fase ${nextPhase.phase}: ${phaseLabel(nextPhase.name)}`,
       ),
     );
   }

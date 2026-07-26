@@ -1,3 +1,4 @@
+import { entityLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
 import type {
   BrandEvidenceRef,
@@ -26,20 +27,27 @@ const DOMAIN_TERMS: Array<{
 }> = [
   {
     term: "Customer",
-    labels: { manufacturing: "Customer", healthcare: "Patient", distribution: "Account" },
-    context: "Primary external party",
+    labels: { manufacturing: "Cliente", healthcare: "Paciente", distribution: "Cuenta" },
+    context: "Parte externa principal",
   },
   {
     term: "Order",
-    labels: { manufacturing: "Work Order", distribution: "Order", retail: "Order" },
-    context: "Commercial transaction unit",
+    labels: { manufacturing: "Orden de trabajo", distribution: "Pedido", retail: "Pedido" },
+    context: "Unidad de transacción comercial",
   },
   {
     term: "Employee",
-    labels: { manufacturing: "Team Member", healthcare: "Staff", services: "Consultant" },
-    context: "Internal user reference",
+    labels: { manufacturing: "Miembro del equipo", healthcare: "Personal", services: "Consultor" },
+    context: "Referencia de usuario interno",
   },
 ];
+
+const TERM_NAME_ES: Record<string, string> = {
+  Customer: "Cliente",
+  Order: "Pedido",
+  Employee: "Empleado",
+  Department: "Departamento",
+};
 
 export function deriveTerminology(
   workspace: CompanyWorkspace,
@@ -60,7 +68,7 @@ export function deriveTerminology(
     if (label && factBlob.includes(mapping.term.toLowerCase())) {
       entries.push({
         id: createId("term"),
-        term: mapping.term,
+        term: TERM_NAME_ES[mapping.term] ?? mapping.term,
         preferredLabel: label,
         context: mapping.context,
         confidence: 0.55,
@@ -72,9 +80,9 @@ export function deriveTerminology(
   for (const dept of blueprint.departments.slice(0, 6)) {
     entries.push({
       id: createId("term"),
-      term: "Department",
+      term: TERM_NAME_ES.Department,
       preferredLabel: dept.name,
-      context: dept.purpose || "Organizational unit from blueprint",
+      context: dept.purpose || "Unidad organizacional del plan de negocio",
       confidence: 0.72,
       evidence: evidenceSubset(evidence, ["blueprint"], 2),
     });
@@ -83,9 +91,9 @@ export function deriveTerminology(
   for (const entity of blueprint.entities.slice(0, 4)) {
     entries.push({
       id: createId("term"),
-      term: entity.name,
-      preferredLabel: entity.name,
-      context: entity.purpose || "Entity from blueprint catalog",
+      term: entityLabel(entity.name),
+      preferredLabel: entityLabel(entity.name),
+      context: entity.purpose || "Entidad del catálogo del plan de negocio",
       confidence: 0.68,
       evidence: evidenceSubset(evidence, ["blueprint"], 2),
     });

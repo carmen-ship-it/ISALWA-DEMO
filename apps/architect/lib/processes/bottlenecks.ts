@@ -53,32 +53,32 @@ function detectStepKinds(
 
 function titleFor(kind: ProcessBottleneckKind): string {
   const map: Record<ProcessBottleneckKind, string> = {
-    manual_approvals: "Manual approval bottleneck",
-    duplicate_entry: "Duplicate data entry",
-    excel_dependency: "Excel dependency",
-    whatsapp_dependency: "WhatsApp dependency",
-    paper_forms: "Paper forms",
-    waiting: "Waiting / queue delay",
-    missing_ownership: "Missing ownership",
-    missing_information: "Missing information",
-    missing_systems: "Missing systems",
-    manual_calculations: "Manual calculations",
+    manual_approvals: "Cuello de botella de aprobación manual",
+    duplicate_entry: "Captura de datos duplicada",
+    excel_dependency: "Dependencia de Excel",
+    whatsapp_dependency: "Dependencia de WhatsApp",
+    paper_forms: "Formularios en papel",
+    waiting: "Espera / demora en cola",
+    missing_ownership: "Falta de responsable",
+    missing_information: "Información faltante",
+    missing_systems: "Falta de sistemas",
+    manual_calculations: "Cálculos manuales",
   };
   return map[kind];
 }
 
 function impactFor(kind: ProcessBottleneckKind): string {
   const map: Record<ProcessBottleneckKind, string> = {
-    manual_approvals: "Slows cycle time and creates approval theater risk",
-    duplicate_entry: "Increases error rate and wasted labor",
-    excel_dependency: "Fragile single-source-of-truth outside systems",
-    whatsapp_dependency: "Opaque handoffs without audit trail",
-    paper_forms: "Slow intake and lost documents",
-    waiting: "Work-in-process accumulates between actors",
-    missing_ownership: "Exceptions stall without accountable owner",
-    missing_information: "Rework loops and unclear handoffs",
-    missing_systems: "Process cannot scale without tooling",
-    manual_calculations: "Calculation errors and reporting lag",
+    manual_approvals: "Alarga el tiempo de ciclo y crea riesgo de aprobaciones de fachada",
+    duplicate_entry: "Aumenta la tasa de error y el trabajo desperdiciado",
+    excel_dependency: "Fuente de verdad frágil fuera de los sistemas",
+    whatsapp_dependency: "Traspasos opacos sin rastro de auditoría",
+    paper_forms: "Recepción lenta y documentos perdidos",
+    waiting: "El trabajo en proceso se acumula entre actores",
+    missing_ownership: "Las excepciones se estancan sin un responsable claro",
+    missing_information: "Ciclos de retrabajo y traspasos poco claros",
+    missing_systems: "El proceso no puede escalar sin herramientas",
+    manual_calculations: "Errores de cálculo y retraso en los reportes",
   };
   return map[kind];
 }

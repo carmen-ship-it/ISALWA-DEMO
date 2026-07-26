@@ -22,37 +22,37 @@ export function evaluateImplementationGate(
 
   const missingPrerequisites: string[] = [];
   if (!workspace.currentBlueprintId && workspace.blueprints.length === 0) {
-    missingPrerequisites.push("Business Blueprint");
+    missingPrerequisites.push("Blueprint de negocio");
   }
   if (!workspace.solutionArchitecture) {
-    missingPrerequisites.push("Solution Architecture");
+    missingPrerequisites.push("Sistema recomendado");
   }
   if (!workspace.businessProcesses) {
-    missingPrerequisites.push("Process Maps");
+    missingPrerequisites.push("Mapas de proceso");
   }
   if (!workspace.deliverables) {
-    missingPrerequisites.push("Deliverables Package");
+    missingPrerequisites.push("Paquete de entregables");
   }
 
   const notes: string[] = [];
   if (!thresholdMet) {
     notes.push(
-      `Business understanding is ${businessUnderstanding}% — need ${threshold}% (discovery conclusion threshold) before the implementation package opens.`,
+      `La comprensión del negocio es ${businessUnderstanding}% — se necesita ${threshold}% (umbral de conclusión del descubrimiento) antes de abrir el paquete de implementación.`,
     );
   } else if (missingPrerequisites.length > 0) {
     notes.push(
-      "Threshold met, but canonical engines are incomplete — finish blueprint / solution / processes / deliverables derivation.",
+      "Umbral alcanzado, pero los motores canónicos están incompletos — falta terminar la derivación de blueprint / sistema recomendado / procesos / entregables.",
     );
   } else {
     notes.push(
-      "Ready — architecture package references existing Blueprint, Solution, Processes, Deliverables, and Consulting artifacts.",
+      "Listo — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes.",
     );
   }
 
   const discovery = workspace.conversationMemory?.score;
   if (discovery?.readyToConclude === false && thresholdMet) {
     notes.push(
-      "Numeric threshold met; discovery still lists open follow-ups — package is architectural only.",
+      "Se alcanzó el umbral numérico; el descubrimiento aún lista seguimientos abiertos — el paquete es solo arquitectónico.",
     );
   }
 

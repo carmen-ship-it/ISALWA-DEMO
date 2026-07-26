@@ -17,9 +17,14 @@ import {
 } from "@/components/workspace/story-beat";
 import { useAuth } from "@/hooks/use-auth";
 import {
+  complexityLabel,
+  departmentLabel,
+  futureOutputStatusLabel,
   healthLabel,
   maturityLabel,
   recommendationStrength,
+  roleLabel,
+  severityLabel,
 } from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
@@ -304,7 +309,7 @@ function DeliverablePreview({
       return (
         <Article title="Diagnóstico del negocio">
           <List title="Procesos actuales" items={d.currentProcesses} />
-          <List title="Departamentos" items={d.departments} />
+          <List title="Departamentos" items={d.departments.map(departmentLabel)} />
           <Meta
             label="Madurez operativa"
             value={maturityLabel(d.overallMaturity)}
@@ -316,7 +321,7 @@ function DeliverablePreview({
           <List title="Puntos de dolor" items={d.painPoints} />
           <List
             title="Riesgos"
-            items={d.risks.map((r) => `${r.title} · ${r.severity}`)}
+            items={d.risks.map((r) => `${r.title} · ${severityLabel(r.severity)}`)}
           />
           <List title="Oportunidades de automatización" items={d.automationOpportunities} />
         </Article>
@@ -391,7 +396,7 @@ function DeliverablePreview({
       return (
         <Article title="Requisitos del producto">
           <List title="Objetivos" items={d.goals} />
-          <List title="Usuarios" items={d.users} />
+          <List title="Usuarios" items={d.users.map(roleLabel)} />
           <List title="Requisitos funcionales" items={d.functionalRequirements} />
           <List
             title="Requisitos no funcionales"
@@ -433,7 +438,7 @@ function DeliverablePreview({
           {d.phases.map((p) => (
             <div key={p.phase} className="mt-5 first:mt-0">
               <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                Fase {p.phase} · {p.complexity}
+                Fase {p.phase} · complejidad {complexityLabel(p.complexity)}
               </p>
               <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">{p.name}</p>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{p.businessValue}</p>
@@ -551,7 +556,7 @@ function ExportsPreview() {
             <p className="text-sm text-[var(--isalwa-kiln)]">{c.title}</p>
             <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">{c.description}</p>
             <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-              {c.status}
+              {futureOutputStatusLabel(c.status)}
             </p>
           </li>
         ))}

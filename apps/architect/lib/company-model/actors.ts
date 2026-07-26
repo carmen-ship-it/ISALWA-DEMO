@@ -145,7 +145,7 @@ export function derivePeople(
       roleIds,
       departmentId: department?.id ?? null,
       email: null,
-      notes: "Derived from process actors",
+      notes: "Derivado de los actores del proceso",
       confidence: actor.confidence,
       evidence: actor.evidence.slice(0, 2).map((e) => ({
         source: e.source === "solution" ? "solution" : "process",

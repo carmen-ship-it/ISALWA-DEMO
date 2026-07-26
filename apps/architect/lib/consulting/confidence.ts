@@ -42,15 +42,15 @@ export function evaluateConsultingConfidence(input: {
 
   const notes: string[] = [];
   if (input.evidenceCount < 3) {
-    notes.push("Evidence density is still low — scores will move with each answer.");
+    notes.push("La densidad de evidencia aún es baja — los puntajes se moverán con cada respuesta.");
   }
   if (input.contradictions.length > 0) {
     notes.push(
-      "Potential contradictions are flagged for clarification, not judgment.",
+      "Se señalan posibles contradicciones para aclarar, no para juzgar.",
     );
   }
   if (input.risks.some((r) => r.severity === "critical")) {
-    notes.push("Critical operational risks are present in the current model.");
+    notes.push("Hay riesgos operativos críticos presentes en el modelo actual.");
   }
 
   const overall = clamp(

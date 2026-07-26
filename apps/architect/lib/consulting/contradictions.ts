@@ -18,46 +18,46 @@ const PAIRS: ClaimPair[] = [
     id: "docs_vs_sops",
     positive: /we document everything|everything is documented|full documentation/i,
     negative: /no sop|don'?t have sops?|no documentation|undocumented/i,
-    claimA: "Documentation is described as complete.",
-    claimB: "Process documentation appears missing or incomplete.",
+    claimA: "La documentación se describe como completa.",
+    claimB: "La documentación de procesos parece faltante o incompleta.",
     clarification:
-      "This may require clarification — documentation completeness and SOP availability seem inconsistent.",
+      "Esto podría requerir aclaración — la completitud de la documentación y la disponibilidad de procedimientos parecen inconsistentes.",
   },
   {
     id: "system_vs_excel",
     positive: /we (have|use) (a |an )?(erp|crm|system)|everything is in the system/i,
     negative: /excel everywhere|live[s]? in excel|mostly (in )?spreadsheets/i,
-    claimA: "A formal system is described as the source of truth.",
-    claimB: "Day-to-day work still appears spreadsheet-led.",
+    claimA: "Se describe un sistema formal como la fuente de verdad.",
+    claimB: "El trabajo del día a día todavía parece liderado por hojas de cálculo.",
     clarification:
-      "This may require clarification — system-of-record claims and spreadsheet reliance may not align.",
+      "Esto podría requerir aclaración — las afirmaciones sobre el sistema de registro y la dependencia de hojas de cálculo podrían no coincidir.",
   },
   {
     id: "process_vs_ad_hoc",
     positive: /we (have|follow) (a )?process|standardized|standard process/i,
     negative: /ad.?hoc|case by case|depends who|no standard/i,
-    claimA: "Work is described as process-driven.",
-    claimB: "Execution appears ad hoc or person-dependent.",
+    claimA: "El trabajo se describe como guiado por procesos.",
+    claimB: "La ejecución parece improvisada o dependiente de personas.",
     clarification:
-      "This may require clarification — stated process discipline and day-to-day variability may conflict.",
+      "Esto podría requerir aclaración — la disciplina de proceso declarada y la variabilidad diaria podrían entrar en conflicto.",
   },
   {
     id: "visibility_vs_blind",
     positive: /we (can )?see everything|full visibility|real-?time visibility/i,
     negative: /don'?t know|no visibility|can'?t see|lost track/i,
-    claimA: "Visibility is described as strong.",
-    claimB: "Later comments suggest limited visibility.",
+    claimA: "La visibilidad se describe como sólida.",
+    claimB: "Comentarios posteriores sugieren visibilidad limitada.",
     clarification:
-      "This may require clarification — visibility claims and later gaps deserve a precise definition of what leaders can actually see.",
+      "Esto podría requerir aclaración — las afirmaciones sobre visibilidad y las brechas posteriores merecen una definición precisa de lo que el liderazgo realmente puede ver.",
   },
   {
     id: "team_vs_solo",
     positive: /we have a (full )?team|strong team|many people/i,
     negative: /only (one|i|me)|single person|i do everything/i,
-    claimA: "Team capacity is described as adequate.",
-    claimB: "Critical work appears concentrated in one person.",
+    claimA: "La capacidad del equipo se describe como adecuada.",
+    claimB: "El trabajo crítico parece concentrado en una sola persona.",
     clarification:
-      "This may require clarification — team capacity and single-person ownership of critical paths may be inconsistent.",
+      "Esto podría requerir aclaración — la capacidad del equipo y la propiedad unipersonal de las rutas críticas podrían ser inconsistentes.",
   },
 ];
 
@@ -93,12 +93,17 @@ export function evaluateContradictions(
 
   for (const existing of memory.contradictions) {
     if (found.some((f) => f.statement === existing.statement)) continue;
-    if (!/may require clarification/i.test(existing.statement)) continue;
+    if (
+      !/may require clarification|podría requerir aclaración/i.test(
+        existing.statement,
+      )
+    )
+      continue;
     found.push({
       id: existing.id,
       statement: existing.statement,
-      claimA: existing.claimA ?? existing.evidence[0] ?? "Earlier claim",
-      claimB: existing.claimB ?? existing.evidence[1] ?? "Later claim",
+      claimA: existing.claimA ?? existing.evidence[0] ?? "Afirmación anterior",
+      claimB: existing.claimB ?? existing.evidence[1] ?? "Afirmación posterior",
       confidence: existing.confidence ?? 0.65,
       evidence: existing.evidence,
     });

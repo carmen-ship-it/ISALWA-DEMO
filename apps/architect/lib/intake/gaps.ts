@@ -8,16 +8,9 @@
  */
 
 import { deriveKnowledgeCoverage } from "@/lib/knowledge";
+import { coverageAreaLabel } from "@/lib/presentation";
 import type { KnowledgeAsset, KnowledgeCoverageSlice } from "@/types";
 import type { IntakeUnknown } from "./contracts";
-
-const AREA_LABELS_ES: Record<string, string> = {
-  Customers: "clientes",
-  Sales: "ventas",
-  Operations: "operaciones",
-  Finance: "finanzas",
-  HR: "equipo y recursos humanos",
-};
 
 export interface GapReport {
   coverage: KnowledgeCoverageSlice[];
@@ -37,7 +30,7 @@ export function deriveGapReport(
   const labelsEs = Array.from(
     new Set([
       ...weakAreas.map(
-        (slice) => AREA_LABELS_ES[slice.area] ?? slice.area.toLowerCase(),
+        (slice) => coverageAreaLabel(slice.area).toLowerCase(),
       ),
       ...extractorUnknowns.map((u) => u.label),
     ]),

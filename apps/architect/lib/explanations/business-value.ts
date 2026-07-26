@@ -3,6 +3,13 @@
  * Frames existing engine outputs — does not invent new commercial claims.
  */
 
+import {
+  complexityLabel,
+  departmentLabel,
+  moduleLabel,
+  opportunityHorizonLabel,
+  severityLabel,
+} from "@/lib/presentation";
 import type {
   ConsultingOpportunity,
   ConsultingRisk,
@@ -54,12 +61,12 @@ export function observedPatternFromContext(opts: {
 
   const risk = opts.risks[0];
   if (risk) {
-    return `Patrón de riesgo: ${risk.patternId.replace(/_/g, " ")} (${risk.severity}).`;
+    return `Patrón de riesgo: ${risk.title} (${severityLabel(risk.severity)}).`;
   }
 
   const opp = opts.opportunities[0];
   if (opp) {
-    return `Patrón de oportunidad en horizonte ${opp.horizon}, con dificultad ${opp.difficulty}.`;
+    return `Patrón de oportunidad en horizonte ${opportunityHorizonLabel(opp.horizon)}, con dificultad ${complexityLabel(opp.difficulty)}.`;
   }
 
   return "Patrón aún en formación — se deriva de la evidencia acumulada del discovery.";
@@ -102,7 +109,7 @@ export function businessValueFromContext(opts: {
   if (opp) {
     const depts =
       opp.departmentsAffected.length > 0
-        ? ` Departamentos afectados: ${opp.departmentsAffected.join(", ")}.`
+        ? ` Departamentos afectados: ${opp.departmentsAffected.map(departmentLabel).join(", ")}.`
         : "";
     return `Valor de negocio: ${opp.estimatedImpact}.${depts}`;
   }
@@ -161,7 +168,7 @@ export function futureDependenciesFromContext(opts: {
 
   if (opts.module) {
     for (const name of opts.module.dependencies) {
-      deps.push(`Módulo previo: ${name}`);
+      deps.push(`Módulo previo: ${moduleLabel(name)}`);
     }
     for (const expansion of opts.module.futureExpansion.slice(0, 2)) {
       deps.push(`Expansión futura: ${expansion}`);

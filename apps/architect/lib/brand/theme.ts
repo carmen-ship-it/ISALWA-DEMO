@@ -19,44 +19,44 @@ export function deriveThemeRecommendation(
 
   let aesthetic: BrandRecommendation<string>;
   let mode: ThemeMode = "light";
-  let name = "Enterprise Calm";
+  let name = "Calma empresarial";
   let confidence = 0.35;
   let rationale =
-    "Default light enterprise theme until brand guidelines or explicit preference exists.";
+    "Tema empresarial claro por defecto hasta que existan lineamientos de marca o una preferencia explícita.";
 
   if (industry === "manufacturing" || industry === "construction") {
     aesthetic = {
-      value: "Operational clarity — high contrast, minimal decoration",
+      value: "Claridad operativa — alto contraste, decoración mínima",
       confidence: 0.52,
-      reasoning: "Manufacturing/construction contexts favor clarity over expressiveness.",
+      reasoning: "Los contextos de manufactura/construcción favorecen la claridad sobre la expresividad.",
       evidence: ev,
     };
-    name = "Field & Plant";
+    name = "Campo y planta";
     confidence = 0.52;
-    rationale = "Theme tuned for shop-floor and operational users — inferred from industry.";
+    rationale = "Tema ajustado para usuarios de piso de producción y operativos — inferido de la industria.";
   } else if (industry === "healthcare") {
     aesthetic = {
-      value: "Clinical calm — trustworthy, accessible, low visual noise",
+      value: "Calma clínica — confiable, accesible, bajo ruido visual",
       confidence: 0.55,
-      reasoning: "Healthcare industry pattern favors trust and accessibility.",
+      reasoning: "El patrón de la industria de salud favorece la confianza y la accesibilidad.",
       evidence: ev,
     };
-    name = "Clinical Trust";
+    name = "Confianza clínica";
     confidence = 0.55;
   } else if (industry === "services") {
     aesthetic = {
-      value: "Premium consultative — porcelain backgrounds, serif display, soft elevation",
+      value: "Premium consultivo — fondos porcelana, tipografía serif, elevación suave",
       confidence: 0.48,
-      reasoning: "Professional services pattern aligned with ISALWA porcelain language.",
+      reasoning: "Patrón de servicios profesionales alineado con el lenguaje porcelana de ISALWA.",
       evidence: ev,
     };
-    name = "Consultative Premium";
+    name = "Premium consultivo";
     confidence = 0.48;
   } else {
     aesthetic = {
       value: null,
       confidence: 0,
-      reasoning: "Aesthetic unknown — industry not classified and no brand evidence.",
+      reasoning: "Estética desconocida — industria no clasificada y sin evidencia de marca.",
       evidence: [],
     };
     confidence = 0.2;
@@ -65,7 +65,7 @@ export function deriveThemeRecommendation(
   if (/dark mode|dark theme|night/i.test(factBlob)) {
     mode = "dark";
     confidence = Math.min(0.75, confidence + 0.25);
-    rationale = "Dark mode preference detected in discovery language.";
+    rationale = "Se detectó preferencia por modo oscuro en el lenguaje del descubrimiento.";
   }
 
   const techMaturity =
@@ -74,7 +74,7 @@ export function deriveThemeRecommendation(
     )?.score ?? null;
 
   if (techMaturity != null && techMaturity >= 0.75 && mode === "light") {
-    rationale += " Technology maturity suggests users may tolerate advanced theme options later.";
+    rationale += " La madurez tecnológica sugiere que los usuarios podrían tolerar opciones de tema avanzadas más adelante.";
   }
 
   return {

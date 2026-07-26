@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
+import { departmentLabel, moduleLabel } from "@/lib/presentation";
 import type { AnimatedBlueprintModel } from "@/lib/executive";
 
 export function AnimatedBlueprint({
@@ -14,8 +15,8 @@ export function AnimatedBlueprint({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]/80">
-          The operating model view appears once departments and capabilities
-          emerge from discovery.
+          La vista del modelo operativo aparece cuando el descubrimiento
+          produce departamentos y capacidades.
         </p>
       </Card>
     );
@@ -25,10 +26,10 @@ export function AnimatedBlueprint({
     <div className="space-y-5">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Living blueprint
+          Blueprint vivo
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          Watch the operating model take shape.
+          Vea cómo toma forma el modelo operativo.
         </h3>
       </div>
 
@@ -48,7 +49,7 @@ export function AnimatedBlueprint({
                     : undefined,
               }}
             >
-              {dept}
+              {departmentLabel(dept)}
             </motion.span>
           ))}
         </div>
@@ -68,7 +69,9 @@ export function AnimatedBlueprint({
               }}
               className="min-w-[140px] max-w-[180px] rounded-2xl border border-[var(--isalwa-mist)]/90 bg-white/95 px-4 py-3 shadow-[var(--isalwa-shadow-soft)]"
             >
-              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{mod.name}</p>
+              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                {moduleLabel(mod.name)}
+              </p>
               <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[var(--isalwa-slate)]/60">
                 {mod.purpose}
               </p>
@@ -79,11 +82,11 @@ export function AnimatedBlueprint({
         {model.connections.length > 0 ? (
           <ExecutiveDetail
             className="mt-8 border-t border-[var(--isalwa-mist)]/70 pt-6"
-            labelExpand="View how capabilities connect"
-            labelCollapse="Hide connections"
+            labelExpand="Ver cómo se conectan las capacidades"
+            labelCollapse="Ocultar conexiones"
           >
             <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-              Connections
+              Conexiones
             </p>
             <ul className="mt-2 space-y-1.5">
               {model.connections.slice(0, 6).map((c, i) => (
@@ -94,9 +97,9 @@ export function AnimatedBlueprint({
                   transition={{ delay: 0.1 + i * 0.05, duration: 0.35 }}
                   className="text-sm text-[var(--isalwa-slate)]"
                 >
-                  <span className="text-[var(--isalwa-kiln)]">{c.from}</span>
+                  <span className="text-[var(--isalwa-kiln)]">{moduleLabel(c.from)}</span>
                   <span className="mx-2 text-[var(--isalwa-slate)]/40">→</span>
-                  <span className="text-[var(--isalwa-kiln)]">{c.to}</span>
+                  <span className="text-[var(--isalwa-kiln)]">{moduleLabel(c.to)}</span>
                 </motion.li>
               ))}
             </ul>

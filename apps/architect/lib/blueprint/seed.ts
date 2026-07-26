@@ -47,7 +47,7 @@ export function createSeedBlueprints(
     ...first,
     generatedAt: workspace.meetings[0]?.date ?? first.generatedAt,
     version: 1,
-    title: `${workspace.companyName} Business OS Blueprint v1`,
+    title: `${workspace.companyName} — Blueprint operativo de negocio v1`,
   };
 
   return appendBlueprintVersion([], stamped);

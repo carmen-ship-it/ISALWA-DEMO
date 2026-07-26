@@ -49,7 +49,7 @@ export function buildExplanationConfidence(opts: {
   const factors: string[] = [];
   if (consulting?.confidence.overall != null) {
     factors.push(
-      `Confianza consultora general: ${Math.round(consulting.confidence.overall * 100)}%`,
+      `Confianza consultora general: ${Math.round(consulting.confidence.overall)}%`,
     );
   }
   if (riskConf != null) {
@@ -74,7 +74,7 @@ export function buildExplanationConfidence(opts: {
   );
   if (consulting?.confidence.evidenceDensity != null) {
     factors.push(
-      `Densidad de evidencia: ${Math.round(consulting.confidence.evidenceDensity * 100)}%`,
+      `Densidad de evidencia: ${Math.round(consulting.confidence.evidenceDensity)}%`,
     );
   }
 

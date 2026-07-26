@@ -12,7 +12,7 @@ import {
   type IntakeIngestReport,
 } from "@/lib/intake";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
-import { coverageBand, coverageBandLabelEs } from "@/lib/presentation";
+import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import type { CompanyWorkspace } from "@/types";
 
 /**
@@ -39,7 +39,10 @@ export function BusinessKnowledge({
     (a) => a.status === "processed",
   ).length;
   const stillNeed = Array.from(
-    new Set([...workspace.openQuestions, ...knowledge.unknownAreas]),
+    new Set([
+      ...workspace.openQuestions,
+      ...knowledge.unknownAreas.map(coverageAreaLabel),
+    ]),
   ).slice(0, 6);
 
   const availableSources = INTAKE_SOURCES.filter(
@@ -207,7 +210,9 @@ export function BusinessKnowledge({
               <li key={slice.area} className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-[var(--isalwa-slate)]">{slice.area}</span>
+                    <span className="text-[var(--isalwa-slate)]">
+                      {coverageAreaLabel(slice.area)}
+                    </span>
                     <span className="text-[var(--isalwa-kiln)]">
                       {coverageBandLabelEs(band)}
                     </span>

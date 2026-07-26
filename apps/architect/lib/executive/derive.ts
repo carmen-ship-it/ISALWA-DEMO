@@ -106,6 +106,11 @@ export function deriveExecutiveExperience(
     (b) => b.id === workspace.currentBlueprintId,
   );
   const meetings = workspace.meetings.length;
+  // Same bar as the "learned" stage below — downstream artifacts (blueprint,
+  // solution, deliverables) can exist as early drafts while discovery is
+  // still thin, so their journey checkmarks stay honest by requiring the
+  // same real-evidence threshold, not just object presence.
+  const UNDERSTOOD = workspace.businessUnderstanding >= 40;
 
   const journey: JourneyStage[] = [
     {
@@ -138,23 +143,35 @@ export function deriveExecutiveExperience(
     {
       id: "architecture",
       label: "Arquitectura generada",
+      // Gated on real understanding, not just artifact presence — a blueprint
+      // can exist as an early draft while discovery is still thin, and
+      // marking it "done" before evidence supports it feels dishonest.
       detail: solution
-        ? `${solution.modules.length} capacidades recomendadas`
+        ? UNDERSTOOD
+          ? `${solution.modules.length} capacidades recomendadas`
+          : `Borrador inicial · ${solution.modules.length} capacidad${solution.modules.length === 1 ? "" : "es"} por confirmar con más evidencia`
         : blueprint
-          ? "Blueprint de negocio disponible"
+          ? UNDERSTOOD
+            ? "Blueprint de negocio disponible"
+            : "Blueprint preliminar — se refinará con más descubrimiento"
           : "Pendiente de blueprint de negocio",
-      complete: solution != null || blueprint != null,
+      complete: (solution != null || blueprint != null) && UNDERSTOOD,
     },
     {
       id: "recommended",
       label: "Software recomendado",
       detail: workspace.deliverables
-        ? "Paquete de consultoría listo"
+        ? UNDERSTOOD
+          ? "Paquete de consultoría listo"
+          : "Paquete de consultoría en borrador — pendiente de más evidencia"
         : (solution?.modules.length ?? 0) > 0
-          ? `${solution!.modules.length} capacidades sugeridas con evidencia`
+          ? UNDERSTOOD
+            ? `${solution!.modules.length} capacidades sugeridas con evidencia`
+            : `${solution!.modules.length} capacidad${solution!.modules.length === 1 ? "" : "es"} sugerida${solution!.modules.length === 1 ? "" : "s"} — validar con más descubrimiento`
           : "Las recomendaciones evolucionan con evidencia",
       complete:
-        workspace.deliverables != null || (solution?.modules.length ?? 0) > 0,
+        UNDERSTOOD &&
+        (workspace.deliverables != null || (solution?.modules.length ?? 0) > 0),
     },
   ];
 

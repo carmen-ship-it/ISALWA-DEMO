@@ -8,9 +8,9 @@ export const BRAND_ASSET_UPLOAD_PROVIDERS: readonly BrandAssetUploadProvider[] =
   {
     id: "logo_upload",
     kind: "logo_upload",
-    title: "Logo upload",
+    title: "Carga de logotipo",
     description:
-      "Primary logo, mark, wordmark, and favicon — feeds BrandProfile.logos with high confidence.",
+      "Logotipo principal, isotipo, logotipo tipográfico y favicon — alimenta BrandProfile.logos con alta confianza.",
     status: "designed",
     acceptedFormats: ["svg", "png", "webp"],
     feedsInto: "brand_experience",
@@ -18,9 +18,9 @@ export const BRAND_ASSET_UPLOAD_PROVIDERS: readonly BrandAssetUploadProvider[] =
   {
     id: "photo_upload",
     kind: "photo_upload",
-    title: "Brand photography",
+    title: "Fotografía de marca",
     description:
-      "Facility, team, and product photos for experience mood boards — evidence only.",
+      "Fotos de instalaciones, equipo y producto para tableros de experiencia — solo evidencia.",
     status: "planned",
     acceptedFormats: ["jpg", "png", "webp"],
     feedsInto: "brand_experience",
@@ -28,9 +28,9 @@ export const BRAND_ASSET_UPLOAD_PROVIDERS: readonly BrandAssetUploadProvider[] =
   {
     id: "brand_guidelines_upload",
     kind: "brand_guidelines_upload",
-    title: "Brand guidelines",
+    title: "Lineamientos de marca",
     description:
-      "PDF or document with colors, typography, voice — highest-confidence token source.",
+      "PDF o documento con colores, tipografía y voz — fuente de tokens de mayor confianza.",
     status: "designed",
     acceptedFormats: ["pdf", "docx"],
     feedsInto: "brand_experience",
@@ -38,8 +38,8 @@ export const BRAND_ASSET_UPLOAD_PROVIDERS: readonly BrandAssetUploadProvider[] =
   {
     id: "font_upload",
     kind: "font_upload",
-    title: "Custom fonts",
-    description: "Licensed font files for DesignTokens.typography overrides.",
+    title: "Fuentes personalizadas",
+    description: "Archivos de fuentes con licencia para las anulaciones de DesignTokens.typography.",
     status: "planned",
     acceptedFormats: ["woff2", "otf", "ttf"],
     feedsInto: "brand_experience",
@@ -49,36 +49,36 @@ export const BRAND_ASSET_UPLOAD_PROVIDERS: readonly BrandAssetUploadProvider[] =
 export const BRAND_FUTURE_OUTPUTS: readonly BrandFutureOutput[] = [
   {
     id: "design_system_export",
-    title: "Design system export",
-    description: "Structured JSON of tokens, terminology, and navigation for ISALWA OS genesis.",
+    title: "Exportación del sistema de diseño",
+    description: "JSON estructurado de tokens, terminología y navegación para el génesis de ISALWA OS.",
     status: "designed",
     sourcedFrom: "brand_experience",
   },
   {
     id: "figma_tokens",
-    title: "Figma tokens",
-    description: "Design token plugin export for design handoff.",
+    title: "Tokens de Figma",
+    description: "Exportación del plugin de tokens de diseño para el traspaso de diseño.",
     status: "planned",
     sourcedFrom: "brand_experience",
   },
   {
     id: "css_variables",
-    title: "CSS variables",
-    description: "Runtime theme CSS custom properties for white-label tenants.",
+    title: "Variables CSS",
+    description: "Propiedades personalizadas CSS del tema en tiempo de ejecución para tenants white-label.",
     status: "planned",
     sourcedFrom: "brand_experience",
   },
   {
     id: "tenant_theme_pack",
-    title: "Tenant theme pack",
-    description: "Per-tenant theme bundle for multi-tenant ISALWA OS deployment.",
+    title: "Paquete de tema por tenant",
+    description: "Paquete de tema por tenant para el despliegue multi-tenant de ISALWA OS.",
     status: "designed",
     sourcedFrom: "brand_experience",
   },
   {
     id: "style_guide_pdf",
-    title: "Style guide PDF",
-    description: "Client-facing brand and experience guide — export contract only.",
+    title: "PDF de guía de estilo",
+    description: "Guía de marca y experiencia orientada al cliente — solo contrato de exportación.",
     status: "planned",
     sourcedFrom: "brand_experience",
   },

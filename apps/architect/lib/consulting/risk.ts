@@ -26,12 +26,12 @@ interface RiskContext {
 const RULES: RiskRule[] = [
   {
     patternId: "excel_dependency",
-    title: "Excel dependency",
+    title: "Dependencia de Excel",
     severity: "high",
     businessImpact:
-      "Operational truth fragments across files; decisions lag and errors compound.",
+      "La verdad operativa se fragmenta entre archivos; las decisiones se retrasan y los errores se acumulan.",
     recommendedMitigation:
-      "Designate a system of record and retire load-bearing spreadsheets by process.",
+      "Designar un sistema de registro y retirar por proceso las hojas de cálculo que sostienen la operación.",
     test: ({ signalIds, blob, memory }) => ({
       hit: signalIds.has("excel") || /excel|spreadsheet/i.test(blob),
       evidence: [
@@ -45,106 +45,106 @@ const RULES: RiskRule[] = [
   },
   {
     patternId: "whatsapp_dependency",
-    title: "WhatsApp dependency",
+    title: "Dependencia de WhatsApp",
     severity: "high",
     businessImpact:
-      "Customer and deal history lives in personal devices; continuity breaks when people leave.",
+      "El historial de clientes y negociaciones vive en dispositivos personales; la continuidad se rompe cuando alguien se va.",
     recommendedMitigation:
-      "Capture commercial conversations into a shared customer record with clear ownership.",
+      "Capturar las conversaciones comerciales en un registro de clientes compartido con propiedad clara.",
     test: ({ signalIds, blob }) => ({
       hit: signalIds.has("whatsapp") || /whatsapp/i.test(blob),
-      evidence: ["Messaging used as workflow"],
+      evidence: ["Mensajería usada como flujo de trabajo"],
       confidence: 0.84,
     }),
   },
   {
     patternId: "paper_forms",
-    title: "Paper forms",
+    title: "Formularios en papel",
     severity: "moderate",
-    businessImpact: "Slow cycle times, lost paperwork, and weak auditability.",
+    businessImpact: "Ciclos lentos, papeleo extraviado y trazabilidad débil.",
     recommendedMitigation:
-      "Digitize high-volume forms first; keep exceptions explicit.",
+      "Digitalizar primero los formularios de mayor volumen; mantener explícitas las excepciones.",
     test: ({ signalIds }) => ({
       hit: signalIds.has("paper"),
-      evidence: ["Paper-based process signal"],
+      evidence: ["Señal de proceso basado en papel"],
       confidence: 0.8,
     }),
   },
   {
     patternId: "manual_approvals",
-    title: "Manual approvals",
+    title: "Aprobaciones manuales",
     severity: "high",
-    businessImpact: "Work queues behind individuals; policy is informal and uneven.",
+    businessImpact: "El trabajo se encola detrás de personas; la política es informal y desigual.",
     recommendedMitigation:
-      "Codify thresholds, backups, and approval trails in a shared workflow.",
+      "Codificar umbrales, respaldos y rastros de aprobación en un flujo compartido.",
     test: ({ signalIds, blob }) => ({
       hit: signalIds.has("approvals") || /manual approv/i.test(blob),
-      evidence: ["Approval bottleneck signal"],
+      evidence: ["Señal de cuello de botella en aprobaciones"],
       confidence: 0.82,
     }),
   },
   {
     patternId: "duplicate_work",
-    title: "Duplicate work",
+    title: "Trabajo duplicado",
     severity: "moderate",
-    businessImpact: "Cost and error rate rise as the same facts are typed repeatedly.",
+    businessImpact: "El costo y la tasa de error suben cuando los mismos datos se capturan repetidamente.",
     recommendedMitigation:
-      "Capture once at intake; propagate through modules instead of re-entry.",
+      "Capturar una sola vez en la entrada; propagar a través de los módulos en vez de recapturar.",
     test: ({ signalIds }) => ({
       hit: signalIds.has("duplicate") || signalIds.has("repeated"),
-      evidence: ["Duplicate / repeated work signal"],
+      evidence: ["Señal de trabajo duplicado / repetido"],
       confidence: 0.8,
     }),
   },
   {
     patternId: "manual_reporting",
-    title: "Manual reporting",
+    title: "Reportes manuales",
     severity: "moderate",
-    businessImpact: "Leadership sees yesterday’s picture; reporting consumes scarce time.",
+    businessImpact: "El liderazgo ve la foto de ayer; el reporte consume tiempo escaso.",
     recommendedMitigation:
-      "Define trusted metrics and generate them from operational systems.",
+      "Definir métricas confiables y generarlas directamente desde los sistemas operativos.",
     test: ({ signalIds, blob }) => ({
       hit: signalIds.has("reports") || /manual report|end of (the )?month/i.test(blob),
-      evidence: ["Manual reporting signal"],
+      evidence: ["Señal de reporte manual"],
       confidence: 0.78,
     }),
   },
   {
     patternId: "tribal_knowledge",
-    title: "Tribal knowledge",
+    title: "Conocimiento tribal",
     severity: "critical",
     businessImpact:
-      "The company cannot scale or recover if key people are unavailable.",
+      "La empresa no puede escalar ni recuperarse si las personas clave no están disponibles.",
     recommendedMitigation:
-      "Externalize critical procedures and ownership into durable company memory.",
+      "Externalizar los procedimientos críticos y la propiedad hacia una memoria empresarial duradera.",
     test: ({ blob }) => ({
       hit: /tribal|only .+ knows|in (my|his|her) head|key person/i.test(blob),
-      evidence: ["Language suggesting knowledge concentrated in people"],
+      evidence: ["Lenguaje que sugiere conocimiento concentrado en personas"],
       confidence: 0.75,
     }),
   },
   {
     patternId: "no_documentation",
-    title: "No documentation",
+    title: "Sin documentación",
     severity: "high",
-    businessImpact: "Training, quality, and continuity depend on oral tradition.",
+    businessImpact: "La capacitación, la calidad y la continuidad dependen de la tradición oral.",
     recommendedMitigation:
-      "Start with the five highest-risk SOPs and keep them owned and current.",
+      "Comenzar con los cinco procedimientos de mayor riesgo y mantenerlos con dueño y vigentes.",
     test: ({ blob }) => ({
       hit: /no (sop|documentation|docs)|don'?t (have|use) (sops?|documentation)|undocumented/i.test(
         blob,
       ),
-      evidence: ["Documentation gap referenced"],
+      evidence: ["Se mencionó una brecha de documentación"],
       confidence: 0.8,
     }),
   },
   {
     patternId: "single_employee_owns_everything",
-    title: "Single employee owns everything",
+    title: "Una sola persona concentra todo",
     severity: "critical",
-    businessImpact: "Bus-factor risk on approvals, customers, or operations.",
+    businessImpact: "Riesgo de dependencia crítica sobre aprobaciones, clientes u operaciones.",
     recommendedMitigation:
-      "Introduce backups, shared queues, and role clarity for critical paths.",
+      "Introducir respaldos, colas compartidas y claridad de roles en las rutas críticas.",
     test: ({ blob, memory }) => ({
       hit:
         /one person|only (i|he|she|one)|single (person|owner|employee)|everything goes through/i.test(
@@ -152,61 +152,61 @@ const RULES: RiskRule[] = [
         ) ||
         (memory.summary.teamHint !== null &&
           /1|one|solo/i.test(memory.summary.teamHint)),
-      evidence: ["Concentration of ownership suggested"],
+      evidence: ["Se sugiere concentración de la propiedad"],
       confidence: 0.72,
     }),
   },
   {
     patternId: "no_audit_trail",
-    title: "No audit trail",
+    title: "Sin rastro de auditoría",
     severity: "high",
-    businessImpact: "Disputes and compliance reviews cannot reconstruct decisions.",
+    businessImpact: "Las disputas y las revisiones de cumplimiento no pueden reconstruir las decisiones.",
     recommendedMitigation:
-      "Record who approved what, when, and against which policy version.",
+      "Registrar quién aprobó qué, cuándo, y contra qué versión de política.",
     test: ({ blob }) => ({
       hit: /no audit|no trail|can'?t (prove|show)|no history of approv/i.test(blob),
-      evidence: ["Auditability concern"],
+      evidence: ["Preocupación por la trazabilidad"],
       confidence: 0.7,
     }),
   },
   {
     patternId: "no_backups",
-    title: "No backups",
+    title: "Sin respaldos",
     severity: "critical",
-    businessImpact: "Operational data loss becomes existential.",
+    businessImpact: "La pérdida de datos operativos se vuelve una amenaza existencial.",
     recommendedMitigation:
-      "Establish backup ownership and recovery tests for critical stores.",
+      "Establecer propiedad de respaldos y pruebas de recuperación para los repositorios críticos.",
     test: ({ blob }) => ({
       hit: /no backup|without backup|lost (the )?file|drive (died|failed)/i.test(blob),
-      evidence: ["Backup / recovery gap"],
+      evidence: ["Brecha de respaldo / recuperación"],
       confidence: 0.78,
     }),
   },
   {
     patternId: "customer_concentration",
-    title: "Customer concentration",
+    title: "Concentración de clientes",
     severity: "high",
-    businessImpact: "Revenue shock if a small set of customers churns.",
+    businessImpact: "Choque de ingresos si un grupo reducido de clientes se va.",
     recommendedMitigation:
-      "Measure concentration, protect key accounts, and diversify acquisition.",
+      "Medir la concentración, proteger las cuentas clave y diversificar la adquisición.",
     test: ({ blob }) => ({
       hit: /few customers|top (client|customer)|concentrat|depend on one customer/i.test(
         blob,
       ),
-      evidence: ["Possible customer concentration"],
+      evidence: ["Posible concentración de clientes"],
       confidence: 0.68,
     }),
   },
   {
     patternId: "supplier_concentration",
-    title: "Supplier concentration",
+    title: "Concentración de proveedores",
     severity: "moderate",
-    businessImpact: "Supply disruption cascades into production and delivery.",
+    businessImpact: "Una disrupción de suministro se propaga a producción y entrega.",
     recommendedMitigation:
-      "Map critical suppliers and define alternate sources for top SKUs.",
+      "Mapear los proveedores críticos y definir fuentes alternas para los SKU principales.",
     test: ({ blob }) => ({
       hit: /one supplier|single vendor|only supplier|supplier risk/i.test(blob),
-      evidence: ["Possible supplier concentration"],
+      evidence: ["Posible concentración de proveedores"],
       confidence: 0.66,
     }),
   },
@@ -246,7 +246,7 @@ export function evaluateRisks(
       evidence:
         result.evidence.length > 0
           ? result.evidence
-          : [`Pattern matched: ${rule.title}`],
+          : [`Patrón detectado: ${rule.title}`],
     });
   }
 

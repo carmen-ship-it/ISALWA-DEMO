@@ -14,6 +14,7 @@
 
 import { createId, nowIso } from "@/lib/utils";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge/coverage";
+import { coverageAreaLabel } from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   ConversationMemory,
@@ -28,14 +29,6 @@ const AREA_TO_DIMENSIONS: Record<KnowledgeCoverageArea, DiscoveryDimension[]> = 
   Operations: ["operations"],
   Finance: ["finance"],
   HR: ["team"],
-};
-
-const AREA_LABELS_ES: Record<KnowledgeCoverageArea, string> = {
-  Customers: "Clientes",
-  Sales: "Ventas",
-  Operations: "Operaciones",
-  Finance: "Finanzas",
-  HR: "Equipo y RR. HH.",
 };
 
 /** Coverage below this never contributes — avoid noise from a single weak signal. */
@@ -79,8 +72,8 @@ export function assessReadiness(workspace: CompanyWorkspace): ReadinessAssessmen
         skipRecommended: slice.percent >= STRONG_SIGNAL_PERCENT,
         reason:
           slice.percent >= STRONG_SIGNAL_PERCENT
-            ? `Evidencia cargada cubre bien "${AREA_LABELS_ES[slice.area]}" (${slice.percent}%) — podemos aligerar preguntas aquí.`
-            : `Evidencia cargada aporta a "${AREA_LABELS_ES[slice.area]}" (${slice.percent}%), aún conviene confirmar en la entrevista.`,
+            ? `Evidencia cargada cubre bien "${coverageAreaLabel(slice.area)}" (${slice.percent}%) — podemos aligerar preguntas aquí.`
+            : `Evidencia cargada aporta a "${coverageAreaLabel(slice.area)}" (${slice.percent}%), aún conviene confirmar en la entrevista.`,
         evidenceAssetIds: slice.evidenceAssetIds,
       });
     }

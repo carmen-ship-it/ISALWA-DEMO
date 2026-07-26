@@ -24,7 +24,7 @@ export function detectIndustry(text: string): {
   }
 
   if (bestScore === 0) {
-    return { industry: "unknown", confidence: 0, label: "Unknown" };
+    return { industry: "unknown", confidence: 0, label: "Sin definir" };
   }
 
   const label =
@@ -40,7 +40,7 @@ export function detectIndustry(text: string): {
 export function industryLabel(industry: Industry): string {
   return (
     INDUSTRY_PROFILES.find((profile) => profile.id === industry)?.label ??
-    "Unknown"
+    "Sin definir"
   );
 }
 

@@ -1,3 +1,4 @@
+import { opportunityHorizonLabel, severityLabel } from "@/lib/presentation";
 import type {
   ConsultingIntelligence,
   ConversationMemory,
@@ -22,7 +23,7 @@ export function syncConsultingWhiteboard(
       .slice(0, 6),
     risks: consulting.risks
       .slice(0, 6)
-      .map((r) => `${r.title} (${r.severity})`),
+      .map((r) => `${r.title} (${severityLabel(r.severity)})`),
     unknowns: [
       ...memory.score.stillNeed,
       ...memory.unknownFacts.map((u) => u.label),
@@ -34,7 +35,7 @@ export function syncConsultingWhiteboard(
     ideas: memory.improvementIdeas.map((i) => i.title).slice(0, 6),
     opportunities: consulting.opportunities
       .slice(0, 6)
-      .map((o) => `${o.title} · ${o.horizon}`),
+      .map((o) => `${o.title} · ${opportunityHorizonLabel(o.horizon)}`),
   };
 }
 

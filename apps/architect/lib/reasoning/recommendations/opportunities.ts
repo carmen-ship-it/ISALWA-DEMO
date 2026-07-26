@@ -18,50 +18,50 @@ interface OpportunityRule {
 const RULES: OpportunityRule[] = [
   {
     id: "opp_digital_visit_reports",
-    title: "Digital visit reports",
+    title: "Reportes de visita digitales",
     impact: "quick_win",
     description:
-      "Replace informal visit notes with structured field reports that feed one customer record.",
+      "Reemplazar las notas de visita informales con reportes de campo estructurados que alimenten un único registro de cliente.",
     requiresSignals: ["manual", "paper", "whatsapp"],
   },
   {
     id: "opp_approval_workflows",
-    title: "Approval workflows",
+    title: "Flujos de aprobación",
     impact: "medium",
     description:
-      "Make purchasing and commercial approvals explicit, with backups and thresholds.",
+      "Hacer explícitas las aprobaciones de compras y comerciales, con respaldos y umbrales.",
     requiresSignals: ["approvals"],
   },
   {
     id: "opp_production_dashboard",
-    title: "Production planning dashboard",
+    title: "Tablero de planificación de producción",
     impact: "high",
     description:
-      "Give leadership a live view of demand versus capacity and open work.",
+      "Dar a la dirección una vista en vivo de la demanda frente a la capacidad y el trabajo abierto.",
     requiresIndustry: ["manufacturing", "distribution"],
   },
   {
     id: "opp_command_center",
-    title: "Executive Command Center",
+    title: "Centro de mando ejecutivo",
     impact: "strategic",
     description:
-      "Unify sales, operations, and cash signals into one executive operating view.",
+      "Unificar las señales de ventas, operaciones y caja en una sola vista operativa ejecutiva.",
     minPain: 2,
   },
   {
     id: "opp_crm",
-    title: "Centralized CRM",
+    title: "CRM centralizado",
     impact: "high",
     description:
-      "Create one searchable history for customers, conversations, and commitments.",
+      "Crear un historial único y buscable de clientes, conversaciones y compromisos.",
     requiresSignals: ["whatsapp", "visibility", "excel"],
   },
   {
     id: "opp_inventory_truth",
-    title: "Inventory truth layer",
+    title: "Capa de verdad de inventario",
     impact: "high",
     description:
-      "Close the gap between spreadsheet counts and physical reality.",
+      "Cerrar la brecha entre los conteos de hojas de cálculo y la realidad física.",
     requiresIndustry: ["distribution", "manufacturing"],
     requiresSignals: ["excel"],
   },
@@ -116,12 +116,12 @@ export function generateOpportunities(
 export function impactLabel(impact: OpportunityImpact): string {
   switch (impact) {
     case "quick_win":
-      return "Quick Win";
+      return "Victoria rápida";
     case "medium":
-      return "Medium Impact";
+      return "Impacto medio";
     case "high":
-      return "High Impact";
+      return "Impacto alto";
     case "strategic":
-      return "Strategic";
+      return "Estratégico";
   }
 }

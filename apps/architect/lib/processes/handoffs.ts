@@ -41,13 +41,13 @@ export function deriveHandoffs(
 
       const missingInformation: string[] = [];
       if (fromStep.outputs.some((o) => /^unknown/i.test(o))) {
-        missingInformation.push("Unknown output from prior step");
+        missingInformation.push("Salida desconocida del paso anterior");
       }
       if (toStep.inputs.some((inp) => /^unknown/i.test(inp))) {
-        missingInformation.push("Unknown required input for next step");
+        missingInformation.push("Entrada requerida desconocida para el siguiente paso");
       }
       if (fromStep.actorUnknown || toStep.actorUnknown) {
-        missingInformation.push("Missing ownership on handoff boundary");
+        missingInformation.push("Falta de responsable en el límite del traspaso");
       }
 
       handoffs.push({
@@ -62,7 +62,7 @@ export function deriveHandoffs(
         risk: handoffRisk(from, to, missingInformation),
         automationOpportunity:
           fromStep.manual || toStep.manual
-            ? "Digitize handoff payload and notify next actor"
+            ? "Digitalizar la información del traspaso y notificar al siguiente actor"
             : null,
         confidence: Math.min(fromStep.confidence, toStep.confidence),
         evidence: [

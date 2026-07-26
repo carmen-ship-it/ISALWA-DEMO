@@ -11,6 +11,12 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { applyBrandOverrides, type EffectiveBrandExperience } from "@/lib/brand";
 import { createClientInterviewPersistence } from "@/lib/persistence";
+import {
+  complexityLabel,
+  moduleLabel,
+  phaseLabel,
+  timelineEstimateLabel,
+} from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type { DiscoveryReport } from "@/types";
 
@@ -245,7 +251,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
               key={module.id}
               className="rounded-full bg-[var(--isalwa-mist)] px-3 py-1 text-sm text-[var(--isalwa-slate)]"
             >
-              {module.name}
+              {moduleLabel(module.name)}
             </span>
           ))}
         </div>
@@ -261,7 +267,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
                 {phase.horizon}
               </p>
               <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
-                {phase.name}
+                {phaseLabel(phase.name)}
               </h3>
               <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
                 {phase.outcomes.map((outcome) => (
@@ -278,12 +284,12 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       <div className="grid gap-8 sm:grid-cols-2">
         <Section title="Complejidad estimada" delay={0.28}>
           <p className="architect-serif text-3xl capitalize text-[var(--isalwa-kiln)]">
-            {report.estimatedComplexity.replace("_", " ")}
+            {complexityLabel(report.estimatedComplexity)}
           </p>
         </Section>
         <Section title="Tiempo estimado" delay={0.3}>
           <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
-            {report.estimatedTimeline}
+            {timelineEstimateLabel(report.estimatedTimeline)}
           </p>
         </Section>
       </div>

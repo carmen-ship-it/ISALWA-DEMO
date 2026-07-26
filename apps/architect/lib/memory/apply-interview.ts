@@ -24,6 +24,7 @@ import { deriveCompanyModel } from "@/lib/company-model";
 import { evolveLivingReport } from "@/lib/reports/living-report";
 import { buildTimelineEventsFromInterview } from "@/lib/timeline/events";
 import { placeholderTranscriptDocument } from "@/lib/documents/placeholders";
+import { moduleLabel } from "@/lib/presentation";
 
 /**
  * Apply a completed interview into durable company memory.
@@ -46,7 +47,7 @@ export function applyInterviewToWorkspace(
   const meeting: Meeting = {
     id: createId("meeting"),
     workspaceId: workspace.id,
-    title: `Discovery · ${new Date(stamp).toLocaleDateString(undefined, {
+    title: `Descubrimiento · ${new Date(stamp).toLocaleDateString("es", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -77,7 +78,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: "Discovery meeting completed",
+    title: "Reunión de descubrimiento completada",
     description: meeting.summary,
     category: "meeting",
     meetingId: meeting.id,
@@ -204,7 +205,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: `Solution Architecture · Blueprint v${nextBlueprint.version}`,
+    title: `Arquitectura de solución · Blueprint v${nextBlueprint.version}`,
     description: solutionArchitecture.summary,
     category: "solution",
     meetingId: meeting.id,
@@ -214,7 +215,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: `Business Processes · Blueprint v${nextBlueprint.version}`,
+    title: `Procesos de negocio · Blueprint v${nextBlueprint.version}`,
     description: businessProcesses.summary,
     category: "process",
     meetingId: meeting.id,
@@ -224,7 +225,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: `Brand & Experience · Blueprint v${nextBlueprint.version}`,
+    title: `Marca y experiencia · Blueprint v${nextBlueprint.version}`,
     description: brandExperience.summary,
     category: "brand",
     meetingId: meeting.id,
@@ -234,7 +235,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: `Company Model · Blueprint v${nextBlueprint.version}`,
+    title: `Modelo de la empresa · Blueprint v${nextBlueprint.version}`,
     description: companyModel.summary,
     category: "company_model",
     meetingId: meeting.id,
@@ -244,7 +245,7 @@ export function applyInterviewToWorkspace(
     id: createId("timeline"),
     workspaceId: workspace.id,
     date: stamp,
-    title: `Deliverables · Blueprint v${nextBlueprint.version}`,
+    title: `Entregables · Blueprint v${nextBlueprint.version}`,
     description: deliverables.summary,
     category: "deliverable",
     meetingId: meeting.id,
@@ -256,8 +257,8 @@ export function applyInterviewToWorkspace(
         workspaceId: workspace.id,
         date: stamp,
         title: implementationPackage.gate.ready
-          ? `Implementation Package · Blueprint v${nextBlueprint.version}`
-          : `Implementation Package (gated) · Blueprint v${nextBlueprint.version}`,
+          ? `Paquete de implementación · Blueprint v${nextBlueprint.version}`
+          : `Paquete de implementación (pendiente) · Blueprint v${nextBlueprint.version}`,
         description: implementationPackage.summary,
         category: "implementation",
         meetingId: meeting.id,
@@ -312,7 +313,7 @@ export function applyInterviewToWorkspace(
       ? interview.memory.painPoints
       : workspace.painPoints,
     lastActivityAt: stamp,
-    lastActivityLabel: "Meeting just completed",
+    lastActivityLabel: "Reunión recién completada",
     suggestedNextMeeting: suggestNextMeeting(interview),
     conversationMemory: interview.memory,
     activeInterviewId: null,
@@ -326,22 +327,22 @@ function buildMeetingSummary(interview: Interview): string {
   const company =
     interview.business.companyName ??
     interview.participant.companyName ??
-    "the company";
+    "la empresa";
   const pains = interview.memory.whiteboard.painPoints.slice(0, 3);
   const still = interview.memory.score.stillNeed[0];
   const painLine =
-    pains.length > 0 ? ` Confirmed pain: ${pains.join("; ")}.` : "";
-  const openLine = still ? ` Still open: ${still}.` : "";
-  return `Discovery session for ${company}.${painLine}${openLine}`.trim();
+    pains.length > 0 ? ` Dolor confirmado: ${pains.join("; ")}.` : "";
+  const openLine = still ? ` Aún abierto: ${still}.` : "";
+  return `Sesión de descubrimiento para ${company}.${painLine}${openLine}`.trim();
 }
 
 function suggestNextMeeting(interview: Interview): string {
   const next = interview.memory.score.stillNeed[0];
-  if (next) return `Continue discovery — focus on ${next}`;
+  if (next) return `Continuar descubrimiento — foco en ${next}`;
   if (interview.memory.whiteboard.potentialModules[0]) {
-    return `Review ${interview.memory.whiteboard.potentialModules[0]} module scope`;
+    return `Revisar el alcance del módulo ${moduleLabel(interview.memory.whiteboard.potentialModules[0])}`;
   }
-  return "Review living report with leadership";
+  return "Revisar el informe vivo con liderazgo";
 }
 
 function upsertParticipant(
@@ -375,7 +376,7 @@ function upsertParticipant(
     department: null,
     email: null,
     phone: null,
-    notes: "Discovery participant",
+    notes: "Participante del descubrimiento",
     lastSeen: stamp,
   };
   return [person, ...workspace.people];

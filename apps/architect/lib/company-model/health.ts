@@ -70,19 +70,19 @@ export function deriveCompanyModelHealth(
   const notes: string[] = [];
   if (criticalDeps > 0) {
     notes.push(
-      `${criticalDeps} critical/high dependencies require executive attention.`,
+      `${criticalDeps} dependencia${criticalDeps === 1 ? "" : "s"} crítica${criticalDeps === 1 ? "" : "s"}/alta${criticalDeps === 1 ? "" : "s"} requiere${criticalDeps === 1 ? "" : "n"} atención ejecutiva.`,
     );
   }
   if (ownershipClarity < 50) {
-    notes.push("Ownership clarity is incomplete across workflows and capabilities.");
+    notes.push("La claridad de propiedad aún es incompleta entre flujos de trabajo y capacidades.");
   }
   if (missingInfoFlows > 0) {
     notes.push(
-      `${missingInfoFlows} information handoffs report missing inputs.`,
+      `${missingInfoFlows} traspaso${missingInfoFlows === 1 ? "" : "s"} de información reporta${missingInfoFlows === 1 ? "" : "n"} datos faltantes.`,
     );
   }
   if (notes.length === 0) {
-    notes.push("Operating model coverage is directionally healthy from current evidence.");
+    notes.push("La cobertura del modelo operativo se ve saludable, según la evidencia actual.");
   }
 
   return {

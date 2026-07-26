@@ -11,7 +11,9 @@ export function detectConfiguration(
   modules: SolutionModule[],
 ): Record<string, string> {
   return {
-    companyName: blueprint.title.replace(/\s+Business OS Blueprint.*$/i, "").trim(),
+    companyName: blueprint.title
+      .replace(/\s*—\s*Blueprint operativo de negocio.*$/i, "")
+      .trim(),
     blueprintVersion: String(blueprint.version),
     primaryModules: modules
       .slice(0, 6)
@@ -20,6 +22,6 @@ export function detectConfiguration(
     departmentCount: String(blueprint.departments.length),
     workflowCount: String(blueprint.workflows.length),
     architectureHorizon: "transition",
-    sourceOfTruthPolicy: "Prefer durable modules over chat and spreadsheets",
+    sourceOfTruthPolicy: "Preferir módulos duraderos sobre chat y hojas de cálculo",
   };
 }

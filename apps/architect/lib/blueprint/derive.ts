@@ -1,4 +1,5 @@
 import { createId, nowIso } from "@/lib/utils";
+import { moduleLabel } from "@/lib/presentation";
 import type {
   BlueprintCapability,
   BlueprintCapabilityName,
@@ -100,8 +101,8 @@ export function deriveBusinessBlueprint(input: {
     workspaceId: workspace.id,
     version,
     generatedAt: stamp,
-    title: `${company} Business OS Blueprint v${version}`,
-    summary: `Structured operating blueprint for ${company} — how the company works today and how it should work tomorrow.`,
+    title: `${company} — Blueprint operativo de negocio v${version}`,
+    summary: `Blueprint operativo estructurado para ${company} — cómo opera hoy la empresa y cómo debería operar mañana.`,
     currentState,
     futureState,
     capabilities,
@@ -118,8 +119,8 @@ export function deriveBusinessBlueprint(input: {
     integrations,
     risks: interview?.report?.risks ?? workspace.painPoints.map((p) => p.title),
     assumptions: [
-      "Blueprint evolves with every discovery meeting.",
-      "Evidence from Knowledge and Memory outranks speculation.",
+      "El blueprint evoluciona con cada sesión de descubrimiento.",
+      "La evidencia de Conocimiento y Memoria tiene más peso que la especulación.",
     ],
     openQuestions,
     futureArchitecture: buildFutureArchitecture(workspace, systems, modules),
@@ -161,7 +162,7 @@ export function blueprintTimelineEvent(
     id: createId("timeline"),
     workspaceId: blueprint.workspaceId,
     date: blueprint.generatedAt,
-    title: `Business Blueprint v${blueprint.version}`,
+    title: `Blueprint de negocio v${blueprint.version}`,
     description: blueprint.summary,
     category: "blueprint",
     meetingId: blueprint.meetingId ?? undefined,
@@ -587,15 +588,15 @@ function summarizeCurrent(
     .map((p) => p.title)
     .slice(0, 3)
     .join("; ");
-  return `${workspace.companyName} currently operates with ${tools || "informal tools"}.${pains ? ` Key frictions: ${pains}.` : ""}`;
+  return `Hoy ${workspace.companyName} opera con ${tools || "herramientas informales"}.${pains ? ` Fricciones clave: ${pains}.` : ""}`;
 }
 
 function summarizeFuture(
   workspace: CompanyWorkspace,
   modules: BlueprintModule[],
 ): string {
-  const mods = modules.map((m) => m.name).slice(0, 5).join(", ");
-  return `Future operating model centers on ${mods || "core ISALWA modules"} with clear ownership, durable records, and fewer manual handoffs.`;
+  const mods = modules.map((m) => moduleLabel(m.name)).slice(0, 5).join(", ");
+  return `El modelo operativo futuro se centra en ${mods || "los módulos centrales de ISALWA"}, con dueños claros, registros duraderos y menos traspasos manuales.`;
 }
 
 function buildFutureArchitecture(
@@ -614,17 +615,25 @@ function buildFutureArchitecture(
     transition: {
       horizon: "transition",
       summary:
-        "Stabilize records, digitize approvals, and introduce shared customer/order truth while legacy tools remain.",
-      systems: [...systems.map((s) => s.name), "ISALWA (pilot)"],
+        "Estabilizar registros, digitalizar aprobaciones e introducir una verdad compartida de clientes/pedidos mientras las herramientas actuales siguen en uso.",
+      systems: [...systems.map((s) => s.name), "ISALWA (piloto)"],
       capabilities: modules.slice(0, 3).map((m) => m.name),
-      notes: ["Dual-run critical processes", "Train owners", "Retire personal stores gradually"],
+      notes: [
+        "Operar en paralelo los procesos críticos",
+        "Capacitar a los dueños de cada proceso",
+        "Retirar gradualmente los registros personales",
+      ],
     },
     future: {
       horizon: "future",
       summary: summarizeFuture(workspace, modules),
       systems: ["ISALWA OS", ...systems.filter((s) => /sap|zoho|erp/i.test(s.name)).map((s) => s.name)],
       capabilities: modules.map((m) => m.name),
-      notes: ["Single operating truth", "Automated approvals where policy allows", "AI assistant on durable data"],
+      notes: [
+        "Una sola verdad operativa",
+        "Aprobaciones automatizadas donde la política lo permita",
+        "Asistente de IA sobre datos duraderos",
+      ],
     },
   };
 }

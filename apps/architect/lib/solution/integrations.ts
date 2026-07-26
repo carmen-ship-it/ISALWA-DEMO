@@ -38,7 +38,7 @@ export function detectIntegrations(
     .map((e) => ({
       id: createId("sint"),
       name: e.name,
-      purpose: e.summary ?? "Current system observed in knowledge.",
+      purpose: e.summary ?? "Sistema actual observado en el conocimiento capturado.",
       status: "current" as const,
       confidence: e.confidence,
       evidence: [
@@ -68,9 +68,9 @@ export function detectAiAgents(
   return [
     {
       id: createId("sai"),
-      name: "Operating Assistant",
+      name: "Asistente operativo",
       purpose:
-        "Summarize exceptions and draft follow-ups from durable records — never invent facts.",
+        "Resume excepciones y redacta seguimientos a partir de registros duraderos — nunca inventa datos.",
       dependsOnModules: modules
         .map((m) => m.name)
         .filter((n) => ["Knowledge", "CRM", "Sales", "Approvals"].includes(n)),

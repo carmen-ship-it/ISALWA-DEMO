@@ -1,3 +1,4 @@
+import { moduleLabel, phaseLabel } from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   DeliverableEvidenceRef,
@@ -38,47 +39,47 @@ export function buildExecutiveSummary(
 
   const recommendedRoadmap =
     solution?.roadmap.map(
-      (p) => `Phase ${p.phase}: ${p.name} — ${p.businessValue}`,
+      (p) => `Fase ${p.phase}: ${phaseLabel(p.name)} — ${p.businessValue}`,
     ) ??
-    report?.suggestedRoadmap.map((r) => r.name) ??
-    ["Foundation", "Core operations", "Automation", "AI assistance"];
+    report?.suggestedRoadmap.map((r) => phaseLabel(r.name)) ??
+    ["Cimientos", "Operaciones centrales", "Automatización", "Asistencia de IA"];
 
   const investmentAreas = [
-    ...(solution?.modules.slice(0, 5).map((m) => m.name) ?? []),
-    ...(blueprint?.modules.slice(0, 3).map((m) => m.name) ?? []),
+    ...(solution?.modules.slice(0, 5).map((m) => moduleLabel(m.name)) ?? []),
+    ...(blueprint?.modules.slice(0, 3).map((m) => moduleLabel(m.name)) ?? []),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   const vision =
     report?.executiveSummary ??
     blueprint?.summary ??
-    `Design an operating system for ${workspace.companyName} that replaces fragile tools with durable workflows.`;
+    `Diseñar un sistema operativo para ${workspace.companyName} que reemplace herramientas frágiles por flujos de trabajo duraderos.`;
 
   const currentState =
     blueprint?.futureArchitecture.current.summary ??
     (consulting
-      ? `Maturity ${Math.round(consulting.maturity.overall * 100)}% · Health ${Math.round(consulting.health.overall * 100)}%`
+      ? `Madurez ${Math.round(consulting.maturity.overall)}% · Salud ${Math.round(consulting.health.overall)}%`
       : null) ??
-    `${workspace.companyName} is in ${workspace.currentStage} with ${workspace.businessUnderstanding}% business understanding.`;
+    `${workspace.companyName} está en etapa de ${workspace.currentStage} con ${workspace.businessUnderstanding}% de comprensión del negocio.`;
 
   const executiveRecommendation =
     consulting?.recommendations[0]?.title != null
       ? `${consulting.recommendations[0].title}. ${consulting.recommendations[0].rationale}`
-      : `Prioritize ${recommendedRoadmap[0] ?? "foundation"} while reducing ${biggestRisks[0] ?? "operational risk"}.`;
+      : `Priorizar ${recommendedRoadmap[0] ?? "cimientos"} mientras se reduce ${biggestRisks[0] ?? "el riesgo operativo"}.`;
 
   return {
     kind: "executive_summary",
     vision,
     currentState,
-    problems: problems.length ? problems : ["Discovery incomplete — problems not yet confirmed"],
-    biggestRisks: biggestRisks.length ? biggestRisks : ["Risk profile incomplete"],
+    problems: problems.length ? problems : ["Descubrimiento incompleto — problemas aún sin confirmar"],
+    biggestRisks: biggestRisks.length ? biggestRisks : ["Perfil de riesgo incompleto"],
     immediateOpportunities: immediateOpportunities.length
       ? immediateOpportunities
-      : ["Complete discovery to surface quick wins"],
+      : ["Completar el descubrimiento para revelar victorias rápidas"],
     strategicOpportunities: strategicOpportunities.length
       ? strategicOpportunities
-      : ["Strategic opportunities pending deeper discovery"],
+      : ["Oportunidades estratégicas pendientes de un descubrimiento más profundo"],
     recommendedRoadmap,
-    investmentAreas: investmentAreas.length ? investmentAreas : ["Core platform"],
+    investmentAreas: investmentAreas.length ? investmentAreas : ["Plataforma central"],
     executiveRecommendation,
     evidence: evidence.slice(0, 6),
   };

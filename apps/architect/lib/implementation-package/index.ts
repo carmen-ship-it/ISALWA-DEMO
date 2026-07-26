@@ -18,7 +18,10 @@ export {
   assembleImplementationPackage,
   buildImplementationPackageResult,
 } from "./assemble";
-export { buildImplementationSections } from "./sections";
+export {
+  buildImplementationSections,
+  sectionSourceEngineLabel,
+} from "./sections";
 export {
   evaluateImplementationGate,
   IMPLEMENTATION_PACKAGE_THRESHOLD,
@@ -46,9 +49,9 @@ export async function generateImplementationPackage(
     lastActivityAt: stamp,
     lastActivityLabel: pack
       ? pack.gate.ready
-        ? "Implementation package ready"
-        : "Implementation package assembled (incomplete engines)"
-      : "Implementation package not ready",
+        ? "Paquete de implementación listo"
+        : "Paquete de implementación armado (motores incompletos)"
+      : "Paquete de implementación no disponible",
     timeline: pack
       ? [
           {
@@ -56,8 +59,8 @@ export async function generateImplementationPackage(
             workspaceId,
             date: stamp,
             title: pack.gate.ready
-              ? `Implementation Package · ${workspace.companyName}`
-              : `Implementation Package (gated) · ${workspace.companyName}`,
+              ? `Paquete de implementación · ${workspace.companyName}`
+              : `Paquete de implementación (pendiente) · ${workspace.companyName}`,
             description: pack.summary,
             category: "implementation",
           },

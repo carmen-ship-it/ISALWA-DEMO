@@ -109,7 +109,7 @@ export function deriveSolutionArchitecture(input: {
     blueprintId: blueprint.id,
     blueprintVersion: blueprint.version,
     generatedAt: stamp,
-    summary: `Solution architecture for ${workspace.companyName} derived from Business Blueprint v${blueprint.version} — ${modules.length} modules, ${entities.length} entities, ${roles.length} roles.`,
+    summary: `Arquitectura de solución para ${workspace.companyName}, derivada del Blueprint operativo de negocio v${blueprint.version} — ${modules.length} capacidades, ${entities.length} entidades, ${roles.length} roles.`,
     modules,
     entities,
     relationships,

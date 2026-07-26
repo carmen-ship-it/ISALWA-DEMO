@@ -2,7 +2,9 @@
  * Derive append-only milestones from snapshot transitions.
  */
 
+import { moduleLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
+import { formatStageLabel } from "@/lib/workspace/format";
 import type {
   CompanySnapshot,
   EvolutionMilestone,
@@ -66,7 +68,7 @@ export function deriveMilestones(
         at,
         snapId,
         "Cambio de etapa",
-        `${from.stage} → ${to.stage}`,
+        `${formatStageLabel(from.stage)} → ${formatStageLabel(to.stage)}`,
       ),
     );
   }
@@ -133,7 +135,7 @@ export function deriveMilestones(
           at,
           snapId,
           "Módulo incorporado",
-          mod.name,
+          moduleLabel(mod.name),
         ),
       );
     }
@@ -148,7 +150,7 @@ export function deriveMilestones(
           at,
           snapId,
           "Módulo retirado",
-          mod.name,
+          moduleLabel(mod.name),
         ),
       );
     }

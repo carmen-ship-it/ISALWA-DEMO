@@ -8,6 +8,7 @@ import {
   generateImplementationPackage,
   IMPLEMENTATION_PACKAGE_THRESHOLD,
   readImplementationPackageState,
+  sectionSourceEngineLabel,
 } from "@/lib/implementation-package";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
@@ -112,9 +113,9 @@ export function ImplementationPackagePanel({
                       {section.summary}
                     </p>
                     <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
-                      {section.sourceEngine}
+                      {sectionSourceEngineLabel(section.sourceEngine)}
                       {section.artifacts[0]
-                        ? ` · ${section.artifacts.length} refs`
+                        ? ` · ${section.artifacts.length} referencias`
                         : ""}
                     </p>
                   </div>
@@ -140,7 +141,10 @@ export function ImplementationPackagePanel({
             entonces Architect sigue en descubrimiento — sin código ni prompts.
           </p>
           <p className="mt-3 text-xs text-[var(--isalwa-slate)]/60">
-            Gate actual: {evaluateImplementationGate(workspace).status}
+            Estado actual:{" "}
+            {evaluateImplementationGate(workspace).status === "ready"
+              ? "Listo"
+              : "No listo"}
           </p>
         </Card>
       )}

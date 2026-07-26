@@ -1,3 +1,5 @@
+import { departmentLabel } from "@/lib/presentation";
+import { industryLabel } from "@/lib/reasoning/industry/detect";
 import { createId } from "@/lib/utils";
 import type {
   BrandExperienceModel,
@@ -58,13 +60,13 @@ export function deriveBrandExperience(input: {
         ) / 100;
 
   const reasoning: string[] = [
-    `Brand experience derived from Blueprint v${blueprint.version} and ${evidence.length} evidence refs.`,
+    `Marca y experiencia derivadas del Blueprint v${blueprint.version} y ${evidence.length} referencias de evidencia.`,
     brandProfile.voiceTone.reasoning,
     themeRecommendation.rationale,
-    `Navigation: ${navigation.map((n) => n.label).join(" · ") || "none"}.`,
+    `Navegación: ${navigation.map((n) => n.label).join(" · ") || "ninguna"}.`,
     overallConfidence < 0.4
-      ? "Overall confidence is low — upload brand guidelines or complete discovery for stronger recommendations."
-      : "Recommendations are industry- and evidence-informed; client brand assets will increase confidence.",
+      ? "La confianza general es baja — suba lineamientos de marca o complete el descubrimiento para obtener recomendaciones más sólidas."
+      : "Las recomendaciones están informadas por la industria y la evidencia; los activos de marca del cliente aumentarán la confianza.",
   ];
 
   const executiveSummary = buildExecutiveSummary(
@@ -82,7 +84,7 @@ export function deriveBrandExperience(input: {
     blueprintId: blueprint.id,
     blueprintVersion: blueprint.version,
     generatedAt: stamp,
-    summary: `Brand & Experience for ${workspace.companyName} — Blueprint v${blueprint.version}. ${terminology.entries.length} terminology entries, ${navigation.length} navigation patterns, ${Math.round(overallConfidence * 100)}% confidence.`,
+    summary: `Marca y experiencia de ${workspace.companyName} — Blueprint v${blueprint.version}. ${terminology.entries.length} términos, ${navigation.length} patrones de navegación, ${Math.round(overallConfidence * 100)}% de confianza.`,
     executiveSummary,
     brandProfile,
     experienceProfile,
@@ -107,19 +109,19 @@ function buildExecutiveSummary(
   termCount: number,
 ): string {
   const industry =
-    workspace.industry !== "unknown" ? workspace.industry : "unclassified industry";
+    workspace.industry !== "unknown" ? industryLabel(workspace.industry) : "industria sin clasificar";
   const deptLine =
     blueprint.departments.length > 0
-      ? `Operating across ${blueprint.departments.map((d) => d.name).join(", ")}.`
-      : "Department structure still emerging.";
+      ? `Opera en ${blueprint.departments.map((d) => departmentLabel(d.name)).join(", ")}.`
+      : "La estructura departamental todavía está tomando forma.";
 
   return [
-    `${displayName} brand and experience profile (${industry}).`,
+    `Perfil de marca y experiencia de ${displayName} (${industry}).`,
     deptLine,
-    `${navCount} navigation recommendation(s) and ${termCount} terminology mapping(s) derived from canonical models.`,
+    `${navCount} recomendación(es) de navegación y ${termCount} mapeo(s) de terminología derivados de modelos canónicos.`,
     confidence >= 0.5
-      ? "Sufficient evidence for directional theme and experience guidance."
-      : "Early-stage inference — brand guidelines and logo uploads will materially improve accuracy.",
+      ? "Evidencia suficiente para orientar el tema y la experiencia."
+      : "Inferencia en etapa temprana — subir lineamientos de marca y logotipos mejorará considerablemente la precisión.",
   ].join(" ");
 }
 
@@ -137,7 +139,7 @@ export function brandExperienceTimelineEvent(
     id: createId("timeline"),
     workspaceId: model.workspaceId,
     date: model.generatedAt,
-    title: `Brand & Experience · Blueprint v${model.blueprintVersion}`,
+    title: `Marca y experiencia · Blueprint v${model.blueprintVersion}`,
     description: model.summary,
     category: "brand",
   };

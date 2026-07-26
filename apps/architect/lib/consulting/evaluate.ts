@@ -29,7 +29,7 @@ export function emptyConsultingIntelligence(): ConsultingIntelligence {
       riskConfidence: 0,
       opportunityConfidence: 0,
       evidenceDensity: 0,
-      notes: ["Consulting evaluation has not started."],
+      notes: ["La evaluación consultiva aún no ha comenzado."],
     },
     updatedAt: nowIso(),
   };

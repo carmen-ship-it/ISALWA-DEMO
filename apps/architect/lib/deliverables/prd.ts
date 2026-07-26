@@ -1,3 +1,4 @@
+import { severityLabel } from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   DeliverableEvidenceRef,
@@ -16,37 +17,37 @@ export function buildPrd(
   const consulting = workspace.conversationMemory?.consulting;
 
   const goals = [
-    `Replace fragile tools with a durable operating system for ${workspace.companyName}`,
+    `Reemplazar herramientas frágiles con un sistema operativo duradero para ${workspace.companyName}`,
     ...(blueprint?.opportunities.slice(0, 4).map((o) => o.title) ?? []),
   ];
 
   const users =
     solution?.roles.map((r) => r.name) ??
     blueprint?.roles ??
-    ["Owner", "Manager", "Operator"];
+    ["Owner", "Manager", "Operator"]; // Spanishified via roleLabel() at render time
 
   const functionalRequirements = [
     ...(solution?.modules.map(
-      (m) => `Support ${m.name}: ${m.purpose}`,
+      (m) => `Dar soporte a ${m.name}: ${m.purpose}`,
     ) ?? []),
     ...(processes?.workflows.map(
-      (w) => `Execute workflow “${w.name}” when ${w.trigger}`,
+      (w) => `Ejecutar el flujo «${w.name}» cuando ${w.trigger}`,
     ) ?? []),
   ].slice(0, 20);
 
   const nonFunctionalRequirements = [
-    "Audit trail on approvals and financial mutations",
-    "Role-based access control for all modules",
-    "Mobile-usable for field and warehouse roles where evidenced",
-    "Exportable operational reports",
-    "Deterministic configuration from Business Blueprint",
+    "Rastro de auditoría en aprobaciones y movimientos financieros",
+    "Control de acceso basado en roles para todos los módulos",
+    "Utilizable desde móvil para roles de campo y almacén donde haya evidencia",
+    "Reportes operativos exportables",
+    "Configuración determinística desde el Blueprint de negocio",
   ];
 
   const acceptanceCriteria = [
-    "Each Phase 1 module can complete its primary happy-path workflow end-to-end",
-    "Approvals enforce authority rules captured in discovery",
-    "Manual spreadsheet steps targeted in Phase 1 are retired or dual-run with audit",
-    "Cursor Context document remains accurate against shipped modules",
+    "Cada módulo de la Fase 1 puede completar de extremo a extremo su flujo principal esperado",
+    "Las aprobaciones respetan las reglas de autoridad capturadas en el descubrimiento",
+    "Los pasos manuales en hojas de cálculo previstos para la Fase 1 se retiran o corren en paralelo con auditoría",
+    "El documento de resumen de construcción se mantiene alineado con los módulos entregados",
   ];
 
   const futureScope = [
@@ -57,9 +58,9 @@ export function buildPrd(
   ];
 
   const outOfScope = [
-    "Physical ERP replacement for systems marked retain",
-    "Unvalidated integrations without evidence",
-    "Custom AI models before foundation data quality exists",
+    "Reemplazo físico del ERP para sistemas marcados para conservar",
+    "Integraciones sin validar y sin evidencia",
+    "Modelos de IA personalizados antes de que exista calidad de datos base",
   ];
 
   return {
@@ -81,7 +82,7 @@ export function buildPrd(
     outOfScope,
     risks: (consulting?.risks ?? [])
       .slice(0, 8)
-      .map((r) => `${r.title} (${r.severity})`),
+      .map((r) => `${r.title} (${severityLabel(r.severity)})`),
     evidence: evidence.slice(0, 6),
   };
 }

@@ -7,16 +7,16 @@ import type {
 } from "@/types";
 
 const LABELS: Record<MaturityDimension, string> = {
-  sales: "Sales maturity",
-  operations: "Operations maturity",
-  finance: "Finance maturity",
-  technology: "Technology maturity",
-  leadership: "Leadership maturity",
-  documentation: "Documentation maturity",
-  automation: "Automation maturity",
-  data: "Data maturity",
-  customer: "Customer maturity",
-  people: "People maturity",
+  sales: "Madurez comercial",
+  operations: "Madurez operativa",
+  finance: "Madurez financiera",
+  technology: "Madurez tecnológica",
+  leadership: "Madurez de liderazgo",
+  documentation: "Madurez de documentación",
+  automation: "Madurez de automatización",
+  data: "Madurez de datos",
+  customer: "Madurez de clientes",
+  people: "Madurez de personas",
 };
 
 function clamp(n: number): number {
@@ -178,7 +178,7 @@ export function evaluateMaturity(
       evidence:
         dim.evidence.length > 0
           ? dim.evidence
-          : [`Limited direct evidence for ${LABELS[dim.id].toLowerCase()}.`],
+          : [`Evidencia directa limitada sobre ${LABELS[dim.id].toLowerCase()}.`],
     };
   });
 
