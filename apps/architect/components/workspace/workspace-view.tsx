@@ -99,9 +99,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <SectionShell
           tone="executive"
-          kicker="Resumen ejecutivo"
-          title="Dónde estamos"
-          description="Una vista lista para decidir: comprensión, riesgo, prioridades y siguientes pasos."
+          kicker="Cabina ejecutiva"
+          title="Inicio del día"
+          description="La casa diaria después del onboarding: salud del negocio, riesgos abiertos, prioridades y avance — lista para decidir."
         >
           <Card className="border-sky-100/60 bg-white/80 px-6 py-6 shadow-none">
             <ConfidenceMeter value={workspace.businessUnderstanding} />
@@ -119,7 +119,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
 
         <SectionShell tone="executive">
-          <ExecutiveDashboard model={executive.dashboard} />
+          <ExecutiveDashboard
+            model={executive.dashboard}
+            cockpit={executive.cockpit}
+          />
         </SectionShell>
 
         <div className="grid gap-4 lg:grid-cols-2">

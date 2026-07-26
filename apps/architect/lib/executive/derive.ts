@@ -1,5 +1,6 @@
 /**
- * Executive Experience — Mission 10 presentation derivation.
+ * Executive Experience — Mission 9.5 presentation derivation.
+ * Mission 13 attaches the living ExecutiveCockpit (daily home).
  * No new engines. Pure projection of existing workspace models.
  * Never falls back to seed/mock recommendations or modules.
  */
@@ -9,6 +10,8 @@ import type {
   ProcessRiskLevel,
   SolutionModule,
 } from "@/types";
+import { deriveExecutiveCockpit } from "./cockpit";
+import type { ExecutiveCockpit } from "./types";
 
 export type JourneyStageId =
   | "interview"
@@ -85,6 +88,8 @@ export interface AnimatedBlueprintModel {
 export interface ExecutiveExperienceModel {
   journey: JourneyStage[];
   dashboard: ExecutiveDashboardModel;
+  /** Mission 13 — living daily cockpit assembled from existing packs. */
+  cockpit: ExecutiveCockpit;
   modules: ModuleInsightCard[];
   reasoning: ReasoningCard[];
   processes: ProcessInsightCard[];
@@ -229,6 +234,7 @@ export function deriveExecutiveExperience(
   return {
     journey,
     dashboard,
+    cockpit: deriveExecutiveCockpit(workspace),
     modules,
     reasoning,
     processes,
