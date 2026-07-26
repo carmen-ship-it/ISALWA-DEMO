@@ -58,8 +58,10 @@ function dimensionPercent(
   if (!dim || dim.applicable === false) {
     return { percent: 0, label: null };
   }
+  // DimensionStatus.confidence is already 0-100 (see lib/reasoning/confidence/score.ts),
+  // matching every other confidence field in this module — no re-scaling needed.
   return {
-    percent: Math.round(dim.confidence * 100),
+    percent: Math.round(dim.confidence),
     label: dim.label,
   };
 }

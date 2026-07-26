@@ -4,6 +4,48 @@
 **App:** `apps/architect`
 **Depends on:** Mission 11 `lib/preparation/` (unchanged) · Mission 2 Company Memory · Mission 10 Auth
 
+## Mission 5 verification pass
+
+The UI/route/nav wiring below had already landed (bundled into the Mission 1
+commit while working the same auth/nav surface) and typechecked cleanly.
+Mission 5 picked this up, verified it end-to-end against real seed data
+instead of re-building it, and fixed one latent bug found during that
+verification:
+
+- **Bug fixed — `lib/preparation/coverage.ts`.** `dimensionPercent()` computed
+  `Math.round(dim.confidence * 100)`, assuming `DiscoveryScore.dimensions[].confidence`
+  is 0–1. It is actually 0–100 everywhere else in the app (see
+  `lib/reasoning/confidence/score.ts`, `types/index.ts:DimensionStatus`), so
+  the brief was rendering coverage like **"Cobertura de información: 2429%"**
+  for the seeded ISALWA workspace. Removed the erroneous `* 100`. This is a
+  one-line unit-scale fix local to `lib/preparation/coverage.ts` (used only
+  inside `lib/preparation`, verified with a repo-wide grep) — not a new
+  scoring rule, not touched anywhere outside this mission's presentation
+  layer, and required for the brief to show honest numbers instead of a
+  broken one. Confirmed via a scripted run against `createSeedWorkspaces()`
+  (`ws_isalwa`): coverage went from `2429%` to a correct `33%`, matching the
+  per-topic slices (34/61/70/0/34/34/0 → avg 33).
+- **Verified, not rebuilt:** ran `prepareCompany()` + `buildResumeBriefing()`
+  against both the seeded ISALWA workspace and a brand-new
+  `createEmptyWorkspace()` — no crashes, honest 0% for the empty case,
+  Spanish interview-opening sentence renders correctly in both.
+- **Verified consultant-only gating still holds:** unauthenticated
+  `GET /preparation?workspaceId=...` returns a `307` to
+  `/login?next=%2Fpreparation` (middleware `CONSULTANT_ONLY_PATHS` check),
+  confirmed against a live dev server.
+- **Verified build health:** `npm run typecheck` and `npm run lint` both
+  pass with zero errors on the current `apps/architect` tree (lint's 6
+  warnings are pre-existing and unrelated to preparation files).
+- **Known, pre-existing, out-of-scope gap (not fixed this mission):** when
+  the engine falls back to raw `unknownAreas` topic IDs (e.g. `"Customers"`)
+  because no Spanish-labeled question exists yet, the interview-opening
+  sentence can read "...aclarar Customers" instead of "...aclarar Clientes".
+  The English topic IDs originate in `lib/knowledge/coverage.ts`
+  (`unknownAreas: ["Customers", "Sales", ...]`), a Mission 2 data source
+  shared by the resume engine, blueprint derivation, and knowledge briefing —
+  well outside `lib/preparation` and outside this mission's presentation-only
+  scope. Left untouched per "never rewrite working systems."
+
 ## Goal
 
 Give Carmen (consultant) a single screen to review before joining any
@@ -91,16 +133,12 @@ collision with the parallel Client Mode / Spanish workspace effort.
 
 ## Typecheck & lint
 
-- `npm run typecheck` — no errors in any file touched by this mission.
-  (Pre-existing, unrelated failures remain in `lib/workspace/seed.ts`
-  from a concurrent in-progress branch adding `CompanyWorkspace.brandOverrides`
-  — not touched or caused by this work.)
-- `npm run lint` — no errors/warnings in any file touched by this mission.
-  (Pre-existing, unrelated errors/warnings remain in
-  `components/workspace/executive-simulator-panel.tsx`,
-  `lib/brand/overrides.ts`, `lib/consulting/questions/index.ts`, and
-  `components/workspace/deliverables-panel.tsx` — all part of the same
-  concurrent in-progress branch, not touched or caused by this work.)
+- `npm run typecheck` — **zero errors**, full `apps/architect` tree, as of
+  Mission 5 (2026-07-25).
+- `npm run lint` — **zero errors**, 6 pre-existing warnings unrelated to
+  preparation files (`discovery-journey.tsx`, `lib/consulting/questions/index.ts`
+  unused-var warnings from earlier missions) — not touched or caused by this
+  work.
 
 ## Not done / out of scope
 
