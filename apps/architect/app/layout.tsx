@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     "Design your company before you build software. Guided discovery that produces the blueprint for your future operating system.",
 };
 
+/** Auth + per-user workspace — never serve a cached shell across deploys. */
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{

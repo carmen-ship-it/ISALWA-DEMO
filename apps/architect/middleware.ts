@@ -11,6 +11,7 @@ import {
   readPilotSessionCookie,
 } from "@/lib/auth/session";
 import { updateSupabaseSession } from "@/lib/auth/supabase/middleware";
+import { applyFreshDocumentHeaders } from "@/lib/cache/fresh-document";
 import type { ArchitectSession } from "@/types/auth";
 
 function isPublicPath(pathname: string): boolean {
@@ -53,6 +54,10 @@ async function resolveSession(
   return { session, response };
 }
 
+function redirectFresh(url: URL): NextResponse {
+  return applyFreshDocumentHeaders(NextResponse.redirect(url));
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -65,12 +70,11 @@ export async function middleware(request: NextRequest) {
   }
 
   const { session, response } = await resolveSession(request);
+  applyFreshDocumentHeaders(response);
 
   if (isPublicPath(pathname)) {
     if (session && pathname === "/login") {
-      return NextResponse.redirect(
-        new URL(postLoginPath(session), request.url),
-      );
+      return redirectFresh(new URL(postLoginPath(session), request.url));
     }
     return response;
   }
@@ -78,26 +82,22 @@ export async function middleware(request: NextRequest) {
   if (!session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return redirectFresh(loginUrl);
   }
 
   if (session.role === "client") {
     if (pathname === "/" || pathname === "/companies") {
-      return NextResponse.redirect(
-        new URL(postLoginPath(session), request.url),
-      );
+      return redirectFresh(new URL(postLoginPath(session), request.url));
     }
     if (isConsultantOnly(pathname)) {
-      return NextResponse.redirect(
-        new URL(postLoginPath(session), request.url),
-      );
+      return redirectFresh(new URL(postLoginPath(session), request.url));
     }
   }
 
   const workspaceId =
     workspaceIdFromPath(pathname) ?? workspaceIdFromSearch(request);
   if (workspaceId && !canAccessWorkspace(session, workspaceId)) {
-    return NextResponse.redirect(new URL(postLoginPath(session), request.url));
+    return redirectFresh(new URL(postLoginPath(session), request.url));
   }
 
   return response;
