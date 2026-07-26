@@ -45,6 +45,7 @@ const TONE_INK: Record<SectionTone, string> = {
 
 export function SectionShell({
   tone = "neutral",
+  size = "default",
   kicker,
   title,
   description,
@@ -53,6 +54,13 @@ export function SectionShell({
   className,
 }: {
   tone?: SectionTone;
+  /**
+   * Mission 13 — Executive Dashboard Redesign. Opt-in `"hero"` size scales up
+   * title/description/icon-chip for the single top-of-page "Today's Focus"
+   * hero without touching the default size every other `SectionShell` caller
+   * already relies on.
+   */
+  size?: "default" | "hero";
   kicker?: string;
   title?: string;
   description?: string;
@@ -61,21 +69,29 @@ export function SectionShell({
   className?: string;
 }) {
   const ink = TONE_INK[tone];
+  const isHero = size === "hero";
 
   return (
     <section
       className={cn(
         "rounded-[var(--isalwa-radius-panel)] border shadow-[var(--isalwa-shadow-resting)] px-5 py-6 sm:px-7 sm:py-8",
+        isHero && "sm:px-9 sm:py-10",
         TONE_SURFACE[tone],
         className,
       )}
     >
       {kicker || title || description ? (
-        <header className="mb-6">
-          <div className="flex items-start gap-3">
+        <header className={isHero ? "mb-7" : "mb-6"}>
+          <div className="flex items-start gap-4">
             {Icon ? (
-              <span className={cn("isalwa-icon-chip", ink)}>
-                <Icon className="h-4 w-4" aria-hidden />
+              <span
+                className={cn(
+                  "isalwa-icon-chip",
+                  ink,
+                  isHero && "!h-11 !w-11",
+                )}
+              >
+                <Icon className={isHero ? "h-5 w-5" : "h-4 w-4"} aria-hidden />
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
@@ -83,12 +99,24 @@ export function SectionShell({
                 <p className={cn("isalwa-kicker", ink)}>{kicker}</p>
               ) : null}
               {title ? (
-                <h2 className="architect-serif mt-2 text-3xl leading-tight text-[var(--isalwa-kiln)]">
+                <h2
+                  className={cn(
+                    "architect-serif leading-tight text-[var(--isalwa-kiln)]",
+                    isHero
+                      ? "mt-3 text-4xl sm:text-5xl"
+                      : "mt-2 text-3xl",
+                  )}
+                >
                   {title}
                 </h2>
               ) : null}
               {description ? (
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--isalwa-slate)]">
+                <p
+                  className={cn(
+                    "max-w-2xl leading-relaxed text-[var(--isalwa-slate)]",
+                    isHero ? "mt-4 text-lg" : "mt-3 text-base",
+                  )}
+                >
                   {description}
                 </p>
               ) : null}

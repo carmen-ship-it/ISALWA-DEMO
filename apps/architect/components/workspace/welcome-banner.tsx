@@ -38,8 +38,9 @@ export function WelcomeBanner({
   return (
     <SectionShell
       tone="executive"
+      size="hero"
       icon={Compass}
-      kicker="Bienvenida"
+      kicker="1 · Enfoque de hoy"
       title={`Bienvenido de nuevo, ${displayName}.`}
       description={
         brandMessage ??

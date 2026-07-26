@@ -32,7 +32,6 @@ import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simula
 import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
 import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
-import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
 import { ContextBar } from "@/components/workspace/executive/context-bar";
 import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
@@ -307,13 +306,22 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
   const panels: Record<WorkspaceTabId, ReactNode> = {
     executive: (
-      <div className="space-y-8">
+      // Mission 13 — Executive Dashboard Redesign. The Dashboard now reads as
+      // a consulting briefing in a fixed order: 1 Today's Focus (hero) · 2
+      // Business Understanding · 3 Top 3 Priorities · 4 Critical Risks · 5
+      // Recent Discoveries · 6 Roadmap Progress · 7 Recommended Systems · 8
+      // Upcoming Consultant Actions. Everything else (guided journey, open
+      // questions, suggested next meeting) is real, honest content that
+      // still belongs on the page — it now renders after the eight briefing
+      // sections, visibly quieter, instead of interleaved with them.
+      <div className="space-y-16">
         <DiscoveryCelebration
           workspaceId={workspace.id}
           companyName={workspace.companyName}
           understanding={workspace.businessUnderstanding}
         />
 
+        {/* 1 · Today's Focus — hero, integrates Mission 12's next-action guidance. */}
         <WelcomeBanner
           displayName={displayName}
           understanding={workspace.businessUnderstanding}
@@ -327,100 +335,103 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           brandMessage={effectiveBrand.homepageMessage.value}
         />
 
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-            Su progreso
-          </p>
-          <div className="mt-4">
-            <GuidedJourney
-              stages={guidedJourneyStages}
-              activeTab={tab}
-              onSelectStage={setTab}
+        {/* 2–7 · the consulting briefing body. */}
+        <div id="cabina-ejecutiva" className="scroll-mt-32">
+          <ExecutiveDashboard
+            model={executive.dashboard}
+            cockpit={executive.cockpit}
+            explainedRecommendations={explainedRecommendations}
+            evidenceChips={evidenceChips}
+          />
+        </div>
+
+        {/* 8 · Upcoming Consultant Actions. */}
+        <SectionShell
+          tone="deliverables"
+          icon={ClipboardList}
+          kicker="8 · Próximas acciones"
+          title={
+            isConsultant ? "Qué sigue para el consultor" : "Qué sigue para su equipo"
+          }
+          description="Decisiones que aún no se han cerrado y el siguiente paso recomendado."
+        >
+          <CockpitDecisionsList decisions={executive.cockpit.pendingDecisions} />
+
+          <div className="mt-6 border-t border-[var(--isalwa-mist)]/60 pt-6">
+            <NextStepCta
+              title="¿Qué debo hacer hoy?"
+              description={
+                showTodaysRecommendations
+                  ? "Ya sabemos lo suficiente para sugerir qué construir primero."
+                  : "Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
+              }
+              primaryHref={interviewHref}
+              primaryLabel={dashboardPrimaryLabel}
+              onPrimaryClick={goToTodaysRecommendations}
+              secondaryHref={`/report?workspaceId=${workspace.id}`}
+              secondaryLabel="Ver informe"
+              tertiaryHref={isConsultant ? preparationHref : undefined}
+              tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
             />
           </div>
-        </div>
-
-        <SectionShell
-          tone="health"
-          icon={Layers3}
-          kicker="Resumen ejecutivo"
-          title="Dónde estamos"
-          description="Esta es la comprensión actual de su negocio."
-        >
-          <Card className="border-[var(--isalwa-tint-green-border)]/60 bg-white/85 px-6 py-6 shadow-none">
-            <ConfidenceMeter
-              value={workspace.businessUnderstanding}
-              evidence={evidenceChips}
-            />
-          </Card>
         </SectionShell>
 
-        <div id="cabina-ejecutiva" className="scroll-mt-32">
-          <SectionShell tone="executive" icon={ClipboardList}>
-            <ExecutiveDashboard
-              model={executive.dashboard}
-              cockpit={executive.cockpit}
-              explainedRecommendations={explainedRecommendations}
-            />
-          </SectionShell>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <SectionShell
-            tone="problems"
-            icon={Lightbulb}
-            kicker="Lo que aún falta"
-            title="Preguntas abiertas"
-            description="Temas que todavía necesitamos aclarar."
-            className="sm:px-6 sm:py-6"
-          >
-            {workspace.openQuestions.length === 0 ? (
-              <p className="text-sm text-[var(--isalwa-slate)]">
-                Por ahora no hay preguntas abiertas.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {workspace.openQuestions.slice(0, 5).map((q) => (
-                  <li
-                    key={q}
-                    className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-amber-border)]/80"
-                  >
-                    {q}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </SectionShell>
-
-          <SectionShell
-            tone="health"
-            icon={Map}
-            kicker="Siguiente paso"
-            title="Qué conviene hacer"
-            description="Una sugerencia clara para la próxima conversación."
-            className="sm:px-6 sm:py-6"
-          >
-            <p className="text-base leading-relaxed text-[var(--isalwa-slate)]">
-              {workspace.suggestedNextMeeting ?? "Continuar el diagnóstico"}
+        {/* Secondary — everything else, visibly quieter than the briefing above. */}
+        <div className="space-y-8 border-t border-[var(--isalwa-mist)]/50 pt-10">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/60">
+              Su progreso
             </p>
-          </SectionShell>
-        </div>
+            <div className="mt-4">
+              <GuidedJourney
+                stages={guidedJourneyStages}
+                activeTab={tab}
+                onSelectStage={setTab}
+              />
+            </div>
+          </div>
 
-        <NextStepCta
-          title="¿Qué debo hacer hoy?"
-          description={
-            showTodaysRecommendations
-              ? "Ya sabemos lo suficiente para sugerir qué construir primero."
-              : "Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
-          }
-          primaryHref={interviewHref}
-          primaryLabel={dashboardPrimaryLabel}
-          onPrimaryClick={goToTodaysRecommendations}
-          secondaryHref={`/report?workspaceId=${workspace.id}`}
-          secondaryLabel="Ver informe"
-          tertiaryHref={isConsultant ? preparationHref : undefined}
-          tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
-        />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SectionShell
+              tone="problems"
+              icon={Lightbulb}
+              kicker="Lo que aún falta"
+              title="Preguntas abiertas"
+              description="Temas que todavía necesitamos aclarar."
+              className="sm:px-6 sm:py-6"
+            >
+              {workspace.openQuestions.length === 0 ? (
+                <p className="text-sm text-[var(--isalwa-slate)]">
+                  Por ahora no hay preguntas abiertas.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {workspace.openQuestions.slice(0, 5).map((q) => (
+                    <li
+                      key={q}
+                      className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-amber-border)]/80"
+                    >
+                      {q}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </SectionShell>
+
+            <SectionShell
+              tone="health"
+              icon={Map}
+              kicker="Siguiente paso"
+              title="Qué conviene hacer"
+              description="Una sugerencia clara para la próxima conversación."
+              className="sm:px-6 sm:py-6"
+            >
+              <p className="text-base leading-relaxed text-[var(--isalwa-slate)]">
+                {workspace.suggestedNextMeeting ?? "Continuar el diagnóstico"}
+              </p>
+            </SectionShell>
+          </div>
+        </div>
       </div>
     ),
 
@@ -982,5 +993,39 @@ function EmptyHint({ text, href }: { text: string; href: string }) {
         </Button>
       </div>
     </div>
+  );
+}
+
+/**
+ * Mission 13 — section 8 of the Dashboard briefing ("Upcoming Consultant
+ * Actions"). Reads `cockpit.pendingDecisions` (Mission 13's own cockpit
+ * pack) unchanged — no new derivation, just a dedicated presentation slot
+ * instead of sharing space with quick wins/opportunities.
+ */
+function CockpitDecisionsList({
+  decisions,
+}: {
+  decisions: Array<{ id: string; title: string; detail: string }>;
+}) {
+  if (decisions.length === 0) {
+    return (
+      <p className="text-sm text-[var(--isalwa-slate)]/60">
+        No hay decisiones pendientes por ahora.
+      </p>
+    );
+  }
+  return (
+    <ul className="space-y-3">
+      {decisions.map((d) => (
+        <li key={d.id} className="text-sm">
+          <p className="text-[var(--isalwa-slate)]">{d.title}</p>
+          {d.detail ? (
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
+              {d.detail}
+            </p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
   );
 }

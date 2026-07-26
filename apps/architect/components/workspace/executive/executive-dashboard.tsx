@@ -4,15 +4,13 @@ import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
-import { SectionShell } from "@/components/workspace/section-shell";
+import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
+import { SectionShell, type SectionTone } from "@/components/workspace/section-shell";
 import {
   healthStatusLabel,
   maturityLabel,
   recommendationStrength,
-  riskLevelLabel,
   severityLabel,
-  understandingLevel,
-  understandingSentence,
 } from "@/lib/presentation";
 import type {
   ExecutiveCockpit,
@@ -20,227 +18,172 @@ import type {
 } from "@/lib/executive";
 import type { ExplainedRecommendation } from "@/lib/explanations";
 
+/**
+ * Mission 13 — Executive Dashboard Redesign. This is the consulting-briefing
+ * body of the Dashboard tab: sections 2–7 of the fixed order (Business
+ * Understanding → Top 3 Priorities → Critical Risks → Recent Discoveries →
+ * Roadmap Progress → Recommended Systems). Section 1 (Today's Focus) and
+ * section 8 (Upcoming Consultant Actions) live one level up in
+ * `workspace-view.tsx`, where the page-level "what should I do next" state
+ * already exists. Presentation/reorder only — every value below already
+ * existed in the pre-Mission-13 dashboard; nothing here is invented.
+ */
 export function ExecutiveDashboard({
   model,
   cockpit,
   explainedRecommendations = [],
+  evidenceChips = [],
 }: {
   model: ExecutiveDashboardModel;
   cockpit: ExecutiveCockpit;
   explainedRecommendations?: ExplainedRecommendation[];
+  /** Short Spanish evidence chips (e.g. "4 reuniones") for the understanding meter. */
+  evidenceChips?: string[];
 }) {
-  const understanding = understandingLevel(model.businessUnderstanding);
-  const nextStep =
-    model.executiveRecommendation ??
-    model.priorities[0] ??
-    cockpit.priorities[0]?.title ??
-    "Continuar el descubrimiento para afinar prioridades.";
-  const impact =
-    model.topOpportunities[0] ??
-    model.quickWins[0] ??
-    cockpit.strategicOpportunities[0]?.title ??
-    "El impacto se aclarará cuando las recomendaciones se consoliden.";
-  const systems =
-    model.investmentAreas.length > 0
-      ? model.investmentAreas.slice(0, 4)
-      : [];
-  const riskHint = riskLevelLabel(model.riskLevel);
-
   const cockpitRecs = explainedRecommendations
     .filter((r) => r.priority === "now" || r.priority === "next")
-    .slice(0, 4);
+    .slice(0, 3);
 
-
-  const answers: Array<{
-    question: string;
-    answer: string;
-    tone: "executive" | "health" | "risks" | "blueprint";
-    detail?: string;
-  }> = [
-    {
-      question: "¿Qué tan bien entendemos el negocio?",
-      answer: understanding,
-      detail: understandingSentence(model.businessUnderstanding),
-      tone: "executive",
-    },
-    {
-      question: "¿Cuál es el mayor riesgo?",
-      answer: model.topRisk ?? "Aún no aparece un riesgo crítico",
-      detail: riskHint || undefined,
-      tone: "risks",
-    },
-    {
-      question: "¿Cuáles son las prioridades?",
-      answer:
-        model.priorities.length > 0
-          ? model.priorities.slice(0, 3).join(" · ")
-          : cockpit.priorities.length > 0
-            ? cockpit.priorities
-                .slice(0, 3)
-                .map((p) => p.title)
-                .join(" · ")
-            : "Las prioridades aparecen a medida que crece la evidencia",
-      tone: "executive",
-    },
-    {
-      question: "¿Qué debe pasar ahora?",
-      answer: nextStep,
-      tone: "health",
-    },
-    {
-      question: "¿Qué sistemas recomendamos?",
-      answer:
-        systems.length > 0
-          ? systems.join(" · ")
-          : "Las recomendaciones de sistemas aparecen cuando el diseño toma forma",
-      tone: "blueprint",
-    },
-    {
-      question: "¿Qué impacto esperamos?",
-      answer: impact,
-      tone: "health",
-    },
-  ];
+  const topPriorities = cockpit.priorities.slice(0, 3);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Cabina ejecutiva
-        </p>
-        <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          Claridad para decidir.
-        </h3>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {cockpit.dailySummary}
-        </p>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Card className="border-[var(--isalwa-tint-blue-border)]/70 bg-white/85 px-5 py-5 shadow-[var(--isalwa-shadow-resting)] sm:col-span-1">
-          <p className="isalwa-kicker isalwa-ink-blue">Salud del negocio</p>
-          <p className="architect-serif mt-3 text-4xl text-[var(--isalwa-kiln)]">
-            {cockpit.score.overall}
-          </p>
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{cockpit.score.label}</p>
-          <div className="isalwa-risk-bar mt-4 !h-1.5">
-            <motion.span
-              className="!rounded-full bg-[var(--isalwa-info)]"
-              initial={{ width: 0 }}
-              animate={{ width: `${cockpit.score.overall}%` }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          </div>
-        </Card>
-        <MetricTile
-          label="Madurez operativa"
-          value={maturityLabel(model.maturity, "percent")}
-        />
-        <MetricTile
-          label="Calidad de la evidencia"
-          value={
-            model.consultingConfidence != null
-              ? recommendationStrength(model.consultingConfidence).replace(
-                  "Fortaleza de la recomendación: ",
-                  "",
-                )
-              : "—"
-          }
-          hint={
-            model.consultingConfidence != null
-              ? recommendationStrength(model.consultingConfidence)
-              : undefined
-          }
-        />
-      </div>
-
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Resumen en 30 segundos
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {answers.map((item, i) => (
-            <motion.div
-              key={item.question}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.04 * i, duration: 0.35 }}
-            >
-              <SectionShell
-                tone={item.tone}
-                className="h-full px-5 py-4 sm:px-5 sm:py-4"
-              >
-                <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
-                  {item.question}
-                </p>
-                <p className="mt-2 text-base leading-snug text-[var(--isalwa-kiln)]">
-                  {item.answer}
-                </p>
-                {item.detail ? (
-                  <p className="mt-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
-                    {item.detail}
-                  </p>
-                ) : null}
-              </SectionShell>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      <CockpitSection
-        title="Salud por departamento"
-        hint="Qué tan sólida se ve la operación de cada área, según la madurez y los problemas detectados en el diagnóstico."
+    <div className="space-y-16">
+      {/* 2 · Business Understanding — progress */}
+      <BriefingSection
+        tone="health"
+        kicker="2 · Comprensión del negocio"
+        title="Qué tan bien entendemos el negocio"
+        description={cockpit.dailySummary}
       >
-        {cockpit.departmentHealth.length === 0 ? (
-          <EmptyHint />
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {cockpit.departmentHealth.map((dept) => (
-              <Card
-                key={dept.id}
-                className="border-[var(--isalwa-mist)]/70 bg-white/80 px-4 py-4 shadow-none"
-              >
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                    {dept.name}
-                  </p>
-                  <p className="text-xs text-[var(--isalwa-slate)]/80">{dept.label}</p>
-                </div>
-                <p className="mt-2 text-2xl tabular-nums text-[var(--isalwa-kiln)]">
-                  {dept.score != null ? dept.score : "—"}
-                </p>
-                {dept.evidence[0] ? (
-                  <p className="mt-2 line-clamp-2 text-xs text-[var(--isalwa-slate)]/80">
-                    {dept.evidence[0]}
-                  </p>
-                ) : null}
-              </Card>
-            ))}
-          </div>
-        )}
-      </CockpitSection>
+        <Card className="border-[var(--isalwa-tint-teal-border)]/60 bg-white/85 px-6 py-6 shadow-none">
+          <ConfidenceMeter
+            value={model.businessUnderstanding}
+            evidence={evidenceChips}
+          />
+        </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {cockpitRecs.length > 0 ? (
-          <div className="space-y-3 lg:col-span-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-              Prioridades justificadas
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <Card className="border-[var(--isalwa-tint-blue-border)]/70 bg-white/85 px-5 py-5 shadow-[var(--isalwa-shadow-resting)]">
+            <p className="isalwa-kicker isalwa-ink-blue">Salud del negocio</p>
+            <p className="architect-serif mt-3 text-4xl text-[var(--isalwa-kiln)]">
+              {cockpit.score.overall}
             </p>
-            <div className="grid gap-3 lg:grid-cols-2">
-              {cockpitRecs.map((rec, i) => (
-                <ExplainedRecommendationCard
-                  key={rec.id}
-                  explained={rec}
-                  index={i}
-                  compact
-                />
-              ))}
+            <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{cockpit.score.label}</p>
+            <div className="isalwa-risk-bar mt-4 !h-1.5">
+              <motion.span
+                className="!rounded-full bg-[var(--isalwa-info)]"
+                initial={{ width: 0 }}
+                animate={{ width: `${cockpit.score.overall}%` }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
             </div>
+          </Card>
+          <MetricTile
+            label="Madurez operativa"
+            value={maturityLabel(model.maturity, "percent")}
+          />
+          <MetricTile
+            label="Calidad de la evidencia"
+            value={
+              model.consultingConfidence != null
+                ? recommendationStrength(model.consultingConfidence).replace(
+                    "Fortaleza de la recomendación: ",
+                    "",
+                  )
+                : "—"
+            }
+            hint={
+              model.consultingConfidence != null
+                ? recommendationStrength(model.consultingConfidence)
+                : undefined
+            }
+          />
+        </div>
+
+        {/* Secondary detail — department-level and dimension-level understanding. */}
+        <div className="mt-8 space-y-6 border-t border-[var(--isalwa-mist)]/60 pt-6">
+          <SecondarySubsection
+            title="Salud por departamento"
+            hint="Qué tan sólida se ve la operación de cada área, según la madurez y los problemas detectados en el diagnóstico."
+          >
+            {cockpit.departmentHealth.length === 0 ? (
+              <EmptyHint />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {cockpit.departmentHealth.map((dept) => (
+                  <Card
+                    key={dept.id}
+                    className="border-[var(--isalwa-mist)]/70 bg-white/80 px-4 py-4 shadow-none"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                        {dept.name}
+                      </p>
+                      <p className="text-xs text-[var(--isalwa-slate)]/80">{dept.label}</p>
+                    </div>
+                    <p className="mt-2 text-2xl tabular-nums text-[var(--isalwa-kiln)]">
+                      {dept.score != null ? dept.score : "—"}
+                    </p>
+                    {dept.evidence[0] ? (
+                      <p className="mt-2 line-clamp-2 text-xs text-[var(--isalwa-slate)]/80">
+                        {dept.evidence[0]}
+                      </p>
+                    ) : null}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </SecondarySubsection>
+
+          {cockpit.businessHealth.gauges.length > 0 ? (
+            <SecondarySubsection
+              title="Indicadores de salud"
+              hint="Salud relativa de cada área del negocio — Saludable, Requiere atención o Crítico."
+            >
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {cockpit.businessHealth.gauges.map((g) => (
+                  <div
+                    key={g.id}
+                    className="rounded-2xl border border-[var(--isalwa-tint-green-border)]/60 bg-white/70 px-4 py-3"
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
+                      {g.label}
+                    </p>
+                    <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">
+                      {healthStatusLabel(g.score)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-[var(--isalwa-slate)]/80">
+                Lectura consultiva: {cockpit.businessHealth.label}
+              </p>
+            </SecondarySubsection>
+          ) : null}
+        </div>
+      </BriefingSection>
+
+      {/* 3 · Top 3 Priorities */}
+      <BriefingSection
+        tone="executive"
+        kicker="3 · Prioridades principales"
+        title="Las 3 prioridades que más importan hoy"
+        description="Lo que conviene resolver primero, ordenado por urgencia."
+      >
+        {cockpitRecs.length > 0 ? (
+          <div className="grid gap-3 lg:grid-cols-3">
+            {cockpitRecs.map((rec, i) => (
+              <ExplainedRecommendationCard
+                key={rec.id}
+                explained={rec}
+                index={i}
+                compact
+              />
+            ))}
           </div>
         ) : (
           <CockpitList
-            title="Prioridades actuales"
-            items={cockpit.priorities.map((p) => ({
+            items={topPriorities.map((p) => ({
               id: p.id,
               primary: p.title,
               meta: urgencyLabel(p.urgency),
@@ -248,8 +191,42 @@ export function ExecutiveDashboard({
             }))}
           />
         )}
+
+        {/* Secondary — quick wins and strategic opportunities support the priorities above without competing with them. */}
+        {cockpit.quickWins.length > 0 || cockpit.strategicOpportunities.length > 0 ? (
+          <div className="mt-8 grid gap-6 border-t border-[var(--isalwa-mist)]/60 pt-6 sm:grid-cols-2">
+            <SecondarySubsection title="Victorias rápidas">
+              <CockpitList
+                items={cockpit.quickWins.map((w) => ({
+                  id: w.id,
+                  primary: w.title,
+                  meta: w.horizon,
+                  secondary: w.rationale,
+                }))}
+              />
+            </SecondarySubsection>
+            <SecondarySubsection title="Oportunidades estratégicas">
+              <CockpitList
+                items={cockpit.strategicOpportunities.map((o) => ({
+                  id: o.id,
+                  primary: o.title,
+                  meta: o.horizon,
+                  secondary: o.rationale,
+                }))}
+              />
+            </SecondarySubsection>
+          </div>
+        ) : null}
+      </BriefingSection>
+
+      {/* 4 · Critical Risks */}
+      <BriefingSection
+        tone="risks"
+        kicker="4 · Riesgos críticos"
+        title="Lo que más nos preocupa"
+        description="Riesgos abiertos que todavía no tienen mitigación confirmada."
+      >
         <CockpitList
-          title="Riesgos abiertos"
           items={cockpit.openRisks.map((r) => ({
             id: r.id,
             primary: r.title,
@@ -257,29 +234,16 @@ export function ExecutiveDashboard({
             secondary: r.detail,
           }))}
         />
-        <CockpitList
-          title="Victorias rápidas"
-          items={cockpit.quickWins.map((w) => ({
-            id: w.id,
-            primary: w.title,
-            meta: w.horizon,
-            secondary: w.rationale,
-          }))}
-        />
-        <CockpitList
-          title="Oportunidades estratégicas"
-          items={cockpit.strategicOpportunities.map((o) => ({
-            id: o.id,
-            primary: o.title,
-            meta: o.horizon,
-            secondary: o.rationale,
-          }))}
-        />
-      </div>
+      </BriefingSection>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* 5 · Recent Discoveries */}
+      <BriefingSection
+        tone="problems"
+        kicker="5 · Descubrimientos recientes"
+        title="Lo que aprendimos últimamente"
+        description="Hallazgos nuevos, tal como quedaron registrados en el expediente."
+      >
         <CockpitList
-          title="Descubrimientos recientes"
           items={cockpit.recentDiscoveries.map((d) => ({
             id: d.id,
             primary: d.title,
@@ -287,34 +251,15 @@ export function ExecutiveDashboard({
             secondary: d.detail,
           }))}
         />
-        <CockpitList
-          title="Decisiones pendientes"
-          items={cockpit.pendingDecisions.map((d) => ({
-            id: d.id,
-            primary: d.title,
-            meta: null,
-            secondary: d.detail,
-          }))}
-        />
-      </div>
+      </BriefingSection>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <ProgressCard
-          title="Avance de automatización"
-          score={cockpit.automation.score}
-          label={cockpit.automation.label}
-          detail={
-            cockpit.automation.candidateCount > 0
-              ? `${cockpit.automation.candidateCount} candidato${cockpit.automation.candidateCount === 1 ? "" : "s"}`
-              : cockpit.automation.highlights[0] ?? null
-          }
-        />
-        <ProgressCard
-          title="Preparación para IA"
-          score={cockpit.aiReadiness.score}
-          label={cockpit.aiReadiness.label}
-          detail={cockpit.aiReadiness.blockers[0] ?? null}
-        />
+      {/* 6 · Roadmap Progress */}
+      <BriefingSection
+        tone="blueprint"
+        kicker="6 · Avance de la hoja de ruta"
+        title="Hacia dónde vamos"
+        description={cockpit.roadmap.summary}
+      >
         <ProgressCard
           title="Avance de la hoja de ruta"
           score={cockpit.roadmap.percent}
@@ -323,41 +268,10 @@ export function ExecutiveDashboard({
               ? `${cockpit.roadmap.totalPhases} fases`
               : cockpit.roadmap.summary
           }
-          detail={
-            cockpit.roadmap.totalPhases > 0 ? cockpit.roadmap.summary : null
-          }
+          detail={null}
         />
-      </div>
-
-      {cockpit.businessHealth.gauges.length > 0 ? (
-        <CockpitSection
-          title="Indicadores de salud"
-          hint="Salud relativa de cada área del negocio — Saludable, Requiere atención o Crítico."
-        >
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {cockpit.businessHealth.gauges.map((g) => (
-              <div
-                key={g.id}
-                className="rounded-2xl border border-[var(--isalwa-tint-green-border)]/60 bg-white/70 px-4 py-3"
-              >
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                  {g.label}
-                </p>
-                <p className="mt-1 text-lg text-[var(--isalwa-kiln)]">
-                  {healthStatusLabel(g.score)}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-xs text-[var(--isalwa-slate)]/80">
-            Lectura consultiva: {cockpit.businessHealth.label}
-          </p>
-        </CockpitSection>
-      ) : null}
-
-      {cockpit.roadmap.phases.length > 0 ? (
-        <CockpitSection title="Hoja de ruta — fases">
-          <ol className="space-y-3">
+        {cockpit.roadmap.phases.length > 0 ? (
+          <ol className="mt-6 space-y-3">
             {cockpit.roadmap.phases.map((phase) => (
               <li
                 key={`${phase.phase}-${phase.name}`}
@@ -380,8 +294,103 @@ export function ExecutiveDashboard({
               </li>
             ))}
           </ol>
-        </CockpitSection>
+        ) : (
+          <p className="mt-6 text-sm text-[var(--isalwa-slate)]/60">
+            Las fases aparecerán cuando el sistema recomendado tome forma.
+          </p>
+        )}
+      </BriefingSection>
+
+      {/* 7 · Recommended Systems */}
+      <BriefingSection
+        tone="processes"
+        kicker="7 · Sistemas recomendados"
+        title="Qué deberíamos implementar"
+        description="Áreas de inversión sugeridas a partir de la evidencia reunida."
+      >
+        {model.investmentAreas.length > 0 ? (
+          <ul className="flex flex-wrap gap-2">
+            {model.investmentAreas.map((area) => (
+              <li
+                key={area}
+                className="isalwa-surface-green rounded-full px-4 py-2 text-sm text-[var(--isalwa-kiln)]"
+              >
+                {area}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyHint text="Las recomendaciones de sistemas aparecen cuando el diseño toma forma." />
+        )}
+
+        <div className="mt-8 grid gap-3 border-t border-[var(--isalwa-mist)]/60 pt-6 sm:grid-cols-2">
+          <ProgressCard
+            title="Avance de automatización"
+            score={cockpit.automation.score}
+            label={cockpit.automation.label}
+            detail={
+              cockpit.automation.candidateCount > 0
+                ? `${cockpit.automation.candidateCount} candidato${cockpit.automation.candidateCount === 1 ? "" : "s"}`
+                : cockpit.automation.highlights[0] ?? null
+            }
+          />
+          <ProgressCard
+            title="Preparación para IA"
+            score={cockpit.aiReadiness.score}
+            label={cockpit.aiReadiness.label}
+            detail={cockpit.aiReadiness.blockers[0] ?? null}
+          />
+        </div>
+      </BriefingSection>
+    </div>
+  );
+}
+
+function BriefingSection({
+  tone,
+  kicker,
+  title,
+  description,
+  children,
+}: {
+  tone: SectionTone;
+  kicker: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <SectionShell
+      tone={tone}
+      kicker={kicker}
+      title={title}
+      description={description}
+      className="sm:px-7 sm:py-8"
+    >
+      {children}
+    </SectionShell>
+  );
+}
+
+function SecondarySubsection({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  /** One-line plain-language explanation of what this metric means. */
+  hint?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+        {title}
+      </p>
+      {hint ? (
+        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">{hint}</p>
       ) : null}
+      <div className="mt-3">{children}</div>
     </div>
   );
 }
@@ -408,42 +417,17 @@ function MetricTile({
   );
 }
 
-function CockpitSection({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  /** One-line plain-language explanation of what this metric means. */
-  hint?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        {title}
-      </p>
-      {hint ? (
-        <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">{hint}</p>
-      ) : null}
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
-
-function EmptyHint() {
+function EmptyHint({ text }: { text?: string }) {
   return (
     <p className="text-sm text-[var(--isalwa-slate)]/60">
-      Aparecerá a medida que crezca la evidencia…
+      {text ?? "Aparecerá a medida que crezca la evidencia…"}
     </p>
   );
 }
 
 function CockpitList({
-  title,
   items,
 }: {
-  title: string;
   items: Array<{
     id: string;
     primary: string;
@@ -451,35 +435,27 @@ function CockpitList({
     secondary: string | null | undefined;
   }>;
 }) {
+  if (items.length === 0) return <EmptyHint />;
   return (
-    <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        {title}
-      </p>
-      {items.length === 0 ? (
-        <EmptyHint />
-      ) : (
-        <ul className="mt-3 space-y-3">
-          {items.map((item) => (
-            <li key={item.id} className="text-sm">
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-[var(--isalwa-slate)]">{item.primary}</p>
-                {item.meta ? (
-                  <span className="shrink-0 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
-                    {item.meta}
-                  </span>
-                ) : null}
-              </div>
-              {item.secondary ? (
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
-                  {item.secondary}
-                </p>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <ul className="space-y-3">
+      {items.map((item) => (
+        <li key={item.id} className="text-sm">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[var(--isalwa-slate)]">{item.primary}</p>
+            {item.meta ? (
+              <span className="shrink-0 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
+                {item.meta}
+              </span>
+            ) : null}
+          </div>
+          {item.secondary ? (
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
+              {item.secondary}
+            </p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
   );
 }
 
