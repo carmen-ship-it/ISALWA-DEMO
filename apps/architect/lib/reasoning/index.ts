@@ -26,5 +26,8 @@ export type { KnowledgeReasoningContext } from "@/types";
 /**
  * Mission 5 — consulting intelligence lives in lib/consulting.
  * think() calls evaluateConsultingIntelligence after each absorb.
+ *
+ * Mission 10 — senior consultant question selection lives in
+ * lib/consulting/questions; planNextQuestion delegates to it.
  */
 export type { ConsultingIntelligence } from "@/types";

@@ -14,3 +14,24 @@ export {
   evaluateConsultingIntelligence,
   emptyConsultingIntelligence,
 } from "./evaluate";
+
+/** Mission 10 — senior consultant question reasoning (no LLM). */
+export {
+  selectNextConsultantQuestion,
+  prioritizeQuestions,
+  pickHighestValueQuestion,
+  generateConsequenceQuestions,
+  detectInformalTools,
+  selectTopicFocus,
+  estimateConfidenceGain,
+  FULL_CONSULTANT_LIBRARY,
+} from "./questions";
+export type {
+  LibraryQuestion,
+  PrioritizedQuestion,
+  QuestionIntent,
+  ThinkingMode,
+  TopicSelection,
+  ConfidenceGainEstimate,
+  InformalTool,
+} from "./questions";

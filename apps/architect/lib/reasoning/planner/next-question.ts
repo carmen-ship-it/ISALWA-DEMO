@@ -1,4 +1,5 @@
 import { INDUSTRY_PROFILES } from "@/data/catalog";
+import { selectNextConsultantQuestion } from "@/lib/consulting/questions";
 import { createId } from "@/lib/utils";
 import type {
   ConversationMemory,
@@ -200,42 +201,27 @@ function industryCandidates(memory: ConversationMemory): QuestionCandidate[] {
 }
 
 /**
- * Prefer unknown information over interesting information.
- * Never duplicate. Dig-deeper follow-ups outrank general discovery.
+ * Prefer the highest-value unknown over questionnaire order.
+ * Mission 10 — senior consultant selection (consequence, gaps, contradictions).
+ * Never duplicate. Catalog + follow-up queue still feed the pool.
  */
 export function planNextQuestion(
   memory: ConversationMemory,
 ): Question | null {
-  const asked = new Set(memory.askedQuestionKeys);
-
-  // 1) Highest-value queued follow-up
-  const followUp = memory.followUpQueue.find((item) => !asked.has(item.key));
-  if (followUp) {
-    return candidateToQuestion(followUp);
-  }
-
-  // 2) Unknown applicable dimensions first
-  const uncovered = memory.score.dimensions
-    .filter(
-      (dimension) => dimension.applicable !== false && !dimension.covered,
-    )
-    .sort((a, b) => a.confidence - b.confidence);
-
-  const pool = [...industryCandidates(memory), ...CATALOG]
-    .filter((candidate) => !asked.has(candidate.key))
-    .sort((a, b) => b.priority - a.priority);
-
-  for (const dimension of uncovered) {
-    const match = pool.find((candidate) => candidate.dimension === dimension.id);
-    if (match) return candidateToQuestion(match);
-  }
-
-  // 3) Any remaining high-priority unknown
-  const next = pool[0];
-  return next ? candidateToQuestion(next) : null;
+  const catalog = [...industryCandidates(memory), ...CATALOG];
+  const selected = selectNextConsultantQuestion(memory, catalog);
+  return selected ? candidateToQuestion(selected) : null;
 }
 
 function candidateToQuestion(candidate: QuestionCandidate): Question {
+  const helpParts = [
+    candidate.reason,
+    candidate.expectedLearning
+      ? `Aprender: ${candidate.expectedLearning}`
+      : null,
+    candidate.businessValue ? `Valor: ${candidate.businessValue}` : null,
+  ].filter(Boolean);
+
   return {
     id: createId(`q_${candidate.key}`),
     prompt: candidate.prompt,
@@ -245,7 +231,7 @@ function candidateToQuestion(candidate: QuestionCandidate): Question {
     dimension: candidate.dimension as DiscoveryDimension,
     priority: candidate.priority,
     placeholder: candidate.placeholder ?? "Cuéntenos cómo es en la práctica…",
-    helpText: candidate.reason,
+    helpText: helpParts.join(" · "),
   };
 }
 

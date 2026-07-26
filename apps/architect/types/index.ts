@@ -353,6 +353,12 @@ export interface ImprovementIdea {
   evidence: string[];
 }
 
+export type QuestionEstimatedImpact =
+  | "critical"
+  | "high"
+  | "medium"
+  | "low";
+
 export interface QuestionCandidate {
   key: string;
   prompt: string;
@@ -362,6 +368,14 @@ export interface QuestionCandidate {
   reason: string;
   followUpOf?: string;
   placeholder?: string;
+  /** Mission 10 — what answering reveals about the business. */
+  expectedLearning?: string;
+  /** Mission 10 — why this matters commercially / operationally. */
+  businessValue?: string;
+  /** Mission 10 — expected discovery-confidence lift (0–100). */
+  confidenceGain?: number;
+  /** Mission 10 — estimated decision / risk impact if answered. */
+  estimatedImpact?: QuestionEstimatedImpact;
 }
 
 export interface DimensionStatus {
@@ -735,6 +749,8 @@ export type {
   TechnicalArchitectureDeliverable,
 } from "./deliverables";
 
+
+
 export type {
   ArchitectRole,
   ArchitectSession,
@@ -745,3 +761,4 @@ export type {
   CompanyMembershipKind,
   LoginCredentials,
 } from "./auth";
+

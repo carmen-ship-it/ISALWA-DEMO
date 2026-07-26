@@ -64,8 +64,9 @@ Deterministic derivation — **no LLM**, never invents without evidence:
 - Logo/photo/guideline **upload implementation**
 - LLM brand analysis or “brand chatbot”
 - CSS/code generation, PDF style guides, Figma plugin
-- Changes to `lib/consulting/`, `lib/reasoning/`, `lib/blueprint/`, `lib/processes/`, `lib/solution/`, `lib/deliverables/` engines
+- Changes to blueprint / process / solution / deliverables engines (brand track)
 - Full-app visual redesign, sticky nav, Spanish i18n (removed mistaken polish artifacts)
+- Note: the **Senior Consultant Thinking** track below extends `lib/consulting/questions` and the planner only
 
 ## Auth pilot (parallel track)
 
@@ -93,3 +94,110 @@ const brandExperience = deriveBrandExperience({ workspace, blueprint });
 - Workspace stores and migrates `brandExperience`
 - Panel renders derived model read-only
 - `npm run typecheck` and `npm run lint` pass
+
+---
+
+# Mission 10 — Senior Consultant Thinking
+
+> **Track:** Question reasoning (parallel to Brand & Auth above).  
+> **Scope:** Deterministic next-question selection that thinks like a senior McKinsey consultant.  
+> **Not in scope:** UI redesign, Guided Assessment UI, chat, LLM, API, rewriting absorb/blueprint/solution/process/deliverables engines.
+
+## Goal
+
+Stop interviewing like a questionnaire. Ask the **highest-value unknown** based on evidence — not the next catalog slot.
+
+Example shift:
+
+| Questionnaire | Senior consultant |
+| --- | --- |
+| “¿Qué software usan?” after they said Excel | “Mencionaron Excel — ¿por qué sigue siendo indispensable?” |
+
+Every question maximizes business understanding: consequence, ownership, risk, contradiction, hypothesis — before inventory.
+
+## Hard constraints honored
+
+- Current `think()` / absorb / discovery-score path **intact**
+- Blueprint, solution, process, deliverables, core absorb algorithms **not rewritten**
+- Only **extended** consulting + planner selection
+- No LLM · no chat · no API · no UI redesign
+
+## Architecture
+
+```text
+answer
+  → absorbAnswerIntoMemory()          (unchanged)
+  → evaluateConsultingIntelligence()  (Mission 5, unchanged)
+  → planNextQuestion(memory)
+       → selectNextConsultantQuestion(memory, catalog)   ← Mission 10
+            ├── consequence-engine   (Excel/WhatsApp/Paper → WHY first)
+            ├── contradiction clarifications
+            ├── hypothesis validation
+            ├── topic-selection      (department balance + exec/ops mode)
+            ├── confidence-engine    (expected confidence gain)
+            └── question-priority    (composite “highest value unknown”)
+  → Question shown to user (Spanish prompts)
+```
+
+### Module: `lib/consulting/questions/`
+
+| File | Role |
+| --- | --- |
+| `question-library.ts` | Spanish library + metadata (reason, expectedLearning, businessValue, confidenceGain, estimatedImpact) |
+| `consequence-engine.ts` | Detect informal tools; prioritize WHY / ownership / risk; demote software inventory |
+| `confidence-engine.ts` | Estimate discovery-confidence lift per candidate |
+| `topic-selection.ts` | Evidence gaps, department balancing, executive vs operational lens |
+| `question-priority.ts` | Score pool; `pickHighestValueQuestion` |
+| `index.ts` | Public API (`selectNextConsultantQuestion`) |
+
+### Question metadata (every candidate)
+
+- `reason` — why ask now
+- `expectedLearning` — what answering reveals
+- `businessValue` — commercial / operational stake
+- `confidenceGain` — expected 0–100 understanding lift
+- `estimatedImpact` — `critical` \| `high` \| `medium` \| `low`
+
+### How priority works
+
+Composite score (deterministic):
+
+```text
+score =
+  basePriority
+  + confidenceGain × 1.4
+  + impactWeight          (critical…low)
+  + intentWeight          (consequence > contradiction > hypothesis > …)
+  + departmentBoost       (starved dimensions)
+  + thinkingModeBoost     (executive vs operational match)
+  + evidenceGapBoost      (uncovered / low-confidence dimensions)
+```
+
+**Consequence bias:** if Excel / WhatsApp / Paper is already in memory, consequence questions outrank inventory follow-ups (`excel_how_many`, `current_software`, …).
+
+### Integration point
+
+- `lib/reasoning/planner/next-question.ts` → `planNextQuestion` delegates to `selectNextConsultantQuestion`
+- `think()` and `domain/interview-engine.ts` keep calling `planNextQuestion` unchanged
+- Reuses `ConversationMemory`, discovery score, whiteboard, consulting intelligence, follow-up queue, existing catalog
+
+### Engines intentionally NOT modified
+
+- `lib/reasoning/memory/absorb.ts` (follow-up enqueue remains; consequence layer re-ranks)
+- `lib/consulting/evaluate.ts` and Mission 5 sub-engines
+- Blueprint / solution / process / deliverables engines
+
+## Public API
+
+```typescript
+import { selectNextConsultantQuestion } from "@/lib/consulting/questions";
+
+const next = selectNextConsultantQuestion(memory, catalogCandidates);
+```
+
+## Definition of done (this track)
+
+- `lib/consulting/questions/*` implemented and exported
+- Planner wired with minimal touch
+- `npm run typecheck` passes
+- This document updated
