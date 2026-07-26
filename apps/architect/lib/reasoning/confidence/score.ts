@@ -39,6 +39,86 @@ const PRODUCTION_OPTIONAL: ReadonlySet<Industry> = new Set([
 /** Minimum business understanding before the interview may conclude. */
 export const CONCLUSION_THRESHOLD = 78;
 
+/**
+ * Dimensions that must be covered before the interview may conclude — the
+ * same four the Readiness Engine gates the Blueprint on.
+ */
+export const CRITICAL_DIMENSIONS: DiscoveryDimension[] = [
+  "sales",
+  "customers",
+  "systems",
+  "operations",
+];
+
+/**
+ * The fact keys that count as evidence for each dimension. This is the single
+ * source of truth for "what do we still not know": `computeDiscoveryScore`
+ * counts them, and the Readiness Engine (`lib/readiness`) names the missing
+ * ones back to the client in plain Spanish. Keys prefixed `evidence_` are
+ * contributed by imported evidence rather than the interview.
+ */
+export const DIMENSION_EVIDENCE_KEYS: Record<DiscoveryDimension, string[]> = {
+  sales: [
+    "sales_motion",
+    "order_intake",
+    "fact_sales",
+    "evidence_sales",
+    "evidence_sales_strong",
+  ],
+  customers: [
+    "customer_contact",
+    "fact_customers",
+    "customer_count",
+    "evidence_customers",
+    "evidence_customers_strong",
+  ],
+  geography: [
+    "geography",
+    "fact_geography",
+    "evidence_geography",
+    "evidence_geography_strong",
+  ],
+  team: [
+    "team_structure",
+    "fact_team",
+    "departments",
+    "evidence_team",
+    "evidence_team_strong",
+  ],
+  operations: [
+    "bottlenecks",
+    "order_intake",
+    "inventory_flow",
+    "fulfillment",
+    "evidence_operations",
+    "evidence_operations_strong",
+  ],
+  finance: [
+    "finance_process",
+    "approvals",
+    "collections",
+    "revenue_stage",
+    "evidence_finance",
+    "evidence_finance_strong",
+  ],
+  production: [
+    "production_planning",
+    "manufacturing_flow",
+    "work_orders",
+    "evidence_production",
+    "evidence_production_strong",
+  ],
+  systems: [
+    "current_software",
+    "information_storage",
+    "excel_depth",
+    "whatsapp_depth",
+    "paper_depth",
+    "evidence_systems",
+    "evidence_systems_strong",
+  ],
+};
+
 export function createEmptyScore(): DiscoveryScore {
   return {
     overall: 0,
@@ -82,67 +162,13 @@ export function computeDiscoveryScore(
   const industry = memory.summary.industry;
   const productionApplicable = !PRODUCTION_OPTIONAL.has(industry);
 
-  const dimensionConfidence: Record<DiscoveryDimension, number> = {
-    sales: scoreDimension(factKeys, asked, [
-      "sales_motion",
-      "order_intake",
-      "fact_sales",
-      "evidence_sales",
-      "evidence_sales_strong",
-    ]),
-    customers: scoreDimension(factKeys, asked, [
-      "customer_contact",
-      "fact_customers",
-      "customer_count",
-      "evidence_customers",
-      "evidence_customers_strong",
-    ]),
-    geography: scoreDimension(factKeys, asked, [
-      "geography",
-      "fact_geography",
-      "evidence_geography",
-      "evidence_geography_strong",
-    ]),
-    team: scoreDimension(factKeys, asked, [
-      "team_structure",
-      "fact_team",
-      "departments",
-      "evidence_team",
-      "evidence_team_strong",
-    ]),
-    operations: scoreDimension(factKeys, asked, [
-      "bottlenecks",
-      "order_intake",
-      "inventory_flow",
-      "fulfillment",
-      "evidence_operations",
-      "evidence_operations_strong",
-    ]),
-    finance: scoreDimension(factKeys, asked, [
-      "finance_process",
-      "approvals",
-      "collections",
-      "revenue_stage",
-      "evidence_finance",
-      "evidence_finance_strong",
-    ]),
-    production: scoreDimension(factKeys, asked, [
-      "production_planning",
-      "manufacturing_flow",
-      "work_orders",
-      "evidence_production",
-      "evidence_production_strong",
-    ]),
-    systems: scoreDimension(factKeys, asked, [
-      "current_software",
-      "information_storage",
-      "excel_depth",
-      "whatsapp_depth",
-      "paper_depth",
-      "evidence_systems",
-      "evidence_systems_strong",
-    ]),
-  };
+  const dimensionConfidence = CORE_DIMENSIONS.reduce(
+    (acc, id) => {
+      acc[id] = scoreDimension(factKeys, asked, DIMENSION_EVIDENCE_KEYS[id]);
+      return acc;
+    },
+    {} as Record<DiscoveryDimension, number>,
+  );
 
   // Slight boost only when production evidence already exists — never invent coverage.
   if (
@@ -187,7 +213,7 @@ export function computeDiscoveryScore(
       .map((u) => u.label),
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
-  const criticalCovered = ["sales", "customers", "systems", "operations"].every(
+  const criticalCovered = CRITICAL_DIMENSIONS.every(
     (id) => dimensions.find((d) => d.id === id)?.covered,
   );
 

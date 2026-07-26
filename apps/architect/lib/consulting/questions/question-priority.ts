@@ -1,3 +1,8 @@
+import {
+  assessMemoryReadiness,
+  filterQuestionsByReadiness,
+} from "@/lib/readiness/planner";
+import type { ReadinessAssessment } from "@/lib/readiness/types";
 import type { ConversationMemory, QuestionCandidate } from "@/types";
 import { estimateConfidenceGain } from "./confidence-engine";
 import {
@@ -211,10 +216,18 @@ function catalogAsLibrary(
 
 /**
  * Build the full candidate pool and rank by business-understanding value.
+ *
+ * The Consultant Readiness Engine filters the pool before it is scored: a
+ * topic the evidence already answers (a handbook covering HR, SOPs covering
+ * the process, approvals already explained) drops out instead of being asked
+ * again. It adds no weight of its own — readiness is derived from the same
+ * evidence this ranking already reads, so scoring it here would count it
+ * twice.
  */
 export function prioritizeQuestions(
   memory: ConversationMemory,
   catalog: QuestionCandidate[] = [],
+  readiness: ReadinessAssessment = assessMemoryReadiness(memory),
 ): PrioritizedQuestion[] {
   const poolMap = new Map<string, LibraryQuestion>();
 
@@ -235,7 +248,11 @@ export function prioritizeQuestions(
   addAll(followUpsAsLibrary(memory));
   addAll(catalogAsLibrary(catalog, memory));
 
-  return Array.from(poolMap.values())
+  return filterQuestionsByReadiness(
+    memory,
+    Array.from(poolMap.values()),
+    readiness,
+  )
     .map((item) => scoreQuestion(memory, item))
     .sort((a, b) => b.score - a.score || b.priority - a.priority);
 }
@@ -246,7 +263,8 @@ export function prioritizeQuestions(
 export function pickHighestValueQuestion(
   memory: ConversationMemory,
   catalog: QuestionCandidate[] = [],
+  readiness: ReadinessAssessment = assessMemoryReadiness(memory),
 ): PrioritizedQuestion | null {
-  const ranked = prioritizeQuestions(memory, catalog);
+  const ranked = prioritizeQuestions(memory, catalog, readiness);
   return ranked[0] ?? null;
 }

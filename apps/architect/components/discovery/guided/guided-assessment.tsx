@@ -23,6 +23,7 @@ import {
   emptyConsultingIntelligence,
   emptyConsultingWhiteboardFields,
 } from "@/lib/consulting";
+import { assessMemoryReadiness, pickTopicReadiness } from "@/lib/readiness";
 import { createEmptyMemory } from "@/lib/reasoning";
 import { createWorkspaceInterview } from "@/lib/resume";
 import { createId, nowIso } from "@/lib/utils";
@@ -114,6 +115,16 @@ export function GuidedAssessment() {
   const persistence = useMemo(
     () => createClientInterviewPersistence(workspaceId),
     [workspaceId],
+  );
+
+  /**
+   * Consultant Readiness Engine — the same assessment the planner uses to
+   * decide which questions are still worth asking, reused here so the client
+   * can see where the current stage stands.
+   */
+  const readiness = useMemo(
+    () => (interview ? assessMemoryReadiness(interview.memory) : null),
+    [interview],
   );
 
   useEffect(() => {
@@ -393,6 +404,11 @@ export function GuidedAssessment() {
                   overallScore={interview.memory.score.overall}
                   estimatedMinutes={interview.estimatedMinutesRemaining}
                   questionProgress={estimateQuestionProgress(interview)}
+                  readiness={
+                    readiness
+                      ? pickTopicReadiness(readiness, stageDef.dimensions)
+                      : null
+                  }
                   pauseHref={`/workspace/${workspace.id}`}
                   onSkipQuestion={canSkipQuestion ? handleSkipQuestion : undefined}
                   onSkipStage={

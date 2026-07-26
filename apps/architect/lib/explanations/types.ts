@@ -3,6 +3,8 @@
  * Deterministic justification layer over existing evidence. No LLM.
  */
 
+import type { RecommendationEvidenceBasis } from "@/lib/readiness/types";
+
 export type ExplanationEvidenceSource =
   | "consulting"
   | "risk"
@@ -47,6 +49,10 @@ export interface ExplanationConfidence {
 /**
  * Full executive justification for a single recommendation.
  * Answers: Why? Evidence? Confidence? Business Value? ROI? Dependencies?
+ *
+ * `evidenceBasis` is the Consultant Readiness Engine's client-facing view of
+ * the same footing: how strong the evidence is and what it is made of, said
+ * without a single number.
  */
 export interface ExplainedRecommendation {
   id: string;
@@ -62,4 +68,6 @@ export interface ExplainedRecommendation {
   businessValue: string;
   supportingFacts: string[];
   futureDependencies: string[];
+  /** Evidence transparency — strength, sources, and what to ask for if thin. */
+  evidenceBasis: RecommendationEvidenceBasis;
 }

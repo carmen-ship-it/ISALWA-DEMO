@@ -18,9 +18,11 @@ import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { ReadinessStateDot } from "@/components/workspace/executive/readiness-panel";
 import type { QuestionProgress } from "@/lib/discovery/question-progress";
 import { stagePosition, type GuidedStageDefinition } from "@/lib/discovery/stages";
 import { understandingLevel } from "@/lib/presentation";
+import type { TopicReadiness } from "@/lib/readiness";
 
 const STAGE_ICON: Record<GuidedStageDefinition["id"], LucideIcon> = {
   welcome: Compass,
@@ -39,6 +41,7 @@ export function StageBrief({
   overallScore,
   estimatedMinutes,
   questionProgress,
+  readiness,
   pauseHref,
   onSkipQuestion,
   onSkipStage,
@@ -47,6 +50,12 @@ export function StageBrief({
   overallScore: number;
   estimatedMinutes: number;
   questionProgress?: QuestionProgress | null;
+  /**
+   * Where this stage stands according to the Consultant Readiness Engine.
+   * The engine already keeps the interview from re-asking what the evidence
+   * answers; this line simply tells the client why a stage feels short.
+   */
+  readiness?: TopicReadiness | null;
   pauseHref: string;
   onSkipQuestion?: () => void;
   onSkipStage?: () => void;
@@ -86,6 +95,15 @@ export function StageBrief({
           </span>
         </div>
       </div>
+
+      {readiness ? (
+        <div className="mt-4 flex items-start gap-2 rounded-2xl bg-white/70 px-4 py-3 ring-1 ring-[var(--isalwa-mist)]/80">
+          <ReadinessStateDot state={readiness.state} className="mt-1.5" />
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {readiness.headline}
+          </p>
+        </div>
+      ) : null}
 
       <div className="mt-5 flex flex-wrap items-center gap-2.5">
         <BackLink

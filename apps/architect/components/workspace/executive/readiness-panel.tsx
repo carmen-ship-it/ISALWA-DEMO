@@ -1,0 +1,325 @@
+"use client";
+
+import { motion } from "motion/react";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import {
+  consistencyLabel,
+  type ReadinessAssessment,
+  type ReadinessGate,
+  type ReadinessState,
+  type TopicReadiness,
+} from "@/lib/readiness";
+
+/**
+ * Consultant Readiness Engine — client surfaces.
+ *
+ * Everything here speaks the way a consultant speaks: what we already know,
+ * what we still need to understand, and how long that would take. There is
+ * no confidence figure, no score and no model vocabulary on this screen by
+ * design — the engine carries the uncertainty so the client only sees
+ * guidance.
+ */
+
+const STATE_STYLES: Record<
+  ReadinessState,
+  { dot: string; surface: string; ink: string; label: string }
+> = {
+  ready: {
+    dot: "bg-[var(--isalwa-success)]",
+    surface:
+      "border-[var(--isalwa-tint-green-border)]/70 bg-[var(--isalwa-tint-green)]/50",
+    ink: "text-[var(--isalwa-tint-green-ink)]",
+    label: "Listo",
+  },
+  almost_ready: {
+    dot: "bg-[var(--isalwa-tint-amber-ink)]",
+    surface:
+      "border-[var(--isalwa-tint-amber-border)]/70 bg-[var(--isalwa-tint-amber)]/50",
+    ink: "text-[var(--isalwa-tint-amber-ink)]",
+    label: "Casi listo",
+  },
+  needs_information: {
+    dot: "bg-[var(--isalwa-tint-red-ink)]",
+    surface:
+      "border-[var(--isalwa-tint-red-border)]/70 bg-[var(--isalwa-tint-red)]/40",
+    ink: "text-[var(--isalwa-tint-red-ink)]",
+    label: "Necesitamos más información",
+  },
+};
+
+export function ReadinessStateDot({
+  state,
+  className,
+}: {
+  state: ReadinessState;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "inline-block h-2 w-2 shrink-0 rounded-full",
+        STATE_STYLES[state].dot,
+        className,
+      )}
+    />
+  );
+}
+
+/** One line per business topic: where we stand and what would close it. */
+export function ReadinessTopicList({ topics }: { topics: TopicReadiness[] }) {
+  const visible = topics.filter((topic) => topic.applicable);
+  if (visible.length === 0) {
+    return (
+      <p className="text-sm text-[var(--isalwa-slate)]/60">
+        Los temas aparecerán a medida que crezca la evidencia…
+      </p>
+    );
+  }
+
+  return (
+    <ul className="grid gap-2 sm:grid-cols-2">
+      {visible.map((topic) => {
+        const style = STATE_STYLES[topic.state];
+        const consistency = consistencyLabel(topic.consistency);
+        return (
+          <li
+            key={topic.topic}
+            className={cn(
+              "rounded-2xl border px-4 py-3",
+              style.surface,
+            )}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                {topic.label}
+              </p>
+              <span
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-[0.12em]",
+                  style.ink,
+                )}
+              >
+                <ReadinessStateDot state={topic.state} />
+                {topic.stateLabel}
+              </span>
+            </div>
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--isalwa-slate)]/85">
+              {topic.headline}
+            </p>
+            {consistency ? (
+              <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
+                {consistency}
+              </p>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
+ * "Qué seguimos aprendiendo" — the concrete open questions, each with the
+ * reason it matters and an honest time estimate.
+ */
+export function StillLearningList({
+  assessment,
+  limit = 5,
+}: {
+  assessment: ReadinessAssessment;
+  limit?: number;
+}) {
+  const items = assessment.stillLearning.slice(0, limit);
+
+  if (items.length === 0) {
+    return (
+      <p className="text-sm text-[var(--isalwa-slate)]">
+        Por ahora no hay vacíos abiertos — lo que sabemos alcanza para
+        recomendar con seguridad.
+      </p>
+    );
+  }
+
+  return (
+    <ol className="space-y-3">
+      {items.map((item, index) => (
+        <motion.li
+          key={item.id}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.04, duration: 0.35 }}
+          className="rounded-2xl bg-white/85 px-4 py-3 ring-1 ring-[var(--isalwa-mist)]/70"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+              {item.question}
+            </p>
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
+              <ReadinessStateDot state={item.state} />
+              {item.label}
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
+            {item.why}
+            {item.estimatedMinutes
+              ? ` · unos ${item.estimatedMinutes} minutos`
+              : ""}
+          </p>
+        </motion.li>
+      ))}
+    </ol>
+  );
+}
+
+/** Soft clarifications when two sources tell a slightly different story. */
+export function ReadinessConflictList({
+  assessment,
+  limit = 3,
+}: {
+  assessment: ReadinessAssessment;
+  limit?: number;
+}) {
+  const conflicts = assessment.conflicts.slice(0, limit);
+  if (conflicts.length === 0) return null;
+
+  return (
+    <div className="mt-6 border-t border-[var(--isalwa-mist)]/60 pt-5">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+        Puntos por confirmar
+      </p>
+      <ul className="mt-3 space-y-2">
+        {conflicts.map((conflict) => (
+          <li
+            key={conflict.id}
+            className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-tint-amber-border)]/70"
+          >
+            {conflict.statement}
+            {conflict.sourceLabels.length > 0 ? (
+              <span className="mt-1 block text-xs text-[var(--isalwa-slate)]/60">
+                Según {conflict.sourceLabels.join(" y ").toLowerCase()}
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** What the file is built on today — evidence in client language. */
+export function ReadinessEvidenceChips({
+  assessment,
+}: {
+  assessment: ReadinessAssessment;
+}) {
+  const { inventory } = assessment;
+  const chips = [
+    inventory.interviewFacts > 0
+      ? `${inventory.interviewFacts} datos de la conversación`
+      : null,
+    inventory.documents > 0
+      ? `${inventory.documents} documento${inventory.documents === 1 ? "" : "s"} revisado${inventory.documents === 1 ? "" : "s"}`
+      : null,
+    inventory.importedRecords > 0
+      ? `${inventory.importedRecords} registro${inventory.importedRecords === 1 ? "" : "s"} importado${inventory.importedRecords === 1 ? "" : "s"}`
+      : null,
+    inventory.businessRules > 0
+      ? `${inventory.businessRules} regla${inventory.businessRules === 1 ? "" : "s"} del negocio`
+      : null,
+    inventory.meetings > 0
+      ? `${inventory.meetings} reunión${inventory.meetings === 1 ? "" : "es"}`
+      : null,
+  ].filter(Boolean) as string[];
+
+  if (chips.length === 0) return null;
+
+  return (
+    <ul className="mt-4 flex flex-wrap gap-2">
+      {chips.map((chip) => (
+        <li
+          key={chip}
+          className="rounded-full bg-white/85 px-3 py-1 text-xs text-[var(--isalwa-slate)] ring-1 ring-[var(--isalwa-mist)]/80"
+        >
+          {chip}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Readiness gate for a deliverable — Ready / Almost Ready with a single,
+ * concrete call to action. Never blocks the client from looking; it sets the
+ * expectation of how firm what they are looking at really is.
+ */
+export function ReadinessGateCard({
+  gate,
+  onAction,
+  actionHref,
+  className,
+}: {
+  gate: ReadinessGate;
+  onAction?: () => void;
+  actionHref?: string;
+  className?: string;
+}) {
+  const style = STATE_STYLES[gate.state];
+
+  return (
+    <Card className={cn("border px-5 py-5 shadow-none", style.surface, className)}>
+      <div className="flex items-center gap-2">
+        <ReadinessStateDot state={gate.state} />
+        <p
+          className={cn(
+            "text-[11px] font-medium uppercase tracking-[0.16em]",
+            style.ink,
+          )}
+        >
+          {gate.stateLabel}
+        </p>
+      </div>
+      <p className="architect-serif mt-3 text-2xl leading-tight text-[var(--isalwa-kiln)]">
+        {gate.title}
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {gate.message}
+      </p>
+
+      {gate.missingInformation.length > 0 ? (
+        <ul className="mt-4 space-y-1.5">
+          {gate.missingInformation.map((item) => (
+            <li
+              key={item}
+              className="text-sm leading-relaxed text-[var(--isalwa-slate)]/85"
+            >
+              · Necesitamos entender {item}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {onAction || actionHref ? (
+        <div className="mt-5">
+          {onAction ? (
+            <button
+              type="button"
+              onClick={onAction}
+              className="rounded-full bg-[var(--isalwa-kiln)] px-5 py-2.5 text-sm text-white transition hover:opacity-90"
+            >
+              {gate.ctaLabel}
+            </button>
+          ) : (
+            <a
+              href={actionHref}
+              className="inline-block rounded-full bg-[var(--isalwa-kiln)] px-5 py-2.5 text-sm text-white transition hover:opacity-90"
+            >
+              {gate.ctaLabel}
+            </a>
+          )}
+        </div>
+      ) : null}
+    </Card>
+  );
+}

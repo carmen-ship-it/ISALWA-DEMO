@@ -4,6 +4,11 @@
  */
 
 import { moduleLabel } from "@/lib/presentation";
+import {
+  assessReadiness,
+  recommendationEvidenceBasis,
+  type ReadinessAssessment,
+} from "@/lib/readiness";
 import type {
   CompanyWorkspace,
   ConsultingRecommendation,
@@ -29,7 +34,32 @@ import {
   roiFromModuleIndex,
   roiFromWorkspaceRecommendation,
 } from "./roi";
-import type { ExplainedRecommendation } from "./types";
+import type {
+  ExplanationConfidence,
+  ExplanationEvidenceItem,
+  ExplainedRecommendation,
+} from "./types";
+
+/**
+ * Evidence transparency, delegated to the Consultant Readiness Engine so the
+ * client-facing wording lives in exactly one place. The support figure is the
+ * one the explanation layer already computed — readiness only translates it
+ * into "sobre qué se apoya esto" language, and asks for what is missing when
+ * the footing is thin.
+ */
+function buildEvidenceBasis(
+  evidence: ExplanationEvidenceItem[],
+  confidence: ExplanationConfidence,
+  readiness: ReadinessAssessment | null,
+) {
+  return recommendationEvidenceBasis(
+    {
+      sources: evidence.map((item) => item.source),
+      support: confidence.score,
+    },
+    readiness,
+  );
+}
 
 function isConsultingRecommendation(
   rec: Recommendation | ConsultingRecommendation,
@@ -47,16 +77,18 @@ function isConsultingRecommendation(
 export function explainRecommendation(
   recommendation: Recommendation | ConsultingRecommendation,
   workspace: CompanyWorkspace,
+  readiness: ReadinessAssessment | null = null,
 ): ExplainedRecommendation {
   if (isConsultingRecommendation(recommendation)) {
-    return explainConsultingRecommendation(recommendation, workspace);
+    return explainConsultingRecommendation(recommendation, workspace, readiness);
   }
-  return explainWorkspaceRecommendation(recommendation, workspace);
+  return explainWorkspaceRecommendation(recommendation, workspace, readiness);
 }
 
 export function explainConsultingRecommendation(
   recommendation: ConsultingRecommendation,
   workspace: CompanyWorkspace,
+  readiness: ReadinessAssessment | null = null,
 ): ExplainedRecommendation {
   const consulting = workspace.conversationMemory?.consulting;
   const relatedRisks = (consulting?.risks ?? []).filter((r) =>
@@ -80,6 +112,14 @@ export function explainConsultingRecommendation(
     .slice(0, 4)
     .map((f) => f.statement);
   const painTitles = workspace.painPoints.slice(0, 3).map((p) => p.title);
+
+  const confidence = buildExplanationConfidence({
+    workspace,
+    evidenceCount: evidence.length,
+    relatedRisks,
+    relatedOpportunities,
+    moduleConfidence: matchingModule?.confidence,
+  });
 
   return {
     id: recommendation.id,
@@ -110,13 +150,8 @@ export function explainConsultingRecommendation(
       rationale: recommendation.rationale,
     }),
     expectedRoi: roiFromConsulting(recommendation, relatedOpportunities),
-    confidence: buildExplanationConfidence({
-      workspace,
-      evidenceCount: evidence.length,
-      relatedRisks,
-      relatedOpportunities,
-      moduleConfidence: matchingModule?.confidence,
-    }),
+    confidence,
+    evidenceBasis: buildEvidenceBasis(evidence, confidence, readiness),
     businessValue: businessValueFromContext({
       risks: relatedRisks,
       opportunities: relatedOpportunities,
@@ -140,6 +175,7 @@ export function explainConsultingRecommendation(
 export function explainWorkspaceRecommendation(
   recommendation: Recommendation,
   workspace: CompanyWorkspace,
+  readiness: ReadinessAssessment | null = null,
 ): ExplainedRecommendation {
   const relatedPains = workspace.painPoints.filter((p) =>
     recommendation.relatedPainPoints.includes(p.id),
@@ -173,6 +209,11 @@ export function explainWorkspaceRecommendation(
     .slice(0, 4)
     .map((f) => f.statement);
 
+  const confidence = buildExplanationConfidence({
+    workspace,
+    evidenceCount: evidence.length,
+  });
+
   return {
     id: recommendation.id,
     title: recommendation.title,
@@ -202,10 +243,8 @@ export function explainWorkspaceRecommendation(
       recommendation,
       matchingOpp?.impact,
     ),
-    confidence: buildExplanationConfidence({
-      workspace,
-      evidenceCount: evidence.length,
-    }),
+    confidence,
+    evidenceBasis: buildEvidenceBasis(evidence, confidence, readiness),
     businessValue: businessValueFromContext({
       risks: [],
       opportunities: [],
@@ -228,6 +267,7 @@ export function explainSolutionModule(
   module: SolutionModule,
   workspace: CompanyWorkspace,
   index = 0,
+  readiness: ReadinessAssessment | null = null,
 ): ExplainedRecommendation {
   const consulting = workspace.conversationMemory?.consulting;
   const relatedOpportunities = (consulting?.opportunities ?? [])
@@ -269,6 +309,14 @@ export function explainSolutionModule(
     .slice(0, 3)
     .map((f) => f.statement);
 
+  const confidence = buildExplanationConfidence({
+    workspace,
+    evidenceCount: evidence.length,
+    relatedRisks,
+    relatedOpportunities,
+    moduleConfidence: module.confidence,
+  });
+
   return {
     id: module.id,
     title: moduleLabel(module.name),
@@ -301,13 +349,8 @@ export function explainSolutionModule(
       phaseEntry?.businessValue ?? null,
       priority,
     ),
-    confidence: buildExplanationConfidence({
-      workspace,
-      evidenceCount: evidence.length,
-      relatedRisks,
-      relatedOpportunities,
-      moduleConfidence: module.confidence,
-    }),
+    confidence,
+    evidenceBasis: buildEvidenceBasis(evidence, confidence, readiness),
     businessValue: businessValueFromContext({
       risks: relatedRisks,
       opportunities: relatedOpportunities,
@@ -335,25 +378,31 @@ export function explainWorkspaceRecommendations(
 ): ExplainedRecommendation[] {
   const consultingRecs =
     workspace.conversationMemory?.consulting?.recommendations ?? [];
+  // One readiness pass for the whole list — every card then tells the client
+  // the same story about what the file still needs.
+  const readiness = assessReadiness(workspace);
 
   if (consultingRecs.length > 0) {
     return consultingRecs
       .slice(0, 8)
-      .map((rec) => explainConsultingRecommendation(rec, workspace));
+      .map((rec) => explainConsultingRecommendation(rec, workspace, readiness));
   }
 
   return workspace.recommendations
     .slice(0, 8)
-    .map((rec) => explainWorkspaceRecommendation(rec, workspace));
+    .map((rec) => explainWorkspaceRecommendation(rec, workspace, readiness));
 }
 
 export function explainSolutionModules(
   workspace: CompanyWorkspace,
 ): ExplainedRecommendation[] {
   const modules = workspace.solutionArchitecture?.modules ?? [];
+  const readiness = assessReadiness(workspace);
   return modules
     .slice(0, 6)
-    .map((mod, index) => explainSolutionModule(mod, workspace, index));
+    .map((mod, index) =>
+      explainSolutionModule(mod, workspace, index, readiness),
+    );
 }
 
 function findMatchingModule(

@@ -5,6 +5,11 @@ import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
+import {
+  ReadinessConflictList,
+  ReadinessTopicList,
+  StillLearningList,
+} from "@/components/workspace/executive/readiness-panel";
 import { SectionShell, type SectionTone } from "@/components/workspace/section-shell";
 import {
   healthStatusLabel,
@@ -17,25 +22,33 @@ import type {
   ExecutiveDashboardModel,
 } from "@/lib/executive";
 import type { ExplainedRecommendation } from "@/lib/explanations";
+import type { ReadinessAssessment } from "@/lib/readiness";
 
 /**
  * Mission 13 — Executive Dashboard Redesign. This is the consulting-briefing
- * body of the Dashboard tab: sections 2–7 of the fixed order (Business
- * Understanding → Top 3 Priorities → Critical Risks → Recent Discoveries →
- * Roadmap Progress → Recommended Systems). Section 1 (Today's Focus) and
- * section 8 (Upcoming Consultant Actions) live one level up in
- * `workspace-view.tsx`, where the page-level "what should I do next" state
- * already exists. Presentation/reorder only — every value below already
- * existed in the pre-Mission-13 dashboard; nothing here is invented.
+ * body of the Dashboard tab: sections 2–8 of the fixed order (Business
+ * Understanding → What We Keep Learning → Top 3 Priorities → Critical Risks →
+ * Recent Discoveries → Roadmap Progress → Recommended Systems). Section 1
+ * (Today's Focus) and section 9 (Upcoming Consultant Actions) live one level
+ * up in `workspace-view.tsx`, where the page-level "what should I do next"
+ * state already exists. Presentation/reorder only — every value below is
+ * produced by an existing engine; nothing here is invented.
+ *
+ * Section 3 is the Consultant Readiness Engine's home on the Dashboard: the
+ * concrete gaps between what we know and what we would need to advise with
+ * confidence, in the client's language.
  */
 export function ExecutiveDashboard({
   model,
   cockpit,
+  readiness,
   explainedRecommendations = [],
   evidenceChips = [],
 }: {
   model: ExecutiveDashboardModel;
   cockpit: ExecutiveCockpit;
+  /** Consultant Readiness Engine assessment for this workspace. */
+  readiness: ReadinessAssessment;
   explainedRecommendations?: ExplainedRecommendation[];
   /** Short Spanish evidence chips (e.g. "4 reuniones") for the understanding meter. */
   evidenceChips?: string[];
@@ -60,6 +73,14 @@ export function ExecutiveDashboard({
             value={model.businessUnderstanding}
             evidence={evidenceChips}
           />
+          {/*
+            Readiness narrative — extends the Mission 11 understanding
+            sentence with which areas are already firm and which ones we are
+            still learning, so the number is never the whole answer.
+          */}
+          <p className="mt-4 border-t border-[var(--isalwa-mist)]/60 pt-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {readiness.narrative}
+          </p>
         </Card>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -135,6 +156,13 @@ export function ExecutiveDashboard({
             )}
           </SecondarySubsection>
 
+          <SecondarySubsection
+            title="Qué entendemos de cada área"
+            hint="Dónde ya podemos recomendar con seguridad y dónde seguimos aprendiendo."
+          >
+            <ReadinessTopicList topics={readiness.topics} />
+          </SecondarySubsection>
+
           {cockpit.businessHealth.gauges.length > 0 ? (
             <SecondarySubsection
               title="Indicadores de salud"
@@ -163,10 +191,31 @@ export function ExecutiveDashboard({
         </div>
       </BriefingSection>
 
-      {/* 3 · Top 3 Priorities */}
+      {/* 3 · What We Keep Learning — the Consultant Readiness Engine. */}
+      <BriefingSection
+        tone="problems"
+        kicker="3 · Qué seguimos aprendiendo"
+        title="Lo que todavía necesitamos entender"
+        description={readiness.advice.detail}
+      >
+        <StillLearningList assessment={readiness} />
+
+        <div className="mt-6 rounded-2xl border border-[var(--isalwa-mist)]/70 bg-white/70 px-5 py-4">
+          <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+            {readiness.advice.headline}
+          </p>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--isalwa-slate)]/85">
+            {readiness.advice.nextStep}
+          </p>
+        </div>
+
+        <ReadinessConflictList assessment={readiness} />
+      </BriefingSection>
+
+      {/* 4 · Top 3 Priorities */}
       <BriefingSection
         tone="executive"
-        kicker="3 · Prioridades principales"
+        kicker="4 · Prioridades principales"
         title="Las 3 prioridades que más importan hoy"
         description="Lo que conviene resolver primero, ordenado por urgencia."
       >
@@ -219,10 +268,10 @@ export function ExecutiveDashboard({
         ) : null}
       </BriefingSection>
 
-      {/* 4 · Critical Risks */}
+      {/* 5 · Critical Risks */}
       <BriefingSection
         tone="risks"
-        kicker="4 · Riesgos críticos"
+        kicker="5 · Riesgos críticos"
         title="Lo que más nos preocupa"
         description="Riesgos abiertos que todavía no tienen mitigación confirmada."
       >
@@ -236,10 +285,10 @@ export function ExecutiveDashboard({
         />
       </BriefingSection>
 
-      {/* 5 · Recent Discoveries */}
+      {/* 6 · Recent Discoveries */}
       <BriefingSection
         tone="problems"
-        kicker="5 · Descubrimientos recientes"
+        kicker="6 · Descubrimientos recientes"
         title="Lo que aprendimos últimamente"
         description="Hallazgos nuevos, tal como quedaron registrados en el expediente."
       >
@@ -253,10 +302,10 @@ export function ExecutiveDashboard({
         />
       </BriefingSection>
 
-      {/* 6 · Roadmap Progress */}
+      {/* 7 · Roadmap Progress */}
       <BriefingSection
         tone="blueprint"
-        kicker="6 · Avance de la hoja de ruta"
+        kicker="7 · Avance de la hoja de ruta"
         title="Hacia dónde vamos"
         description={cockpit.roadmap.summary}
       >
@@ -301,10 +350,10 @@ export function ExecutiveDashboard({
         )}
       </BriefingSection>
 
-      {/* 7 · Recommended Systems */}
+      {/* 8 · Recommended Systems */}
       <BriefingSection
         tone="processes"
-        kicker="7 · Sistemas recomendados"
+        kicker="8 · Sistemas recomendados"
         title="Qué deberíamos implementar"
         description="Áreas de inversión sugeridas a partir de la evidencia reunida."
       >

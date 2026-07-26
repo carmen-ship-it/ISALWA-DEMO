@@ -60,6 +60,10 @@ import { pickHighestValueQuestion } from "./question-priority";
 /**
  * Entry point used by `planNextQuestion`.
  * Returns a QuestionCandidate with Mission 10 metadata populated.
+ *
+ * When to stop asking altogether stays where it already lives — the
+ * conclusion threshold in `computeDiscoveryScore`. Readiness narrows *which*
+ * question is worth asking, it does not move that bar.
  */
 export function selectNextConsultantQuestion(
   memory: ConversationMemory,

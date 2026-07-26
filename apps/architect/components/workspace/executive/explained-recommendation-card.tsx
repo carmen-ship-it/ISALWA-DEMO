@@ -11,7 +11,6 @@ import {
   StoryBeats,
 } from "@/components/workspace/story-beat";
 import {
-  confidenceBandLabelEs,
   priorityLabelEs,
   roiBandLabelEs,
   type ExplainedRecommendation,
@@ -77,9 +76,9 @@ export function ExplainedRecommendationCard({
             </span>
           </span>
           <span>
-            Confianza{" "}
+            Evidencia{" "}
             <span className="font-medium text-[var(--isalwa-kiln)]">
-              {confidenceBandLabelEs(explained.confidence.band)}
+              {explained.evidenceBasis.strengthLabel}
             </span>
           </span>
           {explained.evidence.length > 0 ? (
@@ -160,7 +159,7 @@ export function ExplainedRecommendationCard({
             <Beat
               step={6}
               title="Resultado esperado"
-              lead="El retorno y la confianza detrás de esta prioridad:"
+              lead="El retorno esperado y la evidencia que sostiene esta prioridad:"
             >
               <BeatSubLabel>
                 ROI {roiBandLabelEs(explained.expectedRoi.band)}
@@ -173,16 +172,25 @@ export function ExplainedRecommendationCard({
                 />
               ) : null}
 
+              {/*
+                Evidence transparency, from the Consultant Readiness Engine.
+                The client sees how solid the footing is and what it is made
+                of — interviews, documents, observed patterns — never a
+                confidence figure. When the footing is thin, the card asks
+                for the specific information that would firm it up.
+              */}
               <div className="mt-3">
                 <BeatSubLabel>
-                  Confianza {confidenceBandLabelEs(explained.confidence.band)}
+                  Evidencia {explained.evidenceBasis.strengthLabel}
                 </BeatSubLabel>
-                <p className="mt-1.5">{explained.confidence.summary}</p>
-                {explained.confidence.factors.length > 0 ? (
-                  <BeatList
-                    items={explained.confidence.factors}
-                    className="mt-1.5 space-y-1.5"
-                  />
+                <p className="mt-1.5">
+                  Esta recomendación se apoya en{" "}
+                  {explained.evidenceBasis.basis.join(" · ")}.
+                </p>
+                {explained.evidenceBasis.askForMore ? (
+                  <p className="mt-1.5 text-[var(--isalwa-slate)]">
+                    {explained.evidenceBasis.askForMore}
+                  </p>
                 ) : null}
               </div>
             </Beat>

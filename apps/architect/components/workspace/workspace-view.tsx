@@ -42,6 +42,7 @@ import {
   type GuidedJourneyStage,
 } from "@/components/workspace/executive/guided-journey";
 import { ModuleInsightCards } from "@/components/workspace/executive/module-insight-cards";
+import { ReadinessGateCard } from "@/components/workspace/executive/readiness-panel";
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
 import { NextStepCta } from "@/components/workspace/next-step-cta";
@@ -66,6 +67,7 @@ import {
   explainSolutionModules,
   explainWorkspaceRecommendations,
 } from "@/lib/explanations";
+import { assessReadiness, blueprintReadinessGate } from "@/lib/readiness";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -186,6 +188,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  /**
+   * Consultant Readiness Engine — one assessment per workspace load, shared
+   * by the Dashboard's "Qué seguimos aprendiendo" section and the Blueprint
+   * gate so both always tell the client the same story.
+   */
+  const readiness = useMemo(
+    () => (workspace ? assessReadiness(workspace) : null),
+    [workspace],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -199,7 +211,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
-  if (!workspace || !executive || !effectiveBrand || !executiveInsights) {
+  if (
+    !workspace ||
+    !executive ||
+    !effectiveBrand ||
+    !executiveInsights ||
+    !readiness
+  ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
         <p className="text-[var(--isalwa-slate)]/80">Cargando…</p>
@@ -252,6 +270,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const goToTodaysRecommendations = showTodaysRecommendations
     ? () => setTab("recommendations")
     : undefined;
+
+  const blueprintGate = blueprintReadinessGate(readiness);
 
   const guidedJourneyStages: GuidedJourneyStage[] = executive.journey.map(
     (stage) => ({
@@ -306,10 +326,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
   const panels: Record<WorkspaceTabId, ReactNode> = {
     executive: (
-      // Mission 13 — Executive Dashboard Redesign. The Dashboard now reads as
-      // a consulting briefing in a fixed order: 1 Today's Focus (hero) · 2
-      // Business Understanding · 3 Top 3 Priorities · 4 Critical Risks · 5
-      // Recent Discoveries · 6 Roadmap Progress · 7 Recommended Systems · 8
+      // Mission 13 — Executive Dashboard Redesign. The Dashboard reads as a
+      // consulting briefing in a fixed order: 1 Today's Focus (hero) · 2
+      // Business Understanding · 3 Qué seguimos aprendiendo (Consultant
+      // Readiness Engine) · 4 Top 3 Priorities · 5 Critical Risks · 6 Recent
+      // Discoveries · 7 Roadmap Progress · 8 Recommended Systems · 9
       // Upcoming Consultant Actions. Everything else (guided journey, open
       // questions, suggested next meeting) is real, honest content that
       // still belongs on the page — it now renders after the eight briefing
@@ -335,21 +356,22 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           brandMessage={effectiveBrand.homepageMessage.value}
         />
 
-        {/* 2–7 · the consulting briefing body. */}
+        {/* 2–8 · the consulting briefing body. */}
         <div id="cabina-ejecutiva" className="scroll-mt-32">
           <ExecutiveDashboard
             model={executive.dashboard}
             cockpit={executive.cockpit}
+            readiness={readiness}
             explainedRecommendations={explainedRecommendations}
             evidenceChips={evidenceChips}
           />
         </div>
 
-        {/* 8 · Upcoming Consultant Actions. */}
+        {/* 9 · Upcoming Consultant Actions. */}
         <SectionShell
           tone="deliverables"
           icon={ClipboardList}
-          kicker="8 · Próximas acciones"
+          kicker="9 · Próximas acciones"
           title={
             isConsultant ? "Qué sigue para el consultor" : "Qué sigue para su equipo"
           }
@@ -552,6 +574,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
     blueprint: (
       <div className="space-y-8">
+        <ReadinessGateCard
+          gate={blueprintGate}
+          actionHref={blueprintGate.unlocked ? undefined : interviewHref}
+        />
         <SectionShell
           tone="blueprint"
           icon={Layers3}
@@ -834,6 +860,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     ...panels,
     blueprint: (
       <div className="space-y-8">
+        {/*
+          Readiness gate — sets the expectation before the plan is read:
+          Ready, or Almost Ready with the concrete conversation that would
+          make it firm. It never hides the plan, it qualifies it.
+        */}
+        <ReadinessGateCard
+          gate={blueprintGate}
+          onAction={
+            blueprintGate.unlocked
+              ? () => setTab(isConsultant ? "architecture" : "roadmap")
+              : undefined
+          }
+          actionHref={blueprintGate.unlocked ? undefined : interviewHref}
+        />
         <SectionShell
           tone="blueprint"
           icon={Layers3}

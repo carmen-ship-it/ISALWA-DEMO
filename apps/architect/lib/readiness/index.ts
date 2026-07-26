@@ -1,142 +1,71 @@
 /**
- * Readiness — thin evidence-coverage layer.
+ * Consultant Readiness Engine — the platform brain.
  *
- * No Readiness Engine exists yet in this codebase, so this module is
- * intentionally small: it does not duplicate the Discovery Score's scoring
- * logic (`lib/reasoning/confidence/score.ts`) — it *derives from evidence
- * presence* (the Knowledge Engine's already-computed coverage) and
- * contributes that as ordinary known facts. The existing planner
- * (`lib/consulting/questions`) already treats covered/confident dimensions
- * as low priority — this module simply gives it evidence-backed facts to
- * work with, exactly the same seam `lib/knowledge/bridge.ts` already uses
- * for themes/unknowns. The interview UX itself is untouched.
+ * Not a chatbot and not an assistant: a single intelligence layer that answers
+ * one question everywhere it is asked — *does ISALWA know enough to advise
+ * this company with confidence?* — and, when the answer is no, says exactly
+ * what is missing in the words a consultant would use.
+ *
+ * The engine owns the uncertainty; the client only ever sees guidance. No
+ * confidence figures, no bands from the model, no AI vocabulary leaves this
+ * module.
+ *
+ *   snapshot.ts  every evidence source normalized at one boundary
+ *   evaluate.ts  topic states 🟢 / 🟡 / 🔴 + narrative + ask-vs-stop
+ *   planner.ts   readiness filters for the adaptive interview
+ *   gate.ts      blueprint gate + recommendation evidence transparency
+ *   memory.ts    imported evidence contributed back into working memory
+ *
+ * Full write-up: `CONSULTANT_READINESS_ENGINE.md`.
  */
 
-import { createId, nowIso } from "@/lib/utils";
-import { ensureWorkspaceKnowledge } from "@/lib/knowledge/coverage";
-import { coverageAreaLabel } from "@/lib/presentation";
-import type {
-  CompanyWorkspace,
-  ConversationMemory,
-  DiscoveryDimension,
-  KnowledgeCoverageArea,
-  KnowledgeCoverageSlice,
-} from "@/types";
+export {
+  buildEvidenceSnapshot,
+  snapshotFromMemory,
+  snapshotFromWorkspace,
+  type EvidenceSnapshotInput,
+} from "./snapshot";
 
-const AREA_TO_DIMENSIONS: Record<KnowledgeCoverageArea, DiscoveryDimension[]> = {
-  Customers: ["customers"],
-  Sales: ["sales"],
-  Operations: ["operations"],
-  Finance: ["finance"],
-  HR: ["team"],
-};
+export { assessReadiness, evaluateReadiness } from "./evaluate";
 
-/** Coverage below this never contributes — avoid noise from a single weak signal. */
-const MIN_SIGNAL_PERCENT = 45;
-/** Coverage at/above this is strong enough to recommend skipping the topic outright. */
-const STRONG_SIGNAL_PERCENT = 75;
+export {
+  assessMemoryReadiness,
+  filterQuestionsByReadiness,
+  pickTopicReadiness,
+  topicInterviewAction,
+  type ReadinessFilterCandidate,
+} from "./planner";
 
-export interface ReadinessSignal {
-  dimension: DiscoveryDimension;
-  area: KnowledgeCoverageArea;
-  coveragePercent: number;
-  skipRecommended: boolean;
-  reason: string;
-  evidenceAssetIds: string[];
-}
+export {
+  blueprintReadinessGate,
+  recommendationEvidenceBasis,
+  type RecommendationEvidenceInput,
+} from "./gate";
 
-export interface ReadinessAssessment {
-  workspaceId: string;
-  generatedAt: string;
-  signals: ReadinessSignal[];
-  skippableDimensions: DiscoveryDimension[];
-}
+export { applyReadinessToMemory } from "./memory";
 
-/**
- * Derive readiness purely from the Knowledge Engine's existing coverage
- * slices — the same numbers the Business Knowledge workspace section shows
- * the client. No independent scoring model.
- */
-export function assessReadiness(workspace: CompanyWorkspace): ReadinessAssessment {
-  const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
-  const signals: ReadinessSignal[] = [];
+export {
+  MINUTES_PER_CLARIFICATION,
+  consistencyLabel,
+  missingInformationLabel,
+  readinessStateLabel,
+} from "./topics";
 
-  for (const slice of knowledge.coverage as KnowledgeCoverageSlice[]) {
-    if (slice.percent < MIN_SIGNAL_PERCENT) continue;
-    const dimensions = AREA_TO_DIMENSIONS[slice.area] ?? [];
-    for (const dimension of dimensions) {
-      signals.push({
-        dimension,
-        area: slice.area,
-        coveragePercent: slice.percent,
-        skipRecommended: slice.percent >= STRONG_SIGNAL_PERCENT,
-        reason:
-          slice.percent >= STRONG_SIGNAL_PERCENT
-            ? `Evidencia cargada cubre bien "${coverageAreaLabel(slice.area)}" (${slice.percent}%) — podemos aligerar preguntas aquí.`
-            : `Evidencia cargada aporta a "${coverageAreaLabel(slice.area)}" (${slice.percent}%), aún conviene confirmar en la entrevista.`,
-        evidenceAssetIds: slice.evidenceAssetIds,
-      });
-    }
-  }
-
-  return {
-    workspaceId: workspace.id,
-    generatedAt: nowIso(),
-    signals,
-    skippableDimensions: signals
-      .filter((s) => s.skipRecommended)
-      .map((s) => s.dimension),
-  };
-}
-
-/**
- * Contribute evidence-backed known facts using the `evidence_<dimension>`
- * (and `_strong` variant) keys already recognized by
- * `computeDiscoveryScore` — never invents a new scoring path, just gives the
- * existing one real evidence to count. Idempotent: skips dimensions that
- * already have an evidence fact.
- */
-export function applyReadinessToMemory(
-  memory: ConversationMemory,
-  workspace: CompanyWorkspace,
-): ConversationMemory {
-  const assessment = assessReadiness(workspace);
-  if (assessment.signals.length === 0) return memory;
-
-  const existingKeys = new Set(memory.knownFacts.map((f) => f.key));
-  const newFacts = assessment.signals.flatMap((signal) => {
-    const facts = [];
-    const baseKey = `evidence_${signal.dimension}`;
-    if (!existingKeys.has(baseKey)) {
-      facts.push({
-        id: createId("fact"),
-        key: baseKey,
-        statement: signal.reason,
-        evidence: ["Conocimiento del negocio"],
-        confidence: signal.coveragePercent / 100,
-        dimension: signal.dimension,
-        createdAt: nowIso(),
-      });
-    }
-    const strongKey = `${baseKey}_strong`;
-    if (signal.skipRecommended && !existingKeys.has(strongKey)) {
-      facts.push({
-        id: createId("fact"),
-        key: strongKey,
-        statement: signal.reason,
-        evidence: ["Conocimiento del negocio"],
-        confidence: signal.coveragePercent / 100,
-        dimension: signal.dimension,
-        createdAt: nowIso(),
-      });
-    }
-    return facts;
-  });
-
-  if (newFacts.length === 0) return memory;
-
-  return {
-    ...memory,
-    knownFacts: [...memory.knownFacts, ...newFacts],
-  };
-}
+export type {
+  EvidenceInventory,
+  EvidenceSignal,
+  EvidenceSnapshot,
+  EvidenceSourceKind,
+  ReadinessAdvice,
+  ReadinessAssessment,
+  ReadinessConflict,
+  ReadinessConsistency,
+  ReadinessGate,
+  ReadinessInterviewAction,
+  ReadinessLearningItem,
+  ReadinessSignal,
+  ReadinessState,
+  ReadinessTopicId,
+  RecommendationEvidenceBasis,
+  TopicReadiness,
+} from "./types";
