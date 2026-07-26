@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { SectionShell } from "@/components/workspace/section-shell";
 import {
   maturityLabel,
@@ -15,13 +16,16 @@ import type {
   ExecutiveCockpit,
   ExecutiveDashboardModel,
 } from "@/lib/executive";
+import type { ExplainedRecommendation } from "@/lib/explanations";
 
 export function ExecutiveDashboard({
   model,
   cockpit,
+  explainedRecommendations = [],
 }: {
   model: ExecutiveDashboardModel;
   cockpit: ExecutiveCockpit;
+  explainedRecommendations?: ExplainedRecommendation[];
 }) {
   const understanding = understandingLevel(model.businessUnderstanding);
   const nextStep =
@@ -39,6 +43,11 @@ export function ExecutiveDashboard({
       ? model.investmentAreas.slice(0, 4)
       : [];
   const riskHint = riskLevelLabel(model.riskLevel);
+
+  const cockpitRecs = explainedRecommendations
+    .filter((r) => r.priority === "now" || r.priority === "next")
+    .slice(0, 4);
+
 
   const answers: Array<{
     question: string;
@@ -209,15 +218,33 @@ export function ExecutiveDashboard({
       </CockpitSection>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <CockpitList
-          title="Prioridades actuales"
-          items={cockpit.priorities.map((p) => ({
-            id: p.id,
-            primary: p.title,
-            meta: urgencyLabel(p.urgency),
-            secondary: p.rationale,
-          }))}
-        />
+        {cockpitRecs.length > 0 ? (
+          <div className="space-y-3 lg:col-span-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+              Prioridades justificadas
+            </p>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {cockpitRecs.map((rec, i) => (
+                <ExplainedRecommendationCard
+                  key={rec.id}
+                  explained={rec}
+                  index={i}
+                  compact
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <CockpitList
+            title="Prioridades actuales"
+            items={cockpit.priorities.map((p) => ({
+              id: p.id,
+              primary: p.title,
+              meta: urgencyLabel(p.urgency),
+              secondary: p.rationale,
+            }))}
+          />
+        )}
         <CockpitList
           title="Riesgos abiertos"
           items={cockpit.openRisks.map((r) => ({

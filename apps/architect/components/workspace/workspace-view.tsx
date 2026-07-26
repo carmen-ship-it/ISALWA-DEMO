@@ -28,6 +28,10 @@ import {
 } from "@/components/workspace/workspace-tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { deriveExecutiveExperience } from "@/lib/executive";
+import {
+  explainSolutionModules,
+  explainWorkspaceRecommendations,
+} from "@/lib/explanations";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -81,6 +85,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  const explainedRecommendations = useMemo(
+    () => (workspace ? explainWorkspaceRecommendations(workspace) : []),
+    [workspace],
+  );
+
+  const explainedModules = useMemo(
+    () => (workspace ? explainSolutionModules(workspace) : []),
+    [workspace],
+  );
+
   if (!workspace || !executive) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -122,6 +136,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <ExecutiveDashboard
             model={executive.dashboard}
             cockpit={executive.cockpit}
+            explainedRecommendations={explainedRecommendations}
           />
         </SectionShell>
 
@@ -293,10 +308,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           title="Lo que recomendamos"
           description="Capacidades y fundamentos con evidencia del descubrimiento — no listas genéricas de software."
         >
-          <ModuleInsightCards modules={executive.modules} />
+          <ModuleInsightCards recommendations={explainedModules} />
         </SectionShell>
         <SectionShell tone="health">
-          <ReasoningCards cards={executive.reasoning} />
+          <ReasoningCards recommendations={explainedRecommendations} />
         </SectionShell>
         {workspace.currentReport ? (
           <SectionShell tone="deliverables" kicker="Narrative">
