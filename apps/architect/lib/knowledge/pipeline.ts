@@ -1,11 +1,16 @@
 import type { KnowledgePipelineStage } from "@/types";
 
 /**
- * Processing pipeline — architecture only.
+ * Processing pipeline.
  *
  * Upload → Parser → Knowledge Extraction → Memory → Recommendations → Reasoning Engine
  *
- * No stage is executed in Mission 3.
+ * Mission 3: architecture only, no stage executed.
+ * Mission "Executive Knowledge Intake": Upload, Parser, and Knowledge Extraction
+ * are wired via `lib/knowledge/intake.ts` — deterministic metadata heuristics
+ * (filename + extension), no OCR/LLM. Memory is picked up by the existing
+ * Resume Engine bridge (`lib/knowledge/bridge.ts`) the next time discovery
+ * resumes. Recommendations / Reasoning Engine remain future work.
  */
 export const KNOWLEDGE_PIPELINE: readonly KnowledgePipelineStage[] = [
   {

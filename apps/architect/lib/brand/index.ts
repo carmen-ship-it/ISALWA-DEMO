@@ -12,3 +12,14 @@ export {
   BRAND_FUTURE_OUTPUTS,
 } from "./future-intake";
 export { collectBrandEvidence } from "./evidence";
+export {
+  applyBrandOverrides,
+  emptyBrandOverrides,
+  terminologyOverrideKey,
+} from "./overrides";
+export type {
+  EffectiveBrandExperience,
+  EffectiveBrandField,
+  EffectiveReportBranding,
+  EffectiveTerminologyEntry,
+} from "./overrides";

@@ -9,6 +9,7 @@ import {
   generateDeliverables,
 } from "@/lib/deliverables";
 import { ImplementationPackagePanel } from "@/components/workspace/implementation-package-panel";
+import { useAuth } from "@/hooks/use-auth";
 import {
   healthLabel,
   maturityLabel,
@@ -33,18 +34,32 @@ type TabId =
   | "exports";
 
 const TABS: Array<{ id: TabId; label: string }> = [
-  { id: "executive", label: "Executive Summary" },
-  { id: "assessment", label: "Business Assessment" },
-  { id: "blueprint", label: "Blueprint" },
-  { id: "solution", label: "Architecture" },
-  { id: "processes", label: "Processes" },
-  { id: "prd", label: "Requirements" },
-  { id: "roadmap", label: "Roadmap" },
-  { id: "cursor", label: "Build Brief" },
-  { id: "implementation", label: "Implementation Plan" },
-  { id: "backlog", label: "Work Backlog" },
-  { id: "proposal", label: "Proposal" },
-  { id: "exports", label: "Export Options" },
+  { id: "executive", label: "Resumen ejecutivo" },
+  { id: "assessment", label: "Diagnóstico del negocio" },
+  { id: "blueprint", label: "Plan de negocio" },
+  { id: "solution", label: "Sistema recomendado" },
+  { id: "processes", label: "Procesos" },
+  { id: "prd", label: "Requisitos" },
+  { id: "roadmap", label: "Plan de implementación" },
+  { id: "cursor", label: "Resumen de construcción" },
+  { id: "implementation", label: "Plan de implementación técnica" },
+  { id: "backlog", label: "Backlog de trabajo" },
+  { id: "proposal", label: "Propuesta" },
+  { id: "exports", label: "Opciones de exportación" },
+];
+
+/**
+ * Client Mode — the polished decision documents Álvaro sees. Technical
+ * build artifacts (system design, requirements, backlog, build context,
+ * export formats) stay Consultant-only, per the Executive Client
+ * Experience mission scope.
+ */
+const CLIENT_VISIBLE_DELIVERABLE_TABS: TabId[] = [
+  "executive",
+  "assessment",
+  "blueprint",
+  "roadmap",
+  "proposal",
 ];
 
 export function DeliverablesPanel({
@@ -54,6 +69,11 @@ export function DeliverablesPanel({
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
 }) {
+  const { session } = useAuth();
+  const isConsultant = session?.role === "consultant";
+  const visibleTabs = isConsultant
+    ? TABS
+    : TABS.filter((t) => CLIENT_VISIBLE_DELIVERABLE_TABS.includes(t.id));
   const [tab, setTab] = useState<TabId>("executive");
   const [busy, setBusy] = useState(false);
   const pack = workspace.deliverables;
@@ -73,7 +93,7 @@ export function DeliverablesPanel({
           deliverables: nextPack,
           updatedAt: nextPack.generatedAt,
           lastActivityAt: nextPack.generatedAt,
-          lastActivityLabel: "Deliverables generated",
+          lastActivityLabel: "Documentos generados",
         });
     } finally {
       setBusy(false);
@@ -89,19 +109,19 @@ export function DeliverablesPanel({
         />
         <Card className="px-5 py-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Deliverables
+            Documentos
           </p>
           <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-            Consulting package
+            Paquete de consultoría
           </h3>
           <p className="mt-3 text-neutral-600">
-            Generate a complete consulting package from discovery evidence,
-            blueprint, architecture, and processes — documentation for decisions,
-            not production software.
+            Genere un paquete de consultoría completo a partir de la evidencia
+            del diagnóstico, el plan de negocio, el sistema recomendado y los
+            procesos — documentación para decidir, no software en producción.
           </p>
           <div className="mt-6">
             <Button onClick={() => void generate()} disabled={busy}>
-              {busy ? "Generating…" : "Generate package"}
+              {busy ? "Generando…" : "Generar paquete"}
             </Button>
           </div>
         </Card>
@@ -119,7 +139,7 @@ export function DeliverablesPanel({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Deliverables
+              Documentos
             </p>
             <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
               {pack.companyName}
@@ -127,7 +147,8 @@ export function DeliverablesPanel({
             <p className="mt-3 max-w-2xl text-neutral-600">{pack.summary}</p>
             <p className="mt-4 text-sm text-neutral-400">
               {recommendationStrength(pack.overallConfidence)} ·{" "}
-              {formatRelativeActivity(pack.generatedAt)} · read-only previews
+              {formatRelativeActivity(pack.generatedAt)} · vistas previas de
+              solo lectura
             </p>
           </div>
           <Button
@@ -135,13 +156,13 @@ export function DeliverablesPanel({
             onClick={() => void generate()}
             disabled={busy}
           >
-            {busy ? "Generating…" : "Regenerate"}
+            {busy ? "Generando…" : "Regenerar"}
           </Button>
         </div>
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <button
             key={t.id}
             type="button"
@@ -185,83 +206,158 @@ function DeliverablePreview({
     case "executive": {
       const d = pack.executiveSummary;
       return (
-        <Article title="Executive Summary">
-          <Section title="Vision" body={d.vision} />
-          <Section title="Current State" body={d.currentState} />
-          <List title="Problems" items={d.problems} />
-          <List title="Biggest Risks" items={d.biggestRisks} />
-          <List title="Immediate Opportunities" items={d.immediateOpportunities} />
-          <List title="Strategic Opportunities" items={d.strategicOpportunities} />
-          <List title="Recommended Roadmap" items={d.recommendedRoadmap} />
-          <List title="Investment Areas" items={d.investmentAreas} />
-          <Section title="Executive Recommendation" body={d.executiveRecommendation} />
+        <Article title="Resumen ejecutivo">
+          <p className="-mt-2 text-sm text-neutral-500">
+            Una sola historia, en orden: qué encontramos, por qué importa, la
+            evidencia detrás, qué cuesta hoy, qué recomendamos, el resultado
+            esperado y qué sigue.
+          </p>
+          <ol className="mt-1 space-y-6">
+            <Beat step={1} title="Qué encontramos">
+              <p>{d.currentState}</p>
+            </Beat>
+            <Beat
+              step={2}
+              title="Por qué importa"
+              lead="Los problemas que justifican esta recomendación:"
+            >
+              <BeatList items={d.problems} />
+            </Beat>
+            <Beat
+              step={3}
+              title="La evidencia"
+              lead="Así queda trazado en el expediente:"
+            >
+              {d.evidence.length === 0 ? (
+                <BeatEmpty text="Aún no hay referencias de evidencia vinculadas." />
+              ) : (
+                <ul className="space-y-1.5">
+                  {d.evidence.map((ref) => (
+                    <li key={`${ref.source}-${ref.id}`}>
+                      <span className="text-neutral-400">[{ref.source}]</span>{" "}
+                      {ref.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Beat>
+            <Beat
+              step={4}
+              title="Impacto en el negocio"
+              lead="Esto ya está costando por no actuar:"
+            >
+              <BeatList items={d.biggestRisks} />
+            </Beat>
+            <Beat step={5} title="Solución recomendada">
+              <p>{d.executiveRecommendation}</p>
+              <p className="mt-2 text-neutral-600">{d.vision}</p>
+              {d.investmentAreas.length > 0 ? (
+                <div className="mt-3">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                    Áreas de inversión
+                  </p>
+                  <BeatList items={d.investmentAreas} className="mt-1.5" />
+                </div>
+              ) : null}
+            </Beat>
+            <Beat
+              step={6}
+              title="Resultado esperado"
+              lead="El retorno si actuamos sobre esto:"
+            >
+              {d.immediateOpportunities.length > 0 ? (
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                    Inmediato
+                  </p>
+                  <BeatList items={d.immediateOpportunities} className="mt-1.5" />
+                </div>
+              ) : null}
+              {d.strategicOpportunities.length > 0 ? (
+                <div className="mt-3">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                    Estratégico
+                  </p>
+                  <BeatList items={d.strategicOpportunities} className="mt-1.5" />
+                </div>
+              ) : null}
+            </Beat>
+            <Beat
+              step={7}
+              title="Próximo paso"
+              lead="La secuencia recomendada:"
+            >
+              <BeatList items={d.recommendedRoadmap} />
+            </Beat>
+          </ol>
         </Article>
       );
     }
     case "assessment": {
       const d = pack.businessAssessment;
       return (
-        <Article title="Business Assessment">
-          <List title="Current Processes" items={d.currentProcesses} />
-          <List title="Departments" items={d.departments} />
+        <Article title="Diagnóstico del negocio">
+          <List title="Procesos actuales" items={d.currentProcesses} />
+          <List title="Departamentos" items={d.departments} />
           <Meta
-            label="Operating maturity"
+            label="Madurez operativa"
             value={maturityLabel(d.overallMaturity)}
           />
           <Meta
-            label="Business health"
+            label="Salud del negocio"
             value={healthLabel(d.overallHealth)}
           />
-          <List title="Pain Points" items={d.painPoints} />
+          <List title="Puntos de dolor" items={d.painPoints} />
           <List
-            title="Risks"
+            title="Riesgos"
             items={d.risks.map((r) => `${r.title} · ${r.severity}`)}
           />
-          <List title="Automation Opportunities" items={d.automationOpportunities} />
+          <List title="Oportunidades de automatización" items={d.automationOpportunities} />
         </Article>
       );
     }
     case "blueprint": {
       const d = pack.businessBlueprint;
-      if (!d) return <Empty label="Blueprint deliverable unavailable" />;
+      if (!d) return <Empty label="El plan de negocio aún no está disponible" />;
       return (
-        <Article title="Business Blueprint">
-          <Section title="Summary" body={d.summary} />
-          <List title="Capabilities" items={d.capabilities} />
-          <List title="Departments" items={d.departments} />
-          <List title="Workflows" items={d.workflows} />
-          <List title="Core information" items={d.entities} />
-          <List title="Systems" items={d.systems} />
-          <List title="Operating rules" items={d.operatingRules} />
-          <List title="Recommended capabilities" items={d.modules} />
+        <Article title="Plan de negocio">
+          <Section title="Resumen" body={d.summary} />
+          <List title="Capacidades" items={d.capabilities} />
+          <List title="Departamentos" items={d.departments} />
+          <List title="Flujos de trabajo" items={d.workflows} />
+          <List title="Información central" items={d.entities} />
+          <List title="Sistemas" items={d.systems} />
+          <List title="Reglas operativas" items={d.operatingRules} />
+          <List title="Capacidades recomendadas" items={d.modules} />
         </Article>
       );
     }
     case "solution": {
       const d = pack.solutionArchitecture;
-      if (!d) return <Empty label="Solution deliverable unavailable" />;
+      if (!d) return <Empty label="El sistema recomendado aún no está disponible" />;
       return (
-        <Article title="Recommended Architecture">
-          <Section title="Summary" body={d.summary} />
-          <List title="Capabilities" items={d.modules} />
-          <List title="Core information" items={d.entities} />
-          <List title="Relationships" items={d.relationships} />
+        <Article title="Sistema recomendado">
+          <Section title="Resumen" body={d.summary} />
+          <List title="Capacidades" items={d.modules} />
+          <List title="Información central" items={d.entities} />
+          <List title="Relaciones" items={d.relationships} />
           <List title="Roles" items={d.roles} />
-          <List title="Access principles" items={d.permissions} />
-          <List title="Navigation" items={d.navigation} />
-          <List title="Integrations" items={d.integrations} />
-          <List title="Roadmap" items={d.roadmap} />
+          <List title="Principios de acceso" items={d.permissions} />
+          <List title="Navegación" items={d.navigation} />
+          <List title="Integraciones" items={d.integrations} />
+          <List title="Plan de implementación" items={d.roadmap} />
         </Article>
       );
     }
     case "processes": {
       const d = pack.processBook;
-      if (!d) return <Empty label="Process book unavailable" />;
+      if (!d) return <Empty label="El libro de procesos aún no está disponible" />;
       return (
-        <Article title="Process Book">
-          <Section title="Summary" body={d.summary} />
+        <Article title="Libro de procesos">
+          <Section title="Resumen" body={d.summary} />
           <p className="mt-2 text-xs text-neutral-400">
-            For interactive diagrams, open the Processes tab in this workspace.
+            Para diagramas interactivos, abra la pestaña Cómo opera en este
+            espacio de trabajo.
           </p>
           {d.workflows.map((wf) => (
             <div key={wf.id} className="mt-6 border-t border-neutral-100 pt-5">
@@ -276,9 +372,9 @@ function DeliverablePreview({
                   </li>
                 ))}
               </ol>
-              <List title="Approvals" items={wf.approvals} />
-              <List title="Actors" items={wf.actors} />
-              <List title="Automation" items={wf.automationOpportunities} />
+              <List title="Aprobaciones" items={wf.approvals} />
+              <List title="Actores" items={wf.actors} />
+              <List title="Automatización" items={wf.automationOpportunities} />
             </div>
           ))}
         </Article>
@@ -287,37 +383,37 @@ function DeliverablePreview({
     case "prd": {
       const d = pack.prd;
       return (
-        <Article title="Product Requirements">
-          <List title="Goals" items={d.goals} />
-          <List title="Users" items={d.users} />
-          <List title="Functional Requirements" items={d.functionalRequirements} />
+        <Article title="Requisitos del producto">
+          <List title="Objetivos" items={d.goals} />
+          <List title="Usuarios" items={d.users} />
+          <List title="Requisitos funcionales" items={d.functionalRequirements} />
           <List
-            title="Non-functional Requirements"
+            title="Requisitos no funcionales"
             items={d.nonFunctionalRequirements}
           />
-          <List title="Acceptance Criteria" items={d.acceptanceCriteria} />
-          <List title="Dependencies" items={d.dependencies} />
-          <List title="Future Scope" items={d.futureScope} />
-          <List title="Out of Scope" items={d.outOfScope} />
-          <List title="Risks" items={d.risks} />
+          <List title="Criterios de aceptación" items={d.acceptanceCriteria} />
+          <List title="Dependencias" items={d.dependencies} />
+          <List title="Alcance futuro" items={d.futureScope} />
+          <List title="Fuera de alcance" items={d.outOfScope} />
+          <List title="Riesgos" items={d.risks} />
           <div className="mt-6 border-t border-neutral-100 pt-5">
             <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-              System design concepts
+              Conceptos de diseño del sistema
             </p>
             <List
-              title="System capabilities"
+              title="Capacidades del sistema"
               items={pack.technicalArchitecture.systemModules}
             />
             <List
-              title="Information concepts"
+              title="Conceptos de información"
               items={pack.technicalArchitecture.databaseConcepts}
             />
             <List
-              title="Connectivity concepts"
+              title="Conceptos de conectividad"
               items={pack.technicalArchitecture.apiConcepts}
             />
             <List
-              title="Integrations"
+              title="Integraciones"
               items={pack.technicalArchitecture.integrations}
             />
           </div>
@@ -327,37 +423,37 @@ function DeliverablePreview({
     case "roadmap": {
       const d = pack.developmentRoadmap;
       return (
-        <Article title="Development Roadmap">
+        <Article title="Plan de implementación">
           {d.phases.map((p) => (
             <div key={p.phase} className="mt-5 first:mt-0">
               <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                Phase {p.phase} · {p.complexity}
+                Fase {p.phase} · {p.complexity}
               </p>
               <p className="mt-1 text-lg text-neutral-950">{p.name}</p>
               <p className="mt-1 text-sm text-neutral-500">{p.businessValue}</p>
-              <List title="Goals" items={p.goals} />
-              <List title="Modules" items={p.modules} />
+              <List title="Objetivos" items={p.goals} />
+              <List title="Capacidades" items={p.modules} />
             </div>
           ))}
-          <List title="Future" items={d.future} />
+          <List title="Futuro" items={d.future} />
         </Article>
       );
     }
     case "cursor": {
       const d = pack.cursorContext;
       return (
-        <Article title="Build Brief">
-          <Section title="Purpose" body={d.purpose} />
-          <List title="Core capabilities" items={d.coreModules} />
-          <List title="Business rules" items={d.businessRules} />
-          <List title="Critical workflows" items={d.criticalWorkflows} />
-          <List title="Important constraints" items={d.importantConstraints} />
-          <List title="Domain language" items={d.domainLanguage} />
-          <List title="Success measures" items={d.successMetrics} />
-          <List title="Out of bounds" items={d.doNot} />
+        <Article title="Resumen de construcción">
+          <Section title="Propósito" body={d.purpose} />
+          <List title="Capacidades centrales" items={d.coreModules} />
+          <List title="Reglas de negocio" items={d.businessRules} />
+          <List title="Flujos críticos" items={d.criticalWorkflows} />
+          <List title="Restricciones importantes" items={d.importantConstraints} />
+          <List title="Lenguaje del dominio" items={d.domainLanguage} />
+          <List title="Medidas de éxito" items={d.successMetrics} />
+          <List title="Fuera de límites" items={d.doNot} />
           <div className="mt-6 rounded-2xl border border-neutral-200 bg-stone-50/80 px-4 py-4">
             <p className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
-              Master narrative
+              Narrativa general
             </p>
             <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-neutral-700">
               {d.narrative}
@@ -369,23 +465,23 @@ function DeliverablePreview({
     case "implementation": {
       const d = pack.implementationPlan;
       return (
-        <Article title="Implementation Plan">
+        <Article title="Plan de implementación técnica">
           {d.phases.map((p) => (
             <div key={p.name} className="mt-5 first:mt-0">
               <p className="text-lg text-neutral-950">{p.name}</p>
-              <List title="Objectives" items={p.objectives} />
-              <List title="Workstreams" items={p.workstreams} />
-              <List title="Exit Criteria" items={p.exitCriteria} />
+              <List title="Objetivos" items={p.objectives} />
+              <List title="Frentes de trabajo" items={p.workstreams} />
+              <List title="Criterios de cierre" items={p.exitCriteria} />
             </div>
           ))}
-          <List title="Risks" items={d.risks} />
+          <List title="Riesgos" items={d.risks} />
         </Article>
       );
     }
     case "backlog": {
       const d = pack.sprintBacklog;
       return (
-        <Article title="Sprint Backlog">
+        <Article title="Backlog de trabajo">
           {d.epics.map((epic) => (
             <div key={epic.id} className="mt-5 first:mt-0">
               <p className="text-lg text-neutral-950">{epic.title}</p>
@@ -416,12 +512,12 @@ function DeliverablePreview({
       const d = pack.proposal;
       return (
         <Article title={d.title}>
-          <Section title="Engagement" body={d.engagementSummary} />
-          <Section title="Recommended Approach" body={d.recommendedApproach} />
-          <List title="Scope" items={d.scope} />
-          <List title="Timeline" items={d.timelineOutline} />
-          <Section title="Investment" body={d.investmentNarrative} />
-          <List title="Next Steps" items={d.nextSteps} />
+          <Section title="Alcance del encargo" body={d.engagementSummary} />
+          <Section title="Enfoque recomendado" body={d.recommendedApproach} />
+          <List title="Alcance" items={d.scope} />
+          <List title="Cronograma" items={d.timelineOutline} />
+          <Section title="Inversión" body={d.investmentNarrative} />
+          <List title="Próximos pasos" items={d.nextSteps} />
         </Article>
       );
     }
@@ -435,10 +531,10 @@ function DeliverablePreview({
 function ExportsPreview() {
   const contracts = useMemo(() => DELIVERABLE_EXPORT_CONTRACTS, []);
   return (
-    <Article title="Export options">
+    <Article title="Opciones de exportación">
       <p className="text-sm text-neutral-500">
-        Planned export formats for client handoff — available in a later
-        release.
+        Formatos de exportación planeados para la entrega al cliente —
+        disponibles en una versión posterior.
       </p>
       <ul className="mt-5 grid gap-3 sm:grid-cols-2">
         {contracts.map((c) => (
@@ -494,6 +590,61 @@ function List({ title, items }: { title: string; items: string[] }) {
       </ul>
     </section>
   );
+}
+
+/**
+ * Executive Storytelling — numbered story beat used only by the Executive
+ * Summary deliverable preview. Presentation only: renders existing
+ * `ExecutiveSummaryDeliverable` fields in McKinsey narrative order, never
+ * invents copy.
+ */
+function Beat({
+  step,
+  title,
+  lead,
+  children,
+}: {
+  step: number;
+  title: string;
+  lead?: string;
+  children: ReactNode;
+}) {
+  return (
+    <li className="flex gap-3">
+      <span
+        aria-hidden
+        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-[11px] font-medium text-neutral-500"
+      >
+        {step}
+      </span>
+      <div className="min-w-0 flex-1 border-b border-neutral-100 pb-5 last:border-b-0 last:pb-0">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+          {title}
+        </p>
+        {lead ? (
+          <p className="mt-1.5 text-xs italic text-neutral-400">{lead}</p>
+        ) : null}
+        <div className="mt-2 text-sm leading-relaxed text-neutral-700">
+          {children}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function BeatList({ items, className }: { items: string[]; className?: string }) {
+  if (items.length === 0) return <BeatEmpty text="Aún no disponible." />;
+  return (
+    <ul className={className ?? "space-y-1.5"}>
+      {items.map((item) => (
+        <li key={item}>• {item}</li>
+      ))}
+    </ul>
+  );
+}
+
+function BeatEmpty({ text }: { text: string }) {
+  return <p className="text-neutral-500">{text}</p>;
 }
 
 function Meta({ label, value }: { label: string; value: string }) {

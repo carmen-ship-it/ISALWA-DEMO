@@ -33,25 +33,25 @@ export const PAIN_COLORS: Record<
   healthy: {
     fill: "rgba(34, 197, 94, 0.12)",
     ring: "rgba(34, 197, 94, 0.55)",
-    label: "Healthy",
+    label: "Saludable",
     emoji: "🟢",
   },
   attention: {
     fill: "rgba(234, 179, 8, 0.14)",
     ring: "rgba(234, 179, 8, 0.6)",
-    label: "Attention",
+    label: "Atención",
     emoji: "🟡",
   },
   bottleneck: {
     fill: "rgba(249, 115, 22, 0.14)",
     ring: "rgba(249, 115, 22, 0.65)",
-    label: "Bottleneck",
+    label: "Cuello de botella",
     emoji: "🟠",
   },
   critical: {
     fill: "rgba(239, 68, 68, 0.14)",
     ring: "rgba(239, 68, 68, 0.7)",
-    label: "Critical",
+    label: "Crítico",
     emoji: "🔴",
   },
 };
@@ -69,20 +69,20 @@ export const AUTOMATION_COLORS: Record<
   ai_opportunity: {
     fill: "rgba(99, 102, 241, 0.1)",
     ring: "rgba(99, 102, 241, 0.45)",
-    label: "AI Opportunity",
-    badge: "AI",
+    label: "Oportunidad de IA",
+    badge: "IA",
   },
   automation: {
     fill: "rgba(16, 185, 129, 0.1)",
     ring: "rgba(16, 185, 129, 0.45)",
-    label: "Automation",
+    label: "Automatización",
     badge: "Auto",
   },
   human_approval: {
     fill: "rgba(245, 158, 11, 0.12)",
     ring: "rgba(245, 158, 11, 0.5)",
-    label: "Human Approval",
-    badge: "Approve",
+    label: "Aprobación humana",
+    badge: "Aprobar",
   },
 };
 
@@ -125,15 +125,15 @@ export function nodeSurfaceStyle(
 }
 
 export const VIEW_LABELS: Record<string, string> = {
-  executive: "Executive Flow",
-  swimlane: "Swimlane",
-  department: "Department",
+  executive: "Flujo ejecutivo",
+  swimlane: "Carriles por rol",
+  department: "Por departamento",
 };
 
 export const OVERLAY_LABELS: Record<ProcessOverlayKind, string> = {
-  none: "None",
-  pain: "Pain / Risk",
-  automation: "Automation",
-  time: "Time",
-  dependency: "Dependencies",
+  none: "Ninguna",
+  pain: "Dolor / Riesgo",
+  automation: "Automatización",
+  time: "Tiempo",
+  dependency: "Dependencias",
 };

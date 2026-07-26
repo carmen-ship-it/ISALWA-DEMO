@@ -68,6 +68,8 @@ export type KnowledgeCoverageArea =
 
 export type KnowledgeExtractionProviderId =
   | "pdf_reader"
+  | "word_reader"
+  | "presentation_reader"
   | "excel_reader"
   | "image_reader"
   | "ocr"

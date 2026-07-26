@@ -75,6 +75,41 @@
     color-mix(in srgb, var(--isalwa-copper) 6%, var(--isalwa-porcelain)) 100%
   );
   --isalwa-surface-map: linear-gradient(160deg, #d6e4df 0%, #f7f5f2 48%, #e4ebf1 100%);
+
+  /* Section identity — soft, unsaturated semantic surfaces (Premium Executive
+     Design System). One muted hue per major surface category so a page reads
+     as "where am I" at a glance, without ever tipping into bright SaaS chrome.
+     Each hue is derived from an existing law color via color-mix — never a
+     raw saturated value. Elevation stays via --isalwa-shadow-soft. */
+  --isalwa-violet: #6a5c8f; /* muted, desaturated — sits beside copper/glaze, never bright */
+
+  --isalwa-tint-blue: color-mix(in srgb, var(--isalwa-info) 7%, var(--isalwa-white));
+  --isalwa-tint-blue-border: color-mix(in srgb, var(--isalwa-info) 16%, var(--isalwa-mist));
+  --isalwa-tint-blue-ink: color-mix(in srgb, var(--isalwa-info) 82%, var(--isalwa-kiln));
+
+  --isalwa-tint-teal: color-mix(in srgb, var(--isalwa-glaze) 6%, var(--isalwa-white));
+  --isalwa-tint-teal-border: color-mix(in srgb, var(--isalwa-glaze) 14%, var(--isalwa-mist));
+  --isalwa-tint-teal-ink: color-mix(in srgb, var(--isalwa-glaze) 80%, var(--isalwa-kiln));
+
+  --isalwa-tint-amber: color-mix(in srgb, var(--isalwa-warning) 8%, var(--isalwa-white));
+  --isalwa-tint-amber-border: color-mix(in srgb, var(--isalwa-warning) 18%, var(--isalwa-mist));
+  --isalwa-tint-amber-ink: color-mix(in srgb, var(--isalwa-warning) 78%, var(--isalwa-kiln));
+
+  --isalwa-tint-red: color-mix(in srgb, var(--isalwa-danger) 6%, var(--isalwa-white));
+  --isalwa-tint-red-border: color-mix(in srgb, var(--isalwa-danger) 15%, var(--isalwa-mist));
+  --isalwa-tint-red-ink: color-mix(in srgb, var(--isalwa-danger) 80%, var(--isalwa-kiln));
+
+  --isalwa-tint-violet: color-mix(in srgb, var(--isalwa-violet) 7%, var(--isalwa-white));
+  --isalwa-tint-violet-border: color-mix(in srgb, var(--isalwa-violet) 16%, var(--isalwa-mist));
+  --isalwa-tint-violet-ink: color-mix(in srgb, var(--isalwa-violet) 78%, var(--isalwa-kiln));
+
+  --isalwa-tint-green: color-mix(in srgb, var(--isalwa-success) 6%, var(--isalwa-white));
+  --isalwa-tint-green-border: color-mix(in srgb, var(--isalwa-success) 15%, var(--isalwa-mist));
+  --isalwa-tint-green-ink: color-mix(in srgb, var(--isalwa-success) 78%, var(--isalwa-kiln));
+
+  --isalwa-tint-gray: color-mix(in srgb, var(--isalwa-slate) 5%, var(--isalwa-white));
+  --isalwa-tint-gray-border: color-mix(in srgb, var(--isalwa-slate) 14%, var(--isalwa-mist));
+  --isalwa-tint-gray-ink: color-mix(in srgb, var(--isalwa-slate) 85%, var(--isalwa-kiln));
 }
 
 @media (prefers-reduced-motion: reduce) {

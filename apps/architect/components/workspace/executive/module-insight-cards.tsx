@@ -12,7 +12,7 @@ export function ModuleInsightCards({
     return (
       <p className="text-sm text-neutral-500">
         Las capacidades recomendadas aparecen conforme se acumula evidencia del
-        discovery.
+        descubrimiento.
       </p>
     );
   }

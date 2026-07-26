@@ -25,7 +25,7 @@ import {
   type ProcessVisualizationContext,
   type VizNode,
 } from "@/lib/process-visualization";
-import { healthLabel, coverageBand } from "@/lib/presentation";
+import { healthLabel, coverageBand, riskLevelLabel } from "@/lib/presentation";
 import type { BusinessProcessModel } from "@/types";
 
 const selectClassName =
@@ -40,8 +40,9 @@ export function BusinessProcessesPanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          Process views appear once the business blueprint is in place. Diagrams
-          reflect discovered workflows — read-only, never invented.
+          Las vistas de proceso aparecen una vez que el plan de negocio está
+          listo. Los diagramas reflejan flujos de trabajo descubiertos — solo
+          lectura, nunca inventados.
         </p>
       </Card>
     );
@@ -165,7 +166,7 @@ function ProcessStudio({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          No workflows available yet from discovery.
+          Aún no hay flujos de trabajo disponibles del diagnóstico.
         </p>
       </Card>
     );
@@ -175,21 +176,22 @@ function ProcessStudio({
     <div className="space-y-5">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Process view
+          Vista de proceso
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
           {viz.workflowName}
         </h3>
         <p className="mt-3 text-neutral-600">{processes.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
-          {formatRelativeActivity(processes.generatedAt)} · read-only view
+          {formatRelativeActivity(processes.generatedAt)} · vista de solo
+          lectura
         </p>
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
         <div className="space-y-4">
           <Toolbar>
-            <Field label="Workflow">
+            <Field label="Flujo de trabajo">
               <select
                 className={selectClassName}
                 value={workflowId}
@@ -206,7 +208,7 @@ function ProcessStudio({
                 ))}
               </select>
             </Field>
-            <Field label="View">
+            <Field label="Vista">
               <select
                 className={selectClassName}
                 value={view}
@@ -220,7 +222,7 @@ function ProcessStudio({
               </select>
             </Field>
             {view === "department" ? (
-              <Field label="Department">
+              <Field label="Departamento">
                 <select
                   className={selectClassName}
                   value={departmentFilter ?? ""}
@@ -228,7 +230,7 @@ function ProcessStudio({
                     setDepartmentFilter(e.target.value || null)
                   }
                 >
-                  <option value="">All</option>
+                  <option value="">Todos</option>
                   {departments.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -237,7 +239,7 @@ function ProcessStudio({
                 </select>
               </Field>
             ) : null}
-            <Field label="Overlay">
+            <Field label="Capa">
               <select
                 className={selectClassName}
                 value={overlay}
@@ -254,7 +256,7 @@ function ProcessStudio({
                 )}
               </select>
             </Field>
-            <Field label="Highlight">
+            <Field label="Resaltado">
               <select
                 className={selectClassName}
                 value={highlight}
@@ -269,11 +271,11 @@ function ProcessStudio({
                   )
                 }
               >
-                <option value="none">None</option>
+                <option value="none">Ninguno</option>
                 <option value="actor">Actor</option>
-                <option value="document">Document</option>
-                <option value="approval">Approval</option>
-                <option value="bottleneck">Bottleneck</option>
+                <option value="document">Documento</option>
+                <option value="approval">Aprobación</option>
+                <option value="bottleneck">Cuello de botella</option>
               </select>
             </Field>
           </Toolbar>
@@ -296,13 +298,13 @@ function ProcessStudio({
           >
             <div className="absolute right-4 top-4 z-10 flex gap-2">
               <IconButton
-                label="Zoom out"
+                label="Alejar"
                 onClick={() => setZoom((z) => Math.max(0.55, z - 0.1))}
               >
                 −
               </IconButton>
               <IconButton
-                label="Reset"
+                label="Restablecer"
                 onClick={() => {
                   setZoom(1);
                   setPan({ x: 0, y: 0 });
@@ -311,7 +313,7 @@ function ProcessStudio({
                 {Math.round(zoom * 100)}%
               </IconButton>
               <IconButton
-                label="Zoom in"
+                label="Acercar"
                 onClick={() => setZoom((z) => Math.min(1.8, z + 0.1))}
               >
                 +
@@ -347,7 +349,7 @@ function ProcessStudio({
                 >
                   <span className="block px-4 pt-3 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400">
                     {lane.label}
-                    {collapsed.has(lane.department) ? " · expand" : " · collapse"}
+                    {collapsed.has(lane.department) ? " · expandir" : " · contraer"}
                   </span>
                 </button>
               ))}
@@ -453,9 +455,9 @@ function ProcessStudio({
                         }}
                       >
                         {node.collapsed
-                          ? "Group"
+                          ? "Grupo"
                           : overlay === "time"
-                            ? node.durationLabel ?? "Duration unknown"
+                            ? node.durationLabel ?? "Duración desconocida"
                             : overlay === "automation"
                               ? AUTOMATION_COLORS[node.automation].badge
                               : overlay === "pain"
@@ -472,14 +474,14 @@ function ProcessStudio({
           {overlay === "dependency" && deps ? (
             <Card className="px-5 py-4">
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-                Dependencies · {selectedStep?.name ?? "Select a step"}
+                Dependencias · {selectedStep?.name ?? "Seleccione un paso"}
               </p>
-              <DependencyList title="Requires" items={deps.inputs} />
-              <DependencyList title="Documents" items={deps.documents} />
-              <DependencyList title="Systems" items={deps.systems} />
+              <DependencyList title="Requiere" items={deps.inputs} />
+              <DependencyList title="Documentos" items={deps.documents} />
+              <DependencyList title="Sistemas" items={deps.systems} />
               <DependencyList title="Roles" items={deps.roles} />
-              <DependencyList title="Approvals" items={deps.approvals} />
-              <DependencyList title="Policies" items={deps.policies} />
+              <DependencyList title="Aprobaciones" items={deps.approvals} />
+              <DependencyList title="Políticas" items={deps.policies} />
             </Card>
           ) : null}
         </div>
@@ -519,8 +521,9 @@ function Legend({ overlay }: { overlay: ProcessOverlayKind }) {
   if (overlay === "none" || overlay === "time" || overlay === "dependency") {
     return (
       <p className="text-xs text-neutral-400">
-        Hover a step · click to select · scroll to zoom · drag canvas to pan ·
-        click lane headers to collapse
+        Pase el cursor sobre un paso · clic para seleccionar · desplace para
+        acercar · arrastre el lienzo para mover · clic en el encabezado del
+        carril para contraer
       </p>
     );
   }
@@ -565,23 +568,34 @@ function MetricsSidebar({
     ReturnType<typeof deriveProcessVisualization>
   >["metrics"];
 }) {
+  const coverageEs: Record<string, string> = {
+    Strong: "Sólida",
+    Solid: "Consistente",
+    Partial: "Parcial",
+    Limited: "Limitada",
+    Early: "Inicial",
+  };
   const rows: Array<[string, string]> = [
-    ["Total steps", String(metrics.totalSteps)],
-    ["Departments", String(metrics.departments)],
-    ["Manual steps", String(metrics.manualSteps)],
-    ["Automation opportunities", String(metrics.automationOpportunities)],
-    ["Approvals", String(metrics.approvals)],
-    ["Documents", String(metrics.documents)],
-    ["Average duration", metrics.averageDurationLabel],
-    ["Risk level", metrics.riskLevel],
-    ["Process health", healthLabel(metrics.processHealth)],
-    ["Coverage", coverageBand(metrics.coverage, "unit")],
+    ["Pasos totales", String(metrics.totalSteps)],
+    ["Departamentos", String(metrics.departments)],
+    ["Pasos manuales", String(metrics.manualSteps)],
+    ["Oportunidades de automatización", String(metrics.automationOpportunities)],
+    ["Aprobaciones", String(metrics.approvals)],
+    ["Documentos", String(metrics.documents)],
+    ["Duración promedio", metrics.averageDurationLabel],
+    ["Nivel de riesgo", riskLevelLabel(metrics.riskLevel) || metrics.riskLevel],
+    ["Salud del proceso", healthLabel(metrics.processHealth)],
+    [
+      "Cobertura",
+      coverageEs[coverageBand(metrics.coverage, "unit")] ??
+        coverageBand(metrics.coverage, "unit"),
+    ],
   ];
 
   return (
     <aside className="h-fit rounded-3xl border border-neutral-200/80 bg-white/90 px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-        Snapshot
+        Panorama
       </p>
       <ul className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
@@ -595,7 +609,8 @@ function MetricsSidebar({
         ))}
       </ul>
       <p className="mt-4 text-[11px] leading-relaxed text-neutral-400">
-        Derived from discovered workflows — never manually entered.
+        Derivado de los flujos de trabajo descubiertos — nunca ingresado
+        manualmente.
       </p>
     </aside>
   );

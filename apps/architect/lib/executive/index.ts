@@ -3,6 +3,7 @@ export {
   type ExecutiveExperienceModel,
   type ExecutiveDashboardModel,
   type JourneyStage,
+  type JourneyStageId,
   type ModuleInsightCard,
   type ReasoningCard,
   type AnimatedBlueprintModel,

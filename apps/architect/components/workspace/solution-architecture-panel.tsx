@@ -21,9 +21,9 @@ export function SolutionArchitecturePanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          Recommended architecture appears once the business blueprint is in
-          place. It describes the operating system the company needs — without
-          building it.
+          El sistema recomendado aparece una vez que el plan de negocio está
+          listo. Describe el sistema operativo que la empresa necesita — sin
+          construirlo todavía.
         </p>
       </Card>
     );
@@ -33,10 +33,10 @@ export function SolutionArchitecturePanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Recommended architecture
+          Sistema recomendado
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Software design for how the business runs
+          El software diseñado para cómo opera el negocio
         </h3>
         <p className="mt-3 text-neutral-600">{architecture.summary}</p>
         <p className="mt-4 text-sm text-neutral-500">
@@ -48,7 +48,7 @@ export function SolutionArchitecturePanel({
         </p>
       </Card>
 
-      <Block title="Recommended capabilities">
+      <Block title="Capacidades recomendadas">
         <ul className="space-y-3">
           {architecture.modules.map((mod) => (
             <li key={mod.id}>
@@ -67,7 +67,7 @@ export function SolutionArchitecturePanel({
         </ul>
       </Block>
 
-      <Block title="Roles that will use it">
+      <Block title="Roles que lo usarán">
         <ul className="space-y-3">
           {architecture.roles.map((role) => (
             <li key={role.id}>
@@ -77,7 +77,7 @@ export function SolutionArchitecturePanel({
               </p>
               {role.primaryScreens.length > 0 ? (
                 <p className="mt-1 text-xs text-neutral-400">
-                  Used by: {role.primaryScreens.join(" · ")}
+                  Usado en: {role.primaryScreens.join(" · ")}
                 </p>
               ) : null}
             </li>
@@ -86,17 +86,17 @@ export function SolutionArchitecturePanel({
       </Block>
 
       <ExecutiveDetail
-        labelExpand="View information model & access"
-        labelCollapse="Hide information model & access"
+        labelExpand="Ver modelo de información y accesos"
+        labelCollapse="Ocultar modelo de información y accesos"
         summary={
           <p className="text-sm text-neutral-600">
-            Core business objects, relationships, navigation, and access
-            principles that support the recommended capabilities.
+            Objetos de negocio centrales, relaciones, navegación y principios
+            de acceso que dan soporte a las capacidades recomendadas.
           </p>
         }
       >
         <div className="space-y-6">
-          <Block title="Core business information">
+          <Block title="Información central del negocio">
             <ul className="flex flex-wrap gap-2">
               {architecture.entities.map((entity) => (
                 <li
@@ -109,25 +109,25 @@ export function SolutionArchitecturePanel({
             </ul>
           </Block>
 
-          <Block title="How information connects">
+          <Block title="Cómo se conecta la información">
             <ul className="space-y-2">
               {architecture.relationships.map((rel) => (
                 <li key={rel.id} className="text-sm text-neutral-700">
                   {rel.fromEntity}{" "}
-                  <span className="text-neutral-400">relates to</span>{" "}
+                  <span className="text-neutral-400">se relaciona con</span>{" "}
                   {rel.toEntity}
                 </li>
               ))}
             </ul>
           </Block>
 
-          <Block title="Primary navigation">
+          <Block title="Navegación principal">
             <p className="text-neutral-800">
               {architecture.navigation.map((n) => n.label).join(" · ")}
             </p>
           </Block>
 
-          <Block title="Access principles">
+          <Block title="Principios de acceso">
             <ul className="space-y-2">
               {architecture.permissions.map((perm) => (
                 <li key={perm.id} className="text-sm text-neutral-700">
@@ -140,14 +140,14 @@ export function SolutionArchitecturePanel({
         </div>
       </ExecutiveDetail>
 
-      <Block title="Implementation sequence">
+      <Block title="Secuencia de implementación">
         <ol className="space-y-5">
           {architecture.roadmap.map((phase) => (
             <li key={phase.id}>
               <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                Phase {phase.phase}
+                Fase {phase.phase}
                 {phase.estimatedComplexity
-                  ? ` · ${phase.estimatedComplexity} complexity`
+                  ? ` · complejidad ${phase.estimatedComplexity}`
                   : ""}
               </p>
               <p className="mt-1 text-neutral-950">{phase.name}</p>
@@ -155,7 +155,7 @@ export function SolutionArchitecturePanel({
                 {phase.businessValue}
               </p>
               <p className="mt-1 text-xs text-neutral-400">
-                Capabilities: {phase.modules.join(" · ") || "—"}
+                Capacidades: {phase.modules.join(" · ") || "—"}
               </p>
             </li>
           ))}
@@ -163,17 +163,17 @@ export function SolutionArchitecturePanel({
       </Block>
 
       <ExecutiveDetail
-        labelExpand="View future integrations & extensions"
-        labelCollapse="Hide future integrations"
+        labelExpand="Ver integraciones y extensiones futuras"
+        labelCollapse="Ocultar integraciones futuras"
         summary={
           <p className="text-sm text-neutral-600">
-            Planned integrations and future extensions — designed for later
-            phases, not required for the first release.
+            Integraciones planeadas y extensiones futuras — pensadas para
+            fases posteriores, no necesarias para la primera versión.
           </p>
         }
       >
         <div className="space-y-6">
-          <Block title="Future integrations">
+          <Block title="Integraciones futuras">
             <ul className="space-y-2">
               {architecture.integrations.map((integ) => (
                 <li
@@ -188,7 +188,7 @@ export function SolutionArchitecturePanel({
           </Block>
 
           {architecture.aiAgents.length > 0 ? (
-            <Block title="Future AI assistants">
+            <Block title="Futuros asistentes de IA">
               <ul className="space-y-2">
                 {architecture.aiAgents.map((agent) => (
                   <li key={agent.id}>
@@ -203,7 +203,7 @@ export function SolutionArchitecturePanel({
           ) : null}
 
           {architecture.apis.length > 0 ? (
-            <Block title="System connectivity concepts">
+            <Block title="Conceptos de conectividad del sistema">
               <ul className="flex flex-wrap gap-2">
                 {architecture.apis.map((api) => (
                   <li
@@ -217,7 +217,7 @@ export function SolutionArchitecturePanel({
             </Block>
           ) : null}
 
-          <Block title="Future documentation">
+          <Block title="Documentación futura">
             <ul className="grid gap-2 sm:grid-cols-2">
               {SOLUTION_FUTURE_OUTPUTS.map((output) => (
                 <li
@@ -226,7 +226,7 @@ export function SolutionArchitecturePanel({
                 >
                   <p className="text-sm text-neutral-900">{output.title}</p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                    {output.status === "planned" ? "Planned" : output.status}
+                    {output.status === "planned" ? "Planeado" : output.status}
                   </p>
                 </li>
               ))}

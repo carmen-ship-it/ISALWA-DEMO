@@ -3,8 +3,12 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import {
+  criticalityLabel,
+  dependencyKindLabel,
+  ownershipKindLabel,
   recommendationStrength,
-  strengthBand,
+  riskLevelLabel,
+  strengthBandLabelEs,
 } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type {
@@ -53,7 +57,7 @@ export function CompanyModelPanel({
         </p>
         <p className="mt-4 text-sm text-neutral-400">
           {recommendationStrength(model.overallConfidence)} · salud{" "}
-          {strengthBand(model.health.overallScore, "percent")} ·{" "}
+          {strengthBandLabelEs(model.health.overallScore, "percent")} ·{" "}
           {formatRelativeActivity(model.generatedAt)} · solo lectura
         </p>
         {model.health.notes.length > 0 ? (
@@ -157,7 +161,7 @@ function DepartmentRow({ dept }: { dept: CompanyDepartment }) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-medium text-neutral-900">{dept.name}</p>
         <span className="text-xs text-neutral-400">
-          {strengthBand(dept.confidence)}
+          {strengthBandLabelEs(dept.confidence)}
         </span>
       </div>
       <p className="mt-1 text-sm text-neutral-600">{dept.purpose}</p>
@@ -165,7 +169,7 @@ function DepartmentRow({ dept }: { dept: CompanyDepartment }) {
         {dept.personIds.length} personas · {dept.workflowIds.length} flujos ·{" "}
         {dept.systemIds.length} sistemas
         {dept.headcountHint != null
-          ? ` · ~${dept.headcountHint} headcount`
+          ? ` · ~${dept.headcountHint} personas en plantilla`
           : ""}
       </p>
     </li>
@@ -182,7 +186,7 @@ function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
         {rel.label}
       </span>
       <span className="ml-2 text-xs text-neutral-400">
-        {strengthBand(rel.confidence)}
+        {strengthBandLabelEs(rel.confidence)}
       </span>
     </li>
   );
@@ -195,10 +199,10 @@ function OwnershipRow({ own }: { own: CompanyOwnership }) {
       <span className="mx-1.5 text-neutral-400">posee</span>
       <span className="text-neutral-900">{own.targetLabel}</span>
       <span className="ml-2 text-xs uppercase tracking-[0.12em] text-neutral-400">
-        {own.kind.replace(/_/g, " ")}
+        {ownershipKindLabel(own.kind)}
       </span>
       <span className="ml-2 text-xs text-neutral-400">
-        {strengthBand(own.confidence)}
+        {strengthBandLabelEs(own.confidence)}
       </span>
     </li>
   );
@@ -209,7 +213,8 @@ function InformationFlowRow({ flow }: { flow: CompanyInformationFlow }) {
     <li className="rounded-xl border border-neutral-200/70 px-4 py-3">
       <p className="text-sm font-medium text-neutral-900">{flow.name}</p>
       <p className="mt-1 text-xs text-neutral-400">
-        Riesgo {flow.risk} · {strengthBand(flow.confidence)} ·{" "}
+        Riesgo: {riskLevelLabel(flow.risk) || flow.risk} ·{" "}
+        {strengthBandLabelEs(flow.confidence)} ·{" "}
         {flow.informationIds.length} nodos de información
       </p>
       {flow.missingInformation.length > 0 ? (
@@ -229,12 +234,12 @@ function DependencyRow({ dep }: { dep: CompanyDependency }) {
           {dep.fromLabel} → {dep.toLabel}
         </p>
         <span className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-          {dep.criticality}
+          {criticalityLabel(dep.criticality)}
         </span>
       </div>
       <p className="mt-1 text-sm text-neutral-600">{dep.reason}</p>
       <p className="mt-2 text-xs text-neutral-400">
-        {dep.kind} · {strengthBand(dep.confidence)}
+        {dependencyKindLabel(dep.kind)} · {strengthBandLabelEs(dep.confidence)}
       </p>
     </li>
   );

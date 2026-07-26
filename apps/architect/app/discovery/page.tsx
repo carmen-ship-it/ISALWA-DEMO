@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { DiscoveryExperience } from "@/components/discovery/discovery-experience";
+import { GuidedAssessment } from "@/components/discovery/guided/guided-assessment";
 import { TypingIndicator } from "@/components/shared/typing-indicator";
 
 export default function DiscoveryPage() {
@@ -11,7 +11,7 @@ export default function DiscoveryPage() {
         </div>
       }
     >
-      <DiscoveryExperience />
+      <GuidedAssessment />
     </Suspense>
   );
 }

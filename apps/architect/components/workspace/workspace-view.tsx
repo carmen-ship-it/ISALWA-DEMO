@@ -14,6 +14,7 @@ import {
   Map,
   Network,
   Route,
+  Sparkles,
 } from "lucide-react";
 import { ArchitectNav } from "@/components/nav/architect-nav";
 import { BackLink } from "@/components/nav/back-link";
@@ -25,12 +26,20 @@ import { SolutionArchitecturePanel } from "@/components/workspace/solution-archi
 import { BusinessProcessesPanel } from "@/components/workspace/business-processes-panel";
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
+import { BrandSettingsPanel } from "@/components/workspace/brand-settings-panel";
+import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
 import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
 import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
+import { ContextBar } from "@/components/workspace/executive/context-bar";
+import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
 import { ExecutiveDashboard } from "@/components/workspace/executive/executive-dashboard";
+import {
+  GuidedJourney,
+  type GuidedJourneyStage,
+} from "@/components/workspace/executive/guided-journey";
 import { ModuleInsightCards } from "@/components/workspace/executive/module-insight-cards";
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
@@ -42,12 +51,15 @@ import {
 import { SectionShell } from "@/components/workspace/section-shell";
 import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
+  CLIENT_TAB_LABELS,
+  CLIENT_VISIBLE_TAB_IDS,
   WorkspaceTabs,
   type WorkspaceTabId,
 } from "@/components/workspace/workspace-tabs";
 import { useAuth } from "@/hooks/use-auth";
+import { applyBrandOverrides } from "@/lib/brand";
 import { evolveCompanyHistory } from "@/lib/history";
-import { deriveExecutiveExperience } from "@/lib/executive";
+import { deriveExecutiveExperience, type JourneyStageId } from "@/lib/executive";
 import {
   explainSolutionModules,
   explainWorkspaceRecommendations,
@@ -61,6 +73,43 @@ import {
   formatStageLabel,
 } from "@/lib/workspace";
 import type { CompanyWorkspace } from "@/types";
+
+/**
+ * Guided Journey — maps the five-stage consulting journey to the tab where
+ * that stage lives, per role. Client Mode never points at a hidden tab
+ * (Diagnóstico, Sistema recomendado, Cómo opera stay Consultant-only).
+ */
+function journeyStageTab(
+  id: JourneyStageId,
+  isConsultant: boolean,
+): WorkspaceTabId {
+  if (isConsultant) {
+    switch (id) {
+      case "interview":
+        return "assessment";
+      case "learned":
+        return "blueprint";
+      case "problems":
+        return "company";
+      case "architecture":
+        return "architecture";
+      case "recommended":
+        return "recommendations";
+    }
+  }
+  switch (id) {
+    case "interview":
+      return "executive";
+    case "learned":
+      return "blueprint";
+    case "problems":
+      return "recommendations";
+    case "architecture":
+      return "roadmap";
+    case "recommended":
+      return "deliverables";
+  }
+}
 
 const ROADMAP_LANES = ["Hoy", "Siguiente", "30 días", "90 días", "Futuro"] as const;
 
@@ -130,13 +179,30 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
-  if (!workspace || !executive) {
+  /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
+  const effectiveBrand = useMemo(
+    () =>
+      workspace
+        ? applyBrandOverrides(
+            workspace.brandExperience,
+            workspace.brandOverrides,
+            workspace.companyName,
+          )
+        : null,
+    [workspace],
+  );
+
+  if (!workspace || !executive || !effectiveBrand) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
         <p className="text-neutral-500">Cargando…</p>
       </main>
     );
   }
+
+  const isConsultant = session?.role === "consultant";
+  const visibleTabIds = isConsultant ? undefined : CLIENT_VISIBLE_TAB_IDS;
+  const tabLabelOverrides = isConsultant ? undefined : CLIENT_TAB_LABELS;
 
   const briefing = buildResumeBriefing(workspace);
   const timeline = sortTimelineNewestFirst(workspace.timeline).slice(0, 5);
@@ -153,6 +219,31 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       : workspace.suggestedNextMeeting
         ? `Hoy conviene: ${workspace.suggestedNextMeeting}.`
         : "Hoy puede revisar lo que ya aprendimos o continuar el diagnóstico.";
+
+  // Single source of truth for "today's recommendation" — reused by the
+  // welcome brief, the context bar, and the executive dashboard headline.
+  const todayRecommendation =
+    executive.dashboard.executiveRecommendation ??
+    executive.dashboard.priorities[0] ??
+    executive.cockpit.priorities[0]?.title ??
+    null;
+
+  const guidedJourneyStages: GuidedJourneyStage[] = executive.journey.map(
+    (stage) => ({
+      id: stage.id,
+      label: stage.label,
+      detail: stage.detail,
+      complete: stage.complete,
+      tab: journeyStageTab(stage.id, isConsultant),
+    }),
+  );
+
+  const scrollToExecutiveSummary = () => {
+    if (typeof document === "undefined") return;
+    document
+      .getElementById("cabina-ejecutiva")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const evidenceChips = [
     workspace.meetings.length > 0
@@ -191,15 +282,36 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const panels: Record<WorkspaceTabId, ReactNode> = {
     executive: (
       <div className="space-y-8">
+        <DiscoveryCelebration
+          workspaceId={workspace.id}
+          companyName={workspace.companyName}
+          understanding={workspace.businessUnderstanding}
+        />
+
         <WelcomeBanner
           displayName={displayName}
           understanding={workspace.businessUnderstanding}
           focusHint={focusHint}
+          todayRecommendation={todayRecommendation}
           estimatedMinutes={briefing.estimatedMinutesRemaining}
           continueHref={interviewHref}
           continueLabel="Continuar evaluación"
-          onExplore={() => setTab("recommendations")}
+          onExplore={scrollToExecutiveSummary}
+          brandMessage={effectiveBrand.homepageMessage.value}
         />
+
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            Su progreso
+          </p>
+          <div className="mt-4">
+            <GuidedJourney
+              stages={guidedJourneyStages}
+              activeTab={tab}
+              onSelectStage={setTab}
+            />
+          </div>
+        </div>
 
         <SectionShell
           tone="health"
@@ -216,13 +328,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           </Card>
         </SectionShell>
 
-        <SectionShell tone="executive" icon={ClipboardList}>
-          <ExecutiveDashboard
-            model={executive.dashboard}
-            cockpit={executive.cockpit}
-            explainedRecommendations={explainedRecommendations}
-          />
-        </SectionShell>
+        <div id="cabina-ejecutiva" className="scroll-mt-32">
+          <SectionShell tone="executive" icon={ClipboardList}>
+            <ExecutiveDashboard
+              model={executive.dashboard}
+              cockpit={executive.cockpit}
+              explainedRecommendations={explainedRecommendations}
+            />
+          </SectionShell>
+        </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionShell
@@ -312,6 +426,22 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <BrandExperiencePanel model={workspace.brandExperience} />
         </SectionShell>
 
+        {session?.role === "consultant" ? (
+          <SectionShell
+            tone="blueprint"
+            icon={Building2}
+            kicker="Marca blanca"
+            title="Personalizar para este cliente"
+            description="Ajuste logo, colores, terminología y mensaje de bienvenida — se aplican de inmediato en el espacio de trabajo y el reporte."
+          >
+            <BrandSettingsPanel
+              workspace={workspace}
+              updatedByLabel={session?.displayName ?? "Consultor"}
+              onUpdated={(next) => setWorkspace(next)}
+            />
+          </SectionShell>
+        ) : null}
+
         <SectionShell
           tone="health"
           icon={FileText}
@@ -319,7 +449,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           title="Lo que ya sabemos"
           description="Información de la empresa que ya usamos en el diagnóstico."
         >
-          <KnowledgeCenter knowledge={workspace.knowledge} />
+          <KnowledgeCenter
+            workspace={workspace}
+            onUpdated={(next) => setWorkspace(next)}
+          />
         </SectionShell>
 
         <SectionShell
@@ -503,6 +636,25 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       </div>
     ),
 
+    simulator: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="executive"
+          icon={Sparkles}
+          kicker="Simulador ejecutivo"
+          title="¿Qué pasa si…?"
+          description="Explore decisiones antes de tomarlas — sin tocar la información real de su empresa."
+        >
+          <ExecutiveSimulatorPanel workspace={workspace} />
+        </SectionShell>
+        <NextStepCta
+          description="Use esto para preparar la conversación de decisión — no reemplaza el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
+    ),
+
     roadmap: (
       <div className="space-y-8">
         <SectionShell
@@ -564,11 +716,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
         <SectionShell tone="health" title="¿Qué debe hacer ahora?">
           <p className="mb-4 text-sm text-neutral-600">
-            Revise el sistema recomendado que da soporte a este plan.
+            {isConsultant
+              ? "Revise el sistema recomendado que da soporte a este plan."
+              : "Revise el plan de implementación que da soporte a este modelo."}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button size="lg" onClick={() => setTab("architecture")}>
-              Ver sistema recomendado
+            <Button
+              size="lg"
+              onClick={() =>
+                setTab(isConsultant ? "architecture" : "roadmap")
+              }
+            >
+              {isConsultant
+                ? "Ver sistema recomendado"
+                : "Ver plan de implementación"}
             </Button>
             <Button asChild variant="secondary" size="lg">
               <Link href={interviewHref}>Seguir evaluando</Link>
@@ -608,7 +769,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   };
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10 sm:px-10">
+    <main
+      className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10 sm:px-10"
+      style={effectiveBrand.cssVariables}
+    >
+      <ContextBar
+        companyName={workspace.companyName}
+        stageLabel={formatStageLabel(workspace.currentStage)}
+        understanding={workspace.businessUnderstanding}
+        nextGoal={todayRecommendation ?? "Continuar el diagnóstico"}
+      />
       {session?.role === "consultant" ? (
         <BackLink href="/" label="Volver a empresas" className="mb-6" />
       ) : null}
@@ -617,9 +787,19 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-500">
             Espacio de la empresa
           </p>
-          <h1 className="architect-serif mt-4 text-4xl leading-tight text-neutral-950 sm:text-5xl">
-            {workspace.companyName}
-          </h1>
+          <div className="mt-4 flex items-center gap-3">
+            {effectiveBrand.logoUrl.value ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={effectiveBrand.logoUrl.value}
+                alt={`Logo de ${effectiveBrand.companyDisplayName}`}
+                className="h-10 w-10 shrink-0 rounded-xl border border-neutral-200 bg-white object-contain p-1"
+              />
+            ) : null}
+            <h1 className="architect-serif text-4xl leading-tight text-neutral-950 sm:text-5xl">
+              {workspace.companyName}
+            </h1>
+          </div>
           <p className="mt-3 max-w-xl text-neutral-500">
             {formatIndustryLabel(workspace.industry)} ·{" "}
             {formatStageLabel(workspace.currentStage)} ·{" "}
@@ -629,6 +809,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <ArchitectNav
           workspaceHref={`/workspace/${workspace.id}`}
           interviewHref={interviewHref}
+          preparationHref={`/preparation?workspaceId=${workspace.id}`}
         />
       </header>
 
@@ -641,6 +822,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           active={tab}
           onChange={setTab}
           panels={panelsWithTabLinks}
+          visibleTabIds={visibleTabIds}
+          labelOverrides={tabLabelOverrides}
         />
       </motion.div>
 

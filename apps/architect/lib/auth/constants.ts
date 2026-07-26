@@ -67,6 +67,6 @@ export const ROLE_CAPABILITIES: Record<ArchitectRole, readonly AuthCapability[]>
 
 export const PUBLIC_PATHS = ["/login"] as const;
 
-export const CONSULTANT_ONLY_PATHS = ["/companies"] as const;
+export const CONSULTANT_ONLY_PATHS = ["/companies", "/preparation"] as const;
 
 export const PILOT_SESSION_COOKIE = "isalwa.architect.pilot_session";

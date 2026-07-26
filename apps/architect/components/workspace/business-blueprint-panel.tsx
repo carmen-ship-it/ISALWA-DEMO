@@ -9,9 +9,9 @@ import { formatRelativeActivity } from "@/lib/workspace";
 import type { BusinessBlueprint } from "@/types";
 
 function blueprintRevisionLabel(indexFromNewest: number): string {
-  if (indexFromNewest === 0) return "Current";
-  if (indexFromNewest === 1) return "Previous";
-  return `Older · ${indexFromNewest}`;
+  if (indexFromNewest === 0) return "Actual";
+  if (indexFromNewest === 1) return "Anterior";
+  return `Más antigua · ${indexFromNewest}`;
 }
 
 export function BusinessBlueprintPanel({
@@ -31,9 +31,9 @@ export function BusinessBlueprintPanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          The business operating blueprint appears after discovery produces
-          enough structured understanding. It becomes the foundation for process
-          maps, proposals, and future configuration.
+          El plan operativo del negocio aparece cuando el descubrimiento
+          produce suficiente comprensión estructurada. Se convierte en la base
+          de los mapas de procesos, las propuestas y la configuración futura.
         </p>
       </Card>
     );
@@ -43,14 +43,14 @@ export function BusinessBlueprintPanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Business operating blueprint
+          Cómo funciona su empresa
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
           {selected.title}
         </h3>
         <p className="mt-3 text-neutral-600">{selected.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
-          {selected.superseded ? "Earlier revision" : "Current assessment"} ·{" "}
+          {selected.superseded ? "Revisión anterior" : "Lectura actual"} ·{" "}
           {formatRelativeActivity(selected.generatedAt)}
         </p>
       </Card>
@@ -58,7 +58,7 @@ export function BusinessBlueprintPanel({
       {sorted.length > 1 ? (
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Revisions
+            Revisiones
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {sorted.map((blueprint, index) => (
@@ -78,36 +78,36 @@ export function BusinessBlueprintPanel({
             ))}
           </ul>
           <p className="mt-2 text-xs text-neutral-400">
-            Earlier assessments are preserved — discovery never overwrites prior
-            findings.
+            Las lecturas anteriores se conservan — el descubrimiento nunca
+            sobrescribe hallazgos previos.
           </p>
         </div>
       ) : null}
 
-      <BlueprintBlock title="Current state">
+      <BlueprintBlock title="Cómo opera hoy">
         <p>{selected.currentState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Future state">
+      <BlueprintBlock title="Cómo debería operar">
         <p>{selected.futureState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Transformation path">
+      <BlueprintBlock title="Camino de transformación">
         <ArchitectureLine
-          label="Today"
+          label="Hoy"
           summary={selected.futureArchitecture.current.summary}
         />
         <ArchitectureLine
-          label="Transition"
+          label="Transición"
           summary={selected.futureArchitecture.transition.summary}
         />
         <ArchitectureLine
-          label="Future"
+          label="Futuro"
           summary={selected.futureArchitecture.future.summary}
         />
       </BlueprintBlock>
 
-      <BlueprintBlock title="Capabilities">
+      <BlueprintBlock title="Capacidades">
         <ul className="space-y-4">
           {selected.capabilities.map((cap) => (
             <li key={cap.id}>
@@ -115,7 +115,7 @@ export function BusinessBlueprintPanel({
               <p className="mt-1 text-sm text-neutral-500">{cap.purpose}</p>
               {cap.painPoints.length > 0 ? (
                 <p className="mt-1 text-xs text-neutral-400">
-                  Friction: {cap.painPoints.slice(0, 2).join(" · ")}
+                  Fricción: {cap.painPoints.slice(0, 2).join(" · ")}
                 </p>
               ) : null}
             </li>
@@ -123,30 +123,31 @@ export function BusinessBlueprintPanel({
         </ul>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Departments">
+      <BlueprintBlock title="Departamentos">
         <p className="text-neutral-800">
           {selected.departments.map((d) => d.name).join(" · ") || "—"}
         </p>
       </BlueprintBlock>
 
       <ExecutiveDetail
-        labelExpand="View workflows & operating detail"
-        labelCollapse="Hide workflows & operating detail"
+        labelExpand="Ver flujos de trabajo y detalle operativo"
+        labelCollapse="Ocultar flujos de trabajo y detalle operativo"
         summary={
           <p className="text-sm text-neutral-600">
-            Key workflows, operating rules, systems in use, and opportunity
-            areas — available when you need the supporting detail.
+            Flujos de trabajo clave, reglas de operación, sistemas en uso y
+            áreas de oportunidad — disponible cuando necesite el respaldo
+            completo.
           </p>
         }
       >
         <div className="space-y-8">
-          <BlueprintBlock title="Workflows">
+          <BlueprintBlock title="Flujos de trabajo">
             <ul className="space-y-5">
               {selected.workflows.map((workflow) => (
                 <li key={workflow.id}>
                   <p className="text-neutral-950">{workflow.name}</p>
                   <p className="mt-1 text-sm text-neutral-500">
-                    Starts when: {workflow.trigger}
+                    Comienza cuando: {workflow.trigger}
                   </p>
                   <ol className="mt-3 space-y-2">
                     {workflow.steps.map((step, index) => (
@@ -171,7 +172,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Core business information">
+          <BlueprintBlock title="Información central del negocio">
             <ul className="flex flex-wrap gap-2">
               {selected.entities.map((entity) => (
                 <li
@@ -184,7 +185,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Operating rules">
+          <BlueprintBlock title="Reglas de operación">
             <ul className="space-y-2">
               {selected.operatingRules.map((rule) => (
                 <li key={rule.id} className="text-neutral-700">
@@ -194,7 +195,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Systems in use">
+          <BlueprintBlock title="Sistemas en uso">
             <ul className="space-y-4">
               {selected.systems.map((system) => (
                 <li key={system.id}>
@@ -203,14 +204,14 @@ export function BusinessBlueprintPanel({
                     {system.purpose}
                   </p>
                   <p className="mt-1 text-xs text-neutral-400">
-                    Replacement approach: {system.replacementStrategy}
+                    Enfoque de reemplazo: {system.replacementStrategy}
                   </p>
                 </li>
               ))}
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Pain points">
+          <BlueprintBlock title="Puntos de dolor">
             <ul className="space-y-2">
               {selected.painPoints.map((pain) => (
                 <li key={pain.id} className="flex gap-3 text-sm">
@@ -223,7 +224,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Opportunities">
+          <BlueprintBlock title="Oportunidades">
             <ul className="space-y-3">
               {selected.opportunities.map((opp) => (
                 <li key={opp.id}>
@@ -239,19 +240,19 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Recommended capabilities">
+          <BlueprintBlock title="Capacidades recomendadas">
             <p className="text-neutral-800">
               {selected.modules.map((m) => m.name).join(" · ") || "—"}
             </p>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Open questions">
+          <BlueprintBlock title="Preguntas abiertas">
             <p className="text-neutral-800">
-              {selected.openQuestions.join(" · ") || "None recorded."}
+              {selected.openQuestions.join(" · ") || "Ninguna registrada."}
             </p>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Sources consulted">
+          <BlueprintBlock title="Fuentes consultadas">
             <ul className="flex flex-wrap gap-2">
               {selected.evidence.slice(0, 10).map((ref) => (
                 <li
@@ -264,7 +265,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Future documentation">
+          <BlueprintBlock title="Documentación futura">
             <ul className="grid gap-2 sm:grid-cols-2">
               {BLUEPRINT_FUTURE_OUTPUTS.map((output) => (
                 <li
@@ -273,7 +274,7 @@ export function BusinessBlueprintPanel({
                 >
                   <p className="text-sm text-neutral-900">{output.title}</p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-                    {output.status === "planned" ? "Planned" : output.status}
+                    {output.status === "planned" ? "Planeado" : output.status}
                   </p>
                 </li>
               ))}

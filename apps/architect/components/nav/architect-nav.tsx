@@ -12,25 +12,31 @@ import { cn } from "@/lib/utils";
 export function ArchitectNav({
   workspaceHref,
   interviewHref,
+  preparationHref,
 }: {
   workspaceHref?: string | null;
   interviewHref?: string | null;
+  /** Consultant-only Preparation Brief link — hidden entirely for clients. */
+  preparationHref?: string | null;
 }) {
   const pathname = usePathname();
   const { session } = useAuth();
+  const isConsultant = session?.role === "consultant";
 
-  const base =
-    session?.role === "consultant"
-      ? [
-          { href: "/", label: "Empresas" },
-          { href: "/companies", label: "Panel" },
-        ]
-      : [];
+  const base = isConsultant
+    ? [
+        { href: "/", label: "Empresas" },
+        { href: "/companies", label: "Panel" },
+      ]
+    : [];
 
   const items = [
     ...base,
     ...(workspaceHref
       ? [{ href: workspaceHref, label: "Espacio de trabajo" as const }]
+      : []),
+    ...(isConsultant && preparationHref
+      ? [{ href: preparationHref, label: "Brief de preparación" as const }]
       : []),
     ...(interviewHref
       ? [{ href: interviewHref, label: "Entrevista" as const }]

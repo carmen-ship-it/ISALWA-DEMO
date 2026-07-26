@@ -36,6 +36,21 @@ export function coverageBand(
   return "Early";
 }
 
+export function coverageBandLabelEs(band: CoverageBand): string {
+  switch (band) {
+    case "Strong":
+      return "Sólida";
+    case "Solid":
+      return "Buena";
+    case "Partial":
+      return "Parcial";
+    case "Limited":
+      return "Limitada";
+    default:
+      return "Inicial";
+  }
+}
+
 function strengthBandEs(band: StrengthBand): string {
   switch (band) {
     case "High":
@@ -47,6 +62,14 @@ function strengthBandEs(band: StrengthBand): string {
     default:
       return "Emergente";
   }
+}
+
+/** Spanish band label for direct display (e.g. next to a name or metric). */
+export function strengthBandLabelEs(
+  score: number,
+  scale: "unit" | "percent" = "unit",
+): string {
+  return strengthBandEs(strengthBand(score, scale));
 }
 
 export function recommendationStrength(
@@ -197,6 +220,44 @@ export function revisionLabel(
     return indexFromNewest === 0 ? "Anterior" : "Revisión anterior";
   }
   return "Actual";
+}
+
+const OWNERSHIP_KIND_LABELS_ES: Record<string, string> = {
+  department_capability: "Capacidad departamental",
+  workflow: "Flujo de trabajo",
+  system: "Sistema",
+  information: "Información",
+  product: "Producto",
+};
+
+/** Company Model ownership kind → natural CEO Spanish. */
+export function ownershipKindLabel(kind: string): string {
+  return OWNERSHIP_KIND_LABELS_ES[kind] ?? kind.replace(/_/g, " ");
+}
+
+const DEPENDENCY_KIND_LABELS_ES: Record<string, string> = {
+  workflow: "Flujo de trabajo",
+  system: "Sistema",
+  person: "Persona",
+  information: "Información",
+  external: "Externa",
+};
+
+/** Company Model dependency kind → natural CEO Spanish. */
+export function dependencyKindLabel(kind: string): string {
+  return DEPENDENCY_KIND_LABELS_ES[kind] ?? kind;
+}
+
+const CRITICALITY_LABELS_ES: Record<string, string> = {
+  critical: "Crítica",
+  high: "Alta",
+  moderate: "Moderada",
+  low: "Baja",
+};
+
+/** Dependency criticality → natural CEO Spanish. */
+export function criticalityLabel(level: string): string {
+  return CRITICALITY_LABELS_ES[level] ?? level;
 }
 
 export function riskLevelLabel(level: string | null | undefined): string {

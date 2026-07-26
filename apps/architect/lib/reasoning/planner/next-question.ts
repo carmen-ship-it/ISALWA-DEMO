@@ -235,6 +235,15 @@ function candidateToQuestion(candidate: QuestionCandidate): Question {
   };
 }
 
+/**
+ * Best-effort read-only lookup of a catalog candidate by key — used only to
+ * relabel an already-answered topic in the UI (Guided Assessment Review).
+ * Never mutates or extends the catalog.
+ */
+export function catalogByKey(key: string): QuestionCandidate | null {
+  return CATALOG.find((c) => c.key === key) ?? null;
+}
+
 export function markQuestionAsked(
   memory: ConversationMemory,
   questionKey: string | undefined,

@@ -3,6 +3,7 @@ import type {
   KnowledgeCoverageArea,
   KnowledgeCoverageSlice,
   KnowledgeEntity,
+  KnowledgeEntityKind,
   KnowledgeRelationship,
   WorkspaceKnowledge,
 } from "@/types";
@@ -102,6 +103,42 @@ export function buildWorkspaceKnowledge(input: {
     unknownAreas:
       unknownAreas.length > 0 ? unknownAreas : ["Follow-up interview topics"],
     coverage,
+  };
+}
+
+export interface KnowledgeEntitySummary {
+  total: number;
+  documents: number;
+  companies: number;
+  departments: number;
+  people: number;
+  processes: number;
+  customers: number;
+  suppliers: number;
+  systems: number;
+}
+
+/**
+ * Honest breakdown of what the vault has actually found, by entity kind.
+ * Zero counts mean the current pipeline has not produced that kind yet —
+ * callers should render an explicit "aún no disponible" state, not fabricate data.
+ */
+export function summarizeKnowledgeEntities(
+  entities: KnowledgeEntity[],
+): KnowledgeEntitySummary {
+  const count = (kind: KnowledgeEntityKind) =>
+    entities.filter((entity) => entity.kind === kind).length;
+
+  return {
+    total: entities.length,
+    documents: count("Document"),
+    companies: count("Company"),
+    departments: count("Department"),
+    people: count("Person"),
+    processes: count("Workflow"),
+    customers: count("Customer"),
+    suppliers: count("Supplier"),
+    systems: count("System"),
   };
 }
 

@@ -158,7 +158,7 @@ export function deriveStudioMetrics(input: {
     automationOpportunities: input.automationOpportunityCount,
     approvals: input.approvalCount,
     documents: input.documentCount,
-    averageDurationLabel: avg != null ? formatMinutes(avg) : "Unknown",
+    averageDurationLabel: avg != null ? formatMinutes(avg) : "Desconocida",
     averageDurationMinutes: avg,
     riskLevel,
     processHealth,

@@ -31,7 +31,7 @@ export function ObservationCard({
         )}
       >
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Observation
+          Observación
         </p>
         <h3 className="mt-2 text-base font-medium text-neutral-900">
           {observation.title}
@@ -41,13 +41,13 @@ export function ObservationCard({
         </p>
         {observation.evidence.length > 0 ? (
           <p className="mt-3 text-xs leading-relaxed text-neutral-400">
-            Evidence: “{observation.evidence[0]}”
+            Evidencia: “{observation.evidence[0]}”
           </p>
         ) : null}
         {observation.risk ? (
           <div className="mt-4 rounded-2xl bg-neutral-50 px-3 py-2">
             <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-              Risk
+              Riesgo
             </p>
             <p className="mt-1 text-sm text-neutral-700">{observation.risk}</p>
           </div>
@@ -55,7 +55,7 @@ export function ObservationCard({
         {observation.recommendation ? (
           <div className="mt-2 rounded-2xl bg-neutral-50 px-3 py-2">
             <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-              Recommendation
+              Recomendación
             </p>
             <p className="mt-1 text-sm text-neutral-700">
               {observation.recommendation}

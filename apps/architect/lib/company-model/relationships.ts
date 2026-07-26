@@ -28,6 +28,20 @@ const KNOWLEDGE_KIND_MAP: Record<KnowledgeRelationKind, CompanyRelationshipKind>
     CommunicatesWith: "communicates_with",
   };
 
+/** Natural CEO Spanish fallback labels — used only when no free-text label exists. */
+const RELATIONSHIP_KIND_LABEL_ES: Record<CompanyRelationshipKind, string> = {
+  uses: "Utiliza",
+  depends_on: "Depende de",
+  reports_to: "Reporta a",
+  owns: "Es propietario de",
+  approves: "Aprueba",
+  produces: "Produce",
+  purchases: "Compra a",
+  communicates_with: "Se comunica con",
+  belongs_to: "Pertenece a",
+  hands_off_to: "Traspasa a",
+};
+
 export function derivePartiesAndProducts(
   workspace: CompanyWorkspace,
   evidence: CompanyModelEvidenceRef[],
@@ -208,7 +222,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", capability.id),
       kind: "department_capability",
-      ownerLabel: capability.owner ?? capability.department ?? "Unknown",
+      ownerLabel: capability.owner ?? capability.department ?? "Sin asignar",
       ownerPersonId: ownerPerson?.id ?? null,
       ownerDepartmentId: department?.id ?? null,
       ownerRoleId: null,
@@ -226,7 +240,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", wf.id),
       kind: "workflow",
-      ownerLabel: person?.name ?? dept?.name ?? "Unknown",
+      ownerLabel: person?.name ?? dept?.name ?? "Sin asignar",
       ownerPersonId: wf.ownerPersonId,
       ownerDepartmentId: wf.departmentId,
       ownerRoleId: null,
@@ -243,7 +257,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", system.id),
       kind: "system",
-      ownerLabel: dept?.name ?? "Operations",
+      ownerLabel: dept?.name ?? "Operaciones",
       ownerPersonId: null,
       ownerDepartmentId: dept?.id ?? null,
       ownerRoleId: null,
@@ -284,7 +298,7 @@ export function deriveRelationships(
       toLabel: to.name,
       knowledgeRelationshipId: rel.id,
       processHandoffId: null,
-      label: rel.label || rel.kind,
+      label: rel.label || RELATIONSHIP_KIND_LABEL_ES[KNOWLEDGE_KIND_MAP[rel.kind]],
       confidence: rel.confidence,
       evidence: [
         {
@@ -310,7 +324,7 @@ export function deriveRelationships(
       toLabel: dept.name,
       knowledgeRelationshipId: null,
       processHandoffId: null,
-      label: "Belongs to",
+      label: RELATIONSHIP_KIND_LABEL_ES.belongs_to,
       confidence: 0.85,
       evidence: evidence.slice(0, 1),
     });
@@ -330,7 +344,7 @@ export function deriveRelationships(
         toLabel: system.name,
         knowledgeRelationshipId: null,
         processHandoffId: null,
-        label: "Uses",
+        label: RELATIONSHIP_KIND_LABEL_ES.uses,
         confidence: 0.7,
         evidence: evidence.slice(0, 1),
       });
@@ -349,7 +363,7 @@ export function deriveRelationships(
       toLabel: handoff.to,
       knowledgeRelationshipId: null,
       processHandoffId: handoff.id,
-      label: wf ? `Handoff in ${wf.name}` : "Process handoff",
+      label: wf ? `Traspaso en ${wf.name}` : "Traspaso de proceso",
       confidence: handoff.confidence,
       evidence: [
         {

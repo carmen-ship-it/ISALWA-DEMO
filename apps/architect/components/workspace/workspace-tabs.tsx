@@ -12,6 +12,7 @@ export type WorkspaceTabId =
   | "architecture"
   | "processes"
   | "recommendations"
+  | "simulator"
   | "roadmap"
   | "deliverables";
 
@@ -23,26 +24,56 @@ export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
   { id: "architecture", label: "Sistema recomendado" },
   { id: "processes", label: "Cómo opera" },
   { id: "recommendations", label: "Recomendaciones" },
+  // Client-safe: read-only "what if" scenarios over lib/simulation. Kept
+  // consultant-only for now per Executive Client Experience mission — the
+  // client-facing simulator entry point is a follow-up, not removed here.
+  { id: "simulator", label: "¿Qué pasa si…?" },
   { id: "roadmap", label: "Plan de implementación" },
   { id: "deliverables", label: "Documentos" },
 ];
+
+/**
+ * Client Mode — the polished subset Álvaro sees. Everything else
+ * (Diagnóstico, Sistema recomendado, Cómo opera, ¿Qué pasa si…?) stays
+ * inside Consultant Mode: reasoning internals, engineering detail, and
+ * future contracts, per the Executive Client Experience mission scope.
+ */
+export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
+  "executive",
+  "blueprint",
+  "company",
+  "recommendations",
+  "roadmap",
+  "deliverables",
+];
+
+/** Human-language label overrides shown only in Client Mode. */
+export const CLIENT_TAB_LABELS: Partial<Record<WorkspaceTabId, string>> = {
+  blueprint: "Cómo funciona su empresa",
+};
 
 export function WorkspaceTabs({
   active,
   onChange,
   panels,
+  visibleTabIds,
+  labelOverrides,
 }: {
   active: WorkspaceTabId;
   onChange: (id: WorkspaceTabId) => void;
   panels: Record<WorkspaceTabId, ReactNode>;
+  /** Client Mode — restrict which tabs render. Omit to show all (Consultant Mode). */
+  visibleTabIds?: WorkspaceTabId[];
+  /** Client Mode — friendlier copy for a subset of tabs. */
+  labelOverrides?: Partial<Record<WorkspaceTabId, string>>;
 }) {
   const listId = useId();
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const activeIndex = Math.max(
-    0,
-    WORKSPACE_TABS.findIndex((tab) => tab.id === active),
-  );
-  const progress = ((activeIndex + 1) / WORKSPACE_TABS.length) * 100;
+  const tabs = visibleTabIds
+    ? WORKSPACE_TABS.filter((tab) => visibleTabIds.includes(tab.id))
+    : WORKSPACE_TABS;
+  const activeIndex = Math.max(0, tabs.findIndex((tab) => tab.id === active));
+  const progress = ((activeIndex + 1) / tabs.length) * 100;
 
   const focusTab = useCallback((index: number) => {
     tabRefs.current[index]?.focus();
@@ -50,7 +81,7 @@ export function WorkspaceTabs({
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent, index: number) => {
-      const last = WORKSPACE_TABS.length - 1;
+      const last = tabs.length - 1;
       let nextIndex: number | null = null;
       if (event.key === "ArrowRight" || event.key === "ArrowDown") {
         nextIndex = index === last ? 0 : index + 1;
@@ -63,23 +94,24 @@ export function WorkspaceTabs({
       }
       if (nextIndex == null) return;
       event.preventDefault();
-      onChange(WORKSPACE_TABS[nextIndex]!.id);
+      onChange(tabs[nextIndex]!.id);
       focusTab(nextIndex);
     },
-    [focusTab, onChange],
+    [focusTab, onChange, tabs],
   );
 
   return (
     <div className="mt-8">
-      <div className="sticky top-0 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
+      <div className="sticky top-11 z-30 -mx-6 border-b border-neutral-200/80 bg-[#fafafa]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
         <div
           role="tablist"
           aria-label="Secciones del espacio de trabajo"
           id={listId}
           className="flex gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {WORKSPACE_TABS.map((tab, index) => {
+          {tabs.map((tab, index) => {
             const selected = tab.id === active;
+            const label = labelOverrides?.[tab.id] ?? tab.label;
             return (
               <button
                 key={tab.id}
@@ -101,7 +133,7 @@ export function WorkspaceTabs({
                     : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900",
                 )}
               >
-                {tab.label}
+                {label}
               </button>
             );
           })}
@@ -114,11 +146,11 @@ export function WorkspaceTabs({
           />
         </div>
         <p className="mt-2 text-[11px] text-neutral-400">
-          Sección {activeIndex + 1} de {WORKSPACE_TABS.length}
+          Sección {activeIndex + 1} de {tabs.length}
         </p>
       </div>
 
-      {WORKSPACE_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const selected = tab.id === active;
         return (
           <div

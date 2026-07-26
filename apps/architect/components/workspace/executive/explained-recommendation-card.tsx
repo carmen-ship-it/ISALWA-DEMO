@@ -163,7 +163,7 @@ export function ExplainedRecommendationCard({
             </p>
             {explained.supportingFacts.length === 0 ? (
               <p className="mt-2 text-sm text-neutral-500">
-                Los hechos de soporte aparecerán con más discovery.
+                Los hechos de soporte aparecerán con más descubrimiento.
               </p>
             ) : (
               <ul className="mt-2 space-y-1.5">

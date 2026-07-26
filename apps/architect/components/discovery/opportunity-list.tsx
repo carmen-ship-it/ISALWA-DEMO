@@ -7,13 +7,13 @@ import type { Opportunity, OpportunityImpact } from "@/types";
 function impactLabel(impact: OpportunityImpact): string {
   switch (impact) {
     case "quick_win":
-      return "Quick Win";
+      return "Victoria rápida";
     case "medium":
-      return "Medium Impact";
+      return "Impacto medio";
     case "high":
-      return "High Impact";
+      return "Impacto alto";
     case "strategic":
-      return "Strategic";
+      return "Estratégico";
   }
 }
 
@@ -25,7 +25,7 @@ export function OpportunityList({
   if (opportunities.length === 0) {
     return (
       <Card className="px-5 py-5 text-sm text-neutral-500">
-        Opportunities appear as patterns become clear.
+        Las oportunidades aparecen a medida que los patrones se aclaran.
       </Card>
     );
   }

@@ -31,9 +31,10 @@ export function BrandExperiencePanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-neutral-600">
-          Brand and experience guidance appears once the business blueprint is
-          in place. It captures how the company wants to look, feel, and be
-          experienced in software — inferred from discovery, never invented.
+          La guía de marca y experiencia aparece una vez que el plan de
+          negocio está listo. Captura cómo la empresa quiere verse, sentirse
+          y vivirse en el software — inferido del diagnóstico, nunca
+          inventado.
         </p>
       </Card>
     );
@@ -43,32 +44,32 @@ export function BrandExperiencePanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Brand & experience
+          Marca y experiencia
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Identity and experience direction
+          Dirección de identidad y experiencia
         </h3>
         <p className="mt-3 text-neutral-600">{model.summary}</p>
         <p className="mt-4 text-sm text-neutral-400">
           {recommendationStrength(model.overallConfidence)} ·{" "}
-          {formatRelativeActivity(model.generatedAt)} · read-only
+          {formatRelativeActivity(model.generatedAt)} · solo lectura
         </p>
       </Card>
 
-      <Block title="Executive Summary">
+      <Block title="Resumen ejecutivo">
         <p className="text-neutral-800">{model.executiveSummary}</p>
       </Block>
 
-      <Block title="Brand Profile">
-        <Meta label="Display name" value={model.brandProfile.companyDisplayName} />
-        <RecField label="Tagline" rec={model.brandProfile.tagline} />
-        <RecField label="Voice & tone" rec={model.brandProfile.voiceTone} />
-        <RecList label="Personality" rec={model.brandProfile.personalityTraits} />
-        <RecField label="Industry positioning" rec={model.brandProfile.industryPositioning} />
-        <RecField label="Differentiation" rec={model.brandProfile.differentiation} />
+      <Block title="Perfil de marca">
+        <Meta label="Nombre de exhibición" value={model.brandProfile.companyDisplayName} />
+        <RecField label="Lema" rec={model.brandProfile.tagline} />
+        <RecField label="Voz y tono" rec={model.brandProfile.voiceTone} />
+        <RecList label="Personalidad" rec={model.brandProfile.personalityTraits} />
+        <RecField label="Posicionamiento de industria" rec={model.brandProfile.industryPositioning} />
+        <RecField label="Diferenciación" rec={model.brandProfile.differentiation} />
         <div className="mt-4">
           <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-            Logos
+            Logotipos
           </p>
           <ul className="mt-2 space-y-2">
             {model.brandProfile.logos.map((logo) => (
@@ -83,33 +84,37 @@ export function BrandExperiencePanel({
         </div>
       </Block>
 
-      <Block title="Experience Profile">
+      <Block title="Perfil de experiencia">
         <RecField
-          label="Employee experience vision"
+          label="Visión de experiencia del empleado"
           rec={model.experienceProfile.employeeExperienceVision}
         />
         <RecList
-          label="Software expectations"
+          label="Expectativas de software"
           rec={model.experienceProfile.softwareExpectations}
         />
         <RecField
-          label="Onboarding style"
+          label="Estilo de incorporación"
           rec={model.experienceProfile.onboardingStyle}
         />
         <RecField
-          label="Density preference"
+          label="Preferencia de densidad"
           rec={model.experienceProfile.densityPreference}
         />
         <RegionalFormats model={model} />
         <div className="mt-4">
           <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-            Notification preferences
+            Preferencias de notificación
           </p>
           <ul className="mt-2 space-y-1.5">
             {model.experienceProfile.notificationPreferences.map((pref) => (
               <li key={pref.channel} className="text-sm text-neutral-700">
                 {pref.channel}:{" "}
-                {pref.enabled == null ? "unknown" : pref.enabled ? "on" : "off"}
+                {pref.enabled == null
+                  ? "sin definir"
+                  : pref.enabled
+                    ? "activado"
+                    : "desactivado"}
                 <span className="text-neutral-400">
                   {" "}
                   · {strengthBand(pref.confidence)} — {pref.reasoning}
@@ -120,54 +125,54 @@ export function BrandExperiencePanel({
         </div>
       </Block>
 
-      <Block title="Theme Recommendation">
-        <Meta label="Theme" value={model.themeRecommendation.name} />
-        <Meta label="Mode" value={model.themeRecommendation.mode} />
+      <Block title="Recomendación de tema">
+        <Meta label="Tema" value={model.themeRecommendation.name} />
+        <Meta label="Modo" value={model.themeRecommendation.mode} />
         <p className="mt-2 text-sm text-neutral-600">
           {model.themeRecommendation.rationale}
         </p>
-        <RecField label="Aesthetic" rec={model.themeRecommendation.aesthetic} />
+        <RecField label="Estética" rec={model.themeRecommendation.aesthetic} />
         <Confidence
           value={model.themeRecommendation.confidence}
           reasoning={model.themeRecommendation.rationale}
         />
       </Block>
 
-      <Block title="Design Tokens">
+      <Block title="Tokens de diseño">
         <DesignTokensView tokens={model.designTokens} />
       </Block>
 
-      <Block title="Terminology">
-        <RecField label="Default locale" rec={model.terminology.localeDefault} />
-        <RecField label="Formality" rec={model.terminology.formality} />
+      <Block title="Terminología">
+        <RecField label="Idioma predeterminado" rec={model.terminology.localeDefault} />
+        <RecField label="Formalidad" rec={model.terminology.formality} />
         {model.terminology.entries.length === 0 ? (
           <p className="mt-2 text-sm text-neutral-500">
-            No terminology mappings yet — blueprint entities and departments
-            will populate this section.
+            Aún no hay mapeos de terminología — las entidades y departamentos
+            del plan de negocio irán completando esta sección.
           </p>
         ) : (
           <TerminologyTable entries={model.terminology.entries} />
         )}
       </Block>
 
-      <Block title="Navigation Recommendations">
+      <Block title="Recomendaciones de navegación">
         {model.navigation.length === 0 ? (
           <p className="text-sm text-neutral-500">
-            Navigation patterns require solution modules or blueprint
-            departments.
+            Los patrones de navegación requieren capacidades de software o
+            departamentos del plan de negocio.
           </p>
         ) : (
           <NavigationList items={model.navigation} />
         )}
       </Block>
 
-      <Block title="Accessibility">
+      <Block title="Accesibilidad">
         <AccessibilityView profile={model.accessibility} />
       </Block>
 
       <ExecutiveDetail
-        labelExpand="View rationale & sources"
-        labelCollapse="Hide rationale & sources"
+        labelExpand="Ver justificación y fuentes"
+        labelCollapse="Ocultar justificación y fuentes"
         summary={
           <p className="text-sm text-neutral-600">
             {recommendationStrength(model.overallConfidence)}.{" "}
@@ -194,9 +199,10 @@ export function BrandExperiencePanel({
         </ul>
       </ExecutiveDetail>
 
-      <Block title="Future brand assets">
+      <Block title="Futuros activos de marca">
         <p className="mb-3 text-sm text-neutral-500">
-          Asset intake channels — designed for a later release.
+          Canales de recepción de activos — pensados para una versión
+          posterior.
         </p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {BRAND_ASSET_UPLOAD_PROVIDERS.map((provider) => (
@@ -216,7 +222,7 @@ export function BrandExperiencePanel({
         </ul>
       </Block>
 
-      <Block title="Future experience outputs">
+      <Block title="Futuros entregables de experiencia">
         <ul className="grid gap-2 sm:grid-cols-2">
           {BRAND_FUTURE_OUTPUTS.map((output) => (
             <li
@@ -234,21 +240,22 @@ export function BrandExperiencePanel({
       </Block>
 
       <ExecutiveDetail
-        labelExpand="View white-label readiness"
-        labelCollapse="Hide white-label readiness"
+        labelExpand="Ver preparación para marca blanca"
+        labelCollapse="Ocultar preparación para marca blanca"
         summary={
           <p className="text-sm text-neutral-600">
-            Partner branding readiness for future deployment — optional detail.
+            Preparación de marca de socio para un despliegue futuro — detalle
+            opcional.
           </p>
         }
       >
-        <Meta label="Status" value={model.whiteLabel.status} />
-        <RecField label="Custom domain" rec={model.whiteLabel.customDomain} />
+        <Meta label="Estado" value={model.whiteLabel.status} />
+        <RecField label="Dominio personalizado" rec={model.whiteLabel.customDomain} />
         <RecField
-          label="Hide ISALWA branding"
+          label="Ocultar marca ISALWA"
           rec={model.whiteLabel.hideIsalwaBranding}
         />
-        <RecField label="Partner name" rec={model.whiteLabel.partnerName} />
+        <RecField label="Nombre del socio" rec={model.whiteLabel.partnerName} />
       </ExecutiveDetail>
     </div>
   );
@@ -285,7 +292,7 @@ function RecField<T>({
       ? "—"
       : typeof rec.value === "boolean"
         ? rec.value
-          ? "yes"
+          ? "sí"
           : "no"
         : String(rec.value);
 
@@ -356,7 +363,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
     <div className="space-y-4">
       <div>
         <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-          Colors
+          Colores
         </p>
         <ul className="mt-2 space-y-2">
           {tokens.colors.map((color) => (
@@ -369,7 +376,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
               />
               <span className="text-neutral-800">
                 {color.role}: {color.name}{" "}
-                {color.hex ? `(${color.hex})` : "(unknown)"}
+                {color.hex ? `(${color.hex})` : "(sin definir)"}
               </span>
               <span className="text-neutral-400">
                 {strengthBand(color.confidence)}
@@ -380,7 +387,7 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
       </div>
       <div>
         <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
-          Typography
+          Tipografía
         </p>
         <ul className="mt-2 space-y-1.5">
           {tokens.typography.map((t) => (
@@ -390,8 +397,8 @@ function DesignTokensView({ tokens }: { tokens: DesignTokens }) {
           ))}
         </ul>
       </div>
-      <RecField label="Border radius" rec={tokens.borderRadius} />
-      <RecField label="Elevation" rec={tokens.elevation} />
+      <RecField label="Radio de bordes" rec={tokens.borderRadius} />
+      <RecField label="Elevación" rec={tokens.elevation} />
     </div>
   );
 }
@@ -420,7 +427,7 @@ function NavigationList({ items }: { items: NavigationPreference[] }) {
           <p className="mt-1 text-xs text-neutral-400">
             {nav.pattern} · {strengthBand(nav.confidence)}
             {nav.modules.length > 0
-              ? ` · Capabilities: ${nav.modules.join(" · ")}`
+              ? ` · Capacidades: ${nav.modules.join(" · ")}`
               : ""}
           </p>
         </li>
@@ -432,10 +439,10 @@ function NavigationList({ items }: { items: NavigationPreference[] }) {
 function AccessibilityView({ profile }: { profile: AccessibilityProfile }) {
   return (
     <div>
-      <RecField label="Contrast target" rec={profile.contrastTarget} />
-      <RecField label="Motion" rec={profile.motionPreference} />
-      <RecField label="Font scale" rec={profile.fontScaleDefault} />
-      <RecField label="Keyboard-first" rec={profile.keyboardFirst} />
+      <RecField label="Meta de contraste" rec={profile.contrastTarget} />
+      <RecField label="Movimiento" rec={profile.motionPreference} />
+      <RecField label="Escala de fuente" rec={profile.fontScaleDefault} />
+      <RecField label="Prioridad de teclado" rec={profile.keyboardFirst} />
       {profile.notes.length > 0 ? (
         <ul className="mt-3 space-y-1">
           {profile.notes.map((note) => (
@@ -453,10 +460,10 @@ function RegionalFormats({ model }: { model: BrandExperienceModel }) {
   const r = model.experienceProfile.regionalFormats;
   return (
     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-      <RecField label="Language" rec={r.language} />
-      <RecField label="Timezone" rec={r.timezone} />
-      <RecField label="Date format" rec={r.dateFormat} />
-      <RecField label="Currency" rec={r.currency} />
+      <RecField label="Idioma" rec={r.language} />
+      <RecField label="Zona horaria" rec={r.timezone} />
+      <RecField label="Formato de fecha" rec={r.dateFormat} />
+      <RecField label="Moneda" rec={r.currency} />
     </div>
   );
 }

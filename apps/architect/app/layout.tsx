@@ -17,7 +17,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "ISALWA Architect",
   description:
-    "Design your company before you build software. Guided discovery that produces the blueprint for your future operating system.",
+    "Diseñe su empresa antes de construir software. Un descubrimiento guiado que produce el plano de su futuro sistema operativo.",
 };
 
 /** Auth + per-user workspace — never serve a cached shell across deploys. */
