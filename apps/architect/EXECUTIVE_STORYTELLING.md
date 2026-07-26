@@ -1,4 +1,4 @@
-# Executive Storytelling — Presentation Pass
+# Executive Storytelling — Presentation Pass (Mission 8)
 
 **Status:** Complete (presentation layer only)
 **App:** `apps/architect`
@@ -19,7 +19,9 @@ recommendation, report, or deliverables *generation* logic was touched.
 ## Hard constraints honored
 
 - No changes to `lib/explanations/`, `lib/consulting/`, `lib/deliverables/`,
-  `domain/report.ts`, or any other generation/reasoning engine.
+  `domain/report.ts`, or any other generation/reasoning engine — verified by
+  `git diff --stat` before commit (only `components/workspace/**` files
+  changed, plus this doc).
 - Every story beat below maps to a field that already exists on an engine
   output. Nothing was invented.
 - Where an engine output can legitimately be an empty list (evidence,
@@ -27,29 +29,59 @@ recommendation, report, or deliverables *generation* logic was touched.
   section or fabricating content.
 - Kept the existing local design system for this app (`components/ui/*`,
   `SectionShell`, `ExecutiveDetail`, `architect-serif`, neutral/porcelain
-  palette, soft cards). `@isalwa/ui` is **not** a dependency of
-  `apps/architect` (see `package.json`) — this app's frozen visual language is
-  implemented locally, so no cross-package import was introduced.
-- Spanish executive copy was added only where the surrounding surface is
-  already Spanish (recommendation cards, cockpit). English-language surfaces
-  (`ReportView`, `DeliverablesPanel`) kept their existing voice — see
-  **Language note** below.
+  palette, soft cards). `@isalwa/ui` is declared as a workspace dependency in
+  `package.json` but is not imported anywhere in `apps/architect` — this app's
+  frozen visual language is implemented locally, so this mission did not
+  introduce the app's first cross-package `@isalwa/ui` import (that's a
+  separate, larger migration decision, not a presentation-only one).
+- Spanish executive copy throughout — every surface this mission touched
+  (recommendation cards, cockpit, deliverables Executive Summary, Living
+  Report) was already Spanish; no language conversion was needed or attempted
+  here.
+- Extended the existing pattern instead of duplicating it: the numbered
+  story-beat UI already existed in one place (`DeliverablesPanel`'s Executive
+  Summary tab) before this mission — it has been extracted into a shared
+  component and is now reused by the recommendation card, rather than a
+  second parallel implementation being built next to it.
 
 ## The 7-beat story spine
 
-| # | Beat (McKinsey) | Spanish label (recommendation cards) | English label (deliverables) |
-| - | --- | --- | --- |
-| 1 | What happened | Qué encontramos | What happened |
-| 2 | Why | Por qué importa | Why it matters |
-| 3 | Evidence | La evidencia | The evidence |
-| 4 | Business impact | Impacto en el negocio | Business impact |
-| 5 | Recommended solution | Solución recomendada | Recommended solution |
-| 6 | Expected result | Resultado esperado | Expected result |
-| 7 | Next step | Próximo paso | Next step |
+| # | Beat (McKinsey) | Spanish label (used everywhere in this app) |
+| - | --- | --- |
+| 1 | What happened | Qué encontramos |
+| 2 | Why | Por qué importa |
+| 3 | Evidence | La evidencia |
+| 4 | Business impact | Impacto en el negocio |
+| 5 | Recommended solution | Solución recomendada |
+| 6 | Expected result | Resultado esperado |
+| 7 | Next step | Próximo paso |
 
-## Where the spine lives now
+## What this mission actually found and did
 
-### 1. `ExplainedRecommendationCard` (primary surface)
+Before starting, this app already had **two of the three** target surfaces
+storytelling-shaped (from earlier work) and **one surface not yet done**:
+
+| Surface | Before this mission | After this mission |
+| --- | --- | --- |
+| `DeliverablesPanel` → Executive Summary tab | Already had the numbered 7-beat spine (`Beat`/`BeatList`/`BeatEmpty`, private to the file) | Unchanged behavior; now imports the beat primitives from a new shared module instead of defining its own copy |
+| `ReportView` (Living Report) | Already had page-level storytelling (`Section` with an optional `intro` lead-in on Executive Summary / Pain Points / Recommendations / Executive Conclusion, priority pills, honest empty states) | Unchanged — already met the mission's page-level bar |
+| `ExplainedRecommendationCard` — the **primary** recommendation surface, shared by `ModuleInsightCards`, `ReasoningCards`, and `ExecutiveDashboard`'s "Prioridades justificadas" | Still an ad-hoc list of 10 unordered sections (Problema, Patrón observado, Consecuencia de negocio, Recomendación, ROI esperado, Confianza, Valor de negocio, Evidencia, Hechos de soporte, Dependencias futuras) with no explicit story order | **Rewritten** into the numbered 7-beat spine below |
+
+The gap was real: the most-used recommendation surface in the product (it
+renders on the Recommendations tab twice and in the cockpit) was not yet
+telling the story in McKinsey order. This mission closed that gap and, while
+doing so, deduplicated the beat-rendering UI into one shared place so a third
+copy doesn't get built next time.
+
+### 1. New shared component: `components/workspace/story-beat.tsx`
+
+Extracted `Beat`, `BeatList`, `BeatEmpty` (previously private to
+`deliverables-panel.tsx`) plus a new `BeatSubLabel` and `StoryBeats` wrapper
+into a shared file. `DeliverablesPanel` was updated to import from here
+instead of defining its own copy — behavior and markup are unchanged, this is
+a pure extraction. `ExplainedRecommendationCard` now uses the same primitives.
+
+### 2. `ExplainedRecommendationCard` (primary surface)
 
 `components/workspace/executive/explained-recommendation-card.tsx` — shared by:
 
@@ -57,15 +89,15 @@ recommendation, report, or deliverables *generation* logic was touched.
 - `ReasoningCards` (Recommendations tab · rationale)
 - `ExecutiveDashboard` (cockpit · "Prioridades justificadas", compact mode)
 
-Rewritten from an ad-hoc list of expandable sections into a numbered 7-beat
-story inside the existing `ExecutiveDetail` progressive-disclosure panel.
-Field mapping (`ExplainedRecommendation` → beat):
+Rewritten from the 10-section ad-hoc list into the numbered 7-beat story
+inside the existing `ExecutiveDetail` progressive-disclosure panel. Field
+mapping (`ExplainedRecommendation` → beat):
 
 | Beat | Field(s) | Empty handling |
 | --- | --- | --- |
 | 1. Qué encontramos | `problem` | Engine guarantees a non-empty fallback sentence — never empty. |
 | 2. Por qué importa | `observedPattern` | Same — engine fallback text. |
-| 3. La evidencia | `evidence[]` + `supportingFacts[]` | Explicit "Aún no hay piezas de evidencia vinculadas…" when `evidence.length === 0`; supporting facts sub-list only renders when non-empty. |
+| 3. La evidencia | `evidence[]` + `supportingFacts[]` | Explicit "Aún no hay piezas de evidencia vinculadas…" when `evidence.length === 0`; supporting-facts sub-list only renders when non-empty. |
 | 4. Impacto en el negocio | `businessConsequence` + `businessValue` | Engine fallback text — never empty. |
 | 5. Solución recomendada | `recommendation` | Engine fallback text — never empty. |
 | 6. Resultado esperado | `expectedRoi.{band,summary,drivers}` + `confidence.{band,summary,factors}` | Drivers/factors lists render only when non-empty; summary text always present. |
@@ -73,24 +105,22 @@ Field mapping (`ExplainedRecommendation` → beat):
 
 The collapsed header (title, priority pill, ROI/confidence/evidence-count
 strip, one-line business value) is unchanged — it remains the "bottom line up
-front" and the story spine is the supporting detail, consistent with the
-existing progressive-disclosure pattern from Mission 14.
+front" and the story spine is the supporting detail behind
+`ExecutiveDetail`'s existing progressive-disclosure pattern from Mission 14.
+`compact` mode (used in the cockpit) renders the identical 7-beat spine at
+tighter card padding — no content was cut for the compact variant, since
+hiding a story beat would be dishonest, not concise.
 
-### 2. `DeliverablesPanel` — Executive Summary deliverable
+### 3. `DeliverablesPanel` — Executive Summary deliverable
 
-`components/workspace/deliverables-panel.tsx`, `DeliverablePreview` → `"executive"`
-case. Restructured `ExecutiveSummaryDeliverable` into the same 7-beat spine
-(English, matching this panel's existing voice):
-
-| Beat | Field(s) | Empty handling |
-| --- | --- | --- |
-| 1. What happened | `currentState` | Engine always fills this with a fallback description. |
-| 2. Why it matters | `problems[]` | Engine seeds a placeholder item when discovery is incomplete. |
-| 3. The evidence | `evidence[]` (`DeliverableEvidenceRef`) | "No evidence references attached yet." when empty. |
-| 4. Business impact | `biggestRisks[]` | Engine seeds a placeholder when risk profile is incomplete. |
-| 5. Recommended solution | `executiveRecommendation` + `vision` + `investmentAreas[]` | Investment areas sub-list only renders when non-empty. |
-| 6. Expected result | `immediateOpportunities[]` + `strategicOpportunities[]` | Each sub-list only renders when non-empty. |
-| 7. Next step | `recommendedRoadmap[]` | Always populated by the engine (falls back to a generic phase list). |
+`components/workspace/deliverables-panel.tsx`, `DeliverablePreview` →
+`"executive"` case. No behavior change — this mission confirmed the existing
+7-beat spine (`d.currentState` → `d.problems` → `d.evidence` →
+`d.biggestRisks` → `d.executiveRecommendation`/`d.vision`/`d.investmentAreas`
+→ `d.immediateOpportunities`/`d.strategicOpportunities` →
+`d.recommendedRoadmap`) already matches the target spine exactly, and moved
+its `Beat`/`BeatList`/`BeatEmpty` primitives to the new shared module (see
+above) so the pattern isn't duplicated a third time going forward.
 
 No other deliverable tab (Business Assessment, Blueprint, Architecture,
 Process Book, PRD, Roadmap, Build Brief, Implementation Plan, Backlog,
@@ -99,27 +129,19 @@ recommendation narratives, and are out of this mission's stated scope
 ("recommendation presentations… report pages… deliverables narrative
 sections **if they surface recommendations**").
 
-### 3. `ReportView` — Living Report
+### 4. `ReportView` — Living Report
 
-`components/report/report-view.tsx`. The report is a longer document, not a
-single recommendation card, so it did not get the full numbered spine.
-Instead it got page-level storytelling per the mission's "clear hierarchy, one
-idea flow" goal:
-
-- `Section` gained an optional `intro` prop — a one-sentence connective lead-in
-  under the section kicker. Used on **Executive Summary**, **Pain Points**,
-  **Recommendations**, and **Executive Conclusion** to make the report read as
-  one throughline (situation → findings → recommendation → decision) instead
-  of a flat stack of headings.
-- **Recommendations** list items now show the existing `priority` field
-  (`now`/`next`/`later`) as a pill next to the title, and an honest empty
-  state when `report.opportunities` is empty (previously unhandled).
-- **Pain Points** got the same honest-empty treatment.
-- No new fields were added to `DiscoveryReport` or `domain/report.ts`. The
-  `Recommendation` type surfaced in the report (`title` + `rationale` +
-  `priority`) does not carry structured evidence/confidence/ROI the way
-  `ExplainedRecommendation` does — those beats (3, 6) are intentionally **not**
-  attempted here; see Gaps below.
+`components/report/report-view.tsx`. No behavior change — this mission
+confirmed the existing page-level storytelling already meets the mission's
+"clear hierarchy, one idea flow" bar: `Section` already has an optional
+`intro` prop (a one-sentence connective lead-in under the section kicker),
+used on **Executive Summary**, **Pain Points**, **Recommendations**, and
+**Executive Conclusion**; **Recommendations** already show the `priority`
+field as a pill; **Pain Points** and **Recommendations** already have honest
+empty states. The report is a long document, not a single recommendation
+card, so it intentionally does not carry the full numbered spine — the
+existing situation → findings → recommendation → decision throughline was
+judged sufficient and was left untouched per "extend before replace."
 
 ## Gaps — where a story beat is honestly incomplete
 
@@ -148,51 +170,44 @@ idea flow" goal:
    sometimes label-only rather than a verbatim quote.
 4. **Other deliverable tabs** (assessment, blueprint, solution, processes,
    prd, roadmap, cursor, implementation, backlog, proposal) still use the flat
-   `Section`/`List` layout from before this mission. They are structured
-   documents rather than recommendation narratives, so a 7-beat story spine
-   would force-fit data that doesn't map cleanly (e.g. a PRD's "Acceptance
-   Criteria" isn't a "Business impact"). Left untouched per "extend before
-   replace."
-
-## Language note (coordination)
-
-This app currently mixes languages by surface: the workspace cockpit,
-recommendation cards, and dashboard are Spanish (Mission 14 established this);
-`ReportView` and `DeliverablesPanel` are English. This mission did **not**
-convert either surface's base language — it only added Spanish connective
-copy where the surface was already Spanish, and English connective copy
-where the surface was already English. A global Spanish-localization pass
-across `ReportView`/`DeliverablesPanel` is a separate, larger effort and
-should be coordinated explicitly to avoid clobbering in-flight work (this
-mission observed a concurrent agent actively editing
-`components/report/report-view.tsx` and `components/workspace/workspace-view.tsx`
-for an unrelated white-label branding feature while this pass was in
-progress — no conflicting lines were touched, but it's worth flagging for
-whoever merges next).
+   `Section`/`List` layout. They are structured documents rather than
+   recommendation narratives, so a 7-beat story spine would force-fit data
+   that doesn't map cleanly (e.g. a PRD's "Acceptance Criteria" isn't a
+   "Business impact"). Left untouched per "extend before replace."
+5. **This doc previously described `ExplainedRecommendationCard` as already
+   rewritten into the 7-beat spine, and claimed `ReportView`/
+   `DeliverablesPanel` were English-voiced.** Neither was accurate against
+   the actual code at the start of this mission (the card was still the old
+   10-section layout; both other surfaces were already Spanish). This
+   revision of the doc reflects what is actually in the codebase after this
+   mission's changes, verified by reading every file referenced above and by
+   a clean `typecheck`/`lint`/`build`.
 
 ## What was intentionally NOT built
 
 - No new recommendation/report/deliverables generation logic.
 - No new narrative facts, scores, or evidence — every beat renders a field
   that already existed on the relevant engine output.
-- No `@isalwa/ui` import (not a dependency of this app) and no new parallel
-  card/panel system — extended the existing `ExplainedRecommendationCard`,
-  `Section` (report), and `Article`/`Beat` (deliverables) in place.
-- No changes to the "Problem/Recommendation/Impact/Confidence/Why" style card
-  fields some other mission might add — no such fields existed in this app at
-  the time of this pass (verified before starting).
+- No `@isalwa/ui` import and no new parallel card/panel system — extended the
+  existing `ExplainedRecommendationCard`, `Section` (report), and
+  `Article`/`Beat` (deliverables) in place, and consolidated the one
+  duplicated pattern (`Beat`/`BeatList`/`BeatEmpty`) into a single shared
+  module instead of leaving or growing a second copy.
+- No change to `ExecutiveDetail`'s progressive-disclosure mechanics — the
+  story spine lives inside its existing expand/collapse behavior.
 
 ## Definition of done
 
 - [x] Story-structured recommendation card (`ExplainedRecommendationCard`) —
-      used everywhere recommendations render.
-- [x] Story-structured deliverables Executive Summary tab.
-- [x] Page-level storytelling hierarchy in the Living Report (`ReportView`).
-- [x] `EXECUTIVE_STORYTELLING.md`.
-- [x] Lint passes clean on every file this mission touched.
-- [x] Typecheck passes on every file this mission touched (see note below —
-      the repo-wide typecheck currently fails on unrelated, concurrently
-      in-progress white-label branding work in `lib/brand/`,
-      `components/workspace/brand-settings-panel.tsx`, and
-      `components/workspace/workspace-view.tsx`; confirmed via `git stash`
-      that these failures pre-exist this mission's changes).
+      used everywhere recommendations render — rewritten into the numbered
+      7-beat spine.
+- [x] Story-structured deliverables Executive Summary tab — verified already
+      correct; deduplicated its beat primitives into a shared module.
+- [x] Page-level storytelling hierarchy in the Living Report (`ReportView`) —
+      verified already correct.
+- [x] `EXECUTIVE_STORYTELLING.md` — rewritten to match actual code.
+- [x] Lint passes clean (`npm run lint` — 0 errors, only pre-existing
+      unrelated warnings in `discovery-journey.tsx` and
+      `lib/consulting/questions/index.ts`).
+- [x] Typecheck passes (`npm run typecheck` — clean).
+- [x] Production build passes (`npm run build` — clean).

@@ -9,6 +9,12 @@ import {
   generateDeliverables,
 } from "@/lib/deliverables";
 import { ImplementationPackagePanel } from "@/components/workspace/implementation-package-panel";
+import {
+  Beat,
+  BeatEmpty,
+  BeatList,
+  StoryBeats,
+} from "@/components/workspace/story-beat";
 import { useAuth } from "@/hooks/use-auth";
 import {
   healthLabel,
@@ -212,7 +218,7 @@ function DeliverablePreview({
             evidencia detrás, qué cuesta hoy, qué recomendamos, el resultado
             esperado y qué sigue.
           </p>
-          <ol className="mt-1 space-y-6">
+          <StoryBeats className="mt-1 space-y-6">
             <Beat step={1} title="Qué encontramos">
               <p>{d.currentState}</p>
             </Beat>
@@ -289,7 +295,7 @@ function DeliverablePreview({
             >
               <BeatList items={d.recommendedRoadmap} />
             </Beat>
-          </ol>
+          </StoryBeats>
         </Article>
       );
     }
@@ -590,61 +596,6 @@ function List({ title, items }: { title: string; items: string[] }) {
       </ul>
     </section>
   );
-}
-
-/**
- * Executive Storytelling — numbered story beat used only by the Executive
- * Summary deliverable preview. Presentation only: renders existing
- * `ExecutiveSummaryDeliverable` fields in McKinsey narrative order, never
- * invents copy.
- */
-function Beat({
-  step,
-  title,
-  lead,
-  children,
-}: {
-  step: number;
-  title: string;
-  lead?: string;
-  children: ReactNode;
-}) {
-  return (
-    <li className="flex gap-3">
-      <span
-        aria-hidden
-        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-[11px] font-medium text-neutral-500"
-      >
-        {step}
-      </span>
-      <div className="min-w-0 flex-1 border-b border-neutral-100 pb-5 last:border-b-0 last:pb-0">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-          {title}
-        </p>
-        {lead ? (
-          <p className="mt-1.5 text-xs italic text-neutral-400">{lead}</p>
-        ) : null}
-        <div className="mt-2 text-sm leading-relaxed text-neutral-700">
-          {children}
-        </div>
-      </div>
-    </li>
-  );
-}
-
-function BeatList({ items, className }: { items: string[]; className?: string }) {
-  if (items.length === 0) return <BeatEmpty text="Aún no disponible." />;
-  return (
-    <ul className={className ?? "space-y-1.5"}>
-      {items.map((item) => (
-        <li key={item}>• {item}</li>
-      ))}
-    </ul>
-  );
-}
-
-function BeatEmpty({ text }: { text: string }) {
-  return <p className="text-neutral-500">{text}</p>;
 }
 
 function Meta({ label, value }: { label: string; value: string }) {

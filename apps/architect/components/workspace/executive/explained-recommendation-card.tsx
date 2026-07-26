@@ -1,9 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
+import {
+  Beat,
+  BeatEmpty,
+  BeatList,
+  BeatSubLabel,
+  StoryBeats,
+} from "@/components/workspace/story-beat";
 import {
   confidenceBandLabelEs,
   priorityLabelEs,
@@ -84,139 +90,118 @@ export function ExplainedRecommendationCard({
           ) : null}
         </div>
 
+        {/*
+          Mission 8 — Executive Storytelling. Numbered 7-beat McKinsey spine:
+          what happened → why it matters → the evidence → business impact →
+          recommended solution → expected result → next step. Presentation
+          only — every beat below maps to a field already produced by
+          Mission 14's explanation engine (`lib/explanations/`); nothing is
+          invented, and every list-shaped field gets an honest empty state.
+        */}
         <ExecutiveDetail
           className="mt-2"
           labelExpand="Ver justificación completa"
           labelCollapse="Ocultar justificación"
         >
-          <ExplanationSection title="Problema" body={explained.problem} />
-          <ExplanationSection
-            title="Patrón observado"
-            body={explained.observedPattern}
-          />
-          <ExplanationSection
-            title="Consecuencia de negocio"
-            body={explained.businessConsequence}
-          />
-          <ExplanationSection
-            title="Recomendación"
-            body={explained.recommendation}
-          />
-          <ExplanationSection
-            title="ROI esperado"
-            body={explained.expectedRoi.summary}
-          >
-            {explained.expectedRoi.drivers.length > 0 ? (
-              <ul className="mt-2 space-y-1.5">
-                {explained.expectedRoi.drivers.map((driver) => (
-                  <li key={driver} className="text-sm text-neutral-700">
-                    • {driver}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </ExplanationSection>
-          <ExplanationSection
-            title="Confianza"
-            body={explained.confidence.summary}
-          >
-            {explained.confidence.factors.length > 0 ? (
-              <ul className="mt-2 space-y-1.5">
-                {explained.confidence.factors.map((factor) => (
-                  <li key={factor} className="text-sm text-neutral-700">
-                    • {factor}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </ExplanationSection>
-          <ExplanationSection title="Valor de negocio" body={explained.businessValue} />
+          <StoryBeats>
+            <Beat step={1} title="Qué encontramos">
+              <p>{explained.problem}</p>
+            </Beat>
 
-          <div className="mt-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-              Evidencia
-            </p>
-            {explained.evidence.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">
-                Aún no hay piezas de evidencia vinculadas.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-1.5">
-                {explained.evidence.map((item, i) => (
-                  <li
-                    key={`${item.source}-${item.id ?? item.label}-${i}`}
-                    className="text-sm text-neutral-700"
-                  >
-                    <span className="text-neutral-400">
-                      [{sourceLabelEs(item.source)}]
-                    </span>{" "}
-                    {item.quote ?? item.label}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            <Beat step={2} title="Por qué importa">
+              <p>{explained.observedPattern}</p>
+            </Beat>
 
-          <div className="mt-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-              Hechos de soporte
-            </p>
-            {explained.supportingFacts.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">
-                Los hechos de soporte aparecerán con más descubrimiento.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-1.5">
-                {explained.supportingFacts.map((fact) => (
-                  <li key={fact} className="text-sm text-neutral-700">
-                    • {fact}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            <Beat
+              step={3}
+              title="La evidencia"
+              lead="Así queda trazado en el expediente:"
+            >
+              {explained.evidence.length === 0 ? (
+                <BeatEmpty text="Aún no hay piezas de evidencia vinculadas." />
+              ) : (
+                <ul className="space-y-1.5">
+                  {explained.evidence.map((item, i) => (
+                    <li key={`${item.source}-${item.id ?? item.label}-${i}`}>
+                      <span className="text-neutral-400">
+                        [{sourceLabelEs(item.source)}]
+                      </span>{" "}
+                      {item.quote ?? item.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {explained.supportingFacts.length > 0 ? (
+                <div className="mt-3">
+                  <BeatSubLabel>Hechos de soporte</BeatSubLabel>
+                  <BeatList
+                    items={explained.supportingFacts}
+                    className="mt-1.5 space-y-1.5"
+                  />
+                </div>
+              ) : null}
+            </Beat>
 
-          <div className="mt-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-              Dependencias futuras
-            </p>
-            {explained.futureDependencies.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">
-                Sin dependencias explícitas en el expediente actual.
+            <Beat
+              step={4}
+              title="Impacto en el negocio"
+              lead="Esto es lo que cuesta hoy, o lo que deja sobre la mesa:"
+            >
+              <p>{explained.businessConsequence}</p>
+              <p className="mt-2 text-neutral-600">
+                {explained.businessValue}
               </p>
-            ) : (
-              <ul className="mt-2 space-y-1.5">
-                {explained.futureDependencies.map((dep) => (
-                  <li key={dep} className="text-sm text-neutral-700">
-                    • {dep}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            </Beat>
+
+            <Beat step={5} title="Solución recomendada">
+              <p>{explained.recommendation}</p>
+            </Beat>
+
+            <Beat
+              step={6}
+              title="Resultado esperado"
+              lead="El retorno y la confianza detrás de esta prioridad:"
+            >
+              <BeatSubLabel>
+                ROI {roiBandLabelEs(explained.expectedRoi.band)}
+              </BeatSubLabel>
+              <p className="mt-1.5">{explained.expectedRoi.summary}</p>
+              {explained.expectedRoi.drivers.length > 0 ? (
+                <BeatList
+                  items={explained.expectedRoi.drivers}
+                  className="mt-1.5 space-y-1.5"
+                />
+              ) : null}
+
+              <div className="mt-3">
+                <BeatSubLabel>
+                  Confianza {confidenceBandLabelEs(explained.confidence.band)}
+                </BeatSubLabel>
+                <p className="mt-1.5">{explained.confidence.summary}</p>
+                {explained.confidence.factors.length > 0 ? (
+                  <BeatList
+                    items={explained.confidence.factors}
+                    className="mt-1.5 space-y-1.5"
+                  />
+                ) : null}
+              </div>
+            </Beat>
+
+            <Beat
+              step={7}
+              title="Próximo paso"
+              lead="Lo que debe resolverse antes de avanzar:"
+            >
+              {explained.futureDependencies.length === 0 ? (
+                <BeatEmpty text="Sin dependencias explícitas — puede avanzar directamente en el expediente actual." />
+              ) : (
+                <BeatList items={explained.futureDependencies} />
+              )}
+            </Beat>
+          </StoryBeats>
         </ExecutiveDetail>
       </Card>
     </motion.div>
-  );
-}
-
-function ExplanationSection({
-  title,
-  body,
-  children,
-}: {
-  title: string;
-  body: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="mt-4 first:mt-0">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-        {title}
-      </p>
-      <p className="mt-2 text-sm text-neutral-700">{body}</p>
-      {children}
-    </div>
   );
 }
 
