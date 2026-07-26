@@ -204,6 +204,25 @@ export function searchCompanyMemory(
         });
       }
     }
+
+    const impl = workspace.implementationPackage;
+    if (impl) {
+      if (
+        impl.summary.toLowerCase().includes(q) ||
+        "implementation".includes(q) ||
+        "paquete".includes(q) ||
+        q === "build"
+      ) {
+        hits.push({
+          id: impl.id,
+          kind: "implementation",
+          title: `Implementation Package · ${impl.companyName}`,
+          subtitle: `${impl.gate.status} · ${workspace.companyName}`,
+          workspaceId: workspace.id,
+          href: `/workspace/${workspace.id}`,
+        });
+      }
+    }
   }
 
   return hits.slice(0, 32);

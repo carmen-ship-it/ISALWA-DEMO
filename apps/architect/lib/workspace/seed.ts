@@ -24,10 +24,6 @@ import type {
   TimelineEvent,
 } from "@/types";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
-import {
-  emptyEvolutionHistory,
-  ensureCompanyEvolution,
-} from "@/lib/history";
 import { emptyConsultingWhiteboardFields } from "@/lib/consulting";
 import {
   createSeedKnowledge,
@@ -233,9 +229,7 @@ function seedWorkspace(input: {
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
-    companyModel: null,
     implementationPackage: null,
-    evolutionHistory: emptyEvolutionHistory(),
     people: [person],
     openQuestions: input.openQuestions,
     painPoints: memory.painPoints,
@@ -387,13 +381,11 @@ function seedWorkspace(input: {
       ]
     : [];
 
-  return ensureCompanyEvolution({
+  return {
     ...seededWorkspace,
     brandExperience,
     deliverables,
-    companyModel: null,
     implementationPackage,
-    evolutionHistory: emptyEvolutionHistory(),
     timeline: [
       ...implementationEvents,
       ...deliverableEvents,
@@ -403,7 +395,7 @@ function seedWorkspace(input: {
       ...blueprintEvents,
       ...partialWorkspace.timeline,
     ].sort((a, b) => b.date.localeCompare(a.date)),
-  });
+  };
 }
 
 /** Pilot seed — single real company only (no placeholder multi-tenant demos). */
@@ -492,9 +484,7 @@ export function createEmptyWorkspace(
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
-    companyModel: null,
     implementationPackage: null,
-    evolutionHistory: emptyEvolutionHistory(),
     people: [],
     openQuestions: [],
     painPoints: [],

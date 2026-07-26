@@ -578,6 +578,23 @@ export type {
 } from "./workspace";
 
 export type {
+  CompanyEvolutionHistory,
+  CompanySnapshot,
+  EvolutionChangeArea,
+  EvolutionChangeItem,
+  EvolutionChangePolarity,
+  EvolutionMilestone,
+  EvolutionMilestoneKind,
+  EvolutionTimelineEntry,
+  SnapshotComparison,
+  SnapshotModuleRef,
+  SnapshotProcessSummary,
+  SnapshotRecommendationRef,
+  SnapshotRiskRef,
+  SnapshotRoadmapPhase,
+} from "./history";
+
+export type {
   KnowledgeAsset,
   KnowledgeAssetStatus,
   KnowledgeAssetType,
@@ -750,6 +767,36 @@ export type {
 } from "./deliverables";
 
 
+
+
+export type {
+  CompanyModelEvidenceSource,
+  CompanyRelationshipKind,
+  CompanyOwnershipKind,
+  CompanyPartyKind,
+  CompanyDependencyKind,
+  CompanyDependencyCriticality,
+  CompanyModelHealthBand,
+  CompanyInformationRole,
+  CompanyModelEvidenceRef,
+  CompanyOrganization,
+  CompanyDepartment,
+  CompanyRole,
+  CompanyPerson,
+  CompanySystem,
+  CompanyParty,
+  CompanyProduct,
+  CompanyWorkflowRef,
+  CompanyInformationNode,
+  CompanyApprovalRef,
+  CompanyOwnership,
+  CompanyRelationship,
+  CompanyInformationFlow,
+  CompanyDecisionFlow,
+  CompanyDependency,
+  CompanyModelHealth,
+  CompanyModel,
+} from "./company-model";
 
 export type {
   ArchitectRole,

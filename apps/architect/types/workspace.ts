@@ -44,7 +44,8 @@ export type TimelineCategory =
   | "process"
   | "deliverable"
   | "brand"
-  | "implementation";
+  | "implementation"
+  | "company_model";
 
 export type FutureIntakeSource =
   | "voice_recording"
@@ -103,6 +104,10 @@ export interface CompanyWorkspace {
    * Regenerated when blueprint versions advance.
    */
   brandExperience: import("./brand").BrandExperienceModel | null;
+  /**
+   * Mission 12 — Company Digital Twin.
+   */
+  companyModel: import("./company-model").CompanyModel | null;
   /**
    * Mission 18 — Implementation Package (gate + orchestration).
    * Present only when businessUnderstanding >= CONCLUSION_THRESHOLD.
@@ -244,7 +249,8 @@ export type SearchTargetKind =
   | "process"
   | "deliverable"
   | "brand"
-  | "implementation";
+  | "implementation"
+  | "company_model";
 
 export interface SearchHit {
   id: string;

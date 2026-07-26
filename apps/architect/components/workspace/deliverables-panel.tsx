@@ -8,6 +8,7 @@ import {
   DELIVERABLE_EXPORT_CONTRACTS,
   generateDeliverables,
 } from "@/lib/deliverables";
+import { ImplementationPackagePanel } from "@/components/workspace/implementation-package-panel";
 import {
   healthLabel,
   maturityLabel,
@@ -81,29 +82,39 @@ export function DeliverablesPanel({
 
   if (!pack) {
     return (
-      <Card className="px-5 py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          Deliverables
-        </p>
-        <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
-          Consulting package
-        </h3>
-        <p className="mt-3 text-neutral-600">
-          Generate a complete consulting package from discovery evidence,
-          blueprint, architecture, and processes — documentation for decisions,
-          not production software.
-        </p>
-        <div className="mt-6">
-          <Button onClick={() => void generate()} disabled={busy}>
-            {busy ? "Generating…" : "Generate package"}
-          </Button>
-        </div>
-      </Card>
+      <div className="space-y-8">
+        <ImplementationPackagePanel
+          workspace={workspace}
+          onUpdated={onUpdated}
+        />
+        <Card className="px-5 py-6">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            Deliverables
+          </p>
+          <h3 className="architect-serif mt-3 text-3xl text-neutral-950">
+            Consulting package
+          </h3>
+          <p className="mt-3 text-neutral-600">
+            Generate a complete consulting package from discovery evidence,
+            blueprint, architecture, and processes — documentation for decisions,
+            not production software.
+          </p>
+          <div className="mt-6">
+            <Button onClick={() => void generate()} disabled={busy}>
+              {busy ? "Generating…" : "Generate package"}
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
     <div className="space-y-5">
+      <ImplementationPackagePanel
+        workspace={workspace}
+        onUpdated={onUpdated}
+      />
       <Card className="px-5 py-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
