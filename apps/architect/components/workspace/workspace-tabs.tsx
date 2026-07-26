@@ -9,6 +9,7 @@ export type WorkspaceTabId =
   | "assessment"
   | "blueprint"
   | "company"
+  | "knowledge"
   | "architecture"
   | "processes"
   | "recommendations"
@@ -21,6 +22,7 @@ export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
   { id: "assessment", label: "Diagnóstico" },
   { id: "blueprint", label: "Plan de negocio" },
   { id: "company", label: "Su empresa" },
+  { id: "knowledge", label: "Conocimiento del negocio" },
   { id: "architecture", label: "Sistema recomendado" },
   { id: "processes", label: "Cómo opera" },
   { id: "recommendations", label: "Recomendaciones" },
@@ -42,6 +44,7 @@ export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "executive",
   "blueprint",
   "company",
+  "knowledge",
   "recommendations",
   "roadmap",
   "deliverables",

@@ -117,6 +117,7 @@ export const KNOWLEDGE_CATEGORIES: readonly KnowledgeCategory[] = [
   "Images",
   "Process Documents",
   "Policies",
+  "Manual Notes",
   "Future Imports",
 ] as const;
 

@@ -59,6 +59,7 @@ const CATEGORY_LABELS_ES: Record<KnowledgeCategory, string> = {
   Images: "Imágenes",
   "Process Documents": "Documentos de procesos",
   Policies: "Políticas",
+  "Manual Notes": "Notas manuales",
   "Future Imports": "Futuras importaciones",
 };
 

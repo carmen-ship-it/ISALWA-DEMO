@@ -1,9 +1,12 @@
 import type {
   KnowledgeAsset,
+  KnowledgeBusinessRule,
+  KnowledgeContradictionFlag,
   KnowledgeCoverageArea,
   KnowledgeCoverageSlice,
   KnowledgeEntity,
   KnowledgeEntityKind,
+  KnowledgeEvidenceLogEntry,
   KnowledgeRelationship,
   WorkspaceKnowledge,
 } from "@/types";
@@ -77,6 +80,9 @@ export function emptyWorkspaceKnowledge(): WorkspaceKnowledge {
     themes: [],
     unknownAreas: ["Customers", "Sales", "Operations", "Finance", "HR"],
     coverage: deriveKnowledgeCoverage([]),
+    businessRules: [],
+    contradictions: [],
+    evidenceLog: [],
   };
 }
 
@@ -87,6 +93,10 @@ export function buildWorkspaceKnowledge(input: {
   summary: string;
   themes: string[];
   lastAnalysisAt: string;
+  /** Unified Business Knowledge Intake — additive, defaults to []. */
+  businessRules?: KnowledgeBusinessRule[];
+  contradictions?: KnowledgeContradictionFlag[];
+  evidenceLog?: KnowledgeEvidenceLogEntry[];
 }): WorkspaceKnowledge {
   const coverage = deriveKnowledgeCoverage(input.assets);
   const unknownAreas = coverage
@@ -103,6 +113,9 @@ export function buildWorkspaceKnowledge(input: {
     unknownAreas:
       unknownAreas.length > 0 ? unknownAreas : ["Follow-up interview topics"],
     coverage,
+    businessRules: input.businessRules ?? [],
+    contradictions: input.contradictions ?? [],
+    evidenceLog: input.evidenceLog ?? [],
   };
 }
 
@@ -157,5 +170,8 @@ export function ensureWorkspaceKnowledge(
       knowledge.coverage?.length > 0
         ? knowledge.coverage
         : deriveKnowledgeCoverage(knowledge.assets ?? []),
+    businessRules: knowledge.businessRules ?? [],
+    contradictions: knowledge.contradictions ?? [],
+    evidenceLog: knowledge.evidenceLog ?? [],
   };
 }

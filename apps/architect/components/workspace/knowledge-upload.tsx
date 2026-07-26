@@ -15,7 +15,9 @@ import {
   ingestKnowledgeUpload,
   KNOWLEDGE_UPLOAD_ACCEPT,
   KNOWLEDGE_UPLOAD_MAX_BYTES,
+  type KnowledgeUploadResult,
 } from "@/lib/knowledge";
+import type { IntakeIngestReport } from "@/lib/intake";
 import type { CompanyWorkspace } from "@/types";
 
 type UploadItemStatus = "processing" | "processed" | "queued" | "error";
@@ -32,9 +34,22 @@ const MAX_MB = Math.round(KNOWLEDGE_UPLOAD_MAX_BYTES / (1024 * 1024));
 export function KnowledgeUpload({
   workspaceId,
   onUpdated,
+  ingest = ingestKnowledgeUpload,
+  onReport,
 }: {
   workspaceId: string;
   onUpdated: (next: CompanyWorkspace) => void;
+  /**
+   * Unified Business Knowledge Intake — swap in a richer ingest function
+   * (e.g. `ingestFileThroughIntake`) without forking this widget. Defaults
+   * to the original single-entity path used by the consultant-only
+   * Knowledge Center, so that call site's behavior is unchanged.
+   */
+  ingest?: (
+    workspaceId: string,
+    file: { name: string; size: number; mimeType: string },
+  ) => Promise<(KnowledgeUploadResult & { report?: IntakeIngestReport }) | null>;
+  onReport?: (report: IntakeIngestReport) => void;
 }) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +73,7 @@ export function KnowledgeUpload({
         // Brief, honest pacing so the executive sees each document move
         // through the pipeline — no content is parsed during this delay.
         await wait(450);
-        const result = await ingestKnowledgeUpload(workspaceId, {
+        const result = await ingest(workspaceId, {
           name: file.name,
           size: file.size,
           mimeType: file.type,
@@ -86,6 +101,7 @@ export function KnowledgeUpload({
           }),
         );
         onUpdated(result.workspace);
+        if (result.report) onReport?.(result.report);
       } catch (error) {
         setItems((prev) =>
           updateItem(prev, itemId, {

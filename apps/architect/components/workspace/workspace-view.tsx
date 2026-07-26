@@ -26,6 +26,7 @@ import { SolutionArchitecturePanel } from "@/components/workspace/solution-archi
 import { BusinessProcessesPanel } from "@/components/workspace/business-processes-panel";
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
+import { BusinessKnowledge } from "@/components/workspace/business-knowledge";
 import { BrandSettingsPanel } from "@/components/workspace/brand-settings-panel";
 import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
 import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
@@ -532,6 +533,28 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
         <NextStepCta
           description="Si falta estructura, continúe el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
+    ),
+
+    knowledge: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="health"
+          icon={FileText}
+          kicker="Conocimiento del negocio"
+          title="Ayúdenos a entender su negocio más rápido"
+          description="Cuanta más información nos dé, menos preguntas necesitamos hacerle."
+        >
+          <BusinessKnowledge
+            workspace={workspace}
+            onUpdated={(next) => setWorkspace(next)}
+          />
+        </SectionShell>
+        <NextStepCta
+          description="Lo que suba aquí también alimenta el diagnóstico."
           primaryHref={interviewHref}
           primaryLabel="Continuar evaluación"
         />

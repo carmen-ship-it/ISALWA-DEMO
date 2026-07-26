@@ -6,6 +6,7 @@ import {
   mergeKnowledgeIntoMemory,
 } from "@/lib/knowledge";
 import { prepareCompany } from "@/lib/preparation";
+import { applyReadinessToMemory } from "@/lib/readiness";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
 import { createId, nowIso } from "@/lib/utils";
 import type {
@@ -149,7 +150,10 @@ export function createWorkspaceInterview(
   const knowledgeContext = buildKnowledgeReasoningContext(workspace);
   const priorMemory = workspace.conversationMemory ?? createEmptyMemory();
   const memory = applyDiscoveryScore(
-    mergeKnowledgeIntoMemory(priorMemory, knowledgeContext),
+    applyReadinessToMemory(
+      mergeKnowledgeIntoMemory(priorMemory, knowledgeContext),
+      workspace,
+    ),
   );
 
   if (mode === "begin" || !workspace.conversationMemory) {

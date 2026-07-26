@@ -13,6 +13,7 @@ export type KnowledgeAssetType =
   | "image"
   | "process_document"
   | "policy"
+  | "manual_notes"
   | "future_import";
 
 export type KnowledgeAssetStatus =
@@ -33,6 +34,7 @@ export type KnowledgeCategory =
   | "Images"
   | "Process Documents"
   | "Policies"
+  | "Manual Notes"
   | "Future Imports";
 
 export type KnowledgeEntityKind =
@@ -149,6 +151,48 @@ export interface KnowledgeCoverageSlice {
   note: string;
 }
 
+/**
+ * Unified Business Knowledge Intake — deterministic business rule surfaced
+ * from any intake source (`lib/intake`). Statement text only, no AI inference.
+ */
+export interface KnowledgeBusinessRule {
+  id: string;
+  statement: string;
+  sourceAssetIds: string[];
+  confidence: number;
+  createdAt: string;
+}
+
+/**
+ * Unified Business Knowledge Intake — soft clarification flag when two
+ * sources disagree. Never accusatory, never auto-resolved.
+ */
+export interface KnowledgeContradictionFlag {
+  id: string;
+  statement: string;
+  sourceAssetIds: string[];
+  confidence: number;
+  createdAt: string;
+}
+
+/**
+ * Unified Business Knowledge Intake — append-only evidence ledger. One entry
+ * per structured signal an extractor produced, kept even after it is folded
+ * into an entity/relationship, so "why do we believe this" stays answerable.
+ */
+export interface KnowledgeEvidenceLogEntry {
+  id: string;
+  /** IntakeSourceType — kept as string here so types/ never depends on lib/. */
+  sourceType: string;
+  sourceLabel: string;
+  statement: string;
+  /** IntakeSlotKind — fact | entity | relationship | unknown | ... */
+  slot: string;
+  confidence: number;
+  createdAt: string;
+  targetId?: string;
+}
+
 export interface WorkspaceKnowledge {
   assets: KnowledgeAsset[];
   entities: KnowledgeEntity[];
@@ -158,6 +202,12 @@ export interface WorkspaceKnowledge {
   themes: string[];
   unknownAreas: string[];
   coverage: KnowledgeCoverageSlice[];
+  /** Unified Business Knowledge Intake — additive, defaults to []. */
+  businessRules: KnowledgeBusinessRule[];
+  /** Unified Business Knowledge Intake — additive, defaults to []. */
+  contradictions: KnowledgeContradictionFlag[];
+  /** Unified Business Knowledge Intake — additive, defaults to []. */
+  evidenceLog: KnowledgeEvidenceLogEntry[];
 }
 
 /** Pipeline stages — architecture only. No runtime processing. */

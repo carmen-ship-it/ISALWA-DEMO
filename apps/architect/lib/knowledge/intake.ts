@@ -376,6 +376,11 @@ export async function ingestKnowledgeUpload(
     summary: intakeSummary(nextAssets, priorKnowledge.summary),
     themes: priorKnowledge.themes,
     lastAnalysisAt: hasProcessed ? now : priorKnowledge.lastAnalysisAt ?? now,
+    // Preserve records the Unified Business Knowledge Intake pipeline
+    // (lib/intake) may have written — this legacy path must never erase them.
+    businessRules: priorKnowledge.businessRules,
+    contradictions: priorKnowledge.contradictions,
+    evidenceLog: priorKnowledge.evidenceLog,
   });
 
   const timelineEvent: TimelineEvent = {
