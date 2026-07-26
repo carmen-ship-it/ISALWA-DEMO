@@ -5,6 +5,7 @@ import {
   hasProcessedKnowledge,
   mergeKnowledgeIntoMemory,
 } from "@/lib/knowledge";
+import { prepareCompany } from "@/lib/preparation";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
 import { createId, nowIso } from "@/lib/utils";
 import type {
@@ -20,11 +21,14 @@ export interface ResumeBriefing {
   estimatedMinutesRemaining: number;
   ctaLabel: "Continuar descubrimiento" | "Comenzar descubrimiento";
   knowledgeLines: string[];
+  /** Mission 11 — approximate preparation % (null on cold start). */
+  preparationPercent: number | null;
 }
 
 /**
  * Resume Engine — never restart discovery from zero when memory exists.
  * Mission 3: if knowledge exists, Architect speaks as if documents were read first.
+ * Mission 11: thin prepareCompany() opening when in-app evidence exists.
  */
 export function buildResumeBriefing(
   workspace: CompanyWorkspace,
@@ -33,8 +37,10 @@ export function buildResumeBriefing(
   const facts = collectRememberedFacts(workspace);
   const knowledgeContext = buildKnowledgeReasoningContext(workspace);
   const knowledgeLines = knowledgeContext.briefingLines;
+  const prep = prepareCompany(workspace);
 
   const continueFocus =
+    prep.unknownAreas[0] ??
     knowledgeContext.unknownAreas[0] ??
     workspace.openQuestions[0] ??
     workspace.conversationMemory?.score.stillNeed[0] ??
@@ -55,10 +61,12 @@ export function buildResumeBriefing(
       estimatedMinutesRemaining: ESTIMATED_INTERVIEW_MINUTES,
       ctaLabel: "Comenzar descubrimiento",
       knowledgeLines: [],
+      preparationPercent: null,
     };
   }
 
   const name = person ?? "usted";
+  const prepOpening = prep.interviewOpening;
   const knowledgeBlock =
     knowledgeLines.length > 0
       ? `\n\n${knowledgeLines.join("\n")}`
@@ -74,12 +82,13 @@ export function buildResumeBriefing(
       : `\n\n¿Hablamos de lo que encontré?`;
 
     return {
-      greeting: `Bienvenido, ${name}.\n\nYa revisé sus documentos.${knowledgeBlock}\n\nTemas que noté:\n\n${themeLines}${focusLine}`,
+      greeting: `Bienvenido, ${name}.\n\n${prepOpening}${knowledgeBlock}\n\nTemas que noté:\n\n${themeLines}${focusLine}`,
       rememberedFacts: knowledgeContext.themes,
       continueFocus,
       estimatedMinutesRemaining: estimateRemainingMinutes(workspace),
       ctaLabel: "Comenzar descubrimiento",
       knowledgeLines,
+      preparationPercent: prep.confidence.approximatePercent,
     };
   }
 
@@ -93,12 +102,13 @@ export function buildResumeBriefing(
     : `\n\n¿Continuamos donde lo dejamos?`;
 
   return {
-    greeting: `Bienvenido de nuevo, ${name}.\n\nDesde la última sesión recuerdo:\n\n${factLines}${knowledgeBlock}${focusLine}`,
+    greeting: `Bienvenido de nuevo, ${name}.\n\n${prepOpening}\n\nDesde la última sesión recuerdo:\n\n${factLines}${knowledgeBlock}${focusLine}`,
     rememberedFacts: facts,
     continueFocus,
     estimatedMinutesRemaining,
     ctaLabel: "Continuar descubrimiento",
     knowledgeLines,
+    preparationPercent: prep.confidence.approximatePercent,
   };
 }
 
