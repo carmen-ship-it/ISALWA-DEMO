@@ -7,6 +7,7 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { createId, nowIso } from "@/lib/utils";
 import type {
@@ -23,6 +24,10 @@ import type {
   TimelineEvent,
 } from "@/types";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
+import {
+  emptyEvolutionHistory,
+  ensureCompanyEvolution,
+} from "@/lib/history";
 import { emptyConsultingWhiteboardFields } from "@/lib/consulting";
 import {
   createSeedKnowledge,
@@ -228,6 +233,9 @@ function seedWorkspace(input: {
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
+    companyModel: null,
+    implementationPackage: null,
+    evolutionHistory: emptyEvolutionHistory(),
     people: [person],
     openQuestions: input.openQuestions,
     painPoints: memory.painPoints,
@@ -329,6 +337,15 @@ function seedWorkspace(input: {
     ? buildDeliverablesPackage(workspaceWithBrand)
     : null;
 
+  const workspaceWithDeliverables = {
+    ...workspaceWithBrand,
+    deliverables,
+  };
+
+  const implementationPackage = assembleImplementationPackage(
+    workspaceWithDeliverables,
+  );
+
   const brandEvents: TimelineEvent[] = brandExperience
     ? [
         {
@@ -355,11 +372,30 @@ function seedWorkspace(input: {
       ]
     : [];
 
-  return {
+  const implementationEvents: TimelineEvent[] = implementationPackage
+    ? [
+        {
+          id: createId("timeline"),
+          workspaceId: input.id,
+          date: implementationPackage.generatedAt,
+          title: implementationPackage.gate.ready
+            ? `Implementation Package · Blueprint v${implementationPackage.blueprintVersion ?? 1}`
+            : `Implementation Package (gated) · ${input.companyName}`,
+          description: implementationPackage.summary,
+          category: "implementation",
+        },
+      ]
+    : [];
+
+  return ensureCompanyEvolution({
     ...seededWorkspace,
     brandExperience,
     deliverables,
+    companyModel: null,
+    implementationPackage,
+    evolutionHistory: emptyEvolutionHistory(),
     timeline: [
+      ...implementationEvents,
       ...deliverableEvents,
       ...brandEvents,
       ...processEvents,
@@ -367,7 +403,7 @@ function seedWorkspace(input: {
       ...blueprintEvents,
       ...partialWorkspace.timeline,
     ].sort((a, b) => b.date.localeCompare(a.date)),
-  };
+  });
 }
 
 /** Pilot seed — single real company only (no placeholder multi-tenant demos). */
@@ -456,6 +492,9 @@ export function createEmptyWorkspace(
     businessProcesses: null,
     brandExperience: null,
     deliverables: null,
+    companyModel: null,
+    implementationPackage: null,
+    evolutionHistory: emptyEvolutionHistory(),
     people: [],
     openQuestions: [],
     painPoints: [],

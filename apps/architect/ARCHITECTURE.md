@@ -137,6 +137,16 @@ Stored on `CompanyWorkspace.deliverables`. Documentation only. Export targets (P
 
 Presentation only. No new business engines. No LLM.
 
+## Company Digital Twin (Mission 12)
+
+`deriveCompanyModel(workspace, blueprint)` produces a living operating model:
+
+- Departments · People · Roles · Systems · Customers / Suppliers / Products
+- Workflows · Information · Approvals · Ownership · Relationships
+- Information flows · Decision flows · Critical dependencies · Health
+
+Stored on `CompanyWorkspace.companyModel`. ID references only. No diagrams. Consumes Blueprint / Knowledge / Meetings / Consulting / Processes / Solution. Never replaces them.
+
 ## Authentication (pilot)
 
 - Supabase Auth (email/password) when configured; otherwise pilot cookie sessions

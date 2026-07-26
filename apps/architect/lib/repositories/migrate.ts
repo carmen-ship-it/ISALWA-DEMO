@@ -24,6 +24,7 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { applyDiscoveryScore } from "@/lib/reasoning";
 import { createId } from "@/lib/utils";
@@ -63,7 +64,7 @@ function purgeDemoWorkspaces(bundle: WorkspaceBundle): WorkspaceBundle {
   };
 }
 
-/** Mission 3+4+6+7+9+10 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand. */
+/** Mission 3+4+6+7+9+10+18 migration — Knowledge, Blueprint, Solution, Processes, Deliverables, Brand, Implementation Package. */
 export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
   const purged = purgeDemoWorkspaces(bundle);
   return {
@@ -75,6 +76,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         businessProcesses: workspace.businessProcesses ?? null,
         deliverables: workspace.deliverables ?? null,
         brandExperience: workspace.brandExperience ?? null,
+        implementationPackage: workspace.implementationPackage ?? null,
       };
 
       if (!next.knowledge?.assets) {
@@ -109,6 +111,7 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
           businessProcesses: null,
           brandExperience: null,
           deliverables: null,
+          implementationPackage: null,
         });
         const existingTitles = new Set(next.timeline.map((e) => e.title));
         const blueprintEvents = seeded
@@ -283,6 +286,42 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
             conversationMemory: memory,
             businessUnderstanding: memory.score.overall,
           };
+        }
+      }
+
+
+      // Mission 18 — assemble after honest scores; clear when below gate.
+      {
+        const implementationPackage = assembleImplementationPackage(next);
+        const stale =
+          next.implementationPackage?.blueprintId !==
+            (implementationPackage?.blueprintId ?? null) ||
+          next.implementationPackage?.id !==
+            (implementationPackage?.id ?? null);
+        if (implementationPackage && (!next.implementationPackage || stale)) {
+          const existingTitles = new Set(next.timeline.map((e) => e.title));
+          const title = implementationPackage.gate.ready
+            ? `Implementation Package · Blueprint v${implementationPackage.blueprintVersion ?? current?.version ?? 1}`
+            : `Implementation Package (gated) · ${next.companyName}`;
+          next = {
+            ...next,
+            implementationPackage,
+            timeline: existingTitles.has(title)
+              ? next.timeline
+              : [
+                  {
+                    id: createId("timeline"),
+                    workspaceId: next.id,
+                    date: implementationPackage.generatedAt,
+                    title,
+                    description: implementationPackage.summary,
+                    category: "implementation" as const,
+                  },
+                  ...next.timeline,
+                ].sort((a, b) => b.date.localeCompare(a.date)),
+          };
+        } else if (!implementationPackage && next.implementationPackage) {
+          next = { ...next, implementationPackage: null };
         }
       }
 

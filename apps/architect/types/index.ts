@@ -762,3 +762,13 @@ export type {
   LoginCredentials,
 } from "./auth";
 
+export type {
+  ImplementationArtifactRef,
+  ImplementationPackage,
+  ImplementationPackageGate,
+  ImplementationPackageStatus,
+  ImplementationSectionId,
+  ImplementationSectionRef,
+  ImplementationSourceEngine,
+} from "./implementation-package";
+

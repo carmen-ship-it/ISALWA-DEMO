@@ -16,6 +16,7 @@ import {
 import { deriveSolutionArchitecture } from "@/lib/solution";
 import { deriveBusinessProcesses } from "@/lib/processes";
 import { buildDeliverablesPackage } from "@/lib/deliverables";
+import { assembleImplementationPackage } from "@/lib/implementation-package";
 import {
   deriveBrandExperience,
 } from "@/lib/brand";
@@ -179,6 +180,15 @@ export function applyInterviewToWorkspace(
 
   const deliverables = buildDeliverablesPackage(workspaceForDeliverables);
 
+  const workspaceForImplementation: CompanyWorkspace = {
+    ...workspaceForDeliverables,
+    deliverables,
+  };
+
+  const implementationPackage = assembleImplementationPackage(
+    workspaceForImplementation,
+  );
+
   const solutionEvent: TimelineEvent = {
     id: createId("timeline"),
     workspaceId: workspace.id,
@@ -219,6 +229,20 @@ export function applyInterviewToWorkspace(
     meetingId: meeting.id,
   };
 
+  const implementationEvent: TimelineEvent | null = implementationPackage
+    ? {
+        id: createId("timeline"),
+        workspaceId: workspace.id,
+        date: stamp,
+        title: implementationPackage.gate.ready
+          ? `Implementation Package · Blueprint v${nextBlueprint.version}`
+          : `Implementation Package (gated) · Blueprint v${nextBlueprint.version}`,
+        description: implementationPackage.summary,
+        category: "implementation",
+        meetingId: meeting.id,
+      }
+    : null;
+
   const next: CompanyWorkspace = {
     ...workspace,
     companyName:
@@ -239,6 +263,7 @@ export function applyInterviewToWorkspace(
     opportunities: mergeById(workspace.opportunities, interview.opportunities),
     modules: report?.potentialModules ?? workspace.modules,
     timeline: [
+      ...(implementationEvent ? [implementationEvent] : []),
       deliverableEvent,
       brandEvent,
       processEvent,
@@ -254,6 +279,7 @@ export function applyInterviewToWorkspace(
     businessProcesses,
     brandExperience,
     deliverables,
+    implementationPackage,
     people,
     openQuestions:
       report?.unansweredQuestions ??

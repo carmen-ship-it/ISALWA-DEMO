@@ -43,7 +43,8 @@ export type TimelineCategory =
   | "solution"
   | "process"
   | "deliverable"
-  | "brand";
+  | "brand"
+  | "implementation";
 
 export type FutureIntakeSource =
   | "voice_recording"
@@ -102,6 +103,12 @@ export interface CompanyWorkspace {
    * Regenerated when blueprint versions advance.
    */
   brandExperience: import("./brand").BrandExperienceModel | null;
+  /**
+   * Mission 18 — Implementation Package (gate + orchestration).
+   * Present only when businessUnderstanding >= CONCLUSION_THRESHOLD.
+   * References Blueprint / Solution / Processes / Deliverables / Consulting — never regenerates them.
+   */
+  implementationPackage: import("./implementation-package").ImplementationPackage | null;
   people: Person[];
   openQuestions: string[];
   painPoints: import("./index").PainPoint[];
@@ -236,7 +243,8 @@ export type SearchTargetKind =
   | "solution"
   | "process"
   | "deliverable"
-  | "brand";
+  | "brand"
+  | "implementation";
 
 export interface SearchHit {
   id: string;
