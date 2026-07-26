@@ -215,6 +215,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const briefing = buildResumeBriefing(workspace);
   const timeline = sortTimelineNewestFirst(workspace.timeline).slice(0, 5);
   const interviewHref = `/discovery?workspaceId=${workspace.id}`;
+  const preparationHref = `/preparation?workspaceId=${workspace.id}`;
   const roadmapPhases = workspace.solutionArchitecture?.roadmap ?? [];
   const displayName =
     session?.displayName?.split(" ")[0] ||
@@ -235,6 +236,23 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     executive.dashboard.priorities[0] ??
     executive.cockpit.priorities[0]?.title ??
     null;
+
+  // Guided Executive Navigation (Mission 12) — Dashboard's single answer to
+  // "¿Qué debo hacer hoy?": once there is enough evidence (same 40% bar used
+  // by lib/executive/derive.ts) and something concrete to react to, point at
+  // today's recommendations instead of repeating "continue the assessment"
+  // forever.
+  const dashboardUnderstood = workspace.businessUnderstanding >= 40;
+  const dashboardHasRecommendations =
+    explainedRecommendations.length > 0 || explainedModules.length > 0;
+  const showTodaysRecommendations =
+    dashboardUnderstood && dashboardHasRecommendations;
+  const dashboardPrimaryLabel = showTodaysRecommendations
+    ? "Revisar recomendaciones de hoy"
+    : briefing.ctaLabel;
+  const goToTodaysRecommendations = showTodaysRecommendations
+    ? () => setTab("recommendations")
+    : undefined;
 
   const guidedJourneyStages: GuidedJourneyStage[] = executive.journey.map(
     (stage) => ({
@@ -303,7 +321,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           todayRecommendation={todayRecommendation}
           estimatedMinutes={briefing.estimatedMinutesRemaining}
           continueHref={interviewHref}
-          continueLabel="Continuar evaluación"
+          continueLabel={dashboardPrimaryLabel}
+          onContinueClick={goToTodaysRecommendations}
           onExplore={scrollToExecutiveSummary}
           brandMessage={effectiveBrand.homepageMessage.value}
         />
@@ -388,17 +407,33 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </div>
 
         <NextStepCta
-          description="Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
+          title="¿Qué debo hacer hoy?"
+          description={
+            showTodaysRecommendations
+              ? "Ya sabemos lo suficiente para sugerir qué construir primero."
+              : "Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
+          }
           primaryHref={interviewHref}
-          primaryLabel={briefing.ctaLabel}
+          primaryLabel={dashboardPrimaryLabel}
+          onPrimaryClick={goToTodaysRecommendations}
           secondaryHref={`/report?workspaceId=${workspace.id}`}
           secondaryLabel="Ver informe"
+          tertiaryHref={isConsultant ? preparationHref : undefined}
+          tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
         />
       </div>
     ),
 
     assessment: (
       <div className="space-y-8">
+        <NextStepCta
+          title="Ayúdame a responder preguntas"
+          description="Continúe donde lo dejamos — cada respuesta fortalece el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel={briefing.ctaLabel}
+          tertiaryHref={isConsultant ? preparationHref : undefined}
+          tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
+        />
         <SectionShell
           tone="health"
           icon={ClipboardList}
@@ -496,9 +531,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
 
         <NextStepCta
+          title="Ayúdame a responder preguntas"
           description="Responda lo que falta para fortalecer el diagnóstico."
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={briefing.ctaLabel}
         />
       </div>
     ),
@@ -529,6 +565,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
     company: (
       <div className="space-y-8">
+        <NextStepCta
+          title="¿Qué saben de mi empresa?"
+          description="Esto es lo que ya sabemos, construido a partir de evidencia real — no de supuestos."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+          secondaryLabel="Ver conocimiento del negocio"
+          onSecondaryClick={() => setTab("knowledge")}
+        />
         <SectionShell
           tone="blueprint"
           icon={Network}
@@ -542,9 +586,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <NextStepCta
+          title="¿Qué saben de mi empresa?"
           description="Si falta estructura, continúe el diagnóstico."
           primaryHref={interviewHref}
           primaryLabel="Continuar evaluación"
+          secondaryLabel="Ver conocimiento del negocio"
+          onSecondaryClick={() => setTab("knowledge")}
         />
       </div>
     ),
@@ -652,6 +699,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
     recommendations: (
       <div className="space-y-8">
+        <NextStepCta
+          title="¿Qué debo implementar?"
+          description="Esto es lo que recomendamos construir primero, según la evidencia recolectada."
+          primaryLabel="Ver plan de implementación"
+          onPrimaryClick={() => setTab("roadmap")}
+          secondaryHref={interviewHref}
+          secondaryLabel="Continuar evaluación"
+        />
         <SectionShell
           tone="executive"
           icon={Lightbulb}
@@ -681,9 +736,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           )}
         </SectionShell>
         <NextStepCta
+          title="¿Qué debo implementar?"
           description="Revise el plan de implementación o siga respondiendo preguntas."
-          primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel="Ver plan de implementación"
+          onPrimaryClick={() => setTab("roadmap")}
+          secondaryHref={interviewHref}
+          secondaryLabel="Continuar evaluación"
         />
       </div>
     ),
@@ -709,6 +767,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
     roadmap: (
       <div className="space-y-8">
+        <NextStepCta
+          title="¿Hacia dónde voy?"
+          description="Este plan termina en un paquete de documentos listo para decidir."
+          primaryLabel="Ver documentos"
+          onPrimaryClick={() => setTab("deliverables")}
+          secondaryHref={interviewHref}
+          secondaryLabel="Continuar evaluación"
+        />
         <SectionShell
           tone="processes"
           icon={Route}
@@ -719,9 +785,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <RoadmapTimeline items={roadmapItems} />
         </SectionShell>
         <NextStepCta
+          title="¿Hacia dónde voy?"
           description="Cuando el entendimiento sea suficiente, prepare el paquete de documentos."
-          primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel="Ver documentos"
+          onPrimaryClick={() => setTab("deliverables")}
+          secondaryHref={interviewHref}
+          secondaryLabel="Continuar evaluación"
         />
       </div>
     ),
@@ -866,7 +935,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <ArchitectNav
           workspaceHref={`/workspace/${workspace.id}`}
           interviewHref={interviewHref}
-          preparationHref={`/preparation?workspaceId=${workspace.id}`}
+          preparationHref={preparationHref}
         />
       </header>
 

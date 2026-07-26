@@ -14,6 +14,7 @@ export function WelcomeBanner({
   estimatedMinutes,
   continueHref,
   continueLabel,
+  onContinueClick,
   onExplore,
   brandMessage,
 }: {
@@ -25,6 +26,8 @@ export function WelcomeBanner({
   estimatedMinutes: number | null;
   continueHref: string;
   continueLabel: string;
+  /** Guided Executive Navigation (Mission 12) — when the answer to "what should I do today" is to jump to another tab (e.g. review recommendations) rather than navigate away, use this instead of continueHref. */
+  onContinueClick?: () => void;
   onExplore: () => void;
   /** White Label Company Experience — consultant-configured homepage message. Replaces the auto-composed description when present. */
   brandMessage?: string | null;
@@ -73,14 +76,24 @@ export function WelcomeBanner({
           </span>
         ) : null}
       </div>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Button asChild size="lg">
-          <Link href={continueHref}>
+      <p className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/70">
+        ¿Qué debo hacer hoy?
+      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {onContinueClick ? (
+          <Button type="button" size="lg" onClick={onContinueClick}>
             {continueLabel}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
-          </Link>
-        </Button>
-        <Button type="button" variant="secondary" size="lg" onClick={onExplore}>
+          </Button>
+        ) : (
+          <Button asChild size="lg">
+            <Link href={continueHref}>
+              {continueLabel}
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+            </Link>
+          </Button>
+        )}
+        <Button type="button" variant="ghost" onClick={onExplore}>
           Ver resumen ejecutivo
         </Button>
       </div>
