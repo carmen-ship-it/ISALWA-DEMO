@@ -37,6 +37,7 @@ import { ContextBar } from "@/components/workspace/executive/context-bar";
 import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
 import { ExecutiveDashboard } from "@/components/workspace/executive/executive-dashboard";
+import { ExecutiveInsightsPanel } from "@/components/workspace/executive/executive-insights-panel";
 import {
   GuidedJourney,
   type GuidedJourneyStage,
@@ -61,6 +62,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { applyBrandOverrides } from "@/lib/brand";
 import { evolveCompanyHistory } from "@/lib/history";
 import { deriveExecutiveExperience, type JourneyStageId } from "@/lib/executive";
+import { deriveExecutiveInsights } from "@/lib/insights";
 import {
   explainSolutionModules,
   explainWorkspaceRecommendations,
@@ -180,6 +182,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  const executiveInsights = useMemo(
+    () => (workspace ? deriveExecutiveInsights(workspace) : null),
+    [workspace],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -193,7 +200,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
-  if (!workspace || !executive || !effectiveBrand) {
+  if (!workspace || !executive || !effectiveBrand || !executiveInsights) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
         <p className="text-neutral-500">Cargando…</p>
@@ -555,6 +562,25 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
         <NextStepCta
           description="Lo que suba aquí también alimenta el diagnóstico."
+          primaryHref={interviewHref}
+          primaryLabel="Continuar evaluación"
+        />
+      </div>
+    ),
+
+    insights: (
+      <div className="space-y-8">
+        <SectionShell
+          tone="executive"
+          icon={Sparkles}
+          kicker="Perspectivas ejecutivas"
+          title="Lo que la evidencia dice de esta empresa"
+          description="Observaciones ejecutivas derivadas de lo que ya sabemos — memoria, conocimiento, historial, madurez y evidencia. Nada inventado."
+        >
+          <ExecutiveInsightsPanel insights={executiveInsights} />
+        </SectionShell>
+        <NextStepCta
+          description="Estas perspectivas se enriquecen con cada respuesta y cada documento nuevo."
           primaryHref={interviewHref}
           primaryLabel="Continuar evaluación"
         />
