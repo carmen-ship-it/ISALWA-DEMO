@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
 import {
+  MissingInformationList,
   ReadinessConflictList,
   ReadinessTopicList,
   StillLearningList,
@@ -23,7 +24,7 @@ import type {
   ExecutiveDashboardModel,
 } from "@/lib/executive";
 import type { ExplainedRecommendation } from "@/lib/explanations";
-import type { ReadinessAssessment } from "@/lib/readiness";
+import type { MissingInformationReport, ReadinessAssessment } from "@/lib/readiness";
 
 /**
  * Mission 13 — Executive Dashboard Redesign. This is the consulting-briefing
@@ -43,6 +44,8 @@ export function ExecutiveDashboard({
   model,
   cockpit,
   readiness,
+  missingInformation,
+  onUploadClick,
   explainedRecommendations = [],
   evidenceChips = [],
 }: {
@@ -50,6 +53,10 @@ export function ExecutiveDashboard({
   cockpit: ExecutiveCockpit;
   /** Consultant Readiness Engine assessment for this workspace. */
   readiness: ReadinessAssessment;
+  /** Missing Information Engine — the same gaps, ranked by estimated impact. */
+  missingInformation: MissingInformationReport;
+  /** Jumps the client to the Knowledge upload surface. */
+  onUploadClick?: () => void;
   explainedRecommendations?: ExplainedRecommendation[];
   /** Short Spanish evidence chips (e.g. "4 reuniones") for the understanding meter. */
   evidenceChips?: string[];
@@ -220,6 +227,24 @@ export function ExecutiveDashboard({
         </div>
 
         <ReadinessConflictList assessment={readiness} />
+
+        {/*
+          Missing Information Engine — the same gaps above, ranked by
+          estimated business impact with a concrete next upload. Detective
+          framing: what we already understand well vs. what we barely know,
+          and exactly what would move the needle most right now.
+        */}
+        <div className="mt-8 border-t border-[var(--isalwa-mist)]/60 pt-6">
+          <SecondarySubsection
+            title={t("missingInformationPanel.kicker")}
+            hint={t("missingInformationPanel.description")}
+          >
+            <MissingInformationList
+              report={missingInformation}
+              onUploadClick={onUploadClick}
+            />
+          </SecondarySubsection>
+        </div>
       </BriefingSection>
 
       {/* 4 · Top 3 Priorities */}

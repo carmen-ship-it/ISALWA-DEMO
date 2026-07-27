@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
+import { UploadCloud } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   consistencyLabel,
+  type MissingInformationReport,
   type ReadinessAssessment,
   type ReadinessGate,
   type ReadinessState,
@@ -348,6 +350,123 @@ export function ReadinessGateCard({
             </a>
           )}
         </div>
+      ) : null}
+    </Card>
+  );
+}
+
+/**
+ * Missing Information Engine — client surface.
+ *
+ * Same gaps as `StillLearningList`, ranked instead by estimated business
+ * impact and paired with a concrete next upload when one exists. Every
+ * "+X%" figure is produced by `lib/readiness/missing-information.ts` from
+ * the same math the Discovery Score already uses — this component only
+ * renders it, it never computes anything.
+ */
+export function MissingInformationList({
+  report,
+  limit = 3,
+  onUploadClick,
+}: {
+  report: MissingInformationReport;
+  limit?: number;
+  /** Called when the client wants to act on an upload suggestion now. */
+  onUploadClick?: () => void;
+}) {
+  const { t } = useTranslations();
+  const items = report.opportunities.slice(0, limit);
+
+  if (items.length === 0) {
+    return (
+      <p className="text-sm text-[var(--isalwa-slate)]/60">
+        {t("missingInformationPanel.emptyReady")}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+        {report.headline}
+      </p>
+      <ul className="space-y-2.5">
+        {items.map((item) => (
+          <li
+            key={item.id}
+            className="rounded-2xl border border-[var(--isalwa-mist)]/70 bg-white/85 px-4 py-3"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <p className="min-w-0 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+                {item.headline}
+              </p>
+              <span className="shrink-0 rounded-full bg-[var(--isalwa-tint-green)]/60 px-2.5 py-1 text-[11px] font-medium tabular-nums text-[var(--isalwa-tint-green-ink)]">
+                +{item.estimatedLiftPercent}%
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
+              <span>{item.topicLabel}</span>
+              <span aria-hidden>·</span>
+              <span>{t("missingInformationPanel.estimatedImpact")}</span>
+            </div>
+            {item.uploadable && onUploadClick ? (
+              <button
+                type="button"
+                onClick={onUploadClick}
+                className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--isalwa-glaze-deep)] transition hover:opacity-80"
+              >
+                <UploadCloud className="h-3.5 w-3.5" aria-hidden />
+                {t("missingInformationPanel.uploadCta")}
+              </button>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Compact "next best upload" call to action for empty states — the Knowledge
+ * upload surface, when the client has not yet given us much to work with.
+ * Shows only the single highest-impact opportunity, never a full list, so it
+ * reads as a nudge rather than another dashboard.
+ */
+export function NextUploadCta({
+  report,
+  onUploadClick,
+  className,
+}: {
+  report: MissingInformationReport;
+  onUploadClick?: () => void;
+  className?: string;
+}) {
+  const { t } = useTranslations();
+  const top = report.opportunities[0];
+  if (!top) return null;
+
+  return (
+    <Card
+      className={cn(
+        "border-[var(--isalwa-tint-amber-border)]/70 bg-[var(--isalwa-tint-amber)]/40 px-5 py-4 shadow-none",
+        className,
+      )}
+    >
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-tint-amber-ink)]">
+        {t("missingInformationPanel.compactTitle")}
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+        {top.headline}
+      </p>
+      {top.uploadable && onUploadClick ? (
+        <button
+          type="button"
+          onClick={onUploadClick}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--isalwa-kiln)] px-4 py-2 text-xs font-medium text-white transition hover:opacity-90"
+        >
+          <UploadCloud className="h-3.5 w-3.5" aria-hidden />
+          {t("missingInformationPanel.uploadCta")}
+        </button>
       ) : null}
     </Card>
   );

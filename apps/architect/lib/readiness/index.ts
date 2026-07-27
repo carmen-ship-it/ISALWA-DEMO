@@ -10,13 +10,17 @@
  * confidence figures, no bands from the model, no AI vocabulary leaves this
  * module.
  *
- *   snapshot.ts  every evidence source normalized at one boundary
- *   evaluate.ts  topic states 🟢 / 🟡 / 🔴 + narrative + ask-vs-stop
- *   planner.ts   readiness filters for the adaptive interview
- *   gate.ts      blueprint gate + recommendation evidence transparency
- *   memory.ts    imported evidence contributed back into working memory
+ *   snapshot.ts             every evidence source normalized at one boundary
+ *   evaluate.ts             topic states 🟢 / 🟡 / 🔴 + narrative + ask-vs-stop
+ *   planner.ts              readiness filters for the adaptive interview
+ *   gate.ts                 blueprint gate + recommendation evidence transparency
+ *   memory.ts               imported evidence contributed back into working memory
+ *   missing-information.ts  the Missing Information Engine — same gaps, ranked
+ *                           by estimated business impact with a concrete next
+ *                           upload, instead of an undifferentiated list
  *
- * Full write-up: `CONSULTANT_READINESS_ENGINE.md`.
+ * Full write-up: `CONSULTANT_READINESS_ENGINE.md`,
+ * `MISSING_INFORMATION_ENGINE.md`.
  */
 
 export {
@@ -26,7 +30,20 @@ export {
   type EvidenceSnapshotInput,
 } from "./snapshot";
 
-export { assessReadiness, evaluateReadiness } from "./evaluate";
+export {
+  assessReadiness,
+  evaluateReadiness,
+  READY_CONFIDENCE,
+  THIN_CONFIDENCE,
+} from "./evaluate";
+
+export {
+  assessMissingInformation,
+  buildMissingInformationReport,
+  rankMissingInformation,
+  type MissingInformationOpportunity,
+  type MissingInformationReport,
+} from "./missing-information";
 
 export {
   assessMemoryReadiness,

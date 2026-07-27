@@ -876,6 +876,23 @@ export const es: MessageTree = {
       rulesMany: "{count} reglas del negocio",
     },
   },
+  missingInformationPanel: {
+    kicker: "Próxima carga recomendada",
+    title: "Qué subir para saber más",
+    description:
+      "Ordenamos los vacíos por impacto — esto es lo que más ayudaría a subir la confianza ahora.",
+    compactTitle: "Siguiente carga recomendada",
+    compactDescription:
+      "De todo lo que aún no sabemos, esto es lo que más ayudaría si lo sube ahora.",
+    emptyReady:
+      "No hay vacíos abiertos por ahora — lo que tenemos alcanza para recomendar con seguridad.",
+    emptyNoOpportunities:
+      "Todavía no identificamos una carga concreta — siga respondiendo la conversación.",
+    topicLabel: "Área",
+    uploadCta: "Subir documento",
+    goToKnowledge: "Ir a Conocimiento del negocio",
+    estimatedImpact: "Impacto estimado, no garantizado",
+  },
   executiveDetail: {
     expand: "Ver detalle de respaldo",
     collapse: "Ocultar detalle",

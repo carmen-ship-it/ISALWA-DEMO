@@ -68,7 +68,11 @@ import {
   explainSolutionModules,
   explainWorkspaceRecommendations,
 } from "@/lib/explanations";
-import { assessReadiness, blueprintReadinessGate } from "@/lib/readiness";
+import {
+  assessMissingInformation,
+  assessReadiness,
+  blueprintReadinessGate,
+} from "@/lib/readiness";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -205,6 +209,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  /**
+   * Missing Information Engine — the same evidence, ranked by estimated
+   * business impact with a concrete next upload. Shares the Dashboard's
+   * "Qué seguimos aprendiendo" section and the Knowledge tab's empty state,
+   * so the client sees one consistent answer to "what should I upload next".
+   */
+  const missingInformation = useMemo(
+    () => (workspace ? assessMissingInformation(workspace) : null),
+    [workspace],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -223,7 +238,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !executive ||
     !effectiveBrand ||
     !executiveInsights ||
-    !readiness
+    !readiness ||
+    !missingInformation
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -374,6 +390,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             model={executive.dashboard}
             cockpit={executive.cockpit}
             readiness={readiness}
+            missingInformation={missingInformation}
+            onUploadClick={() => setTab("knowledge")}
             explainedRecommendations={explainedRecommendations}
             evidenceChips={evidenceChips}
           />

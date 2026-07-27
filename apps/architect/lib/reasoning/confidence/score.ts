@@ -230,6 +230,15 @@ export function computeDiscoveryScore(
   };
 }
 
+/**
+ * Confidence points one known evidence key contributes to its dimension.
+ * Exported so downstream engines (the Missing Information Engine's
+ * confidence-lift estimate, `lib/readiness/missing-information.ts`) can
+ * derive an honest "what would this gap be worth" figure from the *same*
+ * increment this score uses, instead of inventing a second number.
+ */
+export const EVIDENCE_FACT_INCREMENT = 34;
+
 function scoreDimension(
   factKeys: Set<string>,
   _asked: Set<string>,
@@ -238,7 +247,7 @@ function scoreDimension(
   let score = 0;
   for (const key of keys) {
     // Evidence only — asking a question must not inflate understanding.
-    if (factKeys.has(key)) score += 34;
+    if (factKeys.has(key)) score += EVIDENCE_FACT_INCREMENT;
   }
   return Math.min(100, score);
 }

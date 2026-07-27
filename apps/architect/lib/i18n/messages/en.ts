@@ -872,6 +872,23 @@ export const en: MessageTree = {
       rulesMany: "{count} business rules",
     },
   },
+  missingInformationPanel: {
+    kicker: "Next recommended upload",
+    title: "What to upload to know more",
+    description:
+      "Gaps ranked by impact — this is what would raise confidence the most right now.",
+    compactTitle: "Next recommended upload",
+    compactDescription:
+      "Of everything we don't know yet, this is what would help the most if uploaded now.",
+    emptyReady:
+      "No open gaps right now — what we know is enough to recommend with confidence.",
+    emptyNoOpportunities:
+      "We haven't identified a concrete upload yet — keep answering the conversation.",
+    topicLabel: "Area",
+    uploadCta: "Upload document",
+    goToKnowledge: "Go to Business Knowledge",
+    estimatedImpact: "Estimated impact, not guaranteed",
+  },
   executiveDetail: {
     expand: "View supporting detail",
     collapse: "Hide detail",

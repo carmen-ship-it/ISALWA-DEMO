@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
+import { NextUploadCta } from "@/components/workspace/executive/readiness-panel";
 import { useTranslations } from "@/lib/i18n";
 import {
   DETECTION_CATEGORIES,
@@ -17,6 +18,7 @@ import {
 import { summarizeChunkIndex } from "@/lib/documents";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
+import { assessMissingInformation } from "@/lib/readiness";
 import type { CompanyWorkspace } from "@/types";
 
 /**
@@ -35,11 +37,20 @@ export function BusinessKnowledge({
 }) {
   const { t } = useTranslations();
   const notesId = useId();
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [reports, setReports] = useState<IntakeIngestReport[]>([]);
 
   const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
+  /**
+   * Missing Information Engine — this empty state doubles as its lightest
+   * surface: the single highest-impact upload, when we can name one.
+   */
+  const missingInformation = useMemo(
+    () => assessMissingInformation(workspace),
+    [workspace],
+  );
   const processedCount = knowledge.assets.filter(
     (a) => a.status === "processed",
   ).length;
@@ -94,6 +105,16 @@ export function BusinessKnowledge({
         </p>
       </div>
 
+      <NextUploadCta
+        report={missingInformation}
+        onUploadClick={() =>
+          uploadSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
+      />
+
       <Card className="px-5 py-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           {t("businessKnowledge.whatToShare")}
@@ -113,7 +134,7 @@ export function BusinessKnowledge({
         </ul>
       </Card>
 
-      <div>
+      <div ref={uploadSectionRef}>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           {t("businessKnowledge.uploadDocuments")}
         </p>

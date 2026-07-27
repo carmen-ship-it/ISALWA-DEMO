@@ -69,6 +69,38 @@ export const MISSING_INFORMATION_LABELS: Record<string, string> = {
   paper_depth: "qué sigue registrándose en papel",
 };
 
+/**
+ * What to bring, in the words a consultant would ask for in the room, when a
+ * gap can plausibly be closed by a document instead of another interview
+ * question. Keyed by the same evidence fact keys as `MISSING_INFORMATION_LABELS`
+ * — a suggestion can never name a gap the score does not measure. Missing
+ * entries fall back to `null` (nothing concrete to request yet), never a
+ * generic "sube un documento".
+ */
+export const MISSING_INFORMATION_UPLOAD_HINTS: Record<string, string> = {
+  sales_motion: "el manual o guion de ventas",
+  order_intake: "el formulario o flujo de toma de pedidos",
+  customer_contact: "el directorio de canales de atención al cliente",
+  customer_count: "el listado o reporte de clientes activos",
+  team_structure: "el organigrama del equipo",
+  departments: "el organigrama del equipo",
+  bottlenecks: "el mapa o SOP de los procesos operativos",
+  inventory_flow: "la política de manejo de inventario",
+  fulfillment: "el procedimiento de preparación y entrega de pedidos",
+  finance_process: "el proceso de facturación y cobranza",
+  approvals: "la política de aprobación de compras",
+  collections: "el reporte o política de cobranza",
+  revenue_stage: "el estado financiero o reporte de ingresos",
+  production_planning: "el plan de producción o reposición",
+  manufacturing_flow: "el diagrama del proceso de manufactura",
+  work_orders: "el formato de órdenes de trabajo",
+  current_software: "el inventario de sistemas o licencias que usan hoy",
+  information_storage: "el mapa de dónde se guarda la información",
+  excel_depth: "las hojas de cálculo que usan para operar",
+  whatsapp_depth: "las conversaciones o acuerdos por WhatsApp que definen el proceso",
+  paper_depth: "los formularios o registros en papel",
+};
+
 /** Why each topic matters for the advice we are preparing. */
 export const TOPIC_STAKES: Record<DiscoveryDimension, string> = {
   sales: "Sin esto, cualquier recomendación comercial sería una suposición.",
@@ -132,4 +164,9 @@ export function consistencyLabel(
 /** Concrete missing-information phrase for an evidence key, when it has one. */
 export function missingInformationLabel(key: string): string | null {
   return MISSING_INFORMATION_LABELS[key] ?? null;
+}
+
+/** What to upload to close an evidence key, when a concrete document exists. */
+export function missingInformationUploadHint(key: string): string | null {
+  return MISSING_INFORMATION_UPLOAD_HINTS[key] ?? null;
 }

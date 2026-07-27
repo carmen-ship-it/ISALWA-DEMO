@@ -41,10 +41,15 @@ import type {
   TopicReadiness,
 } from "./types";
 
-/** Interview evidence at or above this is firm enough to recommend on. */
-const READY_CONFIDENCE = 70;
+/**
+ * Interview evidence at or above this is firm enough to recommend on.
+ * Exported so the Missing Information Engine (`missing-information.ts`)
+ * can describe a topic as "well understood" using the same bar this file
+ * already uses to call it `ready` — one threshold, not two.
+ */
+export const READY_CONFIDENCE = 70;
 /** Below this, the honest answer is "necesitamos más información". */
-const THIN_CONFIDENCE = 40;
+export const THIN_CONFIDENCE = 40;
 /** Document coverage below this is noise — a single weak signal. */
 const MIN_COVERAGE = 45;
 /** Document coverage at or above this corroborates what the interview said. */
