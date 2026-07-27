@@ -3,6 +3,7 @@ import type {
   KnowledgeReasoningContext,
   WorkspaceKnowledge,
 } from "@/types";
+import { coverageAreaLabel } from "@/lib/presentation";
 import { ensureWorkspaceKnowledge } from "./coverage";
 
 /**
@@ -35,12 +36,12 @@ export function buildKnowledgeBriefingLines(
   if (processed.length === 0) return [];
 
   const lines: string[] = [
-    `I reviewed ${processed.length} document${processed.length === 1 ? "" : "s"} before today's meeting.`,
+    `Revisé ${processed.length} documento${processed.length === 1 ? "" : "s"} antes de esta sesión.`,
   ];
 
   if (knowledge.themes.length > 0) {
     lines.push(
-      `I found ${knowledge.themes.length} recurring operational theme${knowledge.themes.length === 1 ? "" : "s"}.`,
+      `Encontré ${knowledge.themes.length} tema${knowledge.themes.length === 1 ? "" : "s"} operativo${knowledge.themes.length === 1 ? "" : "s"} recurrente${knowledge.themes.length === 1 ? "" : "s"}.`,
     );
   }
 
@@ -50,7 +51,7 @@ export function buildKnowledgeBriefingLines(
     ) ?? knowledge.unknownAreas[0];
 
   if (focus) {
-    lines.push(`I still have questions about ${focus.toLowerCase()}.`);
+    lines.push(`Todavía tengo preguntas sobre ${coverageAreaLabel(focus).toLowerCase()}.`);
   }
 
   return lines;

@@ -71,6 +71,46 @@ than rebuilt:
   fabricated *facts*, but they undermine trust the same way stale/foreign
   copy does, so they're covered here too.
 
+## HOTFIX — pilot seed itself reclassified as fabricated, emptied
+
+Prior missions (see "What was already honest" above, and `SPANISH_CLIENT_EXPERIENCE_100.md`)
+judged the `ws_isalwa` seed acceptable because every fact/pain point in it was *true* — a real
+description of ISALWA's own business — rather than an invented client. On review, that
+standard was too permissive: **the dashboard showing "Salud 23 · Emergente" and ~24%
+Business Understanding on a workspace where no one has actually sat through a discovery
+interview or uploaded a document is a false impression of progress**, even though the
+underlying statements are factually true and the engine math is 100% honest given its
+inputs. Consultant Readiness Engine math was never fake here — the *evidence it was fed* was
+synthetic (programmatically inserted, not gathered).
+
+**What `lib/workspace/seed.ts#createSeedWorkspaces()` used to inject for `ws_isalwa`:**
+5 `knownFacts` (evidence tagged `"Sesión de descubrimiento anterior"` — a meeting that never
+happened), 1 fabricated `Meeting` record, 2 pain points, a 3-module recommendation, and —
+cascading from that thin evidence — a full `BusinessBlueprint` → `SolutionArchitecture` →
+`BusinessProcesses` → `Deliverables` → `BrandExperience` → `CompanyModel` →
+`ImplementationPackage` chain, all real engine output but all rooted in evidence nobody
+actually gave.
+
+**Fixed:** `createSeedWorkspaces()` now returns `createEmptyWorkspace("ISALWA")` (with
+`id: "ws_isalwa"`) — the same honest-empty path already used for every brand-new workspace.
+Login identity is untouched: Carmen (`consultant`) and Álvaro (`client`) still land on
+`ws_isalwa`; `lib/auth/constants.ts` membership/role wiring was not touched. Every gauge
+(Business Understanding, Health/Maturity, dimension confidence) will read 0 /
+"aún sin evaluar" until a real interview or a real document upload produces evidence — same
+behavior any new client workspace already has.
+
+**Already-persisted Supabase rows:** code alone cannot delete an existing database row, so
+`lib/repositories/migrate.ts`'s existing "Honest scores" heal step (previously dead for this
+exact case — it looked for a `seed_fact_*` key prefix that the seed had never actually used)
+now also detects the real marker: every `knownFacts[].evidence` entry citing the literal
+placeholder `"Sesión de descubrimiento anterior"`. When detected for `ws_isalwa`, the heal
+resets `conversationMemory`, `businessUnderstanding`, `openQuestions`, `painPoints`,
+`meetings`, `recommendations`, `modules`, and the entire derived cascade (`blueprints`
+through `implementationPackage`) to empty — it runs automatically on the next load/save, no
+manual Supabase reset required. (If a real interview or upload has already added evidence
+with different, non-seed keys, the heal correctly leaves it alone — it only fires when
+*every* known fact still carries the seed's placeholder evidence string.)
+
 ## Known, deliberately-not-rewritten gap
 
 Once a workspace has **any** meeting or pain point (i.e. it clears the

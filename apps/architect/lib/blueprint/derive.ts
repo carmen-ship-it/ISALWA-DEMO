@@ -1,5 +1,5 @@
 import { createId, nowIso } from "@/lib/utils";
-import { moduleLabel } from "@/lib/presentation";
+import { coverageAreaLabel, moduleLabel } from "@/lib/presentation";
 import type {
   BlueprintCapability,
   BlueprintCapabilityName,
@@ -88,7 +88,7 @@ export function deriveBusinessBlueprint(input: {
   const openQuestions = Array.from(
     new Set([
       ...workspace.openQuestions,
-      ...(workspace.knowledge?.unknownAreas ?? []),
+      ...(workspace.knowledge?.unknownAreas.map(coverageAreaLabel) ?? []),
       ...(interview?.memory.score.stillNeed ?? []),
     ]),
   );

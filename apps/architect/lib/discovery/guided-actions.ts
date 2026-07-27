@@ -1,6 +1,7 @@
-import { markQuestionAsked, planNextQuestion } from "@/lib/reasoning";
+import { formatThinkingPreamble, markQuestionAsked, planNextQuestion } from "@/lib/reasoning";
 import { createId, nowIso } from "@/lib/utils";
 import type { ConversationTurn, Interview, Question } from "@/types";
+import type { GuidedStageDefinition } from "@/lib/discovery/stages";
 
 /**
  * Guided Assessment orchestration actions.
@@ -72,6 +73,87 @@ export function skipCurrentStage(
     next = skipCurrentQuestion(next);
   }
   return next;
+}
+
+export interface StageSwitchResult {
+  interview: Interview;
+  /** True when the chosen stage has no unanswered question left — evidence already covers it. */
+  stageDone: boolean;
+}
+
+/**
+ * Free stage navigation (Guided Assessment UX).
+ *
+ * The adaptive engine (`planNextQuestion` / Mission 10 consultant ranking)
+ * still owns which question is highest-value — this only narrows its ranked
+ * pool to the dimensions of the stage the client just chose, so picking
+ * "Finanzas" surfaces a finance question instead of whatever globally ranks
+ * higher. It replaces the still-unanswered question at the top of the
+ * conversation (never a question the client already answered) with the new
+ * one, rewriting only that last architect turn so the visible narrative
+ * always matches the active question.
+ *
+ * Returns `stageDone: true` (interview unchanged) when the stage's
+ * dimensions are already fully covered by evidence — callers should tell
+ * the client to review that stage or pick another one, never fabricate a
+ * question the engine has nothing left to ask.
+ */
+export function switchToStage(
+  interview: Interview,
+  stage: GuidedStageDefinition,
+): StageSwitchResult {
+  if (interview.phase !== "interview" || stage.dimensions.length === 0) {
+    return { interview, stageDone: false };
+  }
+
+  const dimensions = new Set(stage.dimensions);
+  const nextQuestion = planNextQuestion(interview.memory, dimensions);
+
+  const turns = interview.conversation.turns;
+  const lastTurn = turns[turns.length - 1];
+  const replacesPendingQuestion =
+    lastTurn?.role === "architect" &&
+    interview.conversation.currentQuestion !== null;
+
+  if (!nextQuestion) {
+    const message = `Ya tenemos buena evidencia en ${stage.title.toLowerCase()} — no hay más preguntas pendientes aquí. Puede revisar lo registrado o elegir otra etapa.`;
+    const doneTurns = replacesPendingQuestion
+      ? [...turns.slice(0, -1), { ...lastTurn, content: message }]
+      : [...turns, createTurn("architect", message)];
+
+    return {
+      interview: {
+        ...interview,
+        updatedAt: nowIso(),
+        conversation: {
+          ...interview.conversation,
+          currentQuestion: null,
+          turns: doneTurns,
+        },
+      },
+      stageDone: true,
+    };
+  }
+
+  const preamble = formatThinkingPreamble(interview.memory);
+  const message = `${preamble}\n\n${nextQuestion.prompt}`;
+
+  const nextTurns = replacesPendingQuestion
+    ? [...turns.slice(0, -1), { ...lastTurn, content: message }]
+    : [...turns, createTurn("architect", message)];
+
+  return {
+    interview: {
+      ...interview,
+      updatedAt: nowIso(),
+      conversation: {
+        ...interview.conversation,
+        currentQuestion: nextQuestion,
+        turns: nextTurns,
+      },
+    },
+    stageDone: false,
+  };
 }
 
 /**

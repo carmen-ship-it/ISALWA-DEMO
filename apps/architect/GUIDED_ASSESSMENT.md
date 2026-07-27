@@ -94,13 +94,49 @@ counter; the stage stepper already shows that progress.
   next question by evidence value (Mission 10), not by dimension order, "skip this stage" is a
   best-effort filter, not a guarantee the planner won't return to that dimension later if it's
   still the highest-value gap.
-- **Jump to a specific stage's live question** — **not supported**, by design. The engine picks
-  the single highest-value next question across all dimensions (Mission 10); it has no concept
-  of "ask me only Finance questions now." Selecting any stage tab other than the current one or
-  Review opens the read-only Review view (where that stage's already-collected answers live) —
-  it does not force the live question into that dimension. This is the one guided-assessment
-  affordance that a fully linear TurboTax form would have and this adaptive engine intentionally
-  doesn't.
+- **Jump to a specific stage's live question** — **now supported** (HOTFIX, see below). Any
+  stage with real discovery dimensions (Comercial, Operaciones, Finanzas, Tecnología, Equipo)
+  can be opened directly and stays in that topic across answers, until the client switches
+  stage again or that stage runs out of questions.
+
+## HOTFIX — free stage navigation (any order)
+
+Álvaro/Carmen reported feeling locked into whatever dimension the adaptive engine ranked
+highest: clicking a stage tab other than the current one always opened the read-only Review
+instead of letting them answer questions for that stage. Fixed with an **additive filter**,
+not an engine rewrite — `domain/interview-engine.ts` and `lib/reasoning/think.ts` are still
+untouched:
+
+- `planNextQuestion(memory, dimensionFilter?)` (`lib/reasoning/planner/next-question.ts`) and
+  the chain it delegates to — `selectNextConsultantQuestion` → `pickHighestValueQuestion` →
+  `prioritizeQuestions` (`lib/consulting/questions/*`) — all gained one new **optional**
+  trailing parameter: a set of `DiscoveryDimension`s. When provided, the exact same
+  ranked candidate pool (consequence questions, contradictions, hypotheses, department
+  balance, follow-ups, catalog) is filtered down to that stage's dimensions **before**
+  scoring, so the winner is still the highest-value question — just within the chosen topic.
+  Every existing call site that omits the parameter (the normal adaptive interview) is
+  byte-for-byte unaffected.
+- `switchToStage(interview, stage)` (new, `lib/discovery/guided-actions.ts`) is the
+  orchestration glue: it re-plans a question filtered to the clicked stage, rebuilds the
+  same architect message shape `think()` already uses (`formatThinkingPreamble` + prompt),
+  and replaces the still-unanswered question at the top of the conversation — never a
+  question the client already answered. If the stage's dimensions are already fully covered
+  by evidence, it says so in Spanish and clears the active question instead of inventing one.
+- `GuidedAssessment` (`components/discovery/guided/guided-assessment.tsx`) tracks which stage
+  the client is actively working (`activeStageId`). Clicking a dimension-bearing stage tab
+  calls `switchToStage` immediately; after every subsequent answer, the same filter is
+  re-applied on top of the engine's own scoring output (`think()` still runs unmodified —
+  facts, observations, opportunities, score are untouched) so the *next* question stays in
+  that stage too, until the stage is exhausted (filter auto-releases back to the global
+  adaptive pick) or the client picks a different stage. Skip-question keeps the active
+  stage's filter; skip-stage and Review both release it, matching "switches stage" intent.
+- Meta stages (Bienvenida, Empresa) and Review still route to the read-only Review panel —
+  those aren't engine dimensions, and identity onboarding is a short fixed sequence before
+  the adaptive engine has a memory to rank against.
+
+Net effect: the client can now visit Comercial → Tecnología → Finanzas → back to Comercial
+in any order, and each stage keeps handing back questions from its own topic instead of
+whatever globally ranks highest.
 
 ## Files touched this mission
 
@@ -115,3 +151,11 @@ counter; the stage stepper already shows that progress.
 - Everything else under `components/discovery/guided/` and `lib/discovery/` (stages, review/finish
   panels, stage stepper, guided actions, answer-topics, question-lookup) was pre-existing WIP,
   reviewed and left as-is.
+
+## Files touched — free stage navigation HOTFIX
+
+- `lib/reasoning/planner/next-question.ts` — optional `dimensionFilter` param on `planNextQuestion`.
+- `lib/consulting/questions/index.ts` — optional `dimensionFilter` threaded through `selectNextConsultantQuestion`.
+- `lib/consulting/questions/question-priority.ts` — optional `dimensionFilter` on `prioritizeQuestions`/`pickHighestValueQuestion`, applied as a pool filter before scoring.
+- `lib/discovery/guided-actions.ts` — new `switchToStage()` orchestration function.
+- `components/discovery/guided/guided-assessment.tsx` — `activeStageId` state, rewritten `handleSelectStage`, `applyActiveStageFilter` wrapper around `respond()`/`handleSkipQuestion`.

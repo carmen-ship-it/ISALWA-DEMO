@@ -3,6 +3,7 @@ import type {
   KnowledgeReasoningContext,
 } from "@/types";
 import { emptyConsultingIntelligence } from "@/lib/consulting";
+import { coverageAreaLabel } from "@/lib/presentation";
 import { createId, nowIso } from "@/lib/utils";
 
 /**
@@ -36,18 +37,21 @@ export function mergeKnowledgeIntoMemory(
     memory.unknownFacts.map((u) => u.label.toLowerCase()),
   );
   const knowledgeUnknowns = context.unknownAreas
-    .filter((area) => !unknownLabels.has(area.toLowerCase()))
+    .filter((area) => !unknownLabels.has(coverageAreaLabel(area).toLowerCase()))
     .map((area, index) => ({
       id: createId("unknown"),
       key: `knowledge_unknown_${index}`,
-      label: area,
+      label: coverageAreaLabel(area),
       priority: 88 - index,
       dimension: mapAreaToDimension(area),
-      reason: "Low coverage in Knowledge Center — confirm in interview.",
+      reason: "Cobertura baja en el Centro de Conocimiento — confirmar en la entrevista.",
     }));
 
   const stillNeed = Array.from(
-    new Set([...memory.score.stillNeed, ...context.unknownAreas]),
+    new Set([
+      ...memory.score.stillNeed,
+      ...context.unknownAreas.map(coverageAreaLabel),
+    ]),
   );
 
   const nextMemory: ConversationMemory = {
@@ -66,7 +70,7 @@ export function mergeKnowledgeIntoMemory(
       missingInformation: stillNeed,
       belief:
         context.documentCount > 0
-          ? `${memory.summary.belief} · Knowledge reviewed`
+          ? `${memory.summary.belief} · Conocimiento revisado`
           : memory.summary.belief,
     },
     whiteboard: {

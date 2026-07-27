@@ -54,7 +54,7 @@ export {
 } from "./question-priority";
 export type { PrioritizedQuestion } from "./question-priority";
 
-import type { ConversationMemory, QuestionCandidate } from "@/types";
+import type { ConversationMemory, DiscoveryDimension, QuestionCandidate } from "@/types";
 import { pickHighestValueQuestion } from "./question-priority";
 
 /**
@@ -64,12 +64,22 @@ import { pickHighestValueQuestion } from "./question-priority";
  * When to stop asking altogether stays where it already lives — the
  * conclusion threshold in `computeDiscoveryScore`. Readiness narrows *which*
  * question is worth asking, it does not move that bar.
+ *
+ * `dimensionFilter` (Guided Assessment free navigation) — optional, passed
+ * straight through to `pickHighestValueQuestion`. Undefined = unchanged
+ * cross-dimension ranking.
  */
 export function selectNextConsultantQuestion(
   memory: ConversationMemory,
   catalog: QuestionCandidate[] = [],
+  dimensionFilter?: ReadonlySet<DiscoveryDimension>,
 ): QuestionCandidate | null {
-  const picked = pickHighestValueQuestion(memory, catalog);
+  const picked = pickHighestValueQuestion(
+    memory,
+    catalog,
+    undefined,
+    dimensionFilter,
+  );
   if (!picked) return null;
 
   const {

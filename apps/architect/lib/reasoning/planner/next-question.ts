@@ -204,12 +204,26 @@ function industryCandidates(memory: ConversationMemory): QuestionCandidate[] {
  * Prefer the highest-value unknown over questionnaire order.
  * Mission 10 — senior consultant selection (consequence, gaps, contradictions).
  * Never duplicate. Catalog + follow-up queue still feed the pool.
+ *
+ * `dimensionFilter` (Guided Assessment free navigation — additive, optional)
+ * narrows the same ranked pool to one stage's dimensions so a client who
+ * jumps to e.g. "Finanzas" keeps getting finance questions instead of
+ * whatever dimension globally ranks highest. Omitted everywhere else — the
+ * adaptive engine's default cross-dimension ranking is unchanged.
  */
 export function planNextQuestion(
   memory: ConversationMemory,
+  dimensionFilter?: ReadonlySet<DiscoveryDimension> | null,
 ): Question | null {
   const catalog = [...industryCandidates(memory), ...CATALOG];
-  const selected = selectNextConsultantQuestion(memory, catalog);
+  const scopedCatalog = dimensionFilter
+    ? catalog.filter((c) => dimensionFilter.has(c.dimension))
+    : catalog;
+  const selected = selectNextConsultantQuestion(
+    memory,
+    scopedCatalog,
+    dimensionFilter ?? undefined,
+  );
   return selected ? candidateToQuestion(selected) : null;
 }
 

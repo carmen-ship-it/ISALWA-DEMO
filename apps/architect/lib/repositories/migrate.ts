@@ -296,7 +296,12 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         };
       }
 
-      // Honest scores: recompute memory; refresh pilot seed if legacy fake overall/0% dims.
+      // Honest scores: recompute memory; heal to an empty shell if this is
+      // the pilot workspace still carrying the old fabricated seed (facts
+      // that were never gathered from a real interview/upload — see
+      // NO_FABRICATED_CONTENT.md). Never re-seed fake evidence — the only
+      // way Business Understanding should move again is a real interview or
+      // a real document upload.
       if (next.conversationMemory) {
         const legacyFactKeys = next.conversationMemory.knownFacts.some((f) =>
           f.key.startsWith("seed_fact_"),
@@ -306,21 +311,37 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
           next.conversationMemory.score.dimensions.every(
             (d) => d.confidence === 0,
           );
+        // Unique to the old `lib/workspace/seed.ts` pilot seed — real facts
+        // always cite the actual interview quote or knowledge source as
+        // evidence, never this literal placeholder string.
+        const looksLikeOldPilotSeed =
+          next.conversationMemory.knownFacts.length > 0 &&
+          next.conversationMemory.knownFacts.every((f) =>
+            f.evidence.includes("Sesión de descubrimiento anterior"),
+          );
 
         if (
           next.id === PILOT_COMPANY_WORKSPACE_ID &&
-          (legacyFactKeys || desynced)
+          (legacyFactKeys || desynced || looksLikeOldPilotSeed)
         ) {
-          const fresh = createSeedWorkspaces()[0];
-          if (fresh?.conversationMemory) {
-            next = {
-              ...next,
-              conversationMemory: fresh.conversationMemory,
-              businessUnderstanding: fresh.businessUnderstanding,
-              openQuestions: fresh.openQuestions,
-              painPoints: fresh.painPoints,
-            };
-          }
+          next = {
+            ...next,
+            conversationMemory: null,
+            businessUnderstanding: 0,
+            openQuestions: [],
+            painPoints: [],
+            meetings: [],
+            recommendations: [],
+            modules: [],
+            blueprints: emptyBlueprints(),
+            currentBlueprintId: null,
+            solutionArchitecture: null,
+            businessProcesses: null,
+            brandExperience: null,
+            companyModel: null,
+            deliverables: null,
+            implementationPackage: null,
+          };
         } else {
           const memory = applyDiscoveryScore(next.conversationMemory);
           next = {

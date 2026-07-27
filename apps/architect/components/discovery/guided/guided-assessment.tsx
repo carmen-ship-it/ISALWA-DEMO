@@ -36,6 +36,7 @@ import {
   prepareAnswerEdit,
   skipCurrentQuestion,
   skipCurrentStage,
+  switchToStage,
 } from "@/lib/discovery/guided-actions";
 import { estimateQuestionProgress } from "@/lib/discovery/question-progress";
 import {
@@ -110,6 +111,13 @@ export function GuidedAssessment() {
   const [viewMode, setViewMode] = useState<ViewMode>("answering");
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
+  /**
+   * Free stage navigation (Guided Assessment UX) — when set, the next
+   * question keeps coming from this stage's dimensions (see
+   * `switchToStage`) instead of the engine's global top-ranked pick, until
+   * the client switches stage again or the stage runs out of questions.
+   */
+  const [activeStageId, setActiveStageId] = useState<GuidedStageId | null>(null);
 
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const persistence = useMemo(
@@ -235,20 +243,37 @@ export function GuidedAssessment() {
       void architectAgent
         .handleTurn({ interview: source, latestAnswer: answer })
         .then((result) => {
-          setInterview(result.interview);
+          setInterview(applyActiveStageFilter(result.interview));
           setThinking(false);
         });
     });
   }
 
+  /**
+   * After the engine's own scoring/next-question pick (`think()`, unchanged),
+   * re-narrow to the active stage's dimensions if the client is mid-stage —
+   * see `switchToStage`. Releases the filter once that stage has nothing
+   * left to ask, falling back to the engine's own (already coherent) pick.
+   */
+  function applyActiveStageFilter(candidate: Interview): Interview {
+    if (!activeStageId || candidate.phase !== "interview") return candidate;
+    const switched = switchToStage(candidate, GUIDED_STAGES[activeStageId]);
+    if (switched.stageDone) {
+      setActiveStageId(null);
+      return candidate;
+    }
+    return switched.interview;
+  }
+
   function handleSkipQuestion() {
     if (!interview) return;
-    setInterview(skipCurrentQuestion(interview));
+    setInterview(applyActiveStageFilter(skipCurrentQuestion(interview)));
   }
 
   function handleSkipStage(stageId: GuidedStageId) {
     if (!interview) return;
     const dimensions = new Set<string>(GUIDED_STAGES[stageId].dimensions);
+    setActiveStageId(null);
     setInterview(skipCurrentStage(interview, dimensions));
   }
 
@@ -322,17 +347,29 @@ export function GuidedAssessment() {
   const topicsByStage = groupTopicsByStage(topics);
 
   function handleSelectStage(stageId: GuidedStageId) {
-    if (isComplete) return;
+    if (!interview || isComplete) return;
     if (stageId === "finish") return;
-    if (stageId === "review") {
+
+    const targetStage = GUIDED_STAGES[stageId];
+    // Free navigation (any order): a stage with real discovery dimensions
+    // (Comercial/Operaciones/Finanzas/Tecnología/Equipo) re-narrows the same
+    // adaptive engine (see `switchToStage`) to that stage's questions instead
+    // of forcing Review. Meta stages (Bienvenida/Empresa/Revisión) and the
+    // brief identity onboarding before the adaptive engine starts still open
+    // the read-only Review, where any stage's collected answers already live.
+    if (
+      stageId === "review" ||
+      targetStage.dimensions.length === 0 ||
+      interview.phase !== "interview"
+    ) {
       setViewMode("reviewing");
       return;
     }
-    // The live question is chosen adaptively by the engine (Mission 10 —
-    // senior consultant question selection). We cannot force it to a
-    // different dimension on demand, so any other stage tab opens the
-    // read-only Review, where that stage's collected answers already live.
-    setViewMode("reviewing");
+
+    const switched = switchToStage(interview, targetStage);
+    setActiveStageId(stageId);
+    setViewMode("answering");
+    setInterview(switched.interview);
   }
 
   const canSkipQuestion =

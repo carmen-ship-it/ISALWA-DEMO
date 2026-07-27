@@ -3,7 +3,11 @@ import {
   filterQuestionsByReadiness,
 } from "@/lib/readiness/planner";
 import type { ReadinessAssessment } from "@/lib/readiness/types";
-import type { ConversationMemory, QuestionCandidate } from "@/types";
+import type {
+  ConversationMemory,
+  DiscoveryDimension,
+  QuestionCandidate,
+} from "@/types";
 import { estimateConfidenceGain } from "./confidence-engine";
 import {
   applyConsequenceBias,
@@ -223,11 +227,18 @@ function catalogAsLibrary(
  * again. It adds no weight of its own — readiness is derived from the same
  * evidence this ranking already reads, so scoring it here would count it
  * twice.
+ *
+ * `dimensionFilter` (Guided Assessment free navigation — additive, optional)
+ * restricts the merged pool to one stage's dimensions before scoring, so a
+ * client-chosen stage (e.g. "Finanzas") keeps surfacing finance questions
+ * instead of whatever dimension globally ranks highest. Omitted everywhere
+ * else — the normal cross-dimension ranking is unchanged.
  */
 export function prioritizeQuestions(
   memory: ConversationMemory,
   catalog: QuestionCandidate[] = [],
   readiness: ReadinessAssessment = assessMemoryReadiness(memory),
+  dimensionFilter?: ReadonlySet<DiscoveryDimension>,
 ): PrioritizedQuestion[] {
   const poolMap = new Map<string, LibraryQuestion>();
 
@@ -248,11 +259,13 @@ export function prioritizeQuestions(
   addAll(followUpsAsLibrary(memory));
   addAll(catalogAsLibrary(catalog, memory));
 
-  return filterQuestionsByReadiness(
-    memory,
-    Array.from(poolMap.values()),
-    readiness,
-  )
+  const pool = dimensionFilter
+    ? Array.from(poolMap.values()).filter((item) =>
+        dimensionFilter.has(item.dimension),
+      )
+    : Array.from(poolMap.values());
+
+  return filterQuestionsByReadiness(memory, pool, readiness)
     .map((item) => scoreQuestion(memory, item))
     .sort((a, b) => b.score - a.score || b.priority - a.priority);
 }
@@ -264,7 +277,8 @@ export function pickHighestValueQuestion(
   memory: ConversationMemory,
   catalog: QuestionCandidate[] = [],
   readiness: ReadinessAssessment = assessMemoryReadiness(memory),
+  dimensionFilter?: ReadonlySet<DiscoveryDimension>,
 ): PrioritizedQuestion | null {
-  const ranked = prioritizeQuestions(memory, catalog, readiness);
+  const ranked = prioritizeQuestions(memory, catalog, readiness, dimensionFilter);
   return ranked[0] ?? null;
 }

@@ -6,6 +6,7 @@ import {
   mergeKnowledgeIntoMemory,
 } from "@/lib/knowledge";
 import { prepareCompany } from "@/lib/preparation";
+import { coverageAreaLabel } from "@/lib/presentation";
 import { applyReadinessToMemory } from "@/lib/readiness";
 import { applyDiscoveryScore, createEmptyMemory } from "@/lib/reasoning";
 import { createId, nowIso } from "@/lib/utils";
@@ -42,7 +43,9 @@ export function buildResumeBriefing(
 
   const continueFocus =
     prep.unknownAreas[0] ??
-    knowledgeContext.unknownAreas[0] ??
+    (knowledgeContext.unknownAreas[0]
+      ? coverageAreaLabel(knowledgeContext.unknownAreas[0])
+      : null) ??
     workspace.openQuestions[0] ??
     workspace.conversationMemory?.score.stillNeed[0] ??
     null;
