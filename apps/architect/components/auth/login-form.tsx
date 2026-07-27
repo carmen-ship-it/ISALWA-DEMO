@@ -6,7 +6,6 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { signInAction } from "@/lib/auth";
-import { PILOT_USERS } from "@/lib/auth/constants";
 import { useTranslations } from "@/lib/i18n";
 
 export function LoginForm() {
@@ -57,7 +56,6 @@ export function LoginForm() {
               type="email"
               autoComplete="email"
               required
-              defaultValue={PILOT_USERS.carmen.email}
               className="isalwa-t-fast w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)] focus:shadow-[var(--isalwa-shadow-focus)]"
             />
           </div>
@@ -89,13 +87,6 @@ export function LoginForm() {
           </Button>
         </form>
       </Card>
-
-      <p className="mt-6 text-center text-xs leading-relaxed text-[var(--isalwa-slate)]/60">
-        {t("loginForm.pilotNote", {
-          carmenEmail: PILOT_USERS.carmen.email,
-          alvaroEmail: PILOT_USERS.alvaro.email,
-        })}
-      </p>
     </motion.div>
   );
 }

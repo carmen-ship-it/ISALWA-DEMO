@@ -317,7 +317,6 @@ export const es: MessageTree = {
     password: "Contraseña",
     signingIn: "Entrando…",
     signIn: "Iniciar sesión",
-    pilotNote: "Piloto: {carmenEmail} (Consultora) · {alvaroEmail} (Cliente)",
   },
   businessProcessesPanel: {
     empty: "Las vistas de proceso aparecen una vez que el plan de negocio está listo. Los diagramas reflejan flujos de trabajo descubiertos — solo lectura, nunca inventados.",

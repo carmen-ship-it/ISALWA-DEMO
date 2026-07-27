@@ -309,7 +309,6 @@ export const en: MessageTree = {
     password: "Password",
     signingIn: "Signing in…",
     signIn: "Sign in",
-    pilotNote: "Pilot: {carmenEmail} (Consultant) · {alvaroEmail} (Client)",
   },
   businessProcessesPanel: {
     empty: "Process views appear once the business plan is ready. Diagrams reflect discovered workflows — read-only, never invented.",
