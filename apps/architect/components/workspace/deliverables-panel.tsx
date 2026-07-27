@@ -16,6 +16,7 @@ import {
   StoryBeats,
 } from "@/components/workspace/story-beat";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslations } from "@/lib/i18n";
 import {
   complexityLabel,
   departmentLabel,
@@ -213,34 +214,46 @@ function DeliverablePreview({
   pack: DeliverablesPackage;
   tab: TabId;
 }) {
+  const { t } = useTranslations();
   switch (tab) {
+    /**
+     * Report as Business Story — the nine-beat McKinsey/Bain spine shared
+     * with the Living Report (`report-view.tsx`) and the recommendation
+     * cards (`explained-recommendation-card.tsx`): what we discovered → why
+     * it matters → the evidence → business impact → risk → opportunity →
+     * recommended investment → expected ROI → next steps. Every beat below
+     * still maps 1:1 to a field `lib/deliverables/executive-summary.ts`
+     * already computes (untouched by this mission) — "risk" is the one
+     * addition, reusing `pack.businessAssessment.risks`, which the
+     * Business Assessment tab already renders, instead of repeating
+     * `biggestRisks` (kept under "business impact") under a second title.
+     */
     case "executive": {
       const d = pack.executiveSummary;
+      const risks = pack.businessAssessment.risks;
       return (
         <Article title="Resumen ejecutivo">
           <p className="-mt-2 text-sm text-[var(--isalwa-slate)]/80">
-            Una sola historia, en orden: qué encontramos, por qué importa, la
-            evidencia detrás, qué cuesta hoy, qué recomendamos, el resultado
-            esperado y qué sigue.
+            {t("deliverablesExecutive.storyIntro")}
           </p>
           <StoryBeats className="mt-1 space-y-6">
-            <Beat step={1} title="Qué encontramos">
+            <Beat step={1} title={t("storyBeats.discovered")}>
               <p>{d.currentState}</p>
             </Beat>
             <Beat
               step={2}
-              title="Por qué importa"
-              lead="Los problemas que justifican esta recomendación:"
+              title={t("storyBeats.whyItMatters")}
+              lead={t("deliverablesExecutive.whyItMattersLead")}
             >
               <BeatList items={d.problems} />
             </Beat>
             <Beat
               step={3}
-              title="La evidencia"
-              lead="Así queda trazado en el expediente:"
+              title={t("storyBeats.evidence")}
+              lead={t("deliverablesExecutive.evidenceLead")}
             >
               {d.evidence.length === 0 ? (
-                <BeatEmpty text="Aún no hay referencias de evidencia vinculadas." />
+                <BeatEmpty text={t("deliverablesExecutive.noEvidence")} />
               ) : (
                 <ul className="space-y-1.5">
                   {d.evidence.map((ref) => (
@@ -254,49 +267,50 @@ function DeliverablePreview({
             </Beat>
             <Beat
               step={4}
-              title="Impacto en el negocio"
-              lead="Esto ya está costando por no actuar:"
+              title={t("storyBeats.businessImpact")}
+              lead={t("deliverablesExecutive.businessImpactLead")}
             >
               <BeatList items={d.biggestRisks} />
             </Beat>
-            <Beat step={5} title="Solución recomendada">
+            <Beat
+              step={5}
+              title={t("storyBeats.risk")}
+              lead={t("deliverablesExecutive.riskLead")}
+            >
+              <BeatList
+                items={risks.map((r) => `${r.title} · ${severityLabel(r.severity)}`)}
+              />
+            </Beat>
+            <Beat
+              step={6}
+              title={t("storyBeats.opportunity")}
+              lead={t("deliverablesExecutive.opportunityLead")}
+            >
+              <BeatList items={d.immediateOpportunities} />
+            </Beat>
+            <Beat step={7} title={t("storyBeats.recommendedInvestment")}>
               <p>{d.executiveRecommendation}</p>
               <p className="mt-2 text-[var(--isalwa-slate)]">{d.vision}</p>
               {d.investmentAreas.length > 0 ? (
                 <div className="mt-3">
                   <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                    Áreas de inversión
+                    {t("deliverablesExecutive.investmentAreasLabel")}
                   </p>
                   <BeatList items={d.investmentAreas} className="mt-1.5" />
                 </div>
               ) : null}
             </Beat>
             <Beat
-              step={6}
-              title="Resultado esperado"
-              lead="El retorno si actuamos sobre esto:"
+              step={8}
+              title={t("storyBeats.expectedRoi")}
+              lead={t("deliverablesExecutive.roiLead")}
             >
-              {d.immediateOpportunities.length > 0 ? (
-                <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                    Inmediato
-                  </p>
-                  <BeatList items={d.immediateOpportunities} className="mt-1.5" />
-                </div>
-              ) : null}
-              {d.strategicOpportunities.length > 0 ? (
-                <div className="mt-3">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                    Estratégico
-                  </p>
-                  <BeatList items={d.strategicOpportunities} className="mt-1.5" />
-                </div>
-              ) : null}
+              <BeatList items={d.strategicOpportunities} />
             </Beat>
             <Beat
-              step={7}
-              title="Próximo paso"
-              lead="La secuencia recomendada:"
+              step={9}
+              title={t("storyBeats.nextSteps")}
+              lead={t("deliverablesExecutive.nextStepsLead")}
             >
               <BeatList items={d.recommendedRoadmap} />
             </Beat>

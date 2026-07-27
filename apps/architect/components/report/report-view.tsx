@@ -32,6 +32,7 @@ import {
   ReadinessStateDot,
   StillLearningList,
 } from "@/components/workspace/executive/readiness-panel";
+import { BeatSubLabel } from "@/components/workspace/story-beat";
 
 /**
  * Premium Visual Quality pass — report sections read as a bound executive
@@ -50,6 +51,23 @@ import {
  * the app already reasons with, so "is there enough here to show this
  * section" is answered the same way everywhere. See
  * `apps/architect/ADAPTIVE_EVIDENCE_REPORTS.md`.
+ *
+ * Report as Business Story — the report no longer reads as a stack of
+ * unrelated sections. `ReportBody` now tells ONE McKinsey/Bain-style story
+ * in nine beats — what we discovered → why it matters → the evidence →
+ * business impact → risk → opportunity → recommended investment → expected
+ * ROI → next steps — reusing the exact same `DiscoveryReport` /
+ * `ReadinessAssessment` fields as before, just narratively regrouped. Every
+ * beat title comes from the shared `storyBeats` i18n vocabulary so the
+ * Living Report, the deliverables Executive Summary and the recommendation
+ * cards all tell the story in the same words. `Section`'s own numbered
+ * index (01, 02…) IS this report's beat marker — no second numbering
+ * system is introduced; only `BeatSubLabel` (Mission 8's shared
+ * `story-beat.tsx` primitive) is reused inside each beat to caption the
+ * evidence it is built from. A beat is omitted entirely — never shown as an
+ * empty shell — when the evidence behind it is missing, extending the same
+ * rule Evidence-Adaptive Reports already established. See
+ * `apps/architect/REPORT_BUSINESS_STORY.md`.
  */
 const GENERIC_RISK_LINES = new Set([
   "Sobre-automatizar traspasos que ya están rotos",
@@ -202,156 +220,90 @@ function ReportBody({
         ? "amber"
         : "red";
 
+  // Report as Business Story — one beat is omitted, never shown empty, when
+  // its underlying evidence is missing. Every boolean below reads a signal
+  // that already existed before this mission (readiness, consulting
+  // engines, the same filtered lists Evidence-Adaptive Reports computed).
+  const hasBusinessImpact = Boolean(
+    report.consultingMaturity || report.consultingHealth,
+  );
+  const hasContradictions = Boolean(
+    report.consultingContradictions && report.consultingContradictions.length > 0,
+  );
+  const showEvidenceBeat = Boolean(readiness) || hasContradictions;
+  const hasOpportunityContent =
+    visibleOpportunities.length > 0 ||
+    (report.consultingOpportunities?.length ?? 0) > 0 ||
+    report.aiOpportunities.length > 0;
+  const showInvestmentBeat =
+    showImplementationPlan || report.potentialModules.length > 0;
+
   return (
     <div className="isalwa-section-gap">
+      {/* Beat 1 — What we discovered */}
       <Section
         index={next()}
-        title={t("reportView.executiveSummary")}
+        title={t("storyBeats.discovered")}
         intro={t("reportView.executiveSummaryIntro")}
         tone="blue"
         delay={0.05}
       >
         <p>{report.executiveSummary}</p>
-      </Section>
 
-      {readiness ? (
-        <Section
-          index={next()}
-          title={t("reportView.confidenceTitle")}
-          tone={confidenceTone}
-          delay={0.06}
-        >
-          <div className="flex items-center gap-2">
-            <ReadinessStateDot state={readiness.overallState} />
-            <span
-              className={cn(
-                "text-[11px] font-medium uppercase tracking-[0.14em]",
-                TONE_INK[confidenceTone],
-              )}
-            >
-              {readiness.overallStateLabel}
-            </span>
-          </div>
-          <p className="architect-serif mt-3 text-2xl leading-snug text-[var(--isalwa-kiln)]">
-            {readiness.advice.headline}
-          </p>
-          <p className="mt-2 text-[var(--isalwa-slate)]">
-            {readiness.advice.detail}
-          </p>
-          {readiness.overallState !== "ready" &&
-          readiness.stillLearning.length > 0 ? (
-            <div className="mt-6">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                {t("reportView.whatIsMissing")}
-              </p>
-              <div className="mt-3">
-                <StillLearningList assessment={readiness} limit={4} />
-              </div>
-            </div>
-          ) : null}
-        </Section>
-      ) : null}
-
-      <Section index={next()} title={t("reportView.businessSnapshot")} delay={0.08}>
-        <pre className="whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
-          {report.businessSnapshot}
-        </pre>
-      </Section>
-
-      {report.consultingMaturity || report.consultingHealth ? (
-        <Section index={next()} title={t("reportView.consultingAssessment")} delay={0.09}>
-          {report.consultingMaturity ? (
-            <p className="mb-3">
-              <span className="text-[var(--isalwa-slate)]/80">{t("reportView.maturityPrefix")}</span>
-              {report.consultingMaturity}
-            </p>
-          ) : null}
-          {report.consultingHealth ? (
-            <p>
-              <span className="text-[var(--isalwa-slate)]/80">{t("reportView.businessHealthPrefix")}</span>
-              {report.consultingHealth}
-            </p>
-          ) : null}
-        </Section>
-      ) : null}
-
-      {report.consultingRisks && report.consultingRisks.length > 0 ? (
-        <Section index={next()} title={t("reportView.riskPatterns")} tone="red" delay={0.095}>
-          <ul className="space-y-2">
-            {report.consultingRisks.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      {report.consultingContradictions &&
-      report.consultingContradictions.length > 0 ? (
-        <Section index={next()} title={t("reportView.pointsToClarify")} delay={0.098}>
-          <ul className="space-y-2">
-            {report.consultingContradictions.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      {report.consultingOpportunities &&
-      report.consultingOpportunities.length > 0 ? (
-        <Section index={next()} title={t("reportView.opportunityHorizons")} delay={0.099}>
-          <ul className="space-y-2">
-            {report.consultingOpportunities.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      <Section index={next()} title={t("reportView.currentWorkflow")} delay={0.1}>
-        <div className="space-y-6">
-          {report.currentWorkflow.map((workflow) => (
-            <div key={workflow.id}>
-              <h3 className="architect-serif text-2xl text-[var(--isalwa-kiln)]">
-                {workflow.name}
-              </h3>
-              <p className="mt-2 text-[var(--isalwa-slate)]">{workflow.summary}</p>
-              <ol className="mt-4 space-y-2">
-                {workflow.steps.map((step) => (
-                  <li key={step} className="flex gap-3 text-[var(--isalwa-slate)]">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--isalwa-slate)]/60" />
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
+        <div className="mt-6">
+          <BeatSubLabel>{t("reportView.businessSnapshot")}</BeatSubLabel>
+          <pre className="mt-2 whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
+            {report.businessSnapshot}
+          </pre>
         </div>
-      </Section>
 
-      {report.currentSystems.length > 0 ? (
-        <Section index={next()} title={t("reportView.currentSystems")} delay={0.12}>
-          <div className="flex flex-wrap gap-2">
-            {report.currentSystems.map((system) => (
-              <span
-                key={system}
-                className="isalwa-chip !cursor-default"
-              >
-                {system}
-              </span>
+        <div className="mt-6">
+          <BeatSubLabel>{t("reportView.currentWorkflow")}</BeatSubLabel>
+          <div className="mt-3 space-y-6">
+            {report.currentWorkflow.map((workflow) => (
+              <div key={workflow.id}>
+                <h3 className="architect-serif text-2xl text-[var(--isalwa-kiln)]">
+                  {workflow.name}
+                </h3>
+                <p className="mt-2 text-[var(--isalwa-slate)]">{workflow.summary}</p>
+                <ol className="mt-4 space-y-2">
+                  {workflow.steps.map((step) => (
+                    <li key={step} className="flex gap-3 text-[var(--isalwa-slate)]">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--isalwa-slate)]/60" />
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             ))}
           </div>
-        </Section>
-      ) : null}
+        </div>
 
+        {report.currentSystems.length > 0 ? (
+          <div className="mt-6">
+            <BeatSubLabel>{t("reportView.currentSystems")}</BeatSubLabel>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {report.currentSystems.map((system) => (
+                <span key={system} className="isalwa-chip !cursor-default">
+                  {system}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </Section>
+
+      {/* Beat 2 — Why it matters */}
       {report.painPoints.length > 0 ? (
         <Section
           index={next()}
-          title={t("reportView.painPoints")}
+          title={t("storyBeats.whyItMatters")}
           intro={t("reportView.painPointsIntro")}
           tone="amber"
-          delay={0.14}
+          delay={0.08}
         >
-          <ul className="space-y-4">
+          <BeatSubLabel>{t("reportView.painPoints")}</BeatSubLabel>
+          <ul className="mt-3 space-y-4">
             {report.painPoints.map((pain) => (
               <li key={pain.id}>
                 <p className="font-medium text-[var(--isalwa-kiln)]">{pain.title}</p>
@@ -362,115 +314,247 @@ function ReportBody({
         </Section>
       ) : null}
 
-      {visibleOpportunities.length > 0 ? (
-        <Section
-          index={next()}
-          title={t("reportView.recommendations")}
-          intro={t("reportView.recommendationsIntro")}
-          tone="green"
-          delay={0.16}
-        >
-          <ul className="space-y-5">
-            {visibleOpportunities.map((item) => (
-              <li
-                key={item.id}
-                className="border-l-2 border-[var(--isalwa-tint-green-border)] pl-4"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium text-[var(--isalwa-kiln)]">{item.title}</p>
-                  <span className="isalwa-status-chip shrink-0" data-tone="green">
-                    {recommendationPriorityLabel(item.priority)}
-                  </span>
+      {/* Beat 3 — The evidence */}
+      {showEvidenceBeat ? (
+        <Section index={next()} title={t("storyBeats.evidence")} tone={confidenceTone} delay={0.1}>
+          {readiness ? (
+            <>
+              <BeatSubLabel>{t("reportView.confidenceTitle")}</BeatSubLabel>
+              <div className="mt-2 flex items-center gap-2">
+                <ReadinessStateDot state={readiness.overallState} />
+                <span
+                  className={cn(
+                    "text-[11px] font-medium uppercase tracking-[0.14em]",
+                    TONE_INK[confidenceTone],
+                  )}
+                >
+                  {readiness.overallStateLabel}
+                </span>
+              </div>
+              <p className="architect-serif mt-3 text-2xl leading-snug text-[var(--isalwa-kiln)]">
+                {readiness.advice.headline}
+              </p>
+              <p className="mt-2 text-[var(--isalwa-slate)]">
+                {readiness.advice.detail}
+              </p>
+              {readiness.overallState !== "ready" &&
+              readiness.stillLearning.length > 0 ? (
+                <div className="mt-6">
+                  <BeatSubLabel>{t("reportView.whatIsMissing")}</BeatSubLabel>
+                  <div className="mt-3">
+                    <StillLearningList assessment={readiness} limit={4} />
+                  </div>
                 </div>
-                <p className="mt-1.5 text-[var(--isalwa-slate)]">{item.rationale}</p>
-              </li>
-            ))}
-          </ul>
+              ) : null}
+            </>
+          ) : null}
+
+          {hasContradictions ? (
+            <div className={readiness ? "mt-6" : undefined}>
+              <BeatSubLabel>{t("reportView.pointsToClarify")}</BeatSubLabel>
+              <ul className="mt-2 space-y-2">
+                {(report.consultingContradictions ?? []).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </Section>
       ) : null}
 
-      <Section index={next()} title={t("reportView.suggestedCapabilities")} delay={0.18}>
-        <div className="flex flex-wrap gap-2">
-          {report.potentialModules.map((module) => (
-            <span
-              key={module.id}
-              className="isalwa-surface-gray isalwa-ink-gray rounded-full border px-3.5 py-1.5 text-sm"
-            >
-              {moduleLabel(module.name)}
-            </span>
-          ))}
-        </div>
-      </Section>
-
-      {showImplementationPlan ? (
-        <Section index={next()} title={t("reportView.implementationPlan")} tone="violet" delay={0.2}>
-          <div className="space-y-7">
-            {report.suggestedRoadmap.map((phase) => (
-              <div key={phase.id}>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                  {phase.horizon}
-                </p>
-                <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
-                  {phaseLabel(phase.name)}
-                </h3>
-                <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
-                  {phase.outcomes.map((outcome) => (
-                    <li key={outcome}>{outcome}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      {/* Beat 4 — Business impact */}
+      {hasBusinessImpact ? (
+        <Section
+          index={next()}
+          title={t("storyBeats.businessImpact")}
+          intro={t("reportView.storyBusinessImpactIntro")}
+          delay={0.12}
+        >
+          <BeatSubLabel>{t("reportView.consultingAssessment")}</BeatSubLabel>
+          <div className="mt-3">
+            {report.consultingMaturity ? (
+              <p className="mb-3">
+                <span className="text-[var(--isalwa-slate)]/80">{t("reportView.maturityPrefix")}</span>
+                {report.consultingMaturity}
+              </p>
+            ) : null}
+            {report.consultingHealth ? (
+              <p>
+                <span className="text-[var(--isalwa-slate)]/80">{t("reportView.businessHealthPrefix")}</span>
+                {report.consultingHealth}
+              </p>
+            ) : null}
           </div>
         </Section>
       ) : null}
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Section index={next()} title={t("reportView.estimatedComplexity")} delay={0.28}>
-          <p className="architect-serif text-3xl capitalize text-[var(--isalwa-kiln)]">
-            {complexityLabel(report.estimatedComplexity)}
-          </p>
-        </Section>
-        <Section index={next()} title={t("reportView.estimatedTime")} delay={0.3}>
-          <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
-            {timelineEstimateLabel(report.estimatedTimeline)}
-          </p>
-        </Section>
-      </div>
-
-      <Section index={next()} title={t("reportView.openQuestions")} delay={0.32}>
-        <ul className="space-y-2">
-          {report.unansweredQuestions.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section index={next()} title={t("reportView.aiOpportunities")} delay={0.34}>
-        <ul className="space-y-2">
-          {report.aiOpportunities.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Section>
-
+      {/* Beat 5 — Risk */}
       {hasEvidencedRisk ? (
-        <Section index={next()} title={t("reportView.risks")} tone="red" delay={0.35}>
-          <ul className="space-y-2">
-            {visibleGeneralRisks.map((item) => (
+        <Section index={next()} title={t("storyBeats.risk")} tone="red" delay={0.14}>
+          <BeatSubLabel>{t("reportView.riskPatterns")}</BeatSubLabel>
+          <ul className="mt-2 space-y-2">
+            {(report.consultingRisks ?? []).map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
+
+          {visibleGeneralRisks.length > 0 ? (
+            <div className="mt-5">
+              <BeatSubLabel>{t("reportView.risks")}</BeatSubLabel>
+              <ul className="mt-2 space-y-2">
+                {visibleGeneralRisks.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </Section>
       ) : null}
 
+      {/* Beat 6 — Opportunity */}
+      {hasOpportunityContent ? (
+        <Section
+          index={next()}
+          title={t("storyBeats.opportunity")}
+          intro={t("reportView.recommendationsIntro")}
+          tone="green"
+          delay={0.16}
+        >
+          {report.consultingOpportunities && report.consultingOpportunities.length > 0 ? (
+            <div>
+              <BeatSubLabel>{t("reportView.opportunityHorizons")}</BeatSubLabel>
+              <ul className="mt-2 space-y-2">
+                {report.consultingOpportunities.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {visibleOpportunities.length > 0 ? (
+            <div className={report.consultingOpportunities?.length ? "mt-6" : undefined}>
+              <BeatSubLabel>{t("reportView.recommendations")}</BeatSubLabel>
+              <ul className="mt-3 space-y-5">
+                {visibleOpportunities.map((item) => (
+                  <li
+                    key={item.id}
+                    className="border-l-2 border-[var(--isalwa-tint-green-border)] pl-4"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="font-medium text-[var(--isalwa-kiln)]">{item.title}</p>
+                      <span className="isalwa-status-chip shrink-0" data-tone="green">
+                        {recommendationPriorityLabel(item.priority)}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-[var(--isalwa-slate)]">{item.rationale}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {report.aiOpportunities.length > 0 ? (
+            <div className="mt-6">
+              <BeatSubLabel>{t("reportView.aiOpportunities")}</BeatSubLabel>
+              <ul className="mt-2 space-y-2">
+                {report.aiOpportunities.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </Section>
+      ) : null}
+
+      {/* Beat 7 — Recommended investment */}
+      {showInvestmentBeat ? (
+        <Section index={next()} title={t("storyBeats.recommendedInvestment")} tone="violet" delay={0.18}>
+          {showImplementationPlan ? (
+            <div>
+              <BeatSubLabel>{t("reportView.implementationPlan")}</BeatSubLabel>
+              <div className="mt-3 space-y-7">
+                {report.suggestedRoadmap.map((phase) => (
+                  <div key={phase.id}>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+                      {phase.horizon}
+                    </p>
+                    <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
+                      {phaseLabel(phase.name)}
+                    </h3>
+                    <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
+                      {phase.outcomes.map((outcome) => (
+                        <li key={outcome}>{outcome}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {report.potentialModules.length > 0 ? (
+            <div className={showImplementationPlan ? "mt-6" : undefined}>
+              <BeatSubLabel>{t("reportView.suggestedCapabilities")}</BeatSubLabel>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {report.potentialModules.map((module) => (
+                  <span
+                    key={module.id}
+                    className="isalwa-surface-gray isalwa-ink-gray rounded-full border px-3.5 py-1.5 text-sm"
+                  >
+                    {moduleLabel(module.name)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </Section>
+      ) : null}
+
+      {/* Beat 8 — Expected ROI */}
       <Section
         index={next()}
-        title={t("reportView.executiveConclusion")}
+        title={t("storyBeats.expectedRoi")}
+        intro={t("reportView.storyRoiIntro")}
+        tone="teal"
+        delay={0.2}
+      >
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <BeatSubLabel>{t("reportView.estimatedComplexity")}</BeatSubLabel>
+            <p className="architect-serif mt-2 text-3xl capitalize text-[var(--isalwa-kiln)]">
+              {complexityLabel(report.estimatedComplexity)}
+            </p>
+          </div>
+          <div>
+            <BeatSubLabel>{t("reportView.estimatedTime")}</BeatSubLabel>
+            <p className="architect-serif mt-2 text-3xl text-[var(--isalwa-kiln)]">
+              {timelineEstimateLabel(report.estimatedTimeline)}
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Beat 9 — Next steps */}
+      <Section
+        index={next()}
+        title={t("storyBeats.nextSteps")}
         intro={t("reportView.executiveConclusionIntro")}
         tone="blue"
-        delay={0.36}
+        delay={0.22}
       >
-        <p className="text-lg leading-relaxed text-[var(--isalwa-slate)]">
+        {report.unansweredQuestions.length > 0 ? (
+          <div className="mb-6">
+            <BeatSubLabel>{t("reportView.openQuestions")}</BeatSubLabel>
+            <ul className="mt-2 space-y-2">
+              {report.unansweredQuestions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <BeatSubLabel>{t("reportView.executiveConclusion")}</BeatSubLabel>
+        <p className="mt-2 text-lg leading-relaxed text-[var(--isalwa-slate)]">
           {report.executiveConclusion}
         </p>
       </Section>

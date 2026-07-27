@@ -199,6 +199,23 @@ export const en: MessageTree = {
     kicker: "Recommended capabilities",
     title: "Not a catalog. A case for every capability.",
   },
+  /**
+   * Report as Business Story — the shared 9-beat McKinsey/Bain spine every
+   * story surface (Living Report, deliverables Executive Summary,
+   * recommendation cards) tells in the same words. See
+   * `REPORT_BUSINESS_STORY.md`.
+   */
+  storyBeats: {
+    discovered: "What we discovered",
+    whyItMatters: "Why it matters",
+    evidence: "The evidence",
+    businessImpact: "Business impact",
+    risk: "Risk",
+    opportunity: "Opportunity",
+    recommendedInvestment: "Recommended investment",
+    expectedRoi: "Expected ROI",
+    nextSteps: "Next steps",
+  },
   reportView: {
     priorityNow: "Now",
     priorityNext: "Next",
@@ -211,6 +228,7 @@ export const en: MessageTree = {
     consultingAssessment: "Consulting assessment",
     maturityPrefix: "Maturity — ",
     businessHealthPrefix: "Business health — ",
+    storyBusinessImpactIntro: "How that friction shows up in the business's maturity and health.",
     riskPatterns: "Risk patterns",
     pointsToClarify: "Points to clarify",
     opportunityHorizons: "Opportunity horizons",
@@ -218,15 +236,16 @@ export const en: MessageTree = {
     currentSystems: "Current systems",
     noSystemsRegistered: "No systems registered yet.",
     painPoints: "Pain points",
-    painPointsIntro: "What we found — the friction the diagnostic revealed, in the company's operational reality.",
+    painPointsIntro: "Why it matters — the friction the diagnostic revealed, and what it costs the business to leave it unresolved.",
     noPainPoints: "No pain points recorded yet — continue the diagnostic to identify them.",
     recommendations: "Recommendations",
-    recommendationsIntro: "Why it matters and what we recommend — each finding paired with the action it justifies.",
+    recommendationsIntro: "The opportunity — what opens up if we act on the findings above.",
     noRecommendations: "Recommendations will appear once the diagnostic has enough evidence.",
     suggestedCapabilities: "Suggested capabilities",
     implementationPlan: "Implementation plan",
     estimatedComplexity: "Estimated complexity",
     estimatedTime: "Estimated time",
+    storyRoiIntro: "What it takes to get there, and how long the return takes to materialize.",
     openQuestions: "Open questions",
     aiOpportunities: "AI opportunities",
     risks: "Risks",
@@ -243,6 +262,22 @@ export const en: MessageTree = {
     heroDescription: "A consulting-grade operating plan that evolves with every meeting — backed by evidence, clear, and useful for deciding.",
     updatesEverySession: "This report updates with every discovery session. Previous findings are preserved and combined — never discarded.",
     allCompanies: "All companies",
+  },
+  /**
+   * Deliverables panel — Executive Summary tab only. See `es.ts` for
+   * context; this namespace covers just the new business-story beat copy.
+   */
+  deliverablesExecutive: {
+    storyIntro: "One story, in order: what we discovered, why it matters, the evidence, the business impact, the risk, the opportunity, the recommended investment, the expected ROI, and what's next.",
+    whyItMattersLead: "The problems that justify this recommendation:",
+    evidenceLead: "This is how it's traced in the file:",
+    noEvidence: "No evidence references linked yet.",
+    businessImpactLead: "This is already costing by not acting:",
+    riskLead: "Identified risks and their severity:",
+    opportunityLead: "What can be captured right away:",
+    investmentAreasLabel: "Investment areas",
+    roiLead: "The longer-horizon return if we sustain the investment:",
+    nextStepsLead: "The recommended sequence:",
   },
   discoveryScoreCard: {
     notApplicable: "Not applicable",
@@ -893,6 +928,11 @@ export const en: MessageTree = {
     expand: "View supporting detail",
     collapse: "Hide detail",
   },
+  /**
+   * Recommendation cards — the same nine-beat business story as the Living
+   * Report and the deliverables Executive Summary, minus a standalone
+   * "opportunity" beat (see `es.ts` for why).
+   */
   explainedRecommendationCard: {
     recommendationLabel: "Recommendation",
     roiLabel: "ROI",
@@ -901,22 +941,18 @@ export const en: MessageTree = {
     evidenceCountMany: "{count} pieces of evidence",
     expandJustification: "View full justification",
     collapseJustification: "Hide justification",
-    step1Title: "What we found",
-    step2Title: "Why it matters",
-    step3Title: "The evidence",
     step3Lead: "This is how it's traced in the record:",
     noEvidence: "No pieces of evidence linked yet.",
     supportingFactsLabel: "Supporting facts",
-    step4Title: "Business impact",
-    step4Lead: "This is what it costs today, or what's left on the table:",
-    step5Title: "Recommended solution",
-    step6Title: "Expected result",
-    step6Lead: "The expected return and the evidence that supports this priority:",
+    step4Lead: "The value this represents for the business:",
+    step5Lead: "If we don't act on this:",
+    step6Lead: "What we propose, and the effort it takes:",
+    executionDetailsLabel: "Execution details",
+    step7Lead: "The expected return:",
     roiPrefix: "ROI {band}",
     evidencePrefix: "Evidence {strength}",
     basedOn: "This recommendation is based on {basis}.",
-    step7Title: "Next step",
-    step7Lead: "What needs to be resolved before moving forward:",
+    step8Lead: "What needs to be resolved before moving forward:",
     noDependencies: "No explicit dependencies — you can move forward directly in the current record.",
     source: {
       consulting: "consulting",

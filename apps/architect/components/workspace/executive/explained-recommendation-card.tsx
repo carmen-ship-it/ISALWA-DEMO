@@ -96,12 +96,15 @@ export function ExplainedRecommendationCard({
         </div>
 
         {/*
-          Mission 8 — Executive Storytelling. Numbered 7-beat McKinsey spine:
-          what happened → why it matters → the evidence → business impact →
-          recommended solution → expected result → next step. Presentation
-          only — every beat below maps to a field already produced by
-          Mission 14's explanation engine (`lib/explanations/`); nothing is
-          invented, and every list-shaped field gets an honest empty state.
+          Report as Business Story — the same shared `storyBeats` spine as
+          the Living Report and the deliverables Executive Summary: what we
+          discovered → why it matters → the evidence → business impact →
+          risk → recommended investment → expected ROI → next steps. Eight
+          of the nine beats (no standalone "opportunity" beat here — see the
+          i18n comment on `explainedRecommendationCard`). Presentation only
+          — every beat still maps to a field already produced by Mission
+          14's explanation engine (`lib/explanations/`); nothing invented,
+          every list-shaped field keeps its honest empty state.
         */}
         <ExecutiveDetail
           className="mt-2"
@@ -109,17 +112,17 @@ export function ExplainedRecommendationCard({
           labelCollapse={t("explainedRecommendationCard.collapseJustification")}
         >
           <StoryBeats>
-            <Beat step={1} title={t("explainedRecommendationCard.step1Title")}>
+            <Beat step={1} title={t("storyBeats.discovered")}>
               <p>{explained.problem}</p>
             </Beat>
 
-            <Beat step={2} title={t("explainedRecommendationCard.step2Title")}>
+            <Beat step={2} title={t("storyBeats.whyItMatters")}>
               <p>{explained.observedPattern}</p>
             </Beat>
 
             <Beat
               step={3}
-              title={t("explainedRecommendationCard.step3Title")}
+              title={t("storyBeats.evidence")}
               lead={t("explainedRecommendationCard.step3Lead")}
             >
               {explained.evidence.length === 0 ? (
@@ -146,40 +149,6 @@ export function ExplainedRecommendationCard({
                     className="mt-1.5 space-y-1.5"
                   />
                 </div>
-              ) : null}
-            </Beat>
-
-            <Beat
-              step={4}
-              title={t("explainedRecommendationCard.step4Title")}
-              lead={t("explainedRecommendationCard.step4Lead")}
-            >
-              <p>{explained.businessConsequence}</p>
-              <p className="mt-2 text-[var(--isalwa-slate)]">
-                {explained.businessValue}
-              </p>
-            </Beat>
-
-            <Beat step={5} title={t("explainedRecommendationCard.step5Title")}>
-              <p>{explained.recommendation}</p>
-            </Beat>
-
-            <Beat
-              step={6}
-              title={t("explainedRecommendationCard.step6Title")}
-              lead={t("explainedRecommendationCard.step6Lead")}
-            >
-              <BeatSubLabel>
-                {t("explainedRecommendationCard.roiPrefix", {
-                  band: roiBandLabelEs(explained.expectedRoi.band),
-                })}
-              </BeatSubLabel>
-              <p className="mt-1.5">{explained.expectedRoi.summary}</p>
-              {explained.expectedRoi.drivers.length > 0 ? (
-                <BeatList
-                  items={explained.expectedRoi.drivers}
-                  className="mt-1.5 space-y-1.5"
-                />
               ) : null}
 
               {/*
@@ -209,9 +178,57 @@ export function ExplainedRecommendationCard({
             </Beat>
 
             <Beat
+              step={4}
+              title={t("storyBeats.businessImpact")}
+              lead={t("explainedRecommendationCard.step4Lead")}
+            >
+              <p>{explained.businessValue}</p>
+            </Beat>
+
+            <Beat
+              step={5}
+              title={t("storyBeats.risk")}
+              lead={t("explainedRecommendationCard.step5Lead")}
+            >
+              <p>{explained.businessConsequence}</p>
+            </Beat>
+
+            <Beat
+              step={6}
+              title={t("storyBeats.recommendedInvestment")}
+              lead={t("explainedRecommendationCard.step6Lead")}
+            >
+              <p>{explained.recommendation}</p>
+              {explained.expectedRoi.drivers.length > 0 ? (
+                <div className="mt-3">
+                  <BeatSubLabel>
+                    {t("explainedRecommendationCard.executionDetailsLabel")}
+                  </BeatSubLabel>
+                  <BeatList
+                    items={explained.expectedRoi.drivers}
+                    className="mt-1.5 space-y-1.5"
+                  />
+                </div>
+              ) : null}
+            </Beat>
+
+            <Beat
               step={7}
-              title={t("explainedRecommendationCard.step7Title")}
+              title={t("storyBeats.expectedRoi")}
               lead={t("explainedRecommendationCard.step7Lead")}
+            >
+              <BeatSubLabel>
+                {t("explainedRecommendationCard.roiPrefix", {
+                  band: roiBandLabelEs(explained.expectedRoi.band),
+                })}
+              </BeatSubLabel>
+              <p className="mt-1.5">{explained.expectedRoi.summary}</p>
+            </Beat>
+
+            <Beat
+              step={8}
+              title={t("storyBeats.nextSteps")}
+              lead={t("explainedRecommendationCard.step8Lead")}
             >
               {explained.futureDependencies.length === 0 ? (
                 <BeatEmpty text={t("explainedRecommendationCard.noDependencies")} />

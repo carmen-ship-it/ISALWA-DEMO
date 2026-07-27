@@ -202,6 +202,25 @@ export const es: MessageTree = {
     kicker: "Capacidades recomendadas",
     title: "No un catálogo. Un caso por cada capacidad.",
   },
+  /**
+   * Report as Business Story — the shared 9-beat McKinsey/Bain spine every
+   * story surface (Living Report, deliverables Executive Summary,
+   * recommendation cards) tells in the same words: what we discovered → why
+   * it matters → the evidence → business impact → risk → opportunity →
+   * recommended investment → expected ROI → next steps. One vocabulary,
+   * reused everywhere — see `REPORT_BUSINESS_STORY.md`.
+   */
+  storyBeats: {
+    discovered: "Qué descubrimos",
+    whyItMatters: "Por qué importa",
+    evidence: "La evidencia",
+    businessImpact: "Impacto en el negocio",
+    risk: "Riesgo",
+    opportunity: "Oportunidad",
+    recommendedInvestment: "Inversión recomendada",
+    expectedRoi: "Retorno esperado",
+    nextSteps: "Próximos pasos",
+  },
   reportView: {
     priorityNow: "Ahora",
     priorityNext: "Siguiente",
@@ -214,6 +233,7 @@ export const es: MessageTree = {
     consultingAssessment: "Evaluación consultiva",
     maturityPrefix: "Madurez — ",
     businessHealthPrefix: "Salud del negocio — ",
+    storyBusinessImpactIntro: "Así se traduce esa fricción en la madurez y la salud del negocio.",
     riskPatterns: "Patrones de riesgo",
     pointsToClarify: "Puntos por aclarar",
     opportunityHorizons: "Horizontes de oportunidad",
@@ -221,15 +241,16 @@ export const es: MessageTree = {
     currentSystems: "Sistemas actuales",
     noSystemsRegistered: "Aún no se registran sistemas.",
     painPoints: "Puntos de dolor",
-    painPointsIntro: "Lo que encontramos — las fricciones que reveló el diagnóstico, en la realidad operativa de la empresa.",
+    painPointsIntro: "Por qué importa — la fricción que el diagnóstico reveló, y lo que le cuesta al negocio mantenerla sin resolver.",
     noPainPoints: "Aún no hay puntos de dolor registrados — continúe el diagnóstico para identificarlos.",
     recommendations: "Recomendaciones",
-    recommendationsIntro: "Por qué importa y qué recomendamos — cada hallazgo junto con la acción que justifica.",
+    recommendationsIntro: "La oportunidad — lo que se abre si actuamos sobre los hallazgos anteriores.",
     noRecommendations: "Las recomendaciones aparecerán cuando el diagnóstico tenga evidencia suficiente.",
     suggestedCapabilities: "Capacidades sugeridas",
     implementationPlan: "Plan de implementación",
     estimatedComplexity: "Complejidad estimada",
     estimatedTime: "Tiempo estimado",
+    storyRoiIntro: "Lo que cuesta llegar, y en cuánto tiempo se materializa el retorno.",
     openQuestions: "Preguntas abiertas",
     aiOpportunities: "Oportunidades de IA",
     risks: "Riesgos",
@@ -246,6 +267,25 @@ export const es: MessageTree = {
     heroDescription: "Un plan operativo de calidad consultora que evoluciona con cada reunión — respaldado por evidencia, claro y útil para decidir.",
     updatesEverySession: "Este informe se actualiza con cada sesión de descubrimiento. Los hallazgos anteriores se conservan y se combinan — nunca se descartan.",
     allCompanies: "Todas las empresas",
+  },
+  /**
+   * Deliverables panel — Executive Summary tab only. The rest of this panel
+   * is consultant-facing and stays hardcoded Spanish (pre-existing); this
+   * namespace covers just the new business-story beat copy so the
+   * client-facing Executive Summary reads in the shared `storyBeats`
+   * vocabulary. See `REPORT_BUSINESS_STORY.md`.
+   */
+  deliverablesExecutive: {
+    storyIntro: "Una sola historia, en orden: qué descubrimos, por qué importa, la evidencia, el impacto en el negocio, el riesgo, la oportunidad, la inversión recomendada, el retorno esperado y qué sigue.",
+    whyItMattersLead: "Los problemas que justifican esta recomendación:",
+    evidenceLead: "Así queda trazado en el expediente:",
+    noEvidence: "Aún no hay referencias de evidencia vinculadas.",
+    businessImpactLead: "Esto ya está costando por no actuar:",
+    riskLead: "Riesgos identificados y su severidad:",
+    opportunityLead: "Lo que se puede capturar de inmediato:",
+    investmentAreasLabel: "Áreas de inversión",
+    roiLead: "El retorno de mayor horizonte si sostenemos la inversión:",
+    nextStepsLead: "La secuencia recomendada:",
   },
   discoveryScoreCard: {
     notApplicable: "No aplica",
@@ -897,6 +937,14 @@ export const es: MessageTree = {
     expand: "Ver detalle de respaldo",
     collapse: "Ocultar detalle",
   },
+  /**
+   * Recommendation cards — the same nine-beat business story as the Living
+   * Report and the deliverables Executive Summary (see `storyBeats` and
+   * `REPORT_BUSINESS_STORY.md`), minus a standalone "opportunity" beat:
+   * `ExplainedRecommendation` has no field distinct from `recommendation`
+   * / `expectedRoi` to fill it without repeating those, so this surface
+   * honestly uses eight of the nine beats rather than inventing a ninth.
+   */
   explainedRecommendationCard: {
     recommendationLabel: "Recomendación",
     roiLabel: "ROI",
@@ -905,22 +953,18 @@ export const es: MessageTree = {
     evidenceCountMany: "{count} evidencias",
     expandJustification: "Ver justificación completa",
     collapseJustification: "Ocultar justificación",
-    step1Title: "Qué encontramos",
-    step2Title: "Por qué importa",
-    step3Title: "La evidencia",
     step3Lead: "Así queda trazado en el expediente:",
     noEvidence: "Aún no hay piezas de evidencia vinculadas.",
     supportingFactsLabel: "Hechos de soporte",
-    step4Title: "Impacto en el negocio",
-    step4Lead: "Esto es lo que cuesta hoy, o lo que deja sobre la mesa:",
-    step5Title: "Solución recomendada",
-    step6Title: "Resultado esperado",
-    step6Lead: "El retorno esperado y la evidencia que sostiene esta prioridad:",
+    step4Lead: "El valor que esto representa para el negocio:",
+    step5Lead: "Si no se actúa sobre esto:",
+    step6Lead: "Lo que proponemos, y el esfuerzo que implica:",
+    executionDetailsLabel: "Detalles de ejecución",
+    step7Lead: "El retorno esperado:",
     roiPrefix: "ROI {band}",
     evidencePrefix: "Evidencia {strength}",
     basedOn: "Esta recomendación se apoya en {basis}.",
-    step7Title: "Próximo paso",
-    step7Lead: "Lo que debe resolverse antes de avanzar:",
+    step8Lead: "Lo que debe resolverse antes de avanzar:",
     noDependencies: "Sin dependencias explícitas — puede avanzar directamente en el expediente actual.",
     source: {
       consulting: "consultoría",
