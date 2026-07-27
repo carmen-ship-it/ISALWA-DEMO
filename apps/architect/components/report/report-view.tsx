@@ -18,9 +18,20 @@ import {
   phaseLabel,
   timelineEstimateLabel,
 } from "@/lib/presentation";
+import {
+  assessMemoryReadiness,
+  assessReadiness,
+  blueprintReadinessGate,
+  TOPIC_PATTERNS,
+  type ReadinessAssessment,
+} from "@/lib/readiness";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type { DiscoveryReport } from "@/types";
 import { cn } from "@/lib/utils";
+import {
+  ReadinessStateDot,
+  StillLearningList,
+} from "@/components/workspace/executive/readiness-panel";
 
 /**
  * Premium Visual Quality pass — report sections read as a bound executive
@@ -32,7 +43,18 @@ import { cn } from "@/lib/utils";
  * would actually flag in a printed report (summary, risks, recommendations,
  * conclusion). Everything else stays a quiet, paper-like list so the
  * highlights keep their meaning.
+ *
+ * Evidence-Adaptive Reports — every section below only renders when the
+ * evidence behind it justifies the space. This never invents data: it
+ * reuses the same Consultant Readiness Engine (`lib/readiness`) the rest of
+ * the app already reasons with, so "is there enough here to show this
+ * section" is answered the same way everywhere. See
+ * `apps/architect/ADAPTIVE_EVIDENCE_REPORTS.md`.
  */
+const GENERIC_RISK_LINES = new Set([
+  "Sobre-automatizar traspasos que ya están rotos",
+  "Reemplazar hojas de cálculo sin resolver primero la claridad de propiedad",
+]);
 type ReportTone = "blue" | "teal" | "amber" | "red" | "violet" | "green" | "gray";
 
 const TONE_SURFACE: Record<ReportTone, string> = {
@@ -139,10 +161,47 @@ function recommendationPriorityLabel(
   }
 }
 
-function ReportBody({ report }: { report: DiscoveryReport }) {
+function ReportBody({
+  report,
+  readiness,
+}: {
+  report: DiscoveryReport;
+  readiness: ReadinessAssessment | null;
+}) {
   const { t } = useTranslations();
   let i = 0;
   const next = () => ++i;
+
+  const financeTopic = readiness?.topics.find(
+    (topic) => topic.topic === "finance",
+  );
+  const financeHasNoEvidence = Boolean(
+    financeTopic?.applicable && financeTopic.state === "needs_information",
+  );
+  const visibleOpportunities = financeHasNoEvidence
+    ? report.opportunities.filter(
+        (item) =>
+          !TOPIC_PATTERNS.finance.test(`${item.title} ${item.rationale}`),
+      )
+    : report.opportunities;
+
+  const blueprintGate = readiness ? blueprintReadinessGate(readiness) : null;
+  const showImplementationPlan = !blueprintGate || blueprintGate.unlocked;
+
+  const hasEvidencedRisk = Boolean(
+    report.consultingRisks && report.consultingRisks.length > 0,
+  );
+  const visibleGeneralRisks = report.risks.filter(
+    (item) => !GENERIC_RISK_LINES.has(item),
+  );
+
+  const confidenceTone: ReportTone =
+    readiness?.overallState === "ready"
+      ? "green"
+      : readiness?.overallState === "almost_ready"
+        ? "amber"
+        : "red";
+
   return (
     <div className="isalwa-section-gap">
       <Section
@@ -154,6 +213,44 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       >
         <p>{report.executiveSummary}</p>
       </Section>
+
+      {readiness ? (
+        <Section
+          index={next()}
+          title={t("reportView.confidenceTitle")}
+          tone={confidenceTone}
+          delay={0.06}
+        >
+          <div className="flex items-center gap-2">
+            <ReadinessStateDot state={readiness.overallState} />
+            <span
+              className={cn(
+                "text-[11px] font-medium uppercase tracking-[0.14em]",
+                TONE_INK[confidenceTone],
+              )}
+            >
+              {readiness.overallStateLabel}
+            </span>
+          </div>
+          <p className="architect-serif mt-3 text-2xl leading-snug text-[var(--isalwa-kiln)]">
+            {readiness.advice.headline}
+          </p>
+          <p className="mt-2 text-[var(--isalwa-slate)]">
+            {readiness.advice.detail}
+          </p>
+          {readiness.overallState !== "ready" &&
+          readiness.stillLearning.length > 0 ? (
+            <div className="mt-6">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+                {t("reportView.whatIsMissing")}
+              </p>
+              <div className="mt-3">
+                <StillLearningList assessment={readiness} limit={4} />
+              </div>
+            </div>
+          ) : null}
+        </Section>
+      ) : null}
 
       <Section index={next()} title={t("reportView.businessSnapshot")} delay={0.08}>
         <pre className="whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
@@ -231,35 +328,29 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Section index={next()} title={t("reportView.currentSystems")} delay={0.12}>
-        <div className="flex flex-wrap gap-2">
-          {report.currentSystems.length === 0 ? (
-            <p className="text-[var(--isalwa-slate)]/80">{t("reportView.noSystemsRegistered")}</p>
-          ) : (
-            report.currentSystems.map((system) => (
+      {report.currentSystems.length > 0 ? (
+        <Section index={next()} title={t("reportView.currentSystems")} delay={0.12}>
+          <div className="flex flex-wrap gap-2">
+            {report.currentSystems.map((system) => (
               <span
                 key={system}
                 className="isalwa-chip !cursor-default"
               >
                 {system}
               </span>
-            ))
-          )}
-        </div>
-      </Section>
+            ))}
+          </div>
+        </Section>
+      ) : null}
 
-      <Section
-        index={next()}
-        title={t("reportView.painPoints")}
-        intro={t("reportView.painPointsIntro")}
-        tone="amber"
-        delay={0.14}
-      >
-        {report.painPoints.length === 0 ? (
-          <p className="text-[var(--isalwa-slate)]/80">
-            {t("reportView.noPainPoints")}
-          </p>
-        ) : (
+      {report.painPoints.length > 0 ? (
+        <Section
+          index={next()}
+          title={t("reportView.painPoints")}
+          intro={t("reportView.painPointsIntro")}
+          tone="amber"
+          delay={0.14}
+        >
           <ul className="space-y-4">
             {report.painPoints.map((pain) => (
               <li key={pain.id}>
@@ -268,23 +359,19 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
               </li>
             ))}
           </ul>
-        )}
-      </Section>
+        </Section>
+      ) : null}
 
-      <Section
-        index={next()}
-        title={t("reportView.recommendations")}
-        intro={t("reportView.recommendationsIntro")}
-        tone="green"
-        delay={0.16}
-      >
-        {report.opportunities.length === 0 ? (
-          <p className="text-[var(--isalwa-slate)]/80">
-            {t("reportView.noRecommendations")}
-          </p>
-        ) : (
+      {visibleOpportunities.length > 0 ? (
+        <Section
+          index={next()}
+          title={t("reportView.recommendations")}
+          intro={t("reportView.recommendationsIntro")}
+          tone="green"
+          delay={0.16}
+        >
           <ul className="space-y-5">
-            {report.opportunities.map((item) => (
+            {visibleOpportunities.map((item) => (
               <li
                 key={item.id}
                 className="border-l-2 border-[var(--isalwa-tint-green-border)] pl-4"
@@ -299,8 +386,8 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
               </li>
             ))}
           </ul>
-        )}
-      </Section>
+        </Section>
+      ) : null}
 
       <Section index={next()} title={t("reportView.suggestedCapabilities")} delay={0.18}>
         <div className="flex flex-wrap gap-2">
@@ -315,25 +402,27 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Section index={next()} title={t("reportView.implementationPlan")} tone="violet" delay={0.2}>
-        <div className="space-y-7">
-          {report.suggestedRoadmap.map((phase) => (
-            <div key={phase.id}>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                {phase.horizon}
-              </p>
-              <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
-                {phaseLabel(phase.name)}
-              </h3>
-              <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
-                {phase.outcomes.map((outcome) => (
-                  <li key={outcome}>{outcome}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </Section>
+      {showImplementationPlan ? (
+        <Section index={next()} title={t("reportView.implementationPlan")} tone="violet" delay={0.2}>
+          <div className="space-y-7">
+            {report.suggestedRoadmap.map((phase) => (
+              <div key={phase.id}>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+                  {phase.horizon}
+                </p>
+                <h3 className="architect-serif mt-1 text-2xl text-[var(--isalwa-kiln)]">
+                  {phaseLabel(phase.name)}
+                </h3>
+                <ul className="mt-3 space-y-1 text-[var(--isalwa-slate)]">
+                  {phase.outcomes.map((outcome) => (
+                    <li key={outcome}>{outcome}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ) : null}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <Section index={next()} title={t("reportView.estimatedComplexity")} delay={0.28}>
@@ -364,13 +453,15 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Section index={next()} title={t("reportView.risks")} tone="red" delay={0.35}>
-        <ul className="space-y-2">
-          {report.risks.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Section>
+      {hasEvidencedRisk ? (
+        <Section index={next()} title={t("reportView.risks")} tone="red" delay={0.35}>
+          <ul className="space-y-2">
+            {visibleGeneralRisks.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Section>
+      ) : null}
 
       <Section
         index={next()}
@@ -392,6 +483,7 @@ export function ReportView() {
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspaceId");
   const [report, setReport] = useState<DiscoveryReport | null>(null);
+  const [readiness, setReadiness] = useState<ReadinessAssessment | null>(null);
   const [companyName, setCompanyName] = useState(t("reportView.theCompany"));
   /** White Label Company Experience — only available when the report is opened with a workspaceId (not the standalone interview fallback). */
   const [brand, setBrand] = useState<EffectiveBrandExperience | null>(null);
@@ -407,6 +499,7 @@ export function ReportView() {
         const workspace = await store.workspaces.get(workspaceId);
         if (workspace?.currentReport) {
           setReport(workspace.currentReport);
+          setReadiness(assessReadiness(workspace));
           setCompanyName(workspace.companyName);
           setBrand(
             applyBrandOverrides(
@@ -421,6 +514,7 @@ export function ReportView() {
       const interview = await persistence.load();
       if (interview?.report) {
         setReport(interview.report);
+        setReadiness(assessMemoryReadiness(interview.memory));
         setCompanyName(
           interview.business.companyName ??
             interview.participant.companyName ??
@@ -499,7 +593,7 @@ export function ReportView() {
           document reads as a single considered artifact instead of a page
           of stacked forms. */}
       <Card className="isalwa-enter isalwa-enter-delay-1 mt-12 px-6 py-10 sm:px-12 sm:py-14">
-        <ReportBody report={report} />
+        <ReportBody report={report} readiness={readiness} />
       </Card>
 
       <footer className="isalwa-divider-fade mt-16" />

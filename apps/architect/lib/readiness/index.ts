@@ -46,6 +46,7 @@ export { applyReadinessToMemory } from "./memory";
 
 export {
   MINUTES_PER_CLARIFICATION,
+  TOPIC_PATTERNS,
   consistencyLabel,
   missingInformationLabel,
   readinessStateLabel,

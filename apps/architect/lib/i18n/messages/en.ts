@@ -205,6 +205,8 @@ export const en: MessageTree = {
     priorityLater: "Later",
     executiveSummary: "Executive summary",
     executiveSummaryIntro: "The one-paragraph version — what we found and where it leads.",
+    confidenceTitle: "Confidence level",
+    whatIsMissing: "What is still missing",
     businessSnapshot: "Business snapshot",
     consultingAssessment: "Consulting assessment",
     maturityPrefix: "Maturity — ",

@@ -70,16 +70,16 @@ export function buildExecutiveSummary(
     kind: "executive_summary",
     vision,
     currentState,
-    problems: problems.length ? problems : ["Descubrimiento incompleto — problemas aún sin confirmar"],
-    biggestRisks: biggestRisks.length ? biggestRisks : ["Perfil de riesgo incompleto"],
-    immediateOpportunities: immediateOpportunities.length
-      ? immediateOpportunities
-      : ["Completar el descubrimiento para revelar victorias rápidas"],
-    strategicOpportunities: strategicOpportunities.length
-      ? strategicOpportunities
-      : ["Oportunidades estratégicas pendientes de un descubrimiento más profundo"],
+    // Evidence-Adaptive Reports — leave these empty when the diagnostic has
+    // nothing to say yet rather than filling the slot with placeholder
+    // copy. `DeliverablePreview` (deliverables-panel.tsx) hides the
+    // corresponding beat instead of rendering an empty-looking shell.
+    problems,
+    biggestRisks,
+    immediateOpportunities,
+    strategicOpportunities,
     recommendedRoadmap,
-    investmentAreas: investmentAreas.length ? investmentAreas : ["Plataforma central"],
+    investmentAreas,
     executiveRecommendation,
     evidence: evidence.slice(0, 6),
   };
