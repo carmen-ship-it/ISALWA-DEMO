@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Clock3, Compass, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { useTranslations } from "@/lib/i18n";
 import { understandingLevel } from "@/lib/presentation";
 
 export function WelcomeBanner({
@@ -32,6 +33,7 @@ export function WelcomeBanner({
   /** White Label Company Experience — consultant-configured homepage message. Replaces the auto-composed description when present. */
   brandMessage?: string | null;
 }) {
+  const { t } = useTranslations();
   const level = understandingLevel(understanding);
   const pct = Math.max(0, Math.min(100, Math.round(understanding)));
 
@@ -40,11 +42,11 @@ export function WelcomeBanner({
       tone="executive"
       size="hero"
       icon={Compass}
-      kicker="1 · Enfoque de hoy"
-      title={`Bienvenido de nuevo, ${displayName}.`}
+      kicker={t("welcomeBanner.kicker")}
+      title={t("welcomeBanner.greeting", { name: displayName })}
       description={
         brandMessage ??
-        `Hoy entendemos aproximadamente el ${pct}% de su negocio (${level.toLowerCase()}). ${focusHint}`
+        t("welcomeBanner.description", { pct, level: level.toLowerCase(), focusHint })
       }
     >
       <div className="isalwa-risk-bar mb-4 max-w-sm !h-1.5 bg-white/70">
@@ -62,7 +64,7 @@ export function WelcomeBanner({
           </span>
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
             <span className="font-medium text-[var(--isalwa-kiln)]">
-              Recomendación de hoy:{" "}
+              {t("welcomeBanner.todayRecommendationLabel")}
             </span>
             {todayRecommendation}
           </p>
@@ -73,12 +75,12 @@ export function WelcomeBanner({
         {estimatedMinutes ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
-            Tiempo estimado: {estimatedMinutes} minutos
+            {t("welcomeBanner.estimatedTime", { minutes: estimatedMinutes })}
           </span>
         ) : null}
       </div>
       <p className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/70">
-        ¿Qué debo hacer hoy?
+        {t("welcomeBanner.whatToDoToday")}
       </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {onContinueClick ? (
@@ -95,7 +97,7 @@ export function WelcomeBanner({
           </Button>
         )}
         <Button type="button" variant="ghost" onClick={onExplore}>
-          Ver resumen ejecutivo
+          {t("welcomeBanner.viewExecutiveSummary")}
         </Button>
       </div>
     </SectionShell>

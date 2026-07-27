@@ -10,6 +10,7 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { t, useTranslations } from "@/lib/i18n";
 import { formatRelativeActivity } from "@/lib/workspace";
 import {
   AUTOMATION_COLORS,
@@ -36,13 +37,12 @@ export function BusinessProcessesPanel({
 }: {
   context: ProcessVisualizationContext | null;
 }) {
+  const { t } = useTranslations();
   if (!context?.processes) {
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]">
-          Las vistas de proceso aparecen una vez que el plan de negocio está
-          listo. Los diagramas reflejan flujos de trabajo descubiertos — solo
-          lectura, nunca inventados.
+          {t("businessProcessesPanel.empty")}
         </p>
       </Card>
     );
@@ -58,6 +58,7 @@ function ProcessStudio({
   context: ProcessVisualizationContext;
   processes: BusinessProcessModel;
 }) {
+  const { t } = useTranslations();
   const [workflowId, setWorkflowId] = useState(
     processes.workflows[0]?.id ?? "",
   );
@@ -166,7 +167,7 @@ function ProcessStudio({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]">
-          Aún no hay flujos de trabajo disponibles del diagnóstico.
+          {t("businessProcessesPanel.noWorkflows")}
         </p>
       </Card>
     );
@@ -176,22 +177,22 @@ function ProcessStudio({
     <div className="space-y-5">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Vista de proceso
+          {t("businessProcessesPanel.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           {viz.workflowName}
         </h3>
         <p className="mt-3 text-[var(--isalwa-slate)]">{processes.summary}</p>
         <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
-          {formatRelativeActivity(processes.generatedAt)} · vista de solo
-          lectura
+          {formatRelativeActivity(processes.generatedAt)}
+          {t("businessProcessesPanel.readOnlySuffix")}
         </p>
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
         <div className="space-y-4">
           <Toolbar>
-            <Field label="Flujo de trabajo">
+            <Field label={t("businessProcessesPanel.workflowField")}>
               <select
                 className={selectClassName}
                 value={workflowId}
@@ -208,7 +209,7 @@ function ProcessStudio({
                 ))}
               </select>
             </Field>
-            <Field label="Vista">
+            <Field label={t("businessProcessesPanel.viewField")}>
               <select
                 className={selectClassName}
                 value={view}
@@ -222,7 +223,7 @@ function ProcessStudio({
               </select>
             </Field>
             {view === "department" ? (
-              <Field label="Departamento">
+              <Field label={t("businessProcessesPanel.departmentField")}>
                 <select
                   className={selectClassName}
                   value={departmentFilter ?? ""}
@@ -230,7 +231,7 @@ function ProcessStudio({
                     setDepartmentFilter(e.target.value || null)
                   }
                 >
-                  <option value="">Todos</option>
+                  <option value="">{t("businessProcessesPanel.all")}</option>
                   {departments.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -239,7 +240,7 @@ function ProcessStudio({
                 </select>
               </Field>
             ) : null}
-            <Field label="Capa">
+            <Field label={t("businessProcessesPanel.layerField")}>
               <select
                 className={selectClassName}
                 value={overlay}
@@ -256,7 +257,7 @@ function ProcessStudio({
                 )}
               </select>
             </Field>
-            <Field label="Resaltado">
+            <Field label={t("businessProcessesPanel.highlightField")}>
               <select
                 className={selectClassName}
                 value={highlight}
@@ -271,11 +272,11 @@ function ProcessStudio({
                   )
                 }
               >
-                <option value="none">Ninguno</option>
-                <option value="actor">Actor</option>
-                <option value="document">Documento</option>
-                <option value="approval">Aprobación</option>
-                <option value="bottleneck">Cuello de botella</option>
+                <option value="none">{t("businessProcessesPanel.highlightNone")}</option>
+                <option value="actor">{t("businessProcessesPanel.highlightActor")}</option>
+                <option value="document">{t("businessProcessesPanel.highlightDocument")}</option>
+                <option value="approval">{t("businessProcessesPanel.highlightApproval")}</option>
+                <option value="bottleneck">{t("businessProcessesPanel.highlightBottleneck")}</option>
               </select>
             </Field>
           </Toolbar>
@@ -298,13 +299,13 @@ function ProcessStudio({
           >
             <div className="absolute right-4 top-4 z-10 flex gap-2">
               <IconButton
-                label="Alejar"
+                label={t("businessProcessesPanel.zoomOut")}
                 onClick={() => setZoom((z) => Math.max(0.55, z - 0.1))}
               >
                 −
               </IconButton>
               <IconButton
-                label="Restablecer"
+                label={t("businessProcessesPanel.reset")}
                 onClick={() => {
                   setZoom(1);
                   setPan({ x: 0, y: 0 });
@@ -313,7 +314,7 @@ function ProcessStudio({
                 {Math.round(zoom * 100)}%
               </IconButton>
               <IconButton
-                label="Acercar"
+                label={t("businessProcessesPanel.zoomIn")}
                 onClick={() => setZoom((z) => Math.min(1.8, z + 0.1))}
               >
                 +
@@ -349,7 +350,9 @@ function ProcessStudio({
                 >
                   <span className="block px-4 pt-3 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
                     {lane.label}
-                    {collapsed.has(lane.department) ? " · expandir" : " · contraer"}
+                    {collapsed.has(lane.department)
+                      ? t("businessProcessesPanel.expand")
+                      : t("businessProcessesPanel.collapse")}
                   </span>
                 </button>
               ))}
@@ -455,9 +458,9 @@ function ProcessStudio({
                         }}
                       >
                         {node.collapsed
-                          ? "Grupo"
+                          ? t("businessProcessesPanel.group")
                           : overlay === "time"
-                            ? node.durationLabel ?? "Duración desconocida"
+                            ? node.durationLabel ?? t("businessProcessesPanel.unknownDuration")
                             : overlay === "automation"
                               ? AUTOMATION_COLORS[node.automation].badge
                               : overlay === "pain"
@@ -474,14 +477,16 @@ function ProcessStudio({
           {overlay === "dependency" && deps ? (
             <Card className="px-5 py-4">
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                Dependencias · {selectedStep?.name ?? "Seleccione un paso"}
+                {t("businessProcessesPanel.dependencies", {
+                  step: selectedStep?.name ?? t("businessProcessesPanel.selectStep"),
+                })}
               </p>
-              <DependencyList title="Requiere" items={deps.inputs} />
-              <DependencyList title="Documentos" items={deps.documents} />
-              <DependencyList title="Sistemas" items={deps.systems} />
-              <DependencyList title="Roles" items={deps.roles} />
-              <DependencyList title="Aprobaciones" items={deps.approvals} />
-              <DependencyList title="Políticas" items={deps.policies} />
+              <DependencyList title={t("businessProcessesPanel.requires")} items={deps.inputs} />
+              <DependencyList title={t("businessProcessesPanel.documents")} items={deps.documents} />
+              <DependencyList title={t("businessProcessesPanel.systems")} items={deps.systems} />
+              <DependencyList title={t("businessProcessesPanel.roles")} items={deps.roles} />
+              <DependencyList title={t("businessProcessesPanel.approvals")} items={deps.approvals} />
+              <DependencyList title={t("businessProcessesPanel.policies")} items={deps.policies} />
             </Card>
           ) : null}
         </div>
@@ -521,9 +526,7 @@ function Legend({ overlay }: { overlay: ProcessOverlayKind }) {
   if (overlay === "none" || overlay === "time" || overlay === "dependency") {
     return (
       <p className="text-xs text-[var(--isalwa-slate)]/60">
-        Pase el cursor sobre un paso · clic para seleccionar · desplace para
-        acercar · arrastre el lienzo para mover · clic en el encabezado del
-        carril para contraer
+        {t("businessProcessesPanel.legendHint")}
       </p>
     );
   }
@@ -568,34 +571,33 @@ function MetricsSidebar({
     ReturnType<typeof deriveProcessVisualization>
   >["metrics"];
 }) {
-  const coverageEs: Record<string, string> = {
-    Strong: "Sólida",
-    Solid: "Consistente",
-    Partial: "Parcial",
-    Limited: "Limitada",
-    Early: "Inicial",
-  };
+  const coverageKey = coverageBand(metrics.coverage, "unit");
   const rows: Array<[string, string]> = [
-    ["Pasos totales", String(metrics.totalSteps)],
-    ["Departamentos", String(metrics.departments)],
-    ["Pasos manuales", String(metrics.manualSteps)],
-    ["Oportunidades de automatización", String(metrics.automationOpportunities)],
-    ["Aprobaciones", String(metrics.approvals)],
-    ["Documentos", String(metrics.documents)],
-    ["Duración promedio", metrics.averageDurationLabel],
-    ["Nivel de riesgo", riskLevelLabel(metrics.riskLevel) || metrics.riskLevel],
-    ["Salud del proceso", healthLabel(metrics.processHealth)],
+    [t("businessProcessesPanel.metrics.totalSteps"), String(metrics.totalSteps)],
+    [t("businessProcessesPanel.metrics.departments"), String(metrics.departments)],
+    [t("businessProcessesPanel.metrics.manualSteps"), String(metrics.manualSteps)],
     [
-      "Cobertura",
-      coverageEs[coverageBand(metrics.coverage, "unit")] ??
-        coverageBand(metrics.coverage, "unit"),
+      t("businessProcessesPanel.metrics.automationOpportunities"),
+      String(metrics.automationOpportunities),
+    ],
+    [t("businessProcessesPanel.metrics.approvals"), String(metrics.approvals)],
+    [t("businessProcessesPanel.metrics.documents"), String(metrics.documents)],
+    [t("businessProcessesPanel.metrics.averageDuration"), metrics.averageDurationLabel],
+    [
+      t("businessProcessesPanel.metrics.riskLevel"),
+      riskLevelLabel(metrics.riskLevel) || metrics.riskLevel,
+    ],
+    [t("businessProcessesPanel.metrics.processHealth"), healthLabel(metrics.processHealth)],
+    [
+      t("businessProcessesPanel.metrics.coverage"),
+      t(`businessProcessesPanel.coverage.${coverageKey}`) || coverageKey,
     ],
   ];
 
   return (
     <aside className="h-fit rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/90 px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/60">
-        Panorama
+        {t("businessProcessesPanel.overview")}
       </p>
       <ul className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
@@ -609,8 +611,7 @@ function MetricsSidebar({
         ))}
       </ul>
       <p className="mt-4 text-[11px] leading-relaxed text-[var(--isalwa-slate)]/60">
-        Derivado de los flujos de trabajo descubiertos — nunca ingresado
-        manualmente.
+        {t("businessProcessesPanel.overviewFootnote")}
       </p>
     </aside>
   );

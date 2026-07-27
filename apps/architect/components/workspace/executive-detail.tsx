@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -10,8 +11,8 @@ import { cn } from "@/lib/utils";
 export function ExecutiveDetail({
   summary,
   children,
-  labelExpand = "Ver detalle de respaldo",
-  labelCollapse = "Ocultar detalle",
+  labelExpand,
+  labelCollapse,
   defaultOpen = false,
   className,
 }: {
@@ -22,8 +23,11 @@ export function ExecutiveDetail({
   defaultOpen?: boolean;
   className?: string;
 }) {
+  const { t } = useTranslations();
   const [open, setOpen] = useState(defaultOpen);
   const panelId = useId();
+  const resolvedExpand = labelExpand ?? t("executiveDetail.expand");
+  const resolvedCollapse = labelCollapse ?? t("executiveDetail.collapse");
 
   return (
     <div className={cn(className)}>
@@ -35,7 +39,7 @@ export function ExecutiveDetail({
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
       >
-        {open ? labelCollapse : labelExpand}
+        {open ? resolvedCollapse : resolvedExpand}
       </button>
       <div
         id={panelId}

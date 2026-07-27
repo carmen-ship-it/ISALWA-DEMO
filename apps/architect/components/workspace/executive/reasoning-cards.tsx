@@ -1,6 +1,7 @@
 "use client";
 
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
+import { useTranslations } from "@/lib/i18n";
 import type { ExplainedRecommendation } from "@/lib/explanations";
 
 export function ReasoningCards({
@@ -8,10 +9,11 @@ export function ReasoningCards({
 }: {
   recommendations: ExplainedRecommendation[];
 }) {
+  const { t } = useTranslations();
   if (recommendations.length === 0) {
     return (
       <p className="text-sm text-[var(--isalwa-slate)]/80">
-        La justificación aparece cuando las recomendaciones tienen evidencia.
+        {t("reasoningCards.empty")}
       </p>
     );
   }
@@ -20,10 +22,10 @@ export function ReasoningCards({
     <div className="space-y-4">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Por qué recomendamos esto
+          {t("reasoningCards.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          Evidencia antes que opinión.
+          {t("reasoningCards.title")}
         </h3>
       </div>
 

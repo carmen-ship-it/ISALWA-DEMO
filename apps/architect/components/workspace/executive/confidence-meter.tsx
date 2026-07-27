@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Check } from "lucide-react";
+import { useTranslations } from "@/lib/i18n";
 import {
   strengthBand,
   understandingLevel,
@@ -10,33 +11,35 @@ import {
 
 export function ConfidenceMeter({
   value,
-  label = "Qué tanto entendemos el negocio",
+  label,
   evidence = [],
 }: {
   value: number;
   label?: string;
-  /** Short Spanish chips, e.g. "4 reuniones" */
+  /** Short localized chips, e.g. "4 reuniones" */
   evidence?: string[];
 }) {
+  const { t } = useTranslations();
   const clamped = Math.max(0, Math.min(100, Math.round(value)));
   const level = understandingLevel(clamped);
   const band = strengthBand(clamped, "percent");
   const width = Math.max(8, clamped);
+  const resolvedLabel = label ?? t("confidenceMeter.defaultLabel");
 
   const bandLabel =
     band === "High"
-      ? "Alta confianza"
+      ? t("confidenceMeter.bandHigh")
       : band === "Medium"
-        ? "Confianza media"
+        ? t("confidenceMeter.bandMedium")
         : band === "Low"
-          ? "Confianza inicial"
-          : "Aún formándose";
+          ? t("confidenceMeter.bandLow")
+          : t("confidenceMeter.bandForming");
 
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          {label}
+          {resolvedLabel}
         </p>
         <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
           {level}
@@ -51,7 +54,7 @@ export function ConfidenceMeter({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={clamped}
-        aria-label={label}
+        aria-label={resolvedLabel}
       >
         <motion.span
           className="!rounded-full bg-[var(--isalwa-glaze)]"

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -73,7 +74,7 @@ export function BeatList({
   items: string[];
   className?: string;
 }) {
-  if (items.length === 0) return <BeatEmpty text="Aún no disponible." />;
+  if (items.length === 0) return <BeatEmpty text={t("common.notAvailableYet")} />;
   return (
     <ul className={className ?? "space-y-1.5"}>
       {items.map((item) => (

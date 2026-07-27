@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/i18n";
 
 export function LandingHero() {
+  const { t } = useTranslations();
   return (
     <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6 py-24 sm:px-10">
       <motion.p
@@ -13,7 +15,7 @@ export function LandingHero() {
         transition={{ duration: 0.5 }}
         className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--isalwa-slate)]/80"
       >
-        ISALWA Architect
+        {t("landingHero.kicker")}
       </motion.p>
 
       <motion.h1
@@ -22,7 +24,7 @@ export function LandingHero() {
         transition={{ duration: 0.65, delay: 0.08 }}
         className="architect-serif mt-8 max-w-3xl text-5xl leading-[1.05] text-[var(--isalwa-kiln)] sm:text-6xl md:text-7xl"
       >
-        Diseñe su empresa antes de construir software.
+        {t("landingHero.title")}
       </motion.h1>
 
       <motion.p
@@ -31,9 +33,7 @@ export function LandingHero() {
         transition={{ duration: 0.65, delay: 0.18 }}
         className="mt-8 max-w-2xl text-lg leading-relaxed text-[var(--isalwa-slate)] sm:text-xl"
       >
-        El Arquitecto entrevista a su equipo, entiende su operación,
-        descubre cuellos de botella y produce el plano de su futuro
-        sistema operativo.
+        {t("landingHero.description")}
       </motion.p>
 
       <motion.div
@@ -43,7 +43,7 @@ export function LandingHero() {
         className="mt-12"
       >
         <Button asChild size="lg">
-          <Link href="/discovery">Comenzar el descubrimiento</Link>
+          <Link href="/discovery">{t("landingHero.cta")}</Link>
         </Button>
       </motion.div>
 
@@ -53,7 +53,7 @@ export function LandingHero() {
         transition={{ duration: 0.8, delay: 0.5 }}
         className="mt-16 text-sm text-[var(--isalwa-slate)]/60"
       >
-        Una sesión de descubrimiento guiada. Entre 20 y 30 minutos.
+        {t("landingHero.footnote")}
       </motion.p>
     </main>
   );

@@ -3,17 +3,19 @@
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { t, useTranslations } from "@/lib/i18n";
 import { understandingSentence } from "@/lib/presentation";
 import type { DiscoveryScore, DimensionStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
 function dimensionDisplay(dimension: DimensionStatus): string {
-  if (dimension.applicable === false) return "No aplica";
-  if (dimension.confidence <= 0) return "Sin evidencia";
+  if (dimension.applicable === false) return t("discoveryScoreCard.notApplicable");
+  if (dimension.confidence <= 0) return t("discoveryScoreCard.noEvidence");
   return `${dimension.confidence}%`;
 }
 
 export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
+  const { t } = useTranslations();
   const applicableDimensions = score.dimensions.filter(
     (dimension) => dimension.applicable !== false,
   );
@@ -24,7 +26,7 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
   return (
     <Card className="overflow-hidden px-5 py-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-        Entendimiento del negocio
+        {t("discoveryScoreCard.businessUnderstanding")}
       </p>
       <div className="mt-3 flex items-end gap-2">
         <motion.span
@@ -45,9 +47,9 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
       {totalCount > 0 ? (
         <div className="mt-5 border-t border-[var(--isalwa-mist)]/70 pt-4">
           <div className="flex items-center justify-between text-xs text-[var(--isalwa-slate)]/80">
-            <span>Temas cubiertos</span>
+            <span>{t("discoveryScoreCard.topicsCovered")}</span>
             <span>
-              {coveredCount} de {totalCount}
+              {t("discoveryScoreCard.ofTotal", { covered: coveredCount, total: totalCount })}
             </span>
           </div>
           <Progress value={topicsProgress} className="mt-1.5" />
@@ -55,7 +57,7 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
       ) : null}
 
       <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        Confianza por tema
+        {t("discoveryScoreCard.confidenceByTopic")}
       </p>
       <ul className="mt-3 space-y-2.5">
         {score.dimensions.map((dimension) => (
@@ -100,7 +102,7 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
       {score.stillNeed.length > 0 ? (
         <div className="mt-5 border-t border-[var(--isalwa-mist)]/70 pt-4">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
-            Aún falta
+            {t("discoveryScoreCard.stillMissing")}
           </p>
           <ul className="mt-2 space-y-1">
             {score.stillNeed.slice(0, 4).map((item) => (

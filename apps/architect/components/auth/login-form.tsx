@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { signInAction } from "@/lib/auth";
 import { PILOT_USERS } from "@/lib/auth/constants";
+import { useTranslations } from "@/lib/i18n";
 
 export function LoginForm() {
+  const { t } = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export function LoginForm() {
               htmlFor="email"
               className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
             >
-              Correo
+              {t("loginForm.email")}
             </label>
             <input
               id="email"
@@ -64,7 +66,7 @@ export function LoginForm() {
               htmlFor="password"
               className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
             >
-              Contraseña
+              {t("loginForm.password")}
             </label>
             <input
               id="password"
@@ -83,14 +85,16 @@ export function LoginForm() {
           ) : null}
 
           <Button type="submit" size="lg" className="w-full" disabled={pending}>
-            {pending ? "Entrando…" : "Iniciar sesión"}
+            {pending ? t("loginForm.signingIn") : t("loginForm.signIn")}
           </Button>
         </form>
       </Card>
 
       <p className="mt-6 text-center text-xs leading-relaxed text-[var(--isalwa-slate)]/60">
-        Piloto: {PILOT_USERS.carmen.email} (Consultora) ·{" "}
-        {PILOT_USERS.alvaro.email} (Cliente)
+        {t("loginForm.pilotNote", {
+          carmenEmail: PILOT_USERS.carmen.email,
+          alvaroEmail: PILOT_USERS.alvaro.email,
+        })}
       </p>
     </motion.div>
   );

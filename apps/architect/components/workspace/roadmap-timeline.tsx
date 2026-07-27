@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type RoadmapTimelineItem = {
@@ -11,19 +12,24 @@ export type RoadmapTimelineItem = {
   detail?: string;
 };
 
-const DEFAULT_LANES = ["Hoy", "Siguiente", "30 días", "90 días", "Futuro"] as const;
-
 export function RoadmapTimeline({
   items,
 }: {
   items: RoadmapTimelineItem[];
 }) {
+  const { t } = useTranslations();
+  const defaultLanes = [
+    t("workspaceView.roadmapLanes.today"),
+    t("workspaceView.roadmapLanes.next"),
+    t("workspaceView.roadmapLanes.days30"),
+    t("workspaceView.roadmapLanes.days90"),
+    t("workspaceView.roadmapLanes.future"),
+  ];
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-[var(--isalwa-tint-violet-border)]/80 bg-white/70 px-5 py-6">
         <p className="text-base text-[var(--isalwa-slate)]">
-          Aún no hay un plan de implementación. Primero necesitamos entender
-          mejor cómo opera el negocio.
+          {t("roadmapTimeline.empty")}
         </p>
       </div>
     );
@@ -34,8 +40,8 @@ export function RoadmapTimeline({
       {items.map((item, index) => {
         const lane =
           item.label ||
-          DEFAULT_LANES[Math.min(index, DEFAULT_LANES.length - 1)] ||
-          "Futuro";
+          defaultLanes[Math.min(index, defaultLanes.length - 1)] ||
+          t("workspaceView.roadmapLanes.future");
         const last = index === items.length - 1;
         return (
           <li key={item.id} className="relative flex gap-4 pb-8 last:pb-0">

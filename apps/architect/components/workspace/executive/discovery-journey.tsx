@@ -2,28 +2,33 @@
 
 import { motion } from "motion/react";
 import type { JourneyStage } from "@/lib/executive";
+import { t } from "@/lib/i18n";
 import { understandingLevel } from "@/lib/presentation";
 
 function humanizeJourneyDetail(detail: string): string {
   // Soften residual presentation strings that still carry scores/versions.
+  // The regex patterns match legacy/engine fragments (Spanish and English);
+  // the replacement copy itself is routed through i18n.
   let next = detail.replace(
     /(\d+)\s*%\s*de comprensión del negocio/i,
-    (_m, n: string) => {
-      const level = understandingLevel(Number(n));
-      return `Comprensión del negocio: ${understandingLevel(Number(n)).toLowerCase()}`;
-    },
+    (_m, n: string) =>
+      t("discoveryJourney.businessUnderstanding", {
+        level: understandingLevel(Number(n)).toLowerCase(),
+      }),
   );
   next = next.replace(
     /(\d+)\s*%\s*(business understanding|understanding)/i,
     (_m, n: string) =>
-      `Comprensión del negocio: ${understandingLevel(Number(n)).toLowerCase()}`,
+      t("discoveryJourney.businessUnderstanding", {
+        level: understandingLevel(Number(n)).toLowerCase(),
+      }),
   );
-  next = next.replace(/Blueprint\s*v\d+/gi, "Modelo del negocio disponible");
+  next = next.replace(/Blueprint\s*v\d+/gi, t("discoveryJourney.blueprintAvailable"));
   next = next.replace(/·\s*Blueprint[^·]*/gi, "");
   next = next.replace(/\b\d+\s*módulos\b/gi, (m) =>
-    m.replace("módulos", "capacidades"),
+    m.replace("módulos", t("discoveryJourney.capabilitiesWord")),
   );
-  next = next.replace(/\bmodules\b/gi, "capacidades");
+  next = next.replace(/\bmodules\b/gi, t("discoveryJourney.capabilitiesWord"));
   return next.trim();
 }
 

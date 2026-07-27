@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   ingestKnowledgeUpload,
@@ -51,6 +52,7 @@ export function KnowledgeUpload({
   ) => Promise<(KnowledgeUploadResult & { report?: IntakeIngestReport }) | null>;
   onReport?: (report: IntakeIngestReport) => void;
 }) {
+  const { t } = useTranslations();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -65,7 +67,7 @@ export function KnowledgeUpload({
     for (const file of files) {
       const itemId = `${file.name}-${file.size}-${Date.now()}`;
       setItems((prev) => [
-        { id: itemId, fileName: file.name, status: "processing", message: "Procesando…" },
+        { id: itemId, fileName: file.name, status: "processing", message: t("knowledgeUpload.processing") },
         ...prev,
       ]);
 
@@ -83,7 +85,7 @@ export function KnowledgeUpload({
           setItems((prev) =>
             updateItem(prev, itemId, {
               status: "error",
-              message: "No se encontró el espacio de trabajo.",
+              message: t("knowledgeUpload.workspaceNotFound"),
             }),
           );
           continue;
@@ -109,7 +111,7 @@ export function KnowledgeUpload({
             message:
               error instanceof Error
                 ? error.message
-                : "No se pudo procesar el archivo.",
+                : t("knowledgeUpload.processError"),
           }),
         );
       }
@@ -152,15 +154,14 @@ export function KnowledgeUpload({
         <UploadCloud className="h-8 w-8 text-[var(--isalwa-slate)]/60" aria-hidden />
         <div>
           <p className="text-[var(--isalwa-kiln)]">
-            Arrastre documentos aquí o haga clic para seleccionarlos
+            {t("knowledgeUpload.dropHint")}
           </p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-            PDF, Word, Excel, PowerPoint e imágenes · máximo {MAX_MB}MB por
-            archivo
+            {t("knowledgeUpload.fileTypes", { maxMb: MAX_MB })}
           </p>
         </div>
         <label htmlFor={inputId} className="sr-only">
-          Subir documentos de la empresa
+          {t("knowledgeUpload.srUploadLabel")}
         </label>
         <input
           id={inputId}
@@ -184,7 +185,7 @@ export function KnowledgeUpload({
             inputRef.current?.click();
           }}
         >
-          {busy ? "Procesando…" : "Seleccionar archivos"}
+          {busy ? t("knowledgeUpload.processing") : t("knowledgeUpload.selectFiles")}
         </Button>
       </div>
 
@@ -212,7 +213,7 @@ export function KnowledgeUpload({
                   setItems((prev) => prev.filter((i) => i.id !== item.id))
                 }
                 className="shrink-0 rounded-full p-1 text-[var(--isalwa-slate)]/40 transition-colors hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-slate)]/80"
-                aria-label="Ocultar de la lista"
+                aria-label={t("knowledgeUpload.hideFromList")}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>

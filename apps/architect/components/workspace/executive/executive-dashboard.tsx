@@ -11,6 +11,7 @@ import {
   StillLearningList,
 } from "@/components/workspace/executive/readiness-panel";
 import { SectionShell, type SectionTone } from "@/components/workspace/section-shell";
+import { t as translate, useTranslations } from "@/lib/i18n";
 import {
   healthStatusLabel,
   maturityLabel,
@@ -53,6 +54,7 @@ export function ExecutiveDashboard({
   /** Short Spanish evidence chips (e.g. "4 reuniones") for the understanding meter. */
   evidenceChips?: string[];
 }) {
+  const { t } = useTranslations();
   const cockpitRecs = explainedRecommendations
     .filter((r) => r.priority === "now" || r.priority === "next")
     .slice(0, 3);
@@ -68,8 +70,8 @@ export function ExecutiveDashboard({
       {/* 2 · Business Understanding — progress */}
       <BriefingSection
         tone="health"
-        kicker="2 · Comprensión del negocio"
-        title="Qué tan bien entendemos el negocio"
+        kicker={t("executiveDashboard.understanding.kicker")}
+        title={t("executiveDashboard.understanding.title")}
         description={cockpit.dailySummary}
       >
         <Card className="border-[var(--isalwa-tint-teal-border)]/60 bg-white/85 px-6 py-6 shadow-none">
@@ -89,7 +91,9 @@ export function ExecutiveDashboard({
 
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <Card className="border-[var(--isalwa-tint-blue-border)]/70 bg-white/85 px-5 py-5 shadow-[var(--isalwa-shadow-resting)]">
-            <p className="isalwa-kicker isalwa-ink-blue">Salud del negocio</p>
+            <p className="isalwa-kicker isalwa-ink-blue">
+              {t("executiveDashboard.understanding.businessHealth")}
+            </p>
             <p className="architect-serif mt-3 text-4xl text-[var(--isalwa-kiln)]">
               {cockpit.score.overall}
             </p>
@@ -104,11 +108,11 @@ export function ExecutiveDashboard({
             </div>
           </Card>
           <MetricTile
-            label="Madurez operativa"
+            label={t("executiveDashboard.understanding.operatingMaturity")}
             value={maturityLabel(model.maturity, "percent")}
           />
           <MetricTile
-            label="Calidad de la evidencia"
+            label={t("executiveDashboard.understanding.evidenceQuality")}
             value={
               model.consultingConfidence != null
                 ? recommendationStrength(model.consultingConfidence).replace(
@@ -128,8 +132,8 @@ export function ExecutiveDashboard({
         {/* Secondary detail — department-level and dimension-level understanding. */}
         <div className="mt-8 space-y-6 border-t border-[var(--isalwa-mist)]/60 pt-6">
           <SecondarySubsection
-            title="Salud por departamento"
-            hint="Qué tan sólida se ve la operación de cada área, según la madurez y los problemas detectados en el diagnóstico."
+            title={t("executiveDashboard.understanding.departmentHealthTitle")}
+            hint={t("executiveDashboard.understanding.departmentHealthHint")}
           >
             {cockpit.departmentHealth.length === 0 ? (
               <EmptyHint />
@@ -161,16 +165,16 @@ export function ExecutiveDashboard({
           </SecondarySubsection>
 
           <SecondarySubsection
-            title="Qué entendemos de cada área"
-            hint="Dónde ya podemos recomendar con seguridad y dónde seguimos aprendiendo."
+            title={t("executiveDashboard.understanding.byAreaTitle")}
+            hint={t("executiveDashboard.understanding.byAreaHint")}
           >
             <ReadinessTopicList topics={readiness.topics} />
           </SecondarySubsection>
 
           {cockpit.businessHealth.gauges.length > 0 ? (
             <SecondarySubsection
-              title="Indicadores de salud"
-              hint="Salud relativa de cada área del negocio — Saludable, Requiere atención o Crítico."
+              title={t("executiveDashboard.understanding.healthGaugesTitle")}
+              hint={t("executiveDashboard.understanding.healthGaugesHint")}
             >
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {cockpit.businessHealth.gauges.map((g) => (
@@ -188,7 +192,9 @@ export function ExecutiveDashboard({
                 ))}
               </div>
               <p className="mt-3 text-xs text-[var(--isalwa-slate)]/80">
-                Lectura consultiva: {cockpit.businessHealth.label}
+                {t("executiveDashboard.understanding.consultingRead", {
+                  label: cockpit.businessHealth.label,
+                })}
               </p>
             </SecondarySubsection>
           ) : null}
@@ -198,8 +204,8 @@ export function ExecutiveDashboard({
       {/* 3 · What We Keep Learning — the Consultant Readiness Engine. */}
       <BriefingSection
         tone="problems"
-        kicker="3 · Qué seguimos aprendiendo"
-        title="Lo que todavía necesitamos entender"
+        kicker={t("executiveDashboard.learning.kicker")}
+        title={t("executiveDashboard.learning.title")}
         description={readiness.advice.detail}
       >
         <StillLearningList assessment={readiness} />
@@ -219,9 +225,9 @@ export function ExecutiveDashboard({
       {/* 4 · Top 3 Priorities */}
       <BriefingSection
         tone="executive"
-        kicker="4 · Prioridades principales"
-        title="Las 3 prioridades que más importan hoy"
-        description="Lo que conviene resolver primero, ordenado por urgencia."
+        kicker={t("executiveDashboard.priorities.kicker")}
+        title={t("executiveDashboard.priorities.title")}
+        description={t("executiveDashboard.priorities.description")}
       >
         {cockpitRecs.length > 0 ? (
           <div className="grid gap-3 lg:grid-cols-3">
@@ -248,7 +254,7 @@ export function ExecutiveDashboard({
         {/* Secondary — quick wins and strategic opportunities support the priorities above without competing with them. */}
         {cockpit.quickWins.length > 0 || cockpit.strategicOpportunities.length > 0 ? (
           <div className="mt-8 grid gap-6 border-t border-[var(--isalwa-mist)]/60 pt-6 sm:grid-cols-2">
-            <SecondarySubsection title="Victorias rápidas">
+            <SecondarySubsection title={t("executiveDashboard.priorities.quickWins")}>
               <CockpitList
                 items={cockpit.quickWins.map((w) => ({
                   id: w.id,
@@ -258,7 +264,7 @@ export function ExecutiveDashboard({
                 }))}
               />
             </SecondarySubsection>
-            <SecondarySubsection title="Oportunidades estratégicas">
+            <SecondarySubsection title={t("executiveDashboard.priorities.strategicOpportunities")}>
               <CockpitList
                 items={cockpit.strategicOpportunities.map((o) => ({
                   id: o.id,
@@ -275,9 +281,9 @@ export function ExecutiveDashboard({
       {/* 5 · Critical Risks */}
       <BriefingSection
         tone="risks"
-        kicker="5 · Riesgos críticos"
-        title="Lo que más nos preocupa"
-        description="Riesgos abiertos que todavía no tienen mitigación confirmada."
+        kicker={t("executiveDashboard.risks.kicker")}
+        title={t("executiveDashboard.risks.title")}
+        description={t("executiveDashboard.risks.description")}
       >
         <CockpitList
           items={cockpit.openRisks.map((r) => ({
@@ -292,9 +298,9 @@ export function ExecutiveDashboard({
       {/* 6 · Recent Discoveries */}
       <BriefingSection
         tone="problems"
-        kicker="6 · Descubrimientos recientes"
-        title="Lo que aprendimos últimamente"
-        description="Hallazgos nuevos, tal como quedaron registrados en el expediente."
+        kicker={t("executiveDashboard.discoveries.kicker")}
+        title={t("executiveDashboard.discoveries.title")}
+        description={t("executiveDashboard.discoveries.description")}
       >
         <CockpitList
           items={cockpit.recentDiscoveries.map((d) => ({
@@ -309,16 +315,16 @@ export function ExecutiveDashboard({
       {/* 7 · Roadmap Progress */}
       <BriefingSection
         tone="blueprint"
-        kicker="7 · Avance de la hoja de ruta"
-        title="Hacia dónde vamos"
+        kicker={t("executiveDashboard.roadmap.kicker")}
+        title={t("executiveDashboard.roadmap.title")}
         description={cockpit.roadmap.summary}
       >
         <ProgressCard
-          title="Avance de la hoja de ruta"
+          title={t("executiveDashboard.roadmap.progressTitle")}
           score={cockpit.roadmap.percent}
           label={
             cockpit.roadmap.totalPhases > 0
-              ? `${cockpit.roadmap.totalPhases} fases`
+              ? t("executiveDashboard.roadmap.phasesCount", { count: cockpit.roadmap.totalPhases })
               : cockpit.roadmap.summary
           }
           detail={null}
@@ -331,14 +337,14 @@ export function ExecutiveDashboard({
                 className="flex items-start gap-3 text-sm"
               >
                 <span className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                  Fase {phase.phase}
+                  {t("executiveDashboard.roadmap.phaseLabel", { number: phase.phase })}
                 </span>
                 <div>
                   <p className="text-[var(--isalwa-kiln)]">{phase.name}</p>
                   <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
                     {phase.status === "designed"
-                      ? "Enfoque inmediato"
-                      : "Planificada"}
+                      ? t("executiveDashboard.roadmap.immediateFocus")
+                      : t("executiveDashboard.roadmap.planned")}
                     {phase.modules.length > 0
                       ? ` · ${phase.modules.slice(0, 3).join(" · ")}`
                       : ""}
@@ -349,7 +355,7 @@ export function ExecutiveDashboard({
           </ol>
         ) : (
           <p className="mt-6 text-sm text-[var(--isalwa-slate)]/60">
-            Las fases aparecerán cuando el sistema recomendado tome forma.
+            {t("executiveDashboard.roadmap.empty")}
           </p>
         )}
       </BriefingSection>
@@ -357,9 +363,9 @@ export function ExecutiveDashboard({
       {/* 8 · Recommended Systems */}
       <BriefingSection
         tone="processes"
-        kicker="8 · Sistemas recomendados"
-        title="Qué deberíamos implementar"
-        description="Áreas de inversión sugeridas a partir de la evidencia reunida."
+        kicker={t("executiveDashboard.systems.kicker")}
+        title={t("executiveDashboard.systems.title")}
+        description={t("executiveDashboard.systems.description")}
       >
         {model.investmentAreas.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
@@ -373,22 +379,27 @@ export function ExecutiveDashboard({
             ))}
           </ul>
         ) : (
-          <EmptyHint text="Las recomendaciones de sistemas aparecen cuando el diseño toma forma." />
+          <EmptyHint text={t("executiveDashboard.systems.empty")} />
         )}
 
         <div className="mt-8 grid gap-3 border-t border-[var(--isalwa-mist)]/60 pt-6 sm:grid-cols-2">
           <ProgressCard
-            title="Avance de automatización"
+            title={t("executiveDashboard.systems.automationProgress")}
             score={cockpit.automation.score}
             label={cockpit.automation.label}
             detail={
               cockpit.automation.candidateCount > 0
-                ? `${cockpit.automation.candidateCount} candidato${cockpit.automation.candidateCount === 1 ? "" : "s"}`
+                ? t(
+                    cockpit.automation.candidateCount === 1
+                      ? "executiveDashboard.systems.candidateOne"
+                      : "executiveDashboard.systems.candidateMany",
+                    { count: cockpit.automation.candidateCount },
+                  )
                 : cockpit.automation.highlights[0] ?? null
             }
           />
           <ProgressCard
-            title="Preparación para IA"
+            title={t("executiveDashboard.systems.aiReadiness")}
             score={cockpit.aiReadiness.score}
             label={cockpit.aiReadiness.label}
             detail={cockpit.aiReadiness.blockers[0] ?? null}
@@ -471,9 +482,10 @@ function MetricTile({
 }
 
 function EmptyHint({ text }: { text?: string }) {
+  const { t } = useTranslations();
   return (
     <p className="text-sm text-[var(--isalwa-slate)]/60">
-      {text ?? "Aparecerá a medida que crezca la evidencia…"}
+      {text ?? t("executiveDashboard.empty")}
     </p>
   );
 }
@@ -542,11 +554,11 @@ function ProgressCard({
 function urgencyLabel(u: "now" | "next" | "later"): string {
   switch (u) {
     case "now":
-      return "Ahora";
+      return translate("executiveDashboard.urgency.now");
     case "next":
-      return "Siguiente";
+      return translate("executiveDashboard.urgency.next");
     default:
-      return "Más adelante";
+      return translate("executiveDashboard.urgency.later");
   }
 }
 

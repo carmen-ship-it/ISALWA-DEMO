@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { BLUEPRINT_FUTURE_OUTPUTS, latestBlueprint } from "@/lib/blueprint";
+import { t, useTranslations } from "@/lib/i18n";
 import {
   actorNameLabel,
   capabilityPurposeLabel,
@@ -27,9 +28,9 @@ import { formatRelativeActivity } from "@/lib/workspace";
 import type { BusinessBlueprint } from "@/types";
 
 function blueprintRevisionLabel(indexFromNewest: number): string {
-  if (indexFromNewest === 0) return "Actual";
-  if (indexFromNewest === 1) return "Anterior";
-  return `Más antigua · ${indexFromNewest}`;
+  if (indexFromNewest === 0) return t("businessBlueprintPanel.revisionCurrent");
+  if (indexFromNewest === 1) return t("businessBlueprintPanel.revisionPrevious");
+  return t("businessBlueprintPanel.revisionOlder", { index: indexFromNewest });
 }
 
 export function BusinessBlueprintPanel({
@@ -37,6 +38,7 @@ export function BusinessBlueprintPanel({
 }: {
   blueprints: BusinessBlueprint[];
 }) {
+  const { t } = useTranslations();
   const sorted = [...blueprints].sort((a, b) => b.version - a.version);
   const current = latestBlueprint(sorted);
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -49,9 +51,7 @@ export function BusinessBlueprintPanel({
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]">
-          El plan operativo del negocio aparece cuando el descubrimiento
-          produce suficiente comprensión estructurada. Se convierte en la base
-          de los mapas de procesos, las propuestas y la configuración futura.
+          {t("businessBlueprintPanel.empty")}
         </p>
       </Card>
     );
@@ -61,14 +61,17 @@ export function BusinessBlueprintPanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Cómo funciona su empresa
+          {t("businessBlueprintPanel.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
           {selected.title}
         </h3>
         <p className="mt-3 text-[var(--isalwa-slate)]">{selected.summary}</p>
         <p className="mt-4 text-sm text-[var(--isalwa-slate)]/60">
-          {selected.superseded ? "Revisión anterior" : "Lectura actual"} ·{" "}
+          {selected.superseded
+            ? t("businessBlueprintPanel.supersededReading")
+            : t("businessBlueprintPanel.currentReading")}{" "}
+          ·{" "}
           {formatRelativeActivity(selected.generatedAt)}
         </p>
       </Card>
@@ -76,7 +79,7 @@ export function BusinessBlueprintPanel({
       {sorted.length > 1 ? (
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-            Revisiones
+            {t("businessBlueprintPanel.revisions")}
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {sorted.map((blueprint, index) => (
@@ -96,36 +99,35 @@ export function BusinessBlueprintPanel({
             ))}
           </ul>
           <p className="mt-2 text-xs text-[var(--isalwa-slate)]/60">
-            Las lecturas anteriores se conservan — el descubrimiento nunca
-            sobrescribe hallazgos previos.
+            {t("businessBlueprintPanel.revisionsHint")}
           </p>
         </div>
       ) : null}
 
-      <BlueprintBlock title="Cómo opera hoy">
+      <BlueprintBlock title={t("businessBlueprintPanel.howItOperatesToday")}>
         <p>{selected.currentState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Cómo debería operar">
+      <BlueprintBlock title={t("businessBlueprintPanel.howItShouldOperate")}>
         <p>{selected.futureState}</p>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Camino de transformación">
+      <BlueprintBlock title={t("businessBlueprintPanel.transformationPath")}>
         <ArchitectureLine
-          label="Hoy"
+          label={t("businessBlueprintPanel.today")}
           summary={selected.futureArchitecture.current.summary}
         />
         <ArchitectureLine
-          label="Transición"
+          label={t("businessBlueprintPanel.transition")}
           summary={selected.futureArchitecture.transition.summary}
         />
         <ArchitectureLine
-          label="Futuro"
+          label={t("businessBlueprintPanel.future")}
           summary={selected.futureArchitecture.future.summary}
         />
       </BlueprintBlock>
 
-      <BlueprintBlock title="Capacidades">
+      <BlueprintBlock title={t("businessBlueprintPanel.capabilities")}>
         <ul className="space-y-4">
           {selected.capabilities.map((cap) => (
             <li key={cap.id}>
@@ -135,7 +137,9 @@ export function BusinessBlueprintPanel({
               </p>
               {cap.painPoints.length > 0 ? (
                 <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-                  Fricción: {cap.painPoints.slice(0, 2).join(" · ")}
+                  {t("businessBlueprintPanel.frictionPrefix", {
+                    items: cap.painPoints.slice(0, 2).join(" · "),
+                  })}
                 </p>
               ) : null}
             </li>
@@ -143,7 +147,7 @@ export function BusinessBlueprintPanel({
         </ul>
       </BlueprintBlock>
 
-      <BlueprintBlock title="Departamentos">
+      <BlueprintBlock title={t("businessBlueprintPanel.departments")}>
         <p className="text-[var(--isalwa-slate)]">
           {selected.departments.map((d) => departmentLabel(d.name)).join(" · ") ||
             "—"}
@@ -151,18 +155,16 @@ export function BusinessBlueprintPanel({
       </BlueprintBlock>
 
       <ExecutiveDetail
-        labelExpand="Ver flujos de trabajo y detalle operativo"
-        labelCollapse="Ocultar flujos de trabajo y detalle operativo"
+        labelExpand={t("businessBlueprintPanel.expandWorkflows")}
+        labelCollapse={t("businessBlueprintPanel.collapseWorkflows")}
         summary={
           <p className="text-sm text-[var(--isalwa-slate)]">
-            Flujos de trabajo clave, reglas de operación, sistemas en uso y
-            áreas de oportunidad — disponible cuando necesite el respaldo
-            completo.
+            {t("businessBlueprintPanel.workflowsSummary")}
           </p>
         }
       >
         <div className="space-y-8">
-          <BlueprintBlock title="Flujos de trabajo">
+          <BlueprintBlock title={t("businessBlueprintPanel.workflows")}>
             <ul className="space-y-5">
               {selected.workflows.map((workflow) => (
                 <li key={workflow.id}>
@@ -170,7 +172,9 @@ export function BusinessBlueprintPanel({
                     {workflowNameLabel(workflow.name)}
                   </p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-                    Comienza cuando: {triggerLabel(workflow.trigger)}
+                    {t("businessBlueprintPanel.startsWhen", {
+                      trigger: triggerLabel(workflow.trigger),
+                    })}
                   </p>
                   <ol className="mt-3 space-y-2">
                     {workflow.steps.map((step, index) => (
@@ -184,7 +188,7 @@ export function BusinessBlueprintPanel({
                           <span className="text-[var(--isalwa-slate)]/60">
                             {" "}
                             · {actorNameLabel(step.actor)}
-                            {step.manual ? " · manual" : ""}
+                            {step.manual ? t("businessBlueprintPanel.manualSuffix") : ""}
                           </span>
                         </span>
                       </li>
@@ -195,7 +199,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Información central del negocio">
+          <BlueprintBlock title={t("businessBlueprintPanel.coreBusinessInfo")}>
             <ul className="flex flex-wrap gap-2">
               {selected.entities.map((entity) => (
                 <li
@@ -208,7 +212,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Reglas de operación">
+          <BlueprintBlock title={t("businessBlueprintPanel.operatingRules")}>
             <ul className="space-y-2">
               {selected.operatingRules.map((rule) => (
                 <li key={rule.id} className="text-[var(--isalwa-slate)]">
@@ -218,7 +222,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Sistemas en uso">
+          <BlueprintBlock title={t("businessBlueprintPanel.systemsInUse")}>
             <ul className="space-y-4">
               {selected.systems.map((system) => (
                 <li key={system.id}>
@@ -227,15 +231,16 @@ export function BusinessBlueprintPanel({
                     {systemPurposeLabel(system.name, system.purpose)}
                   </p>
                   <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-                    Enfoque de reemplazo:{" "}
-                    {replacementStrategyLabel(system.replacementStrategy)}
+                    {t("businessBlueprintPanel.replacementApproach", {
+                      strategy: replacementStrategyLabel(system.replacementStrategy),
+                    })}
                   </p>
                 </li>
               ))}
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Puntos de dolor">
+          <BlueprintBlock title={t("businessBlueprintPanel.painPoints")}>
             <ul className="space-y-2">
               {selected.painPoints.map((pain) => (
                 <li key={pain.id} className="flex gap-3 text-sm">
@@ -248,7 +253,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Oportunidades">
+          <BlueprintBlock title={t("businessBlueprintPanel.opportunities")}>
             <ul className="space-y-3">
               {selected.opportunities.map((opp) => (
                 <li key={opp.id}>
@@ -266,20 +271,20 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Capacidades recomendadas">
+          <BlueprintBlock title={t("businessBlueprintPanel.recommendedCapabilities")}>
             <p className="text-[var(--isalwa-slate)]">
               {selected.modules.map((m) => moduleLabel(m.name)).join(" · ") ||
                 "—"}
             </p>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Preguntas abiertas">
+          <BlueprintBlock title={t("businessBlueprintPanel.openQuestions")}>
             <p className="text-[var(--isalwa-slate)]">
-              {selected.openQuestions.join(" · ") || "Ninguna registrada."}
+              {selected.openQuestions.join(" · ") || t("businessBlueprintPanel.noneRegistered")}
             </p>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Fuentes consultadas">
+          <BlueprintBlock title={t("businessBlueprintPanel.sourcesConsulted")}>
             <ul className="flex flex-wrap gap-2">
               {selected.evidence.slice(0, 10).map((ref) => (
                 <li
@@ -292,7 +297,7 @@ export function BusinessBlueprintPanel({
             </ul>
           </BlueprintBlock>
 
-          <BlueprintBlock title="Documentación futura">
+          <BlueprintBlock title={t("businessBlueprintPanel.futureDocumentation")}>
             <ul className="grid gap-2 sm:grid-cols-2">
               {BLUEPRINT_FUTURE_OUTPUTS.map((output) => (
                 <li

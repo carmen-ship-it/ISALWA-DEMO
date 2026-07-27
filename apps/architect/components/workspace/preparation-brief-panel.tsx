@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { t, useTranslations } from "@/lib/i18n";
 import {
   coverageBand,
   coverageBandLabelEs,
@@ -100,7 +101,7 @@ function PersonCard({ person }: { person: Person }) {
       <p className="font-medium text-[var(--isalwa-kiln)]">{person.name}</p>
       <p className="mt-0.5 text-sm text-[var(--isalwa-slate)]/80">
         {[person.role, person.department].filter(Boolean).join(" · ") ||
-          "Rol no registrado"}
+          t("preparationBriefPanel.roleNotRegistered")}
       </p>
     </div>
   );
@@ -120,13 +121,25 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
       ) : null}
       <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--isalwa-slate)]/80">
         {meeting.participants.length > 0 ? (
-          <span>Asistentes: {meeting.participants.join(", ")}</span>
+          <span>
+            {t("preparationBriefPanel.attendees", {
+              names: meeting.participants.join(", "),
+            })}
+          </span>
         ) : null}
         {meeting.discoveries.length > 0 ? (
-          <span>{meeting.discoveries.length} hallazgos</span>
+          <span>
+            {t("preparationBriefPanel.discoveriesCount", {
+              count: meeting.discoveries.length,
+            })}
+          </span>
         ) : null}
         {meeting.questionsRemaining.length > 0 ? (
-          <span>{meeting.questionsRemaining.length} preguntas pendientes</span>
+          <span>
+            {t("preparationBriefPanel.questionsRemainingCount", {
+              count: meeting.questionsRemaining.length,
+            })}
+          </span>
         ) : null}
       </div>
     </div>
@@ -157,6 +170,7 @@ export function PreparationBriefPanel({
   workspace: CompanyWorkspace;
   interviewHref: string;
 }) {
+  const { t } = useTranslations();
   const prep = prepareCompany(workspace);
   const briefing = buildResumeBriefing(workspace);
   const contradictions = workspace.conversationMemory?.contradictions ?? [];
@@ -170,24 +184,30 @@ export function PreparationBriefPanel({
       <SectionShell
         tone="executive"
         icon={Building2}
-        kicker="Brief de preparación · Solo consultores"
-        title={`Antes de reunirse con ${workspace.companyName}`}
+        kicker={t("preparationBriefPanel.kicker")}
+        title={t("preparationBriefPanel.titleBefore", { company: workspace.companyName })}
         description={prep.interviewOpening}
       >
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Comprensión previa: {prep.confidence.approximatePercent}% ·{" "}
-            {understandingLevel(prep.confidence.approximatePercent).toLowerCase()}
+            {t("preparationBriefPanel.priorUnderstanding", {
+              percent: prep.confidence.approximatePercent,
+              level: understandingLevel(prep.confidence.approximatePercent).toLowerCase(),
+            })}
           </span>
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Cobertura de información: {prep.coverage.averagePercent}% ·{" "}
-            {coverageBandLabelEs(
-              coverageBand(prep.coverage.averagePercent, "percent"),
-            ).toLowerCase()}
+            {t("preparationBriefPanel.infoCoverage", {
+              percent: prep.coverage.averagePercent,
+              band: coverageBandLabelEs(
+                coverageBand(prep.coverage.averagePercent, "percent"),
+              ).toLowerCase(),
+            })}
           </span>
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
-            Duración estimada: {briefing.estimatedMinutesRemaining} minutos
+            {t("preparationBriefPanel.estimatedDuration", {
+              minutes: briefing.estimatedMinutesRemaining,
+            })}
           </span>
         </div>
         <p className="mt-4 max-w-2xl text-sm text-[var(--isalwa-slate)]/80">
@@ -197,7 +217,7 @@ export function PreparationBriefPanel({
         <div className="mt-6">
           <Button asChild size="lg">
             <Link href={interviewHref}>
-              Iniciar entrevista
+              {t("preparationBriefPanel.startInterview")}
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
             </Link>
           </Button>
@@ -207,19 +227,19 @@ export function PreparationBriefPanel({
       <SectionShell
         tone="health"
         icon={Sparkles}
-        kicker="Resumen de la empresa"
-        title="Lo que ya sabemos"
-        description="Hechos ya registrados en la memoria de la empresa, el Centro de Conocimiento y reuniones previas."
+        kicker={t("preparationBriefPanel.companySummaryKicker")}
+        title={t("preparationBriefPanel.whatWeKnow")}
+        description={t("preparationBriefPanel.whatWeKnowDescription")}
       >
         {prep.alreadyKnown.length === 0 ? (
-          <EmptyLine text="Todavía no hay hechos registrados para esta empresa." />
+          <EmptyLine text={t("preparationBriefPanel.noFactsRegistered")} />
         ) : (
           <BulletList items={prep.alreadyKnown} />
         )}
         {prep.potentialQuickWins.length > 0 ? (
           <div className="mt-5 space-y-2">
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
-              Quick wins potenciales
+              {t("preparationBriefPanel.potentialQuickWins")}
             </p>
             <ChipRow items={prep.potentialQuickWins} />
           </div>
@@ -227,7 +247,7 @@ export function PreparationBriefPanel({
         {prep.potentialMissingSystems.length > 0 ? (
           <div className="mt-5 space-y-2">
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/80">
-              Posibles brechas de sistemas
+              {t("preparationBriefPanel.potentialMissingSystems")}
             </p>
             <ChipRow items={prep.potentialMissingSystems} />
           </div>
@@ -238,12 +258,12 @@ export function PreparationBriefPanel({
         <SectionShell
           tone="neutral"
           icon={Users}
-          kicker="Asistentes"
-          title="Personas que participan"
+          kicker={t("preparationBriefPanel.attendeesKicker")}
+          title={t("preparationBriefPanel.peopleInvolved")}
           className="sm:px-6 sm:py-6"
         >
           {people.length === 0 ? (
-            <EmptyLine text="Aún no hemos registrado personas para esta empresa." />
+            <EmptyLine text={t("preparationBriefPanel.noPeopleRegistered")} />
           ) : (
             <div className="space-y-2">
               {people.map((person) => (
@@ -256,12 +276,12 @@ export function PreparationBriefPanel({
         <SectionShell
           tone="deliverables"
           icon={Clock3}
-          kicker="Historial"
-          title="Reuniones anteriores"
+          kicker={t("preparationBriefPanel.historyKicker")}
+          title={t("preparationBriefPanel.previousMeetings")}
           className="sm:px-6 sm:py-6"
         >
           {meetings.length === 0 ? (
-            <EmptyLine text="Esta será la primera reunión registrada con esta empresa." />
+            <EmptyLine text={t("preparationBriefPanel.firstMeeting")} />
           ) : (
             <div className="space-y-2">
               {meetings.map((meeting) => (
@@ -276,13 +296,13 @@ export function PreparationBriefPanel({
         <SectionShell
           tone="problems"
           icon={HelpCircle}
-          kicker="Por validar"
-          title="Preguntas abiertas"
-          description="Temas que la entrevista debe aclarar."
+          kicker={t("preparationBriefPanel.toValidateKicker")}
+          title={t("preparationBriefPanel.openQuestions")}
+          description={t("preparationBriefPanel.openQuestionsDescription")}
           className="sm:px-6 sm:py-6"
         >
           {prep.questionsToValidate.length === 0 ? (
-            <EmptyLine text="No hay preguntas pendientes de validar por ahora." />
+            <EmptyLine text={t("preparationBriefPanel.noQuestionsPending")} />
           ) : (
             <BulletList items={prep.questionsToValidate} tone="problem" />
           )}
@@ -291,13 +311,13 @@ export function PreparationBriefPanel({
         <SectionShell
           tone="risks"
           icon={ShieldAlert}
-          kicker="Riesgos"
-          title="Riesgos conocidos"
-          description="Riesgos detectados por la inteligencia de consultoría y los dolores reportados."
+          kicker={t("preparationBriefPanel.risksKicker")}
+          title={t("preparationBriefPanel.knownRisks")}
+          description={t("preparationBriefPanel.knownRisksDescription")}
           className="sm:px-6 sm:py-6"
         >
           {prep.likelyRisks.length === 0 ? (
-            <EmptyLine text="Aún no se han detectado riesgos." />
+            <EmptyLine text={t("preparationBriefPanel.noRisksDetected")} />
           ) : (
             <BulletList items={prep.likelyRisks} tone="risk" />
           )}
@@ -307,12 +327,12 @@ export function PreparationBriefPanel({
       <SectionShell
         tone="risks"
         icon={GitCompareArrows}
-        kicker="Contradicciones"
-        title="Puntos que requieren aclaración"
-        description="Información que no coincide entre sí — lenguaje siempre neutral, nunca acusatorio."
+        kicker={t("preparationBriefPanel.contradictionsKicker")}
+        title={t("preparationBriefPanel.pointsNeedingClarification")}
+        description={t("preparationBriefPanel.pointsNeedingClarificationDescription")}
       >
         {contradictions.length === 0 ? (
-          <EmptyLine text="No se detectaron contradicciones en la información disponible." />
+          <EmptyLine text={t("preparationBriefPanel.noContradictions")} />
         ) : (
           <div className="space-y-2">
             {contradictions.map((item) => (
@@ -325,12 +345,12 @@ export function PreparationBriefPanel({
       <SectionShell
         tone="blueprint"
         icon={ListOrdered}
-        kicker="Agenda sugerida"
-        title="Orden recomendado para la reunión"
-        description="Áreas con menor cobertura de información — conviene cubrirlas primero."
+        kicker={t("preparationBriefPanel.suggestedAgendaKicker")}
+        title={t("preparationBriefPanel.recommendedMeetingOrder")}
+        description={t("preparationBriefPanel.recommendedMeetingOrderDescription")}
       >
         {prep.departmentsRequiringAttention.length === 0 ? (
-          <EmptyLine text="La cobertura actual es suficiente — puede seguir el interés del cliente." />
+          <EmptyLine text={t("preparationBriefPanel.sufficientCoverage")} />
         ) : (
           <ol className="space-y-2">
             {prep.departmentsRequiringAttention.map((item, index) => (
@@ -351,28 +371,28 @@ export function PreparationBriefPanel({
       <SectionShell
         tone="problems"
         icon={AlertTriangle}
-        kicker="Prioridad"
-        title="Incógnitas prioritarias"
-        description="Áreas desconocidas que más afectan la comprensión del negocio."
+        kicker={t("preparationBriefPanel.priorityKicker")}
+        title={t("preparationBriefPanel.priorityUnknowns")}
+        description={t("preparationBriefPanel.priorityUnknownsDescription")}
       >
         {prep.unknownAreas.length === 0 ? (
-          <EmptyLine text="No hay incógnitas prioritarias registradas." />
+          <EmptyLine text={t("preparationBriefPanel.noPriorityUnknowns")} />
         ) : (
           <BulletList items={prep.unknownAreas} tone="problem" />
         )}
       </SectionShell>
 
-      <SectionShell tone="health" title="¿Listo para reunirse?">
+      <SectionShell tone="health" title={t("preparationBriefPanel.readyToMeet")}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button asChild size="lg">
             <Link href={interviewHref}>
-              Iniciar entrevista
+              {t("preparationBriefPanel.startInterview")}
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg">
             <Link href={`/workspace/${workspace.id}`}>
-              Volver al espacio de trabajo
+              {t("preparationBriefPanel.backToWorkspace")}
             </Link>
           </Button>
         </div>

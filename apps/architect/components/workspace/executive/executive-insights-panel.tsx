@@ -15,6 +15,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
+import { useTranslations } from "@/lib/i18n";
 import { formatTimelineDate } from "@/lib/timeline";
 import { cn } from "@/lib/utils";
 import type {
@@ -94,16 +95,15 @@ export function ExecutiveInsightsPanel({
 }: {
   insights: ExecutiveInsights;
 }) {
+  const { t } = useTranslations();
   if (insights.isEarlyStage) {
     return (
       <Card className="px-6 py-8 text-center">
         <p className="architect-serif text-2xl text-[var(--isalwa-kiln)]">
-          Las perspectivas ejecutivas aparecen con la primera evidencia.
+          {t("executiveInsightsPanel.earlyStageTitle")}
         </p>
         <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Continúe el diagnóstico o suba conocimiento del negocio — en cuanto
-          haya hechos y hallazgos, esta área se llena con observaciones
-          respaldadas, nunca con relleno genérico.
+          {t("executiveInsightsPanel.earlyStageDescription")}
         </p>
       </Card>
     );
@@ -115,13 +115,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Brain}
-          kicker="ADN del negocio"
-          title="Cómo se comporta esta empresa"
-          description="Siete rasgos deducidos de la evidencia recogida — nunca supuestos genéricos de industria."
+          kicker={t("executiveInsightsPanel.dna.kicker")}
+          title={t("executiveInsightsPanel.dna.title")}
+          description={t("executiveInsightsPanel.dna.description")}
         />
         {insights.businessDna.length === 0 ? (
           <EmptyNote>
-            Aún no hay suficiente evidencia para describir el ADN del negocio.
+            {t("executiveInsightsPanel.dna.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -142,7 +142,7 @@ export function ExecutiveInsightsPanel({
                       )}
                       aria-hidden
                     />
-                    {trait.strength}
+                    {t(`executiveInsightsPanel.strength.${trait.strength}`)}
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
@@ -159,13 +159,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Eye}
-          kicker="Puntos ciegos"
-          title="Lo que la empresa probablemente no ve"
-          description="No son riesgos ni recomendaciones — son cosas que probablemente nadie ha nombrado todavía."
+          kicker={t("executiveInsightsPanel.blindSpots.kicker")}
+          title={t("executiveInsightsPanel.blindSpots.title")}
+          description={t("executiveInsightsPanel.blindSpots.description")}
         />
         {insights.blindSpots.length === 0 ? (
           <EmptyNote>
-            Por ahora no detectamos puntos ciegos claros con la evidencia disponible.
+            {t("executiveInsightsPanel.blindSpots.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 space-y-3">
@@ -179,7 +179,7 @@ export function ExecutiveInsightsPanel({
                   {spot.observation}
                 </p>
                 <p className="mt-2 text-xs uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/60">
-                  Por qué importa
+                  {t("executiveInsightsPanel.blindSpots.whyItMatters")}
                 </p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{spot.whyItMatters}</p>
                 <EvidenceList evidence={spot.evidence} />
@@ -193,13 +193,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Users}
-          kicker="Próxima conversación"
-          title="¿Con quién deberíamos hablar ahora?"
-          description="La persona (o el rol) que puede cerrar el vacío de evidencia más grande hoy."
+          kicker={t("executiveInsightsPanel.nextConversations.kicker")}
+          title={t("executiveInsightsPanel.nextConversations.title")}
+          description={t("executiveInsightsPanel.nextConversations.description")}
         />
         {insights.nextConversations.length === 0 ? (
           <EmptyNote>
-            La cobertura actual no muestra un vacío claro — buena señal.
+            {t("executiveInsightsPanel.nextConversations.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 space-y-3">
@@ -213,7 +213,9 @@ export function ExecutiveInsightsPanel({
                     {next.personName ?? next.roleHint}
                   </p>
                   <span className="text-[11px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/80">
-                    Ganancia de información: {next.infoGainLabel}
+                    {t("executiveInsightsPanel.nextConversations.infoGain", {
+                      label: next.infoGainLabel,
+                    })}
                   </span>
                 </div>
                 {next.departmentHint ? (
@@ -235,13 +237,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Sparkles}
-          kicker="Hallazgos"
-          title="Tres cosas que nos sorprendieron"
-          description="Observaciones que se salen de lo esperado — cada una con su evidencia."
+          kicker={t("executiveInsightsPanel.surprises.kicker")}
+          title={t("executiveInsightsPanel.surprises.title")}
+          description={t("executiveInsightsPanel.surprises.description")}
         />
         {insights.surprises.length === 0 ? (
           <EmptyNote>
-            Aún no hay hallazgos que se distingan claramente de lo esperado.
+            {t("executiveInsightsPanel.surprises.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -251,7 +253,7 @@ export function ExecutiveInsightsPanel({
                 className="rounded-2xl border border-[var(--isalwa-tint-amber-border)]/80 bg-[var(--isalwa-tint-amber)]/40 px-4 py-4"
               >
                 <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-tint-amber-ink)]">
-                  Hallazgo {i + 1}
+                  {t("executiveInsightsPanel.surprises.findingNumber", { number: i + 1 })}
                 </p>
                 <p className="mt-1.5 text-sm font-medium text-[var(--isalwa-kiln)]">
                   {surprise.title}
@@ -270,13 +272,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Network}
-          kicker="Memoria institucional"
-          title="Por qué creemos lo que recomendamos"
-          description="Cada recomendación expandida: por qué la creemos y el camino de evidencia que la sostiene."
+          kicker={t("executiveInsightsPanel.institutionalMemory.kicker")}
+          title={t("executiveInsightsPanel.institutionalMemory.title")}
+          description={t("executiveInsightsPanel.institutionalMemory.description")}
         />
         {insights.institutionalMemory.length === 0 ? (
           <EmptyNote>
-            Las recomendaciones aún no tienen suficiente respaldo para expandir su memoria.
+            {t("executiveInsightsPanel.institutionalMemory.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 space-y-4">
@@ -288,8 +290,8 @@ export function ExecutiveInsightsPanel({
                     {entry.recommendationTitle}
                   </p>
                 }
-                labelExpand="Ver por qué lo creemos"
-                labelCollapse="Ocultar"
+                labelExpand={t("executiveInsightsPanel.institutionalMemory.expand")}
+                labelCollapse={t("executiveInsightsPanel.institutionalMemory.collapse")}
                 className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-4"
               >
                 <div className="space-y-3">
@@ -301,7 +303,7 @@ export function ExecutiveInsightsPanel({
                   {entry.evidenceQuotes.length > 0 ? (
                     <div>
                       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                        Evidencia
+                        {t("executiveInsightsPanel.institutionalMemory.evidenceLabel")}
                       </p>
                       <ul className="mt-1.5 space-y-1">
                         {entry.evidenceQuotes.map((q, i) => (
@@ -337,9 +339,9 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={TrendingUp}
-          kicker="Evolución del negocio"
-          title="Cómo mejoró nuestra comprensión"
-          description="Nunca borramos lo anterior — esto muestra cómo creció el conocimiento visita tras visita."
+          kicker={t("executiveInsightsPanel.evolution.kicker")}
+          title={t("executiveInsightsPanel.evolution.title")}
+          description={t("executiveInsightsPanel.evolution.description")}
         />
         <p className="mt-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {insights.businessEvolution.narrative}
@@ -374,13 +376,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Compass}
-          kicker="Preparación futura"
-          title="Dónde se atorará el crecimiento"
-          description="Predicciones respaldadas por evidencia sobre lo que se romperá primero al crecer — con el porqué."
+          kicker={t("executiveInsightsPanel.futureReadiness.kicker")}
+          title={t("executiveInsightsPanel.futureReadiness.title")}
+          description={t("executiveInsightsPanel.futureReadiness.description")}
         />
         {insights.futureReadiness.length === 0 ? (
           <EmptyNote>
-            No hay suficientes patrones de riesgo para proyectar dónde se atorará el crecimiento.
+            {t("executiveInsightsPanel.futureReadiness.empty")}
           </EmptyNote>
         ) : (
           <div className="mt-5 space-y-3">
@@ -398,7 +400,9 @@ export function ExecutiveInsightsPanel({
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                  <span className="text-[var(--isalwa-slate)]/60">Por qué: </span>
+                  <span className="text-[var(--isalwa-slate)]/60">
+                    {t("executiveInsightsPanel.futureReadiness.whyPrefix")}
+                  </span>
                   {prediction.why}
                 </p>
                 <EvidenceList evidence={prediction.evidence} />
@@ -412,9 +416,9 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Network}
-          kicker="Concentración de conocimiento"
-          title="Dónde vive el conocimiento hoy"
-          description="Quién sostiene qué — y dónde ese conocimiento depende de una sola persona."
+          kicker={t("executiveInsightsPanel.knowledgeConcentration.kicker")}
+          title={t("executiveInsightsPanel.knowledgeConcentration.title")}
+          description={t("executiveInsightsPanel.knowledgeConcentration.description")}
         />
         <p className="mt-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {insights.knowledgeConcentration.headline}
@@ -428,14 +432,18 @@ export function ExecutiveInsightsPanel({
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                    {node.kind === "sin_dueño_claro" ? `${node.holder} · sin dueño` : node.holder}
+                    {node.kind === "sin_dueño_claro"
+                      ? t("executiveInsightsPanel.knowledgeConcentration.noOwner", {
+                          holder: node.holder,
+                        })
+                      : node.holder}
                   </p>
                   <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/60">
                     <span
                       className={cn("h-1.5 w-1.5 rounded-full", RISK_DOT[node.concentrationRisk])}
                       aria-hidden
                     />
-                    {node.concentrationRisk}
+                    {t(`executiveInsightsPanel.risk.${node.concentrationRisk}`)}
                   </span>
                 </div>
                 <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]">
@@ -451,13 +459,13 @@ export function ExecutiveInsightsPanel({
       <Card className="px-5 py-6 sm:px-7 sm:py-7">
         <GroupHeader
           icon={Clock}
-          kicker="Lo que aprendimos"
-          title="Bitácora de inteligencia de negocio"
-          description="Un flujo de lo que fuimos aprendiendo, en orden — sin editar el pasado."
+          kicker={t("executiveInsightsPanel.learnedTimeline.kicker")}
+          title={t("executiveInsightsPanel.learnedTimeline.title")}
+          description={t("executiveInsightsPanel.learnedTimeline.description")}
         />
         {insights.learnedTimeline.length === 0 ? (
           <EmptyNote>
-            Aún no hay suficiente actividad registrada para armar la bitácora.
+            {t("executiveInsightsPanel.learnedTimeline.empty")}
           </EmptyNote>
         ) : (
           <ol className="mt-4 space-y-3">
@@ -469,7 +477,9 @@ export function ExecutiveInsightsPanel({
                   </p>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                      Aprendimos: {entry.headline}
+                      {t("executiveInsightsPanel.learnedTimeline.learnedPrefix", {
+                        headline: entry.headline,
+                      })}
                     </p>
                     <p className="text-sm text-[var(--isalwa-slate)]">{entry.detail}</p>
                   </div>

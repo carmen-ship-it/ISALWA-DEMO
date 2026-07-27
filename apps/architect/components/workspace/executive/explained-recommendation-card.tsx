@@ -10,6 +10,7 @@ import {
   BeatSubLabel,
   StoryBeats,
 } from "@/components/workspace/story-beat";
+import { useTranslations } from "@/lib/i18n";
 import {
   priorityLabelEs,
   roiBandLabelEs,
@@ -29,6 +30,7 @@ export function ExplainedRecommendationCard({
   compact?: boolean;
   className?: string;
 }) {
+  const { t } = useTranslations();
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -41,7 +43,7 @@ export function ExplainedRecommendationCard({
           <div className="min-w-0 flex-1">
             {!compact ? (
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                Recomendación
+                {t("explainedRecommendationCard.recommendationLabel")}
               </p>
             ) : null}
             <p
@@ -70,21 +72,25 @@ export function ExplainedRecommendationCard({
           )}
         >
           <span>
-            ROI{" "}
+            {t("explainedRecommendationCard.roiLabel")}{" "}
             <span className="font-medium text-[var(--isalwa-kiln)]">
               {roiBandLabelEs(explained.expectedRoi.band)}
             </span>
           </span>
           <span>
-            Evidencia{" "}
+            {t("explainedRecommendationCard.evidenceLabel")}{" "}
             <span className="font-medium text-[var(--isalwa-kiln)]">
               {explained.evidenceBasis.strengthLabel}
             </span>
           </span>
           {explained.evidence.length > 0 ? (
             <span>
-              {explained.evidence.length} evidencia
-              {explained.evidence.length === 1 ? "" : "s"}
+              {t(
+                explained.evidence.length === 1
+                  ? "explainedRecommendationCard.evidenceCountOne"
+                  : "explainedRecommendationCard.evidenceCountMany",
+                { count: explained.evidence.length },
+              )}
             </span>
           ) : null}
         </div>
@@ -99,31 +105,31 @@ export function ExplainedRecommendationCard({
         */}
         <ExecutiveDetail
           className="mt-2"
-          labelExpand="Ver justificación completa"
-          labelCollapse="Ocultar justificación"
+          labelExpand={t("explainedRecommendationCard.expandJustification")}
+          labelCollapse={t("explainedRecommendationCard.collapseJustification")}
         >
           <StoryBeats>
-            <Beat step={1} title="Qué encontramos">
+            <Beat step={1} title={t("explainedRecommendationCard.step1Title")}>
               <p>{explained.problem}</p>
             </Beat>
 
-            <Beat step={2} title="Por qué importa">
+            <Beat step={2} title={t("explainedRecommendationCard.step2Title")}>
               <p>{explained.observedPattern}</p>
             </Beat>
 
             <Beat
               step={3}
-              title="La evidencia"
-              lead="Así queda trazado en el expediente:"
+              title={t("explainedRecommendationCard.step3Title")}
+              lead={t("explainedRecommendationCard.step3Lead")}
             >
               {explained.evidence.length === 0 ? (
-                <BeatEmpty text="Aún no hay piezas de evidencia vinculadas." />
+                <BeatEmpty text={t("explainedRecommendationCard.noEvidence")} />
               ) : (
                 <ul className="space-y-1.5">
                   {explained.evidence.map((item, i) => (
                     <li key={`${item.source}-${item.id ?? item.label}-${i}`}>
                       <span className="text-[var(--isalwa-slate)]/60">
-                        [{sourceLabelEs(item.source)}]
+                        [{sourceLabel(item.source, t)}]
                       </span>{" "}
                       {item.quote ?? item.label}
                     </li>
@@ -132,7 +138,9 @@ export function ExplainedRecommendationCard({
               )}
               {explained.supportingFacts.length > 0 ? (
                 <div className="mt-3">
-                  <BeatSubLabel>Hechos de soporte</BeatSubLabel>
+                  <BeatSubLabel>
+                    {t("explainedRecommendationCard.supportingFactsLabel")}
+                  </BeatSubLabel>
                   <BeatList
                     items={explained.supportingFacts}
                     className="mt-1.5 space-y-1.5"
@@ -143,8 +151,8 @@ export function ExplainedRecommendationCard({
 
             <Beat
               step={4}
-              title="Impacto en el negocio"
-              lead="Esto es lo que cuesta hoy, o lo que deja sobre la mesa:"
+              title={t("explainedRecommendationCard.step4Title")}
+              lead={t("explainedRecommendationCard.step4Lead")}
             >
               <p>{explained.businessConsequence}</p>
               <p className="mt-2 text-[var(--isalwa-slate)]">
@@ -152,17 +160,19 @@ export function ExplainedRecommendationCard({
               </p>
             </Beat>
 
-            <Beat step={5} title="Solución recomendada">
+            <Beat step={5} title={t("explainedRecommendationCard.step5Title")}>
               <p>{explained.recommendation}</p>
             </Beat>
 
             <Beat
               step={6}
-              title="Resultado esperado"
-              lead="El retorno esperado y la evidencia que sostiene esta prioridad:"
+              title={t("explainedRecommendationCard.step6Title")}
+              lead={t("explainedRecommendationCard.step6Lead")}
             >
               <BeatSubLabel>
-                ROI {roiBandLabelEs(explained.expectedRoi.band)}
+                {t("explainedRecommendationCard.roiPrefix", {
+                  band: roiBandLabelEs(explained.expectedRoi.band),
+                })}
               </BeatSubLabel>
               <p className="mt-1.5">{explained.expectedRoi.summary}</p>
               {explained.expectedRoi.drivers.length > 0 ? (
@@ -181,11 +191,14 @@ export function ExplainedRecommendationCard({
               */}
               <div className="mt-3">
                 <BeatSubLabel>
-                  Evidencia {explained.evidenceBasis.strengthLabel}
+                  {t("explainedRecommendationCard.evidencePrefix", {
+                    strength: explained.evidenceBasis.strengthLabel,
+                  })}
                 </BeatSubLabel>
                 <p className="mt-1.5">
-                  Esta recomendación se apoya en{" "}
-                  {explained.evidenceBasis.basis.join(" · ")}.
+                  {t("explainedRecommendationCard.basedOn", {
+                    basis: explained.evidenceBasis.basis.join(" · "),
+                  })}
                 </p>
                 {explained.evidenceBasis.askForMore ? (
                   <p className="mt-1.5 text-[var(--isalwa-slate)]">
@@ -197,11 +210,11 @@ export function ExplainedRecommendationCard({
 
             <Beat
               step={7}
-              title="Próximo paso"
-              lead="Lo que debe resolverse antes de avanzar:"
+              title={t("explainedRecommendationCard.step7Title")}
+              lead={t("explainedRecommendationCard.step7Lead")}
             >
               {explained.futureDependencies.length === 0 ? (
-                <BeatEmpty text="Sin dependencias explícitas — puede avanzar directamente en el expediente actual." />
+                <BeatEmpty text={t("explainedRecommendationCard.noDependencies")} />
               ) : (
                 <BeatList items={explained.futureDependencies} />
               )}
@@ -213,20 +226,11 @@ export function ExplainedRecommendationCard({
   );
 }
 
-function sourceLabelEs(source: string): string {
-  const map: Record<string, string> = {
-    consulting: "consultoría",
-    risk: "riesgo",
-    opportunity: "oportunidad",
-    pattern: "patrón",
-    blueprint: "blueprint",
-    solution: "solución",
-    process: "proceso",
-    pain: "dolor",
-    fact: "hecho",
-    meeting: "reunión",
-    knowledge: "conocimiento",
-    recommendation: "recomendación",
-  };
-  return map[source] ?? source;
+function sourceLabel(
+  source: string,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
+  const key = `explainedRecommendationCard.source.${source}`;
+  const label = t(key);
+  return label === key ? source : label;
 }

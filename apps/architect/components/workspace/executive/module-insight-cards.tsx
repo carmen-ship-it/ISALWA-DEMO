@@ -1,6 +1,7 @@
 "use client";
 
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
+import { useTranslations } from "@/lib/i18n";
 import type { ExplainedRecommendation } from "@/lib/explanations";
 
 export function ModuleInsightCards({
@@ -8,11 +9,11 @@ export function ModuleInsightCards({
 }: {
   recommendations: ExplainedRecommendation[];
 }) {
+  const { t } = useTranslations();
   if (recommendations.length === 0) {
     return (
       <p className="text-sm text-[var(--isalwa-slate)]/80">
-        Las capacidades recomendadas aparecen conforme se acumula evidencia del
-        descubrimiento.
+        {t("moduleInsightCards.empty")}
       </p>
     );
   }
@@ -21,10 +22,10 @@ export function ModuleInsightCards({
     <div className="space-y-4">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Capacidades recomendadas
+          {t("moduleInsightCards.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          No un catálogo. Un caso por cada capacidad.
+          {t("moduleInsightCards.title")}
         </h3>
       </div>
 

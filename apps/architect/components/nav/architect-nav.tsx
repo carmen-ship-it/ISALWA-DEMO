@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/auth";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,26 +22,23 @@ export function ArchitectNav({
 }) {
   const pathname = usePathname();
   const { session } = useAuth();
+  const { t } = useTranslations();
   const isConsultant = session?.role === "consultant";
 
   const base = isConsultant
     ? [
-        { href: "/", label: "Empresas" },
-        { href: "/companies", label: "Panel" },
+        { href: "/", label: t("nav.companies") },
+        { href: "/companies", label: t("nav.panel") },
       ]
     : [];
 
   const items = [
     ...base,
-    ...(workspaceHref
-      ? [{ href: workspaceHref, label: "Espacio de trabajo" as const }]
-      : []),
+    ...(workspaceHref ? [{ href: workspaceHref, label: t("nav.workspace") }] : []),
     ...(isConsultant && preparationHref
-      ? [{ href: preparationHref, label: "Brief de preparación" as const }]
+      ? [{ href: preparationHref, label: t("nav.preparationBrief") }]
       : []),
-    ...(interviewHref
-      ? [{ href: interviewHref, label: "Entrevista" as const }]
-      : []),
+    ...(interviewHref ? [{ href: interviewHref, label: t("nav.interview") }] : []),
   ];
 
   return (
@@ -71,7 +69,7 @@ export function ArchitectNav({
             type="submit"
             className="isalwa-t-fast rounded-full px-3 py-1.5 hover:bg-white/70 hover:text-[var(--isalwa-slate)]"
           >
-            Salir
+            {t("nav.signOut")}
           </button>
         </form>
       ) : null}

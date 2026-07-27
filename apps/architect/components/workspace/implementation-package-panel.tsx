@@ -10,6 +10,7 @@ import {
   readImplementationPackageState,
   sectionSourceEngineLabel,
 } from "@/lib/implementation-package";
+import { useTranslations } from "@/lib/i18n";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { CompanyWorkspace } from "@/types";
@@ -25,6 +26,7 @@ export function ImplementationPackagePanel({
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
 }) {
+  const { t } = useTranslations();
   const [busy, setBusy] = useState(false);
   const live = useMemo(
     () => readImplementationPackageState(workspace),
@@ -58,15 +60,21 @@ export function ImplementationPackagePanel({
     <div className="space-y-6">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Paquete de implementación
+          {t("implementationPackagePanel.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          {gate.ready ? "Listo" : "No listo"}
+          {gate.ready
+            ? t("implementationPackagePanel.ready")
+            : t("implementationPackagePanel.notReady")}
         </h3>
         <p className="mt-3 text-[var(--isalwa-slate)]">
-          Umbral de comprensión: {IMPLEMENTATION_PACKAGE_THRESHOLD}% · actual{" "}
-          {gate.businessUnderstanding}%
-          {gate.thresholdMet ? " · umbral alcanzado" : " · umbral pendiente"}
+          {t("implementationPackagePanel.thresholdLine", {
+            threshold: IMPLEMENTATION_PACKAGE_THRESHOLD,
+            current: gate.businessUnderstanding,
+          })}
+          {gate.thresholdMet
+            ? t("implementationPackagePanel.thresholdMet")
+            : t("implementationPackagePanel.thresholdPending")}
         </p>
         <ul className="mt-4 space-y-2">
           {gate.notes.map((note) => (
@@ -77,7 +85,9 @@ export function ImplementationPackagePanel({
         </ul>
         {gate.missingPrerequisites.length > 0 ? (
           <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
-            Falta: {gate.missingPrerequisites.join(" · ")}
+            {t("implementationPackagePanel.missing", {
+              items: gate.missingPrerequisites.join(" · "),
+            })}
           </p>
         ) : null}
         <div className="mt-5">
@@ -87,7 +97,9 @@ export function ImplementationPackagePanel({
             disabled={busy}
             onClick={() => void refresh()}
           >
-            {busy ? "Actualizando…" : "Actualizar paquete"}
+            {busy
+              ? t("implementationPackagePanel.updating")
+              : t("implementationPackagePanel.updatePackage")}
           </Button>
         </div>
       </Card>
@@ -95,7 +107,9 @@ export function ImplementationPackagePanel({
       {pack ? (
         <Card className="px-5 py-6">
           <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-            Secciones · {formatRelativeActivity(pack.generatedAt)}
+            {t("implementationPackagePanel.sectionsHeader", {
+              when: formatRelativeActivity(pack.generatedAt),
+            })}
           </p>
           <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{pack.summary}</p>
           <ol className="mt-6 space-y-4">
@@ -115,7 +129,9 @@ export function ImplementationPackagePanel({
                     <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/60">
                       {sectionSourceEngineLabel(section.sourceEngine)}
                       {section.artifacts[0]
-                        ? ` · ${section.artifacts.length} referencias`
+                        ? t("implementationPackagePanel.referencesCount", {
+                            count: section.artifacts.length,
+                          })
                         : ""}
                     </p>
                   </div>
@@ -126,7 +142,9 @@ export function ImplementationPackagePanel({
                         : "shrink-0 rounded-full bg-[var(--isalwa-mist)] px-2.5 py-1 text-[11px] font-medium text-[var(--isalwa-slate)]/80"
                     }
                   >
-                    {section.available ? "Disponible" : "Pendiente"}
+                    {section.available
+                      ? t("implementationPackagePanel.available")
+                      : t("implementationPackagePanel.pending")}
                   </span>
                 </div>
               </li>
@@ -136,15 +154,17 @@ export function ImplementationPackagePanel({
       ) : (
         <Card className="px-5 py-5">
           <p className="text-sm text-[var(--isalwa-slate)]">
-            El paquete aparece cuando la comprensión del negocio alcanza el
-            umbral de conclusión ({IMPLEMENTATION_PACKAGE_THRESHOLD}%). Hasta
-            entonces Architect sigue en descubrimiento — sin código ni prompts.
+            {t("implementationPackagePanel.emptyState", {
+              threshold: IMPLEMENTATION_PACKAGE_THRESHOLD,
+            })}
           </p>
           <p className="mt-3 text-xs text-[var(--isalwa-slate)]/60">
-            Estado actual:{" "}
-            {evaluateImplementationGate(workspace).status === "ready"
-              ? "Listo"
-              : "No listo"}
+            {t("implementationPackagePanel.currentStatus", {
+              status:
+                evaluateImplementationGate(workspace).status === "ready"
+                  ? t("implementationPackagePanel.ready")
+                  : t("implementationPackagePanel.notReady"),
+            })}
           </p>
         </Card>
       )}

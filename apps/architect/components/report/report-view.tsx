@@ -10,6 +10,7 @@ import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { applyBrandOverrides, type EffectiveBrandExperience } from "@/lib/brand";
+import { t, useTranslations } from "@/lib/i18n";
 import { createClientInterviewPersistence } from "@/lib/persistence";
 import {
   complexityLabel,
@@ -128,48 +129,49 @@ function recommendationPriorityLabel(
 ): string {
   switch (priority) {
     case "now":
-      return "Ahora";
+      return t("reportView.priorityNow");
     case "next":
-      return "Siguiente";
+      return t("reportView.priorityNext");
     case "later":
-      return "Más adelante";
+      return t("reportView.priorityLater");
     default:
       return priority;
   }
 }
 
 function ReportBody({ report }: { report: DiscoveryReport }) {
+  const { t } = useTranslations();
   let i = 0;
   const next = () => ++i;
   return (
     <div className="isalwa-section-gap">
       <Section
         index={next()}
-        title="Resumen ejecutivo"
-        intro="La versión en un párrafo — qué encontramos y hacia dónde lleva."
+        title={t("reportView.executiveSummary")}
+        intro={t("reportView.executiveSummaryIntro")}
         tone="blue"
         delay={0.05}
       >
         <p>{report.executiveSummary}</p>
       </Section>
 
-      <Section index={next()} title="Panorama del negocio" delay={0.08}>
+      <Section index={next()} title={t("reportView.businessSnapshot")} delay={0.08}>
         <pre className="whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
           {report.businessSnapshot}
         </pre>
       </Section>
 
       {report.consultingMaturity || report.consultingHealth ? (
-        <Section index={next()} title="Evaluación consultiva" delay={0.09}>
+        <Section index={next()} title={t("reportView.consultingAssessment")} delay={0.09}>
           {report.consultingMaturity ? (
             <p className="mb-3">
-              <span className="text-[var(--isalwa-slate)]/80">Madurez — </span>
+              <span className="text-[var(--isalwa-slate)]/80">{t("reportView.maturityPrefix")}</span>
               {report.consultingMaturity}
             </p>
           ) : null}
           {report.consultingHealth ? (
             <p>
-              <span className="text-[var(--isalwa-slate)]/80">Salud del negocio — </span>
+              <span className="text-[var(--isalwa-slate)]/80">{t("reportView.businessHealthPrefix")}</span>
               {report.consultingHealth}
             </p>
           ) : null}
@@ -177,7 +179,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       ) : null}
 
       {report.consultingRisks && report.consultingRisks.length > 0 ? (
-        <Section index={next()} title="Patrones de riesgo" tone="red" delay={0.095}>
+        <Section index={next()} title={t("reportView.riskPatterns")} tone="red" delay={0.095}>
           <ul className="space-y-2">
             {report.consultingRisks.map((item) => (
               <li key={item}>{item}</li>
@@ -188,7 +190,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       {report.consultingContradictions &&
       report.consultingContradictions.length > 0 ? (
-        <Section index={next()} title="Puntos por aclarar" delay={0.098}>
+        <Section index={next()} title={t("reportView.pointsToClarify")} delay={0.098}>
           <ul className="space-y-2">
             {report.consultingContradictions.map((item) => (
               <li key={item}>{item}</li>
@@ -199,7 +201,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       {report.consultingOpportunities &&
       report.consultingOpportunities.length > 0 ? (
-        <Section index={next()} title="Horizontes de oportunidad" delay={0.099}>
+        <Section index={next()} title={t("reportView.opportunityHorizons")} delay={0.099}>
           <ul className="space-y-2">
             {report.consultingOpportunities.map((item) => (
               <li key={item}>{item}</li>
@@ -208,7 +210,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </Section>
       ) : null}
 
-      <Section index={next()} title="Flujo de trabajo actual" delay={0.1}>
+      <Section index={next()} title={t("reportView.currentWorkflow")} delay={0.1}>
         <div className="space-y-6">
           {report.currentWorkflow.map((workflow) => (
             <div key={workflow.id}>
@@ -229,10 +231,10 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Section index={next()} title="Sistemas actuales" delay={0.12}>
+      <Section index={next()} title={t("reportView.currentSystems")} delay={0.12}>
         <div className="flex flex-wrap gap-2">
           {report.currentSystems.length === 0 ? (
-            <p className="text-[var(--isalwa-slate)]/80">Aún no se registran sistemas.</p>
+            <p className="text-[var(--isalwa-slate)]/80">{t("reportView.noSystemsRegistered")}</p>
           ) : (
             report.currentSystems.map((system) => (
               <span
@@ -248,15 +250,14 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       <Section
         index={next()}
-        title="Puntos de dolor"
-        intro="Lo que encontramos — las fricciones que reveló el diagnóstico, en la realidad operativa de la empresa."
+        title={t("reportView.painPoints")}
+        intro={t("reportView.painPointsIntro")}
         tone="amber"
         delay={0.14}
       >
         {report.painPoints.length === 0 ? (
           <p className="text-[var(--isalwa-slate)]/80">
-            Aún no hay puntos de dolor registrados — continúe el diagnóstico
-            para identificarlos.
+            {t("reportView.noPainPoints")}
           </p>
         ) : (
           <ul className="space-y-4">
@@ -272,15 +273,14 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       <Section
         index={next()}
-        title="Recomendaciones"
-        intro="Por qué importa y qué recomendamos — cada hallazgo junto con la acción que justifica."
+        title={t("reportView.recommendations")}
+        intro={t("reportView.recommendationsIntro")}
         tone="green"
         delay={0.16}
       >
         {report.opportunities.length === 0 ? (
           <p className="text-[var(--isalwa-slate)]/80">
-            Las recomendaciones aparecerán cuando el diagnóstico tenga
-            evidencia suficiente.
+            {t("reportView.noRecommendations")}
           </p>
         ) : (
           <ul className="space-y-5">
@@ -302,7 +302,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         )}
       </Section>
 
-      <Section index={next()} title="Capacidades sugeridas" delay={0.18}>
+      <Section index={next()} title={t("reportView.suggestedCapabilities")} delay={0.18}>
         <div className="flex flex-wrap gap-2">
           {report.potentialModules.map((module) => (
             <span
@@ -315,7 +315,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Section index={next()} title="Plan de implementación" tone="violet" delay={0.2}>
+      <Section index={next()} title={t("reportView.implementationPlan")} tone="violet" delay={0.2}>
         <div className="space-y-7">
           {report.suggestedRoadmap.map((phase) => (
             <div key={phase.id}>
@@ -336,19 +336,19 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
       </Section>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <Section index={next()} title="Complejidad estimada" delay={0.28}>
+        <Section index={next()} title={t("reportView.estimatedComplexity")} delay={0.28}>
           <p className="architect-serif text-3xl capitalize text-[var(--isalwa-kiln)]">
             {complexityLabel(report.estimatedComplexity)}
           </p>
         </Section>
-        <Section index={next()} title="Tiempo estimado" delay={0.3}>
+        <Section index={next()} title={t("reportView.estimatedTime")} delay={0.3}>
           <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
             {timelineEstimateLabel(report.estimatedTimeline)}
           </p>
         </Section>
       </div>
 
-      <Section index={next()} title="Preguntas abiertas" delay={0.32}>
+      <Section index={next()} title={t("reportView.openQuestions")} delay={0.32}>
         <ul className="space-y-2">
           {report.unansweredQuestions.map((item) => (
             <li key={item}>{item}</li>
@@ -356,7 +356,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Section index={next()} title="Oportunidades de IA" delay={0.34}>
+      <Section index={next()} title={t("reportView.aiOpportunities")} delay={0.34}>
         <ul className="space-y-2">
           {report.aiOpportunities.map((item) => (
             <li key={item}>{item}</li>
@@ -364,7 +364,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Section index={next()} title="Riesgos" tone="red" delay={0.35}>
+      <Section index={next()} title={t("reportView.risks")} tone="red" delay={0.35}>
         <ul className="space-y-2">
           {report.risks.map((item) => (
             <li key={item}>{item}</li>
@@ -374,8 +374,8 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 
       <Section
         index={next()}
-        title="Conclusión ejecutiva"
-        intro="Siguiente paso — llevar la historia a una decisión."
+        title={t("reportView.executiveConclusion")}
+        intro={t("reportView.executiveConclusionIntro")}
         tone="blue"
         delay={0.36}
       >
@@ -388,10 +388,11 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
 }
 
 export function ReportView() {
+  const { t } = useTranslations();
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspaceId");
   const [report, setReport] = useState<DiscoveryReport | null>(null);
-  const [companyName, setCompanyName] = useState("la empresa");
+  const [companyName, setCompanyName] = useState(t("reportView.theCompany"));
   /** White Label Company Experience — only available when the report is opened with a workspaceId (not the standalone interview fallback). */
   const [brand, setBrand] = useState<EffectiveBrandExperience | null>(null);
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
@@ -423,26 +424,26 @@ export function ReportView() {
         setCompanyName(
           interview.business.companyName ??
             interview.participant.companyName ??
-            "Empresa",
+            t("reportView.company"),
         );
       }
     }
     void load();
-  }, [persistence, store, workspaceId]);
+  }, [persistence, store, workspaceId, t]);
 
   if (!report) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-20">
         <h1 className="architect-serif text-4xl text-[var(--isalwa-kiln)]">
-          Aún no hay un plan de negocio.
+          {t("reportView.noBusinessPlanYet")}
         </h1>
         <p className="mt-4 text-[var(--isalwa-slate)]">
-          Complete una sesión de descubrimiento para generar el informe vivo.
+          {t("reportView.completeDiscoverySession")}
         </p>
         <div className="mt-8">
           <BackLink
             href={workspaceId ? `/workspace/${workspaceId}` : "/"}
-            label="Volver al espacio de trabajo"
+            label={t("reportView.backToWorkspace")}
           />
         </div>
       </main>
@@ -455,19 +456,19 @@ export function ReportView() {
     <main className="mx-auto min-h-screen w-full max-w-[var(--isalwa-page-max-report)] px-4 py-16 sm:px-6 sm:py-20">
       <BackLink
         href={backHref}
-        label="Volver al espacio de trabajo"
+        label={t("reportView.backToWorkspace")}
         className="mb-10"
       />
 
       {/* Masthead — reads as the cover of a bound report, not a page header. */}
       <header className="isalwa-enter">
-        <p className="isalwa-kicker">Informe vivo</p>
+        <p className="isalwa-kicker">{t("reportView.liveReport")}</p>
         <div className="mt-4 flex items-center gap-3">
           {brand?.reportBranding.showLogoOnReports && brand.logoUrl.value ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={brand.logoUrl.value}
-              alt={`Logo de ${companyName}`}
+              alt={t("reportView.logoAlt", { company: companyName })}
               className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
               style={
                 brand.primaryColor.value
@@ -477,12 +478,11 @@ export function ReportView() {
             />
           ) : null}
           <h1 className="architect-serif text-4xl leading-tight text-[var(--isalwa-kiln)] sm:text-5xl">
-            Plan de negocio de {companyName}
+            {t("reportView.businessPlanOf", { company: companyName })}
           </h1>
         </div>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--isalwa-slate)]">
-          Un plan operativo de calidad consultora que evoluciona con cada
-          reunión — respaldado por evidencia, claro y útil para decidir.
+          {t("reportView.heroDescription")}
         </p>
 
         <div className="mt-8 flex items-start gap-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-tint-blue-border)] bg-[var(--isalwa-tint-blue)] px-5 py-4">
@@ -490,9 +490,7 @@ export function ReportView() {
             <FileText className="h-4 w-4" aria-hidden />
           </span>
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Este informe se actualiza con cada sesión de descubrimiento. Los
-            hallazgos anteriores se conservan y se combinan — nunca se
-            descartan.
+            {t("reportView.updatesEverySession")}
           </p>
         </div>
       </header>
@@ -506,9 +504,9 @@ export function ReportView() {
 
       <footer className="isalwa-divider-fade mt-16" />
       <div className="mt-8 flex flex-wrap items-center gap-4">
-        <BackLink href={backHref} label="Volver al espacio de trabajo" />
+        <BackLink href={backHref} label={t("reportView.backToWorkspace")} />
         <Button asChild variant="ghost">
-          <Link href="/">Todas las empresas</Link>
+          <Link href="/">{t("reportView.allCompanies")}</Link>
         </Button>
       </div>
 

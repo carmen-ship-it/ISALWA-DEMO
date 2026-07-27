@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Sparkle, X } from "lucide-react";
+import { useTranslations } from "@/lib/i18n";
 
 const MILESTONES = [25, 50, 75, 100] as const;
 
@@ -10,16 +11,20 @@ function storageKey(workspaceId: string): string {
   return `isalwa.architect.milestone.${workspaceId}`;
 }
 
-function messageFor(milestone: number, companyName: string): string {
+function messageFor(
+  milestone: number,
+  companyName: string,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
   switch (milestone) {
     case 25:
-      return `Primer hito de comprensión: ya tenemos una lectura inicial sólida de ${companyName}, respaldada por la evidencia reunida.`;
+      return t("discoveryCelebration.milestone25", { company: companyName });
     case 50:
-      return `Punto medio alcanzado: la mitad del negocio de ${companyName} ya está mapeada con evidencia.`;
+      return t("discoveryCelebration.milestone50", { company: companyName });
     case 75:
-      return `Comprensión avanzada: ${companyName} está casi completamente mapeada — quedan pocos vacíos por cerrar.`;
+      return t("discoveryCelebration.milestone75", { company: companyName });
     default:
-      return `Comprensión completa: tenemos una imagen integral de ${companyName}, respaldada por la evidencia del descubrimiento.`;
+      return t("discoveryCelebration.milestoneComplete", { company: companyName });
   }
 }
 
@@ -37,6 +42,7 @@ export function DiscoveryCelebration({
   companyName: string;
   understanding: number;
 }) {
+  const { t } = useTranslations();
   const [milestone, setMilestone] = useState<number | null>(null);
 
   useEffect(() => {
@@ -88,12 +94,12 @@ export function DiscoveryCelebration({
             <Sparkle className="h-3.5 w-3.5" aria-hidden />
           </span>
           <p className="flex-1 text-sm leading-relaxed text-[var(--isalwa-tint-amber-ink)]/90">
-            {messageFor(milestone, companyName)}
+            {messageFor(milestone, companyName, t)}
           </p>
           <button
             type="button"
             onClick={dismiss}
-            aria-label="Cerrar aviso"
+            aria-label={t("discoveryCelebration.dismiss")}
             className="shrink-0 rounded-full p-1 text-[var(--isalwa-tint-amber-ink)]/70 transition-colors hover:bg-[var(--isalwa-tint-amber-border)] hover:text-[var(--isalwa-tint-amber-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-warning)]/45"
           >
             <X className="h-3.5 w-3.5" aria-hidden />

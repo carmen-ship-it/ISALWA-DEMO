@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
+import { useTranslations } from "@/lib/i18n";
 import {
   INTAKE_SOURCES,
   ingestFileThroughIntake,
@@ -29,6 +30,7 @@ export function BusinessKnowledge({
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
 }) {
+  const { t } = useTranslations();
   const notesId = useId();
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
@@ -61,7 +63,7 @@ export function BusinessKnowledge({
     try {
       const result = await ingestSource(workspace.id, {
         sourceType: "manual_notes",
-        label: "Notas manuales",
+        label: t("businessKnowledge.manualNotesSourceLabel"),
         textContent: text,
       });
       if (result) {
@@ -78,22 +80,19 @@ export function BusinessKnowledge({
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Conocimiento del negocio
+          {t("businessKnowledge.kicker")}
         </p>
         <h2 className="architect-serif mt-2 text-3xl leading-tight text-[var(--isalwa-kiln)]">
-          Ayúdenos a entender su negocio más rápido.
+          {t("businessKnowledge.title")}
         </h2>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--isalwa-slate)]">
-          Cuanta más información nos dé, menos preguntas necesitamos hacerle
-          en la entrevista. Manuales, procedimientos, hojas de cálculo,
-          contratos, transcripciones de reuniones — todo suma a lo que ya
-          sabemos.
+          {t("businessKnowledge.description")}
         </p>
       </div>
 
       <Card className="px-5 py-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Qué puede compartir hoy
+          {t("businessKnowledge.whatToShare")}
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {availableSources.map((source) => (
@@ -112,11 +111,10 @@ export function BusinessKnowledge({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Subir documentos
+          {t("businessKnowledge.uploadDocuments")}
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-          Ejemplos: manual del empleado, procedimientos (SOP), lista de
-          clientes, historial de ventas, facturas, contratos, presentaciones.
+          {t("businessKnowledge.uploadExamples")}
         </p>
         <div className="mt-4">
           <KnowledgeUpload
@@ -130,22 +128,21 @@ export function BusinessKnowledge({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Notas manuales
+          {t("businessKnowledge.manualNotes")}
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-          ¿No tiene un documento a la mano? Escriba lo que sabe — políticas,
-          quién hace qué, cómo funciona un proceso.
+          {t("businessKnowledge.manualNotesDescription")}
         </p>
         <div className="mt-4 space-y-3">
           <label htmlFor={notesId} className="sr-only">
-            Notas sobre el negocio
+            {t("businessKnowledge.notesLabel")}
           </label>
           <textarea
             id={notesId}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             rows={5}
-            placeholder="Por ejemplo: 'Las aprobaciones de compra las hace siempre el gerente de operaciones antes de $5,000…'"
+            placeholder={t("businessKnowledge.notesPlaceholder")}
             className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white/80 px-4 py-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45"
           />
           <Button
@@ -155,7 +152,7 @@ export function BusinessKnowledge({
             disabled={!notes.trim() || savingNotes}
             onClick={handleSaveNotes}
           >
-            {savingNotes ? "Guardando…" : "Guardar notas"}
+            {savingNotes ? t("businessKnowledge.saving") : t("businessKnowledge.saveNotes")}
           </Button>
         </div>
       </div>
@@ -163,7 +160,7 @@ export function BusinessKnowledge({
       {reports.length > 0 ? (
         <Card className="px-5 py-5">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-            Lo que acabamos de aprender
+            {t("businessKnowledge.justLearned")}
           </p>
           <ul className="mt-4 space-y-4">
             {reports.map((report, index) => (
@@ -186,20 +183,20 @@ export function BusinessKnowledge({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Cobertura por área
+          {t("businessKnowledge.coverageByArea")}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
-          <Meta label="Documentos procesados" value={String(processedCount)} />
+          <Meta label={t("businessKnowledge.documentsProcessed")} value={String(processedCount)} />
           <Meta
-            label="Reglas de negocio encontradas"
+            label={t("businessKnowledge.businessRulesFound")}
             value={String(knowledge.businessRules.length)}
           />
           <Meta
-            label="Puntos a aclarar"
+            label={t("businessKnowledge.pointsToClarify")}
             value={String(knowledge.contradictions.length)}
           />
           <Meta
-            label="Preguntas que podríamos evitar"
+            label={t("businessKnowledge.questionsAvoided")}
             value={String(Math.max(0, 5 - stillNeed.length))}
           />
         </div>
@@ -233,11 +230,11 @@ export function BusinessKnowledge({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Aún necesitamos
+          {t("businessKnowledge.stillNeed")}
         </p>
         {stillNeed.length === 0 ? (
           <p className="mt-3 text-sm text-[var(--isalwa-slate)]/80">
-            Por ahora no detectamos vacíos claros — buena señal.
+            {t("businessKnowledge.stillNeedEmpty")}
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -254,12 +251,11 @@ export function BusinessKnowledge({
       </div>
 
       <ExecutiveDetail
-        labelExpand="Ver próximas fuentes de datos"
-        labelCollapse="Ocultar próximas fuentes"
+        labelExpand={t("businessKnowledge.expandFutureSources")}
+        labelCollapse={t("businessKnowledge.collapseFutureSources")}
         summary={
           <p className="text-sm text-[var(--isalwa-slate)]">
-            Con el tiempo, Architect podrá aprender directamente de más
-            sistemas — sin que usted tenga que exportar nada a mano.
+            {t("businessKnowledge.futureSourcesSummary")}
           </p>
         }
       >
@@ -271,7 +267,7 @@ export function BusinessKnowledge({
             >
               <p className="text-sm text-[var(--isalwa-kiln)]">{source.titleEs}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                Próximamente
+                {t("businessKnowledge.comingSoon")}
               </p>
             </li>
           ))}

@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   consistencyLabel,
@@ -69,11 +70,12 @@ export function ReadinessStateDot({
 
 /** One line per business topic: where we stand and what would close it. */
 export function ReadinessTopicList({ topics }: { topics: TopicReadiness[] }) {
+  const { t } = useTranslations();
   const visible = topics.filter((topic) => topic.applicable);
   if (visible.length === 0) {
     return (
       <p className="text-sm text-[var(--isalwa-slate)]/60">
-        Los temas aparecerán a medida que crezca la evidencia…
+        {t("readinessPanel.topicsPending")}
       </p>
     );
   }
@@ -131,13 +133,13 @@ export function StillLearningList({
   assessment: ReadinessAssessment;
   limit?: number;
 }) {
+  const { t } = useTranslations();
   const items = assessment.stillLearning.slice(0, limit);
 
   if (items.length === 0) {
     return (
       <p className="text-sm text-[var(--isalwa-slate)]">
-        Por ahora no hay vacíos abiertos — lo que sabemos alcanza para
-        recomendar con seguridad.
+        {t("readinessPanel.noGaps")}
       </p>
     );
   }
@@ -164,7 +166,7 @@ export function StillLearningList({
           <p className="mt-1.5 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
             {item.why}
             {item.estimatedMinutes
-              ? ` · unos ${item.estimatedMinutes} minutos`
+              ? t("readinessPanel.estimatedMinutesSuffix", { minutes: item.estimatedMinutes })
               : ""}
           </p>
         </motion.li>
@@ -181,13 +183,14 @@ export function ReadinessConflictList({
   assessment: ReadinessAssessment;
   limit?: number;
 }) {
+  const { t } = useTranslations();
   const conflicts = assessment.conflicts.slice(0, limit);
   if (conflicts.length === 0) return null;
 
   return (
     <div className="mt-6 border-t border-[var(--isalwa-mist)]/60 pt-5">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        Puntos por confirmar
+        {t("readinessPanel.pointsToConfirm")}
       </p>
       <ul className="mt-3 space-y-2">
         {conflicts.map((conflict) => (
@@ -198,7 +201,11 @@ export function ReadinessConflictList({
             {conflict.statement}
             {conflict.sourceLabels.length > 0 ? (
               <span className="mt-1 block text-xs text-[var(--isalwa-slate)]/60">
-                Según {conflict.sourceLabels.join(" y ").toLowerCase()}
+                {t("readinessPanel.accordingTo", {
+                  sources: conflict.sourceLabels
+                    .join(t("readinessPanel.and"))
+                    .toLowerCase(),
+                })}
               </span>
             ) : null}
           </li>
@@ -214,22 +221,43 @@ export function ReadinessEvidenceChips({
 }: {
   assessment: ReadinessAssessment;
 }) {
+  const { t } = useTranslations();
   const { inventory } = assessment;
   const chips = [
     inventory.interviewFacts > 0
-      ? `${inventory.interviewFacts} datos de la conversación`
+      ? t("readinessPanel.chips.interviewFacts", { count: inventory.interviewFacts })
       : null,
     inventory.documents > 0
-      ? `${inventory.documents} documento${inventory.documents === 1 ? "" : "s"} revisado${inventory.documents === 1 ? "" : "s"}`
+      ? t(
+          inventory.documents === 1
+            ? "readinessPanel.chips.documentsOne"
+            : "readinessPanel.chips.documentsMany",
+          { count: inventory.documents },
+        )
       : null,
     inventory.importedRecords > 0
-      ? `${inventory.importedRecords} registro${inventory.importedRecords === 1 ? "" : "s"} importado${inventory.importedRecords === 1 ? "" : "s"}`
+      ? t(
+          inventory.importedRecords === 1
+            ? "readinessPanel.chips.recordsOne"
+            : "readinessPanel.chips.recordsMany",
+          { count: inventory.importedRecords },
+        )
       : null,
     inventory.businessRules > 0
-      ? `${inventory.businessRules} regla${inventory.businessRules === 1 ? "" : "s"} del negocio`
+      ? t(
+          inventory.businessRules === 1
+            ? "readinessPanel.chips.rulesOne"
+            : "readinessPanel.chips.rulesMany",
+          { count: inventory.businessRules },
+        )
       : null,
     inventory.meetings > 0
-      ? `${inventory.meetings} reunión${inventory.meetings === 1 ? "" : "es"}`
+      ? t(
+          inventory.meetings === 1
+            ? "workspaceView.chips.meetingsOne"
+            : "workspaceView.chips.meetingsMany",
+          { count: inventory.meetings },
+        )
       : null,
   ].filter(Boolean) as string[];
 
@@ -265,6 +293,7 @@ export function ReadinessGateCard({
   actionHref?: string;
   className?: string;
 }) {
+  const { t } = useTranslations();
   const style = STATE_STYLES[gate.state];
 
   return (
@@ -294,7 +323,7 @@ export function ReadinessGateCard({
               key={item}
               className="text-sm leading-relaxed text-[var(--isalwa-slate)]/85"
             >
-              · Necesitamos entender {item}
+              {t("readinessPanel.needToUnderstand", { item })}
             </li>
           ))}
         </ul>

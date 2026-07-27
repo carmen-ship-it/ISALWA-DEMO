@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
+import { useTranslations } from "@/lib/i18n";
 import {
   KNOWLEDGE_CATEGORIES,
   KNOWLEDGE_CONNECTORS,
@@ -15,61 +16,36 @@ import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/pres
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { CompanyWorkspace, KnowledgeCategory, WorkspaceKnowledge } from "@/types";
 
-const PIPELINE_LABELS_ES: Record<
-  string,
-  { title: string; description: string }
-> = {
-  upload: {
-    title: "Carga",
-    description: "Recibir archivos hacia el Centro de Conocimiento.",
-  },
-  parser: {
-    title: "Lectura de formato",
-    description:
-      "Clasificar PDF, Excel, Word, PowerPoint e imágenes por nombre y tipo de archivo.",
-  },
-  knowledge_extraction: {
-    title: "Extracción de conocimiento",
-    description:
-      "Registrar el documento como evidencia y estimar su área de cobertura.",
-  },
-  memory: {
-    title: "Memoria",
-    description:
-      "Fusionar la evidencia con la Memoria de la Empresa al reanudar el descubrimiento.",
-  },
-  recommendations: {
-    title: "Recomendaciones",
-    description: "Sugerir módulos, riesgos y próximas preguntas — próxima etapa.",
-  },
-  reasoning_engine: {
-    title: "Motor de razonamiento",
-    description:
-      "El cerebro consultor combina conversación, conocimiento y memoria.",
-  },
+const PIPELINE_KEY_BY_STAGE_ID: Record<string, string> = {
+  upload: "upload",
+  parser: "parser",
+  knowledge_extraction: "knowledgeExtraction",
+  memory: "memory",
+  recommendations: "recommendations",
+  reasoning_engine: "reasoningEngine",
 };
 
-const CATEGORY_LABELS_ES: Record<KnowledgeCategory, string> = {
-  "Company Documents": "Documentos de la empresa",
-  "Meeting Transcripts": "Transcripciones de reuniones",
-  "Customer Lists": "Listas de clientes",
-  "Sales Data": "Datos de ventas",
-  Invoices: "Facturas",
-  Presentations: "Presentaciones",
-  Images: "Imágenes",
-  "Process Documents": "Documentos de procesos",
-  Policies: "Políticas",
-  "Manual Notes": "Notas manuales",
-  "Future Imports": "Futuras importaciones",
+const CATEGORY_KEY: Record<KnowledgeCategory, string> = {
+  "Company Documents": "companyDocuments",
+  "Meeting Transcripts": "meetingTranscripts",
+  "Customer Lists": "customerLists",
+  "Sales Data": "salesData",
+  Invoices: "invoices",
+  Presentations: "presentations",
+  Images: "images",
+  "Process Documents": "processDocuments",
+  Policies: "policies",
+  "Manual Notes": "manualNotes",
+  "Future Imports": "futureImports",
 };
 
-const STATUS_LABELS_ES: Record<string, string> = {
-  designed: "Diseñado",
-  queued: "En cola",
-  parsing: "Leyendo",
-  extracting: "Extrayendo",
-  processed: "Procesado",
-  failed: "Sin lector",
+const STATUS_KEY: Record<string, string> = {
+  designed: "designed",
+  queued: "queued",
+  parsing: "parsing",
+  extracting: "extracting",
+  processed: "processed",
+  failed: "failed",
 };
 
 export function KnowledgeCenter({
@@ -79,6 +55,7 @@ export function KnowledgeCenter({
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
 }) {
+  const { t } = useTranslations();
   const vault = ensureWorkspaceKnowledge(workspace.knowledge);
   const processed = vault.assets.filter((a) => a.status === "processed");
   const queued = vault.assets.filter((a) => a.status === "queued");
@@ -90,11 +67,10 @@ export function KnowledgeCenter({
     <div className="space-y-8">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Subir evidencia
+          {t("knowledgeCenter.uploadEvidence")}
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-          Cada documento se clasifica por su nombre y tipo de archivo — sin
-          lectura de contenido — y suma a la cobertura de conocimiento.
+          {t("knowledgeCenter.uploadEvidenceDescription")}
         </p>
         <div className="mt-4">
           <KnowledgeUpload workspaceId={workspace.id} onUpdated={onUpdated} />
@@ -103,17 +79,16 @@ export function KnowledgeCenter({
 
       <Card className="px-5 py-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Resumen de conocimiento
+          {t("knowledgeCenter.knowledgeSummary")}
         </p>
         <p className="mt-3 text-[var(--isalwa-slate)]">
-          {vault.summary ??
-            "Aún no se ha analizado conocimiento de la empresa. Los documentos que suba aparecerán aquí como evidencia."}
+          {vault.summary ?? t("knowledgeCenter.noSummaryYet")}
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
-          <Meta label="Documentos procesados" value={String(processed.length)} />
-          <Meta label="En cola" value={String(queued.length)} />
+          <Meta label={t("knowledgeCenter.documentsProcessed")} value={String(processed.length)} />
+          <Meta label={t("knowledgeCenter.queued")} value={String(queued.length)} />
           <Meta
-            label="Último análisis"
+            label={t("knowledgeCenter.lastAnalysis")}
             value={
               vault.lastAnalysisAt
                 ? formatRelativeActivity(vault.lastAnalysisAt)
@@ -121,51 +96,49 @@ export function KnowledgeCenter({
             }
           />
           <Meta
-            label="Preguntas para la próxima sesión"
+            label={t("knowledgeCenter.questionsForNextSession")}
             value={String(questionsForNextSession)}
           />
         </div>
         {vault.unknownAreas.length > 0 ? (
           <p className="mt-5 text-sm text-[var(--isalwa-slate)]/80">
-            Aún no está claro:{" "}
-            {vault.unknownAreas.map(coverageAreaLabel).join(" · ")} — el
-            Architect preguntará por esto en la próxima sesión de
-            descubrimiento.
+            {t("knowledgeCenter.unclearAreas", {
+              areas: vault.unknownAreas.map(coverageAreaLabel).join(" · "),
+            })}
           </p>
         ) : null}
       </Card>
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Entidades encontradas
+          {t("knowledgeCenter.entitiesFound")}
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-          Lo que el motor de conocimiento ya identificó — en ceros cuando el
-          formato aún no tiene lectura de contenido activa.
+          {t("knowledgeCenter.entitiesFoundDescription")}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
-          <EntityCount label="Documentos" value={entitySummary.documents} />
+          <EntityCount label={t("knowledgeCenter.documents")} value={entitySummary.documents} />
           <EntityCount
-            label="Departamentos"
+            label={t("knowledgeCenter.departments")}
             value={entitySummary.departments}
-            emptyHint="Requiere lectura de contenido — aún no disponible."
+            emptyHint={t("knowledgeCenter.contentReadingRequired")}
           />
           <EntityCount
-            label="Personas"
+            label={t("knowledgeCenter.people")}
             value={entitySummary.people}
-            emptyHint="Requiere lectura de contenido — aún no disponible."
+            emptyHint={t("knowledgeCenter.contentReadingRequired")}
           />
           <EntityCount
-            label="Procesos"
+            label={t("knowledgeCenter.processes")}
             value={entitySummary.processes}
-            emptyHint="Requiere lectura de contenido — aún no disponible."
+            emptyHint={t("knowledgeCenter.contentReadingRequired")}
           />
         </div>
       </div>
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Cobertura por área
+          {t("knowledgeCenter.coverageByArea")}
         </p>
         <ul className="mt-4 space-y-3">
           {vault.coverage.map((slice) => {
@@ -211,10 +184,10 @@ export function KnowledgeCenter({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Biblioteca de evidencia
+          {t("knowledgeCenter.evidenceLibrary")}
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-          Evidencia estructurada a partir de los materiales de la empresa.
+          {t("knowledgeCenter.evidenceLibraryDescription")}
         </p>
         <div className="mt-5 space-y-6">
           {KNOWLEDGE_CATEGORIES.map((category) => {
@@ -222,10 +195,12 @@ export function KnowledgeCenter({
             return (
               <div key={category}>
                 <p className="text-sm text-[var(--isalwa-kiln)]">
-                  {CATEGORY_LABELS_ES[category]}
+                  {t(`knowledgeCenter.category.${CATEGORY_KEY[category]}`)}
                 </p>
                 {items.length === 0 ? (
-                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]/60">Vacío</p>
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]/60">
+                    {t("knowledgeCenter.empty")}
+                  </p>
                 ) : (
                   <ul className="mt-3 space-y-2">
                     {items.map((item) => (
@@ -241,7 +216,9 @@ export function KnowledgeCenter({
                           </p>
                         </div>
                         <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                          {STATUS_LABELS_ES[item.status] ?? item.status}
+                          {STATUS_KEY[item.status]
+                            ? t(`knowledgeCenter.status.${STATUS_KEY[item.status]}`)
+                            : item.status}
                         </span>
                       </li>
                     ))}
@@ -256,7 +233,7 @@ export function KnowledgeCenter({
       {vault.entities.length > 0 ? (
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-            Temas identificados
+            {t("knowledgeCenter.identifiedTopics")}
           </p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {vault.entities.map((entity) => (
@@ -279,21 +256,23 @@ export function KnowledgeCenter({
       ) : null}
 
       <ExecutiveDetail
-        labelExpand="Ver cómo se procesa la evidencia"
-        labelCollapse="Ocultar detalle de procesamiento"
+        labelExpand={t("knowledgeCenter.expandProcessing")}
+        labelCollapse={t("knowledgeCenter.collapseProcessing")}
         summary={
           <p className="text-sm text-[var(--isalwa-slate)]">
-            Los materiales de la empresa pasan por una ruta de revisión
-            estructurada antes de convertirse en recomendaciones.
+            {t("knowledgeCenter.processingSummary")}
           </p>
         }
       >
         <ol className="space-y-2">
           {KNOWLEDGE_PIPELINE.map((stage, index) => {
-            const label = PIPELINE_LABELS_ES[stage.id] ?? {
-              title: stage.title,
-              description: stage.description,
-            };
+            const pipelineKey = PIPELINE_KEY_BY_STAGE_ID[stage.id];
+            const label = pipelineKey
+              ? {
+                  title: t(`knowledgeCenter.pipeline.${pipelineKey}.title`),
+                  description: t(`knowledgeCenter.pipeline.${pipelineKey}.description`),
+                }
+              : { title: stage.title, description: stage.description };
             return (
               <li key={stage.id} className="flex gap-3 text-sm text-[var(--isalwa-slate)]">
                 <span className="tabular-nums text-[var(--isalwa-slate)]/60">
@@ -312,7 +291,7 @@ export function KnowledgeCenter({
 
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Próximas fuentes de datos
+          {t("knowledgeCenter.upcomingDataSources")}
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {KNOWLEDGE_CONNECTORS.slice(0, 8).map((connector) => (
@@ -322,7 +301,9 @@ export function KnowledgeCenter({
             >
               <p className="text-sm text-[var(--isalwa-kiln)]">{connector.title}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                {connector.status === "planned" ? "Planeado" : "Diseñado"}
+                {connector.status === "planned"
+                  ? t("knowledgeCenter.planned")
+                  : t("knowledgeCenter.designedStatus")}
               </p>
             </li>
           ))}

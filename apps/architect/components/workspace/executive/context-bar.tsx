@@ -1,6 +1,7 @@
 "use client";
 
 import { Building2, Compass, Target } from "lucide-react";
+import { useTranslations } from "@/lib/i18n";
 import { understandingLevel } from "@/lib/presentation";
 
 /**
@@ -20,6 +21,7 @@ export function ContextBar({
   understanding: number;
   nextGoal: string;
 }) {
+  const { t } = useTranslations();
   const pct = Math.max(0, Math.min(100, Math.round(understanding)));
 
   return (
@@ -40,17 +42,17 @@ export function ContextBar({
       <span className="inline-flex shrink-0 items-center gap-1.5">
         <Compass className="h-3.5 w-3.5 text-white/45" aria-hidden />
         <span className="uppercase tracking-[0.14em] text-white/45">
-          Etapa
+          {t("contextBar.stageLabel")}
         </span>
         <span className="text-white/85">{stageLabel}</span>
       </span>
       <span className="h-3 w-px shrink-0 bg-white/15" aria-hidden />
       <span
         className="inline-flex shrink-0 items-center gap-1.5"
-        title="Qué tanto entendemos su negocio hoy, según la evidencia reunida hasta ahora."
+        title={t("contextBar.understandingTitle")}
       >
         <span className="uppercase tracking-[0.14em] text-white/45">
-          Comprensión
+          {t("contextBar.understandingLabel")}
         </span>
         <span className="text-white/85">
           {pct}% · {understandingLevel(pct).toLowerCase()}
@@ -60,7 +62,7 @@ export function ContextBar({
       <span className="inline-flex min-w-0 shrink-0 items-center gap-1.5">
         <Target className="h-3.5 w-3.5 text-white/45" aria-hidden />
         <span className="uppercase tracking-[0.14em] text-white/45">
-          Siguiente
+          {t("contextBar.nextLabel")}
         </span>
         <span className="max-w-[36ch] truncate text-white/85">
           {nextGoal}

@@ -2,6 +2,7 @@
 
 import type { KeyboardEvent, ReactNode } from "react";
 import { useCallback, useId, useRef } from "react";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type WorkspaceTabId =
@@ -18,21 +19,36 @@ export type WorkspaceTabId =
   | "roadmap"
   | "deliverables";
 
-export const WORKSPACE_TABS: Array<{ id: WorkspaceTabId; label: string }> = [
-  { id: "executive", label: "Resumen" },
-  { id: "assessment", label: "Diagnóstico" },
-  { id: "blueprint", label: "Plan de negocio" },
-  { id: "company", label: "Su empresa" },
-  { id: "knowledge", label: "Conocimiento del negocio" },
-  { id: "insights", label: "Perspectivas ejecutivas" },
-  { id: "architecture", label: "Sistema recomendado" },
-  { id: "processes", label: "Cómo opera" },
-  { id: "recommendations", label: "Recomendaciones" },
+export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
+  executive: "workspaceTabs.executive",
+  assessment: "workspaceTabs.assessment",
+  blueprint: "workspaceTabs.blueprint",
+  company: "workspaceTabs.company",
+  knowledge: "workspaceTabs.knowledge",
+  insights: "workspaceTabs.insights",
+  architecture: "workspaceTabs.architecture",
+  processes: "workspaceTabs.processes",
+  recommendations: "workspaceTabs.recommendations",
   // Client-safe: read-only "what if" scenarios over lib/simulation — no
   // company data is changed and no raw engine internals are shown.
-  { id: "simulator", label: "¿Qué pasa si…?" },
-  { id: "roadmap", label: "Plan de implementación" },
-  { id: "deliverables", label: "Documentos" },
+  simulator: "workspaceTabs.simulator",
+  roadmap: "workspaceTabs.roadmap",
+  deliverables: "workspaceTabs.deliverables",
+};
+
+const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
+  "executive",
+  "assessment",
+  "blueprint",
+  "company",
+  "knowledge",
+  "insights",
+  "architecture",
+  "processes",
+  "recommendations",
+  "simulator",
+  "roadmap",
+  "deliverables",
 ];
 
 /**
@@ -55,9 +71,9 @@ export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "deliverables",
 ];
 
-/** Human-language label overrides shown only in Client Mode. */
-export const CLIENT_TAB_LABELS: Partial<Record<WorkspaceTabId, string>> = {
-  blueprint: "Cómo funciona su empresa",
+/** Human-language label key overrides shown only in Client Mode. */
+export const CLIENT_TAB_LABEL_KEYS: Partial<Record<WorkspaceTabId, string>> = {
+  blueprint: "workspaceTabs.blueprintClient",
 };
 
 export function WorkspaceTabs({
@@ -65,21 +81,23 @@ export function WorkspaceTabs({
   onChange,
   panels,
   visibleTabIds,
-  labelOverrides,
+  labelOverrideKeys,
 }: {
   active: WorkspaceTabId;
   onChange: (id: WorkspaceTabId) => void;
   panels: Record<WorkspaceTabId, ReactNode>;
   /** Client Mode — restrict which tabs render. Omit to show all (Consultant Mode). */
   visibleTabIds?: WorkspaceTabId[];
-  /** Client Mode — friendlier copy for a subset of tabs. */
-  labelOverrides?: Partial<Record<WorkspaceTabId, string>>;
+  /** Client Mode — friendlier copy key for a subset of tabs. */
+  labelOverrideKeys?: Partial<Record<WorkspaceTabId, string>>;
 }) {
+  const { t } = useTranslations();
   const listId = useId();
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const allTabs = WORKSPACE_TAB_ORDER.map((id) => ({ id, label: t(WORKSPACE_TAB_LABEL_KEYS[id]) }));
   const tabs = visibleTabIds
-    ? WORKSPACE_TABS.filter((tab) => visibleTabIds.includes(tab.id))
-    : WORKSPACE_TABS;
+    ? allTabs.filter((tab) => visibleTabIds.includes(tab.id))
+    : allTabs;
   const activeIndex = Math.max(0, tabs.findIndex((tab) => tab.id === active));
   const progress = ((activeIndex + 1) / tabs.length) * 100;
 
@@ -113,13 +131,14 @@ export function WorkspaceTabs({
       <div className="isalwa-glass-light isalwa-t-base sticky top-11 z-30 -mx-6 border-b px-6 py-4 sm:-mx-10 sm:px-10">
         <div
           role="tablist"
-          aria-label="Secciones del espacio de trabajo"
+          aria-label={t("workspaceTabs.ariaLabel")}
           id={listId}
           className="flex gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {tabs.map((tab, index) => {
             const selected = tab.id === active;
-            const label = labelOverrides?.[tab.id] ?? tab.label;
+            const overrideKey = labelOverrideKeys?.[tab.id];
+            const label = overrideKey ? t(overrideKey) : tab.label;
             return (
               <button
                 key={tab.id}
@@ -154,7 +173,7 @@ export function WorkspaceTabs({
           />
         </div>
         <p className="mt-2 text-[11px] text-[var(--isalwa-slate)]/60">
-          Sección {activeIndex + 1} de {tabs.length}
+          {t("workspaceTabs.sectionProgress", { current: activeIndex + 1, total: tabs.length })}
         </p>
       </div>
 

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
+import { useTranslations } from "@/lib/i18n";
 import { SOLUTION_FUTURE_OUTPUTS } from "@/lib/solution";
 import {
   complexityLabel,
@@ -81,13 +82,12 @@ export function SolutionArchitecturePanel({
 }: {
   architecture: SolutionArchitecture | null | undefined;
 }) {
+  const { t } = useTranslations();
   if (!architecture) {
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]">
-          El sistema recomendado aparece una vez que el plan de negocio está
-          listo. Describe el sistema operativo que la empresa necesita — sin
-          construirlo todavía.
+          {t("solutionArchitecturePanel.empty")}
         </p>
       </Card>
     );
@@ -97,22 +97,24 @@ export function SolutionArchitecturePanel({
     <div className="space-y-8">
       <Card className="px-5 py-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Sistema recomendado
+          {t("solutionArchitecturePanel.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          El software diseñado para cómo opera el negocio
+          {t("solutionArchitecturePanel.title")}
         </h3>
         <p className="mt-3 text-[var(--isalwa-slate)]">{architecture.summary}</p>
         <p className="mt-4 text-sm text-[var(--isalwa-slate)]/80">
-          {recommendationStrength(architecture.overallConfidence)} ·{" "}
-          {formatRelativeActivity(architecture.generatedAt)}
+          {t("solutionArchitecturePanel.meta", {
+            strength: recommendationStrength(architecture.overallConfidence),
+            activity: formatRelativeActivity(architecture.generatedAt),
+          })}
         </p>
         <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
           {strengthHint(architecture.overallConfidence)}
         </p>
       </Card>
 
-      <Block title="Capacidades recomendadas">
+      <Block title={t("solutionArchitecturePanel.recommendedCapabilities")}>
         <ul className="space-y-3">
           {architecture.modules.map((mod) => (
             <li key={mod.id}>
@@ -133,7 +135,7 @@ export function SolutionArchitecturePanel({
         </ul>
       </Block>
 
-      <Block title="Roles que lo usarán">
+      <Block title={t("solutionArchitecturePanel.rolesThatWillUseIt")}>
         <ul className="space-y-3">
           {architecture.roles.map((role) => (
             <li key={role.id}>
@@ -145,7 +147,9 @@ export function SolutionArchitecturePanel({
               </p>
               {role.primaryScreens.length > 0 ? (
                 <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-                  Usado en: {role.primaryScreens.map(screenLabel).join(" · ")}
+                  {t("solutionArchitecturePanel.usedIn", {
+                    screens: role.primaryScreens.map(screenLabel).join(" · "),
+                  })}
                 </p>
               ) : null}
             </li>
@@ -154,17 +158,16 @@ export function SolutionArchitecturePanel({
       </Block>
 
       <ExecutiveDetail
-        labelExpand="Ver modelo de información y accesos"
-        labelCollapse="Ocultar modelo de información y accesos"
+        labelExpand={t("solutionArchitecturePanel.expandDataModel")}
+        labelCollapse={t("solutionArchitecturePanel.collapseDataModel")}
         summary={
           <p className="text-sm text-[var(--isalwa-slate)]">
-            Objetos de negocio centrales, relaciones, navegación y principios
-            de acceso que dan soporte a las capacidades recomendadas.
+            {t("solutionArchitecturePanel.dataModelSummary")}
           </p>
         }
       >
         <div className="space-y-6">
-          <Block title="Información central del negocio">
+          <Block title={t("solutionArchitecturePanel.coreBusinessInfo")}>
             <ul className="flex flex-wrap gap-2">
               {architecture.entities.map((entity) => (
                 <li
@@ -177,25 +180,27 @@ export function SolutionArchitecturePanel({
             </ul>
           </Block>
 
-          <Block title="Cómo se conecta la información">
+          <Block title={t("solutionArchitecturePanel.howInfoConnects")}>
             <ul className="space-y-2">
               {architecture.relationships.map((rel) => (
                 <li key={rel.id} className="text-sm text-[var(--isalwa-slate)]">
                   {entityLabel(rel.fromEntity)}{" "}
-                  <span className="text-[var(--isalwa-slate)]/60">se relaciona con</span>{" "}
+                  <span className="text-[var(--isalwa-slate)]/60">
+                    {t("solutionArchitecturePanel.relatesTo")}
+                  </span>{" "}
                   {entityLabel(rel.toEntity)}
                 </li>
               ))}
             </ul>
           </Block>
 
-          <Block title="Navegación principal">
+          <Block title={t("solutionArchitecturePanel.mainNavigation")}>
             <p className="text-[var(--isalwa-slate)]">
               {architecture.navigation.map((n) => n.label).join(" · ")}
             </p>
           </Block>
 
-          <Block title="Principios de acceso">
+          <Block title={t("solutionArchitecturePanel.accessPrinciples")}>
             <ul className="space-y-2">
               {architecture.permissions.map((perm) => {
                 const es = PERMISSION_ES[perm.capability];
@@ -214,14 +219,16 @@ export function SolutionArchitecturePanel({
         </div>
       </ExecutiveDetail>
 
-      <Block title="Secuencia de implementación">
+      <Block title={t("solutionArchitecturePanel.implementationSequence")}>
         <ol className="space-y-5">
           {architecture.roadmap.map((phase) => (
             <li key={phase.id}>
               <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                Fase {phase.phase}
+                {t("solutionArchitecturePanel.phase", { number: phase.phase })}
                 {phase.estimatedComplexity
-                  ? ` · complejidad ${complexityLabel(phase.estimatedComplexity)}`
+                  ? t("solutionArchitecturePanel.complexitySuffix", {
+                      level: complexityLabel(phase.estimatedComplexity),
+                    })
                   : ""}
               </p>
               <p className="mt-1 text-[var(--isalwa-kiln)]">{phaseLabel(phase.name)}</p>
@@ -229,7 +236,9 @@ export function SolutionArchitecturePanel({
                 {phase.businessValue}
               </p>
               <p className="mt-1 text-xs text-[var(--isalwa-slate)]/60">
-                Capacidades: {phase.modules.map(moduleLabel).join(" · ") || "—"}
+                {t("solutionArchitecturePanel.capabilities", {
+                  modules: phase.modules.map(moduleLabel).join(" · ") || "—",
+                })}
               </p>
             </li>
           ))}
@@ -237,17 +246,16 @@ export function SolutionArchitecturePanel({
       </Block>
 
       <ExecutiveDetail
-        labelExpand="Ver integraciones y extensiones futuras"
-        labelCollapse="Ocultar integraciones futuras"
+        labelExpand={t("solutionArchitecturePanel.expandFutureIntegrations")}
+        labelCollapse={t("solutionArchitecturePanel.collapseFutureIntegrations")}
         summary={
           <p className="text-sm text-[var(--isalwa-slate)]">
-            Integraciones planeadas y extensiones futuras — pensadas para
-            fases posteriores, no necesarias para la primera versión.
+            {t("solutionArchitecturePanel.futureIntegrationsSummary")}
           </p>
         }
       >
         <div className="space-y-6">
-          <Block title="Integraciones futuras">
+          <Block title={t("solutionArchitecturePanel.futureIntegrations")}>
             <ul className="space-y-2">
               {architecture.integrations.map((integ) => (
                 <li
@@ -264,7 +272,7 @@ export function SolutionArchitecturePanel({
           </Block>
 
           {architecture.aiAgents.length > 0 ? (
-            <Block title="Futuros asistentes de IA">
+            <Block title={t("solutionArchitecturePanel.futureAiAssistants")}>
               <ul className="space-y-2">
                 {architecture.aiAgents.map((agent) => (
                   <li key={agent.id}>
@@ -279,7 +287,7 @@ export function SolutionArchitecturePanel({
           ) : null}
 
           {architecture.apis.length > 0 ? (
-            <Block title="Conceptos de conectividad del sistema">
+            <Block title={t("solutionArchitecturePanel.systemConnectivityConcepts")}>
               <ul className="flex flex-wrap gap-2">
                 {architecture.apis.map((api) => (
                   <li
@@ -293,7 +301,7 @@ export function SolutionArchitecturePanel({
             </Block>
           ) : null}
 
-          <Block title="Documentación futura">
+          <Block title={t("solutionArchitecturePanel.futureDocumentation")}>
             <ul className="grid gap-2 sm:grid-cols-2">
               {SOLUTION_FUTURE_OUTPUTS.map((output) => (
                 <li

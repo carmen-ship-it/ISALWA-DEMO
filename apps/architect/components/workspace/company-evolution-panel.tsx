@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "@/lib/i18n";
 import { formatTimelineDate } from "@/lib/timeline";
 import {
   compareSnapshots,
@@ -24,12 +25,12 @@ export function CompanyEvolutionPanel({
 }: {
   history: CompanyEvolutionHistory | null | undefined;
 }) {
+  const { t } = useTranslations();
   if (!history || history.snapshots.length === 0) {
     return (
       <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-5 py-5 shadow-none">
         <p className="text-sm text-[var(--isalwa-slate)]">
-          La evolución de la empresa aparece cuando Architect captura el estado
-          del engagement. Cada visita conserva la historia — nada se sobrescribe.
+          {t("companyEvolutionPanel.empty")}
         </p>
       </Card>
     );
@@ -50,29 +51,38 @@ export function CompanyEvolutionPanel({
     <div className="space-y-5">
       <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-5 py-6 shadow-none">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Memoria continua
+          {t("companyEvolutionPanel.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          Relación de consultoría en el tiempo
+          {t("companyEvolutionPanel.title")}
         </h3>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {history.snapshots.length} captura
-          {history.snapshots.length === 1 ? "" : "s"} ·{" "}
-          {history.milestones.length} hito
-          {history.milestones.length === 1 ? "" : "s"} · solo lectura ·
-          historial acumulativo
+          {t("companyEvolutionPanel.summary", {
+            snapshots: history.snapshots.length,
+            captureWord: t(
+              history.snapshots.length === 1
+                ? "companyEvolutionPanel.captureOne"
+                : "companyEvolutionPanel.captureMany",
+            ),
+            milestones: history.milestones.length,
+            milestoneWord: t(
+              history.milestones.length === 1
+                ? "companyEvolutionPanel.milestoneOne"
+                : "companyEvolutionPanel.milestoneMany",
+            ),
+          })}
         </p>
         <dl className="mt-5 grid gap-3 sm:grid-cols-3">
           <Stat
-            label="Comprensión"
+            label={t("companyEvolutionPanel.understanding")}
             value={`${latest.businessUnderstanding}% · ${understandingLevel(latest.businessUnderstanding).toLowerCase()}`}
           />
           <Stat
-            label="Madurez"
+            label={t("companyEvolutionPanel.maturity")}
             value={maturityLabel(latest.maturityOverall, "percent")}
           />
           <Stat
-            label="Última visita"
+            label={t("companyEvolutionPanel.lastVisit")}
             value={
               history.lastVisitAt
                 ? formatTimelineDate(history.lastVisitAt)
@@ -83,51 +93,51 @@ export function CompanyEvolutionPanel({
       </Card>
 
       <ChangeSection
-        title="Qué cambió"
-        description="Diferencias materiales respecto a la captura anterior."
+        title={t("companyEvolutionPanel.whatChanged.title")}
+        description={t("companyEvolutionPanel.whatChanged.description")}
         items={vsPrevious.whatChanged}
-        empty="Sin cambios materiales entre capturas."
+        empty={t("companyEvolutionPanel.whatChanged.empty")}
       />
 
       <ChangeSection
-        title="Desde la última visita"
-        description="Lo que evolucionó desde que dejó el espacio de trabajo."
+        title={t("companyEvolutionPanel.sinceLastVisit.title")}
+        description={t("companyEvolutionPanel.sinceLastVisit.description")}
         items={sinceLastVisit.whatChanged}
-        empty="Primera visita o sin cambios desde la última sesión."
+        empty={t("companyEvolutionPanel.sinceLastVisit.empty")}
       />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <ChangeSection
-          title="Progreso"
-          description="Avances en madurez, módulos, procesos y riesgos resueltos."
+          title={t("companyEvolutionPanel.progress.title")}
+          description={t("companyEvolutionPanel.progress.description")}
           items={mergeUnique(vsPrevious.progress, sinceLastVisit.progress)}
-          empty="Aún no hay señales de progreso nuevas."
+          empty={t("companyEvolutionPanel.progress.empty")}
           tone="progress"
         />
         <ChangeSection
-          title="Regresión"
-          description="Señales que requieren atención — riesgos nuevos o retrocesos."
+          title={t("companyEvolutionPanel.regression.title")}
+          description={t("companyEvolutionPanel.regression.description")}
           items={mergeUnique(vsPrevious.regression, sinceLastVisit.regression)}
-          empty="Sin regresiones detectadas."
+          empty={t("companyEvolutionPanel.regression.empty")}
           tone="regression"
         />
       </div>
 
       <ChangeSection
-        title="Enfoque futuro"
-        description="Prioridades inmediatas, riesgos a vigilar y siguiente fase."
+        title={t("companyEvolutionPanel.futureFocus.title")}
+        description={t("companyEvolutionPanel.futureFocus.description")}
         items={sinceLastVisit.futureFocus}
-        empty="Continuar el descubrimiento con liderazgo."
+        empty={t("companyEvolutionPanel.futureFocus.empty")}
         tone="focus"
       />
 
       <Card className="border-[var(--isalwa-mist)]/70 bg-white/70 px-5 py-5 shadow-none">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-          Línea de tiempo evolutiva
+          {t("companyEvolutionPanel.timelineKicker")}
         </p>
         {timeline.length === 0 ? (
           <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
-            Los hitos aparecerán cuando el estado del engagement cambie.
+            {t("companyEvolutionPanel.timelineEmpty")}
           </p>
         ) : (
           <ol className="mt-4 space-y-4">

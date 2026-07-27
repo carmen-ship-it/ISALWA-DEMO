@@ -3,6 +3,7 @@
 import { Check } from "lucide-react";
 import { motion } from "motion/react";
 import type { WorkspaceTabId } from "@/components/workspace/workspace-tabs";
+import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export interface GuidedJourneyStage {
@@ -29,6 +30,7 @@ export function GuidedJourney({
   activeTab: WorkspaceTabId;
   onSelectStage: (tab: WorkspaceTabId) => void;
 }) {
+  const { t } = useTranslations();
   const activeStageIndex = stages.findIndex((s) => s.tab === activeTab);
   const firstIncomplete = stages.findIndex((s) => !s.complete);
   const highlightIndex =
@@ -84,7 +86,7 @@ export function GuidedJourney({
                     isCurrent ? "text-white/55" : "text-[var(--isalwa-slate)]/60",
                   )}
                 >
-                  Paso {index + 1} de {stages.length}
+                  {t("guidedJourney.stepProgress", { current: index + 1, total: stages.length })}
                 </span>
               </span>
               <span className="text-sm font-medium leading-snug">

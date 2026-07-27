@@ -4,11 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { PILOT_COMPANY_WORKSPACE_ID } from "@/lib/auth/constants";
+import { useTranslations } from "@/lib/i18n";
 
 /**
  * Pilot home — no company list. Authenticated users open ISALWA directly.
  */
 export function CompanyHome() {
+  const { t } = useTranslations();
   const router = useRouter();
   const { session, loading } = useAuth();
 
@@ -27,7 +29,7 @@ export function CompanyHome() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-      <p className="text-[var(--isalwa-slate)]/80">Cargando ISALWA…</p>
+      <p className="text-[var(--isalwa-slate)]/80">{t("companyHome.loading")}</p>
     </main>
   );
 }

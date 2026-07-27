@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
+import { useTranslations } from "@/lib/i18n";
 import { departmentLabel, moduleLabel } from "@/lib/presentation";
 import type { AnimatedBlueprintModel } from "@/lib/executive";
 
@@ -11,12 +12,12 @@ export function AnimatedBlueprint({
 }: {
   model: AnimatedBlueprintModel;
 }) {
+  const { t } = useTranslations();
   if (model.modules.length === 0 && model.departments.length === 0) {
     return (
       <Card className="px-5 py-5">
         <p className="text-sm text-[var(--isalwa-slate)]/80">
-          La vista del modelo operativo aparece cuando el descubrimiento
-          produce departamentos y capacidades.
+          {t("animatedBlueprint.empty")}
         </p>
       </Card>
     );
@@ -26,10 +27,10 @@ export function AnimatedBlueprint({
     <div className="space-y-5">
       <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          Blueprint vivo
+          {t("animatedBlueprint.kicker")}
         </p>
         <h3 className="architect-serif mt-3 text-3xl text-[var(--isalwa-kiln)]">
-          Vea cómo toma forma el modelo operativo.
+          {t("animatedBlueprint.title")}
         </h3>
       </div>
 
@@ -82,11 +83,11 @@ export function AnimatedBlueprint({
         {model.connections.length > 0 ? (
           <ExecutiveDetail
             className="mt-8 border-t border-[var(--isalwa-mist)]/70 pt-6"
-            labelExpand="Ver cómo se conectan las capacidades"
-            labelCollapse="Ocultar conexiones"
+            labelExpand={t("animatedBlueprint.expandConnections")}
+            labelCollapse={t("animatedBlueprint.collapseConnections")}
           >
             <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-              Conexiones
+              {t("animatedBlueprint.connectionsLabel")}
             </p>
             <ul className="mt-2 space-y-1.5">
               {model.connections.slice(0, 6).map((c, i) => (

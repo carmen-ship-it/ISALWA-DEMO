@@ -53,12 +53,13 @@ import {
 import { SectionShell } from "@/components/workspace/section-shell";
 import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
-  CLIENT_TAB_LABELS,
+  CLIENT_TAB_LABEL_KEYS,
   CLIENT_VISIBLE_TAB_IDS,
   WorkspaceTabs,
   type WorkspaceTabId,
 } from "@/components/workspace/workspace-tabs";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslations } from "@/lib/i18n";
 import { applyBrandOverrides } from "@/lib/brand";
 import { evolveCompanyHistory } from "@/lib/history";
 import { deriveExecutiveExperience, type JourneyStageId } from "@/lib/executive";
@@ -115,11 +116,17 @@ function journeyStageTab(
   }
 }
 
-const ROADMAP_LANES = ["Hoy", "Siguiente", "30 días", "90 días", "Futuro"] as const;
-
 export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const router = useRouter();
   const { session } = useAuth();
+  const { t } = useTranslations();
+  const ROADMAP_LANES = [
+    t("workspaceView.roadmapLanes.today"),
+    t("workspaceView.roadmapLanes.next"),
+    t("workspaceView.roadmapLanes.days30"),
+    t("workspaceView.roadmapLanes.days90"),
+    t("workspaceView.roadmapLanes.future"),
+  ] as const;
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
@@ -220,14 +227,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-        <p className="text-[var(--isalwa-slate)]/80">Cargando…</p>
+        <p className="text-[var(--isalwa-slate)]/80">{t("common.loading")}</p>
       </main>
     );
   }
 
   const isConsultant = session?.role === "consultant";
   const visibleTabIds = isConsultant ? undefined : CLIENT_VISIBLE_TAB_IDS;
-  const tabLabelOverrides = isConsultant ? undefined : CLIENT_TAB_LABELS;
+  const tabLabelOverrideKeys = isConsultant ? undefined : CLIENT_TAB_LABEL_KEYS;
 
   const briefing = buildResumeBriefing(workspace);
   const timeline = sortTimelineNewestFirst(workspace.timeline).slice(0, 5);
@@ -241,10 +248,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
   const focusHint =
     workspace.openQuestions[0]
-      ? `Hoy conviene enfocarse en: ${workspace.openQuestions[0]}.`
+      ? t("workspaceView.focusHintQuestion", { question: workspace.openQuestions[0] })
       : workspace.suggestedNextMeeting
-        ? `Hoy conviene: ${workspace.suggestedNextMeeting}.`
-        : "Hoy puede revisar lo que ya aprendimos o continuar el diagnóstico.";
+        ? t("workspaceView.focusHintMeeting", { meeting: workspace.suggestedNextMeeting })
+        : t("workspaceView.focusHintDefault");
 
   // Single source of truth for "today's recommendation" — reused by the
   // welcome brief, the context bar, and the executive dashboard headline.
@@ -265,7 +272,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const showTodaysRecommendations =
     dashboardUnderstood && dashboardHasRecommendations;
   const dashboardPrimaryLabel = showTodaysRecommendations
-    ? "Revisar recomendaciones de hoy"
+    ? t("workspaceView.reviewTodayRecommendations")
     : briefing.ctaLabel;
   const goToTodaysRecommendations = showTodaysRecommendations
     ? () => setTab("recommendations")
@@ -292,16 +299,21 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
   const evidenceChips = [
     workspace.meetings.length > 0
-      ? `${workspace.meetings.length} reunión${workspace.meetings.length === 1 ? "" : "es"}`
+      ? t(
+          workspace.meetings.length === 1
+            ? "workspaceView.chips.meetingsOne"
+            : "workspaceView.chips.meetingsMany",
+          { count: workspace.meetings.length },
+        )
       : null,
     workspace.observations.length > 0
-      ? `${workspace.observations.length} hallazgos`
+      ? t("workspaceView.chips.findings", { count: workspace.observations.length })
       : null,
     workspace.painPoints.length > 0
-      ? `${workspace.painPoints.length} problemas detectados`
+      ? t("workspaceView.chips.problemsDetected", { count: workspace.painPoints.length })
       : null,
     (workspace.knowledge?.assets?.length ?? 0) > 0
-      ? `${workspace.knowledge!.assets.length} documentos revisados`
+      ? t("workspaceView.chips.documentsReviewed", { count: workspace.knowledge!.assets.length })
       : null,
   ].filter(Boolean) as string[];
 
@@ -314,14 +326,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           summary: phase.businessValue,
           detail:
             phase.modules.length > 0
-              ? `Incluye: ${phase.modules.join(" · ")}`
+              ? t("workspaceView.roadmap.includes", { modules: phase.modules.join(" · ") })
               : undefined,
         }))
       : executive.dashboard.estimatedPhases.map((phase, index) => ({
           id: `est_${index}`,
           label: ROADMAP_LANES[Math.min(index, ROADMAP_LANES.length - 1)]!,
           title: phase,
-          summary: "Paso sugerido a partir de lo que ya sabemos.",
+          summary: t("workspaceView.roadmap.suggestedStepSummary"),
         }));
 
   const panels: Record<WorkspaceTabId, ReactNode> = {
@@ -371,29 +383,31 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="deliverables"
           icon={ClipboardList}
-          kicker="9 · Próximas acciones"
+          kicker={t("workspaceView.executive.actionsKicker")}
           title={
-            isConsultant ? "Qué sigue para el consultor" : "Qué sigue para su equipo"
+            isConsultant
+              ? t("workspaceView.executive.actionsTitleConsultant")
+              : t("workspaceView.executive.actionsTitleClient")
           }
-          description="Decisiones que aún no se han cerrado y el siguiente paso recomendado."
+          description={t("workspaceView.executive.actionsDescription")}
         >
           <CockpitDecisionsList decisions={executive.cockpit.pendingDecisions} />
 
           <div className="mt-6 border-t border-[var(--isalwa-mist)]/60 pt-6">
             <NextStepCta
-              title="¿Qué debo hacer hoy?"
+              title={t("workspaceView.executive.todayCtaTitle")}
               description={
                 showTodaysRecommendations
-                  ? "Ya sabemos lo suficiente para sugerir qué construir primero."
-                  : "Siga el diagnóstico para subir la comprensión del negocio, o revise lo que ya encontramos."
+                  ? t("workspaceView.executive.todayCtaDescriptionReady")
+                  : t("workspaceView.executive.todayCtaDescriptionContinue")
               }
               primaryHref={interviewHref}
               primaryLabel={dashboardPrimaryLabel}
               onPrimaryClick={goToTodaysRecommendations}
               secondaryHref={`/report?workspaceId=${workspace.id}`}
-              secondaryLabel="Ver informe"
+              secondaryLabel={t("common.viewReport")}
               tertiaryHref={isConsultant ? preparationHref : undefined}
-              tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
+              tertiaryLabel={isConsultant ? t("common.prepareNextMeeting") : undefined}
             />
           </div>
         </SectionShell>
@@ -402,7 +416,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <div className="space-y-8 border-t border-[var(--isalwa-mist)]/50 pt-10">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/60">
-              Su progreso
+              {t("workspaceView.executive.progressLabel")}
             </p>
             <div className="mt-4">
               <GuidedJourney
@@ -417,14 +431,14 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             <SectionShell
               tone="problems"
               icon={Lightbulb}
-              kicker="Lo que aún falta"
-              title="Preguntas abiertas"
-              description="Temas que todavía necesitamos aclarar."
+              kicker={t("workspaceView.executive.stillMissingKicker")}
+              title={t("workspaceView.executive.openQuestionsTitle")}
+              description={t("workspaceView.executive.openQuestionsDescription")}
               className="sm:px-6 sm:py-6"
             >
               {workspace.openQuestions.length === 0 ? (
                 <p className="text-sm text-[var(--isalwa-slate)]">
-                  Por ahora no hay preguntas abiertas.
+                  {t("workspaceView.executive.noOpenQuestions")}
                 </p>
               ) : (
                 <ul className="space-y-2">
@@ -443,13 +457,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             <SectionShell
               tone="health"
               icon={Map}
-              kicker="Siguiente paso"
-              title="Qué conviene hacer"
-              description="Una sugerencia clara para la próxima conversación."
+              kicker={t("workspaceView.executive.nextStepKicker")}
+              title={t("workspaceView.executive.nextStepTitle")}
+              description={t("workspaceView.executive.nextStepDescription")}
               className="sm:px-6 sm:py-6"
             >
               <p className="text-base leading-relaxed text-[var(--isalwa-slate)]">
-                {workspace.suggestedNextMeeting ?? "Continuar el diagnóstico"}
+                {workspace.suggestedNextMeeting ?? t("common.continueDiagnosis")}
               </p>
             </SectionShell>
           </div>
@@ -460,19 +474,19 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     assessment: (
       <div className="space-y-8">
         <NextStepCta
-          title="Ayúdame a responder preguntas"
-          description="Continúe donde lo dejamos — cada respuesta fortalece el diagnóstico."
+          title={t("workspaceView.assessment.helpAnswerTitle")}
+          description={t("workspaceView.assessment.helpAnswerDescription1")}
           primaryHref={interviewHref}
           primaryLabel={briefing.ctaLabel}
           tertiaryHref={isConsultant ? preparationHref : undefined}
-          tertiaryLabel={isConsultant ? "Preparar la próxima reunión" : undefined}
+          tertiaryLabel={isConsultant ? t("common.prepareNextMeeting") : undefined}
         />
         <SectionShell
           tone="health"
           icon={ClipboardList}
-          kicker="Diagnóstico"
-          title="Avance del trabajo"
-          description="Hasta dónde hemos llegado y qué evidencia lo respalda."
+          kicker={t("workspaceView.assessment.kicker")}
+          title={t("workspaceView.assessment.progressTitle")}
+          description={t("workspaceView.assessment.progressDescription")}
         >
           <Card className="border-[var(--isalwa-tint-green-border)]/50 bg-white/80 px-6 py-6 shadow-none">
             <DiscoveryJourney
@@ -485,9 +499,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="executive"
           icon={GitBranch}
-          kicker="Evolución"
-          title="Cómo ha cambiado la empresa"
-          description="Cada visita suma memoria. No borramos lo anterior."
+          kicker={t("workspaceView.assessment.evolutionKicker")}
+          title={t("workspaceView.assessment.evolutionTitle")}
+          description={t("workspaceView.assessment.evolutionDescription")}
         >
           <CompanyEvolutionPanel history={workspace.evolutionHistory} />
         </SectionShell>
@@ -495,9 +509,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="blueprint"
           icon={Building2}
-          kicker="Marca y experiencia"
-          title="Cómo debe sentirse la empresa"
-          description="Identidad y tono inferidos del diagnóstico — solo lectura."
+          kicker={t("workspaceView.assessment.brandKicker")}
+          title={t("workspaceView.assessment.brandTitle")}
+          description={t("workspaceView.assessment.brandDescription")}
         >
           <BrandExperiencePanel model={workspace.brandExperience} />
         </SectionShell>
@@ -506,13 +520,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <SectionShell
             tone="blueprint"
             icon={Building2}
-            kicker="Marca blanca"
-            title="Personalizar para este cliente"
-            description="Ajuste logo, colores, terminología y mensaje de bienvenida — se aplican de inmediato en el espacio de trabajo y el reporte."
+            kicker={t("workspaceView.assessment.whiteLabelKicker")}
+            title={t("workspaceView.assessment.whiteLabelTitle")}
+            description={t("workspaceView.assessment.whiteLabelDescription")}
           >
             <BrandSettingsPanel
               workspace={workspace}
-              updatedByLabel={session?.displayName ?? "Consultor"}
+              updatedByLabel={session?.displayName ?? t("workspaceView.assessment.consultantFallback")}
               onUpdated={(next) => setWorkspace(next)}
             />
           </SectionShell>
@@ -521,9 +535,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="health"
           icon={FileText}
-          kicker="Conocimiento del negocio"
-          title="Lo que ya sabemos"
-          description="Información de la empresa que ya usamos en el diagnóstico."
+          kicker={t("common.businessKnowledgeKicker")}
+          title={t("workspaceView.assessment.knownTitle")}
+          description={t("workspaceView.assessment.knownDescription")}
         >
           <KnowledgeCenter
             workspace={workspace}
@@ -534,14 +548,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="deliverables"
           icon={Route}
-          kicker="Actividad reciente"
-          title="Últimos avances"
-          description="Lo más reciente que quedó registrado."
+          kicker={t("workspaceView.assessment.recentActivityKicker")}
+          title={t("workspaceView.assessment.recentActivityTitle")}
+          description={t("workspaceView.assessment.recentActivityDescription")}
         >
           {timeline.length === 0 ? (
             <p className="text-sm text-[var(--isalwa-slate)]">
-              Aún no hay actividad reciente. Continúe el diagnóstico para
-              empezar.
+              {t("workspaceView.assessment.noRecentActivity")}
             </p>
           ) : (
             <ol className="space-y-4">
@@ -564,8 +577,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         </SectionShell>
 
         <NextStepCta
-          title="Ayúdame a responder preguntas"
-          description="Responda lo que falta para fortalecer el diagnóstico."
+          title={t("workspaceView.assessment.helpAnswerTitle")}
+          description={t("workspaceView.assessment.helpAnswerDescription2")}
           primaryHref={interviewHref}
           primaryLabel={briefing.ctaLabel}
         />
@@ -581,9 +594,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="blueprint"
           icon={Layers3}
-          kicker="Plan de negocio"
-          title="Cómo debería operar la empresa"
-          description="Este es el modelo futuro que recomendamos."
+          kicker={t("common.blueprintKicker")}
+          title={t("workspaceView.blueprint.title")}
+          description={t("workspaceView.blueprint.description")}
         >
           <AnimatedBlueprint model={executive.blueprint} />
         </SectionShell>
@@ -591,11 +604,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
         </SectionShell>
         <NextStepCta
-          description="Revise el sistema recomendado que da soporte a este plan."
+          description={t("workspaceView.blueprint.reviewSystemDescription")}
           primaryHref="#"
-          primaryLabel="Ver sistema recomendado"
+          primaryLabel={t("common.viewRecommendedSystem")}
           secondaryHref={interviewHref}
-          secondaryLabel="Seguir evaluando"
+          secondaryLabel={t("common.continueEvaluatingAlt")}
         />
       </div>
     ),
@@ -603,19 +616,19 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     company: (
       <div className="space-y-8">
         <NextStepCta
-          title="¿Qué saben de mi empresa?"
-          description="Esto es lo que ya sabemos, construido a partir de evidencia real — no de supuestos."
+          title={t("workspaceView.company.title")}
+          description={t("workspaceView.company.description1")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
-          secondaryLabel="Ver conocimiento del negocio"
+          primaryLabel={t("common.continueEvaluation")}
+          secondaryLabel={t("common.viewBusinessKnowledge")}
           onSecondaryClick={() => setTab("knowledge")}
         />
         <SectionShell
           tone="blueprint"
           icon={Network}
-          kicker="Su empresa"
-          title="Mapa vivo de la organización"
-          description="Departamentos, relaciones, información y puntos críticos — en lenguaje claro."
+          kicker={t("workspaceView.company.kicker")}
+          title={t("workspaceView.company.mapTitle")}
+          description={t("workspaceView.company.mapDescription")}
         >
           <CompanyModelPanel
             model={workspace.companyModel}
@@ -623,11 +636,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <NextStepCta
-          title="¿Qué saben de mi empresa?"
-          description="Si falta estructura, continúe el diagnóstico."
+          title={t("workspaceView.company.title")}
+          description={t("workspaceView.company.description2")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
-          secondaryLabel="Ver conocimiento del negocio"
+          primaryLabel={t("common.continueEvaluation")}
+          secondaryLabel={t("common.viewBusinessKnowledge")}
           onSecondaryClick={() => setTab("knowledge")}
         />
       </div>
@@ -638,9 +651,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="health"
           icon={FileText}
-          kicker="Conocimiento del negocio"
-          title="Ayúdenos a entender su negocio más rápido"
-          description="Cuanta más información nos dé, menos preguntas necesitamos hacerle."
+          kicker={t("common.businessKnowledgeKicker")}
+          title={t("workspaceView.knowledge.title")}
+          description={t("workspaceView.knowledge.description")}
         >
           <BusinessKnowledge
             workspace={workspace}
@@ -648,9 +661,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <NextStepCta
-          description="Lo que suba aquí también alimenta el diagnóstico."
+          description={t("workspaceView.knowledge.ctaDescription")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -660,16 +673,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="executive"
           icon={Sparkles}
-          kicker="Perspectivas ejecutivas"
-          title="Lo que la evidencia dice de esta empresa"
-          description="Observaciones ejecutivas derivadas de lo que ya sabemos — memoria, conocimiento, historial, madurez y evidencia. Nada inventado."
+          kicker={t("workspaceView.insights.kicker")}
+          title={t("workspaceView.insights.title")}
+          description={t("workspaceView.insights.description")}
         >
           <ExecutiveInsightsPanel insights={executiveInsights} />
         </SectionShell>
         <NextStepCta
-          description="Estas perspectivas se enriquecen con cada respuesta y cada documento nuevo."
+          description={t("workspaceView.insights.ctaDescription")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -679,20 +692,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="blueprint"
           icon={Layers3}
-          kicker="Sistema recomendado"
-          title="Software que resuelve los problemas encontrados"
-          description="Estas son las piezas de software que recomendamos — diseñadas a partir de la evidencia."
+          kicker={t("common.recommendedSystemKicker")}
+          title={t("common.solutionTitle")}
+          description={t("common.solutionDescription")}
         >
           <SolutionArchitecturePanel
             architecture={workspace.solutionArchitecture}
           />
         </SectionShell>
         <NextStepCta
-          description="Vea el orden sugerido para construir este sistema."
+          description={t("workspaceView.architecture.ctaDescription")}
           primaryHref="#"
-          primaryLabel="Ver plan de implementación"
+          primaryLabel={t("common.viewImplementationPlan")}
           secondaryHref={interviewHref}
-          secondaryLabel="Continuar evaluación"
+          secondaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -702,9 +715,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="processes"
           icon={GitBranch}
-          kicker="Cómo opera"
-          title="Cómo se mueve el trabajo hoy"
-          description="Esto muestra cómo el trabajo atraviesa su empresa."
+          kicker={t("workspaceView.processes.kicker")}
+          title={t("workspaceView.processes.title")}
+          description={t("workspaceView.processes.description")}
         >
           <BusinessProcessesPanel
             context={
@@ -727,9 +740,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <NextStepCta
-          description="Si falta un proceso clave, continúe el diagnóstico."
+          description={t("workspaceView.processes.ctaDescription")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -737,33 +750,33 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     recommendations: (
       <div className="space-y-8">
         <NextStepCta
-          title="¿Qué debo implementar?"
-          description="Esto es lo que recomendamos construir primero, según la evidencia recolectada."
-          primaryLabel="Ver plan de implementación"
+          title={t("workspaceView.recommendations.title")}
+          description={t("workspaceView.recommendations.description1")}
+          primaryLabel={t("common.viewImplementationPlan")}
           onPrimaryClick={() => setTab("roadmap")}
           secondaryHref={interviewHref}
-          secondaryLabel="Continuar evaluación"
+          secondaryLabel={t("common.continueEvaluation")}
         />
         <SectionShell
           tone="executive"
           icon={Lightbulb}
-          kicker="Recomendaciones"
-          title="Qué recomendamos hacer"
-          description="Cada recomendación nace de problemas reales que vimos — no de listas genéricas."
+          kicker={t("workspaceView.recommendations.kicker")}
+          title={t("workspaceView.recommendations.subtitle")}
+          description={t("workspaceView.recommendations.subdescription")}
         >
           {explainedModules.length === 0 ? (
             <EmptyHint
-              text="Aún no hay módulos de software recomendados. Continúe el diagnóstico."
+              text={t("workspaceView.recommendations.noModules")}
               href={interviewHref}
             />
           ) : (
             <ModuleInsightCards recommendations={explainedModules.slice(0, 5)} />
           )}
         </SectionShell>
-        <SectionShell tone="health" title="Más recomendaciones">
+        <SectionShell tone="health" title={t("workspaceView.recommendations.moreTitle")}>
           {explainedRecommendations.length === 0 ? (
             <EmptyHint
-              text="Todavía no hay recomendaciones detalladas."
+              text={t("workspaceView.recommendations.noDetailed")}
               href={interviewHref}
             />
           ) : (
@@ -773,12 +786,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           )}
         </SectionShell>
         <NextStepCta
-          title="¿Qué debo implementar?"
-          description="Revise el plan de implementación o siga respondiendo preguntas."
-          primaryLabel="Ver plan de implementación"
+          title={t("workspaceView.recommendations.title")}
+          description={t("workspaceView.recommendations.description2")}
+          primaryLabel={t("common.viewImplementationPlan")}
           onPrimaryClick={() => setTab("roadmap")}
           secondaryHref={interviewHref}
-          secondaryLabel="Continuar evaluación"
+          secondaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -788,16 +801,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="executive"
           icon={Sparkles}
-          kicker="Simulador ejecutivo"
-          title="¿Qué pasa si…?"
-          description="Explore decisiones antes de tomarlas — sin tocar la información real de su empresa."
+          kicker={t("workspaceView.simulator.kicker")}
+          title={t("workspaceTabs.simulator")}
+          description={t("workspaceView.simulator.description")}
         >
           <ExecutiveSimulatorPanel workspace={workspace} />
         </SectionShell>
         <NextStepCta
-          description="Use esto para preparar la conversación de decisión — no reemplaza el diagnóstico."
+          description={t("workspaceView.simulator.ctaDescription")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -805,29 +818,29 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     roadmap: (
       <div className="space-y-8">
         <NextStepCta
-          title="¿Hacia dónde voy?"
-          description="Este plan termina en un paquete de documentos listo para decidir."
-          primaryLabel="Ver documentos"
+          title={t("workspaceView.roadmap.title")}
+          description={t("workspaceView.roadmap.description1")}
+          primaryLabel={t("common.viewDocuments")}
           onPrimaryClick={() => setTab("deliverables")}
           secondaryHref={interviewHref}
-          secondaryLabel="Continuar evaluación"
+          secondaryLabel={t("common.continueEvaluation")}
         />
         <SectionShell
           tone="processes"
           icon={Route}
-          kicker="Plan de implementación"
-          title="En qué orden construir"
-          description="Este es el orden que recomendamos para construir todo."
+          kicker={t("workspaceTabs.roadmap")}
+          title={t("workspaceView.roadmap.orderTitle")}
+          description={t("workspaceView.roadmap.orderDescription")}
         >
           <RoadmapTimeline items={roadmapItems} />
         </SectionShell>
         <NextStepCta
-          title="¿Hacia dónde voy?"
-          description="Cuando el entendimiento sea suficiente, prepare el paquete de documentos."
-          primaryLabel="Ver documentos"
+          title={t("workspaceView.roadmap.title")}
+          description={t("workspaceView.roadmap.description2")}
+          primaryLabel={t("common.viewDocuments")}
           onPrimaryClick={() => setTab("deliverables")}
           secondaryHref={interviewHref}
-          secondaryLabel="Continuar evaluación"
+          secondaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -837,9 +850,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="deliverables"
           icon={FileText}
-          kicker="Documentos"
-          title="Paquete para decidir"
-          description="Documentos listos para dirección — para decidir, no para programar."
+          kicker={t("workspaceTabs.deliverables")}
+          title={t("workspaceView.deliverables.title")}
+          description={t("workspaceView.deliverables.description")}
         >
           <DeliverablesPanel
             workspace={workspace}
@@ -847,9 +860,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           />
         </SectionShell>
         <NextStepCta
-          description="Si falta información, vuelva al diagnóstico."
+          description={t("workspaceView.deliverables.ctaDescription")}
           primaryHref={interviewHref}
-          primaryLabel="Continuar evaluación"
+          primaryLabel={t("common.continueEvaluation")}
         />
       </div>
     ),
@@ -877,20 +890,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="blueprint"
           icon={Layers3}
-          kicker="Plan de negocio"
-          title="Cómo debería operar la empresa"
-          description="Este es el modelo futuro que recomendamos."
+          kicker={t("common.blueprintKicker")}
+          title={t("workspaceView.blueprint.title")}
+          description={t("workspaceView.blueprint.description")}
         >
           <AnimatedBlueprint model={executive.blueprint} />
         </SectionShell>
         <SectionShell tone="blueprint">
           <BusinessBlueprintPanel blueprints={workspace.blueprints ?? []} />
         </SectionShell>
-        <SectionShell tone="health" title="¿Qué debe hacer ahora?">
+        <SectionShell tone="health" title={t("common.whatNow")}>
           <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
             {isConsultant
-              ? "Revise el sistema recomendado que da soporte a este plan."
-              : "Revise el plan de implementación que da soporte a este modelo."}
+              ? t("workspaceView.blueprint.reviewSystemDescription")
+              : t("workspaceView.blueprint.reviewImplementationDescription")}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
@@ -900,11 +913,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               }
             >
               {isConsultant
-                ? "Ver sistema recomendado"
-                : "Ver plan de implementación"}
+                ? t("common.viewRecommendedSystem")
+                : t("common.viewImplementationPlan")}
             </Button>
             <Button asChild variant="secondary" size="lg">
-              <Link href={interviewHref}>Seguir evaluando</Link>
+              <Link href={interviewHref}>{t("common.continueEvaluatingAlt")}</Link>
             </Button>
           </div>
         </SectionShell>
@@ -915,24 +928,24 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         <SectionShell
           tone="blueprint"
           icon={Layers3}
-          kicker="Sistema recomendado"
-          title="Software que resuelve los problemas encontrados"
-          description="Estas son las piezas de software que recomendamos — diseñadas a partir de la evidencia."
+          kicker={t("common.recommendedSystemKicker")}
+          title={t("common.solutionTitle")}
+          description={t("common.solutionDescription")}
         >
           <SolutionArchitecturePanel
             architecture={workspace.solutionArchitecture}
           />
         </SectionShell>
-        <SectionShell tone="health" title="¿Qué debe hacer ahora?">
+        <SectionShell tone="health" title={t("common.whatNow")}>
           <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
-            Vea el orden sugerido para construir este sistema.
+            {t("workspaceView.architecture.ctaDescription")}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button size="lg" onClick={() => setTab("roadmap")}>
-              Ver plan de implementación
+              {t("common.viewImplementationPlan")}
             </Button>
             <Button asChild variant="secondary" size="lg">
-              <Link href={interviewHref}>Continuar evaluación</Link>
+              <Link href={interviewHref}>{t("common.continueEvaluation")}</Link>
             </Button>
           </div>
         </SectionShell>
@@ -949,22 +962,22 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         companyName={workspace.companyName}
         stageLabel={formatStageLabel(workspace.currentStage)}
         understanding={workspace.businessUnderstanding}
-        nextGoal={todayRecommendation ?? "Continuar el diagnóstico"}
+        nextGoal={todayRecommendation ?? t("common.continueDiagnosis")}
       />
       {session?.role === "consultant" ? (
-        <BackLink href="/" label="Volver a empresas" className="mb-6" />
+        <BackLink href="/" label={t("workspaceView.backToCompanies")} className="mb-6" />
       ) : null}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--isalwa-slate)]/80">
-            Espacio de la empresa
+            {t("workspaceView.header.kicker")}
           </p>
           <div className="mt-4 flex items-center gap-3">
             {effectiveBrand.logoUrl.value ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={effectiveBrand.logoUrl.value}
-                alt={`Logo de ${effectiveBrand.companyDisplayName}`}
+                alt={t("workspaceView.header.logoAlt", { company: effectiveBrand.companyDisplayName })}
                 className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
                 style={
                   effectiveBrand.primaryColor.value
@@ -1000,7 +1013,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           onChange={setTab}
           panels={panelsWithTabLinks}
           visibleTabIds={visibleTabIds}
-          labelOverrides={tabLabelOverrides}
+          labelOverrideKeys={tabLabelOverrideKeys}
         />
       </motion.div>
 
@@ -1008,7 +1021,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
       <div className="flex flex-wrap items-center gap-3 pb-16">
         {session?.role === "consultant" ? (
-          <BackLink href="/" label="Volver a empresas" />
+          <BackLink href="/" label={t("workspaceView.backToCompanies")} />
         ) : null}
         <Button
           variant="ghost"
@@ -1024,12 +1037,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 }
 
 function EmptyHint({ text, href }: { text: string; href: string }) {
+  const { t } = useTranslations();
   return (
     <div className="rounded-2xl border border-dashed border-[var(--isalwa-mist)] bg-white/70 px-5 py-6">
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{text}</p>
       <div className="mt-4">
         <Button asChild variant="secondary">
-          <Link href={href}>Continuar evaluación</Link>
+          <Link href={href}>{t("common.continueEvaluation")}</Link>
         </Button>
       </div>
     </div>
@@ -1047,10 +1061,11 @@ function CockpitDecisionsList({
 }: {
   decisions: Array<{ id: string; title: string; detail: string }>;
 }) {
+  const { t } = useTranslations();
   if (decisions.length === 0) {
     return (
       <p className="text-sm text-[var(--isalwa-slate)]/60">
-        No hay decisiones pendientes por ahora.
+        {t("workspaceView.cockpit.noDecisions")}
       </p>
     );
   }

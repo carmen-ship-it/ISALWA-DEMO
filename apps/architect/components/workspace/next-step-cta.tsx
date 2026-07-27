@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { useTranslations } from "@/lib/i18n";
 
 /**
  * Guided Executive Navigation (Mission 12) — the one clear "what do I click
@@ -16,7 +17,7 @@ import { SectionShell } from "@/components/workspace/section-shell";
  * grow more slots.
  */
 export function NextStepCta({
-  title = "¿Qué debe hacer ahora?",
+  title,
   description,
   primaryHref,
   primaryLabel,
@@ -42,11 +43,12 @@ export function NextStepCta({
   tertiaryLabel?: string;
   onTertiaryClick?: () => void;
 }) {
+  const { t } = useTranslations();
   const hasSecondary = Boolean(secondaryLabel && (secondaryHref || onSecondaryClick));
   const hasTertiary = Boolean(tertiaryLabel && (tertiaryHref || onTertiaryClick));
 
   return (
-    <SectionShell tone="health" title={title} description={description}>
+    <SectionShell tone="health" title={title ?? t("common.whatNow")} description={description}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {onPrimaryClick ? (
           <Button type="button" size="lg" onClick={onPrimaryClick}>
