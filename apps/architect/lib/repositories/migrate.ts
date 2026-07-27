@@ -49,6 +49,31 @@ const REMOVED_DEMO_WORKSPACE_IDS = new Set([
   "ws_abc",
 ]);
 
+/**
+ * Unique to the old `lib/knowledge/seed.ts` fabricated pilot seed — every
+ * mock asset it ever produced tagged its `source` field "... · mock" and
+ * was never actually uploaded (see NO_FABRICATED_CONTENT.md). Real uploads
+ * (`lib/documents/upload.ts`) never write that suffix, so this only ever
+ * matches the old seed, no matter how the workspace was persisted
+ * (localStorage or Supabase) before the seed was hollowed out.
+ */
+function looksLikeOldFabricatedKnowledgeSeed(
+  workspace: CompanyWorkspace,
+): boolean {
+  const assets = workspace.knowledge?.assets ?? [];
+  return (
+    workspace.id === PILOT_COMPANY_WORKSPACE_ID &&
+    assets.length > 0 &&
+    assets.every((asset) => asset.source.includes("· mock"))
+  );
+}
+
+/** The exact two summaries the old fabricated knowledge seed ever wrote. */
+const STALE_FABRICATED_KNOWLEDGE_DESCRIPTIONS = new Set([
+  "Se revisaron dos presentaciones de estrategia y una nota de traspaso de proyecto antes de la última sesión.",
+  "Notas de proceso parciales con varios responsables sin definir.",
+]);
+
 /** Drop placeholder tenants and ensure the pilot ISALWA workspace exists. */
 function purgeDemoWorkspaces(bundle: WorkspaceBundle): WorkspaceBundle {
   const workspaces = bundle.workspaces
@@ -89,19 +114,30 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         evolutionHistory: workspace.evolutionHistory,
       };
 
-      if (!next.knowledge?.assets) {
+      if (!next.knowledge?.assets || looksLikeOldFabricatedKnowledgeSeed(next)) {
+        // Heal: this either has no knowledge yet, or is a ws_isalwa row
+        // persisted before the seed was hollowed out and still carries the
+        // two fabricated "mock" assets — never re-seed fake evidence, drop
+        // back to the same honest empty shell every new workspace gets.
         const knowledge =
           next.id.startsWith("ws_")
             ? createSeedKnowledge(next.id)
             : emptyWorkspaceKnowledge();
         const knowledgeEvents = knowledgeTimelineEvents(next.id, knowledge);
-        const existingIds = new Set(next.timeline.map((e) => e.title));
+        const prunedTimeline = next.timeline.filter(
+          (e) =>
+            !(
+              e.category === "knowledge" &&
+              STALE_FABRICATED_KNOWLEDGE_DESCRIPTIONS.has(e.description)
+            ),
+        );
+        const existingIds = new Set(prunedTimeline.map((e) => e.title));
         next = {
           ...next,
           knowledge,
           timeline: [
             ...knowledgeEvents.filter((e) => !existingIds.has(e.title)),
-            ...next.timeline,
+            ...prunedTimeline,
           ].sort((a, b) => b.date.localeCompare(a.date)),
         };
       } else {
