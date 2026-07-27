@@ -18,9 +18,13 @@
  *   missing-information.ts  the Missing Information Engine — same gaps, ranked
  *                           by estimated business impact with a concrete next
  *                           upload, instead of an undifferentiated list
+ *   explainable-confidence.ts  the Explainable Confidence breakdown — the
+ *                           same overall number, broken into the categories a
+ *                           client actually asks about, each with why and how
+ *                           to raise it
  *
  * Full write-up: `CONSULTANT_READINESS_ENGINE.md`,
- * `MISSING_INFORMATION_ENGINE.md`.
+ * `MISSING_INFORMATION_ENGINE.md`, `EXPLAINABLE_CONFIDENCE.md`.
  */
 
 export {
@@ -44,6 +48,15 @@ export {
   type MissingInformationOpportunity,
   type MissingInformationReport,
 } from "./missing-information";
+
+export {
+  assessExplainableConfidence,
+  assessMemoryExplainableConfidence,
+  buildExplainableConfidenceReport,
+  type ConfidenceCategory,
+  type ConfidenceCategoryKind,
+  type ExplainableConfidenceReport,
+} from "./explainable-confidence";
 
 export {
   assessMemoryReadiness,

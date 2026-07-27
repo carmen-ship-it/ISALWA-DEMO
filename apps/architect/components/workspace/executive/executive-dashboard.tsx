@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
 import {
+  ExplainableConfidenceBreakdown,
   MissingInformationList,
   ReadinessConflictList,
   ReadinessTopicList,
@@ -24,7 +25,11 @@ import type {
   ExecutiveDashboardModel,
 } from "@/lib/executive";
 import type { ExplainedRecommendation } from "@/lib/explanations";
-import type { MissingInformationReport, ReadinessAssessment } from "@/lib/readiness";
+import type {
+  ExplainableConfidenceReport,
+  MissingInformationReport,
+  ReadinessAssessment,
+} from "@/lib/readiness";
 
 /**
  * Mission 13 — Executive Dashboard Redesign. This is the consulting-briefing
@@ -45,6 +50,7 @@ export function ExecutiveDashboard({
   cockpit,
   readiness,
   missingInformation,
+  explainableConfidence,
   onUploadClick,
   explainedRecommendations = [],
   evidenceChips = [],
@@ -55,6 +61,8 @@ export function ExecutiveDashboard({
   readiness: ReadinessAssessment;
   /** Missing Information Engine — the same gaps, ranked by estimated impact. */
   missingInformation: MissingInformationReport;
+  /** Explainable Confidence — the same overall number, broken into categories with why + how to raise. */
+  explainableConfidence: ExplainableConfidenceReport;
   /** Jumps the client to the Knowledge upload surface. */
   onUploadClick?: () => void;
   explainedRecommendations?: ExplainedRecommendation[];
@@ -176,6 +184,22 @@ export function ExecutiveDashboard({
             hint={t("executiveDashboard.understanding.byAreaHint")}
           >
             <ReadinessTopicList topics={readiness.topics} />
+          </SecondarySubsection>
+
+          {/*
+            Explainable Confidence — the same overall number above, broken
+            into the categories a client actually asks about, each with why
+            and a concrete way to raise it. Extends the Missing Information
+            Engine's opportunities rather than a second scoring model.
+          */}
+          <SecondarySubsection
+            title={t("explainableConfidence.kicker")}
+            hint={t("explainableConfidence.description")}
+          >
+            <ExplainableConfidenceBreakdown
+              report={explainableConfidence}
+              onUploadClick={onUploadClick}
+            />
           </SecondarySubsection>
 
           {cockpit.businessHealth.gauges.length > 0 ? (

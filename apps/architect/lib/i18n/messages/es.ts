@@ -933,6 +933,17 @@ export const es: MessageTree = {
     goToKnowledge: "Ir a Conocimiento del negocio",
     estimatedImpact: "Impacto estimado, no garantizado",
   },
+  explainableConfidence: {
+    kicker: "Por qué esa cifra",
+    description:
+      "El mismo porcentaje de arriba, categoría por categoría — con la razón de cada número y cómo subirlo.",
+    weightHint: "Pesa {percent}% del total — el mismo peso que cada área aplicable.",
+    notEnoughInformation: "Sin suficiente información",
+    howToRaise: "Cómo subir esto",
+    supplementaryTitle: "Otras señales (no cuentan en el total)",
+    supplementaryHint:
+      "Contexto adicional de la Madurez del negocio, la Salud del negocio y los documentos cargados — no se promedian en el porcentaje de arriba, para no calcular la confianza dos veces.",
+  },
   executiveDetail: {
     expand: "Ver detalle de respaldo",
     collapse: "Ocultar detalle",

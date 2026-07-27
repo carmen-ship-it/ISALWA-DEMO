@@ -924,6 +924,17 @@ export const en: MessageTree = {
     goToKnowledge: "Go to Business Knowledge",
     estimatedImpact: "Estimated impact, not guaranteed",
   },
+  explainableConfidence: {
+    kicker: "Why that number",
+    description:
+      "The same percentage above, category by category — the reason behind each number and how to raise it.",
+    weightHint: "Weighs {percent}% of the total — the same weight as every applicable category.",
+    notEnoughInformation: "Not enough information",
+    howToRaise: "How to raise this",
+    supplementaryTitle: "Other signals (not counted in the total)",
+    supplementaryHint:
+      "Additional context from the Maturity Model, Business Health and uploaded documents — not averaged into the percentage above, so confidence is never counted twice.",
+  },
   executiveDetail: {
     expand: "View supporting detail",
     collapse: "Hide detail",

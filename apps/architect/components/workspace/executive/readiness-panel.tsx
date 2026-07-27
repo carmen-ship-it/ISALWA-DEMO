@@ -7,6 +7,8 @@ import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   consistencyLabel,
+  type ConfidenceCategory,
+  type ExplainableConfidenceReport,
   type MissingInformationReport,
   type ReadinessAssessment,
   type ReadinessGate,
@@ -469,5 +471,128 @@ export function NextUploadCta({
         </button>
       ) : null}
     </Card>
+  );
+}
+
+/**
+ * Explainable Confidence — client surface.
+ *
+ * Replaces a bare confidence percentage with the breakdown a senior
+ * consultant would give when asked "why that number": one row per business
+ * category, each with its own evidence-backed score (or an honest "not
+ * enough information yet"), why it is what it is, and a concrete way to
+ * raise it. Every field is rendered verbatim from
+ * `lib/readiness/explainable-confidence.ts` — this component computes
+ * nothing.
+ */
+function ConfidenceCategoryRow({
+  category,
+  onUploadClick,
+}: {
+  category: ConfidenceCategory;
+  onUploadClick?: () => void;
+}) {
+  const { t } = useTranslations();
+
+  return (
+    <li className="rounded-2xl border border-[var(--isalwa-mist)]/70 bg-white/85 px-4 py-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{category.label}</p>
+          {category.kind === "core" && category.weightPercent != null ? (
+            <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/50">
+              {t("explainableConfidence.weightHint", { percent: category.weightPercent })}
+            </p>
+          ) : null}
+        </div>
+        {category.score != null ? (
+          <span className="shrink-0 rounded-full bg-[var(--isalwa-tint-blue)]/70 px-2.5 py-1 text-[11px] font-medium tabular-nums text-[var(--isalwa-tint-blue-ink)]">
+            {category.score}%
+          </span>
+        ) : (
+          <span className="shrink-0 rounded-full bg-[var(--isalwa-mist)]/60 px-2.5 py-1 text-[11px] font-medium text-[var(--isalwa-slate)]/70">
+            {t("explainableConfidence.notEnoughInformation")}
+          </span>
+        )}
+      </div>
+      <p className="mt-1.5 text-xs leading-relaxed text-[var(--isalwa-slate)]/85">{category.why}</p>
+      {category.howToRaise.length > 0 ? (
+        <div className="mt-2 space-y-1 border-t border-[var(--isalwa-mist)]/50 pt-2">
+          <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--isalwa-glaze-deep)]">
+            {t("explainableConfidence.howToRaise")}
+          </p>
+          {category.howToRaise.map((line) => (
+            <p key={line} className="text-xs leading-relaxed text-[var(--isalwa-slate)]/85">
+              {line}
+            </p>
+          ))}
+        </div>
+      ) : null}
+      {category.uploadable && category.uploadSuggestions.length > 0 && onUploadClick ? (
+        <button
+          type="button"
+          onClick={onUploadClick}
+          className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--isalwa-glaze-deep)] transition hover:opacity-80"
+        >
+          <UploadCloud className="h-3.5 w-3.5" aria-hidden />
+          {t("missingInformationPanel.uploadCta")}
+        </button>
+      ) : null}
+    </li>
+  );
+}
+
+/**
+ * Full breakdown: the detective headline, every core category (these
+ * average exactly to the overall number shown elsewhere), then the
+ * supplementary signals — clearly separated and captioned as not counted
+ * into the overall score, so nothing here reads as a second, competing
+ * number.
+ */
+export function ExplainableConfidenceBreakdown({
+  report,
+  onUploadClick,
+  className,
+}: {
+  report: ExplainableConfidenceReport;
+  onUploadClick?: () => void;
+  className?: string;
+}) {
+  const { t } = useTranslations();
+
+  return (
+    <div className={cn("space-y-6", className)}>
+      <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">{report.headline}</p>
+
+      <ul className="space-y-2.5">
+        {report.coreCategories.map((category) => (
+          <ConfidenceCategoryRow
+            key={category.id}
+            category={category}
+            onUploadClick={onUploadClick}
+          />
+        ))}
+      </ul>
+
+      {report.supplementaryCategories.length > 0 ? (
+        <div className="border-t border-[var(--isalwa-mist)]/60 pt-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+            {t("explainableConfidence.supplementaryTitle")}
+          </p>
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">
+            {t("explainableConfidence.supplementaryHint")}
+          </p>
+          <ul className="mt-3 space-y-2.5">
+            {report.supplementaryCategories.map((category) => (
+              <ConfidenceCategoryRow
+                key={category.id}
+                category={category}
+                onUploadClick={onUploadClick}
+              />
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
   );
 }

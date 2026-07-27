@@ -69,6 +69,7 @@ import {
   explainWorkspaceRecommendations,
 } from "@/lib/explanations";
 import {
+  assessExplainableConfidence,
   assessMissingInformation,
   assessReadiness,
   blueprintReadinessGate,
@@ -220,6 +221,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  /**
+   * Explainable Confidence — the same Business Understanding number above,
+   * broken into the categories a client actually asks about, each with why
+   * and a concrete way to raise it. Shares the same evidence as `readiness`
+   * and `missingInformation` above, computed once per workspace load.
+   */
+  const explainableConfidence = useMemo(
+    () => (workspace ? assessExplainableConfidence(workspace) : null),
+    [workspace],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -239,7 +251,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !effectiveBrand ||
     !executiveInsights ||
     !readiness ||
-    !missingInformation
+    !missingInformation ||
+    !explainableConfidence
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -391,6 +404,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             cockpit={executive.cockpit}
             readiness={readiness}
             missingInformation={missingInformation}
+            explainableConfidence={explainableConfidence}
             onUploadClick={() => setTab("knowledge")}
             explainedRecommendations={explainedRecommendations}
             evidenceChips={evidenceChips}

@@ -19,16 +19,20 @@ import {
   timelineEstimateLabel,
 } from "@/lib/presentation";
 import {
+  assessMemoryExplainableConfidence,
   assessMemoryReadiness,
+  assessExplainableConfidence,
   assessReadiness,
   blueprintReadinessGate,
   TOPIC_PATTERNS,
+  type ExplainableConfidenceReport,
   type ReadinessAssessment,
 } from "@/lib/readiness";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type { DiscoveryReport } from "@/types";
 import { cn } from "@/lib/utils";
 import {
+  ExplainableConfidenceBreakdown,
   ReadinessStateDot,
   StillLearningList,
 } from "@/components/workspace/executive/readiness-panel";
@@ -182,9 +186,11 @@ function recommendationPriorityLabel(
 function ReportBody({
   report,
   readiness,
+  explainableConfidence,
 }: {
   report: DiscoveryReport;
   readiness: ReadinessAssessment | null;
+  explainableConfidence: ExplainableConfidenceReport | null;
 }) {
   const { t } = useTranslations();
   let i = 0;
@@ -343,6 +349,20 @@ function ReportBody({
                   <BeatSubLabel>{t("reportView.whatIsMissing")}</BeatSubLabel>
                   <div className="mt-3">
                     <StillLearningList assessment={readiness} limit={4} />
+                  </div>
+                </div>
+              ) : null}
+
+              {/*
+                Explainable Confidence — the same confidence this beat opens
+                with, broken into the categories a client actually asks
+                about, each with why and a concrete way to raise it.
+              */}
+              {explainableConfidence ? (
+                <div className="mt-6 border-t border-[var(--isalwa-mist)]/60 pt-5">
+                  <BeatSubLabel>{t("explainableConfidence.kicker")}</BeatSubLabel>
+                  <div className="mt-3">
+                    <ExplainableConfidenceBreakdown report={explainableConfidence} />
                   </div>
                 </div>
               ) : null}
@@ -568,6 +588,8 @@ export function ReportView() {
   const workspaceId = searchParams.get("workspaceId");
   const [report, setReport] = useState<DiscoveryReport | null>(null);
   const [readiness, setReadiness] = useState<ReadinessAssessment | null>(null);
+  const [explainableConfidence, setExplainableConfidence] =
+    useState<ExplainableConfidenceReport | null>(null);
   const [companyName, setCompanyName] = useState(t("reportView.theCompany"));
   /** White Label Company Experience — only available when the report is opened with a workspaceId (not the standalone interview fallback). */
   const [brand, setBrand] = useState<EffectiveBrandExperience | null>(null);
@@ -584,6 +606,7 @@ export function ReportView() {
         if (workspace?.currentReport) {
           setReport(workspace.currentReport);
           setReadiness(assessReadiness(workspace));
+          setExplainableConfidence(assessExplainableConfidence(workspace));
           setCompanyName(workspace.companyName);
           setBrand(
             applyBrandOverrides(
@@ -599,6 +622,9 @@ export function ReportView() {
       if (interview?.report) {
         setReport(interview.report);
         setReadiness(assessMemoryReadiness(interview.memory));
+        setExplainableConfidence(
+          assessMemoryExplainableConfidence(interview.memory),
+        );
         setCompanyName(
           interview.business.companyName ??
             interview.participant.companyName ??
@@ -677,7 +703,11 @@ export function ReportView() {
           document reads as a single considered artifact instead of a page
           of stacked forms. */}
       <Card className="isalwa-enter isalwa-enter-delay-1 mt-12 px-6 py-10 sm:px-12 sm:py-14">
-        <ReportBody report={report} readiness={readiness} />
+        <ReportBody
+          report={report}
+          readiness={readiness}
+          explainableConfidence={explainableConfidence}
+        />
       </Card>
 
       <footer className="isalwa-divider-fade mt-16" />
