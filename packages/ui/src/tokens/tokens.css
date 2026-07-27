@@ -145,12 +145,19 @@
   /* Glass chrome — for sticky/floating surfaces only (context bar, sticky
      tabs, floating menus). Never for resting content cards; glass reads as
      premium precisely because it stays rare. Dark variant sits on the
-     frozen kiln chrome; light variant sits on porcelain. */
+     frozen kiln chrome; light variant sits on porcelain.
+     Light frost is intentionally denser (88% + 22px blur) so scrolling
+     content under sticky rails stays readable without going solid opaque. */
   --isalwa-glass-dark-bg: color-mix(in srgb, var(--isalwa-kiln) 82%, transparent);
   --isalwa-glass-dark-border: color-mix(in srgb, white 10%, transparent);
-  --isalwa-glass-light-bg: color-mix(in srgb, var(--isalwa-porcelain) 78%, transparent);
-  --isalwa-glass-light-border: color-mix(in srgb, var(--isalwa-mist) 70%, transparent);
-  --isalwa-glass-blur: 14px;
+  --isalwa-glass-light-bg: color-mix(in srgb, var(--isalwa-porcelain) 88%, transparent);
+  --isalwa-glass-light-border: color-mix(in srgb, var(--isalwa-mist) 85%, transparent);
+  --isalwa-glass-blur: 22px;
+  /* Soft separation under light sticky glass — hairline + faint drop so
+     tabs read above content without a heavy ruled bar. */
+  --isalwa-glass-light-edge:
+    0 1px 0 color-mix(in srgb, var(--isalwa-mist) 90%, transparent),
+    0 8px 24px -12px rgba(28, 36, 48, 0.1);
 
   /* Section identity — soft, unsaturated semantic surfaces (Premium Executive
      Design System, Mission 9). One muted hue per major surface category so a

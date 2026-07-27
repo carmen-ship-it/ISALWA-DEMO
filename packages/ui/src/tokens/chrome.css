@@ -325,9 +325,10 @@
 }
 .isalwa-glass-light {
   background: var(--isalwa-glass-light-bg);
-  backdrop-filter: blur(var(--isalwa-glass-blur));
-  -webkit-backdrop-filter: blur(var(--isalwa-glass-blur));
+  backdrop-filter: blur(var(--isalwa-glass-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--isalwa-glass-blur)) saturate(1.15);
   border-color: var(--isalwa-glass-light-border);
+  box-shadow: var(--isalwa-glass-light-edge);
 }
 
 /* ── Premium card depth (Premium Visual Quality pass) ─────────────────── */

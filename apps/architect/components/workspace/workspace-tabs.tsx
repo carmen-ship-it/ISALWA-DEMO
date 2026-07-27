@@ -128,7 +128,7 @@ export function WorkspaceTabs({
 
   return (
     <div className="mt-8">
-      <div className="isalwa-glass-light isalwa-t-base sticky top-11 z-30 -mx-6 border-b px-6 py-4 sm:-mx-10 sm:px-10">
+      <div className="isalwa-glass-light isalwa-t-base sticky top-11 z-30 -mx-6 border-b border-[var(--isalwa-glass-light-border)] px-6 py-4 sm:-mx-10 sm:px-10">
         <div
           role="tablist"
           aria-label={t("workspaceTabs.ariaLabel")}
