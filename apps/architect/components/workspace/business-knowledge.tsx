@@ -7,11 +7,14 @@ import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
 import { useTranslations } from "@/lib/i18n";
 import {
+  DETECTION_CATEGORIES,
   INTAKE_SOURCES,
   ingestFileThroughIntake,
   ingestSource,
+  type DetectionCounts,
   type IntakeIngestReport,
 } from "@/lib/intake";
+import { summarizeChunkIndex } from "@/lib/documents";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import type { CompanyWorkspace } from "@/types";
@@ -40,6 +43,7 @@ export function BusinessKnowledge({
   const processedCount = knowledge.assets.filter(
     (a) => a.status === "processed",
   ).length;
+  const chunkIndex = summarizeChunkIndex(knowledge.chunks);
   const stillNeed = Array.from(
     new Set([
       ...workspace.openQuestions,
@@ -175,6 +179,9 @@ export function BusinessKnowledge({
                     — {line}
                   </p>
                 ))}
+                {report.readContent ? (
+                  <DetectionChips detections={report.detections} />
+                ) : null}
               </li>
             ))}
           </ul>
@@ -200,6 +207,24 @@ export function BusinessKnowledge({
             value={String(Math.max(0, 5 - stillNeed.length))}
           />
         </div>
+        <p className="mt-4 text-xs leading-relaxed text-[var(--isalwa-slate)]/70">
+          <span className="uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
+            {t("businessKnowledge.searchIndex")}
+          </span>
+          {" · "}
+          {chunkIndex.total === 0
+            ? t("businessKnowledge.searchIndexEmpty")
+            : chunkIndex.ready > 0
+              ? t("businessKnowledge.searchIndexReady", {
+                  ready: chunkIndex.ready,
+                  total: chunkIndex.total,
+                  documents: chunkIndex.documents,
+                })
+              : t("businessKnowledge.searchIndexPending", {
+                  total: chunkIndex.total,
+                  documents: chunkIndex.documents,
+                })}
+        </p>
         <ul className="mt-5 space-y-3">
           {knowledge.coverage.map((slice) => {
             const band = coverageBand(slice.percent, "percent");
@@ -273,6 +298,38 @@ export function BusinessKnowledge({
           ))}
         </ul>
       </ExecutiveDetail>
+    </div>
+  );
+}
+
+/**
+ * What the twelve detectors found in one document. Categories with zero
+ * matches are omitted rather than shown as "0" — an empty category is not a
+ * finding, and listing it would read as a claim we checked and confirmed
+ * nothing exists.
+ */
+function DetectionChips({ detections }: { detections: DetectionCounts }) {
+  const { t } = useTranslations();
+  const found = DETECTION_CATEGORIES.filter((category) => detections[category] > 0);
+  if (found.length === 0) return null;
+
+  return (
+    <div className="pt-1">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
+        {t("businessKnowledge.whatWeDetected")}
+      </p>
+      <ul className="mt-2 flex flex-wrap gap-1.5">
+        {found.map((category) => (
+          <li
+            key={category}
+            className="rounded-full border border-[var(--isalwa-mist)]/80 bg-white/70 px-2.5 py-1 text-[11px] text-[var(--isalwa-slate)]"
+          >
+            {t(`businessKnowledge.detection.${category}`)}
+            {" · "}
+            <span className="text-[var(--isalwa-kiln)]">{detections[category]}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

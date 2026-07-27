@@ -383,6 +383,7 @@ export async function ingestKnowledgeUpload(
     businessRules: priorKnowledge.businessRules,
     contradictions: priorKnowledge.contradictions,
     evidenceLog: priorKnowledge.evidenceLog,
+    chunks: priorKnowledge.chunks,
   });
 
   const timelineEvent: TimelineEvent = {

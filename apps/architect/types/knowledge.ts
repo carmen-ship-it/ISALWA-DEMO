@@ -214,6 +214,49 @@ export interface KnowledgeEvidenceLogEntry {
   targetId?: string;
 }
 
+/**
+ * AI Document Processing Pipeline — how far a chunk got through embedding.
+ *
+ *  - `ready`   a real vector exists (an embeddings API key was configured).
+ *  - `pending` the chunk is queued for embedding but no provider answered —
+ *              typically no API key in this environment. Honest, not a lie
+ *              of omission: the chunk is real, the vector is simply absent.
+ *  - `skipped` the deployment opted out (e.g. vector persistence disabled).
+ *  - `failed`  a provider was configured and the call did not succeed.
+ */
+export type ChunkEmbeddingStatus = "ready" | "pending" | "skipped" | "failed";
+
+/**
+ * AI Document Processing Pipeline — one retrievable slice of a document.
+ *
+ * Chunks are always produced, whether or not embeddings can be generated:
+ * the text, its position and its provenance are real work that does not need
+ * an API key. `vector` is populated only when an embeddings provider
+ * actually returned one, so a `pending` chunk can never be mistaken for a
+ * searchable one.
+ */
+export interface KnowledgeChunkRecord {
+  id: string;
+  workspaceId: string;
+  assetId: string;
+  /** 0-based position within the document. */
+  index: number;
+  text: string;
+  charCount: number;
+  /** Character offsets back into the extracted text — the citation anchor. */
+  startOffset: number;
+  endOffset: number;
+  embeddingStatus: ChunkEmbeddingStatus;
+  /** Model that produced `vector`, or the model that would be used. */
+  embeddingModel: string | null;
+  embeddingDimensions: number | null;
+  /** Present only when `embeddingStatus === "ready"`. */
+  vector: number[] | null;
+  /** Why the vector is absent, in developer language. Null when ready. */
+  embeddingNote: string | null;
+  createdAt: string;
+}
+
 export interface WorkspaceKnowledge {
   assets: KnowledgeAsset[];
   entities: KnowledgeEntity[];
@@ -229,6 +272,8 @@ export interface WorkspaceKnowledge {
   contradictions: KnowledgeContradictionFlag[];
   /** Unified Business Knowledge Intake — additive, defaults to []. */
   evidenceLog: KnowledgeEvidenceLogEntry[];
+  /** AI Document Processing Pipeline — additive, defaults to []. */
+  chunks: KnowledgeChunkRecord[];
 }
 
 /** Pipeline stages — architecture only. No runtime processing. */

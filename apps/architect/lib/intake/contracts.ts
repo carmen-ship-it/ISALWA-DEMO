@@ -154,6 +154,14 @@ export interface IntakeBusinessRule {
 
 export interface IntakePainSignal {
   id: string;
+  /**
+   * A pain point hurts today; a risk would hurt if it happened. Both feed
+   * the existing PainPoint engine — this discriminator only changes the
+   * severity/category the merge files them under, so the platform still has
+   * one list of problems instead of a parallel risk register. Defaults to
+   * "pain" when a detector does not say.
+   */
+  kind?: "pain" | "risk";
   title: string;
   description: string;
   evidenceIds: string[];
@@ -193,6 +201,51 @@ export function emptyIntakeSlots(): IntakeSlots {
   };
 }
 
+/**
+ * The twelve business signal categories the AI Document Processing Pipeline
+ * looks for in any text it can read. These are detection *categories*, not a
+ * new taxonomy — each one is filed into an existing `IntakeSlots` field (see
+ * `detectors.ts` for the mapping). They exist so a run can honestly report
+ * "we found 4 departments and 2 approvals in this document."
+ */
+export type DetectionCategory =
+  | "people"
+  | "systems"
+  | "departments"
+  | "vendors"
+  | "software"
+  | "processes"
+  | "pain_points"
+  | "risks"
+  | "kpis"
+  | "approvals"
+  | "handoffs"
+  | "policies";
+
+export const DETECTION_CATEGORIES: readonly DetectionCategory[] = [
+  "people",
+  "systems",
+  "departments",
+  "vendors",
+  "software",
+  "processes",
+  "pain_points",
+  "risks",
+  "kpis",
+  "approvals",
+  "handoffs",
+  "policies",
+] as const;
+
+export type DetectionCounts = Record<DetectionCategory, number>;
+
+export function emptyDetectionCounts(): DetectionCounts {
+  return DETECTION_CATEGORIES.reduce((acc, category) => {
+    acc[category] = 0;
+    return acc;
+  }, {} as DetectionCounts);
+}
+
 /** The normalized envelope every source is wrapped in before extraction. */
 export interface IntakeUnit {
   id: string;
@@ -201,7 +254,12 @@ export interface IntakeUnit {
   label: string;
   receivedAt: string;
   metadata: Record<string, string | number | boolean | undefined>;
-  /** Manual notes / pasted transcripts only — never binary content. */
+  /**
+   * Text the pipeline was able to read. Manual notes and pasted transcripts
+   * fill this directly; uploaded documents fill it from
+   * `lib/documents/extraction.ts` (plain text / Markdown / CSV today) or
+   * from OCR when a vision key is configured. Never binary content.
+   */
   textContent?: string;
 }
 
@@ -214,6 +272,8 @@ export interface IntakeExtractionResult {
   messageEs: string;
   slots: IntakeSlots;
   evidence: Evidence[];
+  /** Absent when the extractor never read content (planned formats). */
+  detections?: DetectionCounts;
 }
 
 export interface IntakeExtractor {

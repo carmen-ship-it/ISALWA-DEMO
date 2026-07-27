@@ -96,14 +96,20 @@ export function mergeContradictions(
   return { contradictions, added, reinforced };
 }
 
-/** Pain signals feed the existing PainPoint engine — never a parallel list. */
+/**
+ * Pain signals feed the existing PainPoint engine — never a parallel list.
+ * Detected risks (`kind: "risk"`) land in the same list at critical
+ * severity: the platform keeps one register of problems, and the severity
+ * is what tells a consultant "this one is a exposure, not a friction."
+ */
 export function mergePainSignalsIntoWorkspace(
   existing: PainPoint[],
   incoming: IntakePainSignal[],
-): { painPoints: PainPoint[] } & MergeCount {
+): { painPoints: PainPoint[]; addedRisks: number } & MergeCount {
   const painPoints = [...existing];
   let added = 0;
   let reinforced = 0;
+  let addedRisks = 0;
   for (const signal of incoming) {
     const found = painPoints.find(
       (p) => normalize(p.title) === normalize(signal.title),
@@ -115,17 +121,19 @@ export function mergePainSignalsIntoWorkspace(
       reinforced += 1;
       continue;
     }
+    const isRisk = signal.kind === "risk";
     painPoints.push({
       id: createId("pain"),
       title: signal.title,
       description: signal.description,
-      category: "manual_work",
-      severity: "notable",
+      category: isRisk ? "visibility" : "manual_work",
+      severity: isRisk ? "critical" : "notable",
       evidence: [signal.description],
     });
     added += 1;
+    if (isRisk) addedRisks += 1;
   }
-  return { painPoints, added, reinforced };
+  return { painPoints, added, reinforced, addedRisks };
 }
 
 /** Opportunity signals feed the existing Opportunity engine — never a parallel list. */

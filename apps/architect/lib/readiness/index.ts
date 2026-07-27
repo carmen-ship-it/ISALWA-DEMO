@@ -42,7 +42,11 @@ export {
   type RecommendationEvidenceInput,
 } from "./gate";
 
-export { applyReadinessToMemory } from "./memory";
+export {
+  applyReadinessToMemory,
+  refreshUnderstandingFromEvidence,
+} from "./memory";
+export type { UnderstandingRefresh } from "./memory";
 
 export {
   MINUTES_PER_CLARIFICATION,

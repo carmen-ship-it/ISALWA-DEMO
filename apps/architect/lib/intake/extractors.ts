@@ -10,23 +10,27 @@
  *
  * The pipeline (`pipeline.ts`) is fully wired end to end regardless of which
  * bucket a source falls in — only the *content reading* is stubbed for (b).
+ *
+ * AI Document Processing Pipeline: the file extractors now read
+ * `unit.textContent` when the document pipeline was able to extract text
+ * (`lib/documents/extraction.ts`) or OCR it. When text is present they run
+ * the same twelve detectors as manual notes and transcripts
+ * (`detectors.ts`); when it is not, they fall back to the filename/type
+ * classification they always did, and say so.
  */
 
 import { createId, nowIso } from "@/lib/utils";
 import { classifyKnowledgeUpload } from "@/lib/knowledge/intake";
 import type {
   Evidence,
-  IntakeEntity,
   IntakeExtractionResult,
   IntakeExtractor,
-  IntakeFact,
-  IntakeOpportunitySignal,
-  IntakePainSignal,
   IntakeSlots,
   IntakeSourceType,
   IntakeUnit,
 } from "./contracts";
 import { emptyIntakeSlots } from "./contracts";
+import { detectBusinessSignals } from "./detectors";
 
 function evidenceFor(
   unit: IntakeUnit,
@@ -107,138 +111,17 @@ function fileLikeExtraction(unit: IntakeUnit): {
   return { slots, evidence, status };
 }
 
-/** Deterministic keyword scan shared by meeting transcripts and manual notes. No NLP/AI. */
-const DEPARTMENT_PATTERN =
-  /ventas|sales|finanzas|contabilidad|accounting|operaciones|operations|recursos humanos|\brrhh\b|\bhr\b|compras|purchasing|producci[oó]n|production|log[ií]stica|logistics|almac[eé]n|warehouse|marketing|atenci[oó]n al cliente|customer service/i;
-const SYSTEM_PATTERN =
-  /excel|whatsapp|quickbooks|\bsap\b|salesforce|hubspot|\berp\b|\bcrm\b|correo|email|access|\bsql\b|sheets|notion|trello|asana|slack/i;
-const ROLE_PATTERN =
-  /gerente|director|encargad[oa]|supervisor|jefe|coordinador|responsable|due[nñ]{1,2}[oa]|owner|founder|\bceo\b|\bcfo\b|\bcoo\b/i;
-const PAIN_PATTERN =
-  /problema|lento|demora|\berror\b|falla|cuello de botella|se pierde|manual(mente)?|duplicad[oa]|no hay visibilidad|retraso/i;
-const OPPORTUNITY_PATTERN =
-  /oportunidad|podr[ií]amos|deber[ií]amos|automatizar|mejorar|ahorrar|reducir tiempo|falta un sistema/i;
-const RULE_PATTERN =
-  /siempre se debe|nunca se debe|es pol[ií]tica|no se permite|\bregla\b|obligatorio|requiere aprobaci[oó]n de/i;
-
-function scanTextSignals(unit: IntakeUnit, text: string): {
-  slots: IntakeSlots;
-  evidence: Evidence[];
-} {
-  const slots = emptyIntakeSlots();
-  const evidence: Evidence[] = [];
-  const sentences = text
-    .split(/(?<=[.!?\n])\s+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 3)
-    .slice(0, 60); // deterministic cap — this is a heuristic scan, not a summarizer
-
-  const seenEntities = new Set<string>();
-
-  for (const sentence of sentences) {
-    const factEv = evidenceFor(unit, sentence, 0.55, "fact");
-    evidence.push(factEv);
-    const fact: IntakeFact = {
-      id: createId("fact"),
-      key: null,
-      statement: sentence,
-      evidenceIds: [factEv.id],
-      confidence: 0.55,
-    };
-    slots.facts.push(fact);
-
-    const deptMatch = DEPARTMENT_PATTERN.exec(sentence);
-    if (deptMatch) {
-      const name = titleCase(deptMatch[0]);
-      addEntity(slots, evidence, unit, seenEntities, "Department", name, sentence, 0.6);
-    }
-    const sysMatch = SYSTEM_PATTERN.exec(sentence);
-    if (sysMatch) {
-      const name = titleCase(sysMatch[0]);
-      addEntity(slots, evidence, unit, seenEntities, "System", name, sentence, 0.6);
-    }
-    const roleMatch = ROLE_PATTERN.exec(sentence);
-    if (roleMatch) {
-      const name = titleCase(roleMatch[0]);
-      addEntity(slots, evidence, unit, seenEntities, "Person", name, sentence, 0.5);
-    }
-
-    if (RULE_PATTERN.test(sentence)) {
-      const ruleEv = evidenceFor(unit, sentence, 0.6, "business_rule");
-      evidence.push(ruleEv);
-      slots.businessRules.push({
-        id: createId("rule"),
-        statement: sentence,
-        evidenceIds: [ruleEv.id],
-        confidence: 0.6,
-      });
-    }
-    if (PAIN_PATTERN.test(sentence)) {
-      const painEv = evidenceFor(unit, sentence, 0.55, "pain_signal");
-      evidence.push(painEv);
-      const pain: IntakePainSignal = {
-        id: createId("pain"),
-        title: sentence.slice(0, 80),
-        description: sentence,
-        evidenceIds: [painEv.id],
-        confidence: 0.55,
-      };
-      slots.painSignals.push(pain);
-    }
-    if (OPPORTUNITY_PATTERN.test(sentence)) {
-      const oppEv = evidenceFor(unit, sentence, 0.5, "opportunity");
-      evidence.push(oppEv);
-      const opportunity: IntakeOpportunitySignal = {
-        id: createId("opportunity"),
-        title: sentence.slice(0, 80),
-        description: sentence,
-        evidenceIds: [oppEv.id],
-        confidence: 0.5,
-      };
-      slots.opportunities.push(opportunity);
-    }
-  }
-
-  return { slots, evidence };
-}
-
-function addEntity(
-  slots: IntakeSlots,
-  evidence: Evidence[],
-  unit: IntakeUnit,
-  seen: Set<string>,
-  kind: IntakeEntity["kind"],
-  name: string,
-  sentence: string,
-  confidence: number,
-): void {
-  const key = `${kind}:${name.toLowerCase()}`;
-  const entEv = evidenceFor(unit, sentence, confidence, "entity");
-  evidence.push(entEv);
-  if (seen.has(key)) {
-    const existing = slots.entities.find(
-      (e) => e.kind === kind && e.name.toLowerCase() === name.toLowerCase(),
-    );
-    existing?.evidenceIds.push(entEv.id);
-    return;
-  }
-  seen.add(key);
-  slots.entities.push({
-    id: createId("entity"),
-    kind,
-    name,
-    summary: sentence,
-    evidenceIds: [entEv.id],
-    confidence,
-    metadata: {},
-  });
-}
-
-function titleCase(value: string): string {
-  return value
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+function mergeSlots(base: IntakeSlots, extra: IntakeSlots): IntakeSlots {
+  return {
+    facts: [...base.facts, ...extra.facts],
+    entities: [...base.entities, ...extra.entities],
+    relationships: [...base.relationships, ...extra.relationships],
+    unknowns: [...base.unknowns, ...extra.unknowns],
+    contradictions: [...base.contradictions, ...extra.contradictions],
+    businessRules: [...base.businessRules, ...extra.businessRules],
+    painSignals: [...base.painSignals, ...extra.painSignals],
+    opportunities: [...base.opportunities, ...extra.opportunities],
+  };
 }
 
 function notImplementedResult(
@@ -255,25 +138,49 @@ function notImplementedResult(
   };
 }
 
+/**
+ * File sources. Two paths, and the client is always told which one ran:
+ *
+ *  - Text was available (plain text / Markdown / CSV read in the browser, or
+ *    OCR output when a vision key is configured): classification *plus* the
+ *    full twelve-detector content scan.
+ *  - No text available (PDF/Office binaries with no parser installed): the
+ *    original filename/type classification only, described as such.
+ */
 function makeFileExtractor(id: IntakeSourceType): IntakeExtractor {
   return {
     id,
     status: "designed",
     async extract(unit) {
-      const { slots, evidence, status } = fileLikeExtraction(unit);
-      if (status !== "processed") {
-        return notImplementedResult(
-          unit,
-          `"${unit.label}" recibido — este formato aún no tiene lectura de contenido activa.`,
-        );
+      const classified = fileLikeExtraction(unit);
+      const text = unit.textContent?.trim();
+
+      if (!text) {
+        if (classified.status !== "processed") {
+          return notImplementedResult(
+            unit,
+            `"${unit.label}" recibido — este formato aún no tiene lectura de contenido activa.`,
+          );
+        }
+        return {
+          unitId: unit.id,
+          status: classified.status,
+          message: `"${unit.label}" classified from filename/type metadata — no content parsed.`,
+          messageEs: `"${unit.label}" clasificado por nombre y tipo de archivo — sin lectura de contenido todavía.`,
+          slots: classified.slots,
+          evidence: classified.evidence,
+        };
       }
+
+      const scan = detectBusinessSignals(unit, text);
       return {
         unitId: unit.id,
-        status,
-        message: `"${unit.label}" classified from filename/type metadata — no content parsed.`,
-        messageEs: `"${unit.label}" clasificado por nombre y tipo de archivo — sin lectura de contenido todavía.`,
-        slots,
-        evidence,
+        status: "processed",
+        message: `Read ${scan.scannedSentences} statements from "${unit.label}" and scanned them with the twelve deterministic business detectors.`,
+        messageEs: `Leímos "${unit.label}": ${scan.scannedSentences} declaraciones revisadas con detectores de negocio (personas, sistemas, procesos, riesgos y más).`,
+        slots: mergeSlots(classified.slots, scan.slots),
+        evidence: [...classified.evidence, ...scan.evidence],
+        detections: scan.detections,
       };
     },
   };
@@ -296,14 +203,15 @@ function makeTextExtractor(id: IntakeSourceType): IntakeExtractor {
           evidence: [],
         };
       }
-      const { slots, evidence } = scanTextSignals(unit, text);
+      const scan = detectBusinessSignals(unit, text);
       return {
         unitId: unit.id,
         status: "processed",
-        message: `Scanned ${slots.facts.length} statements for deterministic keyword signals — no AI/NLP.`,
-        messageEs: `Se revisaron ${slots.facts.length} declaraciones con reglas de palabras clave — sin IA.`,
-        slots,
-        evidence,
+        message: `Scanned ${scan.scannedSentences} statements for deterministic keyword signals — no AI/NLP.`,
+        messageEs: `Se revisaron ${scan.scannedSentences} declaraciones con reglas de palabras clave — sin IA.`,
+        slots: scan.slots,
+        evidence: scan.evidence,
+        detections: scan.detections,
       };
     },
   };
@@ -353,6 +261,34 @@ function makePlannedExtractor(id: IntakeSourceType): IntakeExtractor {
   };
 }
 
+/**
+ * Images stay "planned" as a source because reading them depends on an OCR
+ * key the deployment may not have (`lib/documents/ocr.ts`). When OCR did run
+ * and produced text, this extractor is indistinguishable from any other
+ * document: same detectors, same slots. When it did not, the honest
+ * "OCR is not active" message is preserved verbatim.
+ */
+const IMAGE_EXTRACTOR: IntakeExtractor = {
+  id: "image",
+  status: "planned",
+  async extract(unit) {
+    const text = unit.textContent?.trim();
+    if (!text) {
+      return notImplementedResult(unit, PLANNED_MESSAGES_ES.image!);
+    }
+    const scan = detectBusinessSignals(unit, text);
+    return {
+      unitId: unit.id,
+      status: "processed",
+      message: `OCR text for "${unit.label}" scanned with the twelve deterministic business detectors.`,
+      messageEs: `Texto reconocido de "${unit.label}" (lectura óptica): ${scan.scannedSentences} declaraciones revisadas.`,
+      slots: scan.slots,
+      evidence: scan.evidence,
+      detections: scan.detections,
+    };
+  },
+};
+
 export const INTAKE_EXTRACTORS: Readonly<Record<IntakeSourceType, IntakeExtractor>> = {
   interview: INTERVIEW_EXTRACTOR,
   pdf: makeFileExtractor("pdf"),
@@ -363,7 +299,7 @@ export const INTAKE_EXTRACTORS: Readonly<Record<IntakeSourceType, IntakeExtracto
   text_file: makeFileExtractor("text_file"),
   meeting_transcript: makeTextExtractor("meeting_transcript"),
   manual_notes: makeTextExtractor("manual_notes"),
-  image: makePlannedExtractor("image"),
+  image: IMAGE_EXTRACTOR,
   audio_transcript: makePlannedExtractor("audio_transcript"),
   crm_export: makePlannedExtractor("crm_export"),
   erp_export: makePlannedExtractor("erp_export"),

@@ -17,6 +17,8 @@ export interface IntakeMergeCounts {
   addedBusinessRules: number;
   addedContradictions: number;
   addedPainSignals: number;
+  /** Subset of `addedPainSignals` filed at critical severity — see `deduplication.ts`. */
+  addedRisks: number;
   addedOpportunities: number;
   addedUnknowns: number;
 }
@@ -51,9 +53,15 @@ export function buildLearnedLines(
       `${counts.addedBusinessRules} regla${counts.addedBusinessRules === 1 ? "" : "s"} de negocio`,
     );
   }
-  if (counts.addedPainSignals > 0) {
+  const frictions = Math.max(0, counts.addedPainSignals - counts.addedRisks);
+  if (frictions > 0) {
     learnedParts.push(
-      `${counts.addedPainSignals} posible${counts.addedPainSignals === 1 ? "" : "s"} problema${counts.addedPainSignals === 1 ? "" : "s"}`,
+      `${frictions} posible${frictions === 1 ? "" : "s"} problema${frictions === 1 ? "" : "s"}`,
+    );
+  }
+  if (counts.addedRisks > 0) {
+    learnedParts.push(
+      `${counts.addedRisks} riesgo${counts.addedRisks === 1 ? "" : "s"} por revisar`,
     );
   }
   if (counts.addedOpportunities > 0) {

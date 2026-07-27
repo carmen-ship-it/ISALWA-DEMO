@@ -1,6 +1,7 @@
 import type {
   KnowledgeAsset,
   KnowledgeBusinessRule,
+  KnowledgeChunkRecord,
   KnowledgeContradictionFlag,
   KnowledgeCoverageArea,
   KnowledgeCoverageSlice,
@@ -83,6 +84,7 @@ export function emptyWorkspaceKnowledge(): WorkspaceKnowledge {
     businessRules: [],
     contradictions: [],
     evidenceLog: [],
+    chunks: [],
   };
 }
 
@@ -97,6 +99,8 @@ export function buildWorkspaceKnowledge(input: {
   businessRules?: KnowledgeBusinessRule[];
   contradictions?: KnowledgeContradictionFlag[];
   evidenceLog?: KnowledgeEvidenceLogEntry[];
+  /** AI Document Processing Pipeline — additive, defaults to []. */
+  chunks?: KnowledgeChunkRecord[];
 }): WorkspaceKnowledge {
   const coverage = deriveKnowledgeCoverage(input.assets);
   const unknownAreas = coverage
@@ -116,6 +120,7 @@ export function buildWorkspaceKnowledge(input: {
     businessRules: input.businessRules ?? [],
     contradictions: input.contradictions ?? [],
     evidenceLog: input.evidenceLog ?? [],
+    chunks: input.chunks ?? [],
   };
 }
 
@@ -173,5 +178,6 @@ export function ensureWorkspaceKnowledge(
     businessRules: knowledge.businessRules ?? [],
     contradictions: knowledge.contradictions ?? [],
     evidenceLog: knowledge.evidenceLog ?? [],
+    chunks: knowledge.chunks ?? [],
   };
 }

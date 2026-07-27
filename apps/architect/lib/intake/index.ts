@@ -1,4 +1,6 @@
 export type {
+  DetectionCategory,
+  DetectionCounts,
   Evidence,
   IntakeBusinessRule,
   IntakeConnectorContract,
@@ -20,10 +22,22 @@ export type {
   IntakeUnit,
   IntakeUnknown,
 } from "./contracts";
-export { emptyIntakeSlots } from "./contracts";
+export {
+  DETECTION_CATEGORIES,
+  emptyDetectionCounts,
+  emptyIntakeSlots,
+} from "./contracts";
 
 export { INTAKE_SOURCES, INTAKE_CONNECTORS, intakeSourceDefinition, intakeSourceForExtension } from "./sources";
 export { INTAKE_EXTRACTORS, extractorFor } from "./extractors";
+export {
+  detectBusinessSignals,
+  mergeDetectionCounts,
+  splitSentences,
+  totalDetections,
+  MAX_SCANNED_SENTENCES,
+} from "./detectors";
+export type { DetectionResult } from "./detectors";
 export { normalizeSlots } from "./normalizer";
 export { reinforceConfidence, detectNumericContradiction, findContradiction } from "./confidence";
 export type { ContradictionMatch } from "./confidence";

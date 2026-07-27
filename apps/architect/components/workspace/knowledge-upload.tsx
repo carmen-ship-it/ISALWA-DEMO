@@ -4,8 +4,10 @@ import { useId, useRef, useState, type DragEvent } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
+  Circle,
   Clock3,
   Loader2,
+  MinusCircle,
   UploadCloud,
   X,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import {
   formatFileSize,
   uploadAndQueueDocument,
   type DocumentIngestFn,
+  type DocumentPipelineStep,
 } from "@/lib/documents";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { IntakeIngestReport } from "@/lib/intake";
@@ -41,6 +44,12 @@ interface UploadItem {
   mimeType: string;
   uploadedAt: string;
   uploadedByName: string | null;
+  /**
+   * Live pipeline record for this file. Populated from the `onJob` callback
+   * as each of the ten steps transitions, so the list reflects real work in
+   * progress rather than a spinner with a fixed delay.
+   */
+  steps: DocumentPipelineStep[];
 }
 
 const MAX_MB = Math.round(KNOWLEDGE_UPLOAD_MAX_BYTES / (1024 * 1024));
@@ -90,6 +99,7 @@ export function KnowledgeUpload({
           mimeType: file.type,
           uploadedAt: new Date().toISOString(),
           uploadedByName,
+          steps: [],
         },
         ...prev,
       ]);
@@ -105,7 +115,6 @@ export function KnowledgeUpload({
         continue;
       }
 
-      let analyzingTimer: ReturnType<typeof setTimeout> | null = null;
       try {
         const result = await uploadAndQueueDocument({
           workspaceId,
@@ -114,25 +123,32 @@ export function KnowledgeUpload({
           ingest,
           onProgress: (progress) => {
             setItems((prev) => updateItem(prev, itemId, { progress: progress.percent }));
-            if (progress.percent >= 100 && !analyzingTimer) {
+            if (progress.percent >= 100) {
               setItems((prev) =>
                 updateItem(prev, itemId, {
                   status: "queued",
                   message: t("knowledgeUpload.queued"),
                 }),
               );
-              analyzingTimer = setTimeout(() => {
-                setItems((prev) =>
-                  updateItem(prev, itemId, {
-                    status: "analyzing",
-                    message: t("knowledgeUpload.analyzing"),
-                  }),
-                );
-              }, 350);
             }
           },
+          // Upload completion auto-queues processing; these two callbacks are
+          // why nothing needs a manual refresh. `onJob` streams the per-step
+          // state into this list, `onWorkspace` pushes each persisted
+          // workspace straight into the page so coverage, readiness,
+          // insights and recommendations re-derive as the document lands.
+          onJob: (job) => {
+            setItems((prev) =>
+              updateItem(prev, itemId, {
+                status: job.stage === "analyzing" ? "analyzing" : undefined,
+                message:
+                  job.stage === "analyzing" ? t("knowledgeUpload.analyzing") : undefined,
+                steps: job.steps,
+              }),
+            );
+          },
+          onWorkspace: (next) => onUpdated(next),
         });
-        if (analyzingTimer) clearTimeout(analyzingTimer);
 
         if (!result) {
           setItems((prev) =>
@@ -159,7 +175,6 @@ export function KnowledgeUpload({
         onUpdated(result.workspace);
         if (result.report) onReport?.(result.report);
       } catch (error) {
-        if (analyzingTimer) clearTimeout(analyzingTimer);
         // Storage/network errors are developer diagnostics, not client-facing
         // copy — log them, but always show the translated message so Client
         // Mode never sees raw English exception text.
@@ -296,12 +311,78 @@ export function KnowledgeUpload({
                   <Progress value={item.progress} aria-label={t("knowledgeUpload.uploadProgressLabel")} />
                 </div>
               ) : null}
+              <PipelineSteps steps={item.steps} />
             </li>
           ))}
         </ul>
       ) : null}
     </div>
   );
+}
+
+/**
+ * The ten processing steps, appearing as they run. Only steps that have
+ * actually started are listed — an unstarted step has nothing honest to say
+ * yet, and a pre-filled checklist would imply work that has not happened.
+ */
+function PipelineSteps({ steps }: { steps: DocumentPipelineStep[] }) {
+  const { t } = useTranslations();
+  const visible = steps.filter((step) => step.status !== "pending");
+  if (visible.length === 0) return null;
+
+  return (
+    <ol className="mt-3 space-y-1.5 border-t border-[var(--isalwa-mist)]/60 pt-3 pl-7">
+      {visible.map((step) => (
+        <li key={step.id} className="flex items-start gap-2">
+          <StepIcon status={step.status} />
+          <p className="min-w-0 text-[11px] leading-relaxed text-[var(--isalwa-slate)]/80">
+            <span className="text-[var(--isalwa-kiln)]/80">
+              {t(`documentPipeline.step.${step.id}`)}
+            </span>
+            {step.detailKey ? (
+              <>
+                {" · "}
+                {t(
+                  `documentPipeline.detail.${step.detailKey}`,
+                  step.detailParams ?? undefined,
+                )}
+              </>
+            ) : (
+              <>
+                {" · "}
+                {t("documentPipeline.stepStatus.running")}
+              </>
+            )}
+          </p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function StepIcon({ status }: { status: DocumentPipelineStep["status"] }) {
+  const className = "mt-[3px] h-3 w-3 shrink-0";
+  switch (status) {
+    case "running":
+      return (
+        <Loader2
+          className={cn(className, "animate-spin text-[var(--isalwa-slate)]/50")}
+          aria-hidden
+        />
+      );
+    case "completed":
+      return (
+        <CheckCircle2 className={cn(className, "text-[var(--isalwa-success)]")} aria-hidden />
+      );
+    case "skipped":
+      return (
+        <MinusCircle className={cn(className, "text-[var(--isalwa-slate)]/40")} aria-hidden />
+      );
+    case "failed":
+      return <AlertTriangle className={cn(className, "text-red-500")} aria-hidden />;
+    default:
+      return <Circle className={cn(className, "text-[var(--isalwa-mist)]")} aria-hidden />;
+  }
 }
 
 function StatusIcon({ status }: { status: UploadItemStatus }) {
@@ -344,10 +425,18 @@ function StatusIcon({ status }: { status: UploadItemStatus }) {
   }
 }
 
+/**
+ * Patch one row. `undefined` values are dropped rather than applied, so a
+ * caller can send a partial update (say, only the pipeline steps) without
+ * blanking the fields it left out.
+ */
 function updateItem(
   items: UploadItem[],
   id: string,
   patch: Partial<UploadItem>,
 ): UploadItem[] {
-  return items.map((item) => (item.id === id ? { ...item, ...patch } : item));
+  const defined = Object.fromEntries(
+    Object.entries(patch).filter(([, value]) => value !== undefined),
+  ) as Partial<UploadItem>;
+  return items.map((item) => (item.id === id ? { ...item, ...defined } : item));
 }

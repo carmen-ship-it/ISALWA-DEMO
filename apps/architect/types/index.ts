@@ -596,11 +596,13 @@ export type {
 
 
 export type {
+  ChunkEmbeddingStatus,
   KnowledgeAsset,
   KnowledgeAssetStatus,
   KnowledgeAssetType,
   KnowledgeBusinessRule,
   KnowledgeCategory,
+  KnowledgeChunkRecord,
   KnowledgeConnector,
   KnowledgeConnectorId,
   KnowledgeContradictionFlag,

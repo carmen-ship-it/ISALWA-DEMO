@@ -32,11 +32,13 @@ import type {
   WorkspaceKnowledge,
 } from "@/types";
 import type {
+  DetectionCounts,
   IntakeOutcome,
   IntakeSlots,
   IntakeSourceType,
   IntakeUnit,
 } from "./contracts";
+import { emptyDetectionCounts } from "./contracts";
 import { extractorFor } from "./extractors";
 import { intakeSourceForExtension } from "./sources";
 import { normalizeSlots } from "./normalizer";
@@ -68,6 +70,14 @@ export interface IntakeIngestReport extends IntakeMergeCounts {
   message: string;
   learnedLines: string[];
   stillNeedLines: string[];
+  /**
+   * What the twelve business detectors found in the text, before merge. All
+   * zeros means either no text was readable or the text matched nothing —
+   * `readContent` tells the two apart.
+   */
+  detections: DetectionCounts;
+  /** True when the extractor actually read content, not just filename metadata. */
+  readContent: boolean;
 }
 
 export interface IntakeIngestResult {
@@ -306,6 +316,7 @@ export async function ingestSource(
     addedBusinessRules: businessRuleMerge.added,
     addedContradictions: contradictionMerge.added,
     addedPainSignals: painMerge.added,
+    addedRisks: painMerge.addedRisks,
     addedOpportunities: opportunityMerge.added,
     addedUnknowns: openQuestionsMerge.added,
   };
@@ -320,6 +331,10 @@ export async function ingestSource(
     businessRules: businessRuleMerge.rules,
     contradictions: contradictionMerge.contradictions,
     evidenceLog: appendEvidenceLog(knowledge.evidenceLog, result.evidence),
+    // Chunks are written by the document pipeline's own stage
+    // (`lib/documents/vectors.ts`), after this merge — carried through
+    // here so an intake pass never drops an existing vector index.
+    chunks: knowledge.chunks,
   });
 
   const timelineEvent: TimelineEvent = {
@@ -355,6 +370,8 @@ export async function ingestSource(
     message: result.messageEs,
     learnedLines: buildLearnedLines(counts, input.label),
     stillNeedLines: buildStillNeedLines(gaps),
+    detections: result.detections ?? emptyDetectionCounts(),
+    readContent: result.detections !== undefined,
   };
 
   return { workspace: saved, report, asset };
@@ -372,10 +389,23 @@ export interface IntakeFileUploadResult extends KnowledgeUploadResult {
  * instead of the legacy single-entity extractor. Unsupported extensions
  * (and the 25MB guardrail) fall back to the original, already-correct
  * `ingestKnowledgeUpload` path — no behavior regression for edge cases.
+ *
+ * `textContent` is the seam the AI Document Processing Pipeline uses: when
+ * `lib/documents` managed to read the file (plain text / Markdown / CSV, or
+ * OCR output), it passes the text here and the file extractor runs the full
+ * twelve-detector content scan instead of filename classification alone.
+ * Callers that do not have text simply omit it — behavior is unchanged.
  */
 export async function ingestFileThroughIntake(
   workspaceId: string,
-  file: { name: string; size: number; mimeType: string },
+  file: {
+    name: string;
+    size: number;
+    mimeType: string;
+    textContent?: string;
+    /** Provenance for the evidence trail, e.g. "plain_text" or "ocr". */
+    extractionMethod?: string;
+  },
 ): Promise<IntakeFileUploadResult | null> {
   if (file.size > KNOWLEDGE_UPLOAD_MAX_BYTES) {
     return ingestKnowledgeUpload(workspaceId, file);
@@ -395,7 +425,9 @@ export async function ingestFileThroughIntake(
       fileName: file.name,
       fileSize: file.size,
       mimeType: file.mimeType,
+      extractionMethod: file.extractionMethod,
     },
+    textContent: file.textContent,
   });
   if (!result) return null;
 
