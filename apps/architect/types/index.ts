@@ -615,6 +615,7 @@ export type {
   KnowledgeReasoningContext,
   KnowledgeRelationKind,
   KnowledgeRelationship,
+  DocumentStorageProviderId,
   PipelineStageId,
   WorkspaceKnowledge,
 } from "./knowledge";

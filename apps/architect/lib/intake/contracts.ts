@@ -34,6 +34,7 @@ export type IntakeSourceType =
   | "powerpoint"
   | "csv"
   | "image"
+  | "text_file"
   | "meeting_transcript"
   | "audio_transcript"
   | "crm_export"

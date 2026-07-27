@@ -10,24 +10,37 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { isSupabaseConfigured } from "@/lib/auth/config";
 import {
   ingestKnowledgeUpload,
   KNOWLEDGE_UPLOAD_ACCEPT,
   KNOWLEDGE_UPLOAD_MAX_BYTES,
-  type KnowledgeUploadResult,
 } from "@/lib/knowledge";
+import {
+  formatFileSize,
+  uploadAndQueueDocument,
+  type DocumentIngestFn,
+} from "@/lib/documents";
+import { formatRelativeActivity } from "@/lib/workspace";
 import type { IntakeIngestReport } from "@/lib/intake";
 import type { CompanyWorkspace } from "@/types";
 
-type UploadItemStatus = "processing" | "processed" | "queued" | "error";
+type UploadItemStatus = "uploading" | "queued" | "analyzing" | "completed" | "failed";
 
 interface UploadItem {
   id: string;
   fileName: string;
   status: UploadItemStatus;
   message: string;
+  progress: number;
+  sizeBytes: number;
+  mimeType: string;
+  uploadedAt: string;
+  uploadedByName: string | null;
 }
 
 const MAX_MB = Math.round(KNOWLEDGE_UPLOAD_MAX_BYTES / (1024 * 1024));
@@ -46,18 +59,17 @@ export function KnowledgeUpload({
    * to the original single-entity path used by the consultant-only
    * Knowledge Center, so that call site's behavior is unchanged.
    */
-  ingest?: (
-    workspaceId: string,
-    file: { name: string; size: number; mimeType: string },
-  ) => Promise<(KnowledgeUploadResult & { report?: IntakeIngestReport }) | null>;
+  ingest?: DocumentIngestFn;
   onReport?: (report: IntakeIngestReport) => void;
 }) {
   const { t } = useTranslations();
+  const { session } = useAuth();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<UploadItem[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
+  const usingLocalStorage = !isSupabaseConfigured();
 
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
@@ -66,25 +78,66 @@ export function KnowledgeUpload({
 
     for (const file of files) {
       const itemId = `${file.name}-${file.size}-${Date.now()}`;
+      const uploadedByName = session?.displayName ?? null;
       setItems((prev) => [
-        { id: itemId, fileName: file.name, status: "processing", message: t("knowledgeUpload.processing") },
+        {
+          id: itemId,
+          fileName: file.name,
+          status: "uploading",
+          message: t("knowledgeUpload.uploading"),
+          progress: 0,
+          sizeBytes: file.size,
+          mimeType: file.type,
+          uploadedAt: new Date().toISOString(),
+          uploadedByName,
+        },
         ...prev,
       ]);
 
+      if (file.size > KNOWLEDGE_UPLOAD_MAX_BYTES) {
+        setItems((prev) =>
+          updateItem(prev, itemId, {
+            status: "failed",
+            progress: 0,
+            message: t("knowledgeUpload.tooLarge", { maxMb: MAX_MB }),
+          }),
+        );
+        continue;
+      }
+
+      let analyzingTimer: ReturnType<typeof setTimeout> | null = null;
       try {
-        // Brief, honest pacing so the executive sees each document move
-        // through the pipeline — no content is parsed during this delay.
-        await wait(450);
-        const result = await ingest(workspaceId, {
-          name: file.name,
-          size: file.size,
-          mimeType: file.type,
+        const result = await uploadAndQueueDocument({
+          workspaceId,
+          file,
+          uploadedBy: { userId: session?.userId ?? null, name: uploadedByName },
+          ingest,
+          onProgress: (progress) => {
+            setItems((prev) => updateItem(prev, itemId, { progress: progress.percent }));
+            if (progress.percent >= 100 && !analyzingTimer) {
+              setItems((prev) =>
+                updateItem(prev, itemId, {
+                  status: "queued",
+                  message: t("knowledgeUpload.queued"),
+                }),
+              );
+              analyzingTimer = setTimeout(() => {
+                setItems((prev) =>
+                  updateItem(prev, itemId, {
+                    status: "analyzing",
+                    message: t("knowledgeUpload.analyzing"),
+                  }),
+                );
+              }, 350);
+            }
+          },
         });
+        if (analyzingTimer) clearTimeout(analyzingTimer);
 
         if (!result) {
           setItems((prev) =>
             updateItem(prev, itemId, {
-              status: "error",
+              status: "failed",
               message: t("knowledgeUpload.workspaceNotFound"),
             }),
           );
@@ -95,23 +148,26 @@ export function KnowledgeUpload({
           updateItem(prev, itemId, {
             status:
               result.outcome === "processed"
-                ? "processed"
+                ? "completed"
                 : result.outcome === "queued"
                   ? "queued"
-                  : "error",
+                  : "failed",
+            progress: 100,
             message: result.message,
           }),
         );
         onUpdated(result.workspace);
         if (result.report) onReport?.(result.report);
       } catch (error) {
+        if (analyzingTimer) clearTimeout(analyzingTimer);
+        // Storage/network errors are developer diagnostics, not client-facing
+        // copy — log them, but always show the translated message so Client
+        // Mode never sees raw English exception text.
+        if (error instanceof Error) console.error("Document upload failed:", error.message);
         setItems((prev) =>
           updateItem(prev, itemId, {
-            status: "error",
-            message:
-              error instanceof Error
-                ? error.message
-                : t("knowledgeUpload.processError"),
+            status: "failed",
+            message: t("knowledgeUpload.processError"),
           }),
         );
       }
@@ -189,34 +245,57 @@ export function KnowledgeUpload({
         </Button>
       </div>
 
+      {usingLocalStorage ? (
+        <p className="text-xs text-[var(--isalwa-slate)]/60">
+          {t("knowledgeUpload.localStorageNotice")}
+        </p>
+      ) : null}
+
       {items.length > 0 ? (
         <ul className="space-y-2">
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-start justify-between gap-3 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
+              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
             >
-              <div className="flex min-w-0 items-start gap-3">
-                <StatusIcon status={item.status} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-[var(--isalwa-kiln)]">
-                    {item.fileName}
-                  </p>
-                  <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
-                    {item.message}
-                  </p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
+                  <StatusIcon status={item.status} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-[var(--isalwa-kiln)]">
+                      {item.fileName}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
+                      {item.message}
+                    </p>
+                    <p className="mt-1 text-[11px] text-[var(--isalwa-slate)]/60">
+                      {formatFileSize(item.sizeBytes)}
+                      {" · "}
+                      {t(`knowledgeUpload.status.${item.status}`)}
+                      {item.uploadedByName
+                        ? ` · ${t("knowledgeUpload.uploadedBy", { name: item.uploadedByName })}`
+                        : ""}
+                      {" · "}
+                      {formatRelativeActivity(item.uploadedAt)}
+                    </p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setItems((prev) => prev.filter((i) => i.id !== item.id))
+                  }
+                  className="shrink-0 rounded-full p-1 text-[var(--isalwa-slate)]/40 transition-colors hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-slate)]/80"
+                  aria-label={t("knowledgeUpload.hideFromList")}
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setItems((prev) => prev.filter((i) => i.id !== item.id))
-                }
-                className="shrink-0 rounded-full p-1 text-[var(--isalwa-slate)]/40 transition-colors hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-slate)]/80"
-                aria-label={t("knowledgeUpload.hideFromList")}
-              >
-                <X className="h-3.5 w-3.5" aria-hidden />
-              </button>
+              {item.status === "uploading" ? (
+                <div className="mt-2.5 pl-7">
+                  <Progress value={item.progress} aria-label={t("knowledgeUpload.uploadProgressLabel")} />
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -227,14 +306,21 @@ export function KnowledgeUpload({
 
 function StatusIcon({ status }: { status: UploadItemStatus }) {
   switch (status) {
-    case "processing":
+    case "uploading":
       return (
         <Loader2
           className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-[var(--isalwa-slate)]/60"
           aria-hidden
         />
       );
-    case "processed":
+    case "analyzing":
+      return (
+        <Loader2
+          className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-[var(--isalwa-slate)]/60"
+          aria-hidden
+        />
+      );
+    case "completed":
       return (
         <CheckCircle2
           className="mt-0.5 h-4 w-4 shrink-0 text-[var(--isalwa-success)]"
@@ -264,8 +350,4 @@ function updateItem(
   patch: Partial<UploadItem>,
 ): UploadItem[] {
   return items.map((item) => (item.id === id ? { ...item, ...patch } : item));
-}
-
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

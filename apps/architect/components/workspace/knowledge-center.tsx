@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { Download, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
@@ -12,9 +13,15 @@ import {
   ensureWorkspaceKnowledge,
   summarizeKnowledgeEntities,
 } from "@/lib/knowledge";
+import { formatFileSize, getDocumentStorageProvider } from "@/lib/documents";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
-import type { CompanyWorkspace, KnowledgeCategory, WorkspaceKnowledge } from "@/types";
+import type {
+  CompanyWorkspace,
+  KnowledgeAsset,
+  KnowledgeCategory,
+  WorkspaceKnowledge,
+} from "@/types";
 
 const PIPELINE_KEY_BY_STAGE_ID: Record<string, string> = {
   upload: "upload",
@@ -208,18 +215,32 @@ export function KnowledgeCenter({
                         key={item.id}
                         className="flex items-start justify-between gap-3 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
                       >
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-sm text-[var(--isalwa-kiln)]">{item.title}</p>
                           <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">
                             {item.source}
                             {item.summary ? ` · ${item.summary}` : ""}
                           </p>
+                          <p className="mt-1 text-[11px] text-[var(--isalwa-slate)]/60">
+                            {[
+                              item.sizeBytes ? formatFileSize(item.sizeBytes) : null,
+                              formatRelativeActivity(item.uploadedAt),
+                              item.uploadedByName
+                                ? t("knowledgeCenter.uploadedBy", { name: item.uploadedByName })
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
                         </div>
-                        <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                          {STATUS_KEY[item.status]
-                            ? t(`knowledgeCenter.status.${STATUS_KEY[item.status]}`)
-                            : item.status}
-                        </span>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <span className="text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
+                            {STATUS_KEY[item.status]
+                              ? t(`knowledgeCenter.status.${STATUS_KEY[item.status]}`)
+                              : item.status}
+                          </span>
+                          {item.storagePath ? <DownloadDocumentLink asset={item} /> : null}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -310,6 +331,44 @@ export function KnowledgeCenter({
         </ul>
       </div>
     </div>
+  );
+}
+
+/** Fresh, time-limited signed URL fetched on demand — never persisted (private bucket). */
+function DownloadDocumentLink({ asset }: { asset: KnowledgeAsset }) {
+  const { t } = useTranslations();
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!asset.storagePath || loading) return;
+    setLoading(true);
+    try {
+      const provider = getDocumentStorageProvider();
+      const url = await provider.getDownloadUrl({
+        provider: asset.storageProvider ?? provider.provider,
+        bucket: asset.storageBucket ?? null,
+        path: asset.storagePath,
+      });
+      if (url) window.open(url, "_blank", "noopener,noreferrer");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={loading}
+      className="flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-glaze-deep)] transition-colors hover:text-[var(--isalwa-kiln)] disabled:opacity-50"
+    >
+      {loading ? (
+        <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+      ) : (
+        <Download className="h-3 w-3" aria-hidden />
+      )}
+      {t("knowledgeCenter.download")}
+    </button>
   );
 }
 

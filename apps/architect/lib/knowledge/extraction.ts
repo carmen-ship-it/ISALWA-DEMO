@@ -64,6 +64,12 @@ export const KNOWLEDGE_EXTRACTION_PROVIDERS: readonly KnowledgeExtractionProvide
       "planned",
     ),
     provider(
+      "text_reader",
+      "Text Reader",
+      "Classify plain text and Markdown files by name and type.",
+      "designed",
+    ),
+    provider(
       "ocr",
       "OCR",
       "Extract text from scanned documents and photos.",

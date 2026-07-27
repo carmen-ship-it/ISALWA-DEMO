@@ -13,6 +13,7 @@ This is **not** multi-tenant SaaS. No registration UI, invites, or org managemen
 | 1 | [`migrations/001_pilot_persistence.sql`](./migrations/001_pilot_persistence.sql) | First — creates tables, RLS, trigger, ISALWA shell row |
 | 2 | Create Auth users in dashboard (below) | After step 1 |
 | 3 | [`migrations/002_link_pilot_users.sql`](./migrations/002_link_pilot_users.sql) | After users exist — links profiles + membership (also covered by trigger for *new* users) |
+| 4 | [`migrations/003_document_storage.sql`](./migrations/003_document_storage.sql) | Any time after step 1 — creates the private `architect-documents` Storage bucket + RLS for real document uploads (see `../REAL_DOCUMENT_UPLOADS.md`) |
 
 In Supabase Dashboard → **SQL Editor** → paste each file → Run.
 

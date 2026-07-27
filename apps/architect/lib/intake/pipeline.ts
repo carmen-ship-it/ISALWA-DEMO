@@ -134,7 +134,8 @@ function buildAssetForUnit(
     unit.sourceType === "excel" ||
     unit.sourceType === "powerpoint" ||
     unit.sourceType === "csv" ||
-    unit.sourceType === "image";
+    unit.sourceType === "image" ||
+    unit.sourceType === "text_file";
 
   if (isFileLike) {
     const fileName =

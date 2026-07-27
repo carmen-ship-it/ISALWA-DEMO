@@ -75,6 +75,7 @@ export type KnowledgeExtractionProviderId =
   | "presentation_reader"
   | "excel_reader"
   | "image_reader"
+  | "text_reader"
   | "ocr"
   | "transcript_reader"
   | "crm_import"
@@ -105,6 +106,14 @@ export type PipelineStageId =
   | "recommendations"
   | "reasoning_engine";
 
+/**
+ * Real Document Uploads — where the file bytes actually live. Additive and
+ * optional so every existing `KnowledgeAsset` literal (legacy intake paths,
+ * seed data, tests) keeps compiling untouched; only the new real-upload path
+ * (`lib/documents/upload.ts`) populates these.
+ */
+export type DocumentStorageProviderId = "supabase" | "local";
+
 export interface KnowledgeAsset {
   id: string;
   workspaceId: string;
@@ -121,6 +130,17 @@ export interface KnowledgeAsset {
   entities: string[];
   relationships: string[];
   coverageAreas: KnowledgeCoverageArea[];
+  /** File size in bytes — null for non-file sources (manual notes, etc). */
+  sizeBytes?: number | null;
+  /** Browser-reported MIME type at upload time. */
+  mimeType?: string | null;
+  uploadedByUserId?: string | null;
+  uploadedByName?: string | null;
+  /** Where the bytes actually live. "local" = in-memory dev fallback, never persisted across reloads. */
+  storageProvider?: DocumentStorageProviderId | null;
+  storageBucket?: string | null;
+  /** Path within the bucket (Supabase) — used to derive a fresh signed URL on demand. Never a raw public URL (bucket is private). */
+  storagePath?: string | null;
 }
 
 export interface KnowledgeEntity {

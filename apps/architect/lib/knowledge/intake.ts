@@ -63,9 +63,9 @@ export interface KnowledgeUploadResult {
   message: string;
 }
 
-/** Executive-facing accept list — matches the mission's five upload families. */
+/** Executive-facing accept list — Real Document Uploads' eight supported families. */
 export const KNOWLEDGE_UPLOAD_ACCEPT =
-  ".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.png,.jpg,.jpeg,.webp,.gif,.heic,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/*";
+  ".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.png,.jpg,.jpeg,.webp,.gif,.heic,.txt,.md,.markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/*,text/plain,text/markdown";
 
 export const KNOWLEDGE_UPLOAD_MAX_BYTES = 25 * 1024 * 1024; // 25MB — client-side guardrail only.
 
@@ -75,6 +75,7 @@ const EXTENSION_GROUPS = {
   excel: ["xls", "xlsx", "csv"],
   presentation: ["ppt", "pptx"],
   image: ["png", "jpg", "jpeg", "webp", "gif", "heic"],
+  text: ["txt", "md", "markdown"],
 } as const;
 
 function extensionOf(filename: string): string {
@@ -192,12 +193,13 @@ export function classifyKnowledgeUpload(
   }
 
   const providerByGroup: Record<
-    "pdf" | "word" | "excel",
+    "pdf" | "word" | "excel" | "text",
     KnowledgeExtractionProviderId
   > = {
     pdf: "pdf_reader",
     word: "word_reader",
     excel: "excel_reader",
+    text: "text_reader",
   };
 
   const keywordMatch = KEYWORD_RULES.find((rule) => rule.pattern.test(file.name));

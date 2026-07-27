@@ -360,6 +360,7 @@ export const INTAKE_EXTRACTORS: Readonly<Record<IntakeSourceType, IntakeExtracto
   excel: makeFileExtractor("excel"),
   powerpoint: makeFileExtractor("powerpoint"),
   csv: makeFileExtractor("csv"),
+  text_file: makeFileExtractor("text_file"),
   meeting_transcript: makeTextExtractor("meeting_transcript"),
   manual_notes: makeTextExtractor("manual_notes"),
   image: makePlannedExtractor("image"),

@@ -82,6 +82,16 @@ export const INTAKE_SOURCES: readonly IntakeSourceDefinition[] = [
     extensions: ["png", "jpg", "jpeg", "webp", "gif", "heic"],
   },
   {
+    id: "text_file",
+    category: "document",
+    title: "Text / Markdown",
+    titleEs: "Texto / Markdown",
+    description: "Plain text notes and Markdown docs exported from any tool.",
+    descriptionEs: "Notas de texto plano y documentos Markdown de cualquier herramienta.",
+    status: "designed",
+    extensions: ["txt", "md", "markdown"],
+  },
+  {
     id: "meeting_transcript",
     category: "conversation",
     title: "Meeting Transcript",
