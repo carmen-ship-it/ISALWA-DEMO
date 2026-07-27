@@ -110,7 +110,7 @@ export function WorkspaceTabs({
 
   return (
     <div className="mt-8">
-      <div className="sticky top-11 z-30 -mx-6 border-b border-[var(--isalwa-mist)]/80 bg-[var(--isalwa-porcelain)]/95 px-6 py-3 backdrop-blur-md sm:-mx-10 sm:px-10">
+      <div className="isalwa-glass-light isalwa-t-base sticky top-11 z-30 -mx-6 border-b px-6 py-4 sm:-mx-10 sm:px-10">
         <div
           role="tablist"
           aria-label="Secciones del espacio de trabajo"
@@ -135,10 +135,10 @@ export function WorkspaceTabs({
                 onClick={() => onChange(tab.id)}
                 onKeyDown={(e) => onKeyDown(e, index)}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-2 text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
+                  "isalwa-t-fast shrink-0 rounded-full px-3.5 py-2 text-xs font-medium tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2",
                   selected
-                    ? "bg-[var(--isalwa-kiln)] text-white"
-                    : "text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-kiln)]",
+                    ? "bg-[var(--isalwa-kiln)] text-white shadow-[var(--isalwa-shadow-resting)]"
+                    : "text-[var(--isalwa-slate)] hover:bg-white hover:text-[var(--isalwa-kiln)]",
                 )}
               >
                 {label}
@@ -146,9 +146,9 @@ export function WorkspaceTabs({
             );
           })}
         </div>
-        <div className="mt-3 h-1 overflow-hidden rounded-full bg-[var(--isalwa-mist)]/80">
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-[var(--isalwa-mist)]/70">
           <div
-            className="h-full rounded-full bg-[var(--isalwa-kiln)] transition-[width] duration-300 ease-out"
+            className="h-full rounded-full bg-[linear-gradient(90deg,var(--isalwa-glaze)_0%,var(--isalwa-kiln)_100%)] transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{ width: `${progress}%` }}
             aria-hidden
           />

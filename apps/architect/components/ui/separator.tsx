@@ -15,8 +15,12 @@ export function Separator({
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        "shrink-0 bg-[var(--isalwa-mist)]",
-        orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
+        // Premium Visual Quality pass — fades at both ends instead of a
+        // hard edge-to-edge rule, matching `.isalwa-divider-fade`.
+        "shrink-0",
+        orientation === "horizontal"
+          ? "h-px w-full bg-[linear-gradient(90deg,transparent_0%,var(--isalwa-mist)_18%,var(--isalwa-mist)_82%,transparent_100%)]"
+          : "h-full w-px bg-[linear-gradient(180deg,transparent_0%,var(--isalwa-mist)_18%,var(--isalwa-mist)_82%,transparent_100%)]",
         className,
       )}
       {...props}

@@ -60,7 +60,11 @@ export function ExecutiveDashboard({
   const topPriorities = cockpit.priorities.slice(0, 3);
 
   return (
-    <div className="space-y-16">
+    // Premium Visual Quality pass — the law's largest 8px-rhythm step
+    // (`--isalwa-space-20`, 96px) between each briefing section, instead of
+    // the previous fixed `space-y-16` (64px), so the dashboard reads with
+    // executive-report breathing room instead of app-density spacing.
+    <div className="isalwa-section-gap">
       {/* 2 · Business Understanding — progress */}
       <BriefingSection
         tone="health"

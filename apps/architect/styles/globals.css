@@ -58,7 +58,11 @@
   body {
     margin: 0;
     background: var(--isalwa-porcelain);
-    background-image: var(--isalwa-surface-hero);
+    /* Premium Visual Quality pass — layered wash (soft glaze/copper glows +
+       the existing hero gradient) instead of a single flat linear-gradient,
+       so large porcelain expanses read as considered depth, not empty
+       white. Same law colors; only the layering changed. */
+    background-image: var(--isalwa-surface-app);
     background-attachment: fixed;
     color: var(--isalwa-kiln);
     font-family: var(--isalwa-font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -128,7 +132,8 @@
     position: sticky;
     top: 0;
     z-index: 30;
-    background: color-mix(in srgb, var(--isalwa-porcelain) 92%, transparent);
-    backdrop-filter: blur(8px);
+    background: var(--isalwa-glass-light-bg);
+    backdrop-filter: blur(var(--isalwa-glass-blur));
+    -webkit-backdrop-filter: blur(var(--isalwa-glass-blur));
   }
 }

@@ -23,7 +23,15 @@ export function ContextBar({
   const pct = Math.max(0, Math.min(100, Math.round(understanding)));
 
   return (
-    <div className="isalwa-t-base sticky top-0 z-40 -mx-6 flex h-11 items-center gap-4 overflow-x-auto border-b border-[var(--isalwa-kiln)] bg-[var(--isalwa-kiln)] px-6 text-[11px] text-white/55 [-ms-overflow-style:none] [scrollbar-width:none] sm:-mx-10 sm:px-10 [&::-webkit-scrollbar]:hidden">
+    <div
+      // Premium Visual Quality pass — glass-on-kiln instead of a flat solid
+      // fill: same frozen chrome color, translucent + blurred so content
+      // scrolling beneath softly shows through, plus a faint bottom glow
+      // instead of a hard 1px rule. Never applied to resting content cards
+      // — glass stays reserved for this one persistent, always-on-top
+      // strip.
+      className="isalwa-glass-dark isalwa-t-base sticky top-0 z-40 -mx-6 flex h-11 items-center gap-4 overflow-x-auto border-b px-6 text-[11px] text-white/55 shadow-[0_1px_0_rgba(255,255,255,0.06),0_12px_24px_-8px_rgba(28,36,48,0.35)] [-ms-overflow-style:none] [scrollbar-width:none] sm:-mx-10 sm:px-10 [&::-webkit-scrollbar]:hidden"
+    >
       <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-white">
         <Building2 className="h-3.5 w-3.5 text-white/60" aria-hidden />
         {companyName}

@@ -335,7 +335,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       // questions, suggested next meeting) is real, honest content that
       // still belongs on the page — it now renders after the eight briefing
       // sections, visibly quieter, instead of interleaved with them.
-      <div className="space-y-16">
+      <div className="isalwa-section-gap">
         <DiscoveryCelebration
           workspaceId={workspace.id}
           companyName={workspace.companyName}

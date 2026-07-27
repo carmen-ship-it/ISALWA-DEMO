@@ -55,10 +55,10 @@ export function ArchitectNav({
             key={`${item.label}-${item.href}`}
             href={item.href}
             className={cn(
-              "rounded-full px-3 py-1.5 transition-colors",
+              "isalwa-t-fast rounded-full px-3 py-1.5",
               active
-                ? "bg-[var(--isalwa-mist)] text-[var(--isalwa-kiln)]"
-                : "hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-slate)]",
+                ? "bg-white text-[var(--isalwa-kiln)] shadow-[var(--isalwa-shadow-resting)]"
+                : "hover:bg-white/70 hover:text-[var(--isalwa-slate)]",
             )}
           >
             {item.label}
@@ -69,7 +69,7 @@ export function ArchitectNav({
         <form action={signOutAction}>
           <button
             type="submit"
-            className="rounded-full px-3 py-1.5 transition-colors hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-slate)]"
+            className="isalwa-t-fast rounded-full px-3 py-1.5 hover:bg-white/70 hover:text-[var(--isalwa-slate)]"
           >
             Salir
           </button>

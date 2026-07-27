@@ -4,6 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { signInAction } from "@/lib/auth";
 import { PILOT_USERS } from "@/lib/auth/constants";
 
@@ -33,61 +34,64 @@ export function LoginForm() {
   }
 
   return (
-    <motion.form
-      onSubmit={onSubmit}
+    <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="mx-auto w-full max-w-md space-y-5"
+      className="mx-auto w-full max-w-md"
     >
-      <div>
-        <label
-          htmlFor="email"
-          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
-        >
-          Correo
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          defaultValue={PILOT_USERS.carmen.email}
-          className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="password"
-          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
-        >
-          Contraseña
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className="w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none transition focus:border-[var(--isalwa-glaze)]"
-        />
-      </div>
+      <Card className="px-7 py-8 sm:px-9 sm:py-9">
+        <form onSubmit={onSubmit} className="space-y-5">
+          <div>
+            <label
+              htmlFor="email"
+              className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
+            >
+              Correo
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              defaultValue={PILOT_USERS.carmen.email}
+              className="isalwa-t-fast w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)] focus:shadow-[var(--isalwa-shadow-focus)]"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60"
+            >
+              Contraseña
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="isalwa-t-fast w-full rounded-full border border-[var(--isalwa-mist)] bg-white px-5 py-3.5 text-sm text-[var(--isalwa-kiln)] outline-none focus:border-[var(--isalwa-glaze)] focus:shadow-[var(--isalwa-shadow-focus)]"
+            />
+          </div>
 
-      {error ? (
-        <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
-          {error}
-        </p>
-      ) : null}
+          {error ? (
+            <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
+              {error}
+            </p>
+          ) : null}
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? "Entrando…" : "Iniciar sesión"}
-      </Button>
+          <Button type="submit" size="lg" className="w-full" disabled={pending}>
+            {pending ? "Entrando…" : "Iniciar sesión"}
+          </Button>
+        </form>
+      </Card>
 
-      <p className="text-center text-xs leading-relaxed text-[var(--isalwa-slate)]/60">
+      <p className="mt-6 text-center text-xs leading-relaxed text-[var(--isalwa-slate)]/60">
         Piloto: {PILOT_USERS.carmen.email} (Consultora) ·{" "}
         {PILOT_USERS.alvaro.email} (Cliente)
       </p>
-    </motion.form>
+    </motion.div>
   );
 }

@@ -56,7 +56,7 @@ export function WelcomeBanner({
       </div>
 
       {todayRecommendation ? (
-        <div className="mb-6 flex items-start gap-3 rounded-[var(--isalwa-radius-panel)] bg-white/85 px-4 py-3.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
+        <div className="isalwa-t-base mb-6 flex items-start gap-3 rounded-[var(--isalwa-radius-panel)] bg-white/90 px-5 py-4 shadow-[var(--isalwa-shadow-resting)] ring-1 ring-[var(--isalwa-tint-blue-border)] hover:shadow-[var(--isalwa-shadow-hover)]">
           <span className="isalwa-icon-chip isalwa-ink-blue !h-7 !w-7">
             <Sparkles className="h-3.5 w-3.5" aria-hidden />
           </span>

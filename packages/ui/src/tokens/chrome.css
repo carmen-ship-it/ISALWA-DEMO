@@ -268,6 +268,32 @@
   margin: 0;
 }
 
+/* Fade divider — Premium Visual Quality pass. A hairline that dissolves at
+   both ends instead of running edge-to-edge, the way Linear/Notion separate
+   long-form sections without a heavy ruled line across the whole measure. */
+.isalwa-divider-fade {
+  border: none;
+  height: 1px;
+  margin: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--isalwa-mist) 18%,
+    var(--isalwa-mist) 82%,
+    transparent 100%
+  );
+}
+
+/* Section gap — Premium Visual Quality pass. The deliberate whitespace
+   between major sections on long executive surfaces (reports, dashboards),
+   extending the law's 8px rhythm to its largest steps instead of the
+   default `space-y-8`/`space-y-16` most panels already use. Apply to a
+   flex/grid container's children via `> * + *`, or directly as a
+   margin-top utility on a section. */
+.isalwa-section-gap > * + * {
+  margin-top: var(--isalwa-space-20);
+}
+
 .isalwa-count-badge {
   display: inline-flex;
   align-items: center;
@@ -282,6 +308,41 @@
   font-weight: 600;
   border-radius: var(--isalwa-radius-pill);
   letter-spacing: 0;
+}
+
+/* ── Glass chrome (Premium Visual Quality pass) ───────────────────────── */
+/*
+ * Reserved for sticky/floating surfaces only (context bar, sticky tab rail,
+ * floating menus) — never resting content cards. Glass reads as premium
+ * precisely because it stays rare; overusing it is the fastest way to make
+ * a product feel like a design trend instead of a considered system.
+ */
+.isalwa-glass-dark {
+  background: var(--isalwa-glass-dark-bg);
+  backdrop-filter: blur(var(--isalwa-glass-blur));
+  -webkit-backdrop-filter: blur(var(--isalwa-glass-blur));
+  border-color: var(--isalwa-glass-dark-border);
+}
+.isalwa-glass-light {
+  background: var(--isalwa-glass-light-bg);
+  backdrop-filter: blur(var(--isalwa-glass-blur));
+  -webkit-backdrop-filter: blur(var(--isalwa-glass-blur));
+  border-color: var(--isalwa-glass-light-border);
+}
+
+/* ── Premium card depth (Premium Visual Quality pass) ─────────────────── */
+/*
+ * Opt-in richer elevation for flagship surfaces (hero banners, report
+ * panels, the executive briefing's lead card) — layers `-rich` shadows with
+ * the inset top highlight so the card reads as glass-on-porcelain rather
+ * than a flat rectangle. Pair with `.isalwa-t-base` (already on `Card`) for
+ * a calm hover transition.
+ */
+.isalwa-card-premium {
+  box-shadow: var(--isalwa-shadow-resting-rich), var(--isalwa-inset-highlight);
+}
+.isalwa-card-premium:hover {
+  box-shadow: var(--isalwa-shadow-hover-rich), var(--isalwa-inset-highlight);
 }
 
 /* ── Section identity (Mission 9) ─────────────────────────────────────── */

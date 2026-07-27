@@ -71,17 +71,25 @@ export function SectionShell({
   const ink = TONE_INK[tone];
   const isHero = size === "hero";
 
+  const hasHeader = Boolean(kicker || title || description);
+
   return (
     <section
       className={cn(
-        "rounded-[var(--isalwa-radius-panel)] border shadow-[var(--isalwa-shadow-resting)] px-5 py-6 sm:px-7 sm:py-8",
-        isHero && "sm:px-9 sm:py-10",
+        // Premium Visual Quality pass — richer multi-layer elevation
+        // (`--isalwa-shadow-card-resting`, defined alongside the `Card`
+        // primitive) and more generous default padding so every section
+        // reads as a distinct, expensive surface instead of a flat tinted
+        // rectangle. Border keeps its tone-matched color from
+        // `TONE_SURFACE`; only the shadow depth changed.
+        "rounded-[var(--isalwa-radius-panel)] border shadow-[var(--isalwa-shadow-card-resting)] px-6 py-7 sm:px-8 sm:py-9",
+        isHero && "sm:px-10 sm:py-12",
         TONE_SURFACE[tone],
         className,
       )}
     >
-      {kicker || title || description ? (
-        <header className={isHero ? "mb-7" : "mb-6"}>
+      {hasHeader ? (
+        <header className={isHero ? "mb-8" : "mb-7"}>
           <div className="flex items-start gap-4">
             {Icon ? (
               <span
@@ -122,6 +130,9 @@ export function SectionShell({
               ) : null}
             </div>
           </div>
+          {/* Fade divider — separates the header identity from the body
+              content beneath it, without a hard edge-to-edge rule. */}
+          <div className={cn("isalwa-divider-fade", isHero ? "mt-8" : "mt-7")} />
         </header>
       ) : null}
       {children}

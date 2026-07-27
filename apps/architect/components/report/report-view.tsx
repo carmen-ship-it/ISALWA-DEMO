@@ -5,10 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
+import { FileText } from "lucide-react";
 import { BackLink } from "@/components/nav/back-link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { applyBrandOverrides, type EffectiveBrandExperience } from "@/lib/brand";
 import { createClientInterviewPersistence } from "@/lib/persistence";
 import {
@@ -19,35 +19,106 @@ import {
 } from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type { DiscoveryReport } from "@/types";
+import { cn } from "@/lib/utils";
+
+/**
+ * Premium Visual Quality pass — report sections read as a bound executive
+ * report instead of a stack of form fields. Presentation only: every prop
+ * and data source below is unchanged from before this mission. `tone`
+ * reuses the same section-identity tint tokens `SectionShell` uses
+ * elsewhere in the app (Mission 9) — a highlighted callout instead of a
+ * bespoke color, applied only to the handful of sections an executive
+ * would actually flag in a printed report (summary, risks, recommendations,
+ * conclusion). Everything else stays a quiet, paper-like list so the
+ * highlights keep their meaning.
+ */
+type ReportTone = "blue" | "teal" | "amber" | "red" | "violet" | "green" | "gray";
+
+const TONE_SURFACE: Record<ReportTone, string> = {
+  blue: "isalwa-surface-blue",
+  teal: "isalwa-surface-teal",
+  amber: "isalwa-surface-amber",
+  red: "isalwa-surface-red",
+  violet: "isalwa-surface-violet",
+  green: "isalwa-surface-green",
+  gray: "isalwa-surface-gray",
+};
+
+const TONE_INK: Record<ReportTone, string> = {
+  blue: "isalwa-ink-blue",
+  teal: "isalwa-ink-teal",
+  amber: "isalwa-ink-amber",
+  red: "isalwa-ink-red",
+  violet: "isalwa-ink-violet",
+  green: "isalwa-ink-green",
+  gray: "isalwa-ink-gray",
+};
 
 function Section({
+  index,
   title,
   intro,
+  tone,
   children,
   delay = 0,
 }: {
+  index: number;
   title: string;
   /** One-sentence connective lead-in — frames why this section is here. Presentation only. */
   intro?: string;
+  /** Highlight a handful of executive-critical sections with a tinted callout, matching `SectionShell`'s tone language. Omit for the quiet default. */
+  tone?: ReportTone;
   children: ReactNode;
   delay?: number;
 }) {
+  const highlighted = Boolean(tone);
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay }}
-      className="space-y-4"
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay: Math.min(delay, 0.3), ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        highlighted &&
+          cn(
+            TONE_SURFACE[tone!],
+            "rounded-[var(--isalwa-radius-panel)] border px-6 py-7 sm:px-8 sm:py-8",
+          ),
+      )}
     >
-      <div>
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
+      <div className="flex items-baseline gap-3">
+        <span
+          className={cn(
+            "isalwa-metric shrink-0 text-xs",
+            highlighted ? TONE_INK[tone!] : "text-[var(--isalwa-slate)]/45",
+          )}
+        >
+          {String(index).padStart(2, "0")}
+        </span>
+        <h2
+          className={cn(
+            // Deliberately not `.isalwa-kicker` — that shared class locks
+            // color to the glaze accent, but most report section labels
+            // stay neutral slate; only the handful of highlighted sections
+            // (tone set) borrow the section-identity ink color, matching
+            // the same tint tokens `SectionShell` uses elsewhere.
+            "text-[11px] font-semibold uppercase tracking-[0.16em]",
+            highlighted ? TONE_INK[tone!] : "text-[var(--isalwa-slate)]",
+          )}
+        >
           {title}
         </h2>
-        {intro ? (
-          <p className="mt-1.5 text-sm italic text-[var(--isalwa-slate)]/60">{intro}</p>
-        ) : null}
       </div>
-      <div className="text-base leading-relaxed text-[var(--isalwa-slate)]">{children}</div>
+      <div className="pl-9 sm:pl-10">
+        {intro ? (
+          <p className="architect-serif mt-2 max-w-2xl text-lg leading-snug text-[var(--isalwa-kiln)]">
+            {intro}
+          </p>
+        ) : null}
+        <div className="mt-4 text-base leading-relaxed text-[var(--isalwa-slate)]">
+          {children}
+        </div>
+      </div>
     </motion.section>
   );
 }
@@ -68,88 +139,76 @@ function recommendationPriorityLabel(
 }
 
 function ReportBody({ report }: { report: DiscoveryReport }) {
+  let i = 0;
+  const next = () => ++i;
   return (
-    <div className="space-y-12">
+    <div className="isalwa-section-gap">
       <Section
+        index={next()}
         title="Resumen ejecutivo"
         intro="La versión en un párrafo — qué encontramos y hacia dónde lleva."
+        tone="blue"
         delay={0.05}
       >
         <p>{report.executiveSummary}</p>
       </Section>
 
-      <Separator />
-
-      <Section title="Panorama del negocio" delay={0.08}>
+      <Section index={next()} title="Panorama del negocio" delay={0.08}>
         <pre className="whitespace-pre-wrap font-sans text-[var(--isalwa-slate)]">
           {report.businessSnapshot}
         </pre>
       </Section>
 
       {report.consultingMaturity || report.consultingHealth ? (
-        <>
-          <Separator />
-          <Section title="Evaluación consultiva" delay={0.09}>
-            {report.consultingMaturity ? (
-              <p className="mb-3">
-                <span className="text-[var(--isalwa-slate)]/80">Madurez — </span>
-                {report.consultingMaturity}
-              </p>
-            ) : null}
-            {report.consultingHealth ? (
-              <p>
-                <span className="text-[var(--isalwa-slate)]/80">Salud del negocio — </span>
-                {report.consultingHealth}
-              </p>
-            ) : null}
-          </Section>
-        </>
+        <Section index={next()} title="Evaluación consultiva" delay={0.09}>
+          {report.consultingMaturity ? (
+            <p className="mb-3">
+              <span className="text-[var(--isalwa-slate)]/80">Madurez — </span>
+              {report.consultingMaturity}
+            </p>
+          ) : null}
+          {report.consultingHealth ? (
+            <p>
+              <span className="text-[var(--isalwa-slate)]/80">Salud del negocio — </span>
+              {report.consultingHealth}
+            </p>
+          ) : null}
+        </Section>
       ) : null}
 
       {report.consultingRisks && report.consultingRisks.length > 0 ? (
-        <>
-          <Separator />
-          <Section title="Patrones de riesgo" delay={0.095}>
-            <ul className="space-y-2">
-              {report.consultingRisks.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </Section>
-        </>
+        <Section index={next()} title="Patrones de riesgo" tone="red" delay={0.095}>
+          <ul className="space-y-2">
+            {report.consultingRisks.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Section>
       ) : null}
 
       {report.consultingContradictions &&
       report.consultingContradictions.length > 0 ? (
-        <>
-          <Separator />
-          <Section title="Puntos por aclarar" delay={0.098}>
-            <ul className="space-y-2">
-              {report.consultingContradictions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </Section>
-        </>
+        <Section index={next()} title="Puntos por aclarar" delay={0.098}>
+          <ul className="space-y-2">
+            {report.consultingContradictions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Section>
       ) : null}
 
       {report.consultingOpportunities &&
       report.consultingOpportunities.length > 0 ? (
-        <>
-          <Separator />
-          <Section title="Horizontes de oportunidad" delay={0.099}>
-            <ul className="space-y-2">
-              {report.consultingOpportunities.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </Section>
-        </>
+        <Section index={next()} title="Horizontes de oportunidad" delay={0.099}>
+          <ul className="space-y-2">
+            {report.consultingOpportunities.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Section>
       ) : null}
 
-      <Separator />
-
-      <Section title="Flujo de trabajo actual" delay={0.1}>
+      <Section index={next()} title="Flujo de trabajo actual" delay={0.1}>
         <div className="space-y-6">
           {report.currentWorkflow.map((workflow) => (
             <div key={workflow.id}>
@@ -170,9 +229,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Separator />
-
-      <Section title="Sistemas actuales" delay={0.12}>
+      <Section index={next()} title="Sistemas actuales" delay={0.12}>
         <div className="flex flex-wrap gap-2">
           {report.currentSystems.length === 0 ? (
             <p className="text-[var(--isalwa-slate)]/80">Aún no se registran sistemas.</p>
@@ -180,7 +237,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
             report.currentSystems.map((system) => (
               <span
                 key={system}
-                className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-sm"
+                className="isalwa-chip !cursor-default"
               >
                 {system}
               </span>
@@ -189,11 +246,11 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Separator />
-
       <Section
+        index={next()}
         title="Puntos de dolor"
         intro="Lo que encontramos — las fricciones que reveló el diagnóstico, en la realidad operativa de la empresa."
+        tone="amber"
         delay={0.14}
       >
         {report.painPoints.length === 0 ? (
@@ -202,7 +259,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
             para identificarlos.
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {report.painPoints.map((pain) => (
               <li key={pain.id}>
                 <p className="font-medium text-[var(--isalwa-kiln)]">{pain.title}</p>
@@ -213,11 +270,11 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         )}
       </Section>
 
-      <Separator />
-
       <Section
+        index={next()}
         title="Recomendaciones"
         intro="Por qué importa y qué recomendamos — cada hallazgo junto con la acción que justifica."
+        tone="green"
         delay={0.16}
       >
         {report.opportunities.length === 0 ? (
@@ -226,12 +283,15 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
             evidencia suficiente.
           </p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-5">
             {report.opportunities.map((item) => (
-              <li key={item.id} className="border-b border-[var(--isalwa-mist)]/70 pb-4 last:border-b-0 last:pb-0">
+              <li
+                key={item.id}
+                className="border-l-2 border-[var(--isalwa-tint-green-border)] pl-4"
+              >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="font-medium text-[var(--isalwa-kiln)]">{item.title}</p>
-                  <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/80">
+                  <span className="isalwa-status-chip shrink-0" data-tone="green">
                     {recommendationPriorityLabel(item.priority)}
                   </span>
                 </div>
@@ -242,14 +302,12 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         )}
       </Section>
 
-      <Separator />
-
-      <Section title="Capacidades sugeridas" delay={0.18}>
+      <Section index={next()} title="Capacidades sugeridas" delay={0.18}>
         <div className="flex flex-wrap gap-2">
           {report.potentialModules.map((module) => (
             <span
               key={module.id}
-              className="rounded-full bg-[var(--isalwa-mist)] px-3 py-1 text-sm text-[var(--isalwa-slate)]"
+              className="isalwa-surface-gray isalwa-ink-gray rounded-full border px-3.5 py-1.5 text-sm"
             >
               {moduleLabel(module.name)}
             </span>
@@ -257,10 +315,8 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Separator />
-
-      <Section title="Plan de implementación" delay={0.2}>
-        <div className="space-y-6">
+      <Section index={next()} title="Plan de implementación" tone="violet" delay={0.2}>
+        <div className="space-y-7">
           {report.suggestedRoadmap.map((phase) => (
             <div key={phase.id}>
               <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
@@ -279,24 +335,20 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </div>
       </Section>
 
-      <Separator />
-
-      <div className="grid gap-8 sm:grid-cols-2">
-        <Section title="Complejidad estimada" delay={0.28}>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Section index={next()} title="Complejidad estimada" delay={0.28}>
           <p className="architect-serif text-3xl capitalize text-[var(--isalwa-kiln)]">
             {complexityLabel(report.estimatedComplexity)}
           </p>
         </Section>
-        <Section title="Tiempo estimado" delay={0.3}>
+        <Section index={next()} title="Tiempo estimado" delay={0.3}>
           <p className="architect-serif text-3xl text-[var(--isalwa-kiln)]">
             {timelineEstimateLabel(report.estimatedTimeline)}
           </p>
         </Section>
       </div>
 
-      <Separator />
-
-      <Section title="Preguntas abiertas" delay={0.32}>
+      <Section index={next()} title="Preguntas abiertas" delay={0.32}>
         <ul className="space-y-2">
           {report.unansweredQuestions.map((item) => (
             <li key={item}>{item}</li>
@@ -304,9 +356,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Separator />
-
-      <Section title="Oportunidades de IA" delay={0.34}>
+      <Section index={next()} title="Oportunidades de IA" delay={0.34}>
         <ul className="space-y-2">
           {report.aiOpportunities.map((item) => (
             <li key={item}>{item}</li>
@@ -314,9 +364,7 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Separator />
-
-      <Section title="Riesgos" delay={0.35}>
+      <Section index={next()} title="Riesgos" tone="red" delay={0.35}>
         <ul className="space-y-2">
           {report.risks.map((item) => (
             <li key={item}>{item}</li>
@@ -324,11 +372,11 @@ function ReportBody({ report }: { report: DiscoveryReport }) {
         </ul>
       </Section>
 
-      <Separator />
-
       <Section
+        index={next()}
         title="Conclusión ejecutiva"
         intro="Siguiente paso — llevar la historia a una decisión."
+        tone="blue"
         delay={0.36}
       >
         <p className="text-lg leading-relaxed text-[var(--isalwa-slate)]">
@@ -404,48 +452,60 @@ export function ReportView() {
   const backHref = workspaceId ? `/workspace/${workspaceId}` : "/";
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-16 sm:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-[var(--isalwa-page-max-report)] px-4 py-16 sm:px-6 sm:py-20">
       <BackLink
         href={backHref}
         label="Volver al espacio de trabajo"
-        className="mb-8"
+        className="mb-10"
       />
-      <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
-        Informe vivo
-      </p>
-      <div className="mt-4 flex items-center gap-3">
-        {brand?.reportBranding.showLogoOnReports && brand.logoUrl.value ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={brand.logoUrl.value}
-            alt={`Logo de ${companyName}`}
-            className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
-            style={
-              brand.primaryColor.value
-                ? { borderColor: brand.primaryColor.value }
-                : undefined
-            }
-          />
-        ) : null}
-        <h1 className="architect-serif text-5xl leading-tight text-[var(--isalwa-kiln)]">
-          Plan de negocio de {companyName}
-        </h1>
-      </div>
-      <p className="mt-4 max-w-2xl text-lg text-[var(--isalwa-slate)]">
-        Un plan operativo de calidad consultora que evoluciona con cada
-        reunión — respaldado por evidencia, claro y útil para decidir.
-      </p>
 
-      <Card className="mt-8 px-5 py-4 text-sm text-[var(--isalwa-slate)]/80">
-        Este informe se actualiza con cada sesión de descubrimiento. Los
-        hallazgos anteriores se conservan y se combinan — nunca se descartan.
+      {/* Masthead — reads as the cover of a bound report, not a page header. */}
+      <header className="isalwa-enter">
+        <p className="isalwa-kicker">Informe vivo</p>
+        <div className="mt-4 flex items-center gap-3">
+          {brand?.reportBranding.showLogoOnReports && brand.logoUrl.value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brand.logoUrl.value}
+              alt={`Logo de ${companyName}`}
+              className="h-10 w-10 shrink-0 rounded-xl border-2 border-[var(--isalwa-mist)] bg-white object-contain p-1"
+              style={
+                brand.primaryColor.value
+                  ? { borderColor: brand.primaryColor.value }
+                  : undefined
+              }
+            />
+          ) : null}
+          <h1 className="architect-serif text-4xl leading-tight text-[var(--isalwa-kiln)] sm:text-5xl">
+            Plan de negocio de {companyName}
+          </h1>
+        </div>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--isalwa-slate)]">
+          Un plan operativo de calidad consultora que evoluciona con cada
+          reunión — respaldado por evidencia, claro y útil para decidir.
+        </p>
+
+        <div className="mt-8 flex items-start gap-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-tint-blue-border)] bg-[var(--isalwa-tint-blue)] px-5 py-4">
+          <span className="isalwa-icon-chip isalwa-ink-blue !h-8 !w-8">
+            <FileText className="h-4 w-4" aria-hidden />
+          </span>
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Este informe se actualiza con cada sesión de descubrimiento. Los
+            hallazgos anteriores se conservan y se combinan — nunca se
+            descartan.
+          </p>
+        </div>
+      </header>
+
+      {/* Report body — bound in one premium paper panel, so the whole
+          document reads as a single considered artifact instead of a page
+          of stacked forms. */}
+      <Card className="isalwa-enter isalwa-enter-delay-1 mt-12 px-6 py-10 sm:px-12 sm:py-14">
+        <ReportBody report={report} />
       </Card>
 
-      <div className="mt-12">
-        <ReportBody report={report} />
-      </div>
-
-      <div className="mt-16 flex flex-wrap items-center gap-4">
+      <footer className="isalwa-divider-fade mt-16" />
+      <div className="mt-8 flex flex-wrap items-center gap-4">
         <BackLink href={backHref} label="Volver al espacio de trabajo" />
         <Button asChild variant="ghost">
           <Link href="/">Todas las empresas</Link>

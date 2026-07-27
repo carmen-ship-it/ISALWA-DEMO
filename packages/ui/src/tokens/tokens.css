@@ -25,6 +25,11 @@
   --isalwa-space-10: 48px;
   --isalwa-space-12: 64px;
   --isalwa-space-16: 64px;
+  /* Premium Visual Quality pass — larger steps for gaps *between* major
+     sections (not within a card). Same 8px law, just extended further so a
+     page can breathe like an executive report instead of a dense form. */
+  --isalwa-space-20: 96px;
+  --isalwa-space-24: 128px;
 
   --isalwa-radius-control: 8px;
   --isalwa-radius-panel: 16px;
@@ -71,8 +76,46 @@
   --isalwa-shadow-hover: var(--isalwa-shadow-lift);
   --isalwa-shadow-floating: 0 4px 0 rgba(28, 36, 48, 0.03), 0 32px 72px rgba(28, 36, 48, 0.14);
 
+  /* Premium Visual Quality pass — richer, multi-layer versions of the same
+     three elevations above. Same law colors (kiln @ low alpha), just more
+     layers stacked so depth reads as considered rather than a single flat
+     drop shadow. Additive only: `-resting/-hover/-floating` above are
+     untouched so every existing caller keeps its current look; opt in to
+     `--isalwa-shadow-*-rich` where a surface should feel more expensive
+     (flagship cards, heroes, report panels). */
+  --isalwa-shadow-resting-rich:
+    0 1px 0 rgba(28, 36, 48, 0.04),
+    0 1px 2px rgba(28, 36, 48, 0.03),
+    0 12px 32px -8px rgba(28, 36, 48, 0.08),
+    0 24px 48px -16px rgba(28, 36, 48, 0.06);
+  --isalwa-shadow-hover-rich:
+    0 2px 0 rgba(28, 36, 48, 0.03),
+    0 2px 6px rgba(28, 36, 48, 0.04),
+    0 20px 40px -12px rgba(28, 36, 48, 0.14),
+    0 32px 64px -20px rgba(28, 36, 48, 0.1);
+  --isalwa-shadow-floating-rich:
+    0 4px 0 rgba(28, 36, 48, 0.03),
+    0 4px 12px rgba(28, 36, 48, 0.06),
+    0 32px 72px -12px rgba(28, 36, 48, 0.18),
+    0 48px 96px -24px rgba(28, 36, 48, 0.14);
+  /* Inset hairline highlight — sits on `inset` so it never adds outer size.
+     Pair with a `-rich` shadow to give a card the faint top "glass" edge
+     Linear/Stripe/Notion panels use instead of a flat single border. */
+  --isalwa-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  /* Pre-combined card shadow (rich elevation + inset highlight) as a single
+     token so it can be consumed by a Tailwind arbitrary-value utility
+     (`shadow-[var(--isalwa-shadow-card-resting)]`) — keeps it inside
+     Tailwind's utility layer so `shadow-none`/`shadow-*` overrides on
+     individual call sites still win via tailwind-merge, instead of an
+     unlayered custom class that would always beat them. */
+  --isalwa-shadow-card-resting: var(--isalwa-shadow-resting-rich), var(--isalwa-inset-highlight);
+  --isalwa-shadow-card-hover: var(--isalwa-shadow-hover-rich), var(--isalwa-inset-highlight);
+
   --isalwa-border-subtle: color-mix(in srgb, var(--isalwa-mist) 88%, var(--isalwa-kiln));
   --isalwa-page-max: 1120px;
+  /* Executive report body reads best narrower than the app's 1120px — closer
+     to a printed page measure. */
+  --isalwa-page-max-report: 760px;
 
   --isalwa-surface-hero: linear-gradient(
     165deg,
@@ -81,6 +124,33 @@
     color-mix(in srgb, var(--isalwa-copper) 6%, var(--isalwa-porcelain)) 100%
   );
   --isalwa-surface-map: linear-gradient(160deg, #d6e4df 0%, #f7f5f2 48%, #e4ebf1 100%);
+
+  /* Premium Visual Quality pass — layered page wash. Extends
+     `--isalwa-surface-hero` with two very soft radial glaze/copper glows
+     anchored top-left / bottom-right, so large porcelain expanses read as
+     considered depth instead of flat white, at any scroll position (used on
+     `background-attachment: fixed`). No new colors — same glaze/copper. */
+  --isalwa-surface-app: radial-gradient(
+      1200px 640px at 8% -10%,
+      color-mix(in srgb, var(--isalwa-glaze) 7%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 700px at 100% 10%,
+      color-mix(in srgb, var(--isalwa-copper) 6%, transparent) 0%,
+      transparent 55%
+    ),
+    var(--isalwa-surface-hero);
+
+  /* Glass chrome — for sticky/floating surfaces only (context bar, sticky
+     tabs, floating menus). Never for resting content cards; glass reads as
+     premium precisely because it stays rare. Dark variant sits on the
+     frozen kiln chrome; light variant sits on porcelain. */
+  --isalwa-glass-dark-bg: color-mix(in srgb, var(--isalwa-kiln) 82%, transparent);
+  --isalwa-glass-dark-border: color-mix(in srgb, white 10%, transparent);
+  --isalwa-glass-light-bg: color-mix(in srgb, var(--isalwa-porcelain) 78%, transparent);
+  --isalwa-glass-light-border: color-mix(in srgb, var(--isalwa-mist) 70%, transparent);
+  --isalwa-glass-blur: 14px;
 
   /* Section identity — soft, unsaturated semantic surfaces (Premium Executive
      Design System, Mission 9). One muted hue per major surface category so a
