@@ -7,7 +7,7 @@ import type {
   OpportunityDifficulty,
 } from "@/types";
 
-interface OpportunityRule {
+export interface OpportunityRule {
   id: string;
   title: string;
   horizon: ConsultingOpportunityHorizon;
@@ -18,7 +18,12 @@ interface OpportunityRule {
   test: (blob: string, signalIds: Set<string>, painCount: number) => boolean;
 }
 
-const RULES: OpportunityRule[] = [
+/**
+ * Exported so `lib/consulting/normalize.ts` can refresh persisted
+ * opportunity copy by rule id (matched via the `createId(rule.id)` prefix on
+ * `ConsultingOpportunity.id`, which is stable across copy updates).
+ */
+export const OPPORTUNITY_RULES: OpportunityRule[] = [
   {
     id: "opp_shared_customer_record",
     title: "Crear un registro de clientes compartido",
@@ -111,7 +116,7 @@ export function evaluateOpportunities(
   const painCount = memory.painPoints.length;
 
   const out: ConsultingOpportunity[] = [];
-  for (const rule of RULES) {
+  for (const rule of OPPORTUNITY_RULES) {
     if (!rule.test(blob, signalIds, painCount)) continue;
     out.push({
       id: createId(rule.id),

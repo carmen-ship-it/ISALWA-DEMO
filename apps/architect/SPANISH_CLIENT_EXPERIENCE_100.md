@@ -98,9 +98,11 @@ language changed — this is a cascade-order fix only.
 
 **English leak in "Recomendación de hoy" / SIGUIENTE.** The
 `executiveRecommendation` fallback in `lib/deliverables/executive-summary.ts`
-was already corrected to Spanish in this mission's WIP; this pass confirmed
-the fix is present and will ship with this commit (previous sighting was a
-stale deploy, not a code bug).
+was corrected to Spanish in this mission's WIP. **Correction:** this did not
+fully fix the live bug — the primary source (`consulting.recommendations`)
+was still emitting stale pre-translation English for already-persisted
+workspaces, plus a separate missing-`phaseLabel()` bug in the roadmap. See
+"HOTFIX" section below for the actual root cause and fix.
 
 **Fake-progress / mock-data honesty.**
 - `lib/executive/derive.ts` — the daily journey checklist marked "Arquitectura
@@ -182,6 +184,66 @@ stale deploy, not a code bug).
   evidence-note strings remain English; not part of the client walkthrough.
 - **ISALWA, Architect, module/proper nouns, code comments, throw messages
   never rendered to a user** — unchanged, per the mission brief.
+
+## HOTFIX — English still live in "Recomendación de hoy" / risk cards (post-Mission 10)
+
+Álvaro's screenshot kept showing English ("Prioritize Phase 1: Foundation —
+Creates durable truth and access control before process automation. while
+reducing operational risk.", plus risk cards like "Manual approval
+bottleneck · Approval — Slows cycle time and creates approval theater
+risk") **after** this mission had shipped. The claim above ("previous
+sighting was a stale deploy, not a code bug") was wrong. Root-caused and
+fixed:
+
+1. **Persisted-before-the-fix data, not a stale deploy.** `conversationMemory
+   .consulting.{risks,opportunities,recommendations}`,
+   `businessProcesses.bottlenecks`, and `solutionArchitecture.roadmap` are
+   generated once (during a discovery/`think()` turn or when the blueprint
+   version changes) and then saved on the workspace — in Supabase JSONB for
+   the shared pilot, or `localStorage` otherwise. Real discovery sessions run
+   against `ws_isalwa` **before** this mission's engine translations landed,
+   so the saved objects still contain the old English copy. Editing
+   `lib/consulting/risk.ts` etc. only changes what gets generated *next*; it
+   never touched what was already sitting in the database. `migrateBundle`
+   (which runs on every load, local and Supabase) recomputes scores but never
+   re-ran `evaluateConsultingIntelligence`, so this copy was never refreshed.
+2. **A real, current source bug on top of that**: `lib/executive/derive.ts`
+   (`estimatedPhases`), `lib/executive/cockpit.ts` (`deriveRoadmap`), and the
+   roadmap module list all read `ImplementationPhase.name`/`.modules`
+   directly instead of through the existing `phaseLabel()` / `moduleLabel()`
+   presentation functions (every *other* consumer — deliverables, the
+   Solution Architecture panel, report view, `domain/report.ts` — already
+   used them). That's the literal, always-reproducible source of a bare
+   "Foundation" in the roadmap / "Hacia dónde vamos" section, independent of
+   any stale data.
+3. **A genuinely fabricated knowledge artifact**: `lib/knowledge/seed.ts`
+   invented two "processed" documents (`source: "powerpoint · mock"` /
+   `"word · mock"`) for `ws_isalwa`, with a summary claiming they'd been
+   reviewed — timeline entries and a Knowledge Center entity Álvaro would see
+   as real uploaded evidence that never happened. Removed; the Knowledge
+   Center now starts empty for every workspace, including the pilot, until a
+   real upload happens (see `NO_FABRICATED_CONTENT.md`).
+
+### Fix — presentation-layer normalization that always wins
+
+Added `lib/consulting/normalize.ts`: pure functions that re-stamp risk /
+opportunity / recommendation / bottleneck / roadmap-phase *copy* from the
+current rule tables in `risk.ts`, `opportunities.ts`, `bottlenecks.ts`, and
+`lib/solution/roadmap.ts` (now exported as `ROADMAP_PHASE_DEFINITIONS`),
+keyed by each object's **stable identifier** (`patternId`, opportunity
+rule-id prefix, `kind`, `phase` number) — never by the free-text copy itself.
+Wired into `lib/repositories/migrate.ts`'s `migrateBundle()`, the single
+choke point both storage backends already run every workspace through on
+load. This "always wins" regardless of what language the persisted blob was
+saved in, without changing engine logic, ids, evidence, confidence, or
+severity. Also fixed the three missing `phaseLabel()`/`moduleLabel()` call
+sites (#2 above) and translated `lib/processes/bottlenecks.ts`'s step-name
+suffix (`stepNameLabel`) so step names like "Approval" / "Lead / inquiry" /
+"Quote" / "Close" render in Spanish in risk-card titles too.
+
+Roles were re-verified against `lib/auth/constants.ts` and
+`components/auth/login-form.tsx` and are correct: Carmen = Consultora/admin,
+Álvaro = Cliente, product name "ISALWA Architect" unchanged.
 
 ## Verification
 

@@ -8,7 +8,12 @@ import type {
   MaturityDimension,
   ScoredDimension,
 } from "@/types";
-import { departmentLabel, healthLabel, moduleLabel } from "@/lib/presentation";
+import {
+  departmentLabel,
+  healthLabel,
+  moduleLabel,
+  phaseLabel,
+} from "@/lib/presentation";
 import { deriveCockpitAlerts } from "./alerts";
 import { deriveDailySummary } from "./daily-summary";
 import { deriveExecutiveScore } from "./executive-score";
@@ -337,9 +342,9 @@ function deriveRoadmap(workspace: CompanyWorkspace): RoadmapProgress {
 
   const mapped = phases.map((p) => ({
     phase: p.phase,
-    name: p.name,
+    name: phaseLabel(p.name),
     status: (p.phase === 1 ? "designed" : "planned") as "designed" | "planned",
-    modules: p.modules.map(String),
+    modules: p.modules.map((m) => moduleLabel(String(m))),
   }));
 
   let summary: string;

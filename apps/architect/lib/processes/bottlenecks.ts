@@ -1,4 +1,5 @@
 import { createId } from "@/lib/utils";
+import { stepNameLabel } from "@/lib/presentation";
 import type {
   ConsultingRisk,
   ProcessBottleneck,
@@ -51,7 +52,9 @@ function detectStepKinds(
   return kinds;
 }
 
-function titleFor(kind: ProcessBottleneckKind): string {
+/** Exported so `lib/consulting/normalize.ts` can refresh persisted bottleneck
+ * copy — `kind` is a stable enum, so this is always safe to recompute. */
+export function titleFor(kind: ProcessBottleneckKind): string {
   const map: Record<ProcessBottleneckKind, string> = {
     manual_approvals: "Cuello de botella de aprobación manual",
     duplicate_entry: "Captura de datos duplicada",
@@ -67,7 +70,7 @@ function titleFor(kind: ProcessBottleneckKind): string {
   return map[kind];
 }
 
-function impactFor(kind: ProcessBottleneckKind): string {
+export function impactFor(kind: ProcessBottleneckKind): string {
   const map: Record<ProcessBottleneckKind, string> = {
     manual_approvals: "Alarga el tiempo de ciclo y crea riesgo de aprobaciones de fachada",
     duplicate_entry: "Aumenta la tasa de error y el trabajo desperdiciado",
@@ -142,7 +145,7 @@ export function deriveBottlenecks(input: {
           workflowId: wf.id,
           stepId: step.id,
           kind,
-          title: `${titleFor(kind)} · ${step.name}`,
+          title: `${titleFor(kind)} · ${stepNameLabel(step.name)}`,
           severity: step.riskLevel,
           confidence: Math.min(step.confidence, matchedRisk?.confidence ?? 0.75),
           businessImpact: impactFor(kind),

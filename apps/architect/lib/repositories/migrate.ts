@@ -28,6 +28,11 @@ import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { deriveCompanyModel } from "@/lib/company-model";
 import { applyDiscoveryScore } from "@/lib/reasoning";
+import {
+  normalizeBusinessProcesses,
+  normalizeConsultingIntelligence,
+  normalizeSolutionArchitecture,
+} from "@/lib/consulting";
 import { ensureCompanyEvolution } from "@/lib/history";
 import { createId } from "@/lib/utils";
 import {
@@ -360,6 +365,38 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         } else if (!implementationPackage && next.implementationPackage) {
           next = { ...next, implementationPackage: null };
         }
+      }
+
+      // HOTFIX — always re-stamp consulting/process/roadmap display copy from
+      // the current Spanish rule tables, keyed by stable ids
+      // (patternId/kind/phase number). Guards against workspaces whose
+      // conversationMemory.consulting, businessProcesses.bottlenecks, or
+      // solutionArchitecture.roadmap were persisted by an older (pre-Spanish)
+      // version of these rule tables — see SPANISH_CLIENT_EXPERIENCE_100.md.
+      if (next.conversationMemory?.consulting) {
+        next = {
+          ...next,
+          conversationMemory: {
+            ...next.conversationMemory,
+            consulting: normalizeConsultingIntelligence(
+              next.conversationMemory.consulting,
+            ),
+          },
+        };
+      }
+      if (next.businessProcesses) {
+        next = {
+          ...next,
+          businessProcesses: normalizeBusinessProcesses(next.businessProcesses),
+        };
+      }
+      if (next.solutionArchitecture) {
+        next = {
+          ...next,
+          solutionArchitecture: normalizeSolutionArchitecture(
+            next.solutionArchitecture,
+          ),
+        };
       }
 
       next = ensureCompanyEvolution(next);

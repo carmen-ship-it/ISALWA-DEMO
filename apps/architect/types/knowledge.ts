@@ -1,6 +1,7 @@
 /**
  * Knowledge Ingestion Engine — Mission 3 domain contracts.
- * Architecture + mock data only. No uploads. No AI extraction.
+ * Real uploads via `lib/knowledge/intake.ts`; no fabricated seed content —
+ * the Knowledge Center starts empty until something real is uploaded.
  */
 
 export type KnowledgeAssetType =

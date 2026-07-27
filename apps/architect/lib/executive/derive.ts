@@ -10,6 +10,7 @@ import type {
   ProcessRiskLevel,
   SolutionModule,
 } from "@/types";
+import { phaseLabel } from "@/lib/presentation";
 import { deriveExecutiveCockpit } from "./cockpit";
 import type { ExecutiveCockpit } from "./types";
 
@@ -198,7 +199,7 @@ export function deriveExecutiveExperience(
   const investmentAreas = solution?.modules.slice(0, 5).map((m) => m.name) ?? [];
 
   const estimatedPhases =
-    solution?.roadmap.map((p) => `Fase ${p.phase}: ${p.name}`) ?? [];
+    solution?.roadmap.map((p) => `Fase ${p.phase}: ${phaseLabel(p.name)}`) ?? [];
 
   const aiDimension = consulting?.health.gauges.find(
     (d) => d.id === "ai_readiness",

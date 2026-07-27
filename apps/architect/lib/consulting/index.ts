@@ -15,6 +15,17 @@ export {
   emptyConsultingIntelligence,
 } from "./evaluate";
 
+/** HOTFIX — presentation-boundary copy normalization, see normalize.ts. */
+export {
+  normalizeConsultingRisk,
+  normalizeConsultingOpportunity,
+  normalizeConsultingIntelligence,
+  normalizeProcessBottleneck,
+  normalizeBusinessProcesses,
+  normalizeImplementationPhase,
+  normalizeSolutionArchitecture,
+} from "./normalize";
+
 /** Mission 10 — senior consultant question reasoning (no LLM). */
 export {
   selectNextConsultantQuestion,
