@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { architectAgent } from "@/agents";
 import { ArchitectNav } from "@/components/nav/architect-nav";
@@ -15,6 +15,7 @@ import { StageBrief } from "@/components/discovery/guided/stage-brief";
 import { StageStepper } from "@/components/discovery/guided/stage-stepper";
 import { ObservationCard } from "@/components/shared/observation-card";
 import { TypingIndicator } from "@/components/shared/typing-indicator";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { applyInterviewToWorkspace } from "@/lib/memory";
 import { createClientInterviewPersistence } from "@/lib/persistence";
@@ -97,6 +98,20 @@ function ensureMemory(interview: Interview): Interview {
 
 type ViewMode = "answering" | "reviewing";
 
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "Error desconocido";
+}
+
+/**
+ * How long to wait after an answer before mirroring the live interview
+ * memory into shared company memory (what the consultant's workspace
+ * reads). Long enough to coalesce a burst of answers, short enough that
+ * progress shows up while the session is still running.
+ */
+const SHARE_DEBOUNCE_MS = 1_500;
+
 export function GuidedAssessment() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -108,6 +123,9 @@ export function GuidedAssessment() {
   const [thinking, setThinking] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [persistedComplete, setPersistedComplete] = useState(false);
+  /** Non-null whenever an answer failed to reach durable storage. */
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [bootError, setBootError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("answering");
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
@@ -152,13 +170,15 @@ export function GuidedAssessment() {
       if (cancelled) return;
       setWorkspace(ws);
 
+      // A saved interview is always loaded from this workspace's own row
+      // (Supabase keys on workspace_id, localStorage on the workspace key),
+      // so an absent or stale `workspaceId` inside the payload just means it
+      // predates that field — adopt it. Starting a fresh interview instead
+      // would overwrite every answer already recorded here.
       const existing = await persistence.load();
-      if (
-        existing &&
-        existing.phase !== "complete" &&
-        existing.workspaceId === workspaceId
-      ) {
-        setInterview(ensureMemory(existing));
+      if (existing && existing.phase !== "complete") {
+        if (cancelled) return;
+        setInterview(ensureMemory({ ...existing, workspaceId }));
         return;
       }
 
@@ -167,6 +187,7 @@ export function GuidedAssessment() {
           ? "continue"
           : "begin";
       const fresh = createWorkspaceInterview(ws, mode);
+      if (cancelled) return;
       setInterview(fresh);
       await persistence.save(fresh);
 
@@ -177,18 +198,87 @@ export function GuidedAssessment() {
       });
     }
 
-    void boot();
+    void boot().catch((error) => {
+      if (cancelled) return;
+      setBootError(describeError(error));
+    });
     return () => {
       cancelled = true;
     };
   }, [persistence, router, store, workspaceId]);
 
   // Pause = simply stop here. Every state change autosaves, so returning to
-  // the workspace never loses an answer (existing persistence, unchanged).
+  // the workspace never loses an answer.
   useEffect(() => {
     if (!interview || interview.phase === "complete") return;
     void persistence.save(interview);
   }, [interview, persistence]);
+
+  // A write that never lands must be visible, not console-only.
+  useEffect(() => {
+    const unsubscribe = persistence.onStatusChange((failure) => {
+      setSaveError(failure?.message ?? null);
+    });
+    return () => {
+      unsubscribe();
+      // Leaving the page cancels the debounce timer — push the buffered
+      // answer out before it goes with it.
+      void persistence.flush();
+      persistence.dispose();
+    };
+  }, [persistence]);
+
+  /**
+   * Mirror the live interview memory into shared company memory so the
+   * consultant sees the client's progress while the session is still open —
+   * until now that only happened when the interview finished. Reuses the
+   * existing workspace repository (Supabase row shared by both accounts);
+   * the full meeting/blueprint/report pass still belongs to completion.
+   */
+  const shareProgress = useCallback(
+    async (current: Interview) => {
+      if (!workspaceId) return;
+      const latest = await store.workspaces.get(workspaceId);
+      if (!latest) return;
+      const stamp = nowIso();
+      await store.workspaces.save({
+        ...latest,
+        conversationMemory: current.memory,
+        businessUnderstanding: current.memory.score.overall,
+        activeInterviewId: current.id,
+        updatedAt: stamp,
+        lastActivityAt: stamp,
+        lastActivityLabel: "Descubrimiento en curso",
+      });
+    },
+    [store, workspaceId],
+  );
+
+  const pendingShareRef = useRef<Interview | null>(null);
+
+  useEffect(() => {
+    if (!interview || interview.phase === "complete") return;
+    if (interview.memory.knownFacts.length === 0) return;
+    pendingShareRef.current = interview;
+    const timer = setTimeout(() => {
+      const target = pendingShareRef.current;
+      if (!target) return;
+      pendingShareRef.current = null;
+      void shareProgress(target).catch((error) => {
+        setSaveError(describeError(error));
+      });
+    }, SHARE_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [interview, shareProgress]);
+
+  // Leaving mid-debounce must not drop the last shared update.
+  useEffect(() => {
+    return () => {
+      const target = pendingShareRef.current;
+      pendingShareRef.current = null;
+      if (target) void shareProgress(target);
+    };
+  }, [shareProgress]);
 
   useEffect(() => {
     if (!interview || !workspace || persistedComplete) return;
@@ -208,14 +298,19 @@ export function GuidedAssessment() {
       );
       await store.workspaces.save(next);
       await store.conversations.save(conversation);
+      // Only drop the autosaved interview once company memory has it.
       await persistence.clear();
       setPersistedComplete(true);
+      setSaveError(null);
       setWorkspace(next);
       // Business Understanding is now updated in the workspace — navigation
       // back is a deliberate user action (Finish stage), not automatic.
     }
 
-    void persistCompletion();
+    void persistCompletion().catch((error) => {
+      if (cancelled) return;
+      setSaveError(describeError(error));
+    });
     return () => {
       cancelled = true;
     };
@@ -229,6 +324,7 @@ export function GuidedAssessment() {
 
     setThinking(true);
     setDraft("");
+    setSaveError(null);
 
     const answer: Answer = {
       id: createId("answer"),
@@ -239,14 +335,22 @@ export function GuidedAssessment() {
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
-    startTransition(() => {
-      void architectAgent
-        .handleTurn({ interview: source, latestAnswer: answer })
-        .then((result) => {
-          setInterview(applyActiveStageFilter(result.interview));
-          setThinking(false);
-        });
-    });
+    try {
+      const result = await architectAgent.handleTurn({
+        interview: source,
+        latestAnswer: answer,
+      });
+      startTransition(() => {
+        setInterview(applyActiveStageFilter(result.interview));
+      });
+    } catch (error) {
+      // Give the answer back rather than clearing the field and leaving the
+      // panel stuck on "Actualizando la comprensión…" forever.
+      setDraft(trimmed);
+      setSaveError(describeError(error));
+    } finally {
+      setThinking(false);
+    }
   }
 
   /**
@@ -327,6 +431,28 @@ export function GuidedAssessment() {
     });
   }
 
+  if (bootError) {
+    return (
+      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-6">
+        <Card className="px-7 py-8" role="alert">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-tint-red-ink)]">
+            No se pudo abrir la evaluación
+          </p>
+          <p className="mt-3 text-base leading-relaxed text-[var(--isalwa-kiln)]">
+            Sus respuestas guardadas siguen intactas — no se inició una sesión
+            nueva. Vuelva a intentarlo en unos segundos.
+          </p>
+          <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">{bootError}</p>
+          <div className="mt-6">
+            <Button size="lg" onClick={() => window.location.reload()}>
+              Reintentar
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   if (!interview || !workspace) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -398,6 +524,39 @@ export function GuidedAssessment() {
           interviewHref={`/discovery?workspaceId=${workspace.id}`}
         />
       </header>
+
+      {saveError ? (
+        <div
+          role="alert"
+          className="mt-6 flex flex-col gap-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-tint-red-border)] bg-[var(--isalwa-tint-red)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-tint-red-ink)]">
+              Sus respuestas no se han guardado
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+              No cierre esta página. Reintente el guardado — si vuelve a
+              fallar, avise al consultor.
+            </p>
+            <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
+              {saveError}
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              void persistence.flush();
+              if (interview) {
+                void shareProgress(interview).catch((error) => {
+                  setSaveError(describeError(error));
+                });
+              }
+            }}
+          >
+            Reintentar guardado
+          </Button>
+        </div>
+      ) : null}
 
       {!isComplete ? (
         <div className="mt-6">

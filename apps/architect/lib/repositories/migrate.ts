@@ -2,7 +2,7 @@
  * Bundle migration + storage key — shared by local and Supabase stores.
  */
 
-import type { CompanyWorkspace } from "@/types";
+import type { CompanyWorkspace, KnownFact } from "@/types";
 import {
   createSeedWorkspaces,
   type WorkspaceBundle,
@@ -11,6 +11,7 @@ import {
   createSeedKnowledge,
   emptyWorkspaceKnowledge,
   ensureWorkspaceKnowledge,
+  hasProcessedKnowledge,
   knowledgeTimelineEvents,
 } from "@/lib/knowledge";
 import {
@@ -65,6 +66,33 @@ function looksLikeOldFabricatedKnowledgeSeed(
     workspace.id === PILOT_COMPANY_WORKSPACE_ID &&
     assets.length > 0 &&
     assets.every((asset) => asset.source.includes("· mock"))
+  );
+}
+
+/**
+ * A single fact that the old `lib/workspace/seed.ts` pilot seed invented.
+ *
+ * Two fingerprints, both unique to that seed: the `seed_fact_` key prefix,
+ * and the literal placeholder evidence string (a real fact always cites the
+ * client's own words or the knowledge asset it came from).
+ */
+function isFabricatedSeedFact(fact: KnownFact): boolean {
+  return (
+    fact.key.startsWith("seed_fact_") ||
+    fact.evidence.includes("Sesión de descubrimiento anterior")
+  );
+}
+
+/**
+ * Does anything real remain once the fabricated facts are gone? A recorded
+ * meeting or a processed upload is evidence a human actually produced, so
+ * the workspace must never be reset out from under it.
+ */
+function hasRealEvidence(workspace: CompanyWorkspace): boolean {
+  return (
+    workspace.meetings.length > 0 ||
+    workspace.documents.length > 0 ||
+    hasProcessedKnowledge(workspace.knowledge)
   );
 }
 
@@ -332,33 +360,24 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         };
       }
 
-      // Honest scores: recompute memory; heal to an empty shell if this is
-      // the pilot workspace still carrying the old fabricated seed (facts
-      // that were never gathered from a real interview/upload — see
-      // NO_FABRICATED_CONTENT.md). Never re-seed fake evidence — the only
-      // way Business Understanding should move again is a real interview or
-      // a real document upload.
+      // Honest scores: drop fabricated evidence, then recompute the score
+      // from whatever real evidence survives (see NO_FABRICATED_CONTENT.md).
+      // Never re-seed fake evidence — and, just as importantly, never delete
+      // a real answer to get rid of a fabricated one: the heal prunes the
+      // fabricated facts individually and only resets the workspace when
+      // nothing real is left behind (see PERSISTENCE_ALVARO_FIX.md).
       if (next.conversationMemory) {
-        const legacyFactKeys = next.conversationMemory.knownFacts.some((f) =>
-          f.key.startsWith("seed_fact_"),
+        const realFacts = next.conversationMemory.knownFacts.filter(
+          (fact) => !isFabricatedSeedFact(fact),
         );
-        const desynced =
-          next.conversationMemory.score.overall > 0 &&
-          next.conversationMemory.score.dimensions.every(
-            (d) => d.confidence === 0,
-          );
-        // Unique to the old `lib/workspace/seed.ts` pilot seed — real facts
-        // always cite the actual interview quote or knowledge source as
-        // evidence, never this literal placeholder string.
-        const looksLikeOldPilotSeed =
-          next.conversationMemory.knownFacts.length > 0 &&
-          next.conversationMemory.knownFacts.every((f) =>
-            f.evidence.includes("Sesión de descubrimiento anterior"),
-          );
+        const prunedFabricated =
+          realFacts.length !== next.conversationMemory.knownFacts.length;
 
         if (
           next.id === PILOT_COMPANY_WORKSPACE_ID &&
-          (legacyFactKeys || desynced || looksLikeOldPilotSeed)
+          prunedFabricated &&
+          realFacts.length === 0 &&
+          !hasRealEvidence(next)
         ) {
           next = {
             ...next,
@@ -379,7 +398,13 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
             implementationPackage: null,
           };
         } else {
-          const memory = applyDiscoveryScore(next.conversationMemory);
+          // `applyDiscoveryScore` recomputes from the surviving facts, so a
+          // stale/desynced persisted score self-corrects without a reset.
+          const memory = applyDiscoveryScore(
+            prunedFabricated
+              ? { ...next.conversationMemory, knownFacts: realFacts }
+              : next.conversationMemory,
+          );
           next = {
             ...next,
             conversationMemory: memory,

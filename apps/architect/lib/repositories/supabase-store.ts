@@ -508,9 +508,16 @@ export class SupabaseCompanyMemoryStore implements CompanyMemoryStore {
     this.lastFetchedAt = Date.now();
   }
 
+  /**
+   * Write every row, then report. A row the signed-in user cannot write
+   * (RLS on a workspace they are not a member of) must never abort the loop
+   * and silently skip the rows after it — that is how a client's own
+   * workspace stopped being saved. See PERSISTENCE_ALVARO_FIX.md.
+   */
   private async persistBundle(): Promise<void> {
     const supabase = createBrowserSupabaseClient();
     const now = new Date().toISOString();
+    const failures: string[] = [];
 
     for (const workspace of this.bundle.workspaces) {
       const { error } = await supabase.from("architect_workspaces").upsert(
@@ -523,7 +530,7 @@ export class SupabaseCompanyMemoryStore implements CompanyMemoryStore {
         { onConflict: "id" },
       );
       if (error) {
-        throw new Error(`Supabase workspace save: ${error.message}`);
+        failures.push(`workspace ${workspace.id}: ${error.message}`);
       }
     }
 
@@ -538,11 +545,15 @@ export class SupabaseCompanyMemoryStore implements CompanyMemoryStore {
         { onConflict: "id" },
       );
       if (error) {
-        throw new Error(`Supabase conversation save: ${error.message}`);
+        failures.push(`conversation ${conversation.id}: ${error.message}`);
       }
     }
 
     this.lastFetchedAt = Date.now();
+
+    if (failures.length > 0) {
+      throw new Error(`Supabase save: ${failures.join(" · ")}`);
+    }
   }
 
   private async ensureRealtime(): Promise<void> {
