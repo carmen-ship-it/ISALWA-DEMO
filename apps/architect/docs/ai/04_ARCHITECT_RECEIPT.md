@@ -35,7 +35,7 @@ Center generates and exports eight company documents). See
 | 20 (Part 2) | `faba62d` | Executive Daily Brief — replaces generic dashboard hero with a senior-consultant-style brief. |
 | 21 (Pass 1) | `9b2f92d` | Living document ingestion — batch "what changed" debrief after uploads. |
 | 21 (Pass 2) | `2432c8b` | Company Brain — client-facing "what does Architect know about my company" surface. |
-| 22 | `3d024c8` + Teach pass (see `MISSION22.md`) | Meeting transcription → evidence, then Teach Architect Living Knowledge (Learning Summary certainty/next-step, Teach labels, pre-upload expectations). |
+| 22 | `3d024c8` (transcript) · `3a685f4` (Teach) | Meeting transcription → evidence, then Teach Architect Living Knowledge (Learning Summary certainty/next-step, Teach labels, pre-upload expectations). |
 | 23 | `2dcd102` | Real integrations — Google Drive **live** (OAuth + list + import); SharePoint/QuickBooks/HubSpot scaffolded honestly. |
 | 25 | `c3923b4` | Product Constitution & Security Foundation — the six permanent governance docs under `docs/` (documentation only). |
 | 25 (OS hub) | `2aa8853` | Company Operating System hub — client tab framing Conversation → Knowledge → Brain → OS; composes Mission 26 living deliverables (no second catalog); CTAs deep-link into Documentos. See [`MISSION25.md`](../../MISSION25.md). |
@@ -45,7 +45,7 @@ Center generates and exports eight company documents). See
 Re-verify any time:
 
 ```bash
-git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853"
+git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|3a685f4|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853"
 ```
 
 Missions 0–18 shipped earlier (Foundation through Company Digital Twin / Auth pilot) — see
