@@ -92,7 +92,7 @@ the agent existed stay valid — a missing notebook just means no cycle has run.
 | `automations` | Business Process Engine · automation candidates |
 | `implementationRisks` | consulting intelligence · risks |
 | `followUpAreas` | Readiness Engine · still-learning items |
-| `relatedEvidence` | evidence snapshot · strongest signals |
+| `relatedEvidence` | RetrievalPack (Mission C, `lib/ai/retrieval`) · recent answers + document chunks + knowledge entities + readiness gaps |
 | `capabilities` | Mission A twin + remaining time + complete flag |
 | `understanding` | discovery score, compared against the previous cycle |
 | `selfCheck` / `questionDecision` | this agent |

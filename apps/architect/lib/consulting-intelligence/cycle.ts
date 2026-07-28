@@ -13,7 +13,7 @@
  *   4. recalculate capabilities      `deriveCapabilityIntelligence` (Mission A)
  *   5. detect contradictions         `evaluateContradictions` + vault + readiness
  *   6. detect missing evidence       Missing Information Engine
- *   7. retrieve related evidence     evidence snapshot boundary
+ *   7. retrieve related evidence     RetrievalPack (Mission C, `lib/ai/retrieval`)
  *   8. single highest-value unknown  Missing Information Engine's own ranking
  *   9. decide whether to ask again   Readiness advice, vetoed by the self-check
  *
@@ -30,6 +30,7 @@
 
 import { nowIso } from "@/lib/utils";
 import { deriveCompanyModel } from "@/lib/company-model";
+import { buildRetrievalQuery } from "@/lib/ai/retrieval";
 import {
   buildExplainableConfidenceReport,
   buildMissingInformationReport,
@@ -112,8 +113,21 @@ export function runConsultingIntelligenceCycle(
     evidenceEvent.text,
   );
   const missingEvidence = collectMissingEvidence(missing);
-  const relatedEvidence = collectRelatedEvidence(snapshot);
   const highestValueUnknown = pickHighestValueUnknown(missing);
+  // Mission C — the RetrievalPack query favors what would move confidence
+  // most (the highest-value unknown), falling back to the freshest evidence
+  // text when there is nothing left to ask about.
+  const relatedEvidence = collectRelatedEvidence(
+    withModel,
+    assessment.stillLearning,
+    buildRetrievalQuery(
+      highestValueUnknown?.gap,
+      highestValueUnknown?.topicLabel,
+      evidenceEvent.text,
+    ),
+    evidenceEvent.meetingId,
+  );
+  enginesRun.push("retrieval:pack");
   if (contradictions.length > 0) enginesRun.push("consulting:contradictions");
 
   // Step 9 — the self-check runs *before* any decision to ask.

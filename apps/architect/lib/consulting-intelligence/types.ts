@@ -17,6 +17,7 @@
 
 import type { ReadinessTopicId } from "@/lib/readiness";
 import type { CapabilityId } from "@/lib/discovery-agent/capabilities";
+import type { RetrievalItemKind, RetrievalProvenance } from "@/lib/ai/retrieval";
 
 /** What kind of evidence woke the agent up. */
 export type EvidenceEventKind =
@@ -41,6 +42,12 @@ export interface EvidenceEvent {
    * give the existing contradiction detector a fresh string to compare.
    */
   text?: string;
+  /**
+   * Mission C — the meeting this evidence was captured in, when there is
+   * one. Threaded into `RetrievalPack` so an "answer" item can point back to
+   * the session that produced it, not just the fact key.
+   */
+  meetingId?: string | null;
 }
 
 /** One internal note. `basis` records which engine produced it. */
@@ -76,13 +83,20 @@ export interface MissingEvidenceItem {
   estimatedLiftPercent: number;
 }
 
-/** A lightweight related-evidence pack. Mission C deepens this into retrieval. */
+/**
+ * One item from the agent's `RetrievalPack` (Mission C — `lib/ai/retrieval`):
+ * recent answers, matching document chunks, related knowledge entities and
+ * open readiness gaps, capped and ranked together. `kind` and `provenance`
+ * trace it back to the exact record it came from.
+ */
 export interface RelatedEvidenceItem {
   id: string;
   topic: ReadinessTopicId | null;
   sourceLabel: string;
   statement: string;
   strength: number;
+  kind: RetrievalItemKind;
+  provenance: RetrievalProvenance;
 }
 
 /**

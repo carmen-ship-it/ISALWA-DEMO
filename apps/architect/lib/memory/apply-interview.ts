@@ -336,6 +336,7 @@ export function applyInterviewToWorkspace(
     label: meeting.title,
     at: stamp,
     text: interview.conversation.answers.at(-1)?.value,
+    meetingId: meeting.id,
   });
 
   return { workspace: cycle.workspace, meeting, conversation };

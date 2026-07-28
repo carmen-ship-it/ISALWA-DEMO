@@ -25,6 +25,7 @@ import {
   emptyConsultingWhiteboardFields,
 } from "@/lib/consulting";
 import { assessMemoryReadiness, pickTopicReadiness } from "@/lib/readiness";
+import { buildRetrievalPackSync, buildRetrievalQuery } from "@/lib/ai/retrieval";
 import { createEmptyMemory } from "@/lib/reasoning";
 import { createWorkspaceInterview } from "@/lib/resume";
 import { createId, nowIso } from "@/lib/utils";
@@ -152,6 +153,30 @@ export function GuidedAssessment() {
     () => (interview ? assessMemoryReadiness(interview.memory) : null),
     [interview],
   );
+
+  /**
+   * Mission C — the "Basado en…" evidence chips next to the active question.
+   * Built client-side from what is already in memory (workspace knowledge +
+   * live interview memory + the readiness gaps above), so this never adds a
+   * network round trip while the client is typing. Document chunks rank by
+   * keyword overlap (`buildRetrievalPackSync`) rather than real embeddings —
+   * see `RETRIEVAL_PACK.md` for why and the upgrade path.
+   */
+  const retrievalPack = useMemo(() => {
+    const question = interview?.conversation.currentQuestion;
+    if (!interview || interview.phase !== "interview" || !question) return null;
+
+    const latestAnswer = interview.conversation.answers.at(-1)?.value ?? null;
+    const query = buildRetrievalQuery(question.prompt, question.topic, latestAnswer);
+    if (!query.trim()) return null;
+
+    return buildRetrievalPackSync({
+      query,
+      memory: interview.memory,
+      knowledge: workspace?.knowledge ?? null,
+      gaps: readiness?.stillLearning ?? [],
+    });
+  }, [interview, workspace, readiness]);
 
   useEffect(() => {
     let cancelled = false;
@@ -619,6 +644,7 @@ export function GuidedAssessment() {
                     thinking={thinking}
                     isPending={isPending}
                     onRespond={(value) => void respond(value)}
+                    retrievalPack={retrievalPack}
                   />
                 </div>
               </>

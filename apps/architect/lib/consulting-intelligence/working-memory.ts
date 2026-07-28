@@ -13,12 +13,14 @@
 import { createId } from "@/lib/utils";
 import { evaluateContradictions } from "@/lib/consulting";
 import { missingInformationUploadHint } from "@/lib/readiness/topics";
+import { buildRetrievalPackSync } from "@/lib/ai/retrieval";
+import type { RetrievalItem, RetrievalItemKind } from "@/lib/ai/retrieval";
 import type {
   ConfidenceCategory,
-  EvidenceSnapshot,
   ExplainableConfidenceReport,
   MissingInformationReport,
   ReadinessAssessment,
+  ReadinessLearningItem,
 } from "@/lib/readiness";
 import type { CompanyWorkspace } from "@/types";
 import type {
@@ -202,27 +204,53 @@ export function collectFollowUpAreas(
   }));
 }
 
+const RETRIEVAL_SOURCE_LABEL_ES: Record<RetrievalItemKind, string> = {
+  answer: "memoria de conversación · respuesta reciente",
+  document_chunk: "documentos · fragmento recuperado",
+  knowledge_entity: "grafo de conocimiento · entidad relacionada",
+  readiness_gap: "motor de preparación · brecha abierta",
+};
+
 /**
- * A lightweight related-evidence pack: the strongest signals already
- * normalized at the evidence boundary, strongest first.
+ * Mission C — real retrieval. Builds the same `RetrievalPack` the guided
+ * interview shows as "Basado en…" chips (`lib/ai/retrieval`), reusing its
+ * four tiers — recent answers, matching document chunks, related knowledge
+ * entities, open readiness gaps — instead of just copying the evidence
+ * snapshot's strongest signals.
  *
- * Deliberately shallow — Mission C replaces this with real retrieval. It
- * exists now so the cycle has something to reason over instead of nothing.
+ * Uses the synchronous, keyword-ranked pack: the cycle is synchronous by
+ * contract (see `cycle.ts`) and runs from client code that cannot reach the
+ * server-only embeddings key, so real semantic search stays the documented
+ * upgrade path (`RETRIEVAL_PACK.md`) until a server-side call site exists.
  */
 export function collectRelatedEvidence(
-  snapshot: EvidenceSnapshot,
+  workspace: CompanyWorkspace,
+  gaps: ReadinessLearningItem[],
+  query: string,
+  meetingId?: string | null,
 ): RelatedEvidenceItem[] {
-  return snapshot.signals
-    .slice()
-    .sort((a, b) => b.strength - a.strength)
-    .slice(0, MAX_EVIDENCE_PACK)
-    .map((signal) => ({
-      id: signal.id,
-      topic: signal.topic,
-      sourceLabel: signal.sourceLabel,
-      statement: signal.statement,
-      strength: signal.strength,
-    }));
+  const pack = buildRetrievalPackSync({
+    query,
+    memory: workspace.conversationMemory,
+    knowledge: workspace.knowledge,
+    gaps,
+    meetingId: meetingId ?? null,
+    limit: MAX_EVIDENCE_PACK,
+  });
+
+  return pack.items.map((item) => toRelatedEvidenceItem(item));
+}
+
+function toRelatedEvidenceItem(item: RetrievalItem): RelatedEvidenceItem {
+  return {
+    id: item.id,
+    topic: item.topic,
+    sourceLabel: RETRIEVAL_SOURCE_LABEL_ES[item.kind],
+    statement: item.statement,
+    strength: item.strength,
+    kind: item.kind,
+    provenance: item.provenance,
+  };
 }
 
 /**

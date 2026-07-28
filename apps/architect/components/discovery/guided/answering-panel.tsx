@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TypingIndicator } from "@/components/shared/typing-indicator";
+import { EvidenceChips } from "@/components/discovery/guided/evidence-chips";
+import type { RetrievalPack } from "@/lib/ai/retrieval";
 import type { Interview, Question } from "@/types";
 
 /**
@@ -29,6 +31,7 @@ export function AnsweringPanel({
   thinking,
   isPending,
   onRespond,
+  retrievalPack,
 }: {
   interview: Interview;
   draft: string;
@@ -36,6 +39,8 @@ export function AnsweringPanel({
   thinking: boolean;
   isPending: boolean;
   onRespond: (value: string) => void;
+  /** Mission C — evidence behind the current question, rendered as "Basado en…" chips. */
+  retrievalPack?: RetrievalPack | null;
 }) {
   const question = interview.conversation.currentQuestion;
   const latestArchitect = [...interview.conversation.turns]
@@ -77,6 +82,8 @@ export function AnsweringPanel({
           transition={{ duration: 0.45, delay: 0.08 }}
           className="mt-8"
         >
+          <EvidenceChips pack={retrievalPack} />
+
           {helpTextLines(question).length > 0 ? (
             <div className="mb-5 flex gap-3 rounded-2xl bg-[var(--isalwa-tint-blue)]/70 px-4 py-3.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
               <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[var(--isalwa-tint-blue-ink)]" aria-hidden />
