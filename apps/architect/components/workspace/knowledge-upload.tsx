@@ -8,11 +8,16 @@ import {
   Clock3,
   Loader2,
   MinusCircle,
+  Sparkles,
   UploadCloud,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import {
+  SECTION_TONE_INK,
+  SECTION_TONE_SURFACE,
+} from "@/components/workspace/section-shell";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -23,9 +28,12 @@ import {
   KNOWLEDGE_UPLOAD_MAX_BYTES,
 } from "@/lib/knowledge";
 import {
+  buildDocumentChangeSummary,
   formatFileSize,
   uploadAndQueueDocument,
+  type DocumentChangeSummary,
   type DocumentIngestFn,
+  type DocumentPipelineRun,
   type DocumentPipelineStep,
 } from "@/lib/documents";
 import { formatRelativeActivity } from "@/lib/workspace";
@@ -78,12 +86,18 @@ export function KnowledgeUpload({
   const [items, setItems] = useState<UploadItem[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [changeSummary, setChangeSummary] = useState<DocumentChangeSummary | null>(null);
   const usingLocalStorage = !isSupabaseConfigured();
 
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     const files = Array.from(fileList);
     setBusy(true);
+    // One drag/drop or file-picker selection is one "batch" — the client
+    // sees a single consulting-voice summary for it once every file in the
+    // batch has finished, not one toast per file (Mission 21 — Living
+    // Document Ingestion).
+    const batchRuns: DocumentPipelineRun[] = [];
 
     for (const file of files) {
       const itemId = `${file.name}-${file.size}-${Date.now()}`;
@@ -174,6 +188,7 @@ export function KnowledgeUpload({
         );
         onUpdated(result.workspace);
         if (result.report) onReport?.(result.report);
+        if (result.run) batchRuns.push(result.run);
       } catch (error) {
         // Storage/network errors are developer diagnostics, not client-facing
         // copy — log them, but always show the translated message so Client
@@ -187,6 +202,11 @@ export function KnowledgeUpload({
         );
       }
     }
+
+    // The debrief comes after the whole batch, not per file — one
+    // consulting-voice paragraph even when several SOPs landed at once.
+    const summary = buildDocumentChangeSummary(batchRuns);
+    if (summary) setChangeSummary(summary);
 
     setBusy(false);
   };
@@ -315,6 +335,41 @@ export function KnowledgeUpload({
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {changeSummary ? <DocumentChangeSummaryCard summary={changeSummary} /> : null}
+    </div>
+  );
+}
+
+/**
+ * The consulting-voice debrief after a batch finishes (Mission 21 — Living
+ * Document Ingestion). One persistent panel, not a toast per file — the
+ * senior-consultant register the whole product uses, composed entirely from
+ * `DocumentChangeSummary`'s already-generated Spanish sentences.
+ */
+function DocumentChangeSummaryCard({ summary }: { summary: DocumentChangeSummary }) {
+  const { t } = useTranslations();
+  return (
+    <div
+      className={cn(
+        "rounded-[var(--isalwa-radius-panel)] border px-5 py-5",
+        SECTION_TONE_SURFACE.health,
+      )}
+    >
+      <div className="flex items-center gap-2.5">
+        <span className={cn("isalwa-icon-chip", SECTION_TONE_INK.health)}>
+          <Sparkles className="h-4 w-4" aria-hidden />
+        </span>
+        <p className={cn("isalwa-kicker", SECTION_TONE_INK.health)}>
+          {t("knowledgeUpload.whatChangedKicker")}
+        </p>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-kiln)]">{summary.message}</p>
+      {summary.honestNote ? (
+        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-tint-amber-ink)]">
+          {summary.honestNote}
+        </p>
       ) : null}
     </div>
   );

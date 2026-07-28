@@ -626,6 +626,7 @@ export const en: MessageTree = {
     uploadedBy: "uploaded by {name}",
     localStorageNotice: "Supabase Storage isn't configured — files are kept only in this browser for this session (not shared between Carmen and Álvaro, and lost on page reload). Configure Supabase Storage for real cloud persistence.",
     uploadProgressLabel: "Upload progress",
+    whatChangedKicker: "After reviewing your documents",
     status: {
       uploading: "Uploading",
       queued: "Queued",
