@@ -45,7 +45,7 @@ Center generates and exports eight company documents). See
 Re-verify any time:
 
 ```bash
-git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|2dcd102|c3923b4|28d4d7b"
+git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853"
 ```
 
 Missions 0–18 shipped earlier (Foundation through Company Digital Twin / Auth pilot) — see
