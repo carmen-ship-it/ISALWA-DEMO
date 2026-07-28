@@ -102,6 +102,23 @@ External systems are behind ports in `packages/providers`. Milestone builds ship
 
 ---
 
+## Governance (ISALWA Architect)
+
+`apps/architect` is a separate product from ISALWA OS with its own permanent governance docs
+under [`docs/`](docs/):
+
+- [Product Constitution](docs/PRODUCT_CONSTITUTION.md)
+- [Security Posture](docs/SECURITY_POSTURE.md)
+- [Engineering Guidelines](docs/ENGINEERING_GUIDELINES.md)
+- [Architecture Decisions](docs/ARCHITECTURE_DECISIONS.md)
+- [Operations Runbook](docs/OPERATIONS_RUNBOOK.md)
+- [Release Checklist](docs/RELEASE_CHECKLIST.md)
+
+See [`apps/architect/README.md`](apps/architect/README.md) and
+[`apps/architect/MISSION25.md`](apps/architect/MISSION25.md) for more. ISALWA OS itself is
+governed by [`docs/product/PRODUCT_PRINCIPLES.md`](docs/product/PRODUCT_PRINCIPLES.md) and
+[`docs/architecture/ENGINEERING_MASTER_PLAN.md`](docs/architecture/ENGINEERING_MASTER_PLAN.md).
+
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).

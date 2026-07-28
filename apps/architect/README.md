@@ -102,6 +102,20 @@ See [MISSION10.md](./MISSION10.md).
 - [WHITE_LABEL_EXPERIENCE.md](./WHITE_LABEL_EXPERIENCE.md)
 - [EXECUTIVE_STORYTELLING.md](./EXECUTIVE_STORYTELLING.md)
 
+## Governance
+
+Permanent, cross-linked governance docs for this app live under [`docs/`](../../docs/) at the
+monorepo root (scoped to `apps/architect` in each doc's own header):
+
+- [Product Constitution](../../docs/PRODUCT_CONSTITUTION.md) — vision, principles, decision filter
+- [Security Posture](../../docs/SECURITY_POSTURE.md) — write paths, credentials, threat model
+- [Engineering Guidelines](../../docs/ENGINEERING_GUIDELINES.md) — conventions, mission process
+- [Architecture Decisions](../../docs/ARCHITECTURE_DECISIONS.md) — the *why* behind shipped engines
+- [Operations Runbook](../../docs/OPERATIONS_RUNBOOK.md) — dev, deploy, troubleshooting, recovery
+- [Release Checklist](../../docs/RELEASE_CHECKLIST.md) — required checks before every release
+
+Established in [MISSION25.md](./MISSION25.md).
+
 ## Independence
 
 This app does **not** depend on `@isalwa/ui`, `@isalwa/web`, or the ISALWA OS product shell.
