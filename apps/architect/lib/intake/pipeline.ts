@@ -20,6 +20,7 @@ import {
   type KnowledgeUploadResult,
 } from "@/lib/knowledge/intake";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge/coverage";
+import { runConsultingIntelligenceCycle } from "@/lib/consulting-intelligence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type {
   CompanyWorkspace,
@@ -361,7 +362,22 @@ export async function ingestSource(
     timeline: [timelineEvent, ...workspace.timeline],
   };
 
-  const saved = await store.workspaces.save(nextWorkspace);
+  /**
+   * The knowledge graph merge above is done, so the Consulting Intelligence
+   * Agent gets its cycle before the write — one save, not two. The agent
+   * re-reads the merged graph (it never re-merges it) and attaches its
+   * private working memory, so a processed document now also refreshes the
+   * Company Model and per-capability confidence instead of stopping at the
+   * vault. See `CONSULTING_INTELLIGENCE_AGENT.md`.
+   */
+  const cycle = runConsultingIntelligenceCycle(nextWorkspace, {
+    kind: "document",
+    label: input.label,
+    at: now,
+    text: input.textContent,
+  });
+
+  const saved = await store.workspaces.save(cycle.workspace);
 
   const report: IntakeIngestReport = {
     ...counts,

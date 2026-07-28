@@ -135,6 +135,20 @@ export interface CompanyWorkspace {
   conversationMemory: import("./index").ConversationMemory | null;
   activeInterviewId: string | null;
   lastMeetingId: string | null;
+  /**
+   * Consulting Intelligence Agent — internal working memory.
+   *
+   * INTERNAL ONLY. Never rendered in Client Mode: read it exclusively through
+   * `consultingWorkingMemoryFor(workspace, role)` and strip it with
+   * `withoutConsultingWorkingMemory` at any boundary that serializes a
+   * workspace toward a client. See `CONSULTING_INTELLIGENCE_AGENT.md`.
+   *
+   * Optional so workspaces persisted before the agent existed stay valid —
+   * a missing notebook just means no cycle has run yet.
+   */
+  consultingIntelligence?:
+    | import("@/lib/consulting-intelligence/types").ConsultingWorkingMemory
+    | null;
 }
 
 export interface Meeting {

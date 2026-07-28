@@ -21,6 +21,7 @@ import {
   deriveBrandExperience,
 } from "@/lib/brand";
 import { deriveCompanyModel } from "@/lib/company-model";
+import { runConsultingIntelligenceCycle } from "@/lib/consulting-intelligence";
 import { evolveLivingReport } from "@/lib/reports/living-report";
 import { buildTimelineEventsFromInterview } from "@/lib/timeline/events";
 import { placeholderTranscriptDocument } from "@/lib/documents/placeholders";
@@ -320,7 +321,24 @@ export function applyInterviewToWorkspace(
     lastMeetingId: meeting.id,
   };
 
-  return { workspace: next, meeting, conversation };
+  /**
+   * New evidence just landed, so the Consulting Intelligence Agent gets its
+   * cycle. It runs last, on the already-final workspace, so it reads the same
+   * derived models everything else does — and it only ever *adds* its private
+   * working memory, never rewrites the models above.
+   *
+   * The Company Model was just derived against `nextBlueprint`, so the cycle's
+   * own refresh step is a no-op here; it exists for the document path, which
+   * has no blueprint step of its own.
+   */
+  const cycle = runConsultingIntelligenceCycle(next, {
+    kind: "interview_answer",
+    label: meeting.title,
+    at: stamp,
+    text: interview.conversation.answers.at(-1)?.value,
+  });
+
+  return { workspace: cycle.workspace, meeting, conversation };
 }
 
 function buildMeetingSummary(interview: Interview): string {
