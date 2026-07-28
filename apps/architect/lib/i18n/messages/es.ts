@@ -221,6 +221,15 @@ export const es: MessageTree = {
     expectedRoi: "Retorno esperado",
     nextSteps: "Próximos pasos",
   },
+  /**
+   * The persistent triad briefing (Mission 20) — the three permanent
+   * client questions from `docs/PRODUCT_CONSTITUTION.md`. The third kicker
+   * reuses `storyBeats.whyItMatters` rather than forking a second copy.
+   */
+  triadBriefing: {
+    whatWeKnowKicker: "Qué sabemos",
+    tryingToLearnKicker: "Qué estamos tratando de entender",
+  },
   reportView: {
     priorityNow: "Ahora",
     priorityNext: "Siguiente",
@@ -1042,6 +1051,7 @@ export const es: MessageTree = {
     confidenceSuffix: "{confidence}/100",
     etaLabel: "unos {minutes} minutos",
     emptyState: "El diagnóstico todavía no arrancó — esto se completa con la primera conversación.",
+    continueLinkTitle: "Continuar la entrevista guiada, enfocada en {capability}",
   },
   contextBar: {
     stageLabel: "Etapa",

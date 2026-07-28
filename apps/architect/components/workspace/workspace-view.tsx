@@ -52,6 +52,7 @@ import {
   type RoadmapTimelineItem,
 } from "@/components/workspace/roadmap-timeline";
 import { SectionShell } from "@/components/workspace/section-shell";
+import { TriadBriefing } from "@/components/workspace/executive/triad-briefing";
 import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
   CLIENT_TAB_LABEL_KEYS,
@@ -76,7 +77,8 @@ import {
   blueprintReadinessGate,
 } from "@/lib/readiness";
 import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
-import { assessDiscoveryCompletion } from "@/lib/consulting-intelligence";
+import { assessDiscoveryCompletion, buildNextStepVoice } from "@/lib/consulting-intelligence";
+import { dimensionToStage } from "@/lib/discovery/stages";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -328,14 +330,50 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     explainedRecommendations.length > 0 || explainedModules.length > 0;
   const showTodaysRecommendations =
     dashboardUnderstood && dashboardHasRecommendations;
-  const dashboardPrimaryLabel = showTodaysRecommendations
-    ? t("workspaceView.reviewTodayRecommendations")
-    : briefing.ctaLabel;
-  const goToTodaysRecommendations = showTodaysRecommendations
-    ? () => setTab("recommendations")
-    : undefined;
 
   const blueprintGate = blueprintReadinessGate(readiness);
+
+  /**
+   * The always-on "what should I do next" voice (Mission 20). Composed from
+   * the same readiness/missing-information/ceremony reports already held
+   * above — never a second scoring model. Drives the primary action on the
+   * dashboard hero, the persistent context bar, and the Executive tab's
+   * closing call to action, so all three always agree.
+   */
+  const nextStepVoice = buildNextStepVoice({
+    readiness,
+    missingInformation,
+    blueprintGate,
+    discoveryCompletion,
+  });
+  const nextStepHref =
+    nextStepVoice.actionKind === "focus_capability" && nextStepVoice.focusDimension
+      ? `${interviewHref}&stage=${dimensionToStage(nextStepVoice.focusDimension)}`
+      : nextStepVoice.actionKind === "continue_interview"
+        ? interviewHref
+        : undefined;
+  const nextStepOnClick =
+    nextStepVoice.actionKind === "upload_document"
+      ? () => setTab("knowledge")
+      : nextStepVoice.actionKind === "review_blueprint"
+        ? () => setTab("blueprint")
+        : undefined;
+  /** Only "continue" or "focus a capability" belong on the Assessment tab's own CTA — an upload or Blueprint nudge belongs to its own tab, not this one. */
+  const isAnsweringVoice =
+    nextStepVoice.actionKind === "focus_capability" ||
+    nextStepVoice.actionKind === "continue_interview";
+  const assessmentPrimaryHref = isAnsweringVoice ? nextStepHref ?? interviewHref : interviewHref;
+  const assessmentPrimaryLabel = isAnsweringVoice ? nextStepVoice.actionLabel : briefing.ctaLabel;
+
+  const dashboardPrimaryLabel = showTodaysRecommendations
+    ? t("workspaceView.reviewTodayRecommendations")
+    : nextStepVoice.actionLabel;
+  const dashboardPrimaryHref = showTodaysRecommendations
+    ? interviewHref
+    : nextStepHref ?? interviewHref;
+  const goToTodaysRecommendations = showTodaysRecommendations
+    ? () => setTab("recommendations")
+    : nextStepOnClick;
 
   const guidedJourneyStages: GuidedJourneyStage[] = executive.journey.map(
     (stage) => ({
@@ -418,7 +456,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           focusHint={focusHint}
           todayRecommendation={todayRecommendation}
           estimatedMinutes={briefing.estimatedMinutesRemaining}
-          continueHref={interviewHref}
+          continueHref={dashboardPrimaryHref}
           continueLabel={dashboardPrimaryLabel}
           onContinueClick={goToTodaysRecommendations}
           onExplore={scrollToExecutiveSummary}
@@ -426,13 +464,29 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         />
 
         {/*
+          The persistent triad briefing (Mission 20) — what do we know, what
+          are we trying to learn, why does it matter, composed from the
+          Capability Digital Twin + Missing Information Engine reports above.
+          Sits right under Today's Focus so the three permanent client
+          questions frame everything that follows on the page.
+        */}
+        <TriadBriefing
+          whatWeKnow={capabilityTwin.headline}
+          tryingToLearn={missingInformation.headline}
+          whyItMatters={
+            missingInformation.opportunities[0]?.rationale ?? discoveryCompletion.continuityNote
+          }
+        />
+
+        {/*
           Discovery Complete/Incomplete ceremony (Mission E) — the honest
           answer to "is discovery done?", grounded in the readiness gate and
           the Capability Digital Twin's own auto-stop flags. Sits right after
           Today's Focus because it is the one status Álvaro reads before
-          anything else on the page.
+          anything else on the page. Mission 20 — each open capability is now
+          a click-through straight into the guided interview, focused.
         */}
-        <DiscoveryCompletionCard status={discoveryCompletion} />
+        <DiscoveryCompletionCard status={discoveryCompletion} workspaceId={workspace.id} />
 
         {/* 2–8 · the consulting briefing body. */}
         <div id="cabina-ejecutiva" className="scroll-mt-32">
@@ -469,9 +523,9 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               description={
                 showTodaysRecommendations
                   ? t("workspaceView.executive.todayCtaDescriptionReady")
-                  : t("workspaceView.executive.todayCtaDescriptionContinue")
+                  : nextStepVoice.message
               }
-              primaryHref={interviewHref}
+              primaryHref={dashboardPrimaryHref}
               primaryLabel={dashboardPrimaryLabel}
               onPrimaryClick={goToTodaysRecommendations}
               secondaryHref={`/report?workspaceId=${workspace.id}`}
@@ -545,9 +599,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       <div className="space-y-8">
         <NextStepCta
           title={t("workspaceView.assessment.helpAnswerTitle")}
-          description={t("workspaceView.assessment.helpAnswerDescription1")}
-          primaryHref={interviewHref}
-          primaryLabel={briefing.ctaLabel}
+          description={
+            isAnsweringVoice ? nextStepVoice.message : t("workspaceView.assessment.helpAnswerDescription1")
+          }
+          primaryHref={assessmentPrimaryHref}
+          primaryLabel={assessmentPrimaryLabel}
           tertiaryHref={isConsultant ? preparationHref : undefined}
           tertiaryLabel={isConsultant ? t("common.prepareNextMeeting") : undefined}
         />
@@ -648,9 +704,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
         <NextStepCta
           title={t("workspaceView.assessment.helpAnswerTitle")}
-          description={t("workspaceView.assessment.helpAnswerDescription2")}
-          primaryHref={interviewHref}
-          primaryLabel={briefing.ctaLabel}
+          description={
+            isAnsweringVoice ? nextStepVoice.message : t("workspaceView.assessment.helpAnswerDescription2")
+          }
+          primaryHref={assessmentPrimaryHref}
+          primaryLabel={assessmentPrimaryLabel}
         />
       </div>
     ),
@@ -1032,7 +1090,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         companyName={workspace.companyName}
         stageLabel={formatStageLabel(workspace.currentStage)}
         understanding={workspace.businessUnderstanding}
-        nextGoal={todayRecommendation ?? t("common.continueDiagnosis")}
+        nextGoal={nextStepVoice.message}
       />
       {session?.role === "consultant" ? (
         <BackLink href="/" label={t("workspaceView.backToCompanies")} className="mb-6" />

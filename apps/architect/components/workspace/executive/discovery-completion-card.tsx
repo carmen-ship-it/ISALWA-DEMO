@@ -1,13 +1,21 @@
 "use client";
 
-import { Check, Clock3, PartyPopper, ShieldQuestion } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Check, Clock3, PartyPopper, ShieldQuestion } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { capabilityDimensions } from "@/lib/discovery-agent/capabilities";
+import { dimensionToStage } from "@/lib/discovery/stages";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { DiscoveryCompletionStatus } from "@/lib/consulting-intelligence";
 
 /**
  * Mission E — Discovery Complete / Incomplete ceremony.
+ * Mission 20 — click-through into the guided interview for a missing
+ * capability, reusing free stage navigation (`switchToStage`) instead of a
+ * second "resume" mechanism. `capabilityDimensions` + `dimensionToStage`
+ * are the same lookups the Capability Digital Twin and the guided stage
+ * stepper already own — this only chains them into a deep link.
  *
  * The client-facing verdict from `assessDiscoveryCompletion`: every field
  * here is rendered verbatim from that engine — this component computes
@@ -15,6 +23,18 @@ import type { DiscoveryCompletionStatus } from "@/lib/consulting-intelligence";
  * "Complete" always carries the continuous-consulting note; this is a
  * milestone, never a "finished forever" claim.
  */
+
+/** Missing capability → guided interview deep link, `null` when no discovery dimension backs it. */
+function capabilityInterviewHref(
+  workspaceId: string,
+  capabilityId: DiscoveryCompletionStatus["missingCapabilities"][number]["id"],
+): string | null {
+  const dimension = capabilityDimensions(capabilityId)[0];
+  if (!dimension) return null;
+  const stage = dimensionToStage(dimension);
+  return `/discovery?workspaceId=${workspaceId}&stage=${stage}`;
+}
+
 const STATE_STYLES: Record<
   DiscoveryCompletionStatus["state"],
   { surface: string; ink: string; iconRing: string }
@@ -34,21 +54,38 @@ const STATE_STYLES: Record<
 function CapabilityRow({
   capability,
   tone,
+  interviewHref,
 }: {
   capability: DiscoveryCompletionStatus["checklist"][number];
   tone: "done" | "open" | "untracked";
+  /** Mission 20 — when set, this open capability's row jumps into the guided interview, focused. */
+  interviewHref?: string | null;
 }) {
   const { t } = useTranslations();
-  return (
-    <li className="flex items-start justify-between gap-3 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm ring-1 ring-[var(--isalwa-mist)]/70">
+  const icon =
+    tone === "done" ? (
+      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-tint-green-ink)]" aria-hidden />
+    ) : tone === "open" ? (
+      <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-tint-amber-ink)]" aria-hidden />
+    ) : (
+      <ShieldQuestion className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-slate)]/50" aria-hidden />
+    );
+
+  const trailing =
+    tone === "done" ? (
+      <span className="shrink-0 rounded-full bg-[var(--isalwa-tint-green)]/70 px-2 py-0.5 text-[11px] font-medium tabular-nums text-[var(--isalwa-tint-green-ink)]">
+        {t("discoveryCompletion.confidenceSuffix", { confidence: capability.confidence })}
+      </span>
+    ) : tone === "open" && capability.estimatedRemainingMinutes > 0 ? (
+      <span className="shrink-0 text-[11px] text-[var(--isalwa-slate)]/60">
+        {t("discoveryCompletion.etaLabel", { minutes: capability.estimatedRemainingMinutes })}
+      </span>
+    ) : null;
+
+  const body = (
+    <>
       <div className="flex min-w-0 items-start gap-2">
-        {tone === "done" ? (
-          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-tint-green-ink)]" aria-hidden />
-        ) : tone === "open" ? (
-          <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-tint-amber-ink)]" aria-hidden />
-        ) : (
-          <ShieldQuestion className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--isalwa-slate)]/50" aria-hidden />
-        )}
+        {icon}
         <div className="min-w-0">
           <p className="text-[var(--isalwa-kiln)]">{capability.label}</p>
           {tone === "open" && capability.risks[0] ? (
@@ -58,24 +95,44 @@ function CapabilityRow({
           ) : null}
         </div>
       </div>
-      {tone === "done" ? (
-        <span className="shrink-0 rounded-full bg-[var(--isalwa-tint-green)]/70 px-2 py-0.5 text-[11px] font-medium tabular-nums text-[var(--isalwa-tint-green-ink)]">
-          {t("discoveryCompletion.confidenceSuffix", { confidence: capability.confidence })}
-        </span>
-      ) : tone === "open" && capability.estimatedRemainingMinutes > 0 ? (
-        <span className="shrink-0 text-[11px] text-[var(--isalwa-slate)]/60">
-          {t("discoveryCompletion.etaLabel", { minutes: capability.estimatedRemainingMinutes })}
-        </span>
-      ) : null}
+      <div className="flex shrink-0 items-center gap-2">
+        {trailing}
+        {interviewHref ? (
+          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[var(--isalwa-tint-amber-ink)]" aria-hidden />
+        ) : null}
+      </div>
+    </>
+  );
+
+  if (interviewHref) {
+    return (
+      <li>
+        <Link
+          href={interviewHref}
+          className="isalwa-t-fast flex items-start justify-between gap-3 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm ring-1 ring-[var(--isalwa-mist)]/70 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/50"
+          title={t("discoveryCompletion.continueLinkTitle", { capability: capability.label })}
+        >
+          {body}
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-start justify-between gap-3 rounded-xl bg-white/80 px-3.5 py-2.5 text-sm ring-1 ring-[var(--isalwa-mist)]/70">
+      {body}
     </li>
   );
 }
 
 export function DiscoveryCompletionCard({
   status,
+  workspaceId,
   className,
 }: {
   status: DiscoveryCompletionStatus;
+  /** Mission 20 — when set, missing capabilities become click-throughs into the guided interview. */
+  workspaceId?: string;
   className?: string;
 }) {
   const { t } = useTranslations();
@@ -125,7 +182,14 @@ export function DiscoveryCompletionCard({
           </p>
           <ul className="mt-2 space-y-1.5">
             {status.missingCapabilities.map((capability) => (
-              <CapabilityRow key={capability.id} capability={capability} tone="open" />
+              <CapabilityRow
+                key={capability.id}
+                capability={capability}
+                tone="open"
+                interviewHref={
+                  workspaceId ? capabilityInterviewHref(workspaceId, capability.id) : null
+                }
+              />
             ))}
           </ul>
         </div>

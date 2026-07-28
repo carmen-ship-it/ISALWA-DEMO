@@ -45,6 +45,7 @@ import {
 } from "@/lib/discovery/guided-actions";
 import { estimateQuestionProgress } from "@/lib/discovery/question-progress";
 import {
+  GUIDED_STAGE_ORDER,
   GUIDED_STAGES,
   computeStageCompletion,
   resolveCurrentStage,
@@ -120,6 +121,14 @@ export function GuidedAssessment() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspaceId");
+  /**
+   * Ceremony click-through (Mission 20) — `/discovery?...&stage=finance`
+   * jumps straight into a specific stage's questions, reusing the exact
+   * same free stage navigation a client already gets from the stepper
+   * (`switchToStage`, see the boot effect below). Read once; `useSearchParams`
+   * is stable across this component's lifetime for a given navigation.
+   */
+  const stageParam = searchParams.get("stage");
 
   const [interview, setInterview] = useState<Interview | null>(null);
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
@@ -248,6 +257,31 @@ export function GuidedAssessment() {
       cancelled = true;
     };
   }, [persistence, router, store, workspaceId]);
+
+  /**
+   * Ceremony click-through (Mission 20) — apply the `stage` deep link once
+   * the interview has resolved into its adaptive question phase. Guarded by
+   * a ref (not `activeStageId`) so a client who later picks a different
+   * stage from the stepper is never pulled back to the link's original
+   * target on the next answer.
+   */
+  const stageParamAppliedRef = useRef(false);
+  useEffect(() => {
+    if (stageParamAppliedRef.current) return;
+    if (!stageParam || !interview || interview.phase !== "interview") return;
+    stageParamAppliedRef.current = true;
+
+    const candidate = (GUIDED_STAGE_ORDER as readonly string[]).includes(stageParam)
+      ? (stageParam as GuidedStageId)
+      : null;
+    const targetStage = candidate ? GUIDED_STAGES[candidate] : null;
+    if (!targetStage || targetStage.dimensions.length === 0) return;
+
+    const switched = switchToStage(interview, targetStage);
+    setActiveStageId(candidate);
+    setViewMode("answering");
+    setInterview(switched.interview);
+  }, [interview, stageParam]);
 
   // Pause = simply stop here. Every state change autosaves, so returning to
   // the workspace never loses an answer.

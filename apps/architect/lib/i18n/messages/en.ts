@@ -216,6 +216,10 @@ export const en: MessageTree = {
     expectedRoi: "Expected ROI",
     nextSteps: "Next steps",
   },
+  triadBriefing: {
+    whatWeKnowKicker: "What we know",
+    tryingToLearnKicker: "What we're trying to learn",
+  },
   reportView: {
     priorityNow: "Now",
     priorityNext: "Next",
@@ -1030,6 +1034,7 @@ export const en: MessageTree = {
     confidenceSuffix: "{confidence}/100",
     etaLabel: "about {minutes} minutes",
     emptyState: "Discovery hasn't started yet — this fills in with the first conversation.",
+    continueLinkTitle: "Continue the guided interview, focused on {capability}",
   },
   contextBar: {
     stageLabel: "Stage",

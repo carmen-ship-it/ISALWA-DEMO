@@ -187,6 +187,16 @@ const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
   },
 ];
 
+/**
+ * Discovery dimensions a capability is read from — reused by the guided
+ * interview deep link (Mission 20) to know which stage to jump straight to
+ * for a given missing capability, without inventing a second taxonomy.
+ * Empty for capabilities no engine measures yet (Legal, Cumplimiento).
+ */
+export function capabilityDimensions(id: CapabilityId): DiscoveryDimension[] {
+  return CAPABILITY_DEFINITIONS.find((def) => def.id === id)?.dimensions ?? [];
+}
+
 const MAX_KNOWN_ITEMS = 5;
 
 function isKeyMissing(snapshot: EvidenceSnapshot, ref: CapabilityKeyRef): boolean {

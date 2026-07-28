@@ -12,8 +12,10 @@
  *   working-memory.ts    private notes, each traced to the engine that made it
  *   self-check.ts        believe / why / evidence / contradicts / is this needed
  *   visibility.ts        the Client Mode gate — Álvaro never sees the notebook
+ *   next-step-voice.ts   Mission 20 — the always-on "what should I do next" voice
  *
- * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`.
+ * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
+ * `MISSION20.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
@@ -33,6 +35,13 @@ export {
 } from "./discovery-status";
 
 export { decideNextQuestion, runSelfCheck } from "./self-check";
+
+export {
+  buildNextStepVoice,
+  type NextStepActionKind,
+  type NextStepVoice,
+  type NextStepVoiceInput,
+} from "./next-step-voice";
 
 export {
   canSeeConsultingWorkingMemory,
