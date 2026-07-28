@@ -934,6 +934,20 @@ export const en: MessageTree = {
     supplementaryHint:
       "Additional context from the Maturity Model, Business Health and uploaded documents — not averaged into the percentage above, so confidence is never counted twice.",
   },
+  capabilityTwin: {
+    kicker: "Capability digital twin",
+    title: "How well we know each area of the business",
+    description:
+      "Ten business areas, each with what we already know, what is missing and why — no invented percentages.",
+    knownLabel: "What we already know",
+    unknownLabel: "What is still missing",
+    noEvidence: "Not enough information yet",
+    notMeasured: "Not measured yet",
+    whyLowLabel: "Why",
+    howToRaiseLabel: "How to learn more",
+    emptyKnown: "There is no confirmed evidence for this area yet.",
+    emptyUnknown: "We haven't identified concrete gaps in this area yet.",
+  },
   executiveDetail: {
     expand: "View supporting detail",
     collapse: "Hide detail",

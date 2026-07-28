@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
+import { CapabilityDigitalTwinPanel } from "@/components/workspace/executive/capability-digital-twin-panel";
 import {
   ExplainableConfidenceBreakdown,
   MissingInformationList,
@@ -30,6 +31,7 @@ import type {
   MissingInformationReport,
   ReadinessAssessment,
 } from "@/lib/readiness";
+import type { CapabilityDigitalTwinReport } from "@/lib/discovery-agent/capabilities";
 
 /**
  * Mission 13 — Executive Dashboard Redesign. This is the consulting-briefing
@@ -51,6 +53,7 @@ export function ExecutiveDashboard({
   readiness,
   missingInformation,
   explainableConfidence,
+  capabilityTwin,
   onUploadClick,
   explainedRecommendations = [],
   evidenceChips = [],
@@ -63,6 +66,8 @@ export function ExecutiveDashboard({
   missingInformation: MissingInformationReport;
   /** Explainable Confidence — the same overall number, broken into categories with why + how to raise. */
   explainableConfidence: ExplainableConfidenceReport;
+  /** Capability Digital Twin — per-capability known/unknown evidence and honest confidence. */
+  capabilityTwin: CapabilityDigitalTwinReport;
   /** Jumps the client to the Knowledge upload surface. */
   onUploadClick?: () => void;
   explainedRecommendations?: ExplainedRecommendation[];
@@ -200,6 +205,20 @@ export function ExecutiveDashboard({
               report={explainableConfidence}
               onUploadClick={onUploadClick}
             />
+          </SecondarySubsection>
+
+          {/*
+            Capability Digital Twin — the same evidence above, regrouped into
+            the ten business capabilities a client recognizes (Ventas,
+            Operaciones, Finanzas…), each with what we know, what we don't
+            and why. Extends the Consultant Readiness Engine rather than a
+            second scoring model.
+          */}
+          <SecondarySubsection
+            title={t("capabilityTwin.kicker")}
+            hint={t("capabilityTwin.description")}
+          >
+            <CapabilityDigitalTwinPanel report={capabilityTwin} />
           </SecondarySubsection>
 
           {cockpit.businessHealth.gauges.length > 0 ? (

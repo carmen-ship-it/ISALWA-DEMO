@@ -74,6 +74,7 @@ import {
   assessReadiness,
   blueprintReadinessGate,
 } from "@/lib/readiness";
+import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -232,6 +233,18 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  /**
+   * Capability Digital Twin — the same evidence above, regrouped into the
+   * ten client-facing business capabilities (Ventas, Operaciones,
+   * Finanzas…), each with known/unknown evidence and an honest confidence
+   * figure. Shares the same `EvidenceSnapshot` as `readiness` and
+   * `missingInformation`, computed once per workspace load.
+   */
+  const capabilityTwin = useMemo(
+    () => (workspace ? assessCapabilityDigitalTwin(workspace) : null),
+    [workspace],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -252,7 +265,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !executiveInsights ||
     !readiness ||
     !missingInformation ||
-    !explainableConfidence
+    !explainableConfidence ||
+    !capabilityTwin
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -405,6 +419,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             readiness={readiness}
             missingInformation={missingInformation}
             explainableConfidence={explainableConfidence}
+            capabilityTwin={capabilityTwin}
             onUploadClick={() => setTab("knowledge")}
             explainedRecommendations={explainedRecommendations}
             evidenceChips={evidenceChips}

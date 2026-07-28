@@ -943,6 +943,20 @@ export const es: MessageTree = {
     supplementaryHint:
       "Contexto adicional de la Madurez del negocio, la Salud del negocio y los documentos cargados — no se promedian en el porcentaje de arriba, para no calcular la confianza dos veces.",
   },
+  capabilityTwin: {
+    kicker: "Gemelo digital por capacidad",
+    title: "Qué tan bien conocemos cada área del negocio",
+    description:
+      "Diez áreas del negocio, cada una con lo que ya sabemos, lo que falta y por qué — sin inventar ningún porcentaje.",
+    knownLabel: "Lo que ya sabemos",
+    unknownLabel: "Lo que falta por saber",
+    noEvidence: "Sin suficiente información",
+    notMeasured: "Aún no medida",
+    whyLowLabel: "Por qué",
+    howToRaiseLabel: "Cómo saber más",
+    emptyKnown: "Todavía no hay evidencia confirmada en esta área.",
+    emptyUnknown: "No identificamos vacíos concretos en esta área todavía.",
+  },
   executiveDetail: {
     expand: "Ver detalle de respaldo",
     collapse: "Ocultar detalle",
