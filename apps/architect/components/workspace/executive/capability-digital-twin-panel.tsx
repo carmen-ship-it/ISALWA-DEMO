@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, X } from "lucide-react";
+import { Check, Fingerprint, X } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type {
   CapabilityDigitalTwinReport,
   CapabilityTwin,
@@ -138,9 +139,23 @@ export function CapabilityDigitalTwinPanel({
 }: {
   report: CapabilityDigitalTwinReport;
 }) {
+  const { t } = useTranslations();
+  const hasAnyEvidence = report.capabilities.some((capability) => capability.hasEvidence);
+
   return (
     <div>
       <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">{report.headline}</p>
+
+      {!hasAnyEvidence ? (
+        <EmptyState
+          tone="health"
+          icon={Fingerprint}
+          title={t("capabilityTwin.emptyStateTitle")}
+          whyItMatters={t("capabilityTwin.emptyStateWhy")}
+          className="mt-4"
+        />
+      ) : null}
+
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {report.capabilities.map((capability) => (
           <CapabilityCard key={capability.id} capability={capability} />

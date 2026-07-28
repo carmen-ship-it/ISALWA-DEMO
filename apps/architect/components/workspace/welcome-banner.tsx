@@ -71,7 +71,7 @@ export function WelcomeBanner({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]/85">
         {estimatedMinutes ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
@@ -79,7 +79,10 @@ export function WelcomeBanner({
           </span>
         ) : null}
       </div>
-      <p className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/70">
+      {/* Mission 19 — a visibly bolder eyebrow than the rest of the muted
+          chrome around it, so the primary action below reads as the one
+          clear next step rather than competing with the metrics above it. */}
+      <p className="mt-6 mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--isalwa-glaze-deep)]">
         {t("welcomeBanner.whatToDoToday")}
       </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

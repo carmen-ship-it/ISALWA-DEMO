@@ -1,7 +1,9 @@
 "use client";
 
+import { Lightbulb } from "lucide-react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Opportunity, OpportunityImpact } from "@/types";
 
 function impactLabel(impact: OpportunityImpact): string {
@@ -24,9 +26,12 @@ export function OpportunityList({
 }) {
   if (opportunities.length === 0) {
     return (
-      <Card className="px-5 py-5 text-sm text-[var(--isalwa-slate)]/80">
-        Las oportunidades aparecen a medida que los patrones se aclaran.
-      </Card>
+      <EmptyState
+        tone="processes"
+        icon={Lightbulb}
+        title="Las oportunidades aparecen a medida que los patrones se aclaran."
+        whyItMatters="Una oportunidad señalada demasiado pronto competiría con las prioridades reales — solo se muestra cuando la evidencia la respalda."
+      />
     );
   }
 

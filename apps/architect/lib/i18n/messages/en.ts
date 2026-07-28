@@ -398,6 +398,8 @@ export const en: MessageTree = {
     uploadEvidenceDescription: "Each document is classified by its name and file type — without reading content — and adds to knowledge coverage.",
     knowledgeSummary: "Knowledge summary",
     noSummaryYet: "No company knowledge has been analyzed yet. Documents you upload will appear here as evidence.",
+    emptyStateTitle: "You haven't uploaded any document yet.",
+    emptyStateWhy: "Without documents, recommendations rely only on what was answered in the discovery — every file you upload adds independent evidence.",
     documentsProcessed: "Documents processed",
     queued: "Queued",
     lastAnalysis: "Last analysis",
@@ -947,6 +949,10 @@ export const en: MessageTree = {
     howToRaiseLabel: "How to learn more",
     emptyKnown: "There is no confirmed evidence for this area yet.",
     emptyUnknown: "We haven't identified concrete gaps in this area yet.",
+    emptyStateTitle:
+      "We haven't measured any capability yet — the discovery is just getting started.",
+    emptyStateWhy:
+      "Without evidence per capability we can't confidently prioritize where to invest first.",
   },
   executiveDetail: {
     expand: "View supporting detail",

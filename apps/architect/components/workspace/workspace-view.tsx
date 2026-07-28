@@ -1087,7 +1087,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         />
       </motion.div>
 
-      <Separator className="my-14" />
+      {/* Mission 19 — 56px was off the law's 8px rhythm; 64px (`--isalwa-space-16`) is the nearest step. */}
+      <Separator className="my-16" />
 
       <div className="flex flex-wrap items-center gap-3 pb-16">
         {session?.role === "consultant" ? (

@@ -406,6 +406,8 @@ export const es: MessageTree = {
     uploadEvidenceDescription: "Cada documento se clasifica por su nombre y tipo de archivo — sin lectura de contenido — y suma a la cobertura de conocimiento.",
     knowledgeSummary: "Resumen de conocimiento",
     noSummaryYet: "Aún no se ha analizado conocimiento de la empresa. Los documentos que suba aparecerán aquí como evidencia.",
+    emptyStateTitle: "Todavía no ha subido ningún documento.",
+    emptyStateWhy: "Sin documentos, las recomendaciones se apoyan solo en lo respondido en el diagnóstico — cada archivo que suba suma evidencia independiente.",
     documentsProcessed: "Documentos procesados",
     queued: "En cola",
     lastAnalysis: "Último análisis",
@@ -956,6 +958,10 @@ export const es: MessageTree = {
     howToRaiseLabel: "Cómo saber más",
     emptyKnown: "Todavía no hay evidencia confirmada en esta área.",
     emptyUnknown: "No identificamos vacíos concretos en esta área todavía.",
+    emptyStateTitle:
+      "Todavía no medimos ninguna capacidad — el diagnóstico apenas comienza.",
+    emptyStateWhy:
+      "Sin evidencia por capacidad no podemos priorizar con seguridad dónde invertir primero.",
   },
   executiveDetail: {
     expand: "Ver detalle de respaldo",

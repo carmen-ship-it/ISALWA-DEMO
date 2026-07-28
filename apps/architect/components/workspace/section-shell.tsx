@@ -21,7 +21,12 @@ export type SectionTone =
  *   blueprint → violet (Roadmap)           processes → green (Implementation)
  *   deliverables → gray (Knowledge)        neutral → gray (fallback)
  */
-const TONE_SURFACE: Record<SectionTone, string> = {
+/**
+ * Exported (Mission 19) so other primitives built on the same section
+ * identity — e.g. `EmptyState` — reuse this exact tone → hue mapping
+ * instead of forking a second copy of it.
+ */
+export const SECTION_TONE_SURFACE: Record<SectionTone, string> = {
   executive: "isalwa-surface-blue",
   health: "isalwa-surface-teal",
   risks: "isalwa-surface-red",
@@ -32,7 +37,7 @@ const TONE_SURFACE: Record<SectionTone, string> = {
   neutral: "isalwa-surface-gray",
 };
 
-const TONE_INK: Record<SectionTone, string> = {
+export const SECTION_TONE_INK: Record<SectionTone, string> = {
   executive: "isalwa-ink-blue",
   health: "isalwa-ink-teal",
   risks: "isalwa-ink-red",
@@ -68,7 +73,7 @@ export function SectionShell({
   children: ReactNode;
   className?: string;
 }) {
-  const ink = TONE_INK[tone];
+  const ink = SECTION_TONE_INK[tone];
   const isHero = size === "hero";
 
   const hasHeader = Boolean(kicker || title || description);
@@ -84,7 +89,7 @@ export function SectionShell({
         // `TONE_SURFACE`; only the shadow depth changed.
         "rounded-[var(--isalwa-radius-panel)] border shadow-[var(--isalwa-shadow-card-resting)] px-6 py-7 sm:px-8 sm:py-9",
         isHero && "sm:px-10 sm:py-12",
-        TONE_SURFACE[tone],
+        SECTION_TONE_SURFACE[tone],
         className,
       )}
     >

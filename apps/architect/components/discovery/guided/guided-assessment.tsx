@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
 import { architectAgent } from "@/agents";
 import { ArchitectNav } from "@/components/nav/architect-nav";
 import { BackLink } from "@/components/nav/back-link";
@@ -17,6 +18,7 @@ import { ObservationCard } from "@/components/shared/observation-card";
 import { TypingIndicator } from "@/components/shared/typing-indicator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { applyInterviewToWorkspace } from "@/lib/memory";
 import { createClientInterviewPersistence } from "@/lib/persistence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
@@ -671,37 +673,34 @@ export function GuidedAssessment() {
             <DiscoveryScoreCard score={interview.memory.score} />
             <LivingWhiteboard board={interview.memory.whiteboard} />
 
-            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/70 px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-                Hallazgos del consultor
-              </p>
-              <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
-                Aparecen cuando hay evidencia suficiente.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {interview.observations.length === 0 ? (
-                <Card className="px-5 py-6 text-sm text-[var(--isalwa-slate)]/80">
-                  Aún no hay hallazgos — el Arquitecto no inventa conclusiones.
-                </Card>
-              ) : (
-                interview.observations.map((observation, index) => (
-                  <ObservationCard
-                    key={observation.id}
-                    observation={observation}
-                    index={index}
+            <div>
+              <p className="isalwa-kicker isalwa-ink-blue">Hallazgos del consultor</p>
+              <div className="mt-3 space-y-3">
+                {interview.observations.length === 0 ? (
+                  <EmptyState
+                    tone="executive"
+                    icon={Search}
+                    title="Aún no hay hallazgos — el Arquitecto no inventa conclusiones."
+                    whyItMatters="Un hallazgo prematuro llevaría a recomendar antes de entender de verdad. Aparece en cuanto haya evidencia real que lo sostenga."
                   />
-                ))
-              )}
+                ) : (
+                  interview.observations.map((observation, index) => (
+                    <ObservationCard
+                      key={observation.id}
+                      observation={observation}
+                      index={index}
+                    />
+                  ))
+                )}
+              </div>
             </div>
 
-            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]/80 bg-white/70 px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-                Oportunidades
-              </p>
+            <div>
+              <p className="isalwa-kicker isalwa-ink-green">Oportunidades</p>
+              <div className="mt-3">
+                <OpportunityList opportunities={interview.opportunities} />
+              </div>
             </div>
-            <OpportunityList opportunities={interview.opportunities} />
           </aside>
         </div>
       )}

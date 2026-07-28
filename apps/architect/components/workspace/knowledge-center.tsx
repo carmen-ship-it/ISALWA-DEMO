@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Download, FileStack, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
 import { useTranslations } from "@/lib/i18n";
@@ -83,6 +84,15 @@ export function KnowledgeCenter({
           <KnowledgeUpload workspaceId={workspace.id} onUpdated={onUpdated} />
         </div>
       </div>
+
+      {vault.assets.length === 0 ? (
+        <EmptyState
+          tone="deliverables"
+          icon={FileStack}
+          title={t("knowledgeCenter.emptyStateTitle")}
+          whyItMatters={t("knowledgeCenter.emptyStateWhy")}
+        />
+      ) : null}
 
       <Card className="px-5 py-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
