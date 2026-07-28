@@ -26,6 +26,10 @@ see [`docs/product/PRODUCT_PRINCIPLES.md`](../../../../docs/product/PRODUCT_PRIN
 itself changes (new top-level `lib/` module, new lifecycle). 05 is the template new mission docs
 should follow, so agents (and humans) stop re-deriving structure from scratch each time.
 
+**ChatGPT / external agent paste:** use
+[`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) — the full, self-contained
+hand-off (keeps pace with 04; do not invent a third receipt).
+
 ## Relationship to monorepo-wide governance
 
 This system **extends**, and never contradicts, the monorepo-wide docs:

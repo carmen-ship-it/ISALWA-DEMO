@@ -4,16 +4,24 @@
 be edited far more often than 01–03. If this file and `git log` disagree, `git log` wins; fix this
 file.
 
-**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (Mission 25 OS hub product pass).
+**ChatGPT / external paste:** use the full hand-off at
+[`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) (canonical paste-ready receipt after
+M25 OS + Teach). This file (04) stays the in-repo living summary agents update after every mission;
+the two must not contradict.
+
+**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (Mission 25 OS hub `2aa8853`
++ Mission 22 Teach Architect `3a685f4`).
 
 ## Current phase
 
 **Pilot-ready** — Álvaro/Carmen pilot on `ws_isalwa`. The Discovery Agent roadmap (P0 → F) and
 Missions 19–26 have shipped, including Mission 24 (autonomous overnight consulting cycle),
 Mission 25's Company Operating System hub (Conversation → Knowledge → Brain → OS, reusing
-Mission 26 living deliverables), and Mission 26 (Living Company Deliverables — the Deliverables
-Center generates and exports eight company documents). See
-[`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) for demo-day blockers/status.
+Mission 26 living deliverables), Mission 26 (Living Company Deliverables — eight company
+documents), and Mission 22 Teach Architect (Learning Summary certainty/next-step). Carmen’s
+product-mission queue through Teach + OS is **complete**; residual work is human/ops (Vercel hash,
+passwords, Álvaro E2E, PDF Learning Summary wow). See
+[`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md).
 
 ## Completed missions (verified via `git log --oneline`)
 
@@ -28,7 +36,7 @@ Center generates and exports eight company documents). See
 | D | `6535a5c` | Adaptive one-question follow-ups citing the strongest evidence item. |
 | E | `fdfe006` | Discovery Complete/Incomplete ceremony from the Readiness gate. |
 | F | `976979b` | Anonymized industry playbooks — priority-only bias, 6 industries + generic fallback. |
-| — | `20e359b` | [`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) — hand-off receipt for the P0→F roadmap (superseded as the *primary* entrypoint by this file, kept as historical detail). |
+| — | `20e359b` (+ later full refresh) | [`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) — **canonical ChatGPT paste-ready full receipt** (P0→F + 19–26 + governance + OS + Teach). This file (04) remains the living in-repo summary. |
 | 19 | `35cd964` | Premium empty states, calm progress motion, spacing/hierarchy polish. |
 | 19-P0 | `17c0b68` | Continuous-discovery UX made obvious (pilot P0 follow-up) — [`MISSION19-P0-DiscoveryContinuation.md`](../../MISSION19-P0-DiscoveryContinuation.md). |
 | 20 (Part 1) | `7724f85` | Guided client journey — always-on next-step voice, triad briefing, ceremony click-through into guided interview. |
@@ -100,10 +108,12 @@ against what's shipped since:
 
 ## Roadmap (near-term)
 
-1. **Close residual pilot ops** (password rotation, Vercel commit match) — see
-   `PILOT_READINESS_CHECKLIST.md`. Teach Architect Learning Summary is shipped;
-   browser-confirm a real PDF upload wow before demo.
+1. **Close residual pilot ops** (password rotation, Vercel commit match, Álvaro E2E,
+   PDF Learning Summary browser wow) — see `PILOT_READINESS_CHECKLIST.md`. No further
+   product missions are queued unless Carmen starts a new one.
 2. Close the retrieval/vectors gaps above if a mission's evidence-quality bar requires it.
+3. After any future mission: update this file **and** refresh
+   [`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) if handing off to ChatGPT.
 
 ## How to update this file
 

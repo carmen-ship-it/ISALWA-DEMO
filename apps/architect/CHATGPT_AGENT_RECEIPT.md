@@ -1,145 +1,252 @@
-# ChatGPT Agent Receipt — Discovery Agent Roadmap (Missions P0 → F)
+# ChatGPT Agent Receipt — ISALWA Architect (full)
 
-> **Superseded as the primary agent entrypoint by
-> [`docs/ai/04_ARCHITECT_RECEIPT.md`](./docs/ai/04_ARCHITECT_RECEIPT.md)**, which carries this
-> receipt's facts forward and stays current after every mission. This file remains as the
-> detailed, point-in-time hand-off record for the P0→F roadmap specifically — still accurate,
-> just no longer the first thing to read.
+**Paste this entire file into ChatGPT (or any agent) as session context.**  
+It is the canonical, paste-ready hand-off for Architect after Mission 25 OS hub and Mission 22 Teach Architect.
 
-**Date:** 2026-07-28
-**Repo:** `/Users/carmen/projects/isalwa` (monorepo) — app: `apps/architect`
-**Branch:** `main`, verified clean and pushed at the time of this receipt.
-**Purpose:** hand-off note so another agent (ChatGPT or otherwise) can pick up work on ISALWA Architect without re-deriving context. No new product work was done to produce this receipt — verification + documentation only.
+| Field | Value |
+| --- | --- |
+| **Date** | 2026-07-28 |
+| **Repo** | `/Users/carmen/projects/isalwa` (monorepo) — app: `apps/architect` |
+| **Branch** | `main` |
+| **Current HEAD** | tip of `main` as of this receipt — `docs(architect): full ChatGPT agent receipt after M25 OS and Teach` (verify: `git log -1 --oneline`) |
+| **Parent tip** | `985b3b5` — Teach Architect receipt record |
+| **Must-include ancestors** | Mission 25 OS hub `2aa8853` · Teach Architect `3a685f4` |
+| **Production URL** | https://isalwa-architect.vercel.app (Vercel, builds from `main`, root `apps/architect`) |
 
----
-
-## 1. Product context
-
-- **Product:** ISALWA Architect — a consulting-intelligence platform, not a codegen/software-first tool. It builds one evolving, evidence-derived "Business Blueprint" per client company.
-- **Production URL:** https://isalwa-architect.vercel.app (Vercel, builds from `main`).
-- **Two pilot roles, one shared workspace (`ws_isalwa`):**
-  - **Álvaro** — `kind: 'owner'`, `role: 'client'`. Sees Client Mode only: guided discovery, dashboard, blueprint, recommendations, report, simulator, knowledge center, deliverables. Never sees internal consultant reasoning.
-  - **Carmen** — `kind: 'consultant'`, `role: 'consultant'`. Sees everything Álvaro sees plus `assessment` (Diagnóstico), `architecture` (Sistema recomendado), `processes` (Cómo opera) tabs.
-- Both roles log in via Supabase Auth (`signInAction` → `getServerSession()`), land on `/workspace/ws_isalwa`. `middleware.ts` enforces auth on every non-public route and re-derives role server-side — never trusts a client-supplied role.
-- Realtime sync between the two roles via Supabase Postgres changes (`architect-company-memory` channel on `architect_workspaces`).
-
-## 2. Sequence shipped, in order (P0 → A → G → B → AI → C → D → E → F)
-
-All nine commits below are on `main`, verified via `git log --oneline`:
-
-| Order | Commit | One-liner |
-| --- | --- | --- |
-| P0 | `92ed3ae` | Healed in-flight interviews still carrying a fabricated ~71% score and frozen pre-Spanish-fix English turns (`architect_active_interviews` row, not just the workspace row `aa34ea6` already healed) — fires automatically on next load, no manual DB reset. |
-| A | `1e38b21` | **Capability Digital Twin** — added a client-visible per-capability panel (10 business capabilities) to the Dashboard; pure regrouping of existing Readiness Engine evidence, no new scoring model. |
-| G | `a9004c1` | **Consulting Intelligence Agent** — a background, non-conversational loop that re-reads what the engines already say after every new piece of evidence and writes a private notebook (`workspace.consultingIntelligence`), never exposed to Client Mode. |
-| B | `8e3da67` | **Knowledge memory links** — widened relationship detection to 4 more kinds (`Uses`, `DependsOn`, `Owns`, `Purchases`) with cross-turn/cross-document "anchor" resolution, plus cadence tagging (`Diario`/`Semanal`/…) on process entities. |
-| AI | `4a5f757` | **Central AI provider abstraction** (`lib/ai`) — every LLM/embedding call now routes through `ai.chat()` / `ai.embed()` / `ai.summarize()`, config-driven (Gemini/OpenAI/Anthropic/local), no more hardcoded model ids at call sites. |
-| C | `d73b142` | **RetrievalPack** — Cursor-style bounded, provenance-tagged context packing (recent answers, document chunks, knowledge entities, readiness gaps) for the Consulting Intelligence cycle and the guided-discovery "Basado en…" evidence chips. |
-| D | `6535a5c` | **Adaptive follow-ups** — one grounded Spanish sentence citing the strongest evidence item (answer > readiness gap > knowledge entity > document chunk) shown above each adaptively-chosen interview question. |
-| E | `fdfe006` | **Discovery Complete/Incomplete ceremony** — a clear client-facing verdict (never a bare %) composed from the Readiness gate AND every measured capability's auto-stop flag; rendered on the Dashboard and at the end of a discovery session. |
-| F | `976979b` | **Anonymized industry playbooks** (final mission) — 6 curated industry playbooks + 1 generic fallback re-weight question/gap *priority* only (±1–4), never invent a client fact or touch the honest lift number. |
-
-Confirm locally any time with:
+After pulling, confirm tip with `git rev-parse --short HEAD` and that both SHAs above are ancestors:
 
 ```bash
-git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b"
+git merge-base --is-ancestor 2aa8853 HEAD && git merge-base --is-ancestor 3a685f4 HEAD && echo OK
 ```
-
-Adjacent commits worth knowing about (not part of this roadmap but immediately before/around it): `aa34ea6` (stopped discarding client answers), `f90753a` (Álvaro/Carmen product audit + security review + login hotfix — see §5), `21fff9c`/`e0c0b66` (healed the fabricated pilot seed, freed stage navigation, closed a Knowledge-Center English leak).
-
-## 3. Architecture map
-
-```
-apps/architect/
-  lib/
-    discovery-agent/
-      capabilities.ts             Mission A — Capability Digital Twin (10 capabilities,
-                                   regroups Readiness Engine evidence, no 2nd scoring model)
-    consulting-intelligence/
-      cycle.ts                    Mission G — runConsultingIntelligenceCycle, the 9-step loop
-      capability-state.ts         Mission A twin + remaining-time estimate + discovery-complete flag
-      working-memory.ts           Private notebook, each note traced to its source engine
-      self-check.ts               believe/why/evidence/contradicts — guards "never ask unnecessary questions"
-      visibility.ts               Client Mode gate — consultant-only; client always gets null
-      discovery-status.ts         Mission E — Discovery Complete/Incomplete ceremony
-      types.ts / index.ts
-    ai/
-      config.ts                  AI_CONFIG — provider/model/embeddingModel/baseUrl/apiKey from env
-      provider.ts                Routes to the right adapter; back-compat shim for lib/llm
-      gemini.ts / openai.ts / anthropic.ts   Adapters
-      index.ts                   Public surface: ai.chat / ai.embed / ai.summarize
-      retrieval/
-        pack.ts                  Mission C — buildRetrievalPack() / buildRetrievalPackSync()
-        chunks.ts                retrieveRelevantChunks() — embeds via ai.embed(), keyword fallback
-        types.ts / index.ts
-    industry-intelligence/
-      playbooks.ts                Mission F — curated playbook data (6 industries + generic)
-      bias.ts                     applyIndustryPlaybookBias() — the scoreQuestion bias step
-      index.ts
-    intake/detectors.ts            Mission B — Uses/DependsOn/Owns/Purchases + anchor resolution
-    company-model/relationships.ts Mission B — Spanish relationship-kind labels for the graph
-  components/
-    discovery/guided/
-      guided-assessment.tsx        Builds the RetrievalPack per question; the guided-interview shell
-      answering-panel.tsx          Renders <AdaptiveFollowUpNote> above <EvidenceChips>
-      evidence-chips.tsx           Mission C — "Basado en…" chips
-      adaptive-followup-note.tsx   Mission D — the one-sentence grounded citation
-      finish-panel.tsx             Renders <DiscoveryCompletionCard> at session end (Mission E)
-      stage-brief.tsx / stage-stepper.tsx / review-panel.tsx
-    workspace/executive/
-      capability-digital-twin-panel.tsx   Mission A client surface (Dashboard → Business Understanding)
-      discovery-completion-card.tsx       Mission E client surface (Dashboard + FinishPanel)
-```
-
-Entry points to call from a fresh session:
-
-```ts
-import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";      // Mission A
-import { runConsultingIntelligenceCycle } from "@/lib/consulting-intelligence";        // Mission G
-import { assessDiscoveryCompletion } from "@/lib/consulting-intelligence";             // Mission E
-import { buildRetrievalPackSync, buildRetrievalPack } from "@/lib/ai/retrieval";       // Mission C
-import { buildAdaptiveFollowUp } from "@/lib/discovery/adaptive-followup";             // Mission D
-import { getIndustryPlaybook, applyIndustryPlaybookBias } from "@/lib/industry-intelligence"; // Mission F
-import { ai } from "@/lib/ai";                                                        // AI provider
-```
-
-## 4. Design constraints (non-negotiable, per the ISALWA AI Constitution and mission docs)
-
-- **Extend, never replace.** Every mission above composes existing engines (Readiness Engine, Discovery Score, Missing Information Engine, Knowledge Engine) — none of them introduced a second scoring formula. Search before creating: `MetricCard`, `Panel`, `Card`, `Chip`, etc. already exist in `@isalwa/ui` / local `components/ui`.
-- **`@isalwa/ui` + design tokens only.** Porcelain backgrounds, kiln sidebar, glaze accents, Newsreader italic titles, uppercase kickers, 8px rhythm, soft elevation, calm motion. No new visual language — every new surface reused an existing `Card`/tint-token pattern (`isalwa-tint-green`, `isalwa-tint-amber`, `isalwa-tint-teal`, etc.).
-- **Spanish client copy, always.** Any string a client (Álvaro) can see is generated in Spanish inside the engine itself and is never routed through i18n (so it can't drift by locale). Only UI chrome (labels, kickers, empty-state copy) goes through `useTranslations()` / `lib/i18n/messages/{es,en}.ts`.
-- **Honest readiness — no fake percentages, ever.** This is the load-bearing rule of the whole roadmap (P0 exists solely to fix a violation of it). Confidence is always evidence-derived; an unmeasured capability (Legal, Cumplimiento) reports "not measured," never a guessed number. A playbook (Mission F) may re-order priority; it may never invent a fact or touch a lift number.
-- **No parallel implementations.** Consulting Intelligence (Mission G) explicitly re-reads, never re-scores; RetrievalPack (Mission C) reads existing stores, no new vector DB; Knowledge links (Mission B) reuse the 8 existing `KnowledgeRelationKind` values, no new taxonomy.
-- **Business logic over aesthetics; architecture stability over visual novelty.** Every mission doc has an explicit "Deliberately out of scope" section — read it before extending that module.
-
-## 5. Known gaps / recommended next work
-
-From the mission docs' own "out of scope" sections and `ALVARO_CARMEN_PRODUCT_AUDIT.md` (2026-07-27, commit `f90753a`):
-
-**Product / UX**
-- **No click-through from the Discovery Completion ceremony card to continue discovery.** `DiscoveryCompletionCard` (`components/workspace/executive/discovery-completion-card.tsx`) lists missing capabilities and their ETA but has no CTA/link back into the guided interview filtered to those capabilities — verified: the component renders read-only rows only, no `NextStepCta` wiring.
-- **Optional `CONSEQUENCE_LIBRARY` quote embedding not done.** The three consequence-trigger prompts (`excel_why_exists`, `whatsapp_why_channel`, …) still open with a static trigger-category clause rather than quoting the literal client sentence that triggered them (`ADAPTIVE_FOLLOWUPS.md`, "what did not change"). Deliberately deferred — smaller win than Mission D's general-purpose note, touches tested Mission 10 copy.
-- **Industry playbooks (Mission F) have no UI at all.** The bias is invisible to Álvaro beyond question-order changes that already existed pre-mission; no card, tab, or copy surface was built, by design (`INDUSTRY_PLAYBOOKS.md`, "deliberately out of scope").
-- **A6 (product audit):** the blueprint→solution→processes→deliverables cascade renders at full detail the moment a workspace clears the zero-evidence bar (even one thin answer) — not fabrication, but can visually read as "more finished" than the evidence supports. Flagged as a follow-up threshold gate, not urgent.
-- **RetrievalPack's real-embeddings variant (`buildRetrievalPack`, async) is built but not wired to any call site** — both current call sites (Consulting Intelligence cycle, guided-discovery UI) are structurally synchronous/client-side, so only the keyword-ranked `buildRetrievalPackSync` runs today. Documented upgrade path: either an `/api/retrieval/pack` route or moving the cycle server-side (`RETRIEVAL_PACK.md`, "Upgrade path").
-- **`lib/documents/vectors.ts` chunk cap** — only the first 64 chunks per workspace get a stored vector; the rest are `embeddingStatus: "skipped"`. Documented target: move to a dedicated pgvector table.
-
-**Security P1s (from `ALVARO_CARMEN_PRODUCT_AUDIT.md`, ranked, none are P0):**
-1. ~~Public login page disclosed the admin/consultant email~~ — **fixed** in the audit's own pass (`f90753a`).
-2. **Rotate the Supabase service role key** out of caution — it's unused anywhere in code today (verified by full-repo grep) but should be rotated/removed or wired to a real server-only use case.
-3. **Confirm/rotate the actual Supabase dashboard passwords for Carmen/Álvaro away from the shared documented default (`Architect2026!`)** — the env-var overrides (`ARCHITECT_PILOT_CARMEN_PASSWORD` / `ARCHITECT_PILOT_ALVARO_PASSWORD`) are dead code once Supabase Auth is configured; the real password lives in the Supabase dashboard only. Do this independently of any code change.
-4. **Pilot-cookie session forgery** is possible only if Supabase env vars are ever absent on a deployment (e.g. a misconfigured preview) — recommend HMAC-signing the pilot cookie or failing closed in production when Supabase isn't configured.
-5. **No brute-force protection on login** — no rate limit/lockout/CAPTCHA in `signInAction` itself.
-6. P2 hardening backlog (not urgent for the 2-user pilot): RLS is workspace-membership-aware but not `kind`-aware (consultant vs owner) for writes like brand settings; no CSP/security headers; LLM proxy routes and `/api/interview` have no per-user rate limit; two dead capability-check exports (`canDeleteData`, `canAccessSystemSettings`).
-
-## 6. Explicit operating instructions for the next agent
-
-- **Do not advise a hard refresh to see fresh data.** The HTML response already sets `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate` (plus matching `CDN-Cache-Control` / `Vercel-CDN-Cache-Control: private, no-store`) in `next.config.ts` — every load is already uncached. If something looks stale, the bug is in data/logic, not caching, and troubleshooting should start there instead.
-- **Never commit `.env.local`.** It holds real secrets and is git-ignored; `.env.example` is the documented, empty template. This was independently reverified: no real key value has ever been committed (checked via `git log --all -p -- "apps/architect/.env*"`).
-- **Gemini (and any other provider) is configured exclusively via `ARCHITECT_LLM_*` env vars** — `ARCHITECT_LLM_PROVIDER`, `ARCHITECT_LLM_API_KEY` (falls back to `OPENAI_API_KEY`), `ARCHITECT_LLM_BASE_URL`, `ARCHITECT_LLM_MODEL`, `ARCHITECT_EMBEDDINGS_MODEL`. Per-route overrides exist for OCR (`ARCHITECT_OCR_*`) and embeddings (`ARCHITECT_EMBEDDINGS_*`) routes only. Never hardcode a model id at a new call site — go through `ai.chat()` / `ai.embed()` / `ai.summarize()` (`lib/ai`).
-- **Follow the ISALWA AI Constitution:** never rewrite working systems, never create parallel implementations, extend before replacing, reuse before creating, every UI element belongs to `@isalwa/ui` + tokens, business logic wins over aesthetics, prefer smaller PRs, preserve existing behavior when unsure.
-- **This roadmap (Discovery Agent, Missions P0→F) is complete** — Mission F's own doc states "no Mission G2." Any new work is a fresh mission, not a continuation of this sequence, and should start by reading the relevant mission doc(s) above plus `PRODUCT_PRINCIPLES.md`.
 
 ---
 
-*Generated by an agent verifying `git log`, the mission docs listed in §2–5, and `ALVARO_CARMEN_PRODUCT_AUDIT.md`. No product code was changed to produce this receipt.*
+## How to use this receipt (reading order)
+
+**In-repo agents** (Cursor, etc.): read the permanent AI context system first —
+
+1. [`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md) — what Architect is / is not  
+2. [`docs/ai/02_ARCHITECT_CONSTITUTION.md`](./docs/ai/02_ARCHITECT_CONSTITUTION.md) — engineering law  
+3. [`docs/ai/04_ARCHITECT_RECEIPT.md`](./docs/ai/04_ARCHITECT_RECEIPT.md) — living shipped state (update after every mission)  
+
+Optional deeper: `docs/ai/03_ARCHITECT_ARCHITECTURE.md`, `docs/ai/05_MISSION_TEMPLATE.md`, index at [`docs/ai/README.md`](./docs/ai/README.md).
+
+**ChatGPT / external paste:** this file is self-contained. Prefer it over re-deriving from dozens of `MISSION*.md` files. When in doubt, `git log` wins over any doc.
+
+---
+
+## 1. Product / pilot context
+
+- **Product:** ISALWA Architect — a **consulting-intelligence** platform (not codegen, not a chatbot, not a CRM). It builds **one evolving, evidence-derived Business Blueprint** per client company, then derives solution, processes, recommendations, and deliverables from that single source of truth.
+- **Pilot workspace:** `ws_isalwa` (one shared company workspace).
+- **Carmen** — consultant (`kind: 'consultant'`, `role: 'consultant'`). Sees everything the client sees **plus** `assessment` (Diagnóstico), `architecture` (Sistema recomendado), `processes` (Cómo opera).
+- **Álvaro** — client / owner (`kind: 'owner'`, `role: 'client'`). **Client Mode only.** Never sees internal consultant reasoning, raw engine ids, or those three diagnostic tabs.
+- Both authenticate via **Supabase Auth** (`signInAction` → `getServerSession()`), land on `/workspace/ws_isalwa`. `middleware.ts` enforces auth and **re-derives role server-side** — never trusts a client-supplied role.
+- Realtime sync: Supabase Postgres changes channel `architect-company-memory` on `architect_workspaces`.
+
+---
+
+## 2. Constitution summary (non-negotiable)
+
+**Tagline (every feature must pass this test):**
+
+> **"Architect becomes more intelligent every time your company shares knowledge."**
+
+**Three permanent client questions (Know / Still learning / Why it matters):**
+
+1. **What do we know?** — evidence gathered so far.  
+2. **What are we trying to learn?** — open questions, gaps, next-highest-value inquiry.  
+3. **Why does it matter?** — business consequence: risk, opportunity, cost of not knowing.  
+
+A screen that shows data without answering one of these three is decoration, not consulting.
+
+**Permanent rules (from `docs/ai/02` + monorepo AI Constitution):**
+
+1. Never rebuild an engine — compose existing ones.  
+2. Always compose, never fork — no second scoring model, second catalog, or parallel knowledge graph.  
+3. Never invent evidence — every claim traces to interview, document, transcript, or deterministic derivation.  
+4. Never fake readiness or confidence — unmeasured = “not measured,” never a guessed %.  
+5. Spanish client copy generated **in-engine** (not via i18n drift); only UI chrome goes through i18n.  
+6. Executive, premium design — porcelain / kiln / glaze / Newsreader italic titles / uppercase kickers / 8px rhythm — **no new visual language**. Architect uses local `components/ui` (deployment independence from `@isalwa/ui`) but the same reuse rules apply.  
+7. One evolving Business Blueprint — sole source of truth.  
+8. Client/Consultant Mode is a hard boundary of **intent**, enforced server-side.  
+9. Prefer smaller PRs; preserve behavior when unsure; extend before replacing; reuse before creating.
+
+Canonical pointers: `docs/PRODUCT_CONSTITUTION.md`, `apps/architect/PRODUCT_PRINCIPLES.md`, `docs/architecture/AI_CONSTITUTION.md`, `docs/ai/02_ARCHITECT_CONSTITUTION.md`.
+
+---
+
+## 3. Full mission table (verified on `main`)
+
+All hashes below were verified with `git rev-parse` / `git log --oneline` on 2026-07-28. **Do not invent SHAs.**
+
+### Discovery Agent roadmap — P0 → F
+
+| Order | Commit | What shipped |
+| --- | --- | --- |
+| P0 | `92ed3ae` | Healed in-flight interviews carrying fabricated ~71% score / frozen pre-Spanish English turns. |
+| A | `1e38b21` | Capability Digital Twin panel (10 capabilities; regroups Readiness evidence — no 2nd scoring model). |
+| G | `a9004c1` | Consulting Intelligence Agent — background re-read loop; private notebook `workspace.consultingIntelligence`. |
+| B | `8e3da67` | Knowledge memory links — Uses/DependsOn/Owns/Purchases + cross-turn/document anchors. |
+| AI | `4a5f757` | Central AI provider abstraction (`lib/ai`) — `ai.chat()` / `ai.embed()` / `ai.summarize()`. |
+| C | `d73b142` | RetrievalPack — bounded, provenance-tagged context packing. |
+| D | `6535a5c` | Adaptive one-question follow-ups citing strongest evidence. |
+| E | `fdfe006` | Discovery Complete/Incomplete ceremony from the Readiness gate. |
+| F | `976979b` | Anonymized industry playbooks — priority-only bias; never invent facts or touch lift. |
+
+### Product polish & Living Company Intelligence — 19 → 26 + Teach + OS
+
+| Mission | Commit(s) | What shipped |
+| --- | --- | --- |
+| 19 | `35cd964` | Premium empty states, calm progress motion, spacing/hierarchy polish. |
+| 19-P0 | `17c0b68` | Continuous-discovery UX made obvious (pilot stuck-prevention). |
+| 20 Part 1 | `7724f85` | Guided client journey — next-step voice, triad briefing, ceremony click-through. |
+| 20 Part 2 | `faba62d` | Executive Daily Brief — senior-consultant dashboard hero. |
+| 21 Pass 1 | `9b2f92d` | Living document ingestion — batch “what changed” debrief after uploads. |
+| 21 Pass 2 | `2432c8b` | Company Brain — “what does Architect know about my company.” |
+| 22 Transcript | `3d024c8` | Meeting transcription → same intake/evidence path as documents. |
+| 22 **Teach** | `3a685f4` | Teach Architect — Learning Summary (certainty / next-step), Teach labels, pre-upload expectations. |
+| 23 | `2dcd102` | Real integrations — **Google Drive live**; SharePoint/QuickBooks/HubSpot scaffolded honestly. |
+| 25 Governance | `c3923b4` | Product Constitution & Security Foundation — six permanent `docs/` governance files. |
+| 24 | `28d4d7b` | Autonomous Consulting Cycle — Vercel Cron overnight re-run + `OvernightDigestCard`. |
+| 26 | `fc0007c` | Living Company Deliverables — 8 company docs generate/version/export (PDF/DOCX) from existing engines. |
+| 25 **OS hub** | `2aa8853` | Company Operating System hub — Conversation → Knowledge → Brain → OS; composes Mission 26 (no second catalog). |
+| Pre-pilot UX | `e8b599d` | Orientation panel + stuck-prevention UX (5s orientation, Teach labels, hide scaffolded connectors, Spanish error pages). |
+| Pilot checklist | `68a9bbe` | `PILOT_READINESS_CHECKLIST.md`. |
+| AI context system | `47cdcc9` | Permanent `docs/ai/01–05` agent on-ramp. |
+
+### Governance / receipt meta (docs only)
+
+| Commit | Note |
+| --- | --- |
+| `20e359b` | Original P0→F ChatGPT receipt (historical detail; this file is now the full paste target). |
+| `0e544f4` / `e2c9533` / `985b3b5` | Receipt / verify-grep updates for M25 OS and Teach. |
+
+Re-verify any time:
+
+```bash
+git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|3a685f4|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853|e8b599d"
+```
+
+Missions 0–18 (Foundation → Company Digital Twin / Auth pilot) shipped earlier — see `ROADMAP.md` and `MISSION0.md`–`MISSION18.md`; not re-litigated here.
+
+**List status for Carmen’s agent queue:** Discovery P0→F · Product polish 19–26 · governance · OS hub · Teach Architect — **complete.** This receipt is the final documentation hand-off item.
+
+---
+
+## 4. Architecture — engines vs compose surfaces
+
+**Rule:** engines own truth and scoring; compose surfaces **re-read / reframe / route** — they never invent a second catalog or scoring formula.
+
+### Engines (protected — extend, do not rewrite)
+
+| Engine | Where |
+| --- | --- |
+| Discovery / guided interview | `lib/discovery/`, `lib/discovery-agent/`, `lib/reasoning/` |
+| Readiness | `lib/readiness/` |
+| Capability Digital Twin | `lib/discovery-agent/capabilities.ts` |
+| Consulting Intelligence cycle | `lib/consulting-intelligence/cycle.ts` |
+| Retrieval / AI provider | `lib/ai/retrieval/`, `lib/ai/` |
+| Knowledge + intake | `lib/knowledge/`, `lib/intake/` |
+| Documents pipeline | `lib/documents/` |
+| Company Model | `lib/company-model/` |
+| Business Blueprint | `lib/blueprint/` |
+| Solution / Processes | `lib/solution/`, `lib/processes/` |
+| Deliverables (incl. living) | `lib/deliverables/` |
+| Industry playbooks | `lib/industry-intelligence/` |
+| Connectors | `lib/connectors/` (Drive live) |
+| Auth / boundary | `lib/auth/`, `middleware.ts` |
+
+### Compose surfaces (client-visible product)
+
+| Surface | What it is | Composes |
+| --- | --- | --- |
+| **Company Brain** | “What does Architect know about my company?” | Company Model + Knowledge via `lib/consulting-intelligence/company-brain.ts` → `company-brain-panel.tsx` |
+| **OS hub** (Mission 25) | Conversation → Knowledge → Brain → **Operating System** framing | Living deliverables overview + fingerprint; CTAs deep-link into Documentos — **no second catalog** (`company-operating-system.ts` / `company-operating-system-panel.tsx`) |
+| **Living Deliverables** (Mission 26) | Generate / version / Update Available / PDF·DOCX for 8 company docs | Existing engines only (`living-deliverables-center.tsx`) |
+| **Discovery** | Guided adaptive interview + evidence chips + ceremony | Readiness + RetrievalPack + Discovery status |
+| **Overnight** (Mission 24) | Cron re-runs consulting cycle; honest Spanish overnight digest | Same `runConsultingIntelligenceCycle`; `OvernightDigestCard` |
+| **Drive** (Mission 23) | Google Drive OAuth + list + import (**live**) | Feeds `lib/documents/`; other connectors scaffolded honestly |
+| **Meetings** (Mission 22) | Transcript paste/upload as first-class evidence | Same `lib/intake` path as documents → Consulting cycle → “what changed” debrief |
+| **Teach / Learning Summary** (Mission 22 Teach) | Certainty + next-step framing after teach/upload | Pipeline + Missing Information headlines — not a new engine |
+| **Executive Daily Brief** | Dashboard hero: where we are / what changed / what next | Readiness + Missing Info + gate + discovery status |
+
+Evidence flow (one line): **Interview / Docs / Meetings / Drive → intake → Knowledge + Readiness → Consulting Intelligence re-read → Blueprint → Solution / Processes / Deliverables / client briefs.**
+
+---
+
+## 5. AI context system (pointer)
+
+Permanent on-ramp under `apps/architect/docs/ai/`:
+
+| # | Doc | Answers |
+| --- | --- | --- |
+| 01 | Context | What Architect is / is not; how systems connect |
+| 02 | Constitution | Permanent engineering rules; protected systems |
+| 03 | Architecture | Real folders, engines, lifecycles |
+| 04 | Receipt | What’s shipped; phase; gaps (living — update every mission) |
+| 05 | Mission template | How to structure the next mission |
+
+**Rule for every future mission:** Read **01 → 02 → 04** before writing code. Implement. Update **04** (and this paste receipt when handing off to ChatGPT).
+
+---
+
+## 6. Honest gaps / still human
+
+These are **not** agent invent-work — they need a human / browser / dashboard:
+
+1. **Vercel deploy hash verify** — confirm Production deployment commit matches latest `main` (Vercel dashboard). Agents often cannot confirm programmatically.  
+2. **Password rotation** — confirm/rotate Carmen & Álvaro Supabase Auth passwords away from the documented shared default (`Architect2026!`). Dashboard action, not a code change.  
+3. **Álvaro E2E walkthrough** — login → orientation → continue discovery → teach with one PDF → Company Brain → recommendations → blueprint → logout/login.  
+4. **PDF Teach / Learning Summary browser wow** — code shipped (`3a685f4`); confirm a real PDF upload produces the Learning Summary certainty/next-step moment in a real browser before demo.  
+5. **Optional cron for overnight digest** — `CRON_SECRET` + `SUPABASE_SERVICE_ROLE_KEY` on Vercel Production only if you want a live overnight digest; without them the card stays empty (honest, not broken).  
+6. **Technical backlog (not demo blockers):** `buildRetrievalPack` (async embeddings) unwired — only `buildRetrievalPackSync` runs; first-64-chunk vector cap in `lib/documents/vectors.ts`; Industry Playbooks have no UI (by design); audit P1s (pilot-cookie HMAC if Supabase absent, login rate limit) — see `ALVARO_CARMEN_PRODUCT_AUDIT.md` / `docs/SECURITY_POSTURE.md`.
+
+Full demo checklist: [`PILOT_READINESS_CHECKLIST.md`](./PILOT_READINESS_CHECKLIST.md).
+
+---
+
+## 7. What future agents must NOT do
+
+- **Rewrite engines** (Readiness, Blueprint, Consulting Intelligence, Company Model, Deliverables, Retrieval, AI provider, Knowledge, Discovery).  
+- **Create a second living-deliverables catalog** or parallel OS document list (Mission 25 composes Mission 26).  
+- **Fake percentages / invent confidence** for unmeasured capabilities.  
+- **Introduce a parallel UI / design system** or new visual language.  
+- **Hardcode model ids** — always `ai.chat()` / `ai.embed()` / `ai.summarize()` via `ARCHITECT_LLM_*`.  
+- **Expose consultant-only reasoning to Client Mode.**  
+- **Commit `.env.local` or secrets.**  
+- **Advise hard refresh for “stale” data** — HTML is already `no-store` in `next.config.ts`; if something looks stale, debug data/logic.  
+- **Start a new product mission** unless the human explicitly asks — Discovery P0→F and polish 19–26 + Teach + OS are **done**.  
+- **Restore interrupted stashes blindly** — Teach stash was finished carefully and dropped; don’t resurrect parallel WIP.
+
+---
+
+## 8. Operating instructions (quick)
+
+- Work **one task at a time** unless asked otherwise.  
+- Search before creating components (`Card`, `Panel`, empty states, executive cards, etc.).  
+- Spanish for every Álvaro-visible string produced by engines.  
+- After any mission: update `docs/ai/04_ARCHITECT_RECEIPT.md` with real SHAs from `git log`.  
+- For ChatGPT hand-off: refresh **this file** so the paste target stays current.
+
+---
+
+## 9. Key entry points (code)
+
+```ts
+import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
+import { runConsultingIntelligenceCycle } from "@/lib/consulting-intelligence";
+import { assessDiscoveryCompletion } from "@/lib/consulting-intelligence";
+import { buildRetrievalPackSync, buildRetrievalPack } from "@/lib/ai/retrieval";
+import { buildAdaptiveFollowUp } from "@/lib/discovery/adaptive-followup";
+import { getIndustryPlaybook, applyIndustryPlaybookBias } from "@/lib/industry-intelligence";
+import { ai } from "@/lib/ai";
+// Compose surfaces (examples):
+// lib/consulting-intelligence/company-brain.ts
+// lib/consulting-intelligence/company-operating-system.ts
+// lib/consulting-intelligence/daily-brief.ts
+```
+
+---
+
+*Receipt authored 2026-07-28 from `git log` on `main`, `docs/ai/01–04`, mission docs (esp. M22 Teach, M24, M25 OS, M26), and `PILOT_READINESS_CHECKLIST.md`. No product code changed to produce this receipt.*
