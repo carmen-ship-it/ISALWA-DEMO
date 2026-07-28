@@ -61,6 +61,7 @@ import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
 import { NextStepCta } from "@/components/workspace/next-step-cta";
 import { OvernightDigestCard } from "@/components/workspace/overnight-digest-card";
+import { OrientationPanel } from "@/components/workspace/executive/orientation-panel";
 import {
   RoadmapTimeline,
   type RoadmapTimelineItem,
@@ -96,6 +97,7 @@ import {
   buildCompanyBrain,
   buildExecutiveDailyBrief,
   buildNextStepVoice,
+  buildOrientationPanel,
   groupRecentLearning,
   type DailyBriefAction,
   type DailyBriefMilestone,
@@ -453,6 +455,23 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     lastVisit,
   });
   const recentLearning = groupRecentLearning(workspace);
+  const orientation = buildOrientationPanel({
+    workspace,
+    missingInformation,
+    nextStepVoice,
+  });
+  const orientationHref =
+    orientation.nextActionKind === "focus_capability" && nextStepVoice.focusDimension
+      ? `${interviewHref}&stage=${dimensionToStage(nextStepVoice.focusDimension)}`
+      : orientation.nextActionKind === "continue_interview"
+        ? interviewHref
+        : undefined;
+  const orientationOnClick =
+    orientation.nextActionKind === "upload_document"
+      ? () => setTab("knowledge")
+      : orientation.nextActionKind === "review_blueprint"
+        ? () => setTab("blueprint")
+        : undefined;
 
   /** Same href/onClick resolution `nextStepHref`/`nextStepOnClick` already use above, generalized to any ranked action. */
   const dailyBriefActionHref = (action: DailyBriefAction): string | undefined => {
@@ -571,6 +590,16 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           workspaceId={workspace.id}
           companyName={workspace.companyName}
           understanding={workspace.businessUnderstanding}
+        />
+
+        {/*
+          Five-second Orientation Panel — motivation before payoff.
+          Know / still learning / next (prefer Teach Architect with a document).
+        */}
+        <OrientationPanel
+          report={orientation}
+          href={orientationHref}
+          onClick={orientationOnClick}
         />
 
         {/*

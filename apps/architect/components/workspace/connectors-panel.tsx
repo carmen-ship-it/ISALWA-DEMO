@@ -70,11 +70,8 @@ export function ConnectorsPanel({
       {initialStatusBanner ? <OAuthResultBanner banner={initialStatusBanner} /> : null}
 
       <div className="grid gap-4">
-        {CONNECTOR_CATALOG.map((connector) => {
+        {CONNECTOR_CATALOG.filter((connector) => connector.readiness === "live").map((connector) => {
           const summary = summaries[connector.id];
-          if (connector.readiness === "scaffolded") {
-            return <ScaffoldedConnectorCard key={connector.id} titleEs={connector.titleEs} descriptionEs={connector.descriptionEs} />;
-          }
           return (
             <GoogleDriveConnectorCard
               key={connector.id}
@@ -131,28 +128,6 @@ function OAuthResultBanner({
         )}
         {message.text}
       </p>
-    </Card>
-  );
-}
-
-function ScaffoldedConnectorCard({
-  titleEs,
-  descriptionEs,
-}: {
-  titleEs: string;
-  descriptionEs: string;
-}) {
-  return (
-    <Card className="px-5 py-5">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-[var(--isalwa-kiln)]">{titleEs}</p>
-          <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]/80">{descriptionEs}</p>
-        </div>
-        <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-          No conectado
-        </span>
-      </div>
     </Card>
   );
 }

@@ -69,6 +69,11 @@ export {
 } from "./overnight-digest";
 
 export {
+  buildOrientationPanel,
+  type OrientationPanelReport,
+} from "./orientation";
+
+export {
   completedCapabilities,
   deriveCapabilityIntelligence,
   shouldAskAboutCapability,

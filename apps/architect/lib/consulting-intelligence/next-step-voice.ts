@@ -130,11 +130,11 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
     const message =
       minutes > 0 && minutes <= MAX_MINUTES_FOR_ALMOST_DONE
         ? `Solo falta${minutes === 1 ? "" : "n"} ~${minutes} minuto${minutes === 1 ? "" : "s"} — a ${singleGap.label} ${gapPhrase}.`
-        : `A ${singleGap.label} ${gapPhrase} para completar el diagnóstico.`;
+        : `A ${singleGap.label} ${gapPhrase} para seguir construyendo el conocimiento de tu empresa.`;
 
     return {
       message,
-      actionLabel: `Responder ${singleGap.label}`,
+      actionLabel: `Continuar con ${singleGap.label}`,
       actionKind: dimension ? "focus_capability" : "continue_interview",
       focusDimension: dimension,
     };
@@ -145,14 +145,14 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
     if (topOpportunity.uploadable && topOpportunity.uploadSuggestions[0]) {
       return {
         message: topOpportunity.headline,
-        actionLabel: `Subir ${topOpportunity.uploadSuggestions[0]}`,
+        actionLabel: `Enséñale a Architect: ${topOpportunity.uploadSuggestions[0]}`,
         actionKind: "upload_document",
         focusDimension: null,
       };
     }
     return {
       message: topOpportunity.headline,
-      actionLabel: `Continuar con ${topOpportunity.topicLabel}`,
+      actionLabel: `Continuar entendiendo ${topOpportunity.topicLabel}`,
       actionKind: "focus_capability",
       focusDimension: topOpportunity.topic,
     };
@@ -160,8 +160,9 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
 
   if (readiness.overallState !== "ready") {
     return {
-      message: "Sigamos con el diagnóstico para tener una recomendación firme.",
-      actionLabel: "Continuar la evaluación",
+      message:
+        "Sigamos enseñándole a Architect cómo funciona tu empresa — así las recomendaciones se apoyan en evidencia real.",
+      actionLabel: "Continuemos entendiendo tu empresa",
       actionKind: "continue_interview",
       focusDimension: null,
     };

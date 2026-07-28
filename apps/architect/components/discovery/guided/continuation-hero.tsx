@@ -72,7 +72,8 @@ export function ContinuationHero({
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]/85">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Comprensión del negocio: {pct}% · {understandingLevel(pct).toLowerCase()}
+            Qué tanto entiende Architect tu empresa: {pct}% ·{" "}
+            {understandingLevel(pct).toLowerCase()}
           </span>
           {estimatedMinutes ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">

@@ -71,7 +71,7 @@ export function buildOvernightDigest(
 
   if (completedLabels.length > 0) {
     clauses.push(
-      `completamos el diagnóstico de ${joinEs(completedLabels)}`,
+      `completamos el entendimiento de ${joinEs(completedLabels)}`,
     );
   }
 

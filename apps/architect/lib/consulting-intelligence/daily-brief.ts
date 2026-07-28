@@ -116,7 +116,7 @@ function clampPercent(value: number): number {
 }
 
 function buildHeadline(companyName: string, pct: number): string {
-  return `Hoy Architect entiende aproximadamente el ${pct}% de cómo opera ${companyName}.`;
+  return `Hoy, qué tanto entiende Architect tu empresa (${companyName}) está en aproximadamente el ${pct}%.`;
 }
 
 /**
@@ -172,8 +172,8 @@ export function buildSinceLastVisit(
       id: "understanding",
       label:
         understandingDelta > 0
-          ? `La comprensión del negocio subió de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`
-          : `La comprensión del negocio pasó de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`,
+          ? `Qué tanto entiende Architect tu empresa subió de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`
+          : `Qué tanto entiende Architect tu empresa pasó de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`,
     });
   }
 

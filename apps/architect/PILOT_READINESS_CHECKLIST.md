@@ -138,3 +138,20 @@ later."
 3. `CRON_SECRET` / `SUPABASE_SERVICE_ROLE_KEY` Vercel configuration status for Production is
    unknown from this environment — decide per §1 whether tonight's cron needs to actually run, and
    configure only if so.
+
+---
+
+## Pre-pilot stuck-prevention pass (2026-07-28 evening)
+
+Shipped on `main` (this commit wave): 5-second Orientation Panel; evaluación/diagnóstico CTA
+renames on the primary next-step voice; client-facing “Enseñar a Architect” upload labels;
+scaffolded connectors hidden; Spanish `app/error.tsx` / `app/not-found.tsx`; conversational
+“Qué tanto entiende Architect tu empresa” labels.
+
+**Still required before tomorrow (human / browser):**
+1. Confirm Vercel Production commit hash matches latest `main` after this push.
+2. Full Álvaro click-through (login → orientation → continue discovery → teach with one PDF →
+   Company Brain → recommendations → blueprint → logout/login).
+3. Confirm Learning Summary wow on a real PDF upload.
+4. Password rotation away from the documented default remains recommended (both accounts
+   currently authenticate successfully with that default — verified via Supabase Auth API).

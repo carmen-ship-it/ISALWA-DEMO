@@ -9,7 +9,6 @@ import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
 import { useTranslations } from "@/lib/i18n";
 import {
   KNOWLEDGE_CATEGORIES,
-  KNOWLEDGE_CONNECTORS,
   KNOWLEDGE_PIPELINE,
   ensureWorkspaceKnowledge,
   summarizeKnowledgeEntities,
@@ -321,24 +320,7 @@ export function KnowledgeCenter({
       </ExecutiveDetail>
 
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
-          {t("knowledgeCenter.upcomingDataSources")}
-        </p>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-          {KNOWLEDGE_CONNECTORS.slice(0, 8).map((connector) => (
-            <li
-              key={connector.id}
-              className="rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-3"
-            >
-              <p className="text-sm text-[var(--isalwa-kiln)]">{connector.title}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
-                {connector.status === "planned"
-                  ? t("knowledgeCenter.planned")
-                  : t("knowledgeCenter.designedStatus")}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {/* Pilot: hide unfinished connector teasers — only live integrations belong in Client/consultant temptation surfaces. Google Drive lives under Diagnóstico → Conectores for consultants. */}
       </div>
     </div>
   );
