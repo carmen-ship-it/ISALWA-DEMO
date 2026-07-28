@@ -5,12 +5,14 @@ be edited far more often than 01–03. If this file and `git log` disagree, `git
 file.
 
 **ChatGPT / external paste:** use the full hand-off at
-[`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) (canonical paste-ready receipt after
-M25 OS + Teach). This file (04) stays the in-repo living summary agents update after every mission;
-the two must not contradict.
+[`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) (canonical paste-ready receipt; opens
+with a ★ **Last ~4 hours / this session** section, then the full historical mission tables). This
+file (04) stays the in-repo living summary agents update after every mission; the two must not
+contradict.
 
-**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (Mission 25 OS hub `2aa8853`
-+ Mission 22 Teach Architect `3a685f4`).
+**Last verified against:** `git log --since="4 hours ago"` / `git log --oneline` on `main`,
+2026-07-28 ~18:30 EDT (Mission 25 OS hub `2aa8853` + Mission 22 Teach Architect `3a685f4` +
+Living Deliverables `fc0007c`).
 
 ## Current phase
 
@@ -18,10 +20,12 @@ the two must not contradict.
 Missions 19–26 have shipped, including Mission 24 (autonomous overnight consulting cycle),
 Mission 25's Company Operating System hub (Conversation → Knowledge → Brain → OS, reusing
 Mission 26 living deliverables), Mission 26 (Living Company Deliverables — eight company
-documents), and Mission 22 Teach Architect (Learning Summary certainty/next-step). Carmen’s
-product-mission queue through Teach + OS is **complete**; residual work is human/ops (Vercel hash,
-passwords, Álvaro E2E, PDF Learning Summary wow). See
-[`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md).
+documents), Mission 22 Teach Architect (Learning Summary certainty/next-step), and pre-pilot
+stuck-prevention UX (`e8b599d`). Carmen’s product-mission queue through Teach + OS is
+**complete** — no more coded missions pending from the agreed list. Residual work is human/ops
+(Vercel hash, passwords, Álvaro E2E, PDF Learning Summary wow). See
+[`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) and the ★ session section in
+[`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md).
 
 ## Completed missions (verified via `git log --oneline`)
 
@@ -36,7 +40,7 @@ passwords, Álvaro E2E, PDF Learning Summary wow). See
 | D | `6535a5c` | Adaptive one-question follow-ups citing the strongest evidence item. |
 | E | `fdfe006` | Discovery Complete/Incomplete ceremony from the Readiness gate. |
 | F | `976979b` | Anonymized industry playbooks — priority-only bias, 6 industries + generic fallback. |
-| — | `20e359b` (+ later full refresh) | [`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) — **canonical ChatGPT paste-ready full receipt** (P0→F + 19–26 + governance + OS + Teach). This file (04) remains the living in-repo summary. |
+| — | `20e359b` (+ later full refresh + session section) | [`CHATGPT_AGENT_RECEIPT.md`](../../CHATGPT_AGENT_RECEIPT.md) — **canonical ChatGPT paste-ready full receipt** (★ last-~4h session section + P0→F + 19–26 + governance + OS + Teach). This file (04) remains the living in-repo summary. |
 | 19 | `35cd964` | Premium empty states, calm progress motion, spacing/hierarchy polish. |
 | 19-P0 | `17c0b68` | Continuous-discovery UX made obvious (pilot P0 follow-up) — [`MISSION19-P0-DiscoveryContinuation.md`](../../MISSION19-P0-DiscoveryContinuation.md). |
 | 20 (Part 1) | `7724f85` | Guided client journey — always-on next-step voice, triad briefing, ceremony click-through into guided interview. |
@@ -49,11 +53,14 @@ passwords, Álvaro E2E, PDF Learning Summary wow). See
 | 25 (OS hub) | `2aa8853` | Company Operating System hub — client tab framing Conversation → Knowledge → Brain → OS; composes Mission 26 living deliverables (no second catalog); CTAs deep-link into Documentos. See [`MISSION25.md`](../../MISSION25.md). |
 | 24 | `28d4d7b` | Autonomous Consulting Cycle — Vercel Cron re-runs `runConsultingIntelligenceCycle` overnight for due workspaces; honest Spanish "what changed overnight" digest via `OvernightDigestCard`; narrow, documented `SUPABASE_SERVICE_ROLE_KEY` exception for the cron route only. See [`MISSION24.md`](../../MISSION24.md). |
 | 26 | `fc0007c` | Living Company Deliverables — Deliverables Center upgraded to generate + version 8 documents (Business Blueprint, Company Playbook, Employee Handbook, SOP Library, Job Description Library, Training Academy, AI Playbook, Improvement Roadmap) from existing engines only, with Update Available badges and real PDF/DOCX export (`pdf-lib` + `docx`, two new deps, Node-only, kept out of the client bundle). See [`MISSION26.md`](../../MISSION26.md). |
+| Pre-pilot UX | `e8b599d` | Orientation panel + stuck-prevention UX (5s orientation, Teach labels, hide scaffolded connectors, Spanish error pages). |
+| Pilot checklist | `68a9bbe` | [`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) — human/ops demo checklist. |
+| AI context | `47cdcc9` | Permanent `docs/ai/01–05` agent on-ramp. |
 
 Re-verify any time:
 
 ```bash
-git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|3a685f4|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853"
+git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|3a685f4|2dcd102|c3923b4|28d4d7b|fc0007c|2aa8853|e8b599d"
 ```
 
 Missions 0–18 shipped earlier (Foundation through Company Digital Twin / Auth pilot) — see

@@ -5,19 +5,76 @@ It is the canonical, paste-ready hand-off for Architect after Mission 25 OS hub 
 
 | Field | Value |
 | --- | --- |
-| **Date** | 2026-07-28 |
+| **Date** | 2026-07-28 (~18:30 EDT) |
 | **Repo** | `/Users/carmen/projects/isalwa` (monorepo) — app: `apps/architect` |
 | **Branch** | `main` |
-| **Current HEAD** | tip of `main` as of this receipt — `docs(architect): full ChatGPT agent receipt after M25 OS and Teach` (verify: `git log -1 --oneline`) |
-| **Parent tip** | `985b3b5` — Teach Architect receipt record |
-| **Must-include ancestors** | Mission 25 OS hub `2aa8853` · Teach Architect `3a685f4` |
+| **Current HEAD** | tip of `main` as of this receipt (verify: `git log -1 --oneline`) |
+| **Must-include ancestors** | Mission 25 OS hub `2aa8853` · Teach Architect `3a685f4` · Living Deliverables `fc0007c` |
 | **Production URL** | https://isalwa-architect.vercel.app (Vercel, builds from `main`, root `apps/architect`) |
 
-After pulling, confirm tip with `git rev-parse --short HEAD` and that both SHAs above are ancestors:
+After pulling, confirm tip with `git rev-parse --short HEAD` and that key SHAs are ancestors:
 
 ```bash
-git merge-base --is-ancestor 2aa8853 HEAD && git merge-base --is-ancestor 3a685f4 HEAD && echo OK
+git merge-base --is-ancestor 2aa8853 HEAD && git merge-base --is-ancestor 3a685f4 HEAD && git merge-base --is-ancestor fc0007c HEAD && echo OK
 ```
+
+---
+
+## ★ Last ~4 hours / this session (2026-07-28 ~14:50–18:30 EDT)
+
+Verified with `git log --since="4 hours ago"` on `main` ending ~18:32 EDT. **This is what JUST shipped** relative to the older baseline (Discovery P0→F earlier today, Missions 0–18 before that). Full historical tables remain below — do not treat this section as the only truth.
+
+### Queue status — COMPLETE
+
+Carmen’s agreed coded-mission queue is **done**. No further product missions are pending from that list:
+
+Discovery **P0 → F** · polish **19–26** · governance docs · **OS hub** · **Teach Architect** · pre-pilot UX · pilot checklist · AI context system · this receipt.
+
+Residual work is **human / ops only** (checklist at end of this section). Do **not** start a new coded mission unless Carmen explicitly asks.
+
+### Ordered ships in the last ~4 hours
+
+Chronological (oldest → newest). Docs-only commits that only record SHAs are folded into the feat they document.
+
+| When (EDT) | Commit | Mission / ship | Why it matters |
+| --- | --- | --- | --- |
+| 14:50 | `2dcd102` | **23 — Google Drive live** | Real OAuth + list + import into the same document intake path; other connectors stay scaffolded honestly. |
+| 15:30 | `17c0b68` | **19-P0 — continuous discovery obvious** | Pilot stuck-prevention: make “keep discovering” the obvious next action. |
+| 15:51 | `faba62d` | **20 Part 2 — Executive Daily Brief** | Senior-consultant dashboard hero: where we are / what changed / what next. |
+| 16:08 | `2432c8b` | **21 Pass 2 — Company Brain** | Client surface: “what does Architect know about my company.” |
+| 16:32 | `47cdcc9` | **AI context system** | Permanent `docs/ai/01–05` on-ramp so future agents read context → constitution → receipt first. |
+| 17:17 | `28d4d7b` | **24 — Autonomous Consulting Cycle** | Vercel Cron overnight re-run of consulting intelligence + honest Spanish overnight digest card. |
+| 17:20 | `68a9bbe` | **Pilot readiness checklist** | Human/ops demo checklist (`PILOT_READINESS_CHECKLIST.md`). |
+| 17:34 | `e8b599d` | **Pre-pilot stuck-prevention UX** | Orientation panel (5s), Teach labels, hide scaffolded connectors, Spanish error pages. |
+| 18:10 | `fc0007c` | **26 — Living Company Deliverables** | Eight company docs generate / version / Update Available / PDF·DOCX from existing engines only. |
+| 18:18 | `2aa8853` | **25 — Company OS hub** | Conversation → Knowledge → Brain → **Operating System**; composes Mission 26 (no second catalog). |
+| 18:26 | `3a685f4` | **22 Teach — Learning Summary** | Certainty + next-step after teach/upload; Teach framing + pre-upload expectations. |
+| 18:29 | `5d09c2c` (+ this commit) | **Full ChatGPT receipt** | Canonical paste hand-off; this session section sharpens “what JUST shipped.” |
+
+Receipt-record commits in the same window (not separate product work): `0e544f4`, `e2c9533`, `985b3b5`.
+
+**Tight end of session (last ~1h, ~17:34–18:30):** stuck-prevention UX → Living Deliverables → OS hub → Teach Architect → full receipt. That cluster is the freshest product surface for demo talk-track.
+
+**Just outside the 4h window (~6h ago, still same day):** Mission 19 polish `35cd964`, guided journey `7724f85`, living ingestion debrief `9b2f92d`, meeting transcripts `3d024c8`, governance docs `c3923b4` — already in the full table below; treat as same-day baseline, not “just now.”
+
+### Architecture notes (these ships only)
+
+- **Compose, don’t fork.** OS hub (`company-operating-system.ts` / panel) **reframes** Mission 26 living deliverables — never a second document catalog or scoring model.
+- **Company Brain** and **Daily Brief** re-read Company Model + Knowledge + Readiness; they do not invent evidence.
+- **Living Deliverables** generate/version/export from existing Blueprint / processes / solution engines (`lib/deliverables/`); PDF/DOCX stay Node-only, out of the client bundle.
+- **Drive / meetings / teach uploads** all feed the **same** intake → Knowledge → Consulting Intelligence cycle path.
+- **Teach / Learning Summary** is pipeline framing (certainty + next-step headlines), not a new engine.
+- **Overnight cron** re-runs the existing `runConsultingIntelligenceCycle`; empty digest without `CRON_SECRET` / service role is honest, not broken.
+- **Pre-pilot UX** is orientation + labeling + honesty about scaffolded connectors — no fake “connected” states.
+
+### Honest human leftover checklist (not agent invent-work)
+
+1. **Vercel deploy hash** — confirm Production deployment commit matches latest `main`.  
+2. **Password rotation** — Carmen & Álvaro away from documented shared default (`Architect2026!`).  
+3. **Álvaro E2E walkthrough** — login → orientation → discovery → teach one PDF → Brain → recommendations → blueprint → logout/login.  
+4. **PDF Learning Summary wow** — code is on `main` (`3a685f4`); confirm real browser upload shows certainty/next-step.  
+5. **Optional overnight cron env** — `CRON_SECRET` + `SUPABASE_SERVICE_ROLE_KEY` on Vercel Production only if you want a live overnight digest.  
+6. **Technical backlog (not demo blockers)** — async `buildRetrievalPack` unwired; first-64-chunk vector cap; Industry Playbooks no UI (by design); audit P1s — see §6 below / `PILOT_READINESS_CHECKLIST.md`.
 
 ---
 
@@ -120,7 +177,8 @@ All hashes below were verified with `git rev-parse` / `git log --oneline` on 202
 | Commit | Note |
 | --- | --- |
 | `20e359b` | Original P0→F ChatGPT receipt (historical detail; this file is now the full paste target). |
-| `0e544f4` / `e2c9533` / `985b3b5` | Receipt / verify-grep updates for M25 OS and Teach. |
+| `0e544f4` / `e2c9533` / `985b3b5` / `5d09c2c` | Receipt / verify-grep updates for M25 OS and Teach; full paste receipt. |
+| *(this commit)* | Session receipt — ★ “Last ~4 hours / this session” section on top of the full historical receipt. |
 
 Re-verify any time:
 
@@ -130,7 +188,7 @@ git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b14
 
 Missions 0–18 (Foundation → Company Digital Twin / Auth pilot) shipped earlier — see `ROADMAP.md` and `MISSION0.md`–`MISSION18.md`; not re-litigated here.
 
-**List status for Carmen’s agent queue:** Discovery P0→F · Product polish 19–26 · governance · OS hub · Teach Architect — **complete.** This receipt is the final documentation hand-off item.
+**List status for Carmen’s agent queue:** Discovery P0→F · Product polish 19–26 · governance · OS hub · Teach Architect · pre-pilot UX — **complete.** See ★ session section at top for what JUST shipped in the last ~4 hours. No more coded missions pending from the agreed queue.
 
 ---
 
@@ -249,4 +307,4 @@ import { ai } from "@/lib/ai";
 
 ---
 
-*Receipt authored 2026-07-28 from `git log` on `main`, `docs/ai/01–04`, mission docs (esp. M22 Teach, M24, M25 OS, M26), and `PILOT_READINESS_CHECKLIST.md`. No product code changed to produce this receipt.*
+*Receipt authored / refreshed 2026-07-28 ~18:30 EDT from `git log --since="4 hours ago"` on `main`, `docs/ai/01–04`, mission docs (esp. M22 Teach, M24, M25 OS, M26), and `PILOT_READINESS_CHECKLIST.md`. Session section added so ChatGPT can separate JUST-shipped work from the older baseline. No product code changed to produce this receipt.*
