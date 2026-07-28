@@ -1164,4 +1164,7 @@ export const es: MessageTree = {
       noneMissing: "Ya cubrimos todas las áreas medibles del negocio con evidencia real.",
     },
   },
+  overnightDigestCard: {
+    kicker: "Revisión nocturna automática",
+  },
 };

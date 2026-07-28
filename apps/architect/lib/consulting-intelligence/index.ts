@@ -19,9 +19,11 @@
  *   company-brain.ts     Mission 21 (Company Brain pass) — composes the twin +
  *                        missing-information + ceremony + evidence snapshot into
  *                        one client-facing "what does Architect know" report
+ *   overnight-review.ts  Mission 24 — is a scheduled review due, and running it
+ *   overnight-digest.ts  Mission 24 — the client-safe "what changed overnight" sentence
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
- * `MISSION20.md`, `MISSION21.md`.
+ * `MISSION20.md`, `MISSION21.md`, `MISSION24.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
@@ -51,6 +53,20 @@ export {
   type ExecutiveDailyBriefInput,
   type LastVisitSnapshot,
 } from "./daily-brief";
+
+export {
+  OVERNIGHT_REVIEW_INTERVAL_MS,
+  isOvernightReviewDue,
+  runOvernightReview,
+  type OvernightReviewOutcome,
+} from "./overnight-review";
+
+export {
+  OVERNIGHT_DIGEST_FRESHNESS_MS,
+  buildOvernightDigest,
+  isOvernightDigestFresh,
+  type OvernightDigest,
+} from "./overnight-digest";
 
 export {
   completedCapabilities,

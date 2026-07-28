@@ -45,10 +45,11 @@ Production data for Architect (`ws_isalwa` and any future workspace) may only be
 - **No direct writes to Supabase from anywhere other than the browser/server Supabase clients in
   `lib/auth/supabase/*` and `lib/repositories/supabase-store.ts`.** Do not add a second Supabase
   client construction site.
-- **No use of `SUPABASE_SERVICE_ROLE_KEY` in any browser-reachable code path.** As of the last
-  audit, this key has **zero code references** anywhere in `apps/architect` — it is provisioned
-  but unused. It must stay server-only if it is ever wired up (never `NEXT_PUBLIC_`-prefixed,
-  never imported into a Client Component).
+- **No use of `SUPABASE_SERVICE_ROLE_KEY` in any browser-reachable code path.** As of Mission 24,
+  it has exactly one reviewed, server-only reference (`lib/auth/supabase/admin.ts`, used only by
+  the cron review route) — see §5 for the full exception. It must stay server-only (never
+  `NEXT_PUBLIC_`-prefixed, never imported into a Client Component) and must not gain a second
+  reference without the same review.
 - **No client-supplied role or email ever trusted for an authorization decision.** Role always
   comes from `getServerSession()` re-deriving it from Supabase's verified JWT, never from a form
   field, query param, or cookie payload alone (see §13 threat model for the one narrow exception
@@ -100,15 +101,37 @@ Production data for Architect (`ws_isalwa` and any future workspace) may only be
 
 ## 5. Service role handling
 
-- `SUPABASE_SERVICE_ROLE_KEY` is provisioned in env but, as of the last audit, **not referenced
-  anywhere in application code**. It must remain unused (or removed from env entirely) unless a
-  specific, reviewed, server-only use case (e.g. an admin cleanup script) is deliberately wired up.
-- If it is ever wired up: it must only be constructed inside a server-only module (never a file
-  importable from a Client Component), must never be sent to the browser in any response, and the
-  use case must be documented in this file and in `DEPLOYMENT.md` at the time it's added.
-- Recommended standing precaution: rotate this key in the Supabase dashboard periodically even
-  while unused, since an unused, high-privilege secret sitting in configuration is itself a
-  standing risk.
+- `SUPABASE_SERVICE_ROLE_KEY` is provisioned in env. As of Mission 24 (Autonomous Consulting
+  Cycle), it has exactly **one** reviewed, server-only use case — see the exception below. Outside
+  that one path it must remain unused (or removed from env entirely on any deployment that doesn't
+  run the cron).
+- **Mission 24 exception (the cron review route):** `GET /api/cron/consulting-review`
+  (`app/api/cron/consulting-review/route.ts`) is the first, and only, code path that constructs a
+  service-role client, via `lib/auth/supabase/admin.ts`'s `createAdminSupabaseClient()`. This
+  exists because a Vercel Cron invocation has **no signed-in user and no session cookie at all**
+  — the normal RLS-backed write path (§1, `architect_is_member()`) has no user identity to check
+  membership against, so it structurally cannot apply here the way it does for every
+  browser-driven write.
+  - `createAdminSupabaseClient()` lives in exactly one file, is never imported by a Client
+    Component, and is never exported from any client-safe barrel (`lib/consulting-intelligence`'s
+    barrel does not re-export it) — grep the repo for `lib/auth/supabase/admin` if that ever needs
+    to change.
+  - The route only constructs this client after the request already passed the `CRON_SECRET`
+    Bearer check (`Authorization: Bearer <CRON_SECRET>`, constant-string comparison against
+    `process.env.CRON_SECRET`); a request with a missing/wrong header gets `401` before the admin
+    client is ever built.
+  - The service-role key is never sent to the browser in any response — the route returns only
+    workspace ids, booleans, and the same client-safe digest sentence `OvernightDigestCard` shows.
+  - When `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are absent, the route responds
+    with an honest `200` no-op (`ran: false`, explanatory `reason`) — never an error, never a
+    silent fallback to some other write path.
+  - Ops setup (setting the two env vars on Vercel, verifying 401 vs success): see
+    [`docs/OPERATIONS_RUNBOOK.md`](./OPERATIONS_RUNBOOK.md) §3a.
+- No other code path in `apps/architect` constructs a service-role client. Any future use case
+  beyond the cron route requires the same review and the same documentation update here, per §11.
+- Recommended standing precaution: rotate this key in the Supabase dashboard periodically, and
+  treat any redeploy that removes the cron route as a signal to also remove the env var if it's no
+  longer needed elsewhere.
 
 ## 6. Supabase policies (RLS)
 
@@ -242,7 +265,7 @@ Supabase Auth + Postgres + Storage.
 | T2 | Pilot-cookie session forgery if Supabase env vars are absent on a deployment | Cookie is `httpOnly`; realistic path needs cookie-jar access or a misconfigured preview lacking Supabase env vars | **Open (P1).** Recommend HMAC-signing the pilot cookie or failing closed in `NODE_ENV === "production"` when Supabase isn't configured |
 | T3 | Brute-force / credential stuffing against pilot login | Supabase Auth's own upstream rate limiting only; no app-level throttle | **Open (P1).** Recommend a lightweight IP/email throttle before sharing beyond the two named pilot users |
 | T4 | A client-role account (Álvaro) writes data a consultant-only UI panel implies only Carmen can write | RLS checks membership, not membership `kind` | **Open (P2).** See §6. Low real-world risk today (single company, owner editing own data); must be fixed before a second tenant exists |
-| T5 | Unused high-privilege secret (`SUPABASE_SERVICE_ROLE_KEY`) becomes a future leak vector | Confirmed unused in code via full-repo grep; never committed | **Open (P1), low cost to close** — rotate or remove |
+| T5 | High-privilege secret (`SUPABASE_SERVICE_ROLE_KEY`) becomes a leak vector | Narrowed to one reviewed reference (`lib/auth/supabase/admin.ts`, cron route only, §5); gated by `CRON_SECRET` before construction; never committed | **Open (P2)** — periodic rotation recommended; verify no second reference is added without review |
 | T6 | LLM proxy routes consumed for quota abuse by an authenticated-but-unintended user | Auth required; no rate limit | **Open (P2)** — acceptable at 2 users, not beyond |
 | T7 | XSS via user-authored content (interview answers, uploaded document text) | React's default escaping; no `dangerouslySetInnerHTML`/`innerHTML`/markdown-to-HTML pipeline anywhere in `apps/architect`, verified by repo-wide grep | Low — re-verify on every PR that adds HTML rendering |
 | T8 | Clickjacking / missing security headers | Caching headers exist; no explicit `Content-Security-Policy`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` | **Open (P2)** — Vercel provides baseline protection; explicit headers recommended before wider exposure |
@@ -259,7 +282,8 @@ process — see that product's own `SECURITY.md` at the repo root.
 3. Add a basic login rate limit (T3) before the pilot is shared with anyone beyond the two named
    users.
 4. Decide the pilot-cookie fail-closed behavior (T2).
-5. Rotate/remove the unused service role key (T5).
+5. Service role key now has one reviewed use (Mission 24 cron route, T5) — rotate periodically;
+   confirm no second reference is added without the same review.
 6. Track the RLS `kind`-awareness gap (T4) as a real backlog item before adding a second
    consultant or client company.
 7. Normal hardening backlog: security headers (T8), LLM route rate limits (T6), removing the two

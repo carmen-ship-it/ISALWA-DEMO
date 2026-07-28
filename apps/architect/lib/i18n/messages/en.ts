@@ -1139,4 +1139,7 @@ export const en: MessageTree = {
       noneMissing: "We already cover every measurable business area with real evidence.",
     },
   },
+  overnightDigestCard: {
+    kicker: "Automatic overnight review",
+  },
 };

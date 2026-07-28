@@ -45,7 +45,14 @@ export type TimelineCategory =
   | "deliverable"
   | "brand"
   | "implementation"
-  | "company_model";
+  | "company_model"
+  /**
+   * Mission 24 — Autonomous Consulting Cycle. A scheduled (cron) re-run of
+   * `runConsultingIntelligenceCycle` found something real to report — never
+   * written when a scheduled review ran and found nothing worth telling the
+   * client.
+   */
+  | "overnight_review";
 
 export type FutureIntakeSource =
   | "voice_recording"
@@ -148,6 +155,19 @@ export interface CompanyWorkspace {
    */
   consultingIntelligence?:
     | import("@/lib/consulting-intelligence/types").ConsultingWorkingMemory
+    | null;
+  /**
+   * Mission 24 — Autonomous Consulting Cycle. The most recent scheduled
+   * (cron) review's client-safe digest — "what changed overnight." Unlike
+   * `consultingIntelligence`, this is safe for Client Mode by construction:
+   * it never carries hypotheses, contradictions or internal vocabulary, only
+   * the same understanding/capability language the Dashboard already shows.
+   *
+   * Optional so workspaces saved before this mission stay valid — a missing
+   * digest just means no scheduled review has run yet.
+   */
+  lastOvernightReview?:
+    | import("@/lib/consulting-intelligence/overnight-digest").OvernightDigest
     | null;
 }
 

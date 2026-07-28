@@ -60,6 +60,7 @@ import { ReadinessGateCard } from "@/components/workspace/executive/readiness-pa
 import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards";
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
 import { NextStepCta } from "@/components/workspace/next-step-cta";
+import { OvernightDigestCard } from "@/components/workspace/overnight-digest-card";
 import {
   RoadmapTimeline,
   type RoadmapTimelineItem,
@@ -598,6 +599,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
 
         {/* Next Milestones — the same missing/not-tracked capabilities the ceremony card below details in full, reduced to a glanceable row. */}
         <DailyBriefMilestones milestones={dailyBrief.milestones} milestoneHref={milestoneHref} />
+
+        {/*
+          Overnight digest (Mission 24 — Autonomous Consulting Cycle) — the
+          honest "what changed while you were away" sentence from the last
+          scheduled review, when there is a fresh one. Sits right under
+          Today's Focus, same slot the ceremony/triad briefing occupy, so a
+          real overnight change is the very next thing either role reads.
+        */}
+        <OvernightDigestCard digest={workspace.lastOvernightReview} />
 
         {/*
           The persistent triad briefing (Mission 20) — what do we know, what

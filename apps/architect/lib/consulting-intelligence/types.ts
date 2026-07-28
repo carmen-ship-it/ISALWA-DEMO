@@ -19,13 +19,23 @@ import type { ReadinessTopicId } from "@/lib/readiness";
 import type { CapabilityId } from "@/lib/discovery-agent/capabilities";
 import type { RetrievalItemKind, RetrievalProvenance } from "@/lib/ai/retrieval";
 
-/** What kind of evidence woke the agent up. */
+/**
+ * What kind of evidence woke the agent up.
+ *
+ * `scheduled_review` (Mission 24 — Autonomous Consulting Cycle) is the one
+ * kind with no new evidence payload of its own: a cron job re-runs the same
+ * cycle on a schedule instead of waiting for the next interview answer or
+ * document, so a stale twin still gets re-read even on a quiet week. It is
+ * still just another `EvidenceEvent` — the cycle needed zero changes to
+ * accept it, exactly as this type already promised.
+ */
 export type EvidenceEventKind =
   | "interview_answer"
   | "document"
   | "meeting"
   | "note"
-  | "workflow";
+  | "workflow"
+  | "scheduled_review";
 
 /**
  * The trigger handed to `runConsultingIntelligenceCycle`. Deliberately thin:
@@ -230,4 +240,12 @@ export interface ConsultingIntelligenceCycleResult {
    * (understanding moved, a contradiction appeared, a capability completed).
    */
   understandingChanged: boolean;
+  /**
+   * Capabilities whose `discoveryComplete` flag flipped to `true` in this
+   * cycle specifically (not merely already complete before it ran). Empty
+   * on every cycle where nothing newly finished. Mission 24's overnight
+   * digest reads this instead of re-diffing capability lists itself — one
+   * diff, computed once, here.
+   */
+  newlyCompletedCapabilityIds: CapabilityId[];
 }

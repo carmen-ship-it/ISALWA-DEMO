@@ -56,9 +56,10 @@ live data, or when testing anything auth-related beyond the pilot-cookie fallbac
    dashboard, then applying `002_link_pilot_users.sql`.
 2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` (local) or
    Vercel Project Settings (deployed).
-3. **Never** set `SUPABASE_SERVICE_ROLE_KEY` in a browser-reachable context. It is currently unused
-   in code — leave it unset locally unless you are specifically working on a server-only admin
-   script that needs it (see [`docs/SECURITY_POSTURE.md`](./SECURITY_POSTURE.md) §5).
+3. **Never** set `SUPABASE_SERVICE_ROLE_KEY` in a browser-reachable context. It has exactly one
+   reviewed, server-only use (the Mission 24 overnight cron route, §3a below) — leave it unset
+   locally unless you are specifically testing that route (see
+   [`docs/SECURITY_POSTURE.md`](./SECURITY_POSTURE.md) §5).
 4. Realtime sync between roles rides on the `architect-company-memory` Postgres Changes channel on
    `architect_workspaces` — a save from one role should appear for the other without a manual
    refresh once Realtime is enabled per the operator guide.
@@ -82,6 +83,42 @@ live data, or when testing anything auth-related beyond the pilot-cookie fallbac
 
   Promote a Preview to Production only after it's green and the
   [Release Checklist](./RELEASE_CHECKLIST.md) has been run against it.
+
+### 3a. Autonomous Consulting Cycle (Mission 24) — enabling the nightly cron
+
+`GET /api/cron/consulting-review` re-runs the Consulting Intelligence Agent overnight for any
+workspace that's due; `vercel.json`'s `crons` entry already schedules it (`0 6 * * *`, UTC — no
+action needed there). Two env vars make it actually run instead of honestly no-opping:
+
+1. In Vercel Project Settings → Environment Variables (Production), set:
+   - `CRON_SECRET` — any random string, 16+ characters (e.g. generate with
+     `openssl rand -hex 32`). Vercel Cron automatically sends this back as
+     `Authorization: Bearer <CRON_SECRET>` on every scheduled invocation — you only need to set
+     the value, not wire up the header yourself.
+   - `SUPABASE_SERVICE_ROLE_KEY` — from Supabase Project Settings → API → `service_role` secret.
+     Required alongside the `NEXT_PUBLIC_SUPABASE_URL` you've likely already set per §2/§5 below.
+2. **Redeploy** after setting both (same rule as any other env var — see §3).
+3. Verify:
+
+   ```bash
+   # Missing/wrong secret → 401, no admin client is ever constructed
+   curl -i https://isalwa-architect.vercel.app/api/cron/consulting-review
+
+   # Correct secret → 200 with either an honest no-op (Supabase env absent) or per-workspace results
+   curl -i -H "Authorization: Bearer <CRON_SECRET>" \
+     https://isalwa-architect.vercel.app/api/cron/consulting-review
+   ```
+
+   A `200` with `"ran": false` and a `reason` string is a valid, honest outcome (Supabase admin
+   env not configured on that environment) — it is not a bug. A `200` with `"ran": true` and a
+   `results` array (one entry per workspace, `due`/`changed`/`headline`) means the cycle actually
+   ran.
+4. Not required for a demo where the cron doesn't need to fire live — Architect works identically
+   without it; the client-visible cycle re-run still happens on every real interview answer or
+   document upload regardless of whether the schedule is configured. See
+   `apps/architect/PILOT_READINESS_CHECKLIST.md`.
+5. Security context for why this route alone is allowed to use `SUPABASE_SERVICE_ROLE_KEY`:
+   [`docs/SECURITY_POSTURE.md`](./SECURITY_POSTURE.md) §5.
 
 ## 4. Production deploy checklist (operational steps)
 
@@ -109,7 +146,7 @@ live data, or when testing anything auth-related beyond the pilot-cookie fallbac
 | `ARCHITECT_LLM_MODEL` | No | Model id |
 | `NEXT_PUBLIC_SUPABASE_URL` | For shared pilot | Enables Supabase Auth + shared persistence |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For shared pilot | Browser-safe, RLS-enforced |
-| `SUPABASE_SERVICE_ROLE_KEY` | No | Server-only; currently unused in code — see Security Posture §5 |
+| `SUPABASE_SERVICE_ROLE_KEY` | For the overnight cron (Mission 24) | Server-only; one reviewed use (`/api/cron/consulting-review`) — see Security Posture §5 and §3a above |
 | `ARCHITECT_PILOT_CARMEN_PASSWORD` / `ARCHITECT_PILOT_ALVARO_PASSWORD` | No | Pilot-cookie fallback only; dead once Supabase Auth is configured |
 | `NEXT_PUBLIC_ARCHITECT_URL` | No | Absolute site URL when needed |
 

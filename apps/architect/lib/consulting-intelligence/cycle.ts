@@ -31,6 +31,7 @@
 import { nowIso } from "@/lib/utils";
 import { deriveCompanyModel } from "@/lib/company-model";
 import { buildRetrievalQuery } from "@/lib/ai/retrieval";
+import type { CapabilityId } from "@/lib/discovery-agent/capabilities";
 import {
   buildExplainableConfidenceReport,
   buildMissingInformationReport,
@@ -178,13 +179,16 @@ export function runConsultingIntelligenceCycle(
     consultingIntelligence: memory,
   };
 
+  const newlyCompletedCapabilityIds = newlyCompletedCapabilities(previous, memory);
+
   return {
     workspace: next,
     memory,
     understandingChanged:
       understanding.changed ||
       newContradictionAppeared(previous, memory) ||
-      capabilityJustCompleted(previous, memory),
+      newlyCompletedCapabilityIds.length > 0,
+    newlyCompletedCapabilityIds,
   };
 }
 
@@ -245,19 +249,20 @@ function newContradictionAppeared(
   return next.contradictions.some((item) => !seen.has(item.statement));
 }
 
-function capabilityJustCompleted(
+/** Capabilities whose `discoveryComplete` flag flipped to `true` this cycle. */
+function newlyCompletedCapabilities(
   previous: ConsultingWorkingMemory | null,
   next: ConsultingWorkingMemory,
-): boolean {
+): CapabilityId[] {
   const completedNow = next.capabilities
     .filter((capability) => capability.discoveryComplete)
     .map((capability) => capability.id);
-  if (completedNow.length === 0) return false;
-  if (!previous) return true;
+  if (completedNow.length === 0) return [];
+  if (!previous) return completedNow;
   const before = new Set(
     previous.capabilities
       .filter((capability) => capability.discoveryComplete)
       .map((capability) => capability.id),
   );
-  return completedNow.some((id) => !before.has(id));
+  return completedNow.filter((id) => !before.has(id));
 }
