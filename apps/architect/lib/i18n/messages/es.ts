@@ -1028,6 +1028,15 @@ export const es: MessageTree = {
     milestoneComplete: "Comprensión completa: tenemos una imagen integral de {company}, respaldada por la evidencia del descubrimiento.",
     dismiss: "Cerrar aviso",
   },
+  discoveryCompletion: {
+    kicker: "Estado del diagnóstico",
+    checklistLabel: "Capacidades validadas con evidencia",
+    missingLabel: "Todavía estamos confirmando",
+    notTrackedLabel: "Sin motor de evidencia dedicado todavía",
+    confidenceSuffix: "{confidence}/100",
+    etaLabel: "unos {minutes} minutos",
+    emptyState: "El diagnóstico todavía no arrancó — esto se completa con la primera conversación.",
+  },
   contextBar: {
     stageLabel: "Etapa",
     understandingLabel: "Comprensión",

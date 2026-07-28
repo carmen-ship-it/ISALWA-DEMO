@@ -1,8 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
 import { ArrowRight, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DiscoveryCompletionCard } from "@/components/workspace/executive/discovery-completion-card";
+import { assessDiscoveryCompletion } from "@/lib/consulting-intelligence";
+import { assessReadiness } from "@/lib/readiness";
 import { understandingLevel, understandingSentence } from "@/lib/presentation";
 import type { CompanyWorkspace, Interview } from "@/types";
 
@@ -20,6 +24,16 @@ export function FinishPanel({
   const understanding = interview.memory.score.overall;
   const factsCount = interview.memory.knownFacts.length;
 
+  /**
+   * Mission E — the Discovery Complete/Incomplete ceremony, right where a
+   * session naturally ends. Reads the just-updated `workspace` prop, so it
+   * catches up automatically once `persistCompletion` lands (see `saving`).
+   */
+  const discoveryCompletion = useMemo(() => {
+    const readiness = assessReadiness(workspace);
+    return assessDiscoveryCompletion(workspace, readiness);
+  }, [workspace]);
+
   return (
     <Card className="px-7 py-8 sm:px-10 sm:py-10">
       <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--isalwa-tint-green)] text-[var(--isalwa-tint-green-ink)] ring-1 ring-[var(--isalwa-tint-green-border)]">
@@ -33,6 +47,10 @@ export function FinishPanel({
         {workspace.companyName}. El diagnóstico sigue vivo — cada conversación
         futura se suma a esta misma memoria, nunca la reemplaza.
       </p>
+
+      <div className="mt-6">
+        <DiscoveryCompletionCard status={discoveryCompletion} />
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl bg-[var(--isalwa-porcelain)] px-5 py-4 ring-1 ring-[var(--isalwa-mist)]">

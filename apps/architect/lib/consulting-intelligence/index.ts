@@ -8,11 +8,12 @@
  *
  *   cycle.ts             `runConsultingIntelligenceCycle` — the nine-step loop
  *   capability-state.ts  Mission A twin + remaining time + discovery complete
+ *   discovery-status.ts  Mission E — the Discovery Complete/Incomplete ceremony
  *   working-memory.ts    private notes, each traced to the engine that made it
  *   self-check.ts        believe / why / evidence / contradicts / is this needed
  *   visibility.ts        the Client Mode gate — Álvaro never sees the notebook
  *
- * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`.
+ * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
@@ -23,6 +24,13 @@ export {
   shouldAskAboutCapability,
   totalRemainingDiscoveryMinutes,
 } from "./capability-state";
+
+export {
+  assessDiscoveryCompletion,
+  buildDiscoveryCompletionStatus,
+  type DiscoveryCompletionState,
+  type DiscoveryCompletionStatus,
+} from "./discovery-status";
 
 export { decideNextQuestion, runSelfCheck } from "./self-check";
 

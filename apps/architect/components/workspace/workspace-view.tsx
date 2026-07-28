@@ -34,6 +34,7 @@ import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ContextBar } from "@/components/workspace/executive/context-bar";
 import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
+import { DiscoveryCompletionCard } from "@/components/workspace/executive/discovery-completion-card";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
 import { ExecutiveDashboard } from "@/components/workspace/executive/executive-dashboard";
 import { ExecutiveInsightsPanel } from "@/components/workspace/executive/executive-insights-panel";
@@ -75,6 +76,7 @@ import {
   blueprintReadinessGate,
 } from "@/lib/readiness";
 import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
+import { assessDiscoveryCompletion } from "@/lib/consulting-intelligence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -245,6 +247,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  /**
+   * Mission E — Discovery Complete/Incomplete ceremony. Grounded in the same
+   * readiness assessment above plus the Consulting Intelligence Agent's
+   * per-capability `discoveryComplete` flags (Mission G) — no new scoring,
+   * just the honest verdict those two already imply together.
+   */
+  const discoveryCompletion = useMemo(
+    () => (workspace && readiness ? assessDiscoveryCompletion(workspace, readiness) : null),
+    [workspace, readiness],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -266,7 +279,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !readiness ||
     !missingInformation ||
     !explainableConfidence ||
-    !capabilityTwin
+    !capabilityTwin ||
+    !discoveryCompletion
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -410,6 +424,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           onExplore={scrollToExecutiveSummary}
           brandMessage={effectiveBrand.homepageMessage.value}
         />
+
+        {/*
+          Discovery Complete/Incomplete ceremony (Mission E) — the honest
+          answer to "is discovery done?", grounded in the readiness gate and
+          the Capability Digital Twin's own auto-stop flags. Sits right after
+          Today's Focus because it is the one status Álvaro reads before
+          anything else on the page.
+        */}
+        <DiscoveryCompletionCard status={discoveryCompletion} />
 
         {/* 2–8 · the consulting briefing body. */}
         <div id="cabina-ejecutiva" className="scroll-mt-32">
