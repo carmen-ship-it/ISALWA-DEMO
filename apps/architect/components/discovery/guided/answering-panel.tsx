@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TypingIndicator } from "@/components/shared/typing-indicator";
 import { EvidenceChips } from "@/components/discovery/guided/evidence-chips";
+import { AdaptiveFollowUpNote } from "@/components/discovery/guided/adaptive-followup-note";
 import type { RetrievalPack } from "@/lib/ai/retrieval";
+import type { AdaptiveFollowUp } from "@/lib/discovery/adaptive-followup";
 import type { Interview, Question } from "@/types";
 
 /**
@@ -32,6 +34,7 @@ export function AnsweringPanel({
   isPending,
   onRespond,
   retrievalPack,
+  adaptiveFollowUp,
 }: {
   interview: Interview;
   draft: string;
@@ -41,6 +44,8 @@ export function AnsweringPanel({
   onRespond: (value: string) => void;
   /** Mission C — evidence behind the current question, rendered as "Basado en…" chips. */
   retrievalPack?: RetrievalPack | null;
+  /** Mission D — the one adaptive follow-up sentence grounded in that same pack. */
+  adaptiveFollowUp?: AdaptiveFollowUp | null;
 }) {
   const question = interview.conversation.currentQuestion;
   const latestArchitect = [...interview.conversation.turns]
@@ -82,6 +87,7 @@ export function AnsweringPanel({
           transition={{ duration: 0.45, delay: 0.08 }}
           className="mt-8"
         >
+          <AdaptiveFollowUpNote followUp={adaptiveFollowUp} />
           <EvidenceChips pack={retrievalPack} />
 
           {helpTextLines(question).length > 0 ? (

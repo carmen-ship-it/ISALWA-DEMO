@@ -26,6 +26,7 @@ import {
 } from "@/lib/consulting";
 import { assessMemoryReadiness, pickTopicReadiness } from "@/lib/readiness";
 import { buildRetrievalPackSync, buildRetrievalQuery } from "@/lib/ai/retrieval";
+import { buildAdaptiveFollowUp } from "@/lib/discovery/adaptive-followup";
 import { createEmptyMemory } from "@/lib/reasoning";
 import { createWorkspaceInterview } from "@/lib/resume";
 import { createId, nowIso } from "@/lib/utils";
@@ -177,6 +178,20 @@ export function GuidedAssessment() {
       gaps: readiness?.stillLearning ?? [],
     });
   }, [interview, workspace, readiness]);
+
+  /**
+   * Mission D — one adaptive follow-up sentence, grounded in the same pack
+   * above. Pure presentation: no new fetch, no new persisted state — see
+   * `ADAPTIVE_FOLLOWUPS.md`.
+   */
+  const adaptiveFollowUp = useMemo(
+    () =>
+      buildAdaptiveFollowUp(
+        retrievalPack,
+        interview?.phase === "interview" ? interview.conversation.currentQuestion : null,
+      ),
+    [retrievalPack, interview],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -645,6 +660,7 @@ export function GuidedAssessment() {
                     isPending={isPending}
                     onRespond={(value) => void respond(value)}
                     retrievalPack={retrievalPack}
+                    adaptiveFollowUp={adaptiveFollowUp}
                   />
                 </div>
               </>
