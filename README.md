@@ -104,8 +104,12 @@ External systems are behind ports in `packages/providers`. Milestone builds ship
 
 ## Governance (ISALWA Architect)
 
-`apps/architect` is a separate product from ISALWA OS with its own permanent governance docs
-under [`docs/`](docs/):
+`apps/architect` is a separate product from ISALWA OS. Any agent or human starting work there
+should start at **[`apps/architect/docs/ai/README.md`](apps/architect/docs/ai/README.md)** — the
+permanent AI context system entrypoint (product context, constitution, architecture, living
+receipt, mission template).
+
+It extends the permanent governance docs under [`docs/`](docs/):
 
 - [Product Constitution](docs/PRODUCT_CONSTITUTION.md)
 - [Security Posture](docs/SECURITY_POSTURE.md)

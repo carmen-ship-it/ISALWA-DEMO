@@ -176,6 +176,10 @@ This document outranks convenience. It outranks novelty. It outranks "we could a
 
 ## Related governance documents
 
+- [`apps/architect/docs/ai/README.md`](../apps/architect/docs/ai/README.md) — the permanent
+  Architect AI context system (fast-path product context, engineering constitution, architecture
+  map, living receipt, mission template). Agents starting a session on `apps/architect` should
+  read that entrypoint first; it extends this document, never contradicts it.
 - [`docs/SECURITY_POSTURE.md`](./SECURITY_POSTURE.md) — write paths, credentials, threat model
 - [`docs/ENGINEERING_GUIDELINES.md`](./ENGINEERING_GUIDELINES.md) — how missions are built
 - [`docs/ARCHITECTURE_DECISIONS.md`](./ARCHITECTURE_DECISIONS.md) — why the engines are shaped this way

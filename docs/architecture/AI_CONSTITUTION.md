@@ -127,3 +127,14 @@ A task is complete only when:
 ## Agent note
 
 When in conflict: **preserve behavior**, **reuse `@isalwa/ui`**, **do not invent a parallel look**. Read Mission 11/12 design docs before visual work.
+
+---
+
+## App-specific extensions
+
+- **ISALWA Architect** (`apps/architect`) — a separate product that does not use `@isalwa/ui`
+  (documented deployment independence). This constitution's *process* rules (reuse before
+  creating, extend before replacing, one visual language, small PRs) still apply, substituting
+  Architect's own local component set. See
+  [`apps/architect/docs/ai/README.md`](../../apps/architect/docs/ai/README.md) for the permanent,
+  Architect-scoped constitution, architecture map, and living receipt.

@@ -1,5 +1,11 @@
 # ChatGPT Agent Receipt — Discovery Agent Roadmap (Missions P0 → F)
 
+> **Superseded as the primary agent entrypoint by
+> [`docs/ai/04_ARCHITECT_RECEIPT.md`](./docs/ai/04_ARCHITECT_RECEIPT.md)**, which carries this
+> receipt's facts forward and stays current after every mission. This file remains as the
+> detailed, point-in-time hand-off record for the P0→F roadmap specifically — still accurate,
+> just no longer the first thing to read.
+
 **Date:** 2026-07-28
 **Repo:** `/Users/carmen/projects/isalwa` (monorepo) — app: `apps/architect`
 **Branch:** `main`, verified clean and pushed at the time of this receipt.

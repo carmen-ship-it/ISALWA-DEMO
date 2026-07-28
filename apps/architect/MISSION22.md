@@ -19,18 +19,10 @@ detectors on transcript text), `lib/intake/pipeline.ts` (`ingestSource` already
 merged transcripts into the knowledge graph), `components/workspace/
 preparation-brief-panel.tsx` (already renders `workspace.meetings`).
 
-## Product Principle (restated, governs every change below)
+## Product Principle
 
-**Architect should never feel like software.** It should feel like a senior
-consulting team that happens to live inside software. Every screen must
-answer:
-
-1. **What do we know?**
-2. **What are we trying to learn?**
-3. **Why does it matter to the business?**
-
-Tagline: *"Architect becomes more intelligent every time your company shares
-knowledge."*
+Governing principle and the three permanent client questions: see
+[`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md).
 
 Mission 22's own test: can Álvaro paste the notes from this morning's meeting
 straight in — no "upload a .txt file" workaround, no separate "meetings"

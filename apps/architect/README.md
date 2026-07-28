@@ -5,7 +5,9 @@ Working title. Future rename possible.
 **Design your company before you build software.**
 
 > Product north star: [docs/VISION.md](../../docs/VISION.md)  
-> **Long-term principles (override missions):** [PRODUCT_PRINCIPLES.md](./PRODUCT_PRINCIPLES.md)
+> **Long-term principles (override missions):** [PRODUCT_PRINCIPLES.md](./PRODUCT_PRINCIPLES.md)  
+> **Agents start here:** [`docs/ai/README.md`](./docs/ai/README.md) — the permanent AI context
+> system (context, constitution, architecture, living receipt, mission template).
 
 ISALWA Architect is a separate application from the ISALWA OS product. It interviews companies before software is built — not as customer support, but as a senior architect sitting across the table.
 
@@ -98,13 +100,16 @@ See [MISSION10.md](./MISSION10.md).
 - [MISSION9.md](./MISSION9.md)
 - [MISSION9_5.md](./MISSION9_5.md)
 - [MISSION10.md](./MISSION10.md)
-- [MISSION10.md](./MISSION10.md)
 - [WHITE_LABEL_EXPERIENCE.md](./WHITE_LABEL_EXPERIENCE.md)
 - [EXECUTIVE_STORYTELLING.md](./EXECUTIVE_STORYTELLING.md)
 
 ## Governance
 
-Permanent, cross-linked governance docs for this app live under [`docs/`](../../docs/) at the
+**Start here:** [`docs/ai/README.md`](./docs/ai/README.md) — the permanent Architect AI context
+system. Read `01_ARCHITECT_CONTEXT.md`, `02_ARCHITECT_CONSTITUTION.md`, and
+`04_ARCHITECT_RECEIPT.md` before starting any new mission.
+
+Permanent, cross-linked governance docs for this app also live under [`docs/`](../../docs/) at the
 monorepo root (scoped to `apps/architect` in each doc's own header):
 
 - [Product Constitution](../../docs/PRODUCT_CONSTITUTION.md) — vision, principles, decision filter

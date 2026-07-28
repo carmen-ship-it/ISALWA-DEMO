@@ -24,16 +24,10 @@ interview. No new scoring model, no new engine, no chatbot.
 `docs/RELEASE_CHECKLIST.md`, `docs/architecture/AI_CONSTITUTION.md`.
 **Follows:** Mission 19 (`35cd964`) — premium empty states, calm progress motion, hierarchy polish.
 
-## Product Principle (restated, governs every change below)
+## Product Principle
 
-**Architect should never feel like software.** It should feel like a senior consulting team that
-happens to live inside software. Every screen must answer:
-
-1. **What do we know?**
-2. **What are we trying to learn?**
-3. **Why does it matter to the business?**
-
-Tagline: *"Architect becomes more intelligent every time your company shares knowledge."*
+Governing principle and the three permanent client questions: see
+[`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md).
 
 Mission 20's own test: does the client ever have to wonder "what do I do now"? If a primary
 surface still shows a generic "continuar evaluación" with no connection to what is actually

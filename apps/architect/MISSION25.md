@@ -1,5 +1,10 @@
 # Mission 25 — Product Constitution & Security Foundation
 
+> **Follow-on:** the permanent Architect AI context system
+> ([`docs/ai/README.md`](./docs/ai/README.md)) builds directly on this mission's governance
+> layer — read it first when starting a new mission; it extends, and cross-links back to, every
+> doc this mission established.
+
 **Status:** Complete (documentation only)
 **App:** `apps/architect`
 **Depends on:** Missions 0–18 + the Discovery Agent roadmap (P0 → F, see

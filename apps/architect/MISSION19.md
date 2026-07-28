@@ -8,16 +8,10 @@ consulting-engine changes.
 **Gate honored:** `docs/PRODUCT_CONSTITUTION.md`, `docs/ENGINEERING_GUIDELINES.md`,
 `docs/RELEASE_CHECKLIST.md`, `docs/architecture/AI_CONSTITUTION.md` (frozen design language).
 
-## Product Principle (restated, governs every change below)
+## Product Principle
 
-**Architect should never feel like software.** It should feel like a senior consulting team that
-happens to live inside software. Every screen this mission touched must answer:
-
-1. **What do we know?**
-2. **What are we trying to understand?**
-3. **Why does it matter to the business?**
-
-Tagline: *"Architect becomes more intelligent every time your company shares knowledge."*
+Governing principle and the three permanent client questions: see
+[`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md).
 
 ## Context — this is not a first pass
 

@@ -25,16 +25,10 @@ guided client journey — next-step voice, triad briefing).
 lifecycle) and `AI_DOCUMENT_PROCESSING_PIPELINE.md` (the ten-stage pipeline: OCR → extract →
 chunk → embed → detect → knowledge graph → vectors → readiness → insights → recommendations).
 
-## Product Principle (restated, governs every change below)
+## Product Principle
 
-**Architect should never feel like software.** It should feel like a senior consulting team
-that happens to live inside software. Every screen must answer:
-
-1. **What do we know?**
-2. **What are we trying to learn?**
-3. **Why does it matter to the business?**
-
-Tagline: *"Architect becomes more intelligent every time your company shares knowledge."*
+Governing principle and the three permanent client questions: see
+[`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md).
 
 Mission 21's own test: after uploading several documents, does the client ever have to
 wonder "did that actually do anything?" — or does the product tell them, in one honest

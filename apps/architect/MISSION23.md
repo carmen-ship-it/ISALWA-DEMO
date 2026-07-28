@@ -28,13 +28,14 @@ the client-facing "upcoming data sources" chip list) and `lib/intake/sources.ts`
 nudged from `"planned"` to `"designed"` with an updated description, since a
 real connector now exists, but neither catalog drives this mission's admin UI.
 
-## Product Principle (restated, governs every change below)
+## Product Principle
 
-**Architect should never feel like software.** A connector's only job is to
-hand the consulting team real evidence a client already has somewhere else —
-Álvaro should never have to export a file by hand just to get it back into
-Architect. Every connected source must be honest about what it can and
-cannot read yet, exactly like a manual upload is.
+Governing principle and the three permanent client questions: see
+[`docs/ai/01_ARCHITECT_CONTEXT.md`](./docs/ai/01_ARCHITECT_CONTEXT.md). Applied here: a
+connector's only job is to hand the consulting team real evidence a client already has
+somewhere else — Álvaro should never have to export a file by hand just to get it back into
+Architect. Every connected source must be honest about what it can and cannot read yet, exactly
+like a manual upload is.
 
 Mission 23's own test: can Carmen connect ISALWA's Google Drive once, pick a
 handful of real files, and watch them land in the same Knowledge Center a
