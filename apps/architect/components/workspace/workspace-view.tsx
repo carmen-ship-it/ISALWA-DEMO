@@ -28,6 +28,7 @@ import { BusinessProcessesPanel } from "@/components/workspace/business-processe
 import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
 import { BusinessKnowledge } from "@/components/workspace/business-knowledge";
+import { CompanyBrainPanel } from "@/components/workspace/company-brain-panel";
 import { BrandSettingsPanel } from "@/components/workspace/brand-settings-panel";
 import { ConnectorsPanel } from "@/components/workspace/connectors-panel";
 import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
@@ -91,6 +92,7 @@ import {
 import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
 import {
   assessDiscoveryCompletion,
+  buildCompanyBrain,
   buildExecutiveDailyBrief,
   buildNextStepVoice,
   groupRecentLearning,
@@ -321,6 +323,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace, readiness],
   );
 
+  /**
+   * Company Brain (Mission 21 — Company Brain pass) — the client-facing
+   * "what does Architect know about my company" report, composed purely
+   * from the Capability Digital Twin, the Missing Information Engine and
+   * the Discovery Complete ceremony already held above. No new scoring.
+   */
+  const companyBrain = useMemo(
+    () =>
+      workspace && capabilityTwin && missingInformation && discoveryCompletion
+        ? buildCompanyBrain({ workspace, capabilityTwin, missingInformation, discoveryCompletion })
+        : null,
+    [workspace, capabilityTwin, missingInformation, discoveryCompletion],
+  );
+
   /** White Label Company Experience — merges consultant overrides onto the derived brand model. */
   const effectiveBrand = useMemo(
     () =>
@@ -343,7 +359,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !missingInformation ||
     !explainableConfidence ||
     !capabilityTwin ||
-    !discoveryCompletion
+    !discoveryCompletion ||
+    !companyBrain
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -718,6 +735,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           </div>
         </div>
       </div>
+    ),
+
+    companyBrain: (
+      <CompanyBrainPanel
+        workspaceId={workspace.id}
+        companyName={workspace.companyName}
+        brain={companyBrain}
+        recentLearning={recentLearning}
+        interviewHref={interviewHref}
+        onUploadDocuments={() => setTab("knowledge")}
+      />
     ),
 
     assessment: (

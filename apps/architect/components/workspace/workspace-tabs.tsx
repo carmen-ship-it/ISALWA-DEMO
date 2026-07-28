@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export type WorkspaceTabId =
   | "executive"
+  | "companyBrain"
   | "assessment"
   | "blueprint"
   | "company"
@@ -21,6 +22,10 @@ export type WorkspaceTabId =
 
 export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
   executive: "workspaceTabs.executive",
+  // Mission 21 — Company Brain pass: one client-facing place composing
+  // Memory / Knowledge / Capability Twin / Company Model / Blueprint /
+  // Recommendations / Timeline / Discovery — never a new engine.
+  companyBrain: "workspaceTabs.companyBrain",
   assessment: "workspaceTabs.assessment",
   blueprint: "workspaceTabs.blueprint",
   company: "workspaceTabs.company",
@@ -38,6 +43,7 @@ export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
 
 const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
   "executive",
+  "companyBrain",
   "assessment",
   "blueprint",
   "company",
@@ -61,6 +67,7 @@ const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
  */
 export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "executive",
+  "companyBrain",
   "blueprint",
   "company",
   "knowledge",
@@ -74,6 +81,7 @@ export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
 /** Human-language label key overrides shown only in Client Mode. */
 export const CLIENT_TAB_LABEL_KEYS: Partial<Record<WorkspaceTabId, string>> = {
   blueprint: "workspaceTabs.blueprintClient",
+  companyBrain: "workspaceTabs.companyBrainClient",
 };
 
 export function WorkspaceTabs({

@@ -16,12 +16,24 @@
  *   daily-brief.ts       Mission 20 — Executive Daily Brief: composes the voice +
  *                        missing-information + ceremony + real timeline/meeting/
  *                        document timestamps into the Executive tab's hero
+ *   company-brain.ts     Mission 21 (Company Brain pass) — composes the twin +
+ *                        missing-information + ceremony + evidence snapshot into
+ *                        one client-facing "what does Architect know" report
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
- * `MISSION20.md`.
+ * `MISSION20.md`, `MISSION21.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
+
+export {
+  buildCompanyBrain,
+  type CompanyBrainArea,
+  type CompanyBrainInput,
+  type CompanyBrainLearningItem,
+  type CompanyBrainReport,
+  type CompanyBrainTrustCenter,
+} from "./company-brain";
 
 export {
   buildExecutiveDailyBrief,

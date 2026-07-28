@@ -170,6 +170,51 @@ export function DailyBriefUnderstanding({
   );
 }
 
+/**
+ * The grouped Hoy / Ayer / Última semana / Anteriormente list itself, with no
+ * `SectionShell` wrapper — shared by `DailyBriefRecentLearning` (Executive
+ * tab, gray tone, fixed copy) and the Company Brain's own "Recent Learning"
+ * section (Mission 21 — Company Brain pass, blue tone, different copy) so
+ * neither forks a second copy of the same real-timeline rendering.
+ */
+export function RecentLearningList({
+  groups,
+  emptyLabel,
+}: {
+  groups: DailyBriefTimelineGroup[];
+  emptyLabel: string;
+}) {
+  if (groups.length === 0) {
+    return <p className="text-sm text-[var(--isalwa-slate)]">{emptyLabel}</p>;
+  }
+  return (
+    <div className="space-y-6">
+      {groups.map((group) => (
+        <div key={group.id}>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+            {group.label}
+          </p>
+          <ol className="mt-2.5 space-y-2">
+            {group.events.map((event) => (
+              <li
+                key={event.id}
+                className="rounded-2xl bg-white/80 px-4 py-3 text-sm ring-1 ring-[var(--isalwa-mist)]/70"
+              >
+                <p className="text-[var(--isalwa-kiln)]">{event.title}</p>
+                {event.description ? (
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--isalwa-slate)]/75">
+                    {event.description}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Item 5: Recent Learning — real `workspace.timeline`, grouped Hoy / Ayer / Última semana / Anteriormente. */
 export function DailyBriefRecentLearning({
   groups,
@@ -185,36 +230,7 @@ export function DailyBriefRecentLearning({
       title={t("executiveDailyBrief.recentLearningTitle")}
       description={t("executiveDailyBrief.recentLearningDescription")}
     >
-      {groups.length === 0 ? (
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          {t("executiveDailyBrief.noRecentLearning")}
-        </p>
-      ) : (
-        <div className="space-y-6">
-          {groups.map((group) => (
-            <div key={group.id}>
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-                {group.label}
-              </p>
-              <ol className="mt-2.5 space-y-2">
-                {group.events.map((event) => (
-                  <li
-                    key={event.id}
-                    className="rounded-2xl bg-white/80 px-4 py-3 text-sm ring-1 ring-[var(--isalwa-mist)]/70"
-                  >
-                    <p className="text-[var(--isalwa-kiln)]">{event.title}</p>
-                    {event.description ? (
-                      <p className="mt-1 text-xs leading-relaxed text-[var(--isalwa-slate)]/75">
-                        {event.description}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </div>
-      )}
+      <RecentLearningList groups={groups} emptyLabel={t("executiveDailyBrief.noRecentLearning")} />
     </SectionShell>
   );
 }

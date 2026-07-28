@@ -38,6 +38,8 @@ export const en: MessageTree = {
   },
   workspaceTabs: {
     executive: "Summary",
+    companyBrain: "Company brain",
+    companyBrainClient: "What Architect knows about my company",
     assessment: "Discovery",
     blueprint: "Business plan",
     blueprintClient: "How your business works",
@@ -1093,5 +1095,48 @@ export const en: MessageTree = {
     milestonesTitle: "What we still don't know",
     milestonesDescription: "Business capabilities still open or without a dedicated evidence engine — each one is a concrete gap left to close.",
     noMilestones: "No open milestones remain — we'll keep watching for anything that changes.",
+  },
+  companyBrain: {
+    intro: {
+      kicker: "Company brain",
+      title: "What Architect knows today about {company}",
+      description:
+        "One place that brings together everything we've learned about your business — where it came from, how confident we are, and what we're still asking.",
+    },
+    knows: {
+      kicker: "What Architect knows",
+      title: "What we already know about your business",
+      emptyTitle: "There isn't enough evidence yet to speak about any business area.",
+      emptyWhy:
+        "Without real evidence, any recommendation would be a guess — this fills in with answers, documents and meetings.",
+      evidenceCountOne: "{count} piece of evidence",
+      evidenceCountMany: "{count} pieces of evidence",
+      lastUpdated: "updated {date}",
+      noEvidenceDetail: "There isn't a specific piece of evidence to show here yet.",
+    },
+    learning: {
+      kicker: "What Architect is still learning",
+      title: "What we're still learning",
+      emptyTitle: "We've already covered every business area we can measure today.",
+      emptyWhy:
+        "This doesn't mean we're done learning the business — we keep watching every new document, answer or meeting.",
+      etaLabel: "~{minutes} min of conversation",
+      notTrackedBadge: "No dedicated engine",
+      teachCta: "Teach Architect",
+    },
+    recent: {
+      kicker: "Recent learning",
+      title: "What we learned recently",
+      description: "Every real answer, document or meeting that added to what we know about your business.",
+      empty: "There is no activity recorded yet — this section fills in with the first answer, document or meeting.",
+    },
+    trust: {
+      kicker: "Trust center",
+      title: "Why you can trust this",
+      description: "Everything above, summarized in numbers — each one counting something that actually happened.",
+      meterLabel: "Business understanding",
+      missingLabel: "Not covered yet",
+      noneMissing: "We already cover every measurable business area with real evidence.",
+    },
   },
 };

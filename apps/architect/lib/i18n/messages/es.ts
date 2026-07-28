@@ -37,6 +37,8 @@ export const es: MessageTree = {
   },
   workspaceTabs: {
     executive: "Resumen",
+    companyBrain: "Cerebro de la empresa",
+    companyBrainClient: "Lo que Architect sabe de mi empresa",
     assessment: "Diagnóstico",
     blueprint: "Plan de negocio",
     blueprintClient: "Cómo funciona su empresa",
@@ -1118,5 +1120,48 @@ export const es: MessageTree = {
     milestonesTitle: "Lo que todavía no sabemos",
     milestonesDescription: "Capacidades del negocio que aún están abiertas o sin motor de evidencia dedicado — cada una es un vacío concreto por cerrar.",
     noMilestones: "No quedan hitos abiertos — seguimos atentos a cualquier cambio.",
+  },
+  companyBrain: {
+    intro: {
+      kicker: "Cerebro de la empresa",
+      title: "Lo que Architect sabe hoy de {company}",
+      description:
+        "Un solo lugar que reúne todo lo que hemos aprendido de su negocio — de dónde viene, qué tan seguros estamos y qué seguimos preguntando.",
+    },
+    knows: {
+      kicker: "Lo que Architect sabe",
+      title: "Lo que ya sabemos de su negocio",
+      emptyTitle: "Todavía no hay evidencia suficiente para hablar de ninguna área del negocio.",
+      emptyWhy:
+        "Sin evidencia real, cualquier recomendación sería una suposición — esto se completa con respuestas, documentos y reuniones.",
+      evidenceCountOne: "{count} evidencia",
+      evidenceCountMany: "{count} evidencias",
+      lastUpdated: "actualizado {date}",
+      noEvidenceDetail: "Todavía no hay una evidencia específica que mostrar aquí.",
+    },
+    learning: {
+      kicker: "Lo que Architect sigue aprendiendo",
+      title: "Lo que todavía estamos aprendiendo",
+      emptyTitle: "Ya cubrimos todas las áreas del negocio que podemos medir hoy.",
+      emptyWhy:
+        "Esto no significa que hayamos terminado de conocer el negocio — seguimos atentos a cada documento, respuesta o reunión nueva.",
+      etaLabel: "~{minutes} min de conversación",
+      notTrackedBadge: "Sin motor dedicado",
+      teachCta: "Enseñar a Architect",
+    },
+    recent: {
+      kicker: "Aprendizaje reciente",
+      title: "Lo que aprendimos últimamente",
+      description: "Cada respuesta, documento o reunión real que se sumó al conocimiento de su empresa.",
+      empty: "Todavía no hay actividad registrada — esta sección se llenará con la primera respuesta, documento o reunión.",
+    },
+    trust: {
+      kicker: "Centro de confianza",
+      title: "Por qué puede confiar en esto",
+      description: "Todo lo anterior, resumido en números — cada uno cuenta algo que realmente ocurrió.",
+      meterLabel: "Comprensión del negocio",
+      missingLabel: "Todavía no cubrimos",
+      noneMissing: "Ya cubrimos todas las áreas medibles del negocio con evidencia real.",
+    },
   },
 };
