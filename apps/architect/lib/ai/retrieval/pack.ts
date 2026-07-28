@@ -154,16 +154,38 @@ function assetTitleFor(
   return knowledge?.assets.find((asset) => asset.id === assetId)?.title ?? null;
 }
 
+/**
+ * A chunk's evidence label. A meeting transcript is not a document to the
+ * client, and calling it one in retrieved evidence would misstate where the
+ * knowledge came from — same honesty rule as everywhere else provenance is
+ * shown (Mission 22 — Meeting transcription → evidence).
+ */
+function assetChunkLabelFor(
+  knowledge: WorkspaceKnowledge | null,
+  assetId: string,
+  title: string | null,
+): string {
+  const type = knowledge?.assets.find((asset) => asset.id === assetId)?.type;
+  const noun =
+    type === "meeting_transcript"
+      ? "reunión"
+      : type === "manual_notes"
+        ? "nota"
+        : "documento";
+  return title ? `${noun}: ${title}` : noun;
+}
+
 function toChunkItem(
   chunk: KnowledgeChunkRecord,
   strength: number,
   documentTitle: string | null,
+  label: string,
 ): RetrievalItem {
   return {
     id: `retrieval_chunk_${chunk.id}`,
     kind: "document_chunk",
     topic: null,
-    label: documentTitle ? `documento: ${documentTitle}` : "documento",
+    label,
     statement: chunk.text.slice(0, 320),
     strength,
     provenance: { ...emptyProvenance(), documentId: chunk.assetId, documentTitle },
@@ -181,9 +203,15 @@ function collectChunkItemsLexical(
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map((entry) =>
-      toChunkItem(entry.chunk, entry.score, assetTitleFor(knowledge, entry.chunk.assetId)),
-    );
+    .map((entry) => {
+      const title = assetTitleFor(knowledge, entry.chunk.assetId);
+      return toChunkItem(
+        entry.chunk,
+        entry.score,
+        title,
+        assetChunkLabelFor(knowledge, entry.chunk.assetId, title),
+      );
+    });
 }
 
 function toEntityItem(entity: KnowledgeEntity, strength: number): RetrievalItem {
@@ -299,13 +327,15 @@ export async function buildRetrievalPack(
     });
     if (hits.length === 0) return buildRetrievalPackSync(input);
 
-    const chunkItems = hits.map((hit) =>
-      toChunkItem(
+    const chunkItems = hits.map((hit) => {
+      const title = assetTitleFor(input.knowledge, hit.chunk.assetId);
+      return toChunkItem(
         hit.chunk,
         Math.round(Math.max(0, Math.min(1, hit.score)) * 100),
-        assetTitleFor(input.knowledge, hit.chunk.assetId),
-      ),
-    );
+        title,
+        assetChunkLabelFor(input.knowledge, hit.chunk.assetId, title),
+      );
+    });
     return assemblePack(input, chunkItems, "semantic");
   } catch {
     return buildRetrievalPackSync(input);

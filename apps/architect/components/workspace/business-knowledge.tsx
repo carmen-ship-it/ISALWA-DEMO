@@ -4,7 +4,7 @@ import { useId, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
-import { KnowledgeUpload } from "@/components/workspace/knowledge-upload";
+import { DocumentChangeSummaryCard, KnowledgeUpload } from "@/components/workspace/knowledge-upload";
 import { NextUploadCta } from "@/components/workspace/executive/readiness-panel";
 import { useTranslations } from "@/lib/i18n";
 import {
@@ -15,7 +15,12 @@ import {
   type DetectionCounts,
   type IntakeIngestReport,
 } from "@/lib/intake";
-import { summarizeChunkIndex } from "@/lib/documents";
+import {
+  buildDocumentChangeSummary,
+  processMeetingTranscript,
+  summarizeChunkIndex,
+  type DocumentChangeSummary,
+} from "@/lib/documents";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import { assessMissingInformation } from "@/lib/readiness";
@@ -37,10 +42,18 @@ export function BusinessKnowledge({
 }) {
   const { t } = useTranslations();
   const notesId = useId();
+  const transcriptTitleId = useId();
+  const transcriptParticipantsId = useId();
+  const transcriptTextId = useId();
   const uploadSectionRef = useRef<HTMLDivElement>(null);
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [reports, setReports] = useState<IntakeIngestReport[]>([]);
+  const [meetingTitle, setMeetingTitle] = useState("");
+  const [meetingParticipants, setMeetingParticipants] = useState("");
+  const [transcriptText, setTranscriptText] = useState("");
+  const [savingTranscript, setSavingTranscript] = useState(false);
+  const [transcriptSummary, setTranscriptSummary] = useState<DocumentChangeSummary | null>(null);
 
   const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
   /**
@@ -88,6 +101,43 @@ export function BusinessKnowledge({
       }
     } finally {
       setSavingNotes(false);
+    }
+  };
+
+  /**
+   * Mission 22 — Meeting transcription → evidence. Same intake → knowledge
+   * → consulting cycle path a document upload already gets
+   * (`processMeetingTranscript` reuses `processUploadedDocument`'s stages),
+   * plus a first-class `Meeting` record. One paste, one save — no wizard.
+   */
+  const handleSaveTranscript = async () => {
+    const text = transcriptText.trim();
+    if (!text || savingTranscript) return;
+    const title = meetingTitle.trim() || t("businessKnowledge.meetingTranscript");
+    const participants = meetingParticipants
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean);
+
+    setSavingTranscript(true);
+    try {
+      const run = await processMeetingTranscript({
+        workspaceId: workspace.id,
+        title,
+        transcriptText: text,
+        participants,
+        onWorkspace: onUpdated,
+      });
+      if (run) {
+        onUpdated(run.workspace);
+        if (run.report) handleReport(run.report);
+        setTranscriptSummary(buildDocumentChangeSummary([run]));
+        setMeetingTitle("");
+        setMeetingParticipants("");
+        setTranscriptText("");
+      }
+    } finally {
+      setSavingTranscript(false);
     }
   };
 
@@ -180,6 +230,68 @@ export function BusinessKnowledge({
             {savingNotes ? t("businessKnowledge.saving") : t("businessKnowledge.saveNotes")}
           </Button>
         </div>
+      </div>
+
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
+          {t("businessKnowledge.meetingTranscript")}
+        </p>
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]/80">
+          {t("businessKnowledge.meetingTranscriptDescription")}
+        </p>
+        <div className="mt-4 space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor={transcriptTitleId} className="sr-only">
+                {t("businessKnowledge.meetingTitleLabel")}
+              </label>
+              <input
+                id={transcriptTitleId}
+                type="text"
+                value={meetingTitle}
+                onChange={(event) => setMeetingTitle(event.target.value)}
+                placeholder={t("businessKnowledge.meetingTitlePlaceholder")}
+                className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white/80 px-4 py-2.5 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45"
+              />
+            </div>
+            <div>
+              <label htmlFor={transcriptParticipantsId} className="sr-only">
+                {t("businessKnowledge.meetingParticipantsLabel")}
+              </label>
+              <input
+                id={transcriptParticipantsId}
+                type="text"
+                value={meetingParticipants}
+                onChange={(event) => setMeetingParticipants(event.target.value)}
+                placeholder={t("businessKnowledge.meetingParticipantsPlaceholder")}
+                className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white/80 px-4 py-2.5 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45"
+              />
+            </div>
+          </div>
+          <label htmlFor={transcriptTextId} className="sr-only">
+            {t("businessKnowledge.meetingTranscriptTextLabel")}
+          </label>
+          <textarea
+            id={transcriptTextId}
+            value={transcriptText}
+            onChange={(event) => setTranscriptText(event.target.value)}
+            rows={8}
+            placeholder={t("businessKnowledge.meetingTranscriptPlaceholder")}
+            className="w-full rounded-2xl border border-[var(--isalwa-mist)] bg-white/80 px-4 py-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45"
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={!transcriptText.trim() || savingTranscript}
+            onClick={handleSaveTranscript}
+          >
+            {savingTranscript
+              ? t("businessKnowledge.savingTranscript")
+              : t("businessKnowledge.saveTranscript")}
+          </Button>
+        </div>
+        {transcriptSummary ? <DocumentChangeSummaryCard summary={transcriptSummary} /> : null}
       </div>
 
       {reports.length > 0 ? (

@@ -347,8 +347,14 @@ export function KnowledgeUpload({
  * Document Ingestion). One persistent panel, not a toast per file — the
  * senior-consultant register the whole product uses, composed entirely from
  * `DocumentChangeSummary`'s already-generated Spanish sentences.
+ *
+ * Exported so Mission 22 (meeting transcripts) can show the exact same
+ * debrief for a transcript's pipeline run instead of building a second card
+ * — `processMeetingTranscript` returns a `DocumentPipelineRun`-shaped
+ * result on purpose, so `buildDocumentChangeSummary` and this card work for
+ * both without any fork.
  */
-function DocumentChangeSummaryCard({ summary }: { summary: DocumentChangeSummary }) {
+export function DocumentChangeSummaryCard({ summary }: { summary: DocumentChangeSummary }) {
   const { t } = useTranslations();
   return (
     <div

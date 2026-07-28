@@ -20,7 +20,10 @@ import {
   type KnowledgeUploadResult,
 } from "@/lib/knowledge/intake";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge/coverage";
-import { runConsultingIntelligenceCycle } from "@/lib/consulting-intelligence";
+import {
+  runConsultingIntelligenceCycle,
+  type EvidenceEventKind,
+} from "@/lib/consulting-intelligence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import type {
   CompanyWorkspace,
@@ -206,6 +209,26 @@ function buildAssetForUnit(
   };
 }
 
+/**
+ * The Consulting Intelligence Agent's working log distinguishes a meeting
+ * from a plain document (`EvidenceEventKind`) — this is the one place that
+ * mapping happens, so every intake source (file, transcript, or note) tags
+ * its evidence event honestly instead of every source reading "document".
+ */
+function evidenceKindForSource(sourceType: IntakeSourceType): EvidenceEventKind {
+  switch (sourceType) {
+    case "interview":
+      return "interview_answer";
+    case "meeting_transcript":
+    case "audio_transcript":
+      return "meeting";
+    case "manual_notes":
+      return "note";
+    default:
+      return "document";
+  }
+}
+
 function collectPriorStatements(workspace: CompanyWorkspace): string[] {
   const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
   return [
@@ -376,7 +399,7 @@ export async function ingestSource(
    * vault. See `CONSULTING_INTELLIGENCE_AGENT.md`.
    */
   const cycle = runConsultingIntelligenceCycle(nextWorkspace, {
-    kind: "document",
+    kind: evidenceKindForSource(input.sourceType),
     label: input.label,
     at: now,
     text: input.textContent,

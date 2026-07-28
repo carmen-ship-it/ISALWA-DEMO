@@ -86,10 +86,12 @@ export type {
   ChunkSearchHit,
 } from "./vectors";
 
-export { processUploadedDocument } from "./pipeline";
+export { processUploadedDocument, processMeetingTranscript } from "./pipeline";
 export type {
   DocumentIngestFn,
   DocumentPipelineRun,
+  MeetingTranscriptPipelineRun,
+  ProcessMeetingTranscriptParams,
   ProcessUploadedDocumentParams,
 } from "./pipeline";
 
