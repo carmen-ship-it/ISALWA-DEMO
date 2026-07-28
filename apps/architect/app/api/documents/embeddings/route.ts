@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ai, AI_CONFIG } from "@/lib/ai";
 
 /**
  * AI Document Processing Pipeline — embeddings endpoint.
@@ -9,13 +10,14 @@ import { NextResponse } from "next/server";
  *    so in the run log. This is the default in local/dev.
  *  - 200 `{ vectors }` when a key is configured and the provider answered.
  *
- * Works with any OpenAI-compatible `/v1/embeddings` endpoint (OpenAI, Azure,
- * Together, a local Ollama), matching `lib/llm/provider.ts` — no vendor lock.
+ * Routed through `lib/ai` — works with any OpenAI-compatible `/embeddings`
+ * endpoint (OpenAI, Azure, Together, Ollama) as well as Gemini, with no
+ * vendor lock and no hardcoded model here.
  */
 
 export const runtime = "nodejs";
 
-const DEFAULT_MODEL = "text-embedding-3-small";
+const DEFAULT_MODEL = AI_CONFIG.embeddingModel;
 const DEFAULT_DIMENSIONS = 1536;
 /** Matches `EMBEDDING_BATCH_SIZE` in `lib/documents/embeddings.ts`. */
 const MAX_INPUTS = 32;
@@ -68,56 +70,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const baseUrl = (
-    process.env.ARCHITECT_EMBEDDINGS_BASE_URL ??
-    process.env.ARCHITECT_LLM_BASE_URL ??
-    "https://api.openai.com/v1"
-  ).replace(/\/$/, "");
+  const baseUrl = process.env.ARCHITECT_EMBEDDINGS_BASE_URL ?? process.env.ARCHITECT_LLM_BASE_URL;
 
   try {
-    const response = await fetch(`${baseUrl}/embeddings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        input: inputs.map((text) => text.slice(0, MAX_INPUT_CHARS)),
-      }),
-    });
-
-    if (!response.ok) {
-      // The upstream body can contain account details — log it, return a
-      // generic reason. The client renders translated copy either way.
-      console.error(
-        "Embeddings provider error:",
-        response.status,
-        await response.text(),
-      );
-      return NextResponse.json({
-        available: false,
-        model,
-        dimensions: DEFAULT_DIMENSIONS,
-        reason: `The embeddings provider rejected the request (${response.status}).`,
-      });
-    }
-
-    const payload = (await response.json()) as {
-      data?: Array<{ embedding?: number[]; index?: number }>;
-    };
-
-    const ordered = [...(payload.data ?? [])].sort(
-      (a, b) => (a.index ?? 0) - (b.index ?? 0),
+    const result = await ai.embed(
+      inputs.map((text) => text.slice(0, MAX_INPUT_CHARS)),
+      { model, apiKey, baseUrl },
     );
-    const vectors = ordered
-      .map((item) => item.embedding)
-      .filter((vector): vector is number[] => Array.isArray(vector));
 
-    if (vectors.length !== inputs.length) {
+    if (result.vectors.length !== inputs.length) {
       return NextResponse.json({
         available: false,
-        model,
+        model: result.model,
         dimensions: DEFAULT_DIMENSIONS,
         reason: "The embeddings provider returned an unexpected number of vectors.",
       });
@@ -125,9 +89,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       available: true,
-      model,
-      dimensions: vectors[0]?.length ?? DEFAULT_DIMENSIONS,
-      vectors,
+      model: result.model,
+      dimensions: result.dimensions || DEFAULT_DIMENSIONS,
+      vectors: result.vectors,
     });
   } catch (error) {
     console.error("Embeddings request failed:", error);
@@ -135,7 +99,10 @@ export async function POST(request: Request) {
       available: false,
       model,
       dimensions: DEFAULT_DIMENSIONS,
-      reason: "The embeddings provider could not be reached.",
+      reason:
+        error instanceof Error
+          ? `The embeddings provider could not be reached: ${error.message}`
+          : "The embeddings provider could not be reached.",
     });
   }
 }

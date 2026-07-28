@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { ai, AI_CONFIG } from "@/lib/ai";
+import { PROMPTS } from "@/lib/ai/prompts";
 
 /**
  * AI Document Processing Pipeline — optical character recognition endpoint.
@@ -7,24 +9,17 @@ import { NextResponse } from "next/server";
  * and "no key configured" is a normal 200 response (`available: false`) that
  * the pipeline reports honestly, not an error it hides.
  *
- * Recognition uses an OpenAI-compatible vision chat completion, which is the
- * provider family this codebase already speaks (`lib/llm/provider.ts`). The
- * prompt asks for transcription only — no summarizing, no interpreting — so
- * the text that reaches the detectors is what the document actually says.
+ * Recognition uses a vision chat completion routed through `lib/ai` — the
+ * central provider abstraction that speaks OpenAI-compatible, Gemini and
+ * Anthropic without this route knowing which one answered. The prompt asks
+ * for transcription only — no summarizing, no interpreting — so the text
+ * that reaches the detectors is what the document actually says.
  */
 
 export const runtime = "nodejs";
 
-const DEFAULT_MODEL = "gpt-4o-mini";
 /** Base64 inflates by ~4/3; keep in step with `MAX_OCR_BYTES` client-side. */
 const MAX_BASE64_CHARS = 9 * 1024 * 1024;
-
-const TRANSCRIPTION_PROMPT = [
-  "Transcribe all readable text in this image exactly as it appears.",
-  "Preserve line breaks, headings, table rows and labels.",
-  "Do not summarize, translate, explain or add anything that is not written in the image.",
-  "If the image contains no readable text, reply with an empty response.",
-].join(" ");
 
 interface OcrRequestBody {
   fileName?: string;
@@ -47,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const model = process.env.ARCHITECT_OCR_MODEL ?? DEFAULT_MODEL;
+  const model = process.env.ARCHITECT_OCR_MODEL ?? AI_CONFIG.model;
   const apiKey = resolveApiKey();
 
   if (!apiKey) {
@@ -69,62 +64,39 @@ export async function POST(request: Request) {
   }
 
   const mimeType = body.mimeType?.startsWith("image/") ? body.mimeType : "image/png";
-  const baseUrl = (
-    process.env.ARCHITECT_OCR_BASE_URL ??
-    process.env.ARCHITECT_LLM_BASE_URL ??
-    "https://api.openai.com/v1"
-  ).replace(/\/$/, "");
+  const baseUrl = process.env.ARCHITECT_OCR_BASE_URL ?? process.env.ARCHITECT_LLM_BASE_URL;
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0,
-        max_tokens: 4_000,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: TRANSCRIPTION_PROMPT },
-              {
-                type: "image_url",
-                image_url: { url: `data:${mimeType};base64,${base64}` },
-              },
-            ],
-          },
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      console.error("OCR provider error:", response.status, await response.text());
-      return NextResponse.json({
-        available: false,
-        model,
-        reason: `The optical character recognition provider rejected the request (${response.status}).`,
-      });
-    }
-
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
+    const result = await ai.chat(
+      [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: PROMPTS.documentTranscription },
+            {
+              type: "image_url",
+              image_url: { url: `data:${mimeType};base64,${base64}` },
+            },
+          ],
+        },
+      ],
+      { model, apiKey, baseUrl, temperature: 0, maxTokens: 4_000 },
+    );
 
     return NextResponse.json({
       available: true,
-      model,
-      text: (payload.choices?.[0]?.message?.content ?? "").trim(),
+      model: result.model,
+      text: result.text.trim(),
     });
   } catch (error) {
     console.error("OCR request failed:", error);
     return NextResponse.json({
       available: false,
       model,
-      reason: "The optical character recognition provider could not be reached.",
+      reason:
+        error instanceof Error
+          ? `The optical character recognition provider could not process the image: ${error.message}`
+          : "The optical character recognition provider could not be reached.",
     });
   }
 }
@@ -134,6 +106,6 @@ export async function GET() {
   return NextResponse.json({
     service: "architect-document-ocr",
     available: Boolean(resolveApiKey()),
-    model: process.env.ARCHITECT_OCR_MODEL ?? DEFAULT_MODEL,
+    model: process.env.ARCHITECT_OCR_MODEL ?? AI_CONFIG.model,
   });
 }

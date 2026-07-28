@@ -31,7 +31,7 @@ Stages 9 and 10 are derivations, not stored artifacts. Every workspace surface a
 
 ### 1. OCR — `lib/documents/ocr.ts`
 
-Images route to `POST /api/documents/ocr`, which calls an OpenAI-compatible vision model (`gpt-4o-mini` by default) with a transcription-only prompt. The route is the *only* place the key is read; it never reaches the browser.
+Images route to `POST /api/documents/ocr`, which calls a vision model (routed through `lib/ai` — see `AI_PROVIDER_ABSTRACTION.md`; the model defaults to `AI_CONFIG.model`, currently Gemini flash-latest) with a transcription-only prompt. The route is the *only* place the key is read; it never reaches the browser.
 
 Without a key the route returns `{ status: "unavailable", reason }` with HTTP 200 — a configuration fact, not a server error. The pipeline records the OCR step as `skipped` with that reason, and the document keeps the filename classification it always had. It is never described as "read." Non-image documents mark this step `skipped` / "not applicable" rather than silently disappearing from the step list.
 
@@ -155,7 +155,7 @@ All new user-facing strings live in `lib/i18n/messages/es.ts` (default, client-f
 | OCR | `ARCHITECT_OCR_API_KEY` → `ARCHITECT_LLM_API_KEY` → `OPENAI_API_KEY` | Images stored + classified; content unread; step `skipped` with reason; document stays `queued` |
 | Embeddings | `ARCHITECT_EMBEDDINGS_API_KEY` → `ARCHITECT_LLM_API_KEY` → `OPENAI_API_KEY` | Chunks stored with full text/offsets, `embeddingStatus: "pending"`; no semantic search |
 
-Optional overrides: `ARCHITECT_OCR_MODEL` (default `gpt-4o-mini`), `ARCHITECT_EMBEDDINGS_MODEL` (default `text-embedding-3-small`), `ARCHITECT_OCR_BASE_URL` / `ARCHITECT_EMBEDDINGS_BASE_URL` / `ARCHITECT_LLM_BASE_URL` (default `https://api.openai.com`).
+Optional overrides: `ARCHITECT_OCR_MODEL` / `ARCHITECT_EMBEDDINGS_MODEL` (default to `AI_CONFIG.model` / `AI_CONFIG.embeddingModel` — see `AI_PROVIDER_ABSTRACTION.md`), `ARCHITECT_OCR_BASE_URL` / `ARCHITECT_EMBEDDINGS_BASE_URL` / `ARCHITECT_LLM_BASE_URL` (provider-specific default, e.g. Gemini's OpenAI-compat URL).
 
 Everything else — extraction, chunking, all twelve detectors, the graph merge, confidence, insights, recommendations, and the live step UI — works with no key at all.
 
