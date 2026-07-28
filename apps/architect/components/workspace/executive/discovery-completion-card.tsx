@@ -25,8 +25,14 @@ import type { DiscoveryCompletionStatus } from "@/lib/consulting-intelligence";
  * milestone, never a "finished forever" claim.
  */
 
-/** Missing capability → guided interview deep link, `null` when no discovery dimension backs it. */
-function capabilityInterviewHref(
+/**
+ * Missing capability → guided interview deep link, `null` when no discovery
+ * dimension backs it. Exported (Mission 20 — Executive Daily Brief) so the
+ * brief's own "Next Milestones" strip reuses this exact lookup instead of a
+ * second copy — same rule as `capabilityDimensions()` + `dimensionToStage()`
+ * themselves.
+ */
+export function capabilityInterviewHref(
   workspaceId: string,
   capabilityId: DiscoveryCompletionStatus["missingCapabilities"][number]["id"],
 ): string | null {

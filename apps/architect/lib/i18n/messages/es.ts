@@ -1095,4 +1095,28 @@ export const es: MessageTree = {
     viewExecutiveSummary: "Ver resumen ejecutivo",
     tagline: "Architect se vuelve más inteligente cada vez que su empresa comparte conocimiento.",
   },
+  /**
+   * Executive Daily Brief (Mission 20 — second pass). Replaces
+   * `welcomeBanner` as the Executive tab's hero. Only chrome lives here —
+   * the greeting, since-last-visit summary, recommendation sentences and
+   * milestone labels are all generated in
+   * `lib/consulting-intelligence/daily-brief.ts`, same rule as the rest of
+   * `lib/consulting-intelligence`.
+   */
+  executiveDailyBrief: {
+    kicker: "Briefing ejecutivo de hoy",
+    sinceLastVisitKicker: "Desde tu última visita",
+    recommendedKicker: "Hoy te recomiendo",
+    noActions: "Todo está al día — seguimos atentos a cualquier cambio.",
+    understandingKicker: "Comprensión del negocio",
+    understandingTitle: "Qué tan bien entendemos el negocio hoy",
+    recentLearningKicker: "Aprendizaje reciente",
+    recentLearningTitle: "Lo que aprendimos últimamente",
+    recentLearningDescription: "Cada respuesta, documento o reunión que se registró en el diagnóstico, agrupado por cercanía.",
+    noRecentLearning: "Todavía no hay actividad registrada en la línea de tiempo.",
+    milestonesKicker: "Próximos hitos",
+    milestonesTitle: "Lo que todavía no sabemos",
+    milestonesDescription: "Capacidades del negocio que aún están abiertas o sin motor de evidencia dedicado — cada una es un vacío concreto por cerrar.",
+    noMilestones: "No quedan hitos abiertos — seguimos atentos a cualquier cambio.",
+  },
 };

@@ -1,4 +1,18 @@
-# Mission 20 — Guided Client Journey (Phase 2 · Effortless)
+# Mission 20 — Guided Client Journey & Executive Daily Brief
+
+This mission shipped in two passes. Both are documented in full below — nothing from Part 1 was
+removed or rewritten by Part 2.
+
+- **Part 1 — Guided Client Journey** (`7724f85`): the always-on "what should I do next" voice
+  (`next-step-voice.ts`), the persistent triad briefing (`triad-briefing.tsx`), and the discovery
+  ceremony's click-through into the guided interview.
+- **Part 2 — Executive Daily Brief** (this pass): replaces the Executive tab's hero
+  (`WelcomeBanner`) with a senior-consultant-style daily briefing that answers, without a single
+  click, "where are we", "what changed since my last visit", and "what should I do next" — built
+  entirely by composing Part 1's own outputs plus real timeline/meeting/document evidence. See
+  "Part 2" below for the full write-up.
+
+## Part 1 — Guided Client Journey (Phase 2 · Effortless)
 
 **Status:** Complete (first sequenced pass — see "Deliberately out of scope").
 **App:** `apps/architect`
@@ -210,3 +224,166 @@ PRs over a large refactor):
   visible focus ring and an accessible `title`; nothing lost `aria-*` from a composed primitive.
 - [x] Existing behavior unchanged outside the explicitly listed voice/click-through/briefing
   additions.
+
+## Part 2 — Executive Daily Brief (presentation only)
+
+**Status:** Complete.
+**App:** `apps/architect`
+**Scope:** Replace the Executive tab's hero (`WelcomeBanner`) with an Executive Daily Brief so a
+CEO (Álvaro) answers, without clicking, "where are we today", "what changed since my last visit",
+and "what should I do next" — composed entirely from Part 1's own outputs (`NextStepVoice`, the
+Discovery Complete ceremony) plus the Missing Information Engine and real
+timeline/meeting/document timestamps. **No** change to Discovery interview logic, the AI, the
+Readiness Engine, Capability Twin derivation, Memory, or the Consulting Intelligence
+cycle/notebook — every number and sentence in the brief is a read or a straightforward
+composition of a field one of those engines already produced.
+
+### What shipped
+
+#### 1. `buildExecutiveDailyBrief()` — `lib/consulting-intelligence/daily-brief.ts` (new)
+
+Composes four already-computed reports (`NextStepVoice`, `MissingInformationReport`,
+`DiscoveryCompletionStatus`, and the workspace's own `businessUnderstanding` /
+`timeline` / `meetings` / `knowledge.assets`) into an `ExecutiveDailyBrief`:
+
+- `headline` — `"Hoy Architect entiende aproximadamente el {X}% de cómo opera {company}."`, X is
+  the workspace's own published `businessUnderstanding`, rounded and clamped — never a second
+  number.
+- `sinceLastVisit` — real deltas only. Counts new `workspace.timeline` entries since the last
+  visit (split into `meeting` / `knowledge` / other categories), plus the `businessUnderstanding`
+  delta, against a **browser-local** "last visit" pointer (see `useLastVisit` below — not a
+  workspace field, not read by any engine). Two honest fallbacks, never a guess: first-ever visit
+  on this browser ("Este es el primer briefing ejecutivo que abrimos aquí…") and no real change
+  since the last one ("Sin cambios registrados desde tu última visita.").
+- `actions` — up to three, ranked. Slot one is `NextStepVoice`'s own top-ranked pick, unchanged.
+  Any remaining slots are the Missing Information Engine's next-highest-impact opportunities
+  (`missingInformation.opportunities`, already sorted by estimated lift) that are not the same
+  topic as slot one — never a second ranking model, never padded to three when fewer genuinely
+  rank. Impact labels (`~N min`, `+N%`) are shown **only** when an engine already computed that
+  exact figure (the ceremony's `estimatedRemainingMinutes` for a single open capability, or the
+  Missing Information Engine's `estimatedLiftPercent` for an opportunity) — never invented.
+- `milestones` — the Discovery Complete ceremony's own `missingCapabilities` /
+  `notTrackedCapabilities`, reduced to `{ label, state, detail }` for a glanceable row.
+- `groupRecentLearning()` — the same `workspace.timeline` the Assessment tab already renders,
+  grouped into Hoy / Ayer / Última semana / Anteriormente by real calendar distance from today —
+  no event reclassified or reworded, only grouped.
+
+Every Spanish sentence here is generated inside this file, same rule as `next-step-voice.ts` and
+the rest of `lib/consulting-intelligence` / `lib/readiness` — never routed through `lib/i18n`.
+
+#### 2. `useLastVisit()` — `hooks/use-last-visit.ts` (new)
+
+A purely presentational, browser-`localStorage`-only pointer: `{ visitedAt, businessUnderstanding }`
+per workspace. Read once per workspace mount (the *previous* snapshot, before this visit), then
+immediately overwritten with the current one, so the *next* visit compares against *this* one.
+Deliberately **not** a workspace field — Discovery, the Readiness Engine, the Capability Twin,
+Memory and the Consulting Intelligence cycle have no concept of "a visit" and never will; this
+hook exists solely so the brief can honestly answer "what changed since I last looked," including
+the honest "first time" case when storage is empty or unavailable (private browsing, quota).
+
+#### 3. `ExecutiveDailyBriefHero` + 3 supporting sections — `components/workspace/executive/executive-daily-brief.tsx` (new)
+
+Four presentation components, each rendering only fields the caller already resolved — no
+computation, no routing knowledge (same rule `next-step-voice.ts` established: the caller owns
+every concrete href/tab-switch):
+
+- `ExecutiveDailyBriefHero` — the new hero. Greeting (reuses `welcomeBanner.greeting`), the
+  honest headline/brand-message description, the "Desde tu última visita" summary, up to three
+  ranked action rows (message + optional impact pill + button), and the same continuous-consulting
+  tagline `WelcomeBanner` used. An optional `onExplore` keeps the old "Ver resumen ejecutivo"
+  scroll-to-dashboard affordance.
+- `DailyBriefUnderstanding` — Business Understanding, calm animated progress. Wraps the existing
+  `ConfidenceMeter` (already framer-motion animated) — no new progress primitive, no growth claim
+  the number can't back up.
+- `DailyBriefRecentLearning` — the Hoy/Ayer/Última semana/Anteriormente groups from
+  `groupRecentLearning()`, rendered as the same simple event rows the Assessment tab already uses.
+- `DailyBriefMilestones` — open-circle chips for `missingCapabilities` (amber, `CircleDot`) and
+  `notTrackedCapabilities` (muted, `Circle`), each linking into the guided interview when a
+  discovery dimension backs it (see `capabilityInterviewHref` below). Deliberately lighter-weight
+  than `DiscoveryCompletionCard`, which remains mounted just below with the full ceremony detail
+  and click-through — this is the glanceable summary, not a replacement for that card.
+
+#### 4. Wiring — `components/workspace/workspace-view.tsx`
+
+- The Executive tab's "1 · Today's Focus" hero is now `ExecutiveDailyBriefHero` +
+  `DailyBriefUnderstanding` + `DailyBriefRecentLearning` + `DailyBriefMilestones`, in that order,
+  followed by the unchanged `TriadBriefing` and `DiscoveryCompletionCard` — nothing from Part 1
+  was removed, the brief sits in front of it.
+- `dailyBrief = buildExecutiveDailyBrief({ workspace, nextStepVoice, missingInformation,
+  discoveryCompletion, lastVisit })` and `recentLearning = groupRecentLearning(workspace)` are
+  computed once per render, right next to the reports they depend on.
+- The already-shipped "today's recommendations are ready" heuristic (`showTodaysRecommendations`)
+  keeps overriding the primary action slot exactly as it overrode the old `WelcomeBanner` CTA —
+  no behavior regression for that path.
+- Every other ranked action/milestone resolves its href/onClick with the same helpers
+  `nextStepHref`/`nextStepOnClick` already used (`dimensionToStage`, tab switches) — generalized,
+  not duplicated.
+- `capabilityInterviewHref()` (previously local to `discovery-completion-card.tsx`) is now
+  exported and reused by the brief's milestone chips instead of a second copy.
+- `WelcomeBanner` (`components/workspace/welcome-banner.tsx`) is deleted — fully superseded, no
+  remaining caller.
+
+### Constraints honored
+
+- **No engine touched.** Discovery interview logic, the AI, the Readiness Engine, Capability Twin
+  derivation, Memory, and the Consulting Intelligence cycle/notebook are all read-only inputs here
+  — this pass added two new composition files (`daily-brief.ts`, `use-last-visit.ts`) and one new
+  presentation file, the same pattern `next-step-voice.ts` established in Part 1.
+- **No fake events, no invented progress.** Every "since last visit" count is a real timestamp
+  comparison against `workspace.timeline` / `workspace.knowledge.assets`; when nothing changed,
+  the brief says so honestly instead of manufacturing a delta. The Business Understanding
+  animation is the existing `ConfidenceMeter`'s own calm width transition against the real
+  percentage — not a growth animation implying progress that didn't happen.
+- **No new scoring.** The "up to three" ranked actions are `NextStepVoice`'s existing top pick
+  plus the Missing Information Engine's own pre-sorted `opportunities` list — never re-ranked,
+  never a new weight.
+- **"Continuar descubriendo" language preserved.** `DiscoveryCompletionCard`'s CTA copy
+  (`discoveryCompletion.continueCta`) is untouched; the brief's own upload/focus-capability action
+  labels reuse the same `common.continueEvaluation` ("Continuar descubriendo") vocabulary via the
+  Missing Information Engine's existing topic labels.
+- **Spanish, client-facing.** Every sentence Álvaro sees is Spanish, generated in
+  `daily-brief.ts`; only chrome (`executiveDailyBrief.*` kickers/titles) went through
+  `useTranslations()`, added to both `lib/i18n/messages/{es,en}.ts` in parallel.
+- Repo-wide fabrication sweep (`rg -i "Example|Sample|Demo|Mock|Acme|Lorem|fake"`) on every changed
+  file returned only pre-existing, legitimate matches (upload example copy, "entendemos" substring
+  matches) — same result Part 1 recorded.
+- No `.env.local` or secret touched or committed. Mission 24 work-in-progress on disk was stashed
+  before this pass started and restored (still uncommitted) after it shipped.
+
+### Deliberately out of scope (this pass)
+
+- **`welcomeBanner.focusHintQuestion` / `focusHintMeeting` / `focusHintDefault` /
+  `todayRecommendationLabel` / `whatToDoToday` / `estimatedTime`** are now unused (the hero they
+  served was deleted) but left in `lib/i18n/messages/{es,en}.ts` rather than deleted, same
+  "keep this diff focused" call Part 1 made for `todayCtaDescriptionContinue` — safe to remove in
+  a future cleanup pass.
+- **`DiscoveryCompletionCard` and `TriadBriefing` were not merged into the new brief component.**
+  Both remain separate, unchanged surfaces directly below the brief — the brief's own "Next
+  Milestones" row is intentionally a lighter summary of the same data, not a replacement for the
+  ceremony card's full detail and click-through.
+- **No overnight digest, no Mission 21–24 signal** was read or referenced — this pass only reads
+  reports already computed synchronously by `WorkspaceView` per render.
+
+### Verification
+
+- `npx tsc -p tsconfig.json --noEmit` — clean.
+- `npx eslint .` — clean; the only warnings present are the same two pre-existing, unrelated files
+  Part 1 and Mission 19 already noted (`lib/consulting/questions/index.ts`, `lib/knowledge/seed.ts`).
+- `npx next build` — succeeds; all routes generate, including `/workspace/[id]`.
+- Repo-wide fabrication sweep on every changed file — no new fabrication smell introduced.
+- No `.env.local` or secret touched or committed.
+
+### Definition of Done — checklist
+
+- [x] Executive tab hero answers "where are we / what changed / what's next" without a click.
+- [x] "Desde tu última visita" shows real deltas or an honest empty state — never invented.
+- [x] "Hoy te recomiendo" shows up to three ranked, evidence-backed actions — never padded.
+- [x] Business Understanding shows the existing % with calm animated progress — no invented growth.
+- [x] Recent Learning groups real timeline entries into Hoy/Ayer/Última semana honestly.
+- [x] Next Milestones shows open circles for real missing/not-tracked capabilities.
+- [x] "Continuar descubriendo" language preserved throughout.
+- [x] No Discovery/AI/Readiness/Twin/Memory/Consulting-cycle logic modified.
+- [x] Typecheck/lint/build clean.
+- [x] `apps/architect/MISSION20.md` updated (this section) without deleting Part 1.
+- [x] Never `.env.local`; Mission 24 WIP stashed before, restored (uncommitted) after.
+- [x] No dead component left mounted twice — `WelcomeBanner` deleted, fully superseded.

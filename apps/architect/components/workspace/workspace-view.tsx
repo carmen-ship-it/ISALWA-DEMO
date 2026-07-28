@@ -36,8 +36,18 @@ import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ContextBar } from "@/components/workspace/executive/context-bar";
 import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
-import { DiscoveryCompletionCard } from "@/components/workspace/executive/discovery-completion-card";
+import {
+  DiscoveryCompletionCard,
+  capabilityInterviewHref,
+} from "@/components/workspace/executive/discovery-completion-card";
 import { DiscoveryJourney } from "@/components/workspace/executive/discovery-journey";
+import {
+  DailyBriefMilestones,
+  DailyBriefRecentLearning,
+  DailyBriefUnderstanding,
+  ExecutiveDailyBriefHero,
+  type ResolvedDailyBriefAction,
+} from "@/components/workspace/executive/executive-daily-brief";
 import { ExecutiveDashboard } from "@/components/workspace/executive/executive-dashboard";
 import { ExecutiveInsightsPanel } from "@/components/workspace/executive/executive-insights-panel";
 import {
@@ -55,7 +65,6 @@ import {
 } from "@/components/workspace/roadmap-timeline";
 import { SectionShell } from "@/components/workspace/section-shell";
 import { TriadBriefing } from "@/components/workspace/executive/triad-briefing";
-import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
   CLIENT_TAB_LABEL_KEYS,
   CLIENT_VISIBLE_TAB_IDS,
@@ -80,8 +89,16 @@ import {
   blueprintReadinessGate,
 } from "@/lib/readiness";
 import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
-import { assessDiscoveryCompletion, buildNextStepVoice } from "@/lib/consulting-intelligence";
+import {
+  assessDiscoveryCompletion,
+  buildExecutiveDailyBrief,
+  buildNextStepVoice,
+  groupRecentLearning,
+  type DailyBriefAction,
+  type DailyBriefMilestone,
+} from "@/lib/consulting-intelligence";
 import { dimensionToStage } from "@/lib/discovery/stages";
+import { useLastVisit } from "@/hooks/use-last-visit";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { buildResumeBriefing } from "@/lib/resume";
 import { formatTimelineDate, sortTimelineNewestFirst } from "@/lib/timeline";
@@ -216,6 +233,19 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     };
   }, [store, workspaceId]);
 
+  /**
+   * Executive Daily Brief (Mission 20) — a browser-local "what did this
+   * workspace look like last time" pointer, read once per mount and
+   * immediately overwritten so the *next* visit compares against *this*
+   * one. Purely presentational: Discovery, Readiness, the Capability Twin,
+   * Memory and the Consulting Intelligence cycle never see it.
+   */
+  const { previous: lastVisit } = useLastVisit(
+    workspaceId,
+    workspace?.businessUnderstanding ?? 0,
+    workspace !== null,
+  );
+
   const executive = useMemo(
     () => (workspace ? deriveExecutiveExperience(workspace) : null),
     [workspace],
@@ -336,21 +366,6 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     workspace.people[0]?.name?.split(" ")[0] ||
     "equipo";
 
-  const focusHint =
-    workspace.openQuestions[0]
-      ? t("workspaceView.focusHintQuestion", { question: workspace.openQuestions[0] })
-      : workspace.suggestedNextMeeting
-        ? t("workspaceView.focusHintMeeting", { meeting: workspace.suggestedNextMeeting })
-        : t("workspaceView.focusHintDefault");
-
-  // Single source of truth for "today's recommendation" — reused by the
-  // welcome brief, the context bar, and the executive dashboard headline.
-  const todayRecommendation =
-    executive.dashboard.executiveRecommendation ??
-    executive.dashboard.priorities[0] ??
-    executive.cockpit.priorities[0]?.title ??
-    null;
-
   // Guided Executive Navigation (Mission 12) — Dashboard's single answer to
   // "¿Qué debo hacer hoy?": once there is enough evidence (same 40% bar used
   // by lib/executive/derive.ts) and something concrete to react to, point at
@@ -405,6 +420,66 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const goToTodaysRecommendations = showTodaysRecommendations
     ? () => setTab("recommendations")
     : nextStepOnClick;
+
+  /**
+   * Executive Daily Brief (Mission 20 — Executive Daily Brief pass).
+   * Composes the same readiness/missing-information/ceremony reports
+   * already held above, plus the browser-local last-visit pointer, into
+   * the Executive tab's hero — never a second scoring model.
+   */
+  const dailyBrief = buildExecutiveDailyBrief({
+    workspace,
+    nextStepVoice,
+    missingInformation,
+    discoveryCompletion,
+    lastVisit,
+  });
+  const recentLearning = groupRecentLearning(workspace);
+
+  /** Same href/onClick resolution `nextStepHref`/`nextStepOnClick` already use above, generalized to any ranked action. */
+  const dailyBriefActionHref = (action: DailyBriefAction): string | undefined => {
+    if (action.actionKind === "focus_capability" && action.focusDimension) {
+      return `${interviewHref}&stage=${dimensionToStage(action.focusDimension)}`;
+    }
+    if (action.actionKind === "continue_interview") return interviewHref;
+    return undefined;
+  };
+  const dailyBriefActionOnClick = (action: DailyBriefAction): (() => void) | undefined => {
+    if (action.actionKind === "upload_document") return () => setTab("knowledge");
+    if (action.actionKind === "review_blueprint") return () => setTab("blueprint");
+    return undefined;
+  };
+
+  /**
+   * The primary slot keeps the already-shipped "today's recommendations are
+   * ready" heuristic (`showTodaysRecommendations`) when it applies — same
+   * behavior the old hero's CTA had — instead of the honest voice's own
+   * top pick. Every other ranked slot is resolved normally.
+   */
+  const resolvedDailyBriefActions: ResolvedDailyBriefAction[] = dailyBrief.actions.map(
+    (action, index) =>
+      index === 0 && showTodaysRecommendations
+        ? {
+            id: action.id,
+            message: t("workspaceView.executive.todayCtaDescriptionReady"),
+            actionLabel: dashboardPrimaryLabel,
+            impactLabel: null,
+            href: dashboardPrimaryHref,
+            onClick: goToTodaysRecommendations,
+          }
+        : {
+            id: action.id,
+            message: action.message,
+            actionLabel: action.actionLabel,
+            impactLabel: action.impactLabel,
+            href: dailyBriefActionHref(action),
+            onClick: dailyBriefActionOnClick(action),
+          },
+  );
+
+  /** Reuses the exact deep-link lookup `DiscoveryCompletionCard` already exports — `null` (no dimension) becomes `undefined` (no link) for an untracked capability. */
+  const milestoneHref = (milestone: DailyBriefMilestone): string | undefined =>
+    capabilityInterviewHref(workspace.id, milestone.id) ?? undefined;
 
   const guidedJourneyStages: GuidedJourneyStage[] = executive.journey.map(
     (stage) => ({
@@ -480,26 +555,39 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           understanding={workspace.businessUnderstanding}
         />
 
-        {/* 1 · Today's Focus — hero, integrates Mission 12's next-action guidance. */}
-        <WelcomeBanner
+        {/*
+          1 · Today's Focus — the Executive Daily Brief (Mission 20,
+          Executive Daily Brief pass). Replaces the old `WelcomeBanner`:
+          greeting + where we are, what changed since the last visit, and
+          up to three ranked next actions — all composed, never invented,
+          from `buildExecutiveDailyBrief` (`lib/consulting-intelligence`).
+        */}
+        <ExecutiveDailyBriefHero
           displayName={displayName}
-          understanding={workspace.businessUnderstanding}
-          focusHint={focusHint}
-          todayRecommendation={todayRecommendation}
-          estimatedMinutes={briefing.estimatedMinutesRemaining}
-          continueHref={dashboardPrimaryHref}
-          continueLabel={dashboardPrimaryLabel}
-          onContinueClick={goToTodaysRecommendations}
-          onExplore={scrollToExecutiveSummary}
+          brief={dailyBrief}
+          actions={resolvedDailyBriefActions}
           brandMessage={effectiveBrand.homepageMessage.value}
+          onExplore={scrollToExecutiveSummary}
         />
+
+        {/* Business Understanding — same honest number, calm animated progress, right where Álvaro looks first. */}
+        <DailyBriefUnderstanding
+          percent={dailyBrief.understandingPercent}
+          evidenceChips={evidenceChips}
+        />
+
+        {/* Recent Learning — real workspace.timeline, grouped Hoy / Ayer / Última semana. */}
+        <DailyBriefRecentLearning groups={recentLearning} />
+
+        {/* Next Milestones — the same missing/not-tracked capabilities the ceremony card below details in full, reduced to a glanceable row. */}
+        <DailyBriefMilestones milestones={dailyBrief.milestones} milestoneHref={milestoneHref} />
 
         {/*
           The persistent triad briefing (Mission 20) — what do we know, what
           are we trying to learn, why does it matter, composed from the
           Capability Digital Twin + Missing Information Engine reports above.
-          Sits right under Today's Focus so the three permanent client
-          questions frame everything that follows on the page.
+          Sits right under the brief so the three permanent client questions
+          frame everything that follows on the page.
         */}
         <TriadBriefing
           whatWeKnow={capabilityTwin.headline}
@@ -512,10 +600,10 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         {/*
           Discovery Complete/Incomplete ceremony (Mission E) — the honest
           answer to "is discovery done?", grounded in the readiness gate and
-          the Capability Digital Twin's own auto-stop flags. Sits right after
-          Today's Focus because it is the one status Álvaro reads before
-          anything else on the page. Mission 20 — each open capability is now
-          a click-through straight into the guided interview, focused.
+          the Capability Digital Twin's own auto-stop flags. Mission 20 —
+          each open capability is a click-through straight into the guided
+          interview, focused; this is the full detail behind the brief's own
+          "Next Milestones" row above.
         */}
         <DiscoveryCompletionCard
           status={discoveryCompletion}

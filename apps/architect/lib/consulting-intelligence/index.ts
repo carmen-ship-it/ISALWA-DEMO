@@ -13,12 +13,32 @@
  *   self-check.ts        believe / why / evidence / contradicts / is this needed
  *   visibility.ts        the Client Mode gate — Álvaro never sees the notebook
  *   next-step-voice.ts   Mission 20 — the always-on "what should I do next" voice
+ *   daily-brief.ts       Mission 20 — Executive Daily Brief: composes the voice +
+ *                        missing-information + ceremony + real timeline/meeting/
+ *                        document timestamps into the Executive tab's hero
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
  * `MISSION20.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
+
+export {
+  buildExecutiveDailyBrief,
+  buildMilestones,
+  buildRecommendedActions,
+  buildSinceLastVisit,
+  groupRecentLearning,
+  type DailyBriefAction,
+  type DailyBriefChange,
+  type DailyBriefMilestone,
+  type DailyBriefMilestoneState,
+  type DailyBriefSinceLastVisit,
+  type DailyBriefTimelineGroup,
+  type ExecutiveDailyBrief,
+  type ExecutiveDailyBriefInput,
+  type LastVisitSnapshot,
+} from "./daily-brief";
 
 export {
   completedCapabilities,
