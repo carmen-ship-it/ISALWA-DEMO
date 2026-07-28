@@ -30,7 +30,7 @@ import {
 } from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
-import type { CompanyWorkspace, DeliverablesPackage } from "@/types";
+import type { CompanyWorkspace, DeliverablesPackage, LivingDeliverableKind } from "@/types";
 
 type TabId =
   | "executive"
@@ -78,9 +78,14 @@ const CLIENT_VISIBLE_DELIVERABLE_TABS: TabId[] = [
 export function DeliverablesPanel({
   workspace,
   onUpdated,
+  focusKind,
+  onFocusConsumed,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
+  /** Mission 25 — deep-link from Operating System hub into a living deliverable card. */
+  focusKind?: LivingDeliverableKind | null;
+  onFocusConsumed?: () => void;
 }) {
   const { session } = useAuth();
   const isConsultant = session?.role === "consultant";
@@ -116,7 +121,12 @@ export function DeliverablesPanel({
   if (!pack) {
     return (
       <div className="space-y-8">
-        <LivingDeliverablesCenter workspace={workspace} onUpdated={onUpdated} />
+        <LivingDeliverablesCenter
+          workspace={workspace}
+          onUpdated={onUpdated}
+          focusKind={focusKind}
+          onFocusConsumed={onFocusConsumed}
+        />
         <ImplementationPackagePanel
           workspace={workspace}
           onUpdated={onUpdated}
@@ -145,7 +155,12 @@ export function DeliverablesPanel({
 
   return (
     <div className="space-y-5">
-      <LivingDeliverablesCenter workspace={workspace} onUpdated={onUpdated} />
+      <LivingDeliverablesCenter
+        workspace={workspace}
+        onUpdated={onUpdated}
+        focusKind={focusKind}
+        onFocusConsumed={onFocusConsumed}
+      />
       <ImplementationPackagePanel
         workspace={workspace}
         onUpdated={onUpdated}

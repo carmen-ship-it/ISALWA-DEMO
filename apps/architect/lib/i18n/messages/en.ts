@@ -40,6 +40,8 @@ export const en: MessageTree = {
     executive: "Summary",
     companyBrain: "Company brain",
     companyBrainClient: "What Architect knows about my company",
+    operatingSystem: "Operating system",
+    operatingSystemClient: "My company's operating system",
     assessment: "Discovery",
     blueprint: "Business plan",
     blueprintClient: "How your business works",

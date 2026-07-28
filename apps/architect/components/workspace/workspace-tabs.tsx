@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export type WorkspaceTabId =
   | "executive"
   | "companyBrain"
+  | "operatingSystem"
   | "assessment"
   | "blueprint"
   | "company"
@@ -22,10 +23,8 @@ export type WorkspaceTabId =
 
 export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
   executive: "workspaceTabs.executive",
-  // Mission 21 — Company Brain pass: one client-facing place composing
-  // Memory / Knowledge / Capability Twin / Company Model / Blueprint /
-  // Recommendations / Timeline / Discovery — never a new engine.
   companyBrain: "workspaceTabs.companyBrain",
+  operatingSystem: "workspaceTabs.operatingSystem",
   assessment: "workspaceTabs.assessment",
   blueprint: "workspaceTabs.blueprint",
   company: "workspaceTabs.company",
@@ -34,8 +33,6 @@ export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
   architecture: "workspaceTabs.architecture",
   processes: "workspaceTabs.processes",
   recommendations: "workspaceTabs.recommendations",
-  // Client-safe: read-only "what if" scenarios over lib/simulation — no
-  // company data is changed and no raw engine internals are shown.
   simulator: "workspaceTabs.simulator",
   roadmap: "workspaceTabs.roadmap",
   deliverables: "workspaceTabs.deliverables",
@@ -44,6 +41,7 @@ export const WORKSPACE_TAB_LABEL_KEYS: Record<WorkspaceTabId, string> = {
 const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
   "executive",
   "companyBrain",
+  "operatingSystem",
   "assessment",
   "blueprint",
   "company",
@@ -68,6 +66,7 @@ const WORKSPACE_TAB_ORDER: WorkspaceTabId[] = [
 export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
   "executive",
   "companyBrain",
+  "operatingSystem",
   "blueprint",
   "company",
   "knowledge",
@@ -82,6 +81,7 @@ export const CLIENT_VISIBLE_TAB_IDS: WorkspaceTabId[] = [
 export const CLIENT_TAB_LABEL_KEYS: Partial<Record<WorkspaceTabId, string>> = {
   blueprint: "workspaceTabs.blueprintClient",
   companyBrain: "workspaceTabs.companyBrainClient",
+  operatingSystem: "workspaceTabs.operatingSystemClient",
 };
 
 export function WorkspaceTabs({

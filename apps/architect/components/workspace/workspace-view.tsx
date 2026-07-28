@@ -29,6 +29,7 @@ import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
 import { BusinessKnowledge } from "@/components/workspace/business-knowledge";
 import { CompanyBrainPanel } from "@/components/workspace/company-brain-panel";
+import { CompanyOperatingSystemPanel } from "@/components/workspace/company-operating-system-panel";
 import { BrandSettingsPanel } from "@/components/workspace/brand-settings-panel";
 import { ConnectorsPanel } from "@/components/workspace/connectors-panel";
 import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
@@ -112,7 +113,7 @@ import {
   formatRelativeActivity,
   formatStageLabel,
 } from "@/lib/workspace";
-import type { CompanyWorkspace } from "@/types";
+import type { CompanyWorkspace, LivingDeliverableKind } from "@/types";
 
 /**
  * Guided Journey — maps the five-stage consulting journey to the tab where
@@ -166,6 +167,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
+  const [focusDeliverableKind, setFocusDeliverableKind] =
+    useState<LivingDeliverableKind | null>(null);
   const [connectorBanner, setConnectorBanner] = useState<
     { provider: "google_drive" | "microsoft_365" | "quickbooks" | "hubspot"; status: string } | null
   >(null);
@@ -787,6 +790,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       />
     ),
 
+    // Mission 25 product pass — Company Operating System hub. Frames
+    // Conversation → Knowledge → Brain → OS and routes generate/preview
+    // CTAs into Documentos / Living Deliverables (Mission 26) — no second catalog.
+    operatingSystem: (
+      <CompanyOperatingSystemPanel
+        workspace={workspace}
+        onOpenDeliverables={() => setTab("deliverables")}
+        onFocusDeliverable={(kind) => setFocusDeliverableKind(kind)}
+      />
+    ),
+
     assessment: (
       <div className="space-y-8">
         <NextStepCta
@@ -1195,6 +1209,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <DeliverablesPanel
             workspace={workspace}
             onUpdated={(next) => setWorkspace(next)}
+            focusKind={focusDeliverableKind}
+            onFocusConsumed={() => setFocusDeliverableKind(null)}
           />
         </SectionShell>
         <NextStepCta

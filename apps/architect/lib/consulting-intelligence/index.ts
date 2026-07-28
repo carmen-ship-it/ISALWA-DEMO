@@ -21,9 +21,12 @@
  *                        one client-facing "what does Architect know" report
  *   overnight-review.ts  Mission 24 — is a scheduled review due, and running it
  *   overnight-digest.ts  Mission 24 — the client-safe "what changed overnight" sentence
+ *   company-operating-system.ts  Mission 25 product pass — OS hub composed from
+ *                        living deliverables + fingerprint (no second catalog)
+ *   orientation.ts       pre-pilot orientation panel (know / learning / next)
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
- * `MISSION20.md`, `MISSION21.md`, `MISSION24.md`.
+ * `MISSION20.md`, `MISSION21.md`, `MISSION24.md`, `MISSION25.md`.
  */
 
 export { runConsultingIntelligenceCycle } from "./cycle";
@@ -72,6 +75,14 @@ export {
   buildOrientationPanel,
   type OrientationPanelReport,
 } from "./orientation";
+
+export {
+  buildCompanyOperatingSystem,
+  type OperatingSystemModule,
+  type OperatingSystemReport,
+  type OperatingSystemModuleId,
+  type OperatingSystemReadiness,
+} from "./company-operating-system";
 
 export {
   completedCapabilities,

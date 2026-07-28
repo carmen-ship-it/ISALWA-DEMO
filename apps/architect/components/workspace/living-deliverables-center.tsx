@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Download,
@@ -46,19 +46,36 @@ type ExportFormat = "pdf" | "docx";
  * company's* document ("Generar el Manual del Empleado de ISALWA"), never
  * "Download PDF" as if handing over a static template. Download buttons
  * only appear once a version has actually been generated.
+ *
+ * Mission 25 — optional `focusKind` deep-links from the Operating System
+ * hub so generate/preview CTAs land on the matching living deliverable.
  */
 export function LivingDeliverablesCenter({
   workspace,
   onUpdated,
+  focusKind,
+  onFocusConsumed,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
+  focusKind?: LivingDeliverableKind | null;
+  onFocusConsumed?: () => void;
 }) {
   const overview = useMemo(() => buildLivingDeliverablesOverview(workspace), [workspace]);
   const [busyKind, setBusyKind] = useState<LivingDeliverableKind | null>(null);
   const [downloadKey, setDownloadKey] = useState<string | null>(null);
   const [expandedKind, setExpandedKind] = useState<LivingDeliverableKind | null>(null);
   const [errorByKind, setErrorByKind] = useState<Record<string, string>>({});
+  const [highlightedKind, setHighlightedKind] = useState<LivingDeliverableKind | null>(null);
+
+  useEffect(() => {
+    if (!focusKind) return;
+    setExpandedKind(focusKind);
+    setHighlightedKind(focusKind);
+    onFocusConsumed?.();
+    const el = document.getElementById(`living-deliverable-${focusKind}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusKind, onFocusConsumed]);
 
   const handleGenerate = async (kind: LivingDeliverableKind) => {
     setBusyKind(kind);
@@ -146,6 +163,7 @@ export function LivingDeliverablesCenter({
             busy={busyKind === item.kind}
             downloadKey={downloadKey}
             expanded={expandedKind === item.kind}
+            highlighted={highlightedKind === item.kind}
             error={errorByKind[item.kind]}
             onToggleExpand={() =>
               setExpandedKind((prev) => (prev === item.kind ? null : item.kind))
@@ -165,6 +183,7 @@ function DeliverableCard({
   busy,
   downloadKey,
   expanded,
+  highlighted,
   error,
   onToggleExpand,
   onGenerate,
@@ -175,6 +194,7 @@ function DeliverableCard({
   busy: boolean;
   downloadKey: string | null;
   expanded: boolean;
+  highlighted?: boolean;
   error?: string;
   onToggleExpand: () => void;
   onGenerate: () => void;
@@ -191,7 +211,14 @@ function DeliverableCard({
         : copy.regenerateLabel;
 
   return (
-    <Card className="flex flex-col px-5 py-5">
+    <Card
+      id={`living-deliverable-${item.kind}`}
+      className={
+        highlighted
+          ? "flex flex-col px-5 py-5 ring-2 ring-[var(--isalwa-glaze)]/50"
+          : "flex flex-col px-5 py-5"
+      }
+    >
       <div className="flex-1">
         <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
           {copy.kicker}
