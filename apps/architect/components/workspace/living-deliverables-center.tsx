@@ -12,6 +12,7 @@ import {
   Loader2,
   MessageSquare,
   Network,
+  Package,
   RefreshCw,
   Sparkles,
   Target,
@@ -35,6 +36,8 @@ import {
 // barrel) so the Node-only `pdf-lib` / `docx` renderers never enter the
 // client bundle — those stay behind `app/api/deliverables/living/export`.
 import { composeLivingDeliverableDocument } from "@/lib/deliverables/living/export/compose";
+import { buildExecutivePackagePlan } from "@/lib/deliverables/living/export/executive-package";
+import type { ExportDocument } from "@/lib/deliverables/living/export/document-model";
 import { formatRelativeActivity } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 import type {
@@ -96,6 +99,27 @@ export function LivingDeliverablesCenter({
   const [expandedKind, setExpandedKind] = useState<LivingDeliverableKind | null>(null);
   const [errorByKind, setErrorByKind] = useState<Record<string, string>>({});
   const [highlightedKind, setHighlightedKind] = useState<LivingDeliverableKind | null>(null);
+  const [packageBusy, setPackageBusy] = useState(false);
+  const [packageError, setPackageError] = useState<string | null>(null);
+
+  const packagePlan = useMemo(() => {
+    const builtKinds = new Set<LivingDeliverableKind>();
+    const documentsByKind: Partial<Record<LivingDeliverableKind, ExportDocument>> = {};
+    for (const item of overviewByKind.values()) {
+      if (!item.latest) continue;
+      builtKinds.add(item.kind);
+      documentsByKind[item.kind] = composeLivingDeliverableDocument(
+        item.latest,
+        workspace.companyName,
+        item.history,
+      );
+    }
+    return buildExecutivePackagePlan(
+      workspace.companyName,
+      builtKinds,
+      documentsByKind,
+    );
+  }, [overviewByKind, workspace.companyName]);
 
   useEffect(() => {
     if (!focusKind) return;
@@ -169,6 +193,53 @@ export function LivingDeliverablesCenter({
     }
   };
 
+  const handleExecutivePackage = async () => {
+    if (!packagePlan.canDownload) return;
+    setPackageBusy(true);
+    setPackageError(null);
+    try {
+      const response = await fetch("/api/deliverables/living/executive-package", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folderName: packagePlan.folderName,
+          zipFileName: packagePlan.zipFileName,
+          readme: packagePlan.readme,
+          files: packagePlan.built.map((f) => ({
+            fileName: f.fileName,
+            format: f.format,
+            document: f.document,
+          })),
+        }),
+      });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(payload?.error ?? "package failed");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = window.document.createElement("a");
+      a.href = url;
+      a.download = packagePlan.zipFileName.endsWith(".zip")
+        ? packagePlan.zipFileName
+        : `${packagePlan.zipFileName}.zip`;
+      window.document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setPackageError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo generar el paquete ejecutivo.",
+      );
+    } finally {
+      setPackageBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="px-5 py-6 sm:px-6">
@@ -214,6 +285,50 @@ export function LivingDeliverablesCenter({
           <p className="pt-1 text-sm text-[var(--isalwa-kiln)]">
             Architect entiende tu negocio; aún hay trabajo para documentar y operar.
           </p>
+
+          <div className="mt-6 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-4">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
+              Paquete ejecutivo ISALWA
+            </p>
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+              Un ZIP con las salidas ya construidas del sistema operativo — activos de
+              consultoría, no una biblioteca inventada. Los huecos quedan listados en el
+              README.
+            </p>
+            <p className="mt-2 text-sm text-[var(--isalwa-kiln)]">
+              {packagePlan.packageReadyLabel}
+            </p>
+            {packagePlan.missing.length > 0 && packagePlan.canDownload ? (
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">
+                Aún no incluidos:{" "}
+                {packagePlan.missing
+                  .slice(0, 3)
+                  .map((m) => m.title.replace(/^\d+\s+/, ""))
+                  .join(", ")}
+                {packagePlan.missing.length > 3 ? "…" : ""}
+              </p>
+            ) : null}
+            <div className="mt-4">
+              <Button
+                type="button"
+                onClick={() => void handleExecutivePackage()}
+                disabled={!packagePlan.canDownload || packageBusy}
+                className="gap-2"
+              >
+                {packageBusy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : (
+                  <Package className="h-4 w-4" aria-hidden />
+                )}
+                {packageBusy
+                  ? "Preparando paquete…"
+                  : "Descargar paquete ejecutivo"}
+              </Button>
+            </div>
+            {packageError ? (
+              <p className="mt-2 text-xs text-red-600">{packageError}</p>
+            ) : null}
+          </div>
         </div>
       </Card>
 
