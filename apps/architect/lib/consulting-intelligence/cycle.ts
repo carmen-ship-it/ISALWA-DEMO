@@ -84,7 +84,7 @@ export function runConsultingIntelligenceCycle(
   // share it, so the cycle never scores the same evidence twice.
   const snapshot = snapshotFromWorkspace(withModel);
   const assessment = evaluateReadiness(snapshot);
-  const missing = buildMissingInformationReport(snapshot, assessment);
+  const missing = buildMissingInformationReport(snapshot, assessment, withModel.industry);
   const confidence = buildExplainableConfidenceReport(
     snapshot,
     assessment,

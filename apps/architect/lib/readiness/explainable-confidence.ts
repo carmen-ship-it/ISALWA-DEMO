@@ -343,7 +343,7 @@ export function assessExplainableConfidence(
 ): ExplainableConfidenceReport {
   const snapshot = snapshotFromWorkspace(workspace);
   const assessment = evaluateReadiness(snapshot);
-  const missing = buildMissingInformationReport(snapshot, assessment);
+  const missing = buildMissingInformationReport(snapshot, assessment, workspace.industry);
   return buildExplainableConfidenceReport(
     snapshot,
     assessment,
@@ -364,7 +364,7 @@ export function assessMemoryExplainableConfidence(
 ): ExplainableConfidenceReport {
   const snapshot = snapshotFromMemory(memory);
   const assessment = evaluateReadiness(snapshot);
-  const missing = buildMissingInformationReport(snapshot, assessment);
+  const missing = buildMissingInformationReport(snapshot, assessment, memory.summary.industry);
   return buildExplainableConfidenceReport(
     snapshot,
     assessment,

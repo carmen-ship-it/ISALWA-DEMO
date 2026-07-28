@@ -20,10 +20,15 @@
  * Nothing here recomputes coverage, confidence or state — it reads the
  * `EvidenceSnapshot` and `ReadinessAssessment` other files in this module
  * already produced and re-ranks the same gaps by estimated impact.
+ *
+ * Mission F extends this ranking with an optional anonymized industry
+ * playbook (`lib/industry-intelligence`) that only breaks ties between
+ * opportunities of otherwise-equal estimated lift — see `rankMissingInformation`.
  */
 
+import { industryDimensionWeight } from "@/lib/industry-intelligence";
 import { EVIDENCE_FACT_INCREMENT } from "@/lib/reasoning/confidence/score";
-import type { CompanyWorkspace, DimensionStatus } from "@/types";
+import type { CompanyWorkspace, DimensionStatus, Industry } from "@/types";
 import { evaluateReadiness, READY_CONFIDENCE, THIN_CONFIDENCE } from "./evaluate";
 import { snapshotFromWorkspace } from "./snapshot";
 import {
@@ -154,10 +159,18 @@ function buildOpportunity(
  * Rank every open topic by estimated business impact. A topic already
  * `ready` has nothing left to rank — the client is told that elsewhere, not
  * chased for one more upload it does not need.
+ *
+ * `industry` (Mission F, default `"unknown"` → the generic playbook) only
+ * breaks ties between opportunities of otherwise equal estimated lift. It
+ * never changes `estimatedLiftPercent` itself — that figure stays the
+ * honest, evidence-derived heuristic it always was; the industry playbook
+ * only says which equally-plausible gap a senior consultant would reach for
+ * first.
  */
 export function rankMissingInformation(
   snapshot: EvidenceSnapshot,
   assessment: ReadinessAssessment,
+  industry: Industry = "unknown",
 ): MissingInformationOpportunity[] {
   const applicable = applicableDimensions(snapshot.dimensions);
   const readyTopics = new Set(
@@ -177,7 +190,14 @@ export function rankMissingInformation(
     .filter((item): item is MissingInformationOpportunity => item !== null);
 
   return opportunities
-    .sort((a, b) => b.estimatedLiftPercent - a.estimatedLiftPercent)
+    .sort((a, b) => {
+      const liftDiff = b.estimatedLiftPercent - a.estimatedLiftPercent;
+      if (liftDiff !== 0) return liftDiff;
+      return (
+        industryDimensionWeight(industry, b.topic) -
+        industryDimensionWeight(industry, a.topic)
+      );
+    })
     .slice(0, MAX_OPPORTUNITIES);
 }
 
@@ -233,13 +253,14 @@ function buildHeadline(
 export function buildMissingInformationReport(
   snapshot: EvidenceSnapshot,
   assessment: ReadinessAssessment,
+  industry: Industry = "unknown",
 ): MissingInformationReport {
   const applicable = applicableDimensions(snapshot.dimensions);
   const ranked = [...applicable].sort((a, b) => b.confidence - a.confidence);
   const strongest = ranked[0] ?? null;
   const weakest = ranked[ranked.length - 1] ?? null;
 
-  const opportunities = rankMissingInformation(snapshot, assessment);
+  const opportunities = rankMissingInformation(snapshot, assessment, industry);
 
   return {
     generatedAt: snapshot.capturedAt,
@@ -261,5 +282,9 @@ export function assessMissingInformation(
   workspace: CompanyWorkspace,
 ): MissingInformationReport {
   const snapshot = snapshotFromWorkspace(workspace);
-  return buildMissingInformationReport(snapshot, evaluateReadiness(snapshot));
+  return buildMissingInformationReport(
+    snapshot,
+    evaluateReadiness(snapshot),
+    workspace.industry,
+  );
 }

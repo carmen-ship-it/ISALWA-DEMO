@@ -1,5 +1,9 @@
 import { INDUSTRY_PROFILES } from "@/data/catalog";
 import { selectNextConsultantQuestion } from "@/lib/consulting/questions";
+import {
+  industryDimensionPattern,
+  industryDimensionWeight,
+} from "@/lib/industry-intelligence";
 import { createId } from "@/lib/utils";
 import type {
   ConversationMemory,
@@ -150,37 +154,25 @@ const CATALOG: QuestionCandidate[] = [
   },
 ];
 
+/**
+ * Mission F — anonymized industry playbook bias. Re-scores the same catalog
+ * items already declared above by the client's industry pattern instead of
+ * hardcoding a per-industry list; every industry (including the generic
+ * fallback) benefits, not just the two that used to be special-cased.
+ */
 function industryCandidates(memory: ConversationMemory): QuestionCandidate[] {
   const industry = memory.summary.industry;
   const extras: QuestionCandidate[] = [];
 
-  if (industry === "manufacturing" || industry === "distribution") {
-    extras.push(
-      {
-        key: "inventory_flow",
-        prompt: "¿Cómo fluye el inventario desde la compra hasta la entrega?",
-        kind: "long_text",
-        dimension: "operations",
-        priority: 93,
-        reason: "El flujo de inventario es crítico en esta industria.",
-      },
-      {
-        key: "purchasing_approvals",
-        prompt: "¿Cómo funcionan las aprobaciones de compra?",
-        kind: "long_text",
-        dimension: "finance",
-        priority: 92,
-        reason: "Las aprobaciones de compra son críticas en esta industria.",
-      },
-      {
-        key: "production_planning",
-        prompt: "¿Cómo funciona la planificación de producción o reposición?",
-        kind: "long_text",
-        dimension: "production",
-        priority: 92,
-        reason: "La planificación es crítica en esta industria.",
-      },
-    );
+  for (const item of CATALOG) {
+    const weight = industryDimensionWeight(industry, item.dimension);
+    if (weight <= 0) continue;
+    const pattern = industryDimensionPattern(industry, item.dimension);
+    extras.push({
+      ...item,
+      priority: Math.min(99, item.priority + weight),
+      reason: pattern ? `${item.reason} Patrón de industria: ${pattern}` : item.reason,
+    });
   }
 
   const profile = INDUSTRY_PROFILES.find((item) => item.id === industry);

@@ -340,6 +340,6 @@ export function assessCapabilityDigitalTwin(
 ): CapabilityDigitalTwinReport {
   const snapshot = snapshotFromWorkspace(workspace);
   const assessment = evaluateReadiness(snapshot);
-  const missing = buildMissingInformationReport(snapshot, assessment);
+  const missing = buildMissingInformationReport(snapshot, assessment, workspace.industry);
   return buildCapabilityDigitalTwin(snapshot, missing);
 }

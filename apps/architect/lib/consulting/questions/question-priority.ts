@@ -8,6 +8,7 @@ import type {
   DiscoveryDimension,
   QuestionCandidate,
 } from "@/types";
+import { applyIndustryPlaybookBias } from "@/lib/industry-intelligence";
 import { estimateConfidenceGain } from "./confidence-engine";
 import {
   applyConsequenceBias,
@@ -76,7 +77,12 @@ export function scoreQuestion(
   memory: ConversationMemory,
   raw: LibraryQuestion,
 ): PrioritizedQuestion {
-  const biased = applyConsequenceBias(raw, memory);
+  const consequenceBiased = applyConsequenceBias(raw, memory);
+  // Mission F — anonymized industry playbook nudges priority toward the
+  // dimensions this client's industry usually needs most. Runs after the
+  // consequence bias so a real, evidence-grounded signal always wins over a
+  // generic industry pattern.
+  const biased = applyIndustryPlaybookBias(consequenceBiased, memory);
   const gain = estimateConfidenceGain(memory, biased);
   const departmentBoost = departmentBalanceBoost(memory, biased.dimension);
   const modeBoost = thinkingModeBoost(memory, biased);
