@@ -4,14 +4,14 @@
 be edited far more often than 01–03. If this file and `git log` disagree, `git log` wins; fix this
 file.
 
-**Last verified against:** `git log --oneline` on `main`, 2026-07-28.
+**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (includes `28d4d7b`).
 
 ## Current phase
 
-**Product Polish** (post Mission 25 governance/constitution). The Discovery Agent roadmap
-(P0 → F) and Missions 19–23 have shipped; Mission 25 codified permanent governance docs on top of
-that work. Mission 24 (autonomous overnight consulting cycle) is **in progress, uncommitted** —
-see "Known WIP" below.
+**Pilot-ready** — Álvaro/Carmen pilot on `ws_isalwa`. The Discovery Agent roadmap (P0 → F) and
+Missions 19–25 have shipped, including Mission 24 (autonomous overnight consulting cycle), which
+shipped 2026-07-28 ahead of the pilot. See
+[`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) for demo-day blockers/status.
 
 ## Completed missions (verified via `git log --oneline`)
 
@@ -36,11 +36,12 @@ see "Known WIP" below.
 | 22 | `3d024c8` | Meeting transcription → evidence — transcripts are first-class evidence via the same intake path as documents. |
 | 23 | `2dcd102` | Real integrations — Google Drive **live** (OAuth + list + import); SharePoint/QuickBooks/HubSpot scaffolded honestly. |
 | 25 | `c3923b4` | Product Constitution & Security Foundation — the six permanent governance docs under `docs/` (documentation only). |
+| 24 | `28d4d7b` | Autonomous Consulting Cycle — Vercel Cron re-runs `runConsultingIntelligenceCycle` overnight for due workspaces; honest Spanish "what changed overnight" digest via `OvernightDigestCard`; narrow, documented `SUPABASE_SERVICE_ROLE_KEY` exception for the cron route only. See [`MISSION24.md`](../../MISSION24.md). |
 
 Re-verify any time:
 
 ```bash
-git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|2dcd102|c3923b4"
+git log --oneline main | grep -E "92ed3ae|1e38b21|a9004c1|8e3da67|4a5f757|d73b142|6535a5c|fdfe006|976979b|35cd964|17c0b68|7724f85|faba62d|9b2f92d|2432c8b|3d024c8|2dcd102|c3923b4|28d4d7b"
 ```
 
 Missions 0–18 shipped earlier (Foundation through Company Digital Twin / Auth pilot) — see
@@ -56,19 +57,13 @@ every mission composed an existing one.
 
 ## Known WIP (uncommitted, on top of the commits above)
 
-- **Mission 24 — Autonomous Consulting Cycle (uncommitted).** A scheduled overnight review: Vercel
-  Cron (`vercel.json` → `crons`) would call `GET /api/cron/consulting-review` nightly, re-running
-  the **same** `runConsultingIntelligenceCycle` every answer/upload already triggers (no new agent,
-  no fake insight) for every workspace that's due, writing an honest Spanish "what changed
-  overnight" digest via a new `OvernightDigestCard`. Touches (per the stashed diff): `.env.example`
-  (new `CRON_SECRET` var + doc comment), `components/workspace/workspace-view.tsx` (wires
-  `OvernightDigestCard`), `lib/consulting-intelligence/{cycle,index,types}.ts`,
-  `lib/i18n/messages/{en,es}.ts`, `types/workspace.ts`, `vercel.json`. No `MISSION24.md` has been
-  written yet. **Not committed as of this receipt** — stashed during the AI context system mission
-  (see the commit that added this file) rather than lost; pop the relevant stash to resume.
-- **"Teach Architect" is not a separate WIP feature.** It is a shipped CTA label
-  (`teachCta: "Teach Architect"`, `lib/i18n/messages/en.ts`) from Mission 21 — verified not to be
-  mid-edit; no action needed.
+- **"Teach Architect" learning-summary extension (Mission 22 follow-up) — uncommitted, stashed.**
+  An in-progress extension of `lib/documents/change-summary.ts` (adds `certaintyNote` /
+  `nextStepNote` fields and copy) plus matching `lib/i18n/messages/{en,es}.ts` copy changes
+  ("Teach Architect" framing across Business Knowledge, missing-information, and daily-brief
+  copy). Interrupted mid-edit; stashed separately as `wip teach-architect-interrupted` (not part
+  of Mission 24, not committed) — pop that stash to resume. The shipped `teachCta: "Teach
+  Architect"` CTA label itself (Mission 21) is unaffected and needs no action.
 
 ## Pilot / production facts
 
@@ -95,22 +90,20 @@ against what's shipped since:
   has no wired call site — both call sites still run the keyword-ranked `buildRetrievalPackSync`.
 - `lib/documents/vectors.ts` only stores a vector for the first 64 chunks per workspace; the rest
   are `embeddingStatus: "skipped"`. Target: a dedicated pgvector table.
-- Security P1s from the 2026-07-27 audit not yet closed: rotate/remove the unused Supabase service
-  role key (Mission 24's cron route is the first code path planning to actually use it — verify
-  scope when it lands), confirm/rotate the pilot dashboard passwords away from the shared
-  documented default, consider HMAC-signing the pilot cookie, no brute-force protection on login.
+- Security P1s from the 2026-07-27 audit not yet closed: confirm/rotate the pilot dashboard
+  passwords away from the shared documented default, consider HMAC-signing the pilot cookie, no
+  brute-force protection on login. (The Supabase service role key item is resolved: Mission 24's
+  cron route is now its one reviewed, documented use — see `docs/SECURITY_POSTURE.md` §5 — not an
+  unused standing risk anymore, though periodic rotation is still recommended.)
 - Industry Playbooks (Mission F) still have no UI surface beyond invisible priority re-ordering —
   deliberately deferred, not a regression.
 
 ## Roadmap (near-term)
 
-1. **Resume/ship Mission 24** — autonomous overnight consulting cycle (see Known WIP above). Write
-   `MISSION24.md` when it ships, following [`05_MISSION_TEMPLATE.md`](./05_MISSION_TEMPLATE.md).
-2. **Teach Architect**, if a dedicated mission for it is not already shipped beyond the CTA label —
-   confirm current scope before starting new work (nothing in the codebase today suggests it's a
-   distinct, larger unshipped feature; re-verify via `git log` and `MISSION21.md` before assuming
-   otherwise).
-3. Close the retrieval/vectors gaps above if a mission's evidence-quality bar requires it.
+1. **Resume the "Teach Architect" learning-summary extension** (see Known WIP above) once pilot
+   priorities allow — pop `wip teach-architect-interrupted` and finish it as its own mission; do
+   not mix it into Mission 24's scope after the fact.
+2. Close the retrieval/vectors gaps above if a mission's evidence-quality bar requires it.
 
 ## How to update this file
 
