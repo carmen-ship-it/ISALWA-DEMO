@@ -27,6 +27,7 @@ import {
   type OsArtifactStatus,
   type OsProgressBar,
 } from "@/lib/consulting-intelligence/company-operating-system";
+import { buildOsUpdateNotices } from "@/lib/consulting-intelligence/os-update-notices";
 import {
   buildLivingDeliverablesOverview,
   livingDeliverableCopy,
@@ -87,6 +88,10 @@ export function LivingDeliverablesCenter({
 }) {
   const report = useMemo(
     () => buildCompanyOperatingSystem(workspace),
+    [workspace],
+  );
+  const updateNotices = useMemo(
+    () => buildOsUpdateNotices(workspace),
     [workspace],
   );
   const overviewByKind = useMemo(() => {
@@ -245,6 +250,39 @@ export function LivingDeliverablesCenter({
 
   return (
     <div className="space-y-6">
+      {updateNotices ? (
+        <Card className="border-[var(--isalwa-glaze)]/35 bg-[var(--isalwa-glaze)]/8 px-5 py-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
+            Actualización disponible
+          </p>
+          <h3 className="architect-serif mt-2 text-2xl text-[var(--isalwa-kiln)]">
+            {updateNotices.headline}
+          </h3>
+          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+            {updateNotices.detail}
+          </p>
+          <ul className="mt-4 space-y-2">
+            {updateNotices.items.map((item) => (
+              <li key={item.kind}>
+                <button
+                  type="button"
+                  className="text-left text-sm text-[var(--isalwa-kiln)] underline-offset-2 hover:underline"
+                  onClick={() => {
+                    setExpandedKind(item.kind);
+                    setHighlightedKind(item.kind);
+                    document
+                      .getElementById(`living-deliverable-${item.kind}`)
+                      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}
+                >
+                  {item.title} · construir nueva versión
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
       <Card className="px-5 py-6 sm:px-6">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
           Sistema operativo de la empresa

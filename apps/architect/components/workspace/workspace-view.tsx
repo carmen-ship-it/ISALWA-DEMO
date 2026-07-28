@@ -1024,6 +1024,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             onUpdated={(next) => setWorkspace(next)}
             improveBrief={improveBrief}
             onClearImprove={() => setImproveBrief(null)}
+            onOpenOperatingSystem={() => setTab("operatingSystem")}
           />
         </SectionShell>
         <NextStepCta

@@ -24,6 +24,7 @@ import {
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import { assessMissingInformation } from "@/lib/readiness";
+import { buildOsUpdateNotices } from "@/lib/consulting-intelligence/os-update-notices";
 import type { CompanyWorkspace } from "@/types";
 import type { ImproveDeliverableBrief } from "@/lib/consulting-intelligence/improve-deliverable";
 
@@ -39,12 +40,15 @@ export function BusinessKnowledge({
   onUpdated,
   improveBrief,
   onClearImprove,
+  onOpenOperatingSystem,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
   /** Mission 29 — document-specific Teach brief from OS "Mejorar". */
   improveBrief?: ImproveDeliverableBrief | null;
   onClearImprove?: () => void;
+  /** Mission 30 — jump to OS when updates are available after Teach. */
+  onOpenOperatingSystem?: () => void;
 }) {
   const { t } = useTranslations();
   const notesId = useId();
@@ -70,6 +74,7 @@ export function BusinessKnowledge({
     () => assessMissingInformation(workspace),
     [workspace],
   );
+  const osUpdates = useMemo(() => buildOsUpdateNotices(workspace), [workspace]);
   const processedCount = knowledge.assets.filter(
     (a) => a.status === "processed",
   ).length;
@@ -196,6 +201,25 @@ export function BusinessKnowledge({
               </Button>
             ) : null}
           </div>
+        </Card>
+      ) : null}
+
+      {osUpdates ? (
+        <Card className="border-[var(--isalwa-tint-amber-border)]/40 bg-[var(--isalwa-tint-amber)]/30 px-5 py-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
+            Sistema operativo
+          </p>
+          <p className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
+            {osUpdates.headline}
+          </p>
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]/80">{osUpdates.detail}</p>
+          {onOpenOperatingSystem ? (
+            <div className="mt-3">
+              <Button type="button" size="sm" onClick={onOpenOperatingSystem}>
+                Ver sistema operativo
+              </Button>
+            </div>
+          ) : null}
         </Card>
       ) : null}
 

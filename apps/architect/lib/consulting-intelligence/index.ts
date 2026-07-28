@@ -98,6 +98,12 @@ export {
 } from "./improve-deliverable";
 
 export {
+  buildOsUpdateNotices,
+  type OsUpdateNoticeItem,
+  type OsUpdateNotices,
+} from "./os-update-notices";
+
+export {
   completedCapabilities,
   deriveCapabilityIntelligence,
   shouldAskAboutCapability,
