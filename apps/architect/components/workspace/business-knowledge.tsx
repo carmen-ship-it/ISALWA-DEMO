@@ -205,7 +205,7 @@ export function BusinessKnowledge({
       ) : null}
 
       {osUpdates ? (
-        <Card className="border-[var(--isalwa-tint-amber-border)]/40 bg-[var(--isalwa-tint-amber)]/30 px-5 py-5">
+        <Card className="border-[var(--isalwa-tint-amber)]/50 bg-[var(--isalwa-tint-amber)]/30 px-5 py-5">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
             Sistema operativo
           </p>
