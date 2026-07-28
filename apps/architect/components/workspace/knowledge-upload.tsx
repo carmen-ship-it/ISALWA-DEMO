@@ -23,9 +23,11 @@ import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { isSupabaseConfigured } from "@/lib/auth/config";
 import {
+  classifyKnowledgeUpload,
   ingestKnowledgeUpload,
   KNOWLEDGE_UPLOAD_ACCEPT,
   KNOWLEDGE_UPLOAD_MAX_BYTES,
+  type KnowledgeUploadClassification,
 } from "@/lib/knowledge";
 import {
   buildDocumentChangeSummary,
@@ -36,6 +38,8 @@ import {
   type DocumentPipelineRun,
   type DocumentPipelineStep,
 } from "@/lib/documents";
+import { coverageAreaLabel } from "@/lib/presentation";
+import { assessMissingInformation } from "@/lib/readiness";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { IntakeIngestReport } from "@/lib/intake";
 import type { CompanyWorkspace } from "@/types";
@@ -52,12 +56,26 @@ interface UploadItem {
   mimeType: string;
   uploadedAt: string;
   uploadedByName: string | null;
+  /** Honest pre-read expectation from filename classification — never invented content. */
+  hopesToLearn: string;
   /**
    * Live pipeline record for this file. Populated from the `onJob` callback
    * as each of the ten steps transitions, so the list reflects real work in
    * progress rather than a spinner with a fixed delay.
    */
   steps: DocumentPipelineStep[];
+}
+
+/** Mission 22 — what Architect hopes to learn, from classification only (no content read). */
+function hopesToLearnFromClassification(classification: KnowledgeUploadClassification): string {
+  if (classification.coverageAreas.length > 0) {
+    const areas = classification.coverageAreas.map(coverageAreaLabel).join(", ");
+    return `Con este archivo, Architect espera aprender más sobre: ${areas}.`;
+  }
+  if (classification.matchedKeyword) {
+    return `Por el nombre (“${classification.matchedKeyword}”), Architect espera identificar hechos de negocio relacionados.`;
+  }
+  return "Architect espera identificar políticas, responsables, procesos o reglas si el contenido lo permite — sin inventar nada de antemano.";
 }
 
 const MAX_MB = Math.round(KNOWLEDGE_UPLOAD_MAX_BYTES / (1024 * 1024));
@@ -102,6 +120,11 @@ export function KnowledgeUpload({
     for (const file of files) {
       const itemId = `${file.name}-${file.size}-${Date.now()}`;
       const uploadedByName = session?.displayName ?? null;
+      const classification = classifyKnowledgeUpload({
+        name: file.name,
+        size: file.size,
+        mimeType: file.type,
+      });
       setItems((prev) => [
         {
           id: itemId,
@@ -113,6 +136,7 @@ export function KnowledgeUpload({
           mimeType: file.type,
           uploadedAt: new Date().toISOString(),
           uploadedByName,
+          hopesToLearn: hopesToLearnFromClassification(classification),
           steps: [],
         },
         ...prev,
@@ -204,8 +228,14 @@ export function KnowledgeUpload({
     }
 
     // The debrief comes after the whole batch, not per file — one
-    // consulting-voice paragraph even when several SOPs landed at once.
-    const summary = buildDocumentChangeSummary(batchRuns);
+    // consulting-voice Learning Summary even when several SOPs landed at once.
+    // nextStepNote is a pass-through of the Missing Information Engine's top
+    // headline on the post-batch workspace — never invented here.
+    const lastWorkspace = batchRuns[batchRuns.length - 1]?.workspace;
+    const nextStepNote = lastWorkspace
+      ? (assessMissingInformation(lastWorkspace).opportunities[0]?.headline ?? null)
+      : null;
+    const summary = buildDocumentChangeSummary(batchRuns, { nextStepNote });
     if (summary) setChangeSummary(summary);
 
     setBusy(false);
@@ -303,6 +333,13 @@ export function KnowledgeUpload({
                     <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]/80">
                       {item.message}
                     </p>
+                    {item.status === "uploading" ||
+                    item.status === "queued" ||
+                    item.status === "analyzing" ? (
+                      <p className="mt-1 text-xs leading-relaxed text-[var(--isalwa-slate)]/70">
+                        {item.hopesToLearn}
+                      </p>
+                    ) : null}
                     <p className="mt-1 text-[11px] text-[var(--isalwa-slate)]/60">
                       {formatFileSize(item.sizeBytes)}
                       {" · "}
@@ -377,6 +414,26 @@ export function DocumentChangeSummaryCard({ summary }: { summary: DocumentChange
           {summary.honestNote}
         </p>
       ) : null}
+      <div className="mt-4 space-y-3 border-t border-[var(--isalwa-mist)]/60 pt-4">
+        <div>
+          <p className={cn("isalwa-kicker", SECTION_TONE_INK.health)}>
+            {t("knowledgeUpload.certaintyKicker")}
+          </p>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {summary.certaintyNote}
+          </p>
+        </div>
+        {summary.nextStepNote ? (
+          <div>
+            <p className={cn("isalwa-kicker", SECTION_TONE_INK.health)}>
+              {t("knowledgeUpload.nextStepKicker")}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              {summary.nextStepNote}
+            </p>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

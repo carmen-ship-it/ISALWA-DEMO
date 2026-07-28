@@ -1,6 +1,8 @@
 /**
  * Mission 21 — Living Document Ingestion: the client-facing "what changed"
- * summary after a batch of uploads.
+ * summary after a batch of uploads. Extended by Mission 22 ("Teach
+ * Architect") into a fuller Learning Summary that also answers how certain
+ * we are and what's next — still zero recomputation.
  *
  * The AI Document Processing Pipeline (`pipeline.ts`) already computes, per
  * document, understanding before/after, new insights/recommendations, and
@@ -12,10 +14,25 @@
  * no recomputation: every figure here is copied straight off
  * `DocumentPipelineRun`.
  *
+ * Mission 22 adds three things, all still pure composition:
+ *   - an honest sentence for when Business Understanding did NOT move (the
+ *     original version stayed silent about the percentage in that case —
+ *     silence reads as "did we even do anything?"; now it says why, using
+ *     only fields the pipeline already computed);
+ *   - `certaintyNote` — "how certain are we", derived from how many
+ *     documents were actually read (`readableCount`/`weakCount`) and the
+ *     classification confidence already stored on each run's own
+ *     `KnowledgeAsset.confidence` — never a new confidence score;
+ *   - `nextStepNote` — an optional pass-through of a headline the caller
+ *     already computed from the Missing Information Engine / NextStepVoice
+ *     (e.g. `assessMissingInformation(workspace).opportunities[0]?.headline`)
+ *     — this module never reaches into those engines itself, it only has a
+ *     slot for the caller to hand one over.
+ *
  * Same rule as `lib/consulting-intelligence/next-step-voice.ts`: every
  * string is generated here, in Spanish, and must never be routed through
  * `lib/i18n` (see `docs/ENGINEERING_GUIDELINES.md` §9) — only the card
- * chrome around it (a kicker label) goes through `useTranslations()`.
+ * chrome around it (kicker labels) goes through `useTranslations()`.
  */
 
 import type { TextExtractionStatus } from "./extraction";
@@ -47,6 +64,20 @@ export interface DocumentChangeSummary {
   /** Present only when at least one document's content could not be read. */
   honestNote: string | null;
   weakDocuments: WeakExtractionDocument[];
+  /** "How certain are we" — derived from real read/classification data, never a new score. Never empty. */
+  certaintyNote: string;
+  /** "What's next" — only set when the caller passed one in from an existing engine; never invented here. */
+  nextStepNote: string | null;
+}
+
+export interface BuildDocumentChangeSummaryOptions {
+  /**
+   * A next-best-action headline the caller already computed from the
+   * Missing Information Engine or `NextStepVoice` (e.g.
+   * `assessMissingInformation(workspace).opportunities[0]?.headline`).
+   * Passed straight through, never rephrased or invented here.
+   */
+  nextStepNote?: string | null;
 }
 
 function pluralEs(count: number, singular: string, plural: string): string {
@@ -77,6 +108,7 @@ function sum(
  */
 export function buildDocumentChangeSummary(
   runs: readonly DocumentPipelineRun[],
+  options?: BuildDocumentChangeSummaryOptions,
 ): DocumentChangeSummary | null {
   if (runs.length === 0) return null;
 
@@ -129,6 +161,8 @@ export function buildDocumentChangeSummary(
   const honestNote =
     weakDocuments.length > 0 && readableCount > 0 ? buildHonestNote(weakDocuments) : null;
 
+  const nextStepNote = options?.nextStepNote?.trim() ? options.nextStepNote.trim() : null;
+
   return {
     documentCount,
     readableCount,
@@ -147,7 +181,43 @@ export function buildDocumentChangeSummary(
     message,
     honestNote,
     weakDocuments,
+    certaintyNote: buildCertaintyNote(runs, readableCount, weakDocuments.length, documentCount),
+    nextStepNote,
   };
+}
+
+function buildCertaintyNote(
+  runs: readonly DocumentPipelineRun[],
+  readableCount: number,
+  weakCount: number,
+  documentCount: number,
+): string {
+  const confidences = runs
+    .map((run) => run.asset.confidence)
+    .filter((value): value is number => typeof value === "number" && value > 0);
+  const avgConfidence =
+    confidences.length > 0
+      ? Math.round((confidences.reduce((total, value) => total + value, 0) / confidences.length) * 100)
+      : null;
+
+  if (readableCount === 0) {
+    return documentCount === 1
+      ? "Todavía no leímos el contenido — la clasificación es solo por nombre, así que la certeza es baja."
+      : "Todavía no leímos el contenido de estos documentos — la clasificación es solo por nombre, así que la certeza es baja.";
+  }
+
+  const readClause =
+    weakCount === 0
+      ? documentCount === 1
+        ? "Leímos el contenido completo"
+        : `Leímos el contenido de los ${documentCount} documentos`
+      : `Leímos ${readableCount} de ${documentCount} ${pluralEs(documentCount, "documento", "documentos")} (el resto quedó solo por nombre)`;
+
+  if (avgConfidence !== null) {
+    return `${readClause}. La clasificación por tipo/nombre trae ~${avgConfidence}% de confianza — no es un puntaje inventado, es la certeza que el propio clasificador ya reportó.`;
+  }
+
+  return `${readClause}. Todavía no hay una confianza de clasificación numérica que reportar para este lote.`;
 }
 
 function buildLearnedMessage(input: {
@@ -180,11 +250,32 @@ function buildLearnedMessage(input: {
   } = input;
 
   const clauses: string[] = [];
+  const structuredDelta =
+    addedEntities +
+      reinforcedEntities +
+      addedRelationships +
+      addedBusinessRules +
+      addedRisks +
+      frictions +
+      addedOpportunities >
+    0;
 
   if (understandingAfter > understandingBefore) {
     clauses.push(
       `la comprensión del negocio subió de ${understandingBefore}% a ${understandingAfter}%`,
     );
+  } else if (structuredDelta) {
+    // The composite score is coarse and monotonic — real intake can land
+    // without moving the rounded percentage. Say so instead of staying silent.
+    if (reinforcedEntities > 0 && addedEntities === 0 && addedRelationships === 0) {
+      clauses.push(
+        `la comprensión se mantuvo en ${understandingAfter}% porque reforzamos lo que ya sabíamos`,
+      );
+    } else {
+      clauses.push(
+        `la comprensión general se mantuvo en ${understandingAfter}% — esto amplía el detalle sin cambiar aún el puntaje global`,
+      );
+    }
   }
 
   if (addedEntities > 0 || reinforcedEntities > 0) {

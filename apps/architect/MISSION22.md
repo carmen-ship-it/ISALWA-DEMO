@@ -1,23 +1,27 @@
-# Mission 22 — Meeting Transcription → Evidence (Phase 3 · Magical)
+# Mission 22 — Meeting Transcription → Evidence + Teach Architect
 
-**Status:** Complete (first sequenced pass — see "Deliberately out of scope").
+**Status:** Complete (two sequenced passes — meeting transcription + Teach Architect living-knowledge UX).
 **App:** `apps/architect`
-**Scope:** Make a meeting/transcript first-class evidence like a document — same
-intake → knowledge → consulting cycle path, evidence that actually surfaces in
-retrieval/twin, and an honest client-facing debrief when it lands. Paste/upload
-transcript first; live audio capture stays out of scope.
+**Scope:**
+1. **Meeting transcription → evidence** — make a meeting/transcript first-class
+   evidence like a document (paste first; live audio out of scope).
+2. **Teach Architect** — reframe upload as teaching: Learning Summary with
+   certainty / next-step notes, Teach labels, honest pre-upload expectations
+   from filename classification only.
 **Plan:** `Product Polish Roadmap (Missions 19–24)`, Phase 3 ("Magical").
 **Gate honored:** `docs/PRODUCT_CONSTITUTION.md`, `docs/ENGINEERING_GUIDELINES.md`,
 `docs/RELEASE_CHECKLIST.md`, `docs/architecture/AI_CONSTITUTION.md`.
 **Follows:** Mission 19 (`35cd964`, premium empty states/motion), Mission 20
 (`7724f85`, guided client journey), Mission 21 (`9b2f92d`, living document
-ingestion — the "what changed" batch debrief this mission reuses verbatim).
+ingestion — the "what changed" batch debrief this mission extends).
 **Extends (unchanged):** `types/workspace.ts` `Meeting`/`MeetingRepository`,
 `lib/intake/sources.ts` (`meeting_transcript` was already a "designed" source),
 `lib/intake/extractors.ts` (`makeTextExtractor` already ran the twelve
 detectors on transcript text), `lib/intake/pipeline.ts` (`ingestSource` already
 merged transcripts into the knowledge graph), `components/workspace/
 preparation-brief-panel.tsx` (already renders `workspace.meetings`).
+**Engines frozen for Teach pass:** Discovery, Capability Twin, Readiness scoring,
+Consulting Intelligence cycle, AI Provider, Retrieval — composition/UI only.
 
 ## Product Principle
 
@@ -303,3 +307,52 @@ unless already present") and this pass's scoping discipline:
   same rendering, just also exported), and the two small correctness fixes
   (evidence-kind tagging, retrieval chunk labels) that apply to all sources,
   not only transcripts, but change no visible behavior for them.
+
+---
+
+## Teach Architect pass (Living Knowledge)
+
+**Shipped after** meeting-transcription (`3d024c8`). Interrupted mid-edit as
+`stash@{0}: wip teach-architect-interrupted`, then finished on top of Mission 24/25
+without restoring that stash blindly (it was incomplete and would have regressed
+Mission 25 OS i18n keys).
+
+### What this pass changes
+
+Uploading must feel like **teaching Architect**, not filing documents.
+
+1. **Teach framing (i18n)** — Business Knowledge, knowledge upload, missing-
+   information panel, discovery completion CTA, and daily-brief since-last-visit
+   kicker use Teach / Enseñar language (EN + ES). Existing `teachCta` from
+   Company Brain / pre-pilot pass kept.
+2. **Before upload** — each queued file shows an honest expectation from
+   `classifyKnowledgeUpload` + `coverageAreaLabel` only (no content read, no
+   invented predictions).
+3. **Learning Summary** — extends Mission 21 `buildDocumentChangeSummary`:
+   - explains when Business Understanding % did not move but structured deltas
+     still landed;
+   - `certaintyNote` from readable/weak counts + existing asset classification
+     confidence;
+   - optional `nextStepNote` pass-through of
+     `assessMissingInformation(...).opportunities[0]?.headline`.
+4. **Card chrome** — `DocumentChangeSummaryCard` surfaces certainty / next-step
+   kickers (`knowledgeUpload.certaintyKicker` / `nextStepKicker`).
+5. **Company Brain** — light “taught Architect today” highlight when the today
+   timeline group has real events (count only; no invented activity).
+
+### Engines untouched
+
+No Discovery / Readiness / Capability Twin / Consulting Intelligence / AI /
+Retrieval rewrites. Timeline events continue to come from the existing pipeline;
+this pass does not invent events.
+
+### Definition of Done — Teach pass
+
+- [x] Client-facing upload copy says Teach Architect / Enseñar a Architect
+  (not Upload Document) on primary surfaces.
+- [x] Pre-upload hopes-to-learn line from classification only.
+- [x] Learning Summary answers what changed, why % may be flat, how certain,
+  and what's next (when Missing Information has a real headline).
+- [x] Company Brain highlights real today-learning count when present.
+- [x] Typecheck/lint clean; Mission 25 OS keys preserved.
+- [x] Interrupted stash dropped after shipping (superseded by this commit).

@@ -35,7 +35,7 @@ Center generates and exports eight company documents). See
 | 20 (Part 2) | `faba62d` | Executive Daily Brief — replaces generic dashboard hero with a senior-consultant-style brief. |
 | 21 (Pass 1) | `9b2f92d` | Living document ingestion — batch "what changed" debrief after uploads. |
 | 21 (Pass 2) | `2432c8b` | Company Brain — client-facing "what does Architect know about my company" surface. |
-| 22 | `3d024c8` | Meeting transcription → evidence — transcripts are first-class evidence via the same intake path as documents. |
+| 22 | `3d024c8` + Teach pass (see `MISSION22.md`) | Meeting transcription → evidence, then Teach Architect Living Knowledge (Learning Summary certainty/next-step, Teach labels, pre-upload expectations). |
 | 23 | `2dcd102` | Real integrations — Google Drive **live** (OAuth + list + import); SharePoint/QuickBooks/HubSpot scaffolded honestly. |
 | 25 | `c3923b4` | Product Constitution & Security Foundation — the six permanent governance docs under `docs/` (documentation only). |
 | 25 (OS hub) | `2aa8853` | Company Operating System hub — client tab framing Conversation → Knowledge → Brain → OS; composes Mission 26 living deliverables (no second catalog); CTAs deep-link into Documentos. See [`MISSION25.md`](../../MISSION25.md). |
@@ -61,13 +61,9 @@ every mission composed an existing one.
 
 ## Known WIP (uncommitted, on top of the commits above)
 
-- **"Teach Architect" learning-summary extension (Mission 22 follow-up) — uncommitted, stashed.**
-  An in-progress extension of `lib/documents/change-summary.ts` (adds `certaintyNote` /
-  `nextStepNote` fields and copy) plus matching `lib/i18n/messages/{en,es}.ts` copy changes
-  ("Teach Architect" framing across Business Knowledge, missing-information, and daily-brief
-  copy). Interrupted mid-edit; stashed separately as `wip teach-architect-interrupted` (not part
-  of Mission 24, not committed) — pop that stash to resume. The shipped `teachCta: "Teach
-  Architect"` CTA label itself (Mission 21) is unaffected and needs no action.
+- *(none for Teach Architect)* — Mission 22 Teach Architect / Learning Summary
+  extension shipped; the interrupted `wip teach-architect-interrupted` stash was
+  finished carefully (not restore-blind) and dropped.
 
 ## Pilot / production facts
 
@@ -104,9 +100,9 @@ against what's shipped since:
 
 ## Roadmap (near-term)
 
-1. **Resume the "Teach Architect" learning-summary extension** (see Known WIP above) once pilot
-   priorities allow — pop `wip teach-architect-interrupted` and finish it as its own mission; do
-   not mix it into Mission 24's scope after the fact.
+1. **Close residual pilot ops** (password rotation, Vercel commit match) — see
+   `PILOT_READINESS_CHECKLIST.md`. Teach Architect Learning Summary is shipped;
+   browser-confirm a real PDF upload wow before demo.
 2. Close the retrieval/vectors gaps above if a mission's evidence-quality bar requires it.
 
 ## How to update this file

@@ -52,6 +52,8 @@ export function CompanyBrainPanel({
   onUploadDocuments: () => void;
 }) {
   const { t } = useTranslations();
+  const todayCount =
+    recentLearning.find((group) => group.id === "today")?.events.length ?? 0;
 
   return (
     <div className="space-y-8">
@@ -68,6 +70,13 @@ export function CompanyBrainPanel({
             <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--isalwa-slate)]">
               {t("companyBrain.intro.description")}
             </p>
+            {todayCount > 0 ? (
+              <p className="mt-3 text-sm font-medium text-[var(--isalwa-kiln)]">
+                {todayCount === 1
+                  ? t("companyBrain.recent.highlightOne")
+                  : t("companyBrain.recent.highlightMany", { count: todayCount })}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

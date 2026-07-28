@@ -107,12 +107,10 @@ later."
 
 - **Scaffolded connectors as if they work** — SharePoint/Microsoft 365, QuickBooks, HubSpot (see
   §4). Only Google Drive is live; only demo Drive if that's the one confirmed configured.
-- **The interrupted "Teach Architect" learning-summary extension.** Uncommitted, incomplete work
-  (a fuller `certaintyNote`/`nextStepNote` extension to the document change-summary, plus matching
-  copy) is intentionally **not** part of this push — it's stashed (`wip
-  teach-architect-interrupted`) rather than shipped half-finished. The shipped `teachCta: "Teach
-  Architect"` button label (Mission 21) is fine to show; do not attempt to demo a "certainty" or
-  "next step" note on the upload summary card — that copy does not exist on `main` yet.
+- **The interrupted "Teach Architect" learning-summary extension.** *(Shipped —
+  Mission 22 Teach pass.)* Learning Summary now includes certainty / next-step
+  notes from real pipeline + Missing Information headlines. Still confirm the
+  PDF upload wow in a real browser before demo (§5 / pre-pilot list).
 - **The Mission 24 overnight cron as a live, in-demo moment** unless you've deliberately configured
   `CRON_SECRET` + `SUPABASE_SERVICE_ROLE_KEY` beforehand and confirmed a fresh digest exists (§1,
   §3). Framing it as "watch it happen right now" without that setup will produce nothing to show.

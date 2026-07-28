@@ -99,4 +99,8 @@ export { uploadAndQueueDocument } from "./upload";
 export type { UploadedByInfo, DocumentUploadResult } from "./upload";
 
 export { buildDocumentChangeSummary } from "./change-summary";
-export type { DocumentChangeSummary, WeakExtractionDocument } from "./change-summary";
+export type {
+  BuildDocumentChangeSummaryOptions,
+  DocumentChangeSummary,
+  WeakExtractionDocument,
+} from "./change-summary";

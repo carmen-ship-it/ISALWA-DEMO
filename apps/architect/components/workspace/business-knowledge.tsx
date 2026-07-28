@@ -131,7 +131,9 @@ export function BusinessKnowledge({
       if (run) {
         onUpdated(run.workspace);
         if (run.report) handleReport(run.report);
-        setTranscriptSummary(buildDocumentChangeSummary([run]));
+        const nextStepNote =
+          assessMissingInformation(run.workspace).opportunities[0]?.headline ?? null;
+        setTranscriptSummary(buildDocumentChangeSummary([run], { nextStepNote }));
         setMeetingTitle("");
         setMeetingParticipants("");
         setTranscriptText("");
