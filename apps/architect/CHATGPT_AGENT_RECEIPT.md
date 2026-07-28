@@ -1,13 +1,11 @@
-## ★ Last session addendum — Mission 27 (Living OS)
+## ★ Last session addendum — Missions 27–30 (Living OS arc)
 
-**Commit:** `553b74a`
-
-**Ship:** Living Company Operating System on top of Mission 26’s eight generators.
-
-- **Name:** Sistema Operativo de la Empresa (not “Build My Company”, not a document library).
-- **Constitution:** Deliverables are outputs; the OS is the product (`docs/ai/02` rule 9).
-- **UX:** promise + Conversation→…→Business Results; progress bars; capability categories; alive cards with Business Impact; **Construir / Exportar / Enseñar**.
-- **Next (when asked):** M28 Executive ZIP · M29 Improve · M30 proactive Update Available.
+| Mission | Commit | Ship |
+| --- | --- | --- |
+| 27 | `553b74a` | Living Company OS — Build/Export, Business Impact, constitution rule 9 |
+| 28 | `36c1bb4` | Executive Package ZIP |
+| 29 | `6364bd7` | Mejorar este documento → scoped Teach |
+| 30 | `2fd139d` | Proactive Update Available notices |
 
 ---
 
