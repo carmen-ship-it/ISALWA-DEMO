@@ -10,6 +10,7 @@ import { DiscoveryScoreCard } from "@/components/discovery/discovery-score-card"
 import { LivingWhiteboard } from "@/components/discovery/living-whiteboard";
 import { OpportunityList } from "@/components/discovery/opportunity-list";
 import { AnsweringPanel } from "@/components/discovery/guided/answering-panel";
+import { ContinuationHero } from "@/components/discovery/guided/continuation-hero";
 import { FinishPanel } from "@/components/discovery/guided/finish-panel";
 import { ReviewPanel } from "@/components/discovery/guided/review-panel";
 import { StageBrief } from "@/components/discovery/guided/stage-brief";
@@ -26,7 +27,12 @@ import {
   emptyConsultingIntelligence,
   emptyConsultingWhiteboardFields,
 } from "@/lib/consulting";
-import { assessMemoryReadiness, pickTopicReadiness } from "@/lib/readiness";
+import {
+  assessMemoryReadiness,
+  assessMissingInformation,
+  pickTopicReadiness,
+} from "@/lib/readiness";
+import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
 import { buildRetrievalPackSync, buildRetrievalQuery } from "@/lib/ai/retrieval";
 import { buildAdaptiveFollowUp } from "@/lib/discovery/adaptive-followup";
 import { createEmptyMemory } from "@/lib/reasoning";
@@ -164,6 +170,22 @@ export function GuidedAssessment() {
   const readiness = useMemo(
     () => (interview ? assessMemoryReadiness(interview.memory) : null),
     [interview],
+  );
+
+  /**
+   * P0 — Continuous Discovery Continuation Hero. Reuses the exact Capability
+   * Digital Twin + Missing Information Engine reports the Dashboard already
+   * computes from this same workspace (see `WorkspaceView`) — no new
+   * scoring, just the same two evidence-derived reports composed into the
+   * "Qué sabemos" / "Qué seguimos aprendiendo" triad below.
+   */
+  const capabilityTwin = useMemo(
+    () => (workspace ? assessCapabilityDigitalTwin(workspace) : null),
+    [workspace],
+  );
+  const missingInformation = useMemo(
+    () => (workspace ? assessMissingInformation(workspace) : null),
+    [workspace],
   );
 
   /**
@@ -512,7 +534,7 @@ export function GuidedAssessment() {
       <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-6">
         <Card className="px-7 py-8" role="alert">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-tint-red-ink)]">
-            No se pudo abrir la evaluación
+            No se pudo abrir el descubrimiento
           </p>
           <p className="mt-3 text-base leading-relaxed text-[var(--isalwa-kiln)]">
             Sus respuestas guardadas siguen intactas — no se inició una sesión
@@ -547,6 +569,46 @@ export function GuidedAssessment() {
   const completion = computeStageCompletion(interview);
   const topics = buildAnsweredTopics(interview);
   const topicsByStage = groupTopicsByStage(topics);
+
+  /**
+   * P0 — same "has prior discovery" signal the boot effect already used to
+   * pick `mode: "continue"` (`ws.meetings.length > 0 ||
+   * conversationMemory.knownFacts.length > 0`) — reused here, never
+   * recomputed, to decide whether the confirmation question that opens
+   * continue mode should render as the Continuation Hero instead of a plain
+   * question card.
+   */
+  const hasPriorDiscovery =
+    workspace.meetings.length > 0 ||
+    (workspace.conversationMemory?.knownFacts.length ?? 0) > 0;
+  const isContinuationGate =
+    !isComplete &&
+    viewMode === "answering" &&
+    interview.phase === "welcome" &&
+    interview.conversation.currentQuestion?.questionKey === "ready" &&
+    hasPriorDiscovery;
+
+  const knownAreaLabels = capabilityTwin
+    ? capabilityTwin.capabilities.filter((c) => c.hasEvidence).map((c) => c.label)
+    : [];
+  const whatWeKnow = capabilityTwin
+    ? knownAreaLabels.length > 0
+      ? `${capabilityTwin.headline} Ya tenemos evidencia real sobre: ${knownAreaLabels.join(", ")}.`
+      : capabilityTwin.headline
+    : "Todavía no hay evidencia suficiente para calificar ninguna capacidad.";
+
+  const learningAreaLabels = missingInformation
+    ? Array.from(new Set(missingInformation.opportunities.map((o) => o.topicLabel))).slice(0, 4)
+    : [];
+  const tryingToLearn = missingInformation
+    ? learningAreaLabels.length > 0
+      ? `${missingInformation.headline} Seguimos profundizando en: ${learningAreaLabels.join(", ")}.`
+      : missingInformation.headline
+    : "Todavía no hay suficiente evidencia para comparar áreas del negocio.";
+
+  const whyItMatters =
+    missingInformation?.opportunities[0]?.rationale ??
+    "Mientras más sepamos de su negocio, más preciso será el plan que construyamos juntos — cada respuesta, documento o reunión nueva lo hace más confiable.";
 
   function handleSelectStage(stageId: GuidedStageId) {
     if (!interview || isComplete) return;
@@ -592,7 +654,7 @@ export function GuidedAssessment() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--isalwa-slate)]/80">
-            Evaluación guiada · {workspace.companyName}
+            Descubrimiento continuo · {workspace.companyName}
           </p>
         </div>
         <ArchitectNav
@@ -668,6 +730,18 @@ export function GuidedAssessment() {
                 onCancelEdit={handleCancelEdit}
                 onUpdateIdentity={handleUpdateIdentity}
                 onBackToQuestion={() => setViewMode("answering")}
+              />
+            ) : isContinuationGate ? (
+              <ContinuationHero
+                companyName={workspace.companyName}
+                understanding={interview.memory.score.overall}
+                estimatedMinutes={interview.estimatedMinutesRemaining}
+                whatWeKnow={whatWeKnow}
+                tryingToLearn={tryingToLearn}
+                whyItMatters={whyItMatters}
+                onContinue={() => void respond("yes")}
+                onNotNow={() => void respond("later")}
+                continuing={thinking || isPending}
               />
             ) : (
               <>

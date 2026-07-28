@@ -29,7 +29,7 @@ export function StageStepper({
     <div>
       <ol
         className="flex snap-x gap-2 overflow-x-auto pb-1"
-        aria-label="Etapas de la evaluación guiada"
+        aria-label="Etapas del descubrimiento guiado"
       >
         {GUIDED_STAGE_ORDER.map((stageId, index) => {
           const stage = GUIDED_STAGES[stageId];

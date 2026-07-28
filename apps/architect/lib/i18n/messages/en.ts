@@ -9,9 +9,9 @@ export const en: MessageTree = {
   common: {
     loading: "Loading…",
     loadingReport: "Loading report…",
-    continueEvaluation: "Continue assessment",
-    continueEvaluatingAlt: "Keep assessing",
-    continueDiagnosis: "Continue the assessment",
+    continueEvaluation: "Continue discovery",
+    continueEvaluatingAlt: "Keep discovering",
+    continueDiagnosis: "Continue the discovery",
     prepareNextMeeting: "Prepare the next meeting",
     viewReport: "View report",
     viewDocuments: "View documents",
@@ -38,7 +38,7 @@ export const en: MessageTree = {
   },
   workspaceTabs: {
     executive: "Summary",
-    assessment: "Assessment",
+    assessment: "Discovery",
     blueprint: "Business plan",
     blueprintClient: "How your business works",
     company: "Your business",
@@ -64,7 +64,7 @@ export const en: MessageTree = {
     reviewTodayRecommendations: "Review today's recommendations",
     focusHintQuestion: "Today it's worth focusing on: {question}.",
     focusHintMeeting: "Today it's worth: {meeting}.",
-    focusHintDefault: "Today you can review what we've learned or continue the assessment.",
+    focusHintDefault: "Today you can review what we've learned or continue discovering.",
     chips: {
       meetingsOne: "{count} meeting",
       meetingsMany: "{count} meetings",
@@ -97,7 +97,7 @@ export const en: MessageTree = {
       todayCtaTitle: "What should I do today?",
       todayCtaDescriptionReady: "We already know enough to suggest what to build first.",
       todayCtaDescriptionContinue:
-        "Continue the assessment to raise business understanding, or review what we've already found.",
+        "Continue the discovery conversation to raise business understanding, or review what we've already found.",
       progressLabel: "Your progress",
       stillMissingKicker: "What's still missing",
       openQuestionsTitle: "Open questions",
@@ -109,9 +109,9 @@ export const en: MessageTree = {
     },
     assessment: {
       helpAnswerTitle: "Help me answer questions",
-      helpAnswerDescription1: "Continue where we left off — every answer strengthens the assessment.",
-      helpAnswerDescription2: "Answer what's missing to strengthen the assessment.",
-      kicker: "Assessment",
+      helpAnswerDescription1: "Continue where we left off — every answer strengthens what we know.",
+      helpAnswerDescription2: "Answer what's missing to strengthen what we know.",
+      kicker: "Discovery",
       progressTitle: "Work progress",
       progressDescription: "How far we've gotten and what evidence backs it up.",
       evolutionKicker: "Evolution",
@@ -119,18 +119,18 @@ export const en: MessageTree = {
       evolutionDescription: "Every visit adds memory. We never erase the past.",
       brandKicker: "Brand & experience",
       brandTitle: "How the company should feel",
-      brandDescription: "Identity and tone inferred from the assessment — read-only.",
+      brandDescription: "Identity and tone inferred from discovery — read-only.",
       whiteLabelKicker: "White label",
       whiteLabelTitle: "Customize for this client",
       whiteLabelDescription:
         "Adjust logo, colors, terminology, and welcome message — applied immediately in the workspace and the report.",
       consultantFallback: "Consultant",
       knownTitle: "What we already know",
-      knownDescription: "Company information we already use in the assessment.",
+      knownDescription: "Company information we already use in discovery.",
       recentActivityKicker: "Recent activity",
       recentActivityTitle: "Latest progress",
       recentActivityDescription: "The most recent thing on record.",
-      noRecentActivity: "No recent activity yet. Continue the assessment to get started.",
+      noRecentActivity: "No recent activity yet. Continue discovering to get started.",
     },
     blueprint: {
       title: "How the company should operate",
@@ -141,7 +141,7 @@ export const en: MessageTree = {
     company: {
       title: "What do you know about my company?",
       description1: "This is what we already know, built from real evidence — not assumptions.",
-      description2: "If structure is missing, continue the assessment.",
+      description2: "If structure is missing, continue discovering.",
       kicker: "Your business",
       mapTitle: "Live map of the organization",
       mapDescription: "Departments, relationships, information, and critical points — in plain language.",
@@ -149,7 +149,7 @@ export const en: MessageTree = {
     knowledge: {
       title: "Help us understand your business faster",
       description: "The more information you give us, the fewer questions we need to ask.",
-      ctaDescription: "What you upload here also feeds the assessment.",
+      ctaDescription: "What you upload here also feeds discovery.",
     },
     insights: {
       kicker: "Executive insights",
@@ -165,7 +165,7 @@ export const en: MessageTree = {
       kicker: "How it operates",
       title: "How work moves today",
       description: "This shows how work flows through your company.",
-      ctaDescription: "If a key process is missing, continue the assessment.",
+      ctaDescription: "If a key process is missing, continue discovering.",
     },
     recommendations: {
       title: "What should I implement?",
@@ -174,19 +174,19 @@ export const en: MessageTree = {
       kicker: "Recommendations",
       subtitle: "What we recommend doing",
       subdescription: "Every recommendation comes from real problems we saw — not generic lists.",
-      noModules: "No recommended software modules yet. Continue the assessment.",
+      noModules: "No recommended software modules yet. Continue discovering.",
       moreTitle: "More recommendations",
       noDetailed: "No detailed recommendations yet.",
     },
     simulator: {
       kicker: "Executive simulator",
       description: "Explore decisions before making them — without touching your company's real data.",
-      ctaDescription: "Use this to prepare the decision conversation — it doesn't replace the assessment.",
+      ctaDescription: "Use this to prepare the decision conversation — it doesn't replace discovery.",
     },
     deliverables: {
       title: "Decision-ready package",
       description: "Documents ready for leadership — to decide, not to build from.",
-      ctaDescription: "If information is missing, go back to the assessment.",
+      ctaDescription: "If information is missing, go back to discovery.",
     },
   },
   reasoningCards: {
@@ -229,7 +229,7 @@ export const en: MessageTree = {
     confidenceTitle: "Confidence level",
     whatIsMissing: "What is still missing",
     businessSnapshot: "Business snapshot",
-    consultingAssessment: "Consulting assessment",
+    consultingAssessment: "Consulting understanding",
     maturityPrefix: "Maturity — ",
     businessHealthPrefix: "Business health — ",
     storyBusinessImpactIntro: "How that friction shows up in the business's maturity and health.",
@@ -773,7 +773,7 @@ export const en: MessageTree = {
       operatingMaturity: "Operating maturity",
       evidenceQuality: "Evidence quality",
       departmentHealthTitle: "Health by department",
-      departmentHealthHint: "How solid each area's operation looks, based on the maturity and problems detected during the assessment.",
+      departmentHealthHint: "How solid each area's operation looks, based on the maturity and problems detected during discovery.",
       byAreaTitle: "What we understand about each area",
       byAreaHint: "Where we can already recommend with confidence, and where we're still learning.",
       healthGaugesTitle: "Health indicators",
@@ -831,7 +831,7 @@ export const en: MessageTree = {
   executiveInsightsPanel: {
     earlyStageTitle: "Executive insights appear with the first evidence.",
     earlyStageDescription:
-      "Continue the assessment or upload business knowledge — as soon as there are facts and findings, this area fills with backed observations, never generic filler.",
+      "Continue discovering or upload business knowledge — as soon as there are facts and findings, this area fills with backed observations, never generic filler.",
     dna: {
       kicker: "Business DNA",
       title: "How this company behaves",
@@ -1046,6 +1046,14 @@ export const en: MessageTree = {
     etaLabel: "about {minutes} minutes",
     emptyState: "Discovery hasn't started yet — this fills in with the first conversation.",
     continueLinkTitle: "Continue the guided interview, focused on {capability}",
+    stillLearningTitle: "We can still learn more about {company}.",
+    stillLearningEta: "About {minutes} more minutes of conversation would close what's left.",
+    stillLearningNoEta: "Every new answer, document, or meeting completes the diagnosis a little more.",
+    continueCta: "Continue discovery",
+    keepsLearningNote: "Architect will keep learning with every new document, answer, or meeting — the diagnosis stays alive, never closed.",
+    updateKnowledgeCta: "Update knowledge",
+    uploadDocumentsCta: "Upload documents",
+    logMeetingCta: "Log a meeting",
   },
   contextBar: {
     stageLabel: "Stage",
@@ -1068,5 +1076,6 @@ export const en: MessageTree = {
     estimatedTime: "Estimated time: {minutes} minutes",
     whatToDoToday: "What should I do today?",
     viewExecutiveSummary: "View executive summary",
+    tagline: "Architect becomes more intelligent every time your company shares knowledge.",
   },
 };

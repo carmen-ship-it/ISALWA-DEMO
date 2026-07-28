@@ -517,7 +517,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           anything else on the page. Mission 20 — each open capability is now
           a click-through straight into the guided interview, focused.
         */}
-        <DiscoveryCompletionCard status={discoveryCompletion} workspaceId={workspace.id} />
+        <DiscoveryCompletionCard
+          status={discoveryCompletion}
+          workspaceId={workspace.id}
+          companyName={workspace.companyName}
+          onUploadDocuments={() => setTab("knowledge")}
+          onLogMeeting={() => setTab("knowledge")}
+        />
 
         {/* 2–8 · the consulting briefing body. */}
         <div id="cabina-ejecutiva" className="scroll-mt-32">

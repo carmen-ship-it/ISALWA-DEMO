@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Check, Clock3, PartyPopper, ShieldQuestion } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { capabilityDimensions } from "@/lib/discovery-agent/capabilities";
 import { dimensionToStage } from "@/lib/discovery/stages";
@@ -128,16 +129,27 @@ function CapabilityRow({
 export function DiscoveryCompletionCard({
   status,
   workspaceId,
+  companyName,
+  onUploadDocuments,
+  onLogMeeting,
   className,
 }: {
   status: DiscoveryCompletionStatus;
   /** Mission 20 — when set, missing capabilities become click-throughs into the guided interview. */
   workspaceId?: string;
+  /** P0 — personalizes the "still learning" headline when incomplete. */
+  companyName?: string;
+  /** P0 — Discovery Complete ceremony action: jump to the Knowledge tab to add a document. */
+  onUploadDocuments?: () => void;
+  /** P0 — Discovery Complete ceremony action: jump to the Knowledge tab to log a new meeting. */
+  onLogMeeting?: () => void;
   className?: string;
 }) {
   const { t } = useTranslations();
   const style = STATE_STYLES[status.state];
   const Icon = status.state === "complete" ? PartyPopper : Clock3;
+  /** Same route the rest of the app already uses to resume discovery — never a new surface. */
+  const continueHref = workspaceId ? `/discovery?workspaceId=${workspaceId}` : null;
 
   return (
     <Card className={cn("border px-6 py-6 shadow-none", style.surface, className)}>
@@ -161,6 +173,34 @@ export function DiscoveryCompletionCard({
       <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {status.message}
       </p>
+
+      {/*
+        P0 Pilot UX — the honest verdict above already says the diagnosis is
+        in progress; this adds the one obvious, personalized invitation to
+        keep going, right where the client already looks first. Never hides
+        Discovery, never replaces the engine's own copy — only adds the CTA.
+      */}
+      {status.state === "incomplete" && continueHref ? (
+        <div className="mt-4 rounded-2xl bg-white/70 px-4 py-3.5 ring-1 ring-[var(--isalwa-mist)]/80">
+          <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+            {t("discoveryCompletion.stillLearningTitle", {
+              company: companyName ?? "su empresa",
+            })}
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--isalwa-slate)]/80">
+            {status.estimatedMinutesRemaining
+              ? t("discoveryCompletion.stillLearningEta", {
+                  minutes: status.estimatedMinutesRemaining,
+                })
+              : t("discoveryCompletion.stillLearningNoEta")}
+          </p>
+          <div className="mt-3">
+            <Button asChild size="sm">
+              <Link href={continueHref}>{t("discoveryCompletion.continueCta")}</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {status.checklist.length > 0 ? (
         <div className="mt-5">
@@ -211,6 +251,36 @@ export function DiscoveryCompletionCard({
       <p className="mt-5 border-t border-[var(--isalwa-mist)]/60 pt-4 text-xs leading-relaxed text-[var(--isalwa-slate)]/75">
         {status.continuityNote}
       </p>
+
+      {/*
+        P0 Pilot UX — "Complete" is a milestone, never a reason to hide
+        Discovery. Same three existing surfaces (guided interview, Knowledge
+        tab) every other CTA in the app already routes to — no new screens.
+      */}
+      {status.state === "complete" && (continueHref || onUploadDocuments || onLogMeeting) ? (
+        <div className="mt-4">
+          <p className="text-xs leading-relaxed text-[var(--isalwa-slate)]/75">
+            {t("discoveryCompletion.keepsLearningNote")}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2.5">
+            {continueHref ? (
+              <Button asChild size="sm" variant="secondary">
+                <Link href={continueHref}>{t("discoveryCompletion.updateKnowledgeCta")}</Link>
+              </Button>
+            ) : null}
+            {onUploadDocuments ? (
+              <Button type="button" size="sm" variant="ghost" onClick={onUploadDocuments}>
+                {t("discoveryCompletion.uploadDocumentsCta")}
+              </Button>
+            ) : null}
+            {onLogMeeting ? (
+              <Button type="button" size="sm" variant="ghost" onClick={onLogMeeting}>
+                {t("discoveryCompletion.logMeetingCta")}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </Card>
   );
 }

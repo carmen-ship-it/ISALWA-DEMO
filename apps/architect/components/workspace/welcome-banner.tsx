@@ -103,6 +103,15 @@ export function WelcomeBanner({
           {t("welcomeBanner.viewExecutiveSummary")}
         </Button>
       </div>
+      {/*
+        P0 Pilot UX — reinforces that Discovery is continuous, not a
+        one-time form: the same tagline this Dashboard, the guided
+        interview's Continuation Hero, and the Discovery Complete ceremony
+        now all repeat in the client's own words.
+      */}
+      <p className="mt-5 text-xs leading-relaxed text-[var(--isalwa-slate)]/70">
+        {t("welcomeBanner.tagline")}
+      </p>
     </SectionShell>
   );
 }
