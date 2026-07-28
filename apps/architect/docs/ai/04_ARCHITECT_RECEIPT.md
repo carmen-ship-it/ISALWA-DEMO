@@ -50,7 +50,8 @@ outputs; the OS is the product. Residual human/ops work unchanged (Vercel hash, 
 | 26 | `fc0007c` | Living Company Deliverables — Deliverables Center upgraded to generate + version 8 documents (Business Blueprint, Company Playbook, Employee Handbook, SOP Library, Job Description Library, Training Academy, AI Playbook, Improvement Roadmap) from existing engines only, with Update Available badges and real PDF/DOCX export (`pdf-lib` + `docx`, two new deps, Node-only, kept out of the client bundle). See [`MISSION26.md`](../../MISSION26.md). |
 | 27 | `553b74a` | Living Company Operating System — reframes the eight outputs as Sistema Operativo (categories, Ready to Build / Build / Export, Business Impact, progress strip, pipeline → Business Results); constitution rule 9. See [`MISSION27.md`](../../MISSION27.md). |
 | 28 | `36c1bb4` | Executive Deliverables Package — ZIP of already-built living OS outputs + honest README for gaps. See [`MISSION28.md`](../../MISSION28.md). |
-| 29 | *(this commit)* | Improve This Document — Mejorar CTA → Teach scoped to missingInformation. See [`MISSION29.md`](../../MISSION29.md). |
+| 29 | `6364bd7` | Improve This Document — Mejorar CTA → Teach scoped to missingInformation. See [`MISSION29.md`](../../MISSION29.md). |
+| 30 | *(this commit)* | Living Versioning notices — proactive Update Available banners (OS + Knowledge); owner still chooses Build New Version. See [`MISSION30.md`](../../MISSION30.md). |
 | Pre-pilot UX | `e8b599d` | Orientation panel + stuck-prevention UX (5s orientation, Teach labels, hide scaffolded connectors, Spanish error pages). |
 | Pilot checklist | `68a9bbe` | [`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) — human/ops demo checklist. |
 | AI context | `47cdcc9` | Permanent `docs/ai/01–05` agent on-ramp. |
