@@ -790,14 +790,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       />
     ),
 
-    // Mission 25 product pass — Company Operating System hub. Frames
-    // Conversation → Knowledge → Brain → OS and routes generate/preview
-    // CTAs into Documentos / Living Deliverables (Mission 26) — no second catalog.
+    // Mission 25 + 27 — Company Operating System (full Build surface).
+    // Same living center as Documentos; OS is the product, PDFs are outputs.
     operatingSystem: (
       <CompanyOperatingSystemPanel
         workspace={workspace}
-        onOpenDeliverables={() => setTab("deliverables")}
-        onFocusDeliverable={(kind) => setFocusDeliverableKind(kind)}
+        onUpdated={(next) => setWorkspace(next)}
+        onTeach={() => setTab("knowledge")}
+        focusKind={focusDeliverableKind}
+        onFocusConsumed={() => setFocusDeliverableKind(null)}
       />
     ),
 
@@ -1211,6 +1212,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             onUpdated={(next) => setWorkspace(next)}
             focusKind={focusDeliverableKind}
             onFocusConsumed={() => setFocusDeliverableKind(null)}
+            onTeach={() => setTab("knowledge")}
           />
         </SectionShell>
         <NextStepCta

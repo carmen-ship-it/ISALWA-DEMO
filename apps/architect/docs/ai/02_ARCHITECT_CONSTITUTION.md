@@ -48,10 +48,14 @@ Where any of these overlap, they must agree.
    becomes a second source of truth, and nothing built for Client Mode duplicates a
    Consultant-Mode-only engine (or vice versa) — they read the same evidence through a visibility
    gate (`lib/consulting-intelligence/visibility.ts`), never a fork.
-9. **No duplicated primitives.** Search first: does a component like this already exist in
-   `components/ui/`, `components/workspace/`, `components/workspace/executive/`, or
-   `components/discovery/guided/`? If yes, reuse or extend it.
-10. **Client/Consultant Mode is a hard boundary of intent.** A client (`role: "client"`) never sees
+9. **Deliverables are outputs. The Company Operating System is the product.** Never optimize
+   around creating documents. Always optimize around improving how the company operates. Every
+   PDF, DOCX, knowledge base, training course, AI assistant, or dashboard is simply another
+   representation of the same Company Brain. (Mission 27.)
+10. **No duplicated primitives.** Search first: does a component like this already exist in
+    `components/ui/`, `components/workspace/`, `components/workspace/executive/`, or
+    `components/discovery/guided/`? If yes, reuse or extend it.
+11. **Client/Consultant Mode is a hard boundary of intent.** A client (`role: "client"`) never sees
     internal consultant reasoning, raw engine ids, or the `assessment`/`architecture`/`processes`
     tabs — enforced server-side, never trusted from the client. See
     `docs/SECURITY_POSTURE.md`.

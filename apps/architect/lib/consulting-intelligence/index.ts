@@ -21,8 +21,9 @@
  *                        one client-facing "what does Architect know" report
  *   overnight-review.ts  Mission 24 — is a scheduled review due, and running it
  *   overnight-digest.ts  Mission 24 — the client-safe "what changed overnight" sentence
- *   company-operating-system.ts  Mission 25 product pass — OS hub composed from
- *                        living deliverables + fingerprint (no second catalog)
+ *   company-operating-system.ts  Mission 25 + 27 — OS composed from living
+ *                        deliverable outputs + fingerprint (no second catalog).
+ *                        Deliverables are outputs; the OS is the product.
  *   orientation.ts       pre-pilot orientation panel (know / learning / next)
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
@@ -82,6 +83,13 @@ export {
   type OperatingSystemReport,
   type OperatingSystemModuleId,
   type OperatingSystemReadiness,
+  type OperatingSystemArtifact,
+  type OsArtifactStatus,
+  type OsCapabilityCategory,
+  type OsCapabilityCategoryId,
+  type OsBuiltFrom,
+  type OsProgressBar,
+  type OsPipelineStep,
 } from "./company-operating-system";
 
 export {

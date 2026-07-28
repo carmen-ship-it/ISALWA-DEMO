@@ -1,14 +1,11 @@
 /**
- * Mission 26 — client-facing Spanish copy for the Living Deliverables
- * Center, generated in-engine (per `docs/ai/02_ARCHITECT_CONSTITUTION.md`
- * rule 6) because every sentence here interpolates the real
- * `workspace.companyName` — it cannot live in a static `lib/i18n` dictionary
- * without drifting per company.
+ * Mission 26 + Mission 27 — client-facing Spanish copy for Operating System
+ * outputs. Generated in-engine (constitution rule 6) because every CTA
+ * interpolates `workspace.companyName`.
  *
- * UX rule (Carmen, Mission 26 refinement): the primary action always reads
- * as "build this company's own document" — never "Download PDF" as if
- * handing over a static template. Downloads only appear once a version
- * exists, offered as a secondary step after generation.
+ * Mission 27 verb shift: Build / Build New Version / Export — never
+ * "Download" as if handing over a static template. Deliverables are outputs;
+ * the Company Operating System is the product.
  */
 
 import type { LivingDeliverableKind } from "@/types";
@@ -18,14 +15,16 @@ export interface LivingDeliverableCopy {
   title: string;
   shortTitle: string;
   description: string;
-  /** Primary CTA before any version exists — "Generate {company}'s X". */
+  /** Primary CTA before any version exists — "Build {company}'s X". */
   generateLabel: string;
   generateBusyLabel: string;
   /** Primary CTA once a version exists but the brain has learned something new. */
   updateLabel: string;
-  /** Secondary CTA once a version exists and nothing changed — regenerate anyway. */
+  /** Secondary CTA once a version exists and nothing changed — rebuild anyway. */
   regenerateLabel: string;
   emptyStateNote: string;
+  exportPdfLabel: string;
+  exportWordLabel: string;
 }
 
 const TITLES: Record<LivingDeliverableKind, { kicker: string; title: string; short: string; noun: string }> = {
@@ -85,13 +84,13 @@ const DESCRIPTIONS: Record<LivingDeliverableKind, (company: string) => string> =
   company_playbook: (c) =>
     `Misión, organización, principios de decisión y normas de comunicación de ${c}, desde lo que Architect ya sabe.`,
   employee_handbook: (c) =>
-    `El manual de convivencia y operación para el equipo de ${c} — honesto donde todavía falta conocimiento.`,
+    `Salida del Sistema de Personas de ${c}: expectativas consistentes para el equipo — honesto donde todavía falta conocimiento.`,
   sop_library: (c) =>
-    `Un procedimiento operativo por cada proceso que Architect ya descubrió en ${c}.`,
+    `Salida del Sistema de Operaciones: un procedimiento por cada proceso que Architect ya descubrió en ${c}.`,
   job_description_library: (c) =>
-    `Descripciones de puesto reales, a partir de los roles y personas mapeados en ${c}.`,
+    `Roles y responsabilidades reales de ${c}, a partir de lo mapeado en el Company Brain.`,
   training_academy: (c) =>
-    `Rutas de capacitación para el equipo de ${c}, con guion de video y evaluación como hoja de ruta futura.`,
+    `Cómo el Sistema de Personas de ${c} multiplica lo que ya saben los mejores — guion de video y evaluación como hoja de ruta futura.`,
   ai_playbook: (c) =>
     `Dónde la IA puede ayudar primero en ${c}, priorizado desde las recomendaciones ya generadas.`,
   improvement_roadmap: (c) =>
@@ -108,10 +107,12 @@ export function livingDeliverableCopy(
     title: t.title,
     shortTitle: t.short,
     description: DESCRIPTIONS[kind](companyName),
-    generateLabel: `Generar ${t.noun} de ${companyName}`,
-    generateBusyLabel: `Generando ${t.short.toLowerCase()} de ${companyName}…`,
-    updateLabel: `Actualizar ${t.noun} de ${companyName}`,
-    regenerateLabel: `Regenerar ${t.short.toLowerCase()}`,
+    generateLabel: `Construir ${t.noun} de ${companyName}`,
+    generateBusyLabel: `Construyendo ${t.short.toLowerCase()} de ${companyName}…`,
+    updateLabel: `Construir nueva versión de ${t.noun} de ${companyName}`,
+    regenerateLabel: `Construir de nuevo ${t.short.toLowerCase()}`,
     emptyStateNote: `Architect todavía no ha construido ${t.noun.toLowerCase()} de ${companyName} — se compone al instante desde lo que ya sabe.`,
+    exportPdfLabel: "Exportar PDF",
+    exportWordLabel: "Exportar Word",
   };
 }

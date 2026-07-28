@@ -80,12 +80,14 @@ export function DeliverablesPanel({
   onUpdated,
   focusKind,
   onFocusConsumed,
+  onTeach,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
-  /** Mission 25 — deep-link from Operating System hub into a living deliverable card. */
+  /** Mission 25/27 — deep-link into a living OS artifact card. */
   focusKind?: LivingDeliverableKind | null;
   onFocusConsumed?: () => void;
+  onTeach?: () => void;
 }) {
   const { session } = useAuth();
   const isConsultant = session?.role === "consultant";
@@ -126,6 +128,7 @@ export function DeliverablesPanel({
           onUpdated={onUpdated}
           focusKind={focusKind}
           onFocusConsumed={onFocusConsumed}
+          onTeach={onTeach}
         />
         <ImplementationPackagePanel
           workspace={workspace}
@@ -160,6 +163,7 @@ export function DeliverablesPanel({
         onUpdated={onUpdated}
         focusKind={focusKind}
         onFocusConsumed={onFocusConsumed}
+        onTeach={onTeach}
       />
       <ImplementationPackagePanel
         workspace={workspace}
