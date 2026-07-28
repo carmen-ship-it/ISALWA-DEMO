@@ -25,6 +25,7 @@ import type {
   Evidence,
   IntakeExtractionResult,
   IntakeExtractor,
+  IntakeExtractorContext,
   IntakeSlots,
   IntakeSourceType,
   IntakeUnit,
@@ -151,7 +152,7 @@ function makeFileExtractor(id: IntakeSourceType): IntakeExtractor {
   return {
     id,
     status: "designed",
-    async extract(unit) {
+    async extract(unit, context?: IntakeExtractorContext) {
       const classified = fileLikeExtraction(unit);
       const text = unit.textContent?.trim();
 
@@ -172,7 +173,7 @@ function makeFileExtractor(id: IntakeSourceType): IntakeExtractor {
         };
       }
 
-      const scan = detectBusinessSignals(unit, text);
+      const scan = detectBusinessSignals(unit, text, context?.priorEntities);
       return {
         unitId: unit.id,
         status: "processed",
@@ -190,7 +191,7 @@ function makeTextExtractor(id: IntakeSourceType): IntakeExtractor {
   return {
     id,
     status: "designed",
-    async extract(unit) {
+    async extract(unit, context?: IntakeExtractorContext) {
       const text = unit.textContent?.trim();
       if (!text) {
         const title = metaString(unit, "title") ?? unit.label;
@@ -203,7 +204,7 @@ function makeTextExtractor(id: IntakeSourceType): IntakeExtractor {
           evidence: [],
         };
       }
-      const scan = detectBusinessSignals(unit, text);
+      const scan = detectBusinessSignals(unit, text, context?.priorEntities);
       return {
         unitId: unit.id,
         status: "processed",
@@ -271,12 +272,12 @@ function makePlannedExtractor(id: IntakeSourceType): IntakeExtractor {
 const IMAGE_EXTRACTOR: IntakeExtractor = {
   id: "image",
   status: "planned",
-  async extract(unit) {
+  async extract(unit, context?: IntakeExtractorContext) {
     const text = unit.textContent?.trim();
     if (!text) {
       return notImplementedResult(unit, PLANNED_MESSAGES_ES.image!);
     }
-    const scan = detectBusinessSignals(unit, text);
+    const scan = detectBusinessSignals(unit, text, context?.priorEntities);
     return {
       unitId: unit.id,
       status: "processed",

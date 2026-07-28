@@ -276,10 +276,23 @@ export interface IntakeExtractionResult {
   detections?: DetectionCounts;
 }
 
+/**
+ * Knowledge Memory Links — the workspace context an extractor may consult
+ * while scanning. Optional and read-only: an extractor with no context
+ * behaves exactly as before (same-sentence relationship pairing only).
+ */
+export interface IntakeExtractorContext {
+  /** Existing Knowledge Engine entities for this workspace, oldest → newest. */
+  priorEntities?: readonly KnowledgeEntity[];
+}
+
 export interface IntakeExtractor {
   id: IntakeSourceType;
   status: IntakeReadiness;
-  extract(unit: IntakeUnit): Promise<IntakeExtractionResult>;
+  extract(
+    unit: IntakeUnit,
+    context?: IntakeExtractorContext,
+  ): Promise<IntakeExtractionResult>;
 }
 
 /**

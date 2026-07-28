@@ -239,12 +239,17 @@ export async function ingestSource(
     textContent: input.textContent,
   };
 
+  const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
   const extractor = extractorFor(input.sourceType);
-  const result = await extractor.extract(unit);
+  const result = await extractor.extract(unit, {
+    // Knowledge Memory Links — lets this scan resolve "we"/bare mentions
+    // against whatever this workspace already knows, so relationships keep
+    // linking into one graph across turns instead of resetting every time.
+    priorEntities: knowledge.entities,
+  });
   const slots: IntakeSlots = normalizeSlots(result.slots);
 
   const asset = buildAssetForUnit(unit, result.status, result.messageEs);
-  const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
 
   const entityMerge = mergeIntakeEntities(
     knowledge.entities,

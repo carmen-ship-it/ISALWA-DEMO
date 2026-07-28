@@ -27,7 +27,7 @@
  */
 
 import { createId, nowIso } from "@/lib/utils";
-import type { KnowledgeEntityKind } from "@/types";
+import type { KnowledgeEntity, KnowledgeEntityKind, KnowledgeRelationKind } from "@/types";
 import type {
   DetectionCategory,
   DetectionCounts,
@@ -194,6 +194,11 @@ const CANONICAL_NAMES: Record<string, string> = {
   "cierre de mes": "Cierre de mes",
   facturacion: "Facturación",
   facturación: "Facturación",
+  factura: "Facturación",
+  facturas: "Facturación",
+  invoice: "Facturación",
+  invoicing: "Facturación",
+  billing: "Facturación",
   cobranza: "Cobranza",
   inventario: "Inventario",
   despacho: "Despacho",
@@ -253,7 +258,7 @@ const ENTITY_DETECTORS: readonly EntityDetector[] = [
     category: "processes",
     kind: "Workflow",
     pattern:
-      /proceso|procedimiento|\bflujo\b|workflow|onboarding|cierre de mes|facturaci[oó]n|cobranza|inventario|despacho|\bsop\b/i,
+      /proceso|procedimiento|\bflujo\b|workflow|onboarding|cierre de mes|facturaci[oó]n|facturas?|invoic(?:e|ing)|billing|cobranza|inventario|despacho|\bsop\b/i,
     confidence: 0.55,
   },
 ] as const;
@@ -369,6 +374,235 @@ function directedPair(
   return { from, to };
 }
 
+/**
+ * Knowledge Memory Links — the living graph. `directedPair` alone only ever
+ * connects two entities that share a sentence, so "We use QuickBooks."
+ * stays an orphan mention (there is no explicit subject — "we" is implicit).
+ * An anchor is the most recently named entity of a given kind, carried
+ * forward sentence by sentence within one scan and seeded, at the start of
+ * the scan, from every entity this workspace already knows about — so the
+ * same resolution works across turns and across separate uploads, not just
+ * within one paragraph. Related evidence keeps linking into one graph
+ * instead of resetting on every new document.
+ */
+export type EntityAnchor = { kind: KnowledgeEntityKind; name: string };
+type AnchorMap = Partial<Record<KnowledgeEntityKind, EntityAnchor>>;
+
+/** Only kinds that plausibly act as the subject *or* object of a business relationship anchor. */
+const ANCHOR_KINDS: readonly KnowledgeEntityKind[] = [
+  "Department",
+  "Person",
+  "System",
+  "Workflow",
+  "Supplier",
+];
+
+/**
+ * Seed anchors from the workspace's already-merged Knowledge Engine entities.
+ * `KnowledgeEntity[]` is append-only (see `entities.ts`), so array order is
+ * chronological — the last entity of a given kind is the one most recently
+ * discussed, whether that was three sentences ago or in last week's upload.
+ */
+function seedAnchors(priorEntities: readonly KnowledgeEntity[]): AnchorMap {
+  const anchors: AnchorMap = {};
+  for (const entity of priorEntities) {
+    if (ANCHOR_KINDS.includes(entity.kind)) {
+      anchors[entity.kind] = { kind: entity.kind, name: entity.name };
+    }
+  }
+  return anchors;
+}
+
+function updateAnchors(anchors: AnchorMap, found: readonly SentenceEntity[]): void {
+  for (const entity of found) {
+    if (ANCHOR_KINDS.includes(entity.kind)) {
+      anchors[entity.kind] = { kind: entity.kind, name: entity.name };
+    }
+  }
+}
+
+interface ResolvedPair {
+  fromName: string;
+  fromKind: KnowledgeEntityKind;
+  toName: string;
+  toKind: KnowledgeEntityKind;
+  /** True when one endpoint came from context (an earlier sentence or an earlier document) instead of this sentence — carries a lower confidence, never the same as an explicit pair. */
+  anchored: boolean;
+}
+
+/**
+ * Same directed-pair contract as `directedPair`, widened in two steps before
+ * ever inventing structure:
+ *
+ *  1. Both a subject-kind and an object-kind entity are named somewhere in
+ *     the sentence, just not in the strict before-verb/after-verb shape
+ *     `directedPair` requires (e.g. "We use QuickBooks for accounting" — the
+ *     department trails the object). Still fully explicit, so no confidence
+ *     penalty.
+ *  2. Only one side is named in the sentence at all — the other resolves
+ *     from the running anchor context. This only fires when there is
+ *     exactly one candidate for the missing role, so an ambiguous sentence
+ *     (two systems, no clear one) is left alone rather than guessed.
+ */
+function directedPairWithAnchor(
+  entities: SentenceEntity[],
+  verbIndex: number,
+  anchors: AnchorMap,
+  subjectKinds: readonly KnowledgeEntityKind[],
+  objectKinds: readonly KnowledgeEntityKind[],
+): ResolvedPair | null {
+  const exact = directedPair(entities, verbIndex);
+  if (exact) {
+    return {
+      fromName: exact.from.name,
+      fromKind: exact.from.kind,
+      toName: exact.to.name,
+      toKind: exact.to.kind,
+      anchored: false,
+    };
+  }
+
+  const subjectCandidates = entities.filter((e) => subjectKinds.includes(e.kind));
+  const objectCandidates = entities.filter((e) => objectKinds.includes(e.kind));
+
+  if (subjectCandidates.length === 1 && objectCandidates.length === 1) {
+    const subject = subjectCandidates[0]!;
+    const object = objectCandidates[0]!;
+    if (!(subject.kind === object.kind && subject.name === object.name)) {
+      return {
+        fromName: subject.name,
+        fromKind: subject.kind,
+        toName: object.name,
+        toKind: object.kind,
+        anchored: false,
+      };
+    }
+  }
+
+  if (objectCandidates.length === 1 && subjectCandidates.length === 0) {
+    const only = objectCandidates[0]!;
+    const subject = subjectKinds
+      .map((kind) => anchors[kind])
+      .find((anchor): anchor is EntityAnchor => Boolean(anchor));
+    if (subject && !(subject.kind === only.kind && subject.name === only.name)) {
+      return {
+        fromName: subject.name,
+        fromKind: subject.kind,
+        toName: only.name,
+        toKind: only.kind,
+        anchored: true,
+      };
+    }
+  }
+
+  if (subjectCandidates.length === 1 && objectCandidates.length === 0) {
+    const only = subjectCandidates[0]!;
+    const object = objectKinds
+      .map((kind) => anchors[kind])
+      .find((anchor): anchor is EntityAnchor => Boolean(anchor));
+    if (object && !(object.kind === only.kind && object.name === only.name)) {
+      return {
+        fromName: only.name,
+        fromKind: only.kind,
+        toName: object.name,
+        toKind: object.kind,
+        anchored: true,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Beyond approvals and handoffs, four more relationship shapes turn isolated
+ * mentions into a graph: who uses which system, what depends on what, who
+ * owns a process/system/department, and who a department or person buys
+ * from. Same deterministic-keyword contract as every other detector here —
+ * no model call, every hit still carries the literal sentence as evidence.
+ */
+const USES_PATTERN =
+  /\busa(?:mos)?\b|\butiliza(?:mos)?\b|trabaja(?:mos)? con|se (?:usa|utiliza)|manejamos (?:con|en)|\buses?\b|\busing\b/i;
+const DEPENDS_PATTERN =
+  /depende(?:mos)? de|dependencia de|requiere(?:mos)?|necesita(?:mos)?|\bdepends? on\b|\brequires?\b/i;
+const OWNS_PATTERN =
+  /es responsable de|est[aá] a cargo de|encargad[oa] de|due[nñ]{1,2}[oa] de|a cargo de|\bowns?\b|is responsible for|in charge of/i;
+const PURCHASES_PATTERN =
+  /compra(?:mos)? a|le compramos a|adquiere(?:mos)? de|\bpurchases? from\b|\bbuys? from\b/i;
+
+interface RelationVerbDetector {
+  kind: KnowledgeRelationKind;
+  pattern: RegExp;
+  subjectKinds: readonly KnowledgeEntityKind[];
+  objectKinds: readonly KnowledgeEntityKind[];
+  confidence: number;
+}
+
+const RELATION_VERB_DETECTORS: readonly RelationVerbDetector[] = [
+  {
+    kind: "Uses",
+    pattern: USES_PATTERN,
+    subjectKinds: ["Department", "Person", "Workflow"],
+    objectKinds: ["System"],
+    confidence: 0.5,
+  },
+  {
+    kind: "DependsOn",
+    pattern: DEPENDS_PATTERN,
+    subjectKinds: ["Workflow", "System"],
+    objectKinds: ["System", "Supplier"],
+    confidence: 0.5,
+  },
+  {
+    kind: "Owns",
+    pattern: OWNS_PATTERN,
+    subjectKinds: ["Person"],
+    objectKinds: ["Workflow", "System", "Department"],
+    confidence: 0.5,
+  },
+  {
+    kind: "Purchases",
+    pattern: PURCHASES_PATTERN,
+    subjectKinds: ["Department", "Person"],
+    objectKinds: ["Supplier"],
+    confidence: 0.5,
+  },
+] as const;
+
+/**
+ * Cadence is not a new relationship kind — it is the context that turns a
+ * process from a bare noun into an operating rhythm ("Facturación" → runs
+ * weekly). Every hit is captured as an auditable fact and, when a process is
+ * named in the same sentence, tagged onto that Workflow entity's own
+ * metadata (already a free-form string map) so the graph can show
+ * "Facturación · Semanal" without a new store or a new relationship type.
+ * Spanish canonical values only — client-visible graph labels stay Spanish
+ * regardless of which language the source sentence was written in.
+ */
+function cadenceLabel(sentence: string): string | null {
+  const lower = sentence.toLowerCase();
+  if (/diari|todos los d[ií]as|cada d[ií]a|\bdaily\b|every day/.test(lower)) {
+    return "Diario";
+  }
+  if (/quincenal|cada quince d[ií]as|\bbiweekly\b/.test(lower)) {
+    return "Quincenal";
+  }
+  if (
+    /semanal|cada semana|cada (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)|\bweekly\b|every (week|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/.test(
+      lower,
+    )
+  ) {
+    return "Semanal";
+  }
+  if (/mensual|cada mes|cada fin de mes|\bmonthly\b|every month/.test(lower)) {
+    return "Mensual";
+  }
+  if (/anual|cada a[nñ]o|\bannually\b|\byearly\b|every year/.test(lower)) {
+    return "Anual";
+  }
+  return null;
+}
+
 export interface DetectionResult {
   slots: IntakeSlots;
   evidence: Evidence[];
@@ -418,15 +652,27 @@ export function splitSentences(text: string): string[] {
  * `extractors.ts`; document text, meeting transcripts and manual notes all
  * arrive here, so a finding means the same thing regardless of which door
  * the evidence came through.
+ *
+ * `priorEntities` is the Knowledge Memory Links seam: pass the workspace's
+ * already-merged Knowledge Engine entities and pronoun-style references
+ * ("we", "el proceso", a bare system name with no named owner) resolve
+ * against whatever department/person/system/process this workspace already
+ * has on record, so systems, processes, people, cadence and owners keep
+ * linking into one graph across turns instead of starting cold every scan.
+ * Omit it (or pass []) for a scan with no workspace context yet — every
+ * relationship then falls back to same-sentence pairing only, exactly as
+ * before this seam existed.
  */
 export function detectBusinessSignals(
   unit: IntakeUnit,
   text: string,
+  priorEntities: readonly KnowledgeEntity[] = [],
 ): DetectionResult {
   const slots = emptyIntakeSlots();
   const evidence: Evidence[] = [];
   const detections = emptyDetectionCounts();
   const seenEntities = new Set<string>();
+  const anchors = seedAnchors(priorEntities);
 
   const sentences = splitSentences(text).slice(0, MAX_SCANNED_SENTENCES);
 
@@ -442,6 +688,7 @@ export function detectBusinessSignals(
     });
 
     const sentenceEntities = entitiesInSentence(sentence);
+    const sentenceEntityRefs: IntakeEntity[] = [];
     for (const found of sentenceEntities) {
       const added = addEntity(
         slots,
@@ -455,6 +702,12 @@ export function detectBusinessSignals(
         found.category,
       );
       if (added) detections[found.category] += 1;
+      const ref = slots.entities.find(
+        (entity) =>
+          entity.kind === found.kind &&
+          entity.name.toLowerCase() === found.name.toLowerCase(),
+      );
+      if (ref) sentenceEntityRefs.push(ref);
     }
 
     if (KPI_NAME_PATTERN.test(sentence) && MEASURE_PATTERN.test(sentence)) {
@@ -527,6 +780,51 @@ export function detectBusinessSignals(
       }
     }
 
+    for (const detector of RELATION_VERB_DETECTORS) {
+      const verbMatch = detector.pattern.exec(sentence);
+      if (!verbMatch) continue;
+      const pair = directedPairWithAnchor(
+        sentenceEntities,
+        verbMatch.index,
+        anchors,
+        detector.subjectKinds,
+        detector.objectKinds,
+      );
+      if (!pair) continue;
+      const relEv = evidenceFor(unit, sentence, detector.confidence, "relationship");
+      evidence.push(relEv);
+      slots.relationships.push({
+        id: createId("relationship"),
+        kind: detector.kind,
+        fromEntityName: pair.fromName,
+        toEntityName: pair.toName,
+        label: sentence.slice(0, 120),
+        evidenceIds: [relEv.id],
+        // Anchor-resolved edges (the subject or object came from context,
+        // not this sentence) carry less confidence than an explicit pair.
+        confidence: pair.anchored ? detector.confidence * 0.75 : detector.confidence,
+      });
+    }
+
+    const cadence = cadenceLabel(sentence);
+    if (cadence) {
+      const cadenceEv = evidenceFor(unit, sentence, 0.55, "fact");
+      evidence.push(cadenceEv);
+      slots.facts.push({
+        id: createId("fact"),
+        key: "cadence",
+        statement: sentence,
+        evidenceIds: [cadenceEv.id],
+        confidence: 0.55,
+      });
+      const workflowRef = sentenceEntityRefs.find(
+        (entity) => entity.kind === "Workflow",
+      );
+      if (workflowRef && !workflowRef.metadata.cadence) {
+        workflowRef.metadata = { ...workflowRef.metadata, cadence };
+      }
+    }
+
     if (RISK_PATTERN.test(sentence)) {
       const riskEv = evidenceFor(unit, sentence, 0.58, "pain_signal");
       evidence.push(riskEv);
@@ -564,6 +862,8 @@ export function detectBusinessSignals(
         confidence: 0.5,
       });
     }
+
+    updateAnchors(anchors, sentenceEntities);
   }
 
   return { slots, evidence, detections, scannedSentences: sentences.length };

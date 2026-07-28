@@ -289,16 +289,21 @@ export function deriveRelationships(
     const from = entityById.get(rel.fromEntityId);
     const to = entityById.get(rel.toEntityId);
     if (!from || !to) continue;
+    const companyKind = KNOWLEDGE_KIND_MAP[rel.kind];
     relationships.push({
       id: modelId("crel", rel.id),
-      kind: KNOWLEDGE_KIND_MAP[rel.kind],
+      kind: companyKind,
       fromId: rel.fromEntityId,
       fromLabel: from.name,
       toId: rel.toEntityId,
       toLabel: to.name,
       knowledgeRelationshipId: rel.id,
       processHandoffId: null,
-      label: rel.label || RELATIONSHIP_KIND_LABEL_ES[KNOWLEDGE_KIND_MAP[rel.kind]],
+      // Client-visible graph chip always shows the short Spanish kind label
+      // (e.g. "Utiliza") — the literal source sentence, which may be in
+      // whatever language the client wrote it, stays in the evidence trail
+      // below instead of the badge.
+      label: RELATIONSHIP_KIND_LABEL_ES[companyKind],
       confidence: rel.confidence,
       evidence: [
         {

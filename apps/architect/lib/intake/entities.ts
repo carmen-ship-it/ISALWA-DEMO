@@ -56,6 +56,10 @@ export function mergeIntakeEntities(
         intakeEntity.confidence,
       );
       found.summary = found.summary ?? intakeEntity.summary;
+      // Additive only — a later mention can fill in a metadata key this
+      // entity didn't have yet (e.g. cadence learned in a later document),
+      // but never overwrites something already on record.
+      found.metadata = { ...intakeEntity.metadata, ...found.metadata };
       reinforced += 1;
       continue;
     }
