@@ -9,6 +9,7 @@ import {
   generateDeliverables,
 } from "@/lib/deliverables";
 import { ImplementationPackagePanel } from "@/components/workspace/implementation-package-panel";
+import { LivingDeliverablesCenter } from "@/components/workspace/living-deliverables-center";
 import {
   Beat,
   BeatEmpty,
@@ -115,6 +116,7 @@ export function DeliverablesPanel({
   if (!pack) {
     return (
       <div className="space-y-8">
+        <LivingDeliverablesCenter workspace={workspace} onUpdated={onUpdated} />
         <ImplementationPackagePanel
           workspace={workspace}
           onUpdated={onUpdated}
@@ -143,6 +145,7 @@ export function DeliverablesPanel({
 
   return (
     <div className="space-y-5">
+      <LivingDeliverablesCenter workspace={workspace} onUpdated={onUpdated} />
       <ImplementationPackagePanel
         workspace={workspace}
         onUpdated={onUpdated}
@@ -579,7 +582,7 @@ function ExportsPreview() {
   );
 }
 
-function Article({ title, children }: { title: string; children: ReactNode }) {
+export function Article({ title, children }: { title: string; children: ReactNode }) {
   return (
     <article>
       <h4 className="architect-serif text-2xl text-[var(--isalwa-kiln)]">{title}</h4>
@@ -588,7 +591,7 @@ function Article({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Section({ title, body }: { title: string; body: string }) {
+export function Section({ title, body }: { title: string; body: string }) {
   return (
     <section>
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
@@ -599,7 +602,7 @@ function Section({ title, body }: { title: string; body: string }) {
   );
 }
 
-function List({ title, items }: { title: string; items: string[] }) {
+export function List({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <section>
@@ -617,7 +620,7 @@ function List({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-function Meta({ label, value }: { label: string; value: string }) {
+export function Meta({ label, value }: { label: string; value: string }) {
   return (
     <p className="text-sm text-[var(--isalwa-slate)]">
       <span className="text-[var(--isalwa-slate)]/60">{label}:</span> {value}
@@ -625,6 +628,6 @@ function Meta({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Empty({ label }: { label: string }) {
+export function Empty({ label }: { label: string }) {
   return <p className="text-sm text-[var(--isalwa-slate)]/80">{label}</p>;
 }

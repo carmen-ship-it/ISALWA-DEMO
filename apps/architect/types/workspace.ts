@@ -169,6 +169,15 @@ export interface CompanyWorkspace {
   lastOvernightReview?:
     | import("@/lib/consulting-intelligence/overnight-digest").OvernightDigest
     | null;
+  /**
+   * Mission 26 — Living Company Deliverables. Append-only generated versions
+   * of the eight living documents (Company Playbook, Employee Handbook, SOP
+   * Library, Job Description Library, Training Academy, AI Playbook,
+   * Improvement Roadmap, plus the upgraded Business Blueprint presentation).
+   * Optional so workspaces saved before this mission stay valid — a missing
+   * state just means nothing has been generated yet.
+   */
+  livingDeliverables?: import("./living-deliverables").LivingDeliverablesState | null;
 }
 
 export interface Meeting {

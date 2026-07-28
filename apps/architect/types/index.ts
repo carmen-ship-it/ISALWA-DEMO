@@ -779,6 +779,31 @@ export type {
 
 
 export type {
+  AiPlaybookContent,
+  AiPlaybookItem,
+  BusinessBlueprintLivingContent,
+  CompanyPlaybookContent,
+  EmployeeHandbookContent,
+  EmployeeHandbookSection,
+  ImprovementRoadmapContent,
+  ImprovementRoadmapItem,
+  JobDescriptionDoc,
+  JobDescriptionLibraryContent,
+  KnowledgeFingerprint,
+  LivingDeliverableContent,
+  LivingDeliverableEvidenceRef,
+  LivingDeliverableKind,
+  LivingDeliverableOverview,
+  LivingDeliverableVersion,
+  LivingDeliverablesState,
+  SopDocument,
+  SopLibraryContent,
+  SopStep,
+  TrainingAcademyContent,
+  TrainingModuleOutline,
+} from "./living-deliverables";
+
+export type {
   CompanyModelEvidenceSource,
   CompanyRelationshipKind,
   CompanyOwnershipKind,

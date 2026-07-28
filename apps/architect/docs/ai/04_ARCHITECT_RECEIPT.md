@@ -4,13 +4,14 @@
 be edited far more often than 01–03. If this file and `git log` disagree, `git log` wins; fix this
 file.
 
-**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (includes `28d4d7b`).
+**Last verified against:** `git log --oneline` on `main`, 2026-07-28 (includes `79f26fb`).
 
 ## Current phase
 
 **Pilot-ready** — Álvaro/Carmen pilot on `ws_isalwa`. The Discovery Agent roadmap (P0 → F) and
-Missions 19–25 have shipped, including Mission 24 (autonomous overnight consulting cycle), which
-shipped 2026-07-28 ahead of the pilot. See
+Missions 19–26 have shipped, including Mission 24 (autonomous overnight consulting cycle) and
+Mission 26 (Living Company Deliverables — the Deliverables Center now generates and exports eight
+company documents, not just the Mission 9 static package). See
 [`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) for demo-day blockers/status.
 
 ## Completed missions (verified via `git log --oneline`)
@@ -37,6 +38,7 @@ shipped 2026-07-28 ahead of the pilot. See
 | 23 | `2dcd102` | Real integrations — Google Drive **live** (OAuth + list + import); SharePoint/QuickBooks/HubSpot scaffolded honestly. |
 | 25 | `c3923b4` | Product Constitution & Security Foundation — the six permanent governance docs under `docs/` (documentation only). |
 | 24 | `28d4d7b` | Autonomous Consulting Cycle — Vercel Cron re-runs `runConsultingIntelligenceCycle` overnight for due workspaces; honest Spanish "what changed overnight" digest via `OvernightDigestCard`; narrow, documented `SUPABASE_SERVICE_ROLE_KEY` exception for the cron route only. See [`MISSION24.md`](../../MISSION24.md). |
+| 26 | `79f26fb` | Living Company Deliverables — Deliverables Center upgraded to generate + version 8 documents (Business Blueprint, Company Playbook, Employee Handbook, SOP Library, Job Description Library, Training Academy, AI Playbook, Improvement Roadmap) from existing engines only, with Update Available badges and real PDF/DOCX export (`pdf-lib` + `docx`, two new deps, Node-only, kept out of the client bundle). See [`MISSION26.md`](../../MISSION26.md). |
 
 Re-verify any time:
 
