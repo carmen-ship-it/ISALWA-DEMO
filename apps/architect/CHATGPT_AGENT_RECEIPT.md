@@ -1,5 +1,7 @@
 ## ★ Last session addendum — Mission 27 (Living OS)
 
+**Commit:** `553b74a`
+
 **Ship:** Living Company Operating System on top of Mission 26’s eight generators.
 
 - **Name:** Sistema Operativo de la Empresa (not “Build My Company”, not a document library).

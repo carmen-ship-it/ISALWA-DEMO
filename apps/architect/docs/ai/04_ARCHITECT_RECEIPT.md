@@ -10,9 +10,8 @@ with a ★ **Last ~4 hours / this session** section, then the full historical mi
 file (04) stays the in-repo living summary agents update after every mission; the two must not
 contradict.
 
-**Last verified against:** `git log --oneline` on `main` tip after Mission 27 Living OS
-(verify SHA after commit). Ancestors: Mission 25 OS hub `2aa8853` · Teach `3a685f4` ·
-Living Deliverables `fc0007c`.
+**Last verified against:** `git log --oneline` on `main` tip `553b74a` (Mission 27 Living OS).
+Ancestors: Mission 25 OS hub `2aa8853` · Teach `3a685f4` · Living Deliverables `fc0007c`.
 
 ## Current phase
 
@@ -49,7 +48,7 @@ outputs; the OS is the product. Residual human/ops work unchanged (Vercel hash, 
 | 25 (OS hub) | `2aa8853` | Company Operating System hub — client tab framing Conversation → Knowledge → Brain → OS; composes Mission 26 living deliverables (no second catalog); CTAs deep-link into Documentos. See [`MISSION25.md`](../../MISSION25.md). |
 | 24 | `28d4d7b` | Autonomous Consulting Cycle — Vercel Cron re-runs `runConsultingIntelligenceCycle` overnight for due workspaces; honest Spanish "what changed overnight" digest via `OvernightDigestCard`; narrow, documented `SUPABASE_SERVICE_ROLE_KEY` exception for the cron route only. See [`MISSION24.md`](../../MISSION24.md). |
 | 26 | `fc0007c` | Living Company Deliverables — Deliverables Center upgraded to generate + version 8 documents (Business Blueprint, Company Playbook, Employee Handbook, SOP Library, Job Description Library, Training Academy, AI Playbook, Improvement Roadmap) from existing engines only, with Update Available badges and real PDF/DOCX export (`pdf-lib` + `docx`, two new deps, Node-only, kept out of the client bundle). See [`MISSION26.md`](../../MISSION26.md). |
-| 27 | *(this commit)* | Living Company Operating System — reframes the eight outputs as Sistema Operativo (categories, Ready to Build / Build / Export, Business Impact, progress strip, pipeline → Business Results); constitution rule 9. See [`MISSION27.md`](../../MISSION27.md). |
+| 27 | `553b74a` | Living Company Operating System — reframes the eight outputs as Sistema Operativo (categories, Ready to Build / Build / Export, Business Impact, progress strip, pipeline → Business Results); constitution rule 9. See [`MISSION27.md`](../../MISSION27.md). |
 | Pre-pilot UX | `e8b599d` | Orientation panel + stuck-prevention UX (5s orientation, Teach labels, hide scaffolded connectors, Spanish error pages). |
 | Pilot checklist | `68a9bbe` | [`PILOT_READINESS_CHECKLIST.md`](../../PILOT_READINESS_CHECKLIST.md) — human/ops demo checklist. |
 | AI context | `47cdcc9` | Permanent `docs/ai/01–05` agent on-ramp. |
