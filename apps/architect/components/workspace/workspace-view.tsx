@@ -97,11 +97,13 @@ import {
   assessDiscoveryCompletion,
   buildCompanyBrain,
   buildExecutiveDailyBrief,
+  buildImproveDeliverableBrief,
   buildNextStepVoice,
   buildOrientationPanel,
   groupRecentLearning,
   type DailyBriefAction,
   type DailyBriefMilestone,
+  type ImproveDeliverableBrief,
 } from "@/lib/consulting-intelligence";
 import { dimensionToStage } from "@/lib/discovery/stages";
 import { useLastVisit } from "@/hooks/use-last-visit";
@@ -169,9 +171,17 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
   const [focusDeliverableKind, setFocusDeliverableKind] =
     useState<LivingDeliverableKind | null>(null);
+  const [improveBrief, setImproveBrief] =
+    useState<ImproveDeliverableBrief | null>(null);
   const [connectorBanner, setConnectorBanner] = useState<
     { provider: "google_drive" | "microsoft_365" | "quickbooks" | "hubspot"; status: string } | null
   >(null);
+
+  const openImproveDeliverable = (kind: LivingDeliverableKind) => {
+    if (!workspace) return;
+    setImproveBrief(buildImproveDeliverableBrief(workspace, kind));
+    setTab("knowledge");
+  };
 
   /**
    * Real Integrations (Mission 23) — the Google Drive OAuth callback
@@ -797,6 +807,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
         workspace={workspace}
         onUpdated={(next) => setWorkspace(next)}
         onTeach={() => setTab("knowledge")}
+        onImprove={openImproveDeliverable}
         focusKind={focusDeliverableKind}
         onFocusConsumed={() => setFocusDeliverableKind(null)}
       />
@@ -1011,6 +1022,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           <BusinessKnowledge
             workspace={workspace}
             onUpdated={(next) => setWorkspace(next)}
+            improveBrief={improveBrief}
+            onClearImprove={() => setImproveBrief(null)}
           />
         </SectionShell>
         <NextStepCta
@@ -1213,6 +1226,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             focusKind={focusDeliverableKind}
             onFocusConsumed={() => setFocusDeliverableKind(null)}
             onTeach={() => setTab("knowledge")}
+            onImprove={openImproveDeliverable}
           />
         </SectionShell>
         <NextStepCta

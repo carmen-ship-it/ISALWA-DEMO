@@ -25,6 +25,7 @@ import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
 import { coverageAreaLabel, coverageBand, coverageBandLabelEs } from "@/lib/presentation";
 import { assessMissingInformation } from "@/lib/readiness";
 import type { CompanyWorkspace } from "@/types";
+import type { ImproveDeliverableBrief } from "@/lib/consulting-intelligence/improve-deliverable";
 
 /**
  * Business Knowledge — the client-facing promise: help us understand faster,
@@ -36,9 +37,14 @@ import type { CompanyWorkspace } from "@/types";
 export function BusinessKnowledge({
   workspace,
   onUpdated,
+  improveBrief,
+  onClearImprove,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
+  /** Mission 29 — document-specific Teach brief from OS "Mejorar". */
+  improveBrief?: ImproveDeliverableBrief | null;
+  onClearImprove?: () => void;
 }) {
   const { t } = useTranslations();
   const notesId = useId();
@@ -156,6 +162,42 @@ export function BusinessKnowledge({
           {t("businessKnowledge.description")}
         </p>
       </div>
+
+      {improveBrief ? (
+        <Card className="border-[var(--isalwa-glaze)]/30 bg-[var(--isalwa-glaze)]/5 px-5 py-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
+            Mejorar · {improveBrief.capabilitySystem}
+          </p>
+          <h3 className="architect-serif mt-2 text-2xl text-[var(--isalwa-kiln)]">
+            {improveBrief.title}
+          </h3>
+          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+            {improveBrief.prompt}
+          </p>
+          <p className="mt-2 text-xs text-[var(--isalwa-slate)]/75">
+            {improveBrief.teachHint}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() =>
+                uploadSectionRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                })
+              }
+            >
+              Enseñar lo que falta
+            </Button>
+            {onClearImprove ? (
+              <Button type="button" size="sm" variant="secondary" onClick={onClearImprove}>
+                Cerrar
+              </Button>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
 
       <NextUploadCta
         report={missingInformation}

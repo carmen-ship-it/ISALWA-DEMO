@@ -81,6 +81,7 @@ export function DeliverablesPanel({
   focusKind,
   onFocusConsumed,
   onTeach,
+  onImprove,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
@@ -88,6 +89,7 @@ export function DeliverablesPanel({
   focusKind?: LivingDeliverableKind | null;
   onFocusConsumed?: () => void;
   onTeach?: () => void;
+  onImprove?: (kind: LivingDeliverableKind) => void;
 }) {
   const { session } = useAuth();
   const isConsultant = session?.role === "consultant";
@@ -129,6 +131,7 @@ export function DeliverablesPanel({
           focusKind={focusKind}
           onFocusConsumed={onFocusConsumed}
           onTeach={onTeach}
+          onImprove={onImprove}
         />
         <ImplementationPackagePanel
           workspace={workspace}
@@ -164,6 +167,7 @@ export function DeliverablesPanel({
         focusKind={focusKind}
         onFocusConsumed={onFocusConsumed}
         onTeach={onTeach}
+        onImprove={onImprove}
       />
       <ImplementationPackagePanel
         workspace={workspace}

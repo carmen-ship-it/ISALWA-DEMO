@@ -13,12 +13,14 @@ export function CompanyOperatingSystemPanel({
   workspace,
   onUpdated,
   onTeach,
+  onImprove,
   focusKind,
   onFocusConsumed,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
   onTeach?: () => void;
+  onImprove?: (kind: LivingDeliverableKind) => void;
   focusKind?: LivingDeliverableKind | null;
   onFocusConsumed?: () => void;
   /** @deprecated Mission 27 builds in-place; kept for call-site compatibility. */
@@ -30,6 +32,7 @@ export function CompanyOperatingSystemPanel({
       workspace={workspace}
       onUpdated={onUpdated}
       onTeach={onTeach}
+      onImprove={onImprove}
       focusKind={focusKind}
       onFocusConsumed={onFocusConsumed}
     />

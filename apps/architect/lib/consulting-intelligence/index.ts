@@ -93,6 +93,11 @@ export {
 } from "./company-operating-system";
 
 export {
+  buildImproveDeliverableBrief,
+  type ImproveDeliverableBrief,
+} from "./improve-deliverable";
+
+export {
   completedCapabilities,
   deriveCapabilityIntelligence,
   shouldAskAboutCapability,

@@ -74,13 +74,16 @@ export function LivingDeliverablesCenter({
   focusKind,
   onFocusConsumed,
   onTeach,
+  onImprove,
 }: {
   workspace: CompanyWorkspace;
   onUpdated: (next: CompanyWorkspace) => void;
   focusKind?: LivingDeliverableKind | null;
   onFocusConsumed?: () => void;
-  /** Navigate to Knowledge / Teach Architect. */
+  /** Navigate to Knowledge / Teach Architect (generic). */
   onTeach?: () => void;
+  /** Mission 29 — Improve this OS output (scoped Teach). */
+  onImprove?: (kind: LivingDeliverableKind) => void;
 }) {
   const report = useMemo(
     () => buildCompanyOperatingSystem(workspace),
@@ -362,6 +365,7 @@ export function LivingDeliverablesCenter({
                 onBuild={() => void handleBuild(artifact.kind)}
                 onExport={(format) => void handleExport(artifact.kind, format)}
                 onTeach={onTeach}
+                onImprove={onImprove}
               />
             ))}
           </div>
@@ -408,6 +412,7 @@ function OsArtifactCard({
   onBuild,
   onExport,
   onTeach,
+  onImprove,
 }: {
   artifact: OperatingSystemArtifact;
   companyName: string;
@@ -421,11 +426,15 @@ function OsArtifactCard({
   onBuild: () => void;
   onExport: (format: ExportFormat) => void;
   onTeach?: () => void;
+  onImprove?: (kind: LivingDeliverableKind) => void;
 }) {
   const copy = livingDeliverableCopy(artifact.kind, companyName);
   const latest = overview?.latest ?? null;
   const primaryLabel = busy ? artifact.buildBusyLabel : artifact.buildLabel;
   const bf = artifact.builtFrom;
+  const canImprove =
+    Boolean(onImprove) &&
+    (artifact.missingInformation.length > 0 || artifact.status === "needs_knowledge");
 
   return (
     <Card
@@ -528,7 +537,17 @@ function OsArtifactCard({
           {primaryLabel}
         </Button>
 
-        {onTeach ? (
+        {canImprove ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => onImprove?.(artifact.kind)}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" aria-hidden />
+            Mejorar este documento
+          </Button>
+        ) : onTeach ? (
           <Button
             type="button"
             variant="secondary"
