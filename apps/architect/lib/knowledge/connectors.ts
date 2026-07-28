@@ -1,12 +1,20 @@
 import type { KnowledgeConnector } from "@/types";
 
-/** Future connector hooks — design only. No OAuth or sync. */
+/**
+ * Future connector hooks — the client-facing "upcoming data sources" chip
+ * list (`KnowledgeCenter`'s "Próximas fuentes de datos"). This type's
+ * `status` union ("designed" | "planned") predates Mission 23 and has no
+ * "live" value; Google Drive's *real* connect/disconnect/import admin now
+ * lives in `lib/connectors` (`CONNECTOR_CATALOG`, `ConnectorsPanel`) — this
+ * entry is kept in sync (`status: "designed"`, since it is no longer just a
+ * future idea) but is display-only and never drives that panel.
+ */
 export const KNOWLEDGE_CONNECTORS: readonly KnowledgeConnector[] = [
   {
     id: "google_drive",
     title: "Google Drive",
-    description: "Importar carpetas de la empresa al Centro de Conocimiento.",
-    status: "planned",
+    description: "Conectar la cuenta e importar los archivos que elija — ya disponible en el panel de Conectores.",
+    status: "designed",
     feedsInto: "knowledge_center",
   },
   {

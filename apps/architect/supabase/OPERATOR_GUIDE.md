@@ -14,6 +14,7 @@ This is **not** multi-tenant SaaS. No registration UI, invites, or org managemen
 | 2 | Create Auth users in dashboard (below) | After step 1 |
 | 3 | [`migrations/002_link_pilot_users.sql`](./migrations/002_link_pilot_users.sql) | After users exist — links profiles + membership (also covered by trigger for *new* users) |
 | 4 | [`migrations/003_document_storage.sql`](./migrations/003_document_storage.sql) | Any time after step 1 — creates the private `architect-documents` Storage bucket + RLS for real document uploads (see `../REAL_DOCUMENT_UPLOADS.md`) |
+| 5 | [`migrations/004_connector_credentials.sql`](./migrations/004_connector_credentials.sql) | Any time after step 1, **required before Google Drive can connect** — creates `architect_connector_credentials` (OAuth tokens) with consultant-only RLS (see `../MISSION23.md`) |
 
 In Supabase Dashboard → **SQL Editor** → paste each file → Run.
 
@@ -29,6 +30,8 @@ In Supabase Dashboard → **SQL Editor** → paste each file → Run.
 | `ARCHITECT_PILOT_CARMEN_PASSWORD` | Optional | Only for local **pilot cookie** auth when Supabase unset |
 | `ARCHITECT_PILOT_ALVARO_PASSWORD` | Optional | Same |
 | `ARCHITECT_LLM_*` / `OPENAI_API_KEY` | Optional | LLM only |
+| `GOOGLE_DRIVE_CLIENT_ID` / `GOOGLE_DRIVE_CLIENT_SECRET` | Optional | Real Integrations (Mission 23) — Google Drive connector. Without these the connector panel shows an honest "not configured" state |
+| `GOOGLE_DRIVE_REDIRECT_URI` | Optional | Only needed if the OAuth app's redirect URI must differ from `<deployment origin>/api/connectors/google-drive/callback` |
 
 When URL + anon key are **unset**: app uses pilot cookie login + **localStorage** company memory (solo/dev).  
 When **set**: Auth + company memory + in-progress interviews use **Supabase** (localStorage not required).

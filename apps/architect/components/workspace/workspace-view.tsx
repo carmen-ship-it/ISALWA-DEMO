@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import {
   Building2,
@@ -13,6 +13,7 @@ import {
   Lightbulb,
   Map,
   Network,
+  Plug,
   Route,
   Sparkles,
 } from "lucide-react";
@@ -28,6 +29,7 @@ import { DeliverablesPanel } from "@/components/workspace/deliverables-panel";
 import { BrandExperiencePanel } from "@/components/workspace/brand-experience-panel";
 import { BusinessKnowledge } from "@/components/workspace/business-knowledge";
 import { BrandSettingsPanel } from "@/components/workspace/brand-settings-panel";
+import { ConnectorsPanel } from "@/components/workspace/connectors-panel";
 import { ExecutiveSimulatorPanel } from "@/components/workspace/executive-simulator-panel";
 import { CompanyEvolutionPanel } from "@/components/workspace/company-evolution-panel";
 import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
@@ -57,6 +59,7 @@ import { WelcomeBanner } from "@/components/workspace/welcome-banner";
 import {
   CLIENT_TAB_LABEL_KEYS,
   CLIENT_VISIBLE_TAB_IDS,
+  WORKSPACE_TAB_LABEL_KEYS,
   WorkspaceTabs,
   type WorkspaceTabId,
 } from "@/components/workspace/workspace-tabs";
@@ -128,6 +131,7 @@ function journeyStageTab(
 
 export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { session } = useAuth();
   const { t } = useTranslations();
   const ROADMAP_LANES = [
@@ -140,6 +144,33 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
+  const [connectorBanner, setConnectorBanner] = useState<
+    { provider: "google_drive" | "microsoft_365" | "quickbooks" | "hubspot"; status: string } | null
+  >(null);
+
+  /**
+   * Real Integrations (Mission 23) — the Google Drive OAuth callback
+   * redirects back here with `?tab=assessment&connector=google_drive&
+   * connector_status=…` (see `app/api/connectors/google-drive/callback`).
+   * Consumed once, then stripped from the URL so a refresh does not
+   * re-show the banner or re-navigate the tab.
+   */
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && tabParam in WORKSPACE_TAB_LABEL_KEYS) {
+      setTab(tabParam as WorkspaceTabId);
+    }
+    const connectorParam = searchParams.get("connector");
+    const connectorStatusParam = searchParams.get("connector_status");
+    if (connectorParam && connectorStatusParam) {
+      setConnectorBanner({
+        provider: connectorParam as "google_drive" | "microsoft_365" | "quickbooks" | "hubspot",
+        status: connectorStatusParam,
+      });
+      router.replace(`/workspace/${workspaceId}`, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -654,6 +685,24 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
               workspace={workspace}
               updatedByLabel={session?.displayName ?? t("workspaceView.assessment.consultantFallback")}
               onUpdated={(next) => setWorkspace(next)}
+            />
+          </SectionShell>
+        ) : null}
+
+        {session?.role === "consultant" ? (
+          <SectionShell
+            tone="blueprint"
+            icon={Plug}
+            kicker="Integraciones reales"
+            title="Conectores"
+            description="Traiga evidencia directamente de las herramientas que la empresa ya usa — se procesa igual que una carga manual, sin exportar nada a mano."
+          >
+            <ConnectorsPanel
+              workspace={workspace}
+              uploadedByUserId={session?.userId ?? null}
+              uploadedByName={session?.displayName ?? null}
+              onUpdated={(next) => setWorkspace(next)}
+              initialStatusBanner={connectorBanner}
             />
           </SectionShell>
         ) : null}
