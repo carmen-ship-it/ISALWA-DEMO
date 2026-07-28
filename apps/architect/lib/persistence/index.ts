@@ -1,6 +1,61 @@
 import type { Interview, InterviewStore, PersistenceAdapter } from "@/types";
 import { isSupabaseConfigured } from "@/lib/auth/config";
 import { createBrowserSupabaseClient } from "@/lib/auth/supabase/browser";
+import { healConversationMemory } from "@/lib/memory/heal";
+import { formatThinkingPreamble } from "@/lib/reasoning";
+
+/**
+ * Fingerprints of the pre-Spanish resume/knowledge templates (see
+ * I18N_100.md's HOTFIX section — "Good. Let's continue with Sales.",
+ * "Confidence: 71%", "Still need: ...", "Knowledge reviewed", "I reviewed N
+ * documents..."). The generators were fixed, but a turn already written to
+ * `conversation.turns` before that fix is frozen text — regenerating the
+ * message client-side does nothing until this heal replaces it.
+ */
+const STALE_ENGLISH_TURN_PATTERN =
+  /\bGood\.|\bLet'?s continue\b|\bConfidence:|\bStill need:|Knowledge reviewed|I reviewed \d+ document|I still have questions about/i;
+
+/**
+ * Only the *last* architect turn is ever rendered above the answer box
+ * (`AnsweringPanel`'s `latestArchitect`), so only it needs healing — full
+ * turn history is untouched. Rebuilt from the same (already-Spanish)
+ * `formatThinkingPreamble` + current question the app would compose fresh
+ * today, using the already-healed memory so the shown score is honest too.
+ */
+function healArchitectTurn(interview: Interview): Interview {
+  const turns = interview.conversation.turns;
+  if (turns.length === 0) return interview;
+  const lastIndex = turns.length - 1;
+  const last = turns[lastIndex];
+  if (last.role !== "architect" || !STALE_ENGLISH_TURN_PATTERN.test(last.content)) {
+    return interview;
+  }
+  const question = interview.conversation.currentQuestion;
+  const content = question
+    ? `${formatThinkingPreamble(interview.memory)}\n\n${question.prompt}`
+    : formatThinkingPreamble(interview.memory);
+  const turnsCopy = turns.slice();
+  turnsCopy[lastIndex] = { ...last, content };
+  return {
+    ...interview,
+    conversation: { ...interview.conversation, turns: turnsCopy },
+  };
+}
+
+/**
+ * Every interview handed back to a caller is healed first: the old pilot
+ * seed's fabricated `seed_fact_*` facts must never inflate the score shown
+ * inside a *running* session, and a frozen pre-Spanish-fix turn must never
+ * keep showing English above the answer box, no matter which store it came
+ * from or how long ago it was written. No-ops on an already-clean interview
+ * — see PILOT_FAKE_PCT_AND_ENGLISH_FIX.md.
+ */
+function healInterview(interview: Interview): Interview {
+  const memory = healConversationMemory(interview.memory);
+  const withMemory =
+    memory === interview.memory ? interview : { ...interview, memory };
+  return healArchitectTurn(withMemory);
+}
 
 /**
  * Persistence contracts for interviews.
@@ -111,7 +166,7 @@ export function createLocalInterviewPersistence(
       const raw = storage.getItem(key);
       if (!raw) return null;
       try {
-        return JSON.parse(raw) as Interview;
+        return healInterview(JSON.parse(raw) as Interview);
       } catch {
         return null;
       }
@@ -225,10 +280,12 @@ function createSupabaseInterviewPersistence(
         throw new Error(`No se pudo leer la entrevista guardada: ${error.message}`);
       }
       if (data?.data) {
-        return data.data as Interview;
+        return healInterview(data.data as Interview);
       }
 
-      // One-time bridge from localStorage if remote empty.
+      // One-time bridge from localStorage if remote empty. `local.load()`
+      // already heals, so `fromLs` here is guaranteed clean before it is
+      // ever written back to Supabase.
       if (typeof window !== "undefined") {
         const local = createLocalInterviewPersistence(
           window.localStorage,

@@ -2,7 +2,7 @@
  * Bundle migration + storage key — shared by local and Supabase stores.
  */
 
-import type { CompanyWorkspace, KnownFact } from "@/types";
+import type { CompanyWorkspace } from "@/types";
 import {
   createSeedWorkspaces,
   type WorkspaceBundle,
@@ -29,6 +29,7 @@ import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { deriveCompanyModel } from "@/lib/company-model";
 import { applyDiscoveryScore } from "@/lib/reasoning";
+import { isFabricatedSeedFact } from "@/lib/memory/heal";
 import {
   normalizeBusinessProcesses,
   normalizeConsultingIntelligence,
@@ -66,20 +67,6 @@ function looksLikeOldFabricatedKnowledgeSeed(
     workspace.id === PILOT_COMPANY_WORKSPACE_ID &&
     assets.length > 0 &&
     assets.every((asset) => asset.source.includes("· mock"))
-  );
-}
-
-/**
- * A single fact that the old `lib/workspace/seed.ts` pilot seed invented.
- *
- * Two fingerprints, both unique to that seed: the `seed_fact_` key prefix,
- * and the literal placeholder evidence string (a real fact always cites the
- * client's own words or the knowledge asset it came from).
- */
-function isFabricatedSeedFact(fact: KnownFact): boolean {
-  return (
-    fact.key.startsWith("seed_fact_") ||
-    fact.evidence.includes("Sesión de descubrimiento anterior")
   );
 }
 
