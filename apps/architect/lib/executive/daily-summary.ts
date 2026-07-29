@@ -4,6 +4,7 @@
  */
 
 import type { CompanyWorkspace } from "@/types";
+import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import { healthLabel, understandingLevel } from "@/lib/presentation";
 import type { ExecutiveScore } from "./types";
 
@@ -24,7 +25,12 @@ export function deriveDailySummary(
   const consulting = workspace.conversationMemory?.consulting;
   const company = workspace.companyName;
   const understanding = understandingLevel(workspace.businessUnderstanding);
-  const meetings = workspace.meetings.length;
+  // Real human discovery sessions only — never internal transcript ingestion
+  // (`lib/documents/pipeline.ts` also writes `Meeting` records). A company
+  // that only pasted transcripts has never had "la primera sesión de
+  // descubrimiento" through Architect, even though `workspace.meetings` is
+  // non-empty. See `lib/memory/meeting-kind.ts`.
+  const discoverySessions = countDiscoverySessions(workspace.meetings);
 
   const topRisk = (consulting?.risks ?? [])
     .slice()
@@ -49,7 +55,7 @@ export function deriveDailySummary(
 
   if (topRisk) {
     parts.push(`Riesgo principal: ${topRisk.title}.`);
-  } else if (meetings === 0) {
+  } else if (discoverySessions === 0) {
     parts.push("Listo para la primera sesión de descubrimiento.");
   }
 
