@@ -45,7 +45,7 @@ export function evaluateImplementationGate(
     );
   } else {
     notes.push(
-      "Listo — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes.",
+      "Listo para implementación — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes.",
     );
   }
 

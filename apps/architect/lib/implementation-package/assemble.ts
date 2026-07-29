@@ -98,9 +98,9 @@ export function assembleImplementationPackage(
       ],
       status: ready ? "ready" : "not_ready",
       notes: [
-        ...gate.notes.filter((n) => !n.startsWith("Listo —")),
+        ...gate.notes.filter((n) => !n.startsWith("Listo para implementación —")),
         ready
-          ? "Listo — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes."
+          ? "Listo para implementación — el paquete de arquitectura referencia el Blueprint, el Sistema recomendado, los Procesos, los Entregables y los artefactos de Consultoría existentes."
           : `Umbral alcanzado · ${availableCount}/${sections.length} secciones tienen artefactos de motor.`,
       ],
     },

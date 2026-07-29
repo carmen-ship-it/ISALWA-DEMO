@@ -775,8 +775,9 @@ export const en: MessageTree = {
   },
   implementationPackagePanel: {
     kicker: "Implementation package",
-    ready: "Ready",
-    notReady: "Discovery in progress",
+    ready: "Implementation can begin",
+    notReady: "Implementation cannot begin yet",
+    blueprintKicker: "Operating model",
     thresholdLine: "Understanding threshold: {threshold}% · current {current}%",
     thresholdMet: " · threshold met",
     thresholdPending: " · threshold pending",

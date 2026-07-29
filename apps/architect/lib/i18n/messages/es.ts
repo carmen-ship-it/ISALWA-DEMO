@@ -796,8 +796,9 @@ export const es: MessageTree = {
   },
   implementationPackagePanel: {
     kicker: "Paquete de implementación",
-    ready: "Listo",
-    notReady: "Descubrimiento en curso",
+    ready: "La implementación puede comenzar",
+    notReady: "La implementación aún no puede comenzar",
+    blueprintKicker: "Modelo operativo",
     thresholdLine: "Umbral de comprensión: {threshold}% · actual {current}%",
     thresholdMet: " · umbral alcanzado",
     thresholdPending: " · umbral pendiente",

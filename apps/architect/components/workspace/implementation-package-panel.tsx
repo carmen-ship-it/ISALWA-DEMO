@@ -77,7 +77,10 @@ export function ImplementationPackagePanel({
             ? t("implementationPackagePanel.ready")
             : t("implementationPackagePanel.notReady")}
         </h3>
-        <p className="mt-3 text-[var(--isalwa-slate)]">{verdict.clientHeadline}</p>
+        <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60">
+          {t("implementationPackagePanel.blueprintKicker")}
+        </p>
+        <p className="mt-1 text-[var(--isalwa-slate)]">{verdict.clientHeadline}</p>
         {!gate.ready && namedBlockers.length > 0 ? (
           <ul className="mt-3 space-y-1.5">
             {namedBlockers.map((headline) => (
