@@ -54,3 +54,9 @@ export {
   type CoverageBand,
   type StrengthBand,
 } from "./executive-language";
+export {
+  provenanceFromEvidenceCount,
+  provenanceFromKnowledgeLink,
+  provenanceFromRelationshipSource,
+  type ProvenanceTier,
+} from "./provenance";

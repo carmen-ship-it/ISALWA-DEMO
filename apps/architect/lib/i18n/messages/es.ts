@@ -26,6 +26,29 @@ export const es: MessageTree = {
     whatNow: "¿Qué debe hacer ahora?",
     notAvailableYet: "Aún no disponible.",
   },
+  /**
+   * Shared provenance vocabulary (`lib/presentation/provenance.ts`) — every
+   * inferred artifact across Blueprint, relaciones, procesos, Modelo de la
+   * Empresa, recomendaciones, dependencias, Sistema Operativo y arquitectura
+   * de solución names its footing with these same five tiers, so the client
+   * learns one vocabulary instead of five ad-hoc phrasings.
+   */
+  provenance: {
+    tier: {
+      observed: "Evidencia del cliente",
+      inferred: "Inferido",
+      estimated: "Estimado",
+      suggested: "Sugerido",
+      needs_confirmation: "Pendiente de confirmar",
+    },
+    footnote: {
+      observed: "Basado en evidencia actual — entrevistas, documentos o sistemas del cliente.",
+      inferred: "Inferido por Architect a partir de la evidencia recopilada hasta ahora.",
+      estimated: "Estimación de Architect — una heurística, no una medición exacta.",
+      suggested: "Sugerido por Architect a partir de patrones de la industria — hipótesis pendiente de validar, no un hecho aprendido.",
+      needs_confirmation: "Hipótesis de Architect en espera de confirmación del equipo del cliente.",
+    },
+  },
   nav: {
     companies: "Empresas",
     panel: "Panel",

@@ -538,7 +538,13 @@ function OsArtifactCard({
         </p>
 
         <p className="mt-4 text-sm text-[var(--isalwa-kiln)]">
-          {artifact.confidencePercent}% completo
+          {artifact.confidencePercent}% completo{" "}
+          <span
+            className="text-xs font-normal text-[var(--isalwa-slate)]/50"
+            title="Estimación de Architect a partir del conocimiento disponible — no una medición exacta."
+          >
+            (estimado)
+          </span>
         </p>
 
         <div className="mt-3 space-y-1 text-xs text-[var(--isalwa-slate)]/75">

@@ -16,6 +16,7 @@ import {
   strengthBandLabelEs,
 } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type {
   CompanyDependency,
   CompanyDepartment,
@@ -89,19 +90,22 @@ export function CompanyModelPanel({
         {model.departments.length === 0 ? (
           <EmptyHint text={t("companyModelPanel.departmentsEmpty")} />
         ) : (
-          <ul className="space-y-3">
-            {model.departments.map((dept) => (
-              <DepartmentRow
-                key={dept.id}
-                dept={dept}
-                displayName={
-                  departmentNames
-                    ? resolveEffectiveLabel(departmentNames, dept.name)
-                    : dept.name
-                }
-              />
-            ))}
-          </ul>
+          <>
+            <ul className="space-y-3">
+              {model.departments.map((dept) => (
+                <DepartmentRow
+                  key={dept.id}
+                  dept={dept}
+                  displayName={
+                    departmentNames
+                      ? resolveEffectiveLabel(departmentNames, dept.name)
+                      : dept.name
+                  }
+                />
+              ))}
+            </ul>
+            <ProvenanceFootnote tier="inferred" />
+          </>
         )}
       </Section>
 
@@ -121,11 +125,14 @@ export function CompanyModelPanel({
         {model.ownership.length === 0 ? (
           <EmptyHint text={t("companyModelPanel.ownershipEmpty")} />
         ) : (
-          <ul className="space-y-2">
-            {model.ownership.slice(0, 24).map((own) => (
-              <OwnershipRow key={own.id} own={own} />
-            ))}
-          </ul>
+          <>
+            <ul className="space-y-2">
+              {model.ownership.slice(0, 24).map((own) => (
+                <OwnershipRow key={own.id} own={own} />
+              ))}
+            </ul>
+            <ProvenanceFootnote tier="inferred" />
+          </>
         )}
       </Section>
 
@@ -133,11 +140,14 @@ export function CompanyModelPanel({
         {model.informationFlows.length === 0 ? (
           <EmptyHint text={t("companyModelPanel.informationFlowEmpty")} />
         ) : (
-          <ul className="space-y-3">
-            {model.informationFlows.slice(0, 20).map((flow) => (
-              <InformationFlowRow key={flow.id} flow={flow} />
-            ))}
-          </ul>
+          <>
+            <ul className="space-y-3">
+              {model.informationFlows.slice(0, 20).map((flow) => (
+                <InformationFlowRow key={flow.id} flow={flow} />
+              ))}
+            </ul>
+            <ProvenanceFootnote tier="inferred" />
+          </>
         )}
       </Section>
 
@@ -145,11 +155,14 @@ export function CompanyModelPanel({
         {criticalDeps.length === 0 ? (
           <EmptyHint text={t("companyModelPanel.criticalDependenciesEmpty")} />
         ) : (
-          <ul className="space-y-3">
-            {criticalDeps.map((dep) => (
-              <DependencyRow key={dep.id} dep={dep} />
-            ))}
-          </ul>
+          <>
+            <ul className="space-y-3">
+              {criticalDeps.map((dep) => (
+                <DependencyRow key={dep.id} dep={dep} />
+              ))}
+            </ul>
+            <ProvenanceFootnote tier="inferred" />
+          </>
         )}
       </Section>
     </div>

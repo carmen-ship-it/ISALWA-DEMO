@@ -27,6 +27,23 @@ export const en: MessageTree = {
     whatNow: "What should you do now?",
     notAvailableYet: "Not available yet.",
   },
+  /** Mirrors `es.ts` — see the comment there. */
+  provenance: {
+    tier: {
+      observed: "Client evidence",
+      inferred: "Inferred",
+      estimated: "Estimated",
+      suggested: "Suggested",
+      needs_confirmation: "Awaiting confirmation",
+    },
+    footnote: {
+      observed: "Based on current evidence — interviews, documents, or the client's own systems.",
+      inferred: "Inferred by Architect from the evidence gathered so far.",
+      estimated: "Architect's estimate — a heuristic, not an exact measurement.",
+      suggested: "Suggested by Architect from industry patterns — a hypothesis pending validation, not a learned fact.",
+      needs_confirmation: "Architect's hypothesis, awaiting confirmation from the client's team.",
+    },
+  },
   nav: {
     companies: "Companies",
     panel: "Panel",

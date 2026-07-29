@@ -22,6 +22,7 @@ import {
   strengthHint,
 } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type { SolutionArchitecture } from "@/types";
 
 /** `lib/solution/modules.ts` purpose sentences — deterministic, display only. */
@@ -136,6 +137,7 @@ export function SolutionArchitecturePanel({
             </li>
           ))}
         </ul>
+        <ProvenanceFootnote tier="suggested" />
       </Block>
 
       <Block title={t("solutionArchitecturePanel.rolesThatWillUseIt")}>
@@ -257,6 +259,7 @@ export function SolutionArchitecturePanel({
             </li>
           ))}
         </ol>
+        <ProvenanceFootnote tier="suggested" />
       </Block>
 
       <ExecutiveDetail

@@ -25,6 +25,7 @@ import {
   workflowNameLabel,
 } from "@/lib/presentation";
 import { formatRelativeActivity } from "@/lib/workspace";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type { BusinessBlueprint } from "@/types";
 
 function blueprintRevisionLabel(indexFromNewest: number): string {
@@ -110,6 +111,7 @@ export function BusinessBlueprintPanel({
 
       <BlueprintBlock title={t("businessBlueprintPanel.howItShouldOperate")}>
         <p>{selected.futureState}</p>
+        <ProvenanceFootnote tier="inferred" />
       </BlueprintBlock>
 
       <BlueprintBlock title={t("businessBlueprintPanel.transformationPath")}>
@@ -125,6 +127,7 @@ export function BusinessBlueprintPanel({
           label={t("businessBlueprintPanel.future")}
           summary={selected.futureArchitecture.future.summary}
         />
+        <ProvenanceFootnote tier="inferred" />
       </BlueprintBlock>
 
       <BlueprintBlock title={t("businessBlueprintPanel.capabilities")}>
@@ -269,6 +272,7 @@ export function BusinessBlueprintPanel({
                 </li>
               ))}
             </ul>
+            <ProvenanceFootnote tier="suggested" />
           </BlueprintBlock>
 
           <BlueprintBlock title={t("businessBlueprintPanel.recommendedCapabilities")}>

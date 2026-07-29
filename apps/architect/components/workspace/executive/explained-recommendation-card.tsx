@@ -31,6 +31,10 @@ export function ExplainedRecommendationCard({
   className?: string;
 }) {
   const { t } = useTranslations();
+  // A recommendation is always Architect's inference, never an observed
+  // fact — it only degrades to "suggested" (a catalog-style hypothesis)
+  // when no concrete evidence backs it at all.
+  const provenanceTier = explained.evidence.length > 0 ? "inferred" : "suggested";
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -69,11 +73,19 @@ export function ExplainedRecommendationCard({
               </p>
             ) : null}
           </div>
-          {explained.priority ? (
-            <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
-              {priorityLabelEs(explained.priority)}
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {explained.priority ? (
+              <span className="rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
+                {priorityLabelEs(explained.priority)}
+              </span>
+            ) : null}
+            <span
+              className="rounded-full border border-[var(--isalwa-mist)]/70 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/60"
+              title={t(`provenance.footnote.${provenanceTier}`)}
+            >
+              {t(`provenance.tier.${provenanceTier}`)}
             </span>
-          ) : null}
+          </div>
         </div>
 
         <div

@@ -27,6 +27,7 @@ import {
   type VizNode,
 } from "@/lib/process-visualization";
 import { healthLabel, coverageBand, riskLevelLabel } from "@/lib/presentation";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type { BusinessProcessModel } from "@/types";
 
 const selectClassName =
@@ -187,6 +188,7 @@ function ProcessStudio({
           {formatRelativeActivity(processes.generatedAt)}
           {t("businessProcessesPanel.readOnlySuffix")}
         </p>
+        <ProvenanceFootnote tier="inferred" />
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
@@ -487,6 +489,7 @@ function ProcessStudio({
               <DependencyList title={t("businessProcessesPanel.roles")} items={deps.roles} />
               <DependencyList title={t("businessProcessesPanel.approvals")} items={deps.approvals} />
               <DependencyList title={t("businessProcessesPanel.policies")} items={deps.policies} />
+              <ProvenanceFootnote tier="inferred" />
             </Card>
           ) : null}
         </div>
