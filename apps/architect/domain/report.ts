@@ -168,9 +168,13 @@ function workflowsFromInterview(interview: Interview): Workflow[] {
         "Los resultados se reportan manualmente",
       ],
       friction: interview.memory.summary.painPoints,
-      owners: interview.participant.role
-        ? [interview.participant.role]
-        : ["sin especificar"],
+      // The interview participant described this operation — that does not
+      // make them its owner. No knowledge-graph "Owns" edge is available at
+      // this stage (this report synthesizes straight from the raw
+      // `Interview`, before the Company Model exists), so there is no
+      // evidence to attribute here; leave empty rather than assume
+      // interviewer == owner.
+      owners: [],
     },
   ];
 }

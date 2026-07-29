@@ -1,5 +1,5 @@
 import { createId, nowIso } from "@/lib/utils";
-import { coverageAreaLabel, moduleLabel } from "@/lib/presentation";
+import { coverageAreaLabel, departmentLabel, moduleLabel } from "@/lib/presentation";
 import type {
   BlueprintCapability,
   BlueprintCapabilityName,
@@ -37,6 +37,17 @@ function evidence(
  * object side names this capability or its department. No match → no
  * owner, full stop; the interviewer/interviewee (`workspace.people[0]`) is
  * never used as a fallback.
+ *
+ * Capability/department names live in this module's English enum
+ * (`BlueprintCapabilityName` / `BlueprintDepartmentName`), but every
+ * knowledge-graph entity `lib/intake/detectors.ts` extracts is canonicalized
+ * to Spanish (interviews and documents are Spanish; see `CANONICAL_NAMES`
+ * there). Matching only the raw English enum value against that Spanish
+ * entity name would never hit — the gate would look evidence-based while
+ * silently never finding the evidence it requires. `moduleLabel` /
+ * `departmentLabel` (the same Spanish labels already shown in the UI) are
+ * reused here so a real "Ana está a cargo de Compras" edge is actually
+ * recognized as ownership of the Purchasing capability/department.
  */
 export function findEvidencedCapabilityOwner(
   workspace: CompanyWorkspace,
@@ -48,9 +59,18 @@ export function findEvidencedCapabilityOwner(
   if (relationships.length === 0 || entities.length === 0) return null;
 
   const entityById = new Map(entities.map((e) => [e.id, e]));
-  const targets = [capabilityName, departmentName ?? undefined]
-    .filter((v): v is string => Boolean(v))
-    .map((v) => v.toLowerCase());
+  const targets = Array.from(
+    new Set(
+      [
+        capabilityName,
+        moduleLabel(capabilityName),
+        departmentName ?? undefined,
+        departmentName ? departmentLabel(departmentName) : undefined,
+      ]
+        .filter((v): v is string => Boolean(v))
+        .map((v) => v.toLowerCase()),
+    ),
+  );
   if (targets.length === 0) return null;
 
   for (const rel of relationships) {
