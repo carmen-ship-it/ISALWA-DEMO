@@ -549,10 +549,13 @@ export interface MeetingTranscriptPipelineRun extends DocumentPipelineRun {
  *   9-10 Insights/recs   measured the same way
  *
  * On top of that, this stage also writes a first-class `Meeting` record
- * (Mission 22) so a pasted transcript joins `workspace.meetings` exactly
- * like a completed guided interview does (`lib/memory/apply-interview.ts`)
+ * (Mission 22) so a pasted transcript joins `workspace.meetings` the same
+ * way a completed guided interview does (`lib/memory/apply-interview.ts`)
  * — the Preparation Brief's "previous meetings" and any future surface that
  * reads `CompanyWorkspace.meetings` see it without a separate code path.
+ * It is tagged `kind: "transcript_ingest"` (see `lib/memory/meeting-kind.ts`)
+ * — an internal ingestion event, never counted as a human discovery session
+ * in client-facing copy.
  */
 export async function processMeetingTranscript(
   params: ProcessMeetingTranscriptParams,
@@ -670,6 +673,7 @@ export async function processMeetingTranscript(
     participants,
     conversationId: null,
     interviewId: null,
+    kind: "transcript_ingest",
     summary: report.message,
     discoveries: report.learnedLines,
     questionsAnswered: [],

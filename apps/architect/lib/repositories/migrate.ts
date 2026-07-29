@@ -30,7 +30,7 @@ import { assembleImplementationPackage } from "@/lib/implementation-package";
 import { deriveBrandExperience } from "@/lib/brand";
 import { deriveCompanyModel } from "@/lib/company-model";
 import { applyDiscoveryScore } from "@/lib/reasoning";
-import { isFabricatedSeedFact } from "@/lib/memory/heal";
+import { healMeetingKinds, isFabricatedSeedFact } from "@/lib/memory/heal";
 import {
   normalizeBusinessProcesses,
   normalizeConsultingIntelligence,
@@ -169,6 +169,11 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
         implementationPackage: workspace.implementationPackage ?? null,
         evolutionHistory: workspace.evolutionHistory,
       };
+
+      // Heal Meeting.kind before anything downstream reads it — every
+      // discovery-session vs transcript-ingest count in this file and every
+      // client surface depends on it (see lib/memory/meeting-kind.ts).
+      next = healMeetingKinds(next);
 
       if (!next.knowledge?.assets || looksLikeOldFabricatedKnowledgeSeed(next)) {
         // Heal: this either has no knowledge yet, or is a ws_isalwa row

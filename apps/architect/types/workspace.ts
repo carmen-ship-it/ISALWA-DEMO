@@ -180,6 +180,18 @@ export interface CompanyWorkspace {
   livingDeliverables?: import("./living-deliverables").LivingDeliverablesState | null;
 }
 
+/**
+ * `discovery_session` — a real human discovery interview/conversation
+ * (`lib/memory/apply-interview.ts`), always carrying an `interviewId`.
+ * `transcript_ingest` — an internal ingestion event: a pasted/uploaded
+ * meeting transcript run through the document pipeline
+ * (`lib/documents/pipeline.ts`). It becomes a `Meeting` record so existing
+ * evidence surfaces (Preparation Brief, timeline) can show it, but it is
+ * never a live discovery session and must never be counted as one in
+ * client-facing copy — see `lib/memory/meeting-kind.ts`.
+ */
+export type MeetingKind = "discovery_session" | "transcript_ingest";
+
 export interface Meeting {
   id: string;
   workspaceId: string;
@@ -188,6 +200,7 @@ export interface Meeting {
   participants: string[];
   conversationId: string | null;
   interviewId: string | null;
+  kind: MeetingKind;
   summary: string;
   discoveries: string[];
   questionsAnswered: string[];

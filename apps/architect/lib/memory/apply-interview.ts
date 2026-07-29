@@ -59,6 +59,7 @@ export function applyInterviewToWorkspace(
       : [],
     conversationId: null,
     interviewId: interview.id,
+    kind: "discovery_session",
     summary: buildMeetingSummary(interview),
     discoveries: interview.memory.knownFacts.map((f) => f.statement).slice(0, 8),
     questionsAnswered: interview.conversation.answers

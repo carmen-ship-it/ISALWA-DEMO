@@ -252,12 +252,12 @@ export function ReadinessEvidenceChips({
                 { count: inventory.documents },
               )
             : null,
-          inventory.meetings > 0
+          inventory.discoverySessions > 0
             ? t(
-                inventory.meetings === 1
+                inventory.discoverySessions === 1
                   ? "workspaceView.chips.meetingsOne"
                   : "workspaceView.chips.meetingsMany",
-                { count: inventory.meetings },
+                { count: inventory.discoverySessions },
               )
             : null,
         ].filter(Boolean) as string[];

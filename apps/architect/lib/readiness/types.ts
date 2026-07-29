@@ -86,7 +86,10 @@ export interface EvidenceInventory {
   interviewFacts: number;
   documents: number;
   importedRecords: number;
+  /** All `Meeting` records, any kind — discovery sessions and transcript ingestion alike. Never render this as "reuniones"; see `discoverySessions`. */
   meetings: number;
+  /** Real human discovery sessions only — never internal transcript/document ingestion events. The honest number for "N reuniones"/"N sesiones" client copy. */
+  discoverySessions: number;
   businessRules: number;
   revisions: number;
 }

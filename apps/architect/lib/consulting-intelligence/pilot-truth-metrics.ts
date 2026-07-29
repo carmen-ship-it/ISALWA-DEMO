@@ -9,10 +9,12 @@
  * - Discovery conversations (honest: 1 if interview memory exists, else 0)
  * - Learned facts
  * - Uploaded documents (processed knowledge assets)
- * - Meetings
+ * - Discovery sessions (real human conversations — never transcript ingestion)
+ * - Transcripts processed (internal ingestion events — never shown as "reuniones")
  * - Business understanding %
  */
 
+import { countDiscoverySessions, countTranscriptIngestEvents } from "@/lib/memory/meeting-kind";
 import { snapshotFromWorkspace } from "@/lib/readiness";
 import type { CompanyWorkspace } from "@/types";
 
@@ -20,7 +22,10 @@ export interface PilotTruthMetrics {
   discoveryConversations: number;
   learnedFacts: number;
   uploadedDocuments: number;
-  meetings: number;
+  /** Real human discovery sessions only — never internal transcript/document ingestion. Falls back to `discoveryConversations` when a conversation is underway but no session `Meeting` has been recorded yet. */
+  discoverySessions: number;
+  /** Internal ingestion events (pasted/uploaded meeting transcripts) that created a `Meeting` record — never presented as a "reunión". */
+  transcriptsProcessed: number;
   understandingPercent: number;
   /** Short Spanish chips for hero strips — only non-zero preferred metrics. */
   chips: string[];
@@ -40,12 +45,23 @@ export function buildPilotTruthMetrics(
   const learnedFacts =
     workspace.conversationMemory?.knownFacts?.length ??
     inventory.interviewFacts;
-  const meetings = workspace.meetings?.length ?? inventory.meetings;
   const uploadedDocuments =
     workspace.knowledge?.assets?.filter((a) => a.status === "processed")
       .length ?? inventory.documents;
   const discoveryConversations =
     workspace.conversationMemory || workspace.activeInterviewId ? 1 : 0;
+  const meetings = workspace.meetings ?? [];
+  const discoverySessionMeetings = workspace.meetings
+    ? countDiscoverySessions(meetings)
+    : inventory.discoverySessions;
+  // Prefer the real Meeting count; fall back to the 0/1 "conversation under
+  // way" signal only when no session Meeting has been recorded yet, so the
+  // chip never reads "0" while a live interview is in progress.
+  const discoverySessions =
+    discoverySessionMeetings > 0 ? discoverySessionMeetings : discoveryConversations;
+  const transcriptsProcessed = workspace.meetings
+    ? countTranscriptIngestEvents(meetings)
+    : Math.max(0, inventory.meetings - inventory.discoverySessions);
   const understandingPercent = clampPercent(workspace.businessUnderstanding);
 
   const chips: string[] = [];
@@ -70,9 +86,18 @@ export function buildPilotTruthMetrics(
         : `${uploadedDocuments} documentos cargados`,
     );
   }
-  if (meetings > 0) {
+  if (discoverySessions > 0) {
     chips.push(
-      meetings === 1 ? "1 reunión" : `${meetings} reuniones`,
+      discoverySessions === 1
+        ? "1 sesión de descubrimiento"
+        : `${discoverySessions} sesiones de descubrimiento`,
+    );
+  }
+  if (transcriptsProcessed > 0) {
+    chips.push(
+      transcriptsProcessed === 1
+        ? "1 transcripción procesada"
+        : `${transcriptsProcessed} transcripciones procesadas`,
     );
   }
   chips.push(
@@ -83,7 +108,8 @@ export function buildPilotTruthMetrics(
     discoveryConversations,
     learnedFacts,
     uploadedDocuments,
-    meetings,
+    discoverySessions,
+    transcriptsProcessed,
     understandingPercent,
     chips,
   };

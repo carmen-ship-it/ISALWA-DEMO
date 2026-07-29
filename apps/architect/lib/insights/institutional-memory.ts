@@ -8,6 +8,7 @@
 
 import { explainWorkspaceRecommendations } from "@/lib/explanations";
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge";
+import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import type { CompanyWorkspace } from "@/types";
 import type { InstitutionalMemoryEntry, InstitutionalMemoryStep } from "./types";
 
@@ -15,6 +16,9 @@ function buildProvenanceChain(workspace: CompanyWorkspace): InstitutionalMemoryS
   const knowledge = ensureWorkspaceKnowledge(workspace.knowledge);
   const discoveryEvents = workspace.timeline.filter((e) => e.category === "discovery");
   const processedDocs = knowledge.assets.filter((a) => a.status === "processed");
+  // Real human discovery sessions only — never internal transcript ingestion
+  // (`lib/documents/pipeline.ts` also writes `Meeting` records).
+  const discoverySessions = countDiscoverySessions(workspace.meetings);
   const knownFacts = workspace.conversationMemory?.knownFacts.length ?? 0;
   const evidenceLog = knowledge.evidenceLog.length;
   const recommendationCount =
@@ -44,10 +48,10 @@ function buildProvenanceChain(workspace: CompanyWorkspace): InstitutionalMemoryS
       id: "meeting",
       label: "Reunión",
       detail:
-        workspace.meetings.length > 0
-          ? `${workspace.meetings.length} reunión(es) registradas`
-          : "Aún sin reuniones registradas",
-      count: workspace.meetings.length,
+        discoverySessions > 0
+          ? `${discoverySessions} sesión(es) de descubrimiento registradas`
+          : "Aún sin sesiones de descubrimiento registradas",
+      count: discoverySessions,
     },
     {
       id: "evidence",

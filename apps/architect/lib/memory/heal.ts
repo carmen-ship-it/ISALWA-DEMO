@@ -1,5 +1,6 @@
-import type { ConversationMemory, KnownFact } from "@/types";
+import type { CompanyWorkspace, ConversationMemory, KnownFact } from "@/types";
 import { applyDiscoveryScore } from "@/lib/reasoning";
+import { resolveMeetingKind } from "./meeting-kind";
 
 /**
  * A single fact that the old `lib/workspace/seed.ts` pilot seed invented.
@@ -36,4 +37,24 @@ export function healConversationMemory(
   );
   if (knownFacts.length === memory.knownFacts.length) return memory;
   return applyDiscoveryScore({ ...memory, knownFacts });
+}
+
+/**
+ * Backfill `Meeting.kind` on records persisted before the discriminator
+ * existed (see `lib/memory/meeting-kind.ts`): an interview-linked meeting
+ * heals to `discovery_session`, everything else — every pre-existing
+ * meeting only ever came from `apply-interview.ts` or the document
+ * pipeline's transcript path — heals to `transcript_ingest`. A no-op (same
+ * reference) once every meeting already carries its kind, so this can run
+ * unconditionally on every load.
+ */
+export function healMeetingKinds(workspace: CompanyWorkspace): CompanyWorkspace {
+  let changed = false;
+  const meetings = workspace.meetings.map((meeting) => {
+    const kind = resolveMeetingKind(meeting);
+    if (meeting.kind === kind) return meeting;
+    changed = true;
+    return { ...meeting, kind };
+  });
+  return changed ? { ...workspace, meetings } : workspace;
 }

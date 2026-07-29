@@ -5,6 +5,7 @@
 
 import { createId, nowIso } from "@/lib/utils";
 import { latestBlueprint } from "@/lib/blueprint";
+import { isDiscoverySessionMeeting } from "@/lib/memory/meeting-kind";
 import type {
   CompanySnapshot,
   SnapshotModuleRef,
@@ -187,7 +188,11 @@ function collectCompletedWork(workspace: CompanyWorkspace): string[] {
   const items: string[] = [];
 
   for (const meeting of workspace.meetings) {
-    items.push(`Reunión: ${meeting.title}`);
+    items.push(
+      isDiscoverySessionMeeting(meeting)
+        ? `Reunión: ${meeting.title}`
+        : `Transcripción procesada: ${meeting.title}`,
+    );
   }
 
   if (workspace.deliverables) {

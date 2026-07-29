@@ -559,10 +559,10 @@ function OsArtifactCard({
                 : "Aún sin documentos cargados"}
             </li>
             <li>
-              {bf.meetings > 0 ? "✓" : "○"}{" "}
-              {bf.meetings > 0
-                ? `${bf.meetings} ${bf.meetings === 1 ? "reunión" : "reuniones"} registradas`
-                : "Aún sin reuniones registradas"}
+              {bf.discoverySessions > 0 ? "✓" : "○"}{" "}
+              {bf.discoverySessions > 0
+                ? `${bf.discoverySessions} ${bf.discoverySessions === 1 ? "sesión" : "sesiones"} de descubrimiento registradas`
+                : "Aún sin sesiones de descubrimiento registradas"}
             </li>
           </ul>
         </div>

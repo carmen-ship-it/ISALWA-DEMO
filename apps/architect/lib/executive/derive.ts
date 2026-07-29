@@ -10,6 +10,7 @@ import type {
   ProcessRiskLevel,
   SolutionModule,
 } from "@/types";
+import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import { phaseLabel } from "@/lib/presentation";
 import { deriveExecutiveCockpit } from "./cockpit";
 import type { ExecutiveCockpit } from "./types";
@@ -106,7 +107,11 @@ export function deriveExecutiveExperience(
   const blueprint = workspace.blueprints.find(
     (b) => b.id === workspace.currentBlueprintId,
   );
-  const meetings = workspace.meetings.length;
+  // Real human discovery sessions only — never internal transcript/document
+  // ingestion events (`lib/documents/pipeline.ts` also writes `Meeting`
+  // records, but those never happened as a live conversation with anyone).
+  // See `lib/memory/meeting-kind.ts`.
+  const discoverySessions = countDiscoverySessions(workspace.meetings);
   // Same bar as the "learned" stage below — downstream artifacts (blueprint,
   // solution, deliverables) can exist as early drafts while discovery is
   // still thin, so their journey checkmarks stay honest by requiring the
@@ -118,10 +123,10 @@ export function deriveExecutiveExperience(
       id: "interview",
       label: "Entrevista",
       detail:
-        meetings > 0
-          ? `${meetings} sesión${meetings === 1 ? "" : "es"} de descubrimiento registrada${meetings === 1 ? "" : "s"}`
+        discoverySessions > 0
+          ? `${discoverySessions} sesión${discoverySessions === 1 ? "" : "es"} de descubrimiento registrada${discoverySessions === 1 ? "" : "s"}`
           : "Listo para la primera sesión de descubrimiento",
-      complete: meetings > 0 || workspace.businessUnderstanding > 0,
+      complete: discoverySessions > 0 || workspace.businessUnderstanding > 0,
     },
     {
       id: "learned",
@@ -246,8 +251,11 @@ export function deriveExecutiveExperience(
     })),
   };
 
-  const dayLabel =
-    meetings <= 1 ? "Día 1" : meetings === 2 ? "Día 2" : `Día ${meetings}`;
+  // "Sesión N", never "Día N" — a fabricated day count from raw meeting
+  // records conflated real interviews with transcript ingestion. This is the
+  // honest discovery-session count, floored at 1 so the very first session
+  // still reads "Sesión 1" instead of "Sesión 0".
+  const dayLabel = `Sesión ${Math.max(1, discoverySessions)}`;
 
   return {
     journey,

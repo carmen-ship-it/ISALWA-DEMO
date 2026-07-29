@@ -9,7 +9,8 @@ import type { NextStepVoice } from "./next-step-voice";
 
 export interface OrientationPanelReport {
   factsLearned: number;
-  meetingsAnalyzed: number;
+  /** Real human discovery sessions only — never internal transcript ingestion. */
+  discoverySessions: number;
   documentsUploaded: number;
   discoveryConversations: number;
   understandingPercent: number;
@@ -46,12 +47,12 @@ export function buildOrientationPanel(input: {
 
   const prefersTeach =
     nextStepVoice.actionKind === "upload_document" ||
-    truth.meetings > 0 ||
+    truth.discoverySessions > 0 ||
     truth.uploadedDocuments > 0;
 
   return {
     factsLearned: truth.learnedFacts,
-    meetingsAnalyzed: truth.meetings,
+    discoverySessions: truth.discoverySessions,
     documentsUploaded: truth.uploadedDocuments,
     discoveryConversations: truth.discoveryConversations,
     understandingPercent: truth.understandingPercent,

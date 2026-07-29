@@ -50,6 +50,9 @@ export type OsCapabilityCategoryId =
 export interface OsBuiltFrom {
   interviewFacts: number;
   documents: number;
+  /** Real human discovery sessions only — never internal transcript ingestion (`meetings` below still exists for the evidence-count total). */
+  discoverySessions: number;
+  /** All `Meeting` records (discovery sessions + transcript ingestion) — internal evidence-count total, never rendered as "reuniones" on its own. */
   meetings: number;
 }
 
@@ -352,7 +355,7 @@ function toLegacyModule(artifact: OperatingSystemArtifact): OperatingSystemModul
     generatedFrom: [
       `${artifact.builtFrom.interviewFacts} hechos de entrevista`,
       `${artifact.builtFrom.documents} documentos`,
-      `${artifact.builtFrom.meetings} reuniones`,
+      `${artifact.builtFrom.discoverySessions} sesiones de descubrimiento`,
     ],
     lastUpdatedAt: artifact.lastUpdatedAt,
     becauseWeUnderstand: artifact.whyMatters,
@@ -373,6 +376,7 @@ export function buildCompanyOperatingSystem(
   const builtFrom: OsBuiltFrom = {
     interviewFacts: inventory.interviewFacts,
     documents: inventory.documents,
+    discoverySessions: inventory.discoverySessions,
     meetings: inventory.meetings,
   };
 

@@ -12,6 +12,7 @@
  */
 
 import { ensureWorkspaceKnowledge } from "@/lib/knowledge/coverage";
+import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import {
   DIMENSION_EVIDENCE_KEYS,
   DIMENSION_LABELS,
@@ -60,6 +61,8 @@ export interface EvidenceSnapshotInput {
   memory: ConversationMemory | null;
   knowledge: WorkspaceKnowledge | null;
   meetingCount?: number;
+  /** Real human discovery sessions only — see `lib/memory/meeting-kind.ts`. */
+  discoverySessionCount?: number;
   revisionCount?: number;
   /** Business understanding as already published elsewhere (0–100). */
   overallUnderstanding?: number;
@@ -240,6 +243,7 @@ export function buildEvidenceSnapshot(
     documents: knowledge.assets.filter((a) => a.status === "processed").length,
     importedRecords: knowledge.evidenceLog.length,
     meetings: input.meetingCount ?? 0,
+    discoverySessions: input.discoverySessionCount ?? 0,
     businessRules: knowledge.businessRules.length,
     revisions: input.revisionCount ?? 0,
   };
@@ -267,6 +271,7 @@ export function snapshotFromWorkspace(
     memory: workspace.conversationMemory,
     knowledge: workspace.knowledge,
     meetingCount: workspace.meetings.length,
+    discoverySessionCount: countDiscoverySessions(workspace.meetings),
     revisionCount: workspace.evolutionHistory?.snapshots.length ?? 0,
     overallUnderstanding: workspace.businessUnderstanding,
   });

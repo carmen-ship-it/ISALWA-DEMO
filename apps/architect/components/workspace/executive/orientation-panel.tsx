@@ -46,11 +46,11 @@ export function OrientationPanel({
         : `${report.documentsUploaded} documentos cargados`,
     );
   }
-  if (report.meetingsAnalyzed > 0) {
+  if (report.discoverySessions > 0) {
     knowLines.push(
-      report.meetingsAnalyzed === 1
-        ? "1 reunión"
-        : `${report.meetingsAnalyzed} reuniones`,
+      report.discoverySessions === 1
+        ? "1 sesión de descubrimiento"
+        : `${report.discoverySessions} sesiones de descubrimiento`,
     );
   }
   knowLines.push(

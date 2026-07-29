@@ -71,7 +71,10 @@ export interface CompanyBrainTrustCenter {
   evidenceChips: string[];
   facts: number;
   documents: number;
-  meetings: number;
+  /** Real human discovery sessions only — never internal transcript ingestion. */
+  discoverySessions: number;
+  /** Internal ingestion events (pasted/uploaded transcripts) — never shown as "reuniones". */
+  transcriptsProcessed: number;
   businessRules: number;
   importedRecords: number;
   workflows: number;
@@ -175,7 +178,8 @@ function impactLabelFor(
 function buildTrustEvidenceChips(trust: {
   facts: number;
   documents: number;
-  meetings: number;
+  discoverySessions: number;
+  transcriptsProcessed: number;
   discoveryConversations: number;
   businessRules: number;
   workflows: number;
@@ -198,9 +202,14 @@ function buildTrustEvidenceChips(trust: {
       `${trust.documents} ${pluralEs(trust.documents, "documento cargado", "documentos cargados")}`,
     );
   }
-  if (trust.meetings > 0) {
+  if (trust.discoverySessions > 0) {
     chips.push(
-      `${trust.meetings} ${pluralEs(trust.meetings, "reunión registrada", "reuniones registradas")}`,
+      `${trust.discoverySessions} ${pluralEs(trust.discoverySessions, "sesión de descubrimiento registrada", "sesiones de descubrimiento registradas")}`,
+    );
+  }
+  if (trust.transcriptsProcessed > 0) {
+    chips.push(
+      `${trust.transcriptsProcessed} ${pluralEs(trust.transcriptsProcessed, "transcripción procesada", "transcripciones procesadas")}`,
     );
   }
   if (trust.businessRules > 0) {
@@ -269,7 +278,8 @@ export function buildCompanyBrain(input: CompanyBrainInput): CompanyBrainReport 
   const trustCounts = {
     facts: truth.learnedFacts,
     documents: truth.uploadedDocuments,
-    meetings: truth.meetings,
+    discoverySessions: truth.discoverySessions,
+    transcriptsProcessed: truth.transcriptsProcessed,
     discoveryConversations: truth.discoveryConversations,
     businessRules: snapshot.inventory.businessRules,
     importedRecords: 0, // never surface evidence-log length as "meetings" or activity

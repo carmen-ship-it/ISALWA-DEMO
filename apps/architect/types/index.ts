@@ -565,6 +565,7 @@ export type {
   FutureIntakeHook,
   FutureIntakeSource,
   Meeting,
+  MeetingKind,
   MeetingRepository,
   Person,
   PersonRepository,

@@ -32,6 +32,7 @@
 
 import type { CompanyWorkspace, DiscoveryDimension, TimelineEvent } from "@/types";
 import type { CapabilityId } from "@/lib/discovery-agent/capabilities";
+import { isDiscoverySessionMeeting } from "@/lib/memory/meeting-kind";
 import type { MissingInformationReport } from "@/lib/readiness";
 import { sortTimelineNewestFirst } from "@/lib/timeline";
 import type { DiscoveryCompletionStatus } from "./discovery-status";
@@ -142,23 +143,42 @@ export function buildSinceLastVisit(
 
   const since = lastVisit.visitedAt;
   const newEvents = workspace.timeline.filter((event) => event.date > since);
-  const meetingCount = newEvents.filter((event) => event.category === "meeting").length;
+  // A "meeting" category timeline event is only a real discovery session
+  // when it points at a Meeting record of that kind — the seed's own
+  // workspace-creation event and every transcript-ingestion event also use
+  // this category, and neither is a human conversation. See
+  // lib/memory/meeting-kind.ts.
+  const discoverySessionMeetingIds = new Set(
+    workspace.meetings.filter(isDiscoverySessionMeeting).map((meeting) => meeting.id),
+  );
+  const meetingEvents = newEvents.filter((event) => event.category === "meeting");
+  const discoverySessionCount = meetingEvents.filter(
+    (event) => event.meetingId && discoverySessionMeetingIds.has(event.meetingId),
+  ).length;
+  const transcriptIngestCount = meetingEvents.length - discoverySessionCount;
   const knowledgeCount = newEvents.filter((event) => event.category === "knowledge").length;
-  const otherCount = newEvents.length - meetingCount - knowledgeCount;
+  const otherCount =
+    newEvents.length - meetingEvents.length - knowledgeCount;
   const understandingDelta =
     Math.round(workspace.businessUnderstanding) - Math.round(lastVisit.businessUnderstanding);
 
   const changes: DailyBriefChange[] = [];
-  if (meetingCount > 0) {
+  if (discoverySessionCount > 0) {
     changes.push({
       id: "meetings",
-      label: `${meetingCount} ${pluralEs(meetingCount, "reunión nueva registrada", "reuniones nuevas registradas")}`,
+      label: `${discoverySessionCount} ${pluralEs(discoverySessionCount, "sesión de descubrimiento nueva registrada", "sesiones de descubrimiento nuevas registradas")}`,
     });
   }
   if (knowledgeCount > 0) {
     changes.push({
       id: "documents",
       label: `${knowledgeCount} ${pluralEs(knowledgeCount, "documento nuevo procesado", "documentos nuevos procesados")}`,
+    });
+  }
+  if (transcriptIngestCount > 0) {
+    changes.push({
+      id: "transcripts",
+      label: `${transcriptIngestCount} ${pluralEs(transcriptIngestCount, "transcripción nueva procesada", "transcripciones nuevas procesadas")}`,
     });
   }
   if (otherCount > 0) {
