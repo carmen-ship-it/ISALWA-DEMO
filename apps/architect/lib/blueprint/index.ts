@@ -4,6 +4,7 @@ export {
   latestBlueprint,
   appendBlueprintVersion,
   blueprintTimelineEvent,
+  findEvidencedCapabilityOwner,
 } from "./derive";
 export { BLUEPRINT_FUTURE_OUTPUTS } from "./future-outputs";
 export {

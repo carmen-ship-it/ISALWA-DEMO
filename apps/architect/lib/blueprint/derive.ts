@@ -30,6 +30,52 @@ function evidence(
 }
 
 /**
+ * Ownership must be earned by evidence, never assumed from "who happens to
+ * be in the room". The only legitimate source for a *person* owner is a
+ * knowledge-graph "Owns" edge — produced by `lib/intake/detectors.ts` from
+ * an explicit sentence like "Ana está a cargo de Compras" — where the
+ * object side names this capability or its department. No match → no
+ * owner, full stop; the interviewer/interviewee (`workspace.people[0]`) is
+ * never used as a fallback.
+ */
+export function findEvidencedCapabilityOwner(
+  workspace: CompanyWorkspace,
+  capabilityName: string,
+  departmentName: string | null,
+): { owner: string; evidenceRef: BlueprintEvidenceRef } | null {
+  const relationships = workspace.knowledge?.relationships ?? [];
+  const entities = workspace.knowledge?.entities ?? [];
+  if (relationships.length === 0 || entities.length === 0) return null;
+
+  const entityById = new Map(entities.map((e) => [e.id, e]));
+  const targets = [capabilityName, departmentName ?? undefined]
+    .filter((v): v is string => Boolean(v))
+    .map((v) => v.toLowerCase());
+  if (targets.length === 0) return null;
+
+  for (const rel of relationships) {
+    if (rel.kind !== "Owns") continue;
+    const from = entityById.get(rel.fromEntityId);
+    const to = entityById.get(rel.toEntityId);
+    if (!from || !to || from.kind !== "Person") continue;
+    const toName = to.name.toLowerCase();
+    const matches = targets.some(
+      (t) => toName === t || toName.includes(t) || t.includes(toName),
+    );
+    if (!matches) continue;
+    return {
+      owner: from.name,
+      evidenceRef: evidence(
+        "knowledge",
+        rel.id,
+        rel.label || `${from.name} \u2192 ${to.name}`,
+      ),
+    };
+  }
+  return null;
+}
+
+/**
  * Derive a new Business Blueprint version from workspace memory + knowledge + interview.
  * Never mutates prior versions — caller appends.
  */
@@ -217,11 +263,17 @@ function buildCapabilities(
         title.toLowerCase().includes(name.toLowerCase().slice(0, 4)),
       );
 
+    const evidencedOwner = findEvidencedCapabilityOwner(
+      workspace,
+      capabilityName,
+      mapped.department,
+    );
+
     return {
       id: createId("cap"),
       name: capabilityName,
       purpose: `Enable ${capabilityName.toLowerCase()} as a durable operating capability.`,
-      owner: workspace.people[0]?.name ?? null,
+      owner: evidencedOwner?.owner ?? null,
       department: mapped.department,
       inputs: ["Requests", "Records", "Approvals"],
       outputs: ["Decisions", "Transactions", "Visibility"],
@@ -236,7 +288,9 @@ function buildCapabilities(
         `Digitize ${capabilityName.toLowerCase()} workflows`,
         "Reduce manual handoffs",
       ],
-      evidence: refs.slice(0, 3),
+      evidence: evidencedOwner
+        ? [evidencedOwner.evidenceRef, ...refs.slice(0, 2)]
+        : refs.slice(0, 3),
     };
   });
 }

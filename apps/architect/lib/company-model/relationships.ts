@@ -212,7 +212,14 @@ export function deriveOwnership(
   const ownership: CompanyOwnership[] = [];
 
   for (const capability of blueprint.capabilities) {
-    if (!capability.owner && !capability.department) continue;
+    // A capability sitting inside a department is not the same claim as a
+    // named owner — showing "Sales posee Sales" would invent ownership out
+    // of mere department membership, which is already visible in the
+    // Departments section. Only surface this row when the blueprint carries
+    // an explicit, evidence-backed person owner (see
+    // `findEvidencedCapabilityOwner` in `lib/blueprint/derive.ts`); no
+    // owner means "Por confirmar" and the row is simply omitted here.
+    if (!capability.owner) continue;
     const department = departmentByName(departments, capability.department);
     const ownerPerson = people.find(
       (p) =>
@@ -222,7 +229,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", capability.id),
       kind: "department_capability",
-      ownerLabel: capability.owner ?? capability.department ?? "Sin asignar",
+      ownerLabel: capability.owner,
       ownerPersonId: ownerPerson?.id ?? null,
       ownerDepartmentId: department?.id ?? null,
       ownerRoleId: null,

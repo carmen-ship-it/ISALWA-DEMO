@@ -2,7 +2,7 @@
  * Bundle migration + storage key — shared by local and Supabase stores.
  */
 
-import type { CompanyWorkspace } from "@/types";
+import type { BusinessBlueprint, CompanyWorkspace } from "@/types";
 import {
   createSeedWorkspaces,
   type WorkspaceBundle,
@@ -20,6 +20,7 @@ import {
   emptyBlueprints,
   ensureBlueprints,
   ensureCurrentBlueprintId,
+  findEvidencedCapabilityOwner,
   latestBlueprint,
 } from "@/lib/blueprint";
 import { deriveSolutionArchitecture } from "@/lib/solution";
@@ -88,6 +89,46 @@ const STALE_FABRICATED_KNOWLEDGE_DESCRIPTIONS = new Set([
   "Se revisaron dos presentaciones de estrategia y una nota de traspaso de proyecto antes de la última sesión.",
   "Notas de proceso parciales con varios responsables sin definir.",
 ]);
+
+/**
+ * Heal capability owners persisted by the old `people[0]` default — the
+ * only path that ever wrote `capability.owner` before this heal shipped
+ * was `workspace.people[0]?.name` (the interviewer/interviewee), regardless
+ * of whether any evidence backed it. Re-validate every persisted capability
+ * owner against the same evidence gate `deriveBusinessBlueprint` uses now
+ * (`findEvidencedCapabilityOwner`) and clear anything that no longer
+ * resolves to a real "Owns" knowledge edge — the UI then falls back to
+ * "Por confirmar" instead of showing an invented name.
+ */
+function healInventedCapabilityOwnership(
+  workspace: CompanyWorkspace,
+  blueprints: BusinessBlueprint[],
+): { blueprints: BusinessBlueprint[]; changed: boolean } {
+  let changed = false;
+  const healed = blueprints.map((blueprint) => {
+    let blueprintChanged = false;
+    const capabilities = blueprint.capabilities.map((cap) => {
+      if (!cap.owner) return cap;
+      const evidenced = findEvidencedCapabilityOwner(
+        workspace,
+        cap.name,
+        cap.department,
+      );
+      if (
+        evidenced &&
+        evidenced.owner.toLowerCase() === cap.owner.toLowerCase()
+      ) {
+        return cap;
+      }
+      blueprintChanged = true;
+      return { ...cap, owner: null };
+    });
+    if (!blueprintChanged) return blueprint;
+    changed = true;
+    return { ...blueprint, capabilities };
+  });
+  return { blueprints: changed ? healed : blueprints, changed };
+}
 
 /** Drop placeholder tenants and ensure the pilot ISALWA workspace exists. */
 function purgeDemoWorkspaces(bundle: WorkspaceBundle): WorkspaceBundle {
@@ -195,6 +236,23 @@ export function migrateBundle(bundle: WorkspaceBundle): WorkspaceBundle {
             blueprints,
             currentBlueprintId: next.currentBlueprintId ?? null,
           }),
+        };
+      }
+
+      // Heal capability owners persisted by the old `people[0]` default.
+      // Re-check every existing owner against the same evidence gate
+      // `deriveBusinessBlueprint` now enforces; anything unsupported is
+      // cleared to null. Forces a Company Model re-derive below so stale
+      // "Carmen posee X" ownership rows drop out immediately.
+      const ownershipHeal = healInventedCapabilityOwnership(
+        next,
+        next.blueprints,
+      );
+      if (ownershipHeal.changed) {
+        next = {
+          ...next,
+          blueprints: ownershipHeal.blueprints,
+          companyModel: null,
         };
       }
 
