@@ -33,6 +33,7 @@ import {
 } from "@/lib/readiness";
 import type { CompanyWorkspace } from "@/types";
 import type { DiscoveryCompletionStatus } from "./discovery-status";
+import { buildPilotTruthMetrics } from "./pilot-truth-metrics";
 import type { CapabilityDiscoveryState } from "./types";
 
 /** One business area the client already recognizes (Ventas, Operaciones…). */
@@ -175,17 +176,26 @@ function buildTrustEvidenceChips(trust: {
   facts: number;
   documents: number;
   meetings: number;
+  discoveryConversations: number;
   businessRules: number;
-  importedRecords: number;
   workflows: number;
 }): string[] {
   const chips: string[] = [];
+  if (trust.discoveryConversations > 0) {
+    chips.push(
+      trust.discoveryConversations === 1
+        ? "1 conversación de descubrimiento"
+        : `${trust.discoveryConversations} conversaciones de descubrimiento`,
+    );
+  }
   if (trust.facts > 0) {
-    chips.push(`${trust.facts} ${pluralEs(trust.facts, "hecho capturado", "hechos capturados")}`);
+    chips.push(
+      `${trust.facts} ${pluralEs(trust.facts, "hecho aprendido", "hechos aprendidos")}`,
+    );
   }
   if (trust.documents > 0) {
     chips.push(
-      `${trust.documents} ${pluralEs(trust.documents, "documento procesado", "documentos procesados")}`,
+      `${trust.documents} ${pluralEs(trust.documents, "documento cargado", "documentos cargados")}`,
     );
   }
   if (trust.meetings > 0) {
@@ -196,11 +206,6 @@ function buildTrustEvidenceChips(trust: {
   if (trust.businessRules > 0) {
     chips.push(
       `${trust.businessRules} ${pluralEs(trust.businessRules, "regla de negocio identificada", "reglas de negocio identificadas")}`,
-    );
-  }
-  if (trust.importedRecords > 0) {
-    chips.push(
-      `${trust.importedRecords} ${pluralEs(trust.importedRecords, "registro importado", "registros importados")}`,
     );
   }
   if (trust.workflows > 0) {
@@ -260,18 +265,18 @@ export function buildCompanyBrain(input: CompanyBrainInput): CompanyBrainReport 
   }));
 
   const workflows = workspace.businessProcesses?.workflows.length ?? 0;
+  const truth = buildPilotTruthMetrics(workspace);
   const trustCounts = {
-    facts: snapshot.inventory.interviewFacts,
-    documents: snapshot.inventory.documents,
-    meetings: snapshot.inventory.meetings,
+    facts: truth.learnedFacts,
+    documents: truth.uploadedDocuments,
+    meetings: truth.meetings,
+    discoveryConversations: truth.discoveryConversations,
     businessRules: snapshot.inventory.businessRules,
-    importedRecords: snapshot.inventory.importedRecords,
+    importedRecords: 0, // never surface evidence-log length as "meetings" or activity
     workflows,
   };
   const evidenceChips = buildTrustEvidenceChips(trustCounts);
-  const businessUnderstandingPercent = Math.round(
-    Math.max(0, Math.min(100, workspace.businessUnderstanding)),
-  );
+  const businessUnderstandingPercent = truth.understandingPercent;
 
   const trust: CompanyBrainTrustCenter = {
     businessUnderstandingPercent,

@@ -15,6 +15,8 @@ import {
   type ReadinessState,
   type TopicReadiness,
 } from "@/lib/readiness";
+import { buildPilotTruthMetrics } from "@/lib/consulting-intelligence/pilot-truth-metrics";
+import type { CompanyWorkspace } from "@/types";
 
 /**
  * Consultant Readiness Engine — client surfaces.
@@ -219,51 +221,47 @@ export function ReadinessConflictList({
   );
 }
 
-/** What the file is built on today — evidence in client language. */
+/** What the file is built on today — evidence in client language.
+ * Prefer PilotTruthMetrics when workspace is provided (Mission 31 single source).
+ */
 export function ReadinessEvidenceChips({
   assessment,
+  workspace,
 }: {
   assessment: ReadinessAssessment;
+  workspace?: CompanyWorkspace;
 }) {
   const { t } = useTranslations();
-  const { inventory } = assessment;
-  const chips = [
-    inventory.interviewFacts > 0
-      ? t("readinessPanel.chips.interviewFacts", { count: inventory.interviewFacts })
-      : null,
-    inventory.documents > 0
-      ? t(
-          inventory.documents === 1
-            ? "readinessPanel.chips.documentsOne"
-            : "readinessPanel.chips.documentsMany",
-          { count: inventory.documents },
-        )
-      : null,
-    inventory.importedRecords > 0
-      ? t(
-          inventory.importedRecords === 1
-            ? "readinessPanel.chips.recordsOne"
-            : "readinessPanel.chips.recordsMany",
-          { count: inventory.importedRecords },
-        )
-      : null,
-    inventory.businessRules > 0
-      ? t(
-          inventory.businessRules === 1
-            ? "readinessPanel.chips.rulesOne"
-            : "readinessPanel.chips.rulesMany",
-          { count: inventory.businessRules },
-        )
-      : null,
-    inventory.meetings > 0
-      ? t(
-          inventory.meetings === 1
-            ? "workspaceView.chips.meetingsOne"
-            : "workspaceView.chips.meetingsMany",
-          { count: inventory.meetings },
-        )
-      : null,
-  ].filter(Boolean) as string[];
+  const chips = workspace
+    ? buildPilotTruthMetrics(workspace).chips.filter(
+        (chip) => !chip.startsWith("Comprensión del negocio"),
+      )
+    : (() => {
+        const { inventory } = assessment;
+        return [
+          inventory.interviewFacts > 0
+            ? t("readinessPanel.chips.interviewFacts", {
+                count: inventory.interviewFacts,
+              })
+            : null,
+          inventory.documents > 0
+            ? t(
+                inventory.documents === 1
+                  ? "readinessPanel.chips.documentsOne"
+                  : "readinessPanel.chips.documentsMany",
+                { count: inventory.documents },
+              )
+            : null,
+          inventory.meetings > 0
+            ? t(
+                inventory.meetings === 1
+                  ? "workspaceView.chips.meetingsOne"
+                  : "workspaceView.chips.meetingsMany",
+                { count: inventory.meetings },
+              )
+            : null,
+        ].filter(Boolean) as string[];
+      })();
 
   if (chips.length === 0) return null;
 

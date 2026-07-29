@@ -2,11 +2,14 @@
 
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
  * Progressive disclosure for executive cards — summary first, evidence on request.
+ * Mission 31: expand control is an obvious button, never a tiny text link.
  */
 export function ExecutiveDetail({
   summary,
@@ -32,15 +35,18 @@ export function ExecutiveDetail({
   return (
     <div className={cn(className)}>
       {summary}
-      <button
+      <Button
         type="button"
-        className="mt-3 text-left text-xs font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/80 underline-offset-4 transition-colors hover:text-[var(--isalwa-slate)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--isalwa-glaze)]/45 focus-visible:ring-offset-2"
+        variant="secondary"
+        size="sm"
+        className="mt-3 gap-1.5"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
       >
         {open ? resolvedCollapse : resolvedExpand}
-      </button>
+        {!open ? <ArrowRight className="h-3.5 w-3.5" aria-hidden /> : null}
+      </Button>
       <div
         id={panelId}
         hidden={!open}

@@ -3,30 +3,20 @@
 **Status:** Shipped (UX only)  
 **Does not rewrite:** Discovery, Brain, Blueprint, Recommendations, Living generators, AI
 
-## Promise reinforced
+## Promise
 
 > You teach Architect how your company works.  
 > Architect builds your company's operating system.
 
-## What changed
+## Changes
 
-### P0 — Single source of truth
-- `buildPilotTruthMetrics` — one compose for conversations / facts / documents / meetings / understanding %
-- Orientation + executive chips consume only that source
+- **Single source of truth:** `buildPilotTruthMetrics` for conversations / facts / documents / meetings / understanding %
+- Company Brain trust chips no longer show inflated `importedRecords` as activity
+- **Respectful language:** no Frágil/Crítico report-card tone; client Spanish uses descubrimiento / conversación / conocimiento
+- **Obvious CTAs:** Orientation primary button; ExecutiveDetail expand is a real button
+- **OS motivation:** encouraging copy when ready to build; hide bleak 0% training/automation bars
+- Recs / Brain / timeline: consulting story framing (real data only)
 
-### P0 — Respectful language
-- Replaced Frágil / Crítico / Bajo presión / Cobertura débil with operational consulting wording in presentation + cockpit + alerts
+## Verify
 
-### P0 — Clarity & CTAs
-- Orientation answers Know / Still learning / Why / Next with a clear primary button
-- OS hero encourages when understanding ≥ 35% but OS not yet built; hides bleak 0% training/automation bars
-
-### P1
-- Recommendation cards: Problem → Impact → Recommendation visible; evidence as “observaciones reales”
-- Evolution timeline framed as consulting story (real events only)
-- Company Brain: Lo que sabemos / Por qué lo creemos / Qué falta
-- OS cards: “Respaldado por…” human wording
-
-## Verification
-
-`pnpm typecheck` · `pnpm lint` · `pnpm build` (apps/architect)
+`npm run typecheck` · `npm run lint` · `npm run build`

@@ -44,7 +44,7 @@ export function FinishPanel({
       </h2>
       <p className="mt-3 max-w-xl text-base leading-relaxed text-[var(--isalwa-slate)]">
         Lo que respondió ya está incorporado a la comprensión de{" "}
-        {workspace.companyName}. El diagnóstico sigue vivo — cada conversación
+        {workspace.companyName}. El conocimiento sigue vivo — cada conversación
         futura se suma a esta misma memoria, nunca la reemplaza.
       </p>
 

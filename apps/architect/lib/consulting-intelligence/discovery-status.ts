@@ -69,8 +69,8 @@ function buildCompleteCopy(
   completedCount: number,
 ): { stateLabel: string; title: string; message: string } {
   return {
-    stateLabel: "Diagnóstico completo",
-    title: "El diagnóstico está completo",
+    stateLabel: "Descubrimiento listo",
+    title: "Ya conocemos lo suficiente del negocio para avanzar con seguridad",
     message:
       `Ya conocemos, con evidencia real, las ${completedCount} ` +
       `${pluralEs(completedCount, "capacidad", "capacidades")} del negocio que ` +
@@ -84,12 +84,12 @@ function buildIncompleteCopy(
   openCount: number,
   minutes: number | null,
 ): { stateLabel: string; title: string; message: string } {
-  const stateLabel = "Diagnóstico en curso";
+  const stateLabel = "Descubrimiento en curso";
 
   if (completedCount === 0) {
     return {
       stateLabel,
-      title: "Todavía no hay evidencia suficiente para dar el diagnóstico por completo",
+      title: "Todavía no hay evidencia suficiente para cerrar el descubrimiento",
       message:
         "Esto se irá completando con respuestas, documentos y reuniones — " +
         "cada uno cierra un vacío concreto.",
@@ -99,7 +99,7 @@ function buildIncompleteCopy(
   const etaSuffix = minutes && minutes > 0 ? ` — unos ${minutes} minutos de conversación` : "";
   return {
     stateLabel,
-    title: "El diagnóstico avanza, todavía faltan algunas capacidades por confirmar",
+    title: "El descubrimiento avanza; todavía faltan algunas capacidades por confirmar",
     message:
       `Ya validamos ${completedCount} de ${measuredCount} capacidades con evidencia real; ` +
       `${openCount === 1 ? "falta profundizar en 1 más" : `faltan ${openCount} más`}${etaSuffix}.`,
@@ -108,7 +108,7 @@ function buildIncompleteCopy(
 
 const CONTINUITY_NOTE =
   "Esto no significa que hayamos terminado de conocer el negocio: ISALWA sigue " +
-  "aprendiendo con cada documento, reunión o cambio que ocurra — el diagnóstico " +
+  "aprendiendo con cada documento, reunión o cambio que ocurra — el conocimiento " +
   "queda vivo, nunca cerrado.";
 
 /**
