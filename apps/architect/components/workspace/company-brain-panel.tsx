@@ -285,12 +285,12 @@ function StillLearningRow({
         ) : null}
         <div className="ml-auto">
           {href ? (
-            <Button asChild size="sm" variant="secondary">
-              <Link href={href}>{t("companyBrain.learning.teachCta")}</Link>
+            <Button asChild size="sm">
+              <Link href={href}>{t("companyBrain.learning.teachCta")} →</Link>
             </Button>
           ) : (
-            <Button type="button" size="sm" variant="ghost" onClick={onUploadDocuments}>
-              {t("companyBrain.learning.teachCta")}
+            <Button type="button" size="sm" onClick={onUploadDocuments}>
+              {t("companyBrain.learning.teachCta")} →
             </Button>
           )}
         </div>
