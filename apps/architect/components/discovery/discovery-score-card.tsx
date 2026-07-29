@@ -4,14 +4,24 @@ import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { t, useTranslations } from "@/lib/i18n";
-import { understandingSentence } from "@/lib/presentation";
+import { strengthBand, understandingLevel, understandingSentence } from "@/lib/presentation";
 import type { DiscoveryScore, DimensionStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
+/**
+ * Maturity label, not a live per-topic percentage — same `strengthBand`
+ * thresholds the rest of the app already uses to read confidence, just
+ * collapsed to the three consultative words a client recognizes (Low and
+ * Emerging both read as "Inicial": neither is a meaningful distinction to a
+ * client mid-interview). No new scorer, no new threshold.
+ */
 function dimensionDisplay(dimension: DimensionStatus): string {
   if (dimension.applicable === false) return t("discoveryScoreCard.notApplicable");
   if (dimension.confidence <= 0) return t("discoveryScoreCard.noEvidence");
-  return `${dimension.confidence}%`;
+  const band = strengthBand(dimension.confidence, "percent");
+  if (band === "High") return t("discoveryScoreCard.maturityConfirmed");
+  if (band === "Medium") return t("discoveryScoreCard.maturityInProgress");
+  return t("discoveryScoreCard.maturityInitial");
 }
 
 export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
@@ -28,6 +38,11 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
       <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/80">
         {t("discoveryScoreCard.businessUnderstanding")}
       </p>
+      {/*
+        Wording leads, percentage follows — a client reads "En desarrollo"
+        faster than a bare number. The percentage stays on screen (never
+        dropped), just demoted to a secondary, smaller figure next to it.
+      */}
       <div className="mt-3 flex items-end gap-2">
         <motion.span
           key={score.overall}
@@ -35,9 +50,11 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
           animate={{ opacity: 1, y: 0 }}
           className="architect-serif text-5xl leading-none text-[var(--isalwa-kiln)]"
         >
-          {score.overall}
+          {understandingLevel(score.overall)}
         </motion.span>
-        <span className="mb-1 text-lg text-[var(--isalwa-slate)]/60">%</span>
+        <span className="mb-1 text-lg text-[var(--isalwa-slate)]/60">
+          · {score.overall}%
+        </span>
       </div>
       {/* Confidence in plain, human language — never the raw score alone. */}
       <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">

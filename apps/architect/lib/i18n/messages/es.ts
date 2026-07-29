@@ -20,7 +20,7 @@ export const es: MessageTree = {
     businessKnowledgeKicker: "Conocimiento del negocio",
     blueprintKicker: "Plan de negocio",
     recommendedSystemKicker: "Sistema recomendado",
-    solutionTitle: "Software que resuelve los problemas encontrados",
+    solutionTitle: "Sistema diseñado a partir de lo que descubrimos",
     solutionDescription:
       "Estas son las piezas de software que recomendamos — diseñadas a partir de la evidencia.",
     whatNow: "¿Qué debe hacer ahora?",
@@ -125,7 +125,7 @@ export const es: MessageTree = {
       todayCtaDescriptionContinue:
         "Siga el descubrimiento para subir la comprensión del negocio, o revise lo que ya encontramos.",
       progressLabel: "Su progreso",
-      stillMissingKicker: "Lo que aún falta",
+      stillMissingKicker: "Lo que falta por confirmar",
       openQuestionsTitle: "Preguntas abiertas",
       openQuestionsDescription: "Temas que todavía necesitamos aclarar.",
       noOpenQuestions: "Por ahora no hay preguntas abiertas.",
@@ -330,7 +330,11 @@ export const es: MessageTree = {
     topicsCovered: "Temas cubiertos",
     ofTotal: "{covered} de {total}",
     confidenceByTopic: "Confianza por tema",
-    stillMissing: "Aún falta",
+    stillMissing: "Por confirmar",
+    /** Discovery Interview Progress maturity labels — map existing dimension confidence bands (`strengthBand`) to consultative words, never a raw live percentage. */
+    maturityInitial: "Inicial",
+    maturityInProgress: "En desarrollo",
+    maturityConfirmed: "Confirmado",
   },
   loginPage: {
     kicker: "ISALWA Architect",
@@ -793,7 +797,7 @@ export const es: MessageTree = {
   implementationPackagePanel: {
     kicker: "Paquete de implementación",
     ready: "Listo",
-    notReady: "No listo",
+    notReady: "Descubrimiento en curso",
     thresholdLine: "Umbral de comprensión: {threshold}% · actual {current}%",
     thresholdMet: " · umbral alcanzado",
     thresholdPending: " · umbral pendiente",

@@ -538,13 +538,7 @@ function OsArtifactCard({
         </p>
 
         <p className="mt-4 text-sm text-[var(--isalwa-kiln)]">
-          {artifact.confidencePercent}% completo{" "}
-          <span
-            className="text-xs font-normal text-[var(--isalwa-slate)]/50"
-            title="Estimación de Architect a partir del conocimiento disponible — no una medición exacta."
-          >
-            (estimado)
-          </span>
+          Construido con la evidencia disponible
         </p>
 
         <div className="mt-3 space-y-1 text-xs text-[var(--isalwa-slate)]/75">
@@ -576,7 +570,7 @@ function OsArtifactCard({
         {artifact.missingInformation.length > 0 ? (
           <div className="mt-3 space-y-1 text-xs text-[var(--isalwa-slate)]/75">
             <p className="font-medium uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/55">
-              Falta
+              Por confirmar
             </p>
             <ul className="space-y-0.5">
               {artifact.missingInformation.slice(0, 4).map((gap) => (

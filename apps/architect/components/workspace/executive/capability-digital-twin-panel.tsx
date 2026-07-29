@@ -6,6 +6,7 @@ import type {
   CapabilityDigitalTwinReport,
   CapabilityTwin,
 } from "@/lib/discovery-agent/capabilities";
+import { confidenceBand, confidenceBandLabelEs } from "@/lib/explanations/confidence";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +14,12 @@ import { cn } from "@/lib/utils";
  * Capability Digital Twin — client surface.
  *
  * Ten business capabilities, each with what we know, what we don't, an
- * honest confidence figure and a concrete way to raise it. Every field is
+ * honest confidence band and a concrete way to raise it. Every field is
  * rendered verbatim from `lib/discovery-agent/capabilities.ts` — this
- * component computes nothing and never shows a percentage the engine did not
- * produce.
+ * component computes nothing. The badge reuses the same `confidenceBand`
+ * thresholds already used elsewhere (`lib/explanations/confidence.ts`) to
+ * turn the raw 0–100 into Alta/Media/Baja/Emergente — never a bare "x/100"
+ * a client has no way to judge on its own.
  */
 function confidenceBadge(capability: CapabilityTwin, notEnoughLabel: string, notMeasuredLabel: string) {
   if (!capability.measured) {
@@ -25,7 +28,10 @@ function confidenceBadge(capability: CapabilityTwin, notEnoughLabel: string, not
   if (!capability.hasEvidence) {
     return { text: notEnoughLabel, tone: "muted" as const };
   }
-  return { text: `${capability.confidence}/100`, tone: "value" as const };
+  return {
+    text: confidenceBandLabelEs(confidenceBand(capability.confidence)),
+    tone: "value" as const,
+  };
 }
 
 function CapabilityCard({ capability }: { capability: CapabilityTwin }) {

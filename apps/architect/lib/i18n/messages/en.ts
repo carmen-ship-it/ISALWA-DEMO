@@ -21,7 +21,7 @@ export const en: MessageTree = {
     businessKnowledgeKicker: "Business knowledge",
     blueprintKicker: "Business plan",
     recommendedSystemKicker: "Recommended system",
-    solutionTitle: "Software that solves the problems we found",
+    solutionTitle: "System designed from what we discovered",
     solutionDescription:
       "These are the software pieces we recommend — designed from the evidence.",
     whatNow: "What should you do now?",
@@ -120,7 +120,7 @@ export const en: MessageTree = {
       todayCtaDescriptionContinue:
         "Continue the discovery conversation to raise business understanding, or review what we've already found.",
       progressLabel: "Your progress",
-      stillMissingKicker: "What's still missing",
+      stillMissingKicker: "What's left to confirm",
       openQuestionsTitle: "Open questions",
       openQuestionsDescription: "Topics we still need to clarify.",
       noOpenQuestions: "No open questions for now.",
@@ -311,7 +311,10 @@ export const en: MessageTree = {
     topicsCovered: "Topics covered",
     ofTotal: "{covered} of {total}",
     confidenceByTopic: "Confidence by topic",
-    stillMissing: "Still missing",
+    stillMissing: "To confirm",
+    maturityInitial: "Starting",
+    maturityInProgress: "In progress",
+    maturityConfirmed: "Confirmed",
   },
   loginPage: {
     kicker: "ISALWA Architect",
@@ -773,7 +776,7 @@ export const en: MessageTree = {
   implementationPackagePanel: {
     kicker: "Implementation package",
     ready: "Ready",
-    notReady: "Not ready",
+    notReady: "Discovery in progress",
     thresholdLine: "Understanding threshold: {threshold}% · current {current}%",
     thresholdMet: " · threshold met",
     thresholdPending: " · threshold pending",
