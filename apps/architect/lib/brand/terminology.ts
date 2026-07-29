@@ -1,4 +1,4 @@
-import { entityLabel } from "@/lib/presentation";
+import { departmentLabel, entityLabel } from "@/lib/presentation";
 import { createId } from "@/lib/utils";
 import type {
   BrandEvidenceRef,
@@ -81,7 +81,13 @@ export function deriveTerminology(
     entries.push({
       id: createId("term"),
       term: TERM_NAME_ES.Department,
-      preferredLabel: dept.name,
+      // Bilingual leakage fix — the blueprint's canonical department name
+      // (e.g. "Sales") is an internal English key used for matching against
+      // people/workflows elsewhere; the client-facing label must always be
+      // the same Spanish translation `departmentLabel()` already gives the
+      // Departments section, so a Sales entry never reads "Sales" here
+      // while showing "Ventas" two lines away.
+      preferredLabel: departmentLabel(dept.name),
       context: dept.purpose || "Unidad organizacional del plan de negocio",
       confidence: 0.72,
       evidence: evidenceSubset(evidence, ["blueprint"], 2),

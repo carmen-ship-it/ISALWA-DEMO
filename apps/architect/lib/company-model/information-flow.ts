@@ -7,6 +7,7 @@ import type {
   CompanyWorkflowRef,
   CompanyWorkspace,
 } from "@/types";
+import { departmentLabel } from "@/lib/presentation";
 import { departmentByName } from "./departments";
 import { modelId } from "./ids";
 
@@ -97,8 +98,10 @@ export function deriveInformationFlows(
 
     const fromId = fromPerson?.id ?? fromDept?.id ?? modelId("actor", handoff.from);
     const toId = toPerson?.id ?? toDept?.id ?? modelId("actor", handoff.to);
-    const fromLabel = fromPerson?.name ?? fromDept?.name ?? handoff.from;
-    const toLabel = toPerson?.name ?? toDept?.name ?? handoff.to;
+    const fromLabel =
+      fromPerson?.name ?? (fromDept ? departmentLabel(fromDept.name) : null) ?? handoff.from;
+    const toLabel =
+      toPerson?.name ?? (toDept ? departmentLabel(toDept.name) : null) ?? handoff.to;
 
     const informationIds = information
       .filter(

@@ -13,6 +13,7 @@ import type {
   CompanyWorkspace,
   KnowledgeRelationKind,
 } from "@/types";
+import { departmentLabel } from "@/lib/presentation";
 import { departmentByName } from "./departments";
 import { modelId } from "./ids";
 
@@ -247,7 +248,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", wf.id),
       kind: "workflow",
-      ownerLabel: person?.name ?? dept?.name ?? "Sin asignar",
+      ownerLabel: person?.name ?? (dept ? departmentLabel(dept.name) : null) ?? "Sin asignar",
       ownerPersonId: wf.ownerPersonId,
       ownerDepartmentId: wf.departmentId,
       ownerRoleId: null,
@@ -264,7 +265,7 @@ export function deriveOwnership(
     ownership.push({
       id: modelId("cown", system.id),
       kind: "system",
-      ownerLabel: dept?.name ?? "Operaciones",
+      ownerLabel: dept ? departmentLabel(dept.name) : "Operaciones",
       ownerPersonId: null,
       ownerDepartmentId: dept?.id ?? null,
       ownerRoleId: null,
@@ -333,7 +334,7 @@ export function deriveRelationships(
       fromId: person.id,
       fromLabel: person.name,
       toId: dept.id,
-      toLabel: dept.name,
+      toLabel: departmentLabel(dept.name),
       knowledgeRelationshipId: null,
       processHandoffId: null,
       label: RELATIONSHIP_KIND_LABEL_ES.belongs_to,
@@ -351,7 +352,7 @@ export function deriveRelationships(
         id: modelId("crel", `${dept.id}_${system.id}`),
         kind: "uses",
         fromId: dept.id,
-        fromLabel: dept.name,
+        fromLabel: departmentLabel(dept.name),
         toId: system.id,
         toLabel: system.name,
         knowledgeRelationshipId: null,

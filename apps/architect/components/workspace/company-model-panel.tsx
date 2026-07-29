@@ -9,6 +9,7 @@ import {
 import { t, useTranslations } from "@/lib/i18n";
 import {
   criticalityLabel,
+  departmentLabel,
   dependencyKindLabel,
   ownershipKindLabel,
   provenanceFromEvidenceCount,
@@ -34,10 +35,13 @@ export function CompanyModelPanel({
   model: CompanyModel | null | undefined;
   /**
    * White Label Company Experience — effective (override-aware) department
-   * display names, keyed by original blueprint department name. Only
-   * renames the department list itself; relationship, ownership and flow
-   * labels elsewhere in this model are precomputed strings from a different
-   * derivation domain and are not renamed here (see WHITE_LABEL_EXPERIENCE.md gaps).
+   * display names, keyed by the same Spanish `departmentLabel()` translation
+   * Relationships/Ownership/Information Flow now use at the source
+   * (`lib/company-model/relationships.ts`, `information-flow.ts`) — a
+   * department never reads "Sales" in one section and "Ventas" in another.
+   * Consultant terminology overrides only apply to this list itself; the
+   * other three sections show the shared Spanish translation without the
+   * override layer (see WHITE_LABEL_EXPERIENCE.md gaps).
    */
   departmentNames?: EffectiveTerminologyEntry[];
 }) {
@@ -99,8 +103,8 @@ export function CompanyModelPanel({
                   dept={dept}
                   displayName={
                     departmentNames
-                      ? resolveEffectiveLabel(departmentNames, dept.name)
-                      : dept.name
+                      ? resolveEffectiveLabel(departmentNames, departmentLabel(dept.name))
+                      : departmentLabel(dept.name)
                   }
                 />
               ))}
