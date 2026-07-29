@@ -49,14 +49,25 @@ export function ExplainedRecommendationCard({
             <p
               className={cn(
                 "text-[var(--isalwa-kiln)]",
-                compact ? "text-base" : "mt-1 text-xl",
+                compact ? "text-base font-medium" : "mt-1 text-xl",
               )}
             >
               {explained.title}
             </p>
-            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+            <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              <span className="font-medium text-[var(--isalwa-kiln)]">Problema observado: </span>
+              {explained.problem}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              <span className="font-medium text-[var(--isalwa-kiln)]">Impacto en el negocio: </span>
               {explained.businessValue}
             </p>
+            {!compact ? (
+              <p className="mt-2 text-sm text-[var(--isalwa-slate)]/85">
+                <span className="font-medium text-[var(--isalwa-kiln)]">Recomendación: </span>
+                {explained.recommendation}
+              </p>
+            ) : null}
           </div>
           {explained.priority ? (
             <span className="shrink-0 rounded-full border border-[var(--isalwa-mist)] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
@@ -80,19 +91,15 @@ export function ExplainedRecommendationCard({
           <span>
             {t("explainedRecommendationCard.evidenceLabel")}{" "}
             <span className="font-medium text-[var(--isalwa-kiln)]">
-              {explained.evidenceBasis.strengthLabel}
+              {explained.evidence.length > 0
+                ? `Respaldado por ${explained.evidence.length} ${
+                    explained.evidence.length === 1
+                      ? "observación real"
+                      : "observaciones reales"
+                  }`
+                : explained.evidenceBasis.strengthLabel}
             </span>
           </span>
-          {explained.evidence.length > 0 ? (
-            <span>
-              {t(
-                explained.evidence.length === 1
-                  ? "explainedRecommendationCard.evidenceCountOne"
-                  : "explainedRecommendationCard.evidenceCountMany",
-                { count: explained.evidence.length },
-              )}
-            </span>
-          ) : null}
         </div>
 
         {/*

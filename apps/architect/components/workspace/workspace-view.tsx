@@ -100,6 +100,7 @@ import {
   buildImproveDeliverableBrief,
   buildNextStepVoice,
   buildOrientationPanel,
+  buildPilotTruthMetrics,
   groupRecentLearning,
   type DailyBriefAction,
   type DailyBriefMilestone,
@@ -548,25 +549,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const evidenceChips = [
-    workspace.meetings.length > 0
-      ? t(
-          workspace.meetings.length === 1
-            ? "workspaceView.chips.meetingsOne"
-            : "workspaceView.chips.meetingsMany",
-          { count: workspace.meetings.length },
-        )
-      : null,
-    workspace.observations.length > 0
-      ? t("workspaceView.chips.findings", { count: workspace.observations.length })
-      : null,
-    workspace.painPoints.length > 0
-      ? t("workspaceView.chips.problemsDetected", { count: workspace.painPoints.length })
-      : null,
-    (workspace.knowledge?.assets?.length ?? 0) > 0
-      ? t("workspaceView.chips.documentsReviewed", { count: workspace.knowledge!.assets.length })
-      : null,
-  ].filter(Boolean) as string[];
+  const evidenceChips = buildPilotTruthMetrics(workspace).chips;
 
   const roadmapItems: RoadmapTimelineItem[] =
     roadmapPhases.length > 0

@@ -316,15 +316,40 @@ export function LivingDeliverablesCenter({
           })}
         </ol>
 
-        <div className="mt-8 space-y-3">
+        <div className="mt-8 space-y-4">
           <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
             Tu empresa · {workspace.companyName}
           </p>
-          {report.progress.map((bar) => (
-            <ProgressRow key={bar.id} bar={bar} />
-          ))}
+          {report.understandingPercent >= 35 &&
+          report.progress.find((b) => b.id === "operating_system")?.percent === 0 ? (
+            <div className="rounded-2xl bg-[var(--isalwa-tint-green)]/35 px-4 py-4 ring-1 ring-[var(--isalwa-tint-green-border)]/50">
+              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                Architect ya entiende suficientemente tu negocio para comenzar a construir tu
+                sistema operativo.
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--isalwa-slate)]">
+                Abajo verá qué ya puede construir hoy y qué necesita un poco más de conocimiento.
+                Cero por ciento no significa fracaso — significa que aún no ha construido esa
+                salida; el conocimiento ya está en el Company Brain.
+              </p>
+            </div>
+          ) : null}
+          {report.progress
+            .filter((bar) => {
+              // Hide depressing 0% Training/Automation until something is built
+              if (
+                (bar.id === "training" || bar.id === "automation") &&
+                bar.percent === 0
+              ) {
+                return false;
+              }
+              return true;
+            })
+            .map((bar) => (
+              <ProgressRow key={bar.id} bar={bar} />
+            ))}
           <p className="pt-1 text-sm text-[var(--isalwa-kiln)]">
-            Architect entiende tu negocio; aún hay trabajo para documentar y operar.
+            Estamos construyendo cómo opera tu empresa — no solo generando archivos.
           </p>
 
           <div className="mt-6 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-4">
@@ -518,20 +543,26 @@ function OsArtifactCard({
 
         <div className="mt-3 space-y-1 text-xs text-[var(--isalwa-slate)]/75">
           <p className="font-medium uppercase tracking-[0.12em] text-[var(--isalwa-slate)]/55">
-            Construido desde
+            Respaldado por
           </p>
           <ul className="space-y-0.5">
             <li>
-              {bf.interviewFacts > 0 ? "✓" : "○"} {bf.interviewFacts}{" "}
-              {bf.interviewFacts === 1 ? "hecho de entrevista" : "hechos de entrevista"}
+              {bf.interviewFacts > 0 ? "✓" : "○"}{" "}
+              {bf.interviewFacts > 0
+                ? `Basado en ${bf.interviewFacts} ${bf.interviewFacts === 1 ? "hecho" : "hechos"} de nuestras conversaciones`
+                : "Aún sin hechos de conversación"}
             </li>
             <li>
-              {bf.documents > 0 ? "✓" : "○"} {bf.documents}{" "}
-              {bf.documents === 1 ? "documento" : "documentos"}
+              {bf.documents > 0 ? "✓" : "○"}{" "}
+              {bf.documents > 0
+                ? `${bf.documents} ${bf.documents === 1 ? "documento" : "documentos"} que usted enseñó`
+                : "Aún sin documentos cargados"}
             </li>
             <li>
-              {bf.meetings > 0 ? "✓" : "○"} {bf.meetings}{" "}
-              {bf.meetings === 1 ? "reunión" : "reuniones"}
+              {bf.meetings > 0 ? "✓" : "○"}{" "}
+              {bf.meetings > 0
+                ? `${bf.meetings} ${bf.meetings === 1 ? "reunión" : "reuniones"} registradas`
+                : "Aún sin reuniones registradas"}
             </li>
           </ul>
         </div>

@@ -106,16 +106,22 @@ export function CompanyBrainPanel({
                 className="rounded-2xl border border-[var(--isalwa-tint-green-border)]/60 bg-white/85 px-5 py-4"
               >
                 <details className="group">
-                  <summary className="isalwa-t-fast flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                  <summary className="isalwa-t-fast flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-1 py-1 hover:bg-[var(--isalwa-porcelain)]/80 [&::-webkit-details-marker]:hidden">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{area.label}</p>
+                      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/55">
+                        Lo que sabemos
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-[var(--isalwa-kiln)]">
+                        {area.label}
+                      </p>
                       <p className="mt-1 text-xs text-[var(--isalwa-slate)]/70">
-                        {t(
-                          area.evidenceCount === 1
-                            ? "companyBrain.knows.evidenceCountOne"
-                            : "companyBrain.knows.evidenceCountMany",
-                          { count: area.evidenceCount },
-                        )}
+                        {area.evidenceCount > 0
+                          ? `Respaldado por ${area.evidenceCount} ${
+                              area.evidenceCount === 1
+                                ? "observación real"
+                                : "observaciones reales"
+                            }`
+                          : t("companyBrain.knows.noEvidenceDetail")}
                         {area.lastUpdatedAt
                           ? ` · ${t("companyBrain.knows.lastUpdated", { date: formatTimelineDate(area.lastUpdatedAt) })}`
                           : ""}
@@ -132,16 +138,21 @@ export function CompanyBrainPanel({
                     </div>
                   </summary>
                   {area.evidence.length > 0 ? (
-                    <ul className="mt-3 space-y-1.5 border-t border-[var(--isalwa-mist)]/60 pt-3">
-                      {area.evidence.map((statement) => (
-                        <li
-                          key={statement}
-                          className="text-xs leading-relaxed text-[var(--isalwa-slate)]/85"
-                        >
-                          {statement}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-3 border-t border-[var(--isalwa-mist)]/60 pt-3">
+                      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]/55">
+                        Por qué lo creemos
+                      </p>
+                      <ul className="mt-2 space-y-1.5">
+                        {area.evidence.map((statement) => (
+                          <li
+                            key={statement}
+                            className="text-xs leading-relaxed text-[var(--isalwa-slate)]/85"
+                          >
+                            • {statement}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ) : (
                     <p className="mt-3 border-t border-[var(--isalwa-mist)]/60 pt-3 text-xs text-[var(--isalwa-slate)]/60">
                       {t("companyBrain.knows.noEvidenceDetail")}
@@ -215,7 +226,7 @@ export function CompanyBrainPanel({
         {brain.trust.missingAreas.length > 0 ? (
           <div className="mt-5 border-t border-[var(--isalwa-mist)]/60 pt-5">
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-              {t("companyBrain.trust.missingLabel")}
+              Qué falta aprender — y por qué importa
             </p>
             <ul className="mt-2.5 flex flex-wrap gap-2">
               {brain.trust.missingAreas.map((label) => (

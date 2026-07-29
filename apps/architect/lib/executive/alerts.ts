@@ -93,11 +93,11 @@ export function deriveCockpitAlerts(
     const areaEs = coverageAreaLabel(slice.area);
     alerts.push({
       id: `knowledge-${slice.area}`,
-      title: `Cobertura débil: ${areaEs}`,
+      title: `Cobertura limitada: ${areaEs}`,
       severity: "attention",
       detail:
         slice.note ||
-        `El área de ${areaEs} tiene poca evidencia incorporada.`,
+        `El área de ${areaEs} todavía necesita más evidencia.`,
       source: "knowledge",
     });
   }

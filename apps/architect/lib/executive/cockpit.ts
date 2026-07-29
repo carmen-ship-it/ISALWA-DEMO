@@ -53,8 +53,8 @@ function bandLabel(score: number | null): string {
   if (score == null) return "Sin señal";
   if (score >= 75) return "Sólida";
   if (score >= 55) return "Estable";
-  if (score >= 35) return "Frágil";
-  return "En riesgo";
+  if (score >= 35) return "En desarrollo";
+  return "Necesita más conocimiento";
 }
 
 function gaugeLabelEs(id: string, fallback: string): string {

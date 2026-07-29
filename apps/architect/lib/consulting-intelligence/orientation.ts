@@ -1,18 +1,17 @@
 /**
- * Five-second consultant Orientation Panel — pure composition for Client Mode.
- *
- * Motivation before payoff: if Álvaro immediately sees what Architect
- * understands, what it still wants to learn, and one next action, he
- * naturally chooses to teach with a document. No new scoring.
+ * Mission 31 — Orientation uses PilotTruthMetrics (single source of truth).
  */
 
 import type { CompanyWorkspace } from "@/types";
 import type { MissingInformationReport } from "@/lib/readiness";
+import { buildPilotTruthMetrics } from "./pilot-truth-metrics";
 import type { NextStepVoice } from "./next-step-voice";
 
 export interface OrientationPanelReport {
   factsLearned: number;
   meetingsAnalyzed: number;
+  documentsUploaded: number;
+  discoveryConversations: number;
   understandingPercent: number;
   /** Conversational label for the % — not "Business Understanding". */
   understandingLabel: string;
@@ -20,10 +19,6 @@ export interface OrientationPanelReport {
   nextActionLabel: string;
   nextActionKind: NextStepVoice["actionKind"];
   nextActionMinutesHint: string | null;
-}
-
-function clampPercent(value: number): number {
-  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
 /**
@@ -35,9 +30,7 @@ export function buildOrientationPanel(input: {
   nextStepVoice: NextStepVoice;
 }): OrientationPanelReport {
   const { workspace, missingInformation, nextStepVoice } = input;
-  const factsLearned = workspace.conversationMemory?.knownFacts?.length ?? 0;
-  const meetingsAnalyzed = workspace.meetings?.length ?? 0;
-  const understandingPercent = clampPercent(workspace.businessUnderstanding);
+  const truth = buildPilotTruthMetrics(workspace);
 
   const learningGaps = missingInformation.opportunities
     .slice(0, 4)
@@ -52,16 +45,20 @@ export function buildOrientationPanel(input: {
   }
 
   const prefersTeach =
-    nextStepVoice.actionKind === "upload_document" || meetingsAnalyzed > 0;
+    nextStepVoice.actionKind === "upload_document" ||
+    truth.meetings > 0 ||
+    truth.uploadedDocuments > 0;
 
   return {
-    factsLearned,
-    meetingsAnalyzed,
-    understandingPercent,
+    factsLearned: truth.learnedFacts,
+    meetingsAnalyzed: truth.meetings,
+    documentsUploaded: truth.uploadedDocuments,
+    discoveryConversations: truth.discoveryConversations,
+    understandingPercent: truth.understandingPercent,
     understandingLabel: "Qué tanto entiende Architect tu empresa",
     learningGaps,
     nextActionLabel: prefersTeach
-      ? "Enséñale a Architect un documento de tu empresa"
+      ? "Enseñar a Architect"
       : nextStepVoice.actionLabel,
     nextActionKind: prefersTeach ? "upload_document" : nextStepVoice.actionKind,
     nextActionMinutesHint: prefersTeach ? "Aproximadamente 2 minutos" : null,

@@ -78,6 +78,11 @@ export {
 } from "./orientation";
 
 export {
+  buildPilotTruthMetrics,
+  type PilotTruthMetrics,
+} from "./pilot-truth-metrics";
+
+export {
   buildCompanyOperatingSystem,
   type OperatingSystemModule,
   type OperatingSystemReport,

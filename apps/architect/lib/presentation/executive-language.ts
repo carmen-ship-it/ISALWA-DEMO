@@ -56,11 +56,11 @@ function strengthBandEs(band: StrengthBand): string {
     case "High":
       return "Alta";
     case "Medium":
-      return "Media";
+      return "En desarrollo";
     case "Low":
-      return "Baja";
+      return "Necesita más conocimiento";
     default:
-      return "Emergente";
+      return "Inicial";
   }
 }
 
@@ -138,11 +138,11 @@ export function healthLabel(
     case "High":
       return "Saludable";
     case "Medium":
-      return "Estable con brechas";
+      return "Estable con oportunidades";
     case "Low":
-      return "Bajo presión";
+      return "Principalmente manual";
     default:
-      return "Requiere atención";
+      return "Necesita más conocimiento";
   }
 }
 
@@ -159,8 +159,8 @@ export function healthStatusLabel(
   if (score == null) return "Sin evaluar";
   const band = strengthBand(score, scale);
   if (band === "High") return "Saludable";
-  if (band === "Medium") return "Requiere atención";
-  return "Crítico";
+  if (band === "Medium") return "En desarrollo";
+  return "Oportunidad de estandarización";
 }
 
 export function strengthHint(score: number, scale: "unit" | "percent" = "unit"): string {
@@ -286,8 +286,8 @@ export function criticalityLabel(level: string): string {
 }
 
 const SEVERITY_LABELS_ES: Record<string, string> = {
-  critical: "Crítico",
-  high: "Alto",
+  critical: "Prioridad alta",
+  high: "Alta",
   moderate: "Moderado",
   low: "Bajo",
   attention: "Atención",

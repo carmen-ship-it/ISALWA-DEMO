@@ -131,18 +131,25 @@ export function CompanyEvolutionPanel({
         tone="focus"
       />
 
-      <Card className="border-[var(--isalwa-mist)]/70 bg-white/70 px-5 py-5 shadow-none">
+      <Card className="border-[var(--isalwa-mist)]/70 bg-[var(--isalwa-porcelain)]/80 px-5 py-5 shadow-none">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-          {t("companyEvolutionPanel.timelineKicker")}
+          Historia del engagement
+        </p>
+        <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+          Progreso real del trabajo de consultoría — no un registro técnico.
         </p>
         {timeline.length === 0 ? (
           <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
             {t("companyEvolutionPanel.timelineEmpty")}
           </p>
         ) : (
-          <ol className="mt-4 space-y-4">
-            {timeline.map((entry) => (
-              <TimelineRow key={entry.id} entry={entry} />
+          <ol className="mt-5 space-y-0">
+            {timeline.map((entry, index) => (
+              <TimelineRow
+                key={entry.id}
+                entry={entry}
+                showArrow={index < timeline.length - 1}
+              />
             ))}
           </ol>
         )}
@@ -207,26 +214,64 @@ function ChangeSection({
   );
 }
 
-function TimelineRow({ entry }: { entry: EvolutionTimelineEntry }) {
-  const dot =
-    entry.polarity === "progress"
-      ? "bg-[var(--isalwa-success)]"
-      : entry.polarity === "regression"
-        ? "bg-[var(--isalwa-danger)]"
-        : entry.polarity === "focus"
-          ? "bg-[var(--isalwa-info)]"
-          : "bg-[var(--isalwa-slate)]/60";
+function TimelineRow({
+  entry,
+  showArrow = false,
+}: {
+  entry: EvolutionTimelineEntry;
+  showArrow?: boolean;
+}) {
+  const consultingTitle = consultingTimelineTitle(entry);
 
   return (
-    <li className="relative pl-6">
-      <span className={`absolute left-0 top-2 h-1.5 w-1.5 rounded-full ${dot}`} />
+    <li className="relative pb-5 pl-6 last:pb-0">
+      <span className="absolute left-[3px] top-2 h-2 w-2 rounded-full bg-[var(--isalwa-kiln)]" />
+      {showArrow ? (
+        <span
+          className="absolute left-[6px] top-4 bottom-0 w-px bg-[var(--isalwa-mist)]"
+          aria-hidden
+        />
+      ) : null}
       <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-        {formatTimelineDate(entry.at)} · {evolutionKindLabel(entry.kind)}
+        {formatTimelineDate(entry.at)}
       </p>
-      <p className="mt-1 text-[var(--isalwa-kiln)]">{entry.title}</p>
-      <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">{entry.description}</p>
+      <p className="mt-1 text-base font-medium text-[var(--isalwa-kiln)]">
+        {consultingTitle}
+      </p>
+      <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]/85">
+        {entry.description}
+      </p>
+      {showArrow ? (
+        <p className="mt-2 text-xs text-[var(--isalwa-slate)]/45" aria-hidden>
+          ↓
+        </p>
+      ) : null}
     </li>
   );
+}
+
+/** Presentation-only: frame real timeline kinds as consulting progress, not DB logs. */
+function consultingTimelineTitle(entry: EvolutionTimelineEntry): string {
+  switch (entry.kind) {
+    case "understanding_up":
+      return "Architect profundizó la comprensión del negocio";
+    case "understanding_down":
+      return "Se recalibró la comprensión con nueva evidencia";
+    case "maturity_up":
+      return "Madurez operativa en aumento";
+    case "recommendation_added":
+      return "Recomendaciones preparadas a partir de la evidencia";
+    case "baseline":
+      return "Punto de partida del engagement";
+    case "visit":
+      return "Avance en la conversación de descubrimiento";
+    case "roadmap_advanced":
+      return "Hoja de ruta actualizada";
+    case "stage_changed":
+      return "Nueva etapa del engagement";
+    default:
+      return entry.title || evolutionKindLabel(entry.kind);
+  }
 }
 
 function mergeUnique(
