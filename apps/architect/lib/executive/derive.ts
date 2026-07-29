@@ -11,7 +11,7 @@ import type {
   SolutionModule,
 } from "@/types";
 import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
-import { phaseLabel } from "@/lib/presentation";
+import { moduleLabel, phaseLabel } from "@/lib/presentation";
 import { deriveReadinessVerdict } from "@/lib/readiness";
 import { hasManufacturingRelationshipEvidence } from "@/lib/solution";
 import { deriveExecutiveCockpit } from "./cockpit";
@@ -226,7 +226,12 @@ export function deriveExecutiveExperience(
     .slice(0, 4)
     .map((r) => r.title);
 
-  const investmentAreas = solution?.modules.slice(0, 5).map((m) => m.name) ?? [];
+  // Bilingual leakage fix — `SolutionModule.name` is the internal English
+  // catalog key (e.g. "Sales"); the Dashboard's "Recommended Systems"
+  // section must show the same Spanish label the Blueprint's module tiles
+  // already show via `moduleLabel()`, not the raw key.
+  const investmentAreas =
+    solution?.modules.slice(0, 5).map((m) => moduleLabel(m.name)) ?? [];
 
   const estimatedPhases =
     solution?.roadmap.map((p) => `Fase ${p.phase}: ${phaseLabel(p.name)}`) ?? [];
