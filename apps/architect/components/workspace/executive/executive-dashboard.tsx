@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { ExplainedRecommendationCard } from "@/components/workspace/executive/explained-recommendation-card";
 import { ConfidenceMeter } from "@/components/workspace/executive/confidence-meter";
 import { CapabilityDigitalTwinPanel } from "@/components/workspace/executive/capability-digital-twin-panel";
@@ -149,8 +150,21 @@ export function ExecutiveDashboard({
           />
         </div>
 
-        {/* Secondary detail — department-level and dimension-level understanding. */}
-        <div className="mt-8 space-y-6 border-t border-[var(--isalwa-mist)]/60 pt-6">
+        {/*
+          Executive Sitting (Mission 1) — department-level and
+          dimension-level understanding is real evidence a client can always
+          reach, but it reads as a BI dashboard when it renders open by
+          default alongside the four-question briefing above. Collapsed
+          behind the same `ExecutiveDetail` progressive-disclosure primitive
+          already used elsewhere on this page — nothing here is removed,
+          only demoted to "on request".
+        */}
+        <ExecutiveDetail
+          className="mt-8 border-t border-[var(--isalwa-mist)]/60 pt-6"
+          labelExpand={t("executiveDashboard.understanding.expandDetail")}
+          labelCollapse={t("executiveDashboard.understanding.collapseDetail")}
+        >
+        <div className="space-y-6">
           <SecondarySubsection
             title={t("executiveDashboard.understanding.departmentHealthTitle")}
             hint={t("executiveDashboard.understanding.departmentHealthHint")}
@@ -249,6 +263,7 @@ export function ExecutiveDashboard({
             </SecondarySubsection>
           ) : null}
         </div>
+        </ExecutiveDetail>
       </BriefingSection>
 
       {/* 3 · What We Keep Learning — the Consultant Readiness Engine. */}

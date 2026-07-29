@@ -38,6 +38,7 @@ import { CompanyModelPanel } from "@/components/workspace/company-model-panel";
 import { AnimatedBlueprint } from "@/components/workspace/executive/animated-blueprint";
 import { ContextBar } from "@/components/workspace/executive/context-bar";
 import { DiscoveryCelebration } from "@/components/workspace/executive/discovery-celebration";
+import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import {
   DiscoveryCompletionCard,
   capabilityInterviewHref,
@@ -62,7 +63,6 @@ import { ReasoningCards } from "@/components/workspace/executive/reasoning-cards
 import { KnowledgeCenter } from "@/components/workspace/knowledge-center";
 import { NextStepCta } from "@/components/workspace/next-step-cta";
 import { OvernightDigestCard } from "@/components/workspace/overnight-digest-card";
-import { OrientationPanel } from "@/components/workspace/executive/orientation-panel";
 import {
   RoadmapTimeline,
   type RoadmapTimelineItem,
@@ -100,7 +100,6 @@ import {
   buildExecutiveDailyBrief,
   buildImproveDeliverableBrief,
   buildNextStepVoice,
-  buildOrientationPanel,
   buildPilotTruthMetrics,
   groupRecentLearning,
   type DailyBriefAction,
@@ -487,23 +486,6 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     lastVisit,
   });
   const recentLearning = groupRecentLearning(workspace);
-  const orientation = buildOrientationPanel({
-    workspace,
-    missingInformation,
-    nextStepVoice,
-  });
-  const orientationHref =
-    orientation.nextActionKind === "focus_capability" && nextStepVoice.focusDimension
-      ? `${interviewHref}&stage=${dimensionToStage(nextStepVoice.focusDimension)}`
-      : orientation.nextActionKind === "continue_interview"
-        ? interviewHref
-        : undefined;
-  const orientationOnClick =
-    orientation.nextActionKind === "upload_document"
-      ? () => setTab("knowledge")
-      : orientation.nextActionKind === "review_blueprint"
-        ? () => setTab("blueprint")
-        : undefined;
 
   /** Same href/onClick resolution `nextStepHref`/`nextStepOnClick` already use above, generalized to any ranked action. */
   const dailyBriefActionHref = (action: DailyBriefAction): string | undefined => {
@@ -604,16 +586,6 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           workspaceId={workspace.id}
           companyName={workspace.companyName}
           understanding={workspace.businessUnderstanding}
-        />
-
-        {/*
-          Five-second Orientation Panel — motivation before payoff.
-          Know / still learning / next (prefer Teach Architect with a document).
-        */}
-        <OrientationPanel
-          report={orientation}
-          href={orientationHref}
-          onClick={orientationOnClick}
         />
 
         {/*
@@ -731,8 +703,20 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
           </div>
         </SectionShell>
 
-        {/* Secondary — everything else, visibly quieter than the briefing above. */}
-        <div className="space-y-8 border-t border-[var(--isalwa-mist)]/50 pt-10">
+        {/*
+          Executive Sitting (Mission 1) — everything below is real content
+          the briefing above already answers at a glance (progress, open
+          questions, suggested next meeting). Collapsed behind the same
+          progressive-disclosure primitive the Dashboard body already uses,
+          instead of always-open noise after the nine-section briefing. Kept
+          in full, just on request.
+        */}
+        <ExecutiveDetail
+          className="border-t border-[var(--isalwa-mist)]/50 pt-10"
+          labelExpand={t("workspaceView.executive.expandMore")}
+          labelCollapse={t("workspaceView.executive.collapseMore")}
+        >
+        <div className="space-y-8">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--isalwa-slate)]/60">
               {t("workspaceView.executive.progressLabel")}
@@ -787,6 +771,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
             </SectionShell>
           </div>
         </div>
+        </ExecutiveDetail>
       </div>
     ),
 

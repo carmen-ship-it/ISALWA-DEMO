@@ -24,7 +24,6 @@
  *   company-operating-system.ts  Mission 25 + 27 — OS composed from living
  *                        deliverable outputs + fingerprint (no second catalog).
  *                        Deliverables are outputs; the OS is the product.
- *   orientation.ts       pre-pilot orientation panel (know / learning / next)
  *
  * Full write-up: `CONSULTING_INTELLIGENCE_AGENT.md`, `DISCOVERY_CEREMONY.md`,
  * `MISSION20.md`, `MISSION21.md`, `MISSION24.md`, `MISSION25.md`.
@@ -71,11 +70,6 @@ export {
   isOvernightDigestFresh,
   type OvernightDigest,
 } from "./overnight-digest";
-
-export {
-  buildOrientationPanel,
-  type OrientationPanelReport,
-} from "./orientation";
 
 export {
   buildPilotTruthMetrics,
