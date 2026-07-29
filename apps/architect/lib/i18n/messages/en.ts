@@ -642,8 +642,6 @@ export const en: MessageTree = {
     risk: "Risk",
     informationNodes: "{count} information nodes",
     missing: "Missing: {items}",
-    evidenceDirect: "Client evidence",
-    evidenceInferred: "Inferred",
   },
   knowledgeUpload: {
     processing: "Processing…",

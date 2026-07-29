@@ -107,6 +107,11 @@ export function BusinessBlueprintPanel({
 
       <BlueprintBlock title={t("businessBlueprintPanel.howItOperatesToday")}>
         <p>{selected.currentState}</p>
+        {/* The one Blueprint block with no provenance signal at all before
+            this pass — "today" is the one section actually traced to
+            interviews/documents rather than synthesized, so it earns
+            "observed" rather than "inferred". */}
+        <ProvenanceFootnote tier="observed" />
       </BlueprintBlock>
 
       <BlueprintBlock title={t("businessBlueprintPanel.howItShouldOperate")}>

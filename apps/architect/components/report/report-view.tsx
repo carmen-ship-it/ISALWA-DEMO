@@ -37,6 +37,7 @@ import {
   StillLearningList,
 } from "@/components/workspace/executive/readiness-panel";
 import { BeatSubLabel } from "@/components/workspace/story-beat";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 
 /**
  * Premium Visual Quality pass — report sections read as a bound executive
@@ -297,6 +298,7 @@ function ReportBody({
             </div>
           </div>
         ) : null}
+        <ProvenanceFootnote tier="observed" />
       </Section>
 
       {/* Beat 2 — Why it matters */}
@@ -317,6 +319,7 @@ function ReportBody({
               </li>
             ))}
           </ul>
+          <ProvenanceFootnote tier="observed" />
         </Section>
       ) : null}
 
@@ -405,6 +408,7 @@ function ReportBody({
               </p>
             ) : null}
           </div>
+          <ProvenanceFootnote tier="inferred" />
         </Section>
       ) : null}
 
@@ -428,6 +432,7 @@ function ReportBody({
               </ul>
             </div>
           ) : null}
+          <ProvenanceFootnote tier="inferred" />
         </Section>
       ) : null}
 
@@ -483,6 +488,7 @@ function ReportBody({
               </ul>
             </div>
           ) : null}
+          <ProvenanceFootnote tier="suggested" />
         </Section>
       ) : null}
 
@@ -527,6 +533,7 @@ function ReportBody({
               </div>
             </div>
           ) : null}
+          <ProvenanceFootnote tier="suggested" />
         </Section>
       ) : null}
 
@@ -552,6 +559,7 @@ function ReportBody({
             </p>
           </div>
         </div>
+        <ProvenanceFootnote tier="estimated" />
       </Section>
 
       {/* Beat 9 — Next steps */}
@@ -577,6 +585,7 @@ function ReportBody({
         <p className="mt-2 text-lg leading-relaxed text-[var(--isalwa-slate)]">
           {report.executiveConclusion}
         </p>
+        <ProvenanceFootnote tier="inferred" />
       </Section>
     </div>
   );

@@ -30,6 +30,7 @@ import {
 } from "@/lib/presentation";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
+import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type { CompanyWorkspace, DeliverablesPackage, LivingDeliverableKind } from "@/types";
 
 type TabId =
@@ -265,6 +266,7 @@ function DeliverablePreview({
           <StoryBeats className="mt-1 space-y-6">
             <Beat step={1} title={t("storyBeats.discovered")}>
               <p>{d.currentState}</p>
+              <ProvenanceFootnote tier="inferred" />
             </Beat>
             <Beat
               step={2}
@@ -272,6 +274,7 @@ function DeliverablePreview({
               lead={t("deliverablesExecutive.whyItMattersLead")}
             >
               <BeatList items={d.problems} />
+              <ProvenanceFootnote tier="observed" />
             </Beat>
             <Beat
               step={3}
@@ -297,6 +300,7 @@ function DeliverablePreview({
               lead={t("deliverablesExecutive.businessImpactLead")}
             >
               <BeatList items={d.biggestRisks} />
+              <ProvenanceFootnote tier="inferred" />
             </Beat>
             <Beat
               step={5}
@@ -306,6 +310,7 @@ function DeliverablePreview({
               <BeatList
                 items={risks.map((r) => `${r.title} · ${severityLabel(r.severity)}`)}
               />
+              <ProvenanceFootnote tier="inferred" />
             </Beat>
             <Beat
               step={6}
@@ -313,6 +318,7 @@ function DeliverablePreview({
               lead={t("deliverablesExecutive.opportunityLead")}
             >
               <BeatList items={d.immediateOpportunities} />
+              <ProvenanceFootnote tier="suggested" />
             </Beat>
             <Beat step={7} title={t("storyBeats.recommendedInvestment")}>
               <p>{d.executiveRecommendation}</p>
@@ -325,6 +331,7 @@ function DeliverablePreview({
                   <BeatList items={d.investmentAreas} className="mt-1.5" />
                 </div>
               ) : null}
+              <ProvenanceFootnote tier="suggested" />
             </Beat>
             <Beat
               step={8}
@@ -332,6 +339,7 @@ function DeliverablePreview({
               lead={t("deliverablesExecutive.roiLead")}
             >
               <BeatList items={d.strategicOpportunities} />
+              <ProvenanceFootnote tier="suggested" />
             </Beat>
             <Beat
               step={9}
@@ -339,6 +347,7 @@ function DeliverablePreview({
               lead={t("deliverablesExecutive.nextStepsLead")}
             >
               <BeatList items={d.recommendedRoadmap} />
+              <ProvenanceFootnote tier="suggested" />
             </Beat>
           </StoryBeats>
         </Article>

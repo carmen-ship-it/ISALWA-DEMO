@@ -11,6 +11,7 @@ import {
   criticalityLabel,
   dependencyKindLabel,
   ownershipKindLabel,
+  provenanceFromEvidenceCount,
   recommendationStrength,
   riskLevelLabel,
   strengthBandLabelEs,
@@ -125,14 +126,14 @@ export function CompanyModelPanel({
         {model.ownership.length === 0 ? (
           <EmptyHint text={t("companyModelPanel.ownershipEmpty")} />
         ) : (
-          <>
-            <ul className="space-y-2">
-              {model.ownership.slice(0, 24).map((own) => (
-                <OwnershipRow key={own.id} own={own} />
-              ))}
-            </ul>
-            <ProvenanceFootnote tier="inferred" />
-          </>
+          // Per-row provenance tier (see `OwnershipRow`) replaces the old
+          // blanket section footnote, which labeled every owner as
+          // "inferred" even when the assignment traced to real evidence.
+          <ul className="space-y-2">
+            {model.ownership.slice(0, 24).map((own) => (
+              <OwnershipRow key={own.id} own={own} />
+            ))}
+          </ul>
         )}
       </Section>
 
@@ -222,12 +223,13 @@ function DepartmentRow({
 }
 
 function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
-  // `knowledgeRelationshipId` is only set when this edge traces to a
-  // specific relationship extracted from the client's own documents/
-  // interviews (`workspace.knowledge.relationships`); everything else here
-  // is synthesized from department/system/handoff structure, so it gets an
-  // explicit "inferred" badge instead of reading as equally discovered.
-  const isDirectEvidence = rel.knowledgeRelationshipId != null;
+  // Reuses the shared provenance vocabulary (`lib/presentation/provenance.ts`)
+  // instead of the ad-hoc "direct"/"inferred" labels this row used to carry
+  // on its own — same tiers as Blueprint, Solution Architecture and the
+  // Operating System, so "observed" means the same thing everywhere in
+  // Architect. An edge counts as `observed` once it traces to at least one
+  // real evidence reference (`rel.evidence`), not just a knowledge-graph id.
+  const tier = provenanceFromEvidenceCount(rel.evidence.length);
   return (
     <li className="text-sm text-[var(--isalwa-slate)]">
       <span className="text-[var(--isalwa-kiln)]">{rel.fromLabel}</span>
@@ -239,16 +241,21 @@ function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
       <span className="ml-2 text-xs text-[var(--isalwa-slate)]/60">
         {strengthBandLabelEs(rel.confidence)}
       </span>
-      <span className="ml-2 text-[10px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/50">
-        {isDirectEvidence
-          ? t("companyModelPanel.evidenceDirect")
-          : t("companyModelPanel.evidenceInferred")}
+      <span
+        className="ml-2 text-[10px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/50"
+        title={t(`provenance.footnote.${tier}`)}
+      >
+        {t(`provenance.tier.${tier}`)}
       </span>
     </li>
   );
 }
 
 function OwnershipRow({ own }: { own: CompanyOwnership }) {
+  // Same shared vocabulary as `RelationshipRow` — the section-level
+  // "inferred" footnote below the list was previously the only signal,
+  // which understated ownership traced to real evidence.
+  const tier = provenanceFromEvidenceCount(own.evidence.length);
   return (
     <li className="text-sm text-[var(--isalwa-slate)]">
       <span className="font-medium text-[var(--isalwa-kiln)]">{own.ownerLabel}</span>
@@ -259,6 +266,12 @@ function OwnershipRow({ own }: { own: CompanyOwnership }) {
       </span>
       <span className="ml-2 text-xs text-[var(--isalwa-slate)]/60">
         {strengthBandLabelEs(own.confidence)}
+      </span>
+      <span
+        className="ml-2 text-[10px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/50"
+        title={t(`provenance.footnote.${tier}`)}
+      >
+        {t(`provenance.tier.${tier}`)}
       </span>
     </li>
   );
