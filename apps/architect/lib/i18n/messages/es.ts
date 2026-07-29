@@ -125,6 +125,8 @@ export const es: MessageTree = {
       todayCtaDescriptionContinue:
         "Siga el descubrimiento para subir la comprensión del negocio, o revise lo que ya encontramos.",
       progressLabel: "Su progreso",
+      expandMore: "Ver progreso, preguntas abiertas y próxima reunión",
+      collapseMore: "Ocultar detalle adicional",
       stillMissingKicker: "Lo que falta por confirmar",
       openQuestionsTitle: "Preguntas abiertas",
       openQuestionsDescription: "Temas que todavía necesitamos aclarar.",
@@ -829,6 +831,8 @@ export const es: MessageTree = {
       healthGaugesTitle: "Indicadores de salud",
       healthGaugesHint: "Salud relativa de cada área del negocio — Saludable, Requiere atención o Crítico.",
       consultingRead: "Lectura consultiva: {label}",
+      expandDetail: "Ver desglose completo por departamento y área",
+      collapseDetail: "Ocultar desglose completo",
     },
     learning: {
       kicker: "3 · Qué seguimos aprendiendo",
@@ -1131,7 +1135,7 @@ export const es: MessageTree = {
     estimatedTime: "Tiempo estimado: {minutes} minutos",
     whatToDoToday: "¿Qué debo hacer hoy?",
     viewExecutiveSummary: "Ver resumen ejecutivo",
-    tagline: "Architect se vuelve más inteligente cada vez que su empresa comparte conocimiento.",
+    tagline: "Cada vez que su empresa comparte conocimiento, entendemos mejor su negocio.",
   },
   /**
    * Executive Daily Brief (Mission 20 — second pass). Replaces

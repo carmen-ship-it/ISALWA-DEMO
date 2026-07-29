@@ -492,7 +492,7 @@ export function buildCompanyOperatingSystem(
     pipelineNote:
       "Las salidas (PDF, Word, manuales, SOPs) son representaciones del mismo Company Brain — el producto es cómo opera la empresa.",
     promise:
-      "El Sistema Operativo de tu empresa crece cada vez que Architect aprende algo nuevo sobre tu negocio.",
+      "El Sistema Operativo de tu empresa crece con cada conversación, documento o reunión que sumamos al análisis.",
     pipeline: [
       { id: "conversation", label: "Conversación" },
       { id: "knowledge", label: "Conocimiento" },

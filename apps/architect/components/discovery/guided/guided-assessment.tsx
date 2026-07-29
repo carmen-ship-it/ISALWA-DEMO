@@ -20,6 +20,7 @@ import { TypingIndicator } from "@/components/shared/typing-indicator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useAuth } from "@/hooks/use-auth";
 import { applyInterviewToWorkspace } from "@/lib/memory";
 import { createClientInterviewPersistence } from "@/lib/persistence";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
@@ -126,6 +127,15 @@ const SHARE_DEBOUNCE_MS = 1_500;
 export function GuidedAssessment() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { session } = useAuth();
+  /**
+   * Conversation, not exam (Mission — Calm Discovery Interview) — a
+   * consultant already reads live percentages everywhere else in Architect;
+   * a client mid-interview should not. Defaults to the calmer client
+   * framing whenever the session has not resolved yet (e.g. on first paint),
+   * never the other way around.
+   */
+  const isConsultant = session?.role === "consultant";
   const workspaceId = searchParams.get("workspaceId");
   /**
    * Ceremony click-through (Mission 20) — `/discovery?...&stage=finance`
@@ -742,6 +752,7 @@ export function GuidedAssessment() {
                 onContinue={() => void respond("yes")}
                 onNotNow={() => void respond("later")}
                 continuing={thinking || isPending}
+                showPercent={isConsultant}
               />
             ) : (
               <>
@@ -760,6 +771,7 @@ export function GuidedAssessment() {
                   onSkipStage={
                     canSkipStage ? () => handleSkipStage(stageDef.id) : undefined
                   }
+                  showPercent={isConsultant}
                 />
                 <div className="mt-6">
                   <AnsweringPanel
@@ -778,8 +790,11 @@ export function GuidedAssessment() {
           </section>
 
           <aside className="space-y-4">
-            <DiscoveryScoreCard score={interview.memory.score} />
-            <LivingWhiteboard board={interview.memory.whiteboard} />
+            <DiscoveryScoreCard score={interview.memory.score} showPercent={isConsultant} />
+            <LivingWhiteboard
+              board={interview.memory.whiteboard}
+              variant={isConsultant ? "consultant" : "client"}
+            />
 
             <div>
               <p className="isalwa-kicker isalwa-ink-blue">Hallazgos del consultor</p>
@@ -788,7 +803,7 @@ export function GuidedAssessment() {
                   <EmptyState
                     tone="executive"
                     icon={Search}
-                    title="Aún no hay hallazgos — el Arquitecto no inventa conclusiones."
+                    title="Aún no hay hallazgos — solo compartimos conclusiones respaldadas por evidencia."
                     whyItMatters="Un hallazgo prematuro llevaría a recomendar antes de entender de verdad. Aparece en cuanto haya evidencia real que lo sostenga."
                   />
                 ) : (

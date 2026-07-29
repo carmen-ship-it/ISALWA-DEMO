@@ -36,6 +36,7 @@ export function ContinuationHero({
   onContinue,
   onNotNow,
   continuing,
+  showPercent = true,
 }: {
   companyName: string;
   understanding: number;
@@ -49,6 +50,8 @@ export function ContinuationHero({
   onContinue: () => void;
   onNotNow: () => void;
   continuing: boolean;
+  /** Conversation, not exam — clients see the qualitative word only; consultants keep the live percentage. */
+  showPercent?: boolean;
 }) {
   const pct = Math.max(0, Math.min(100, Math.round(understanding)));
 
@@ -60,20 +63,23 @@ export function ContinuationHero({
         icon={Sparkles}
         kicker="Descubrimiento continuo"
         title={`Continuemos aprendiendo sobre ${companyName}…`}
-        description="Esta es la misma conversación de siempre, no un cuestionario nuevo. Architect se vuelve más inteligente cada vez que su empresa comparte conocimiento — y ahora mismo retoma justo donde la dejamos."
+        description="Esta es la misma conversación de siempre, no un cuestionario nuevo. Cada vez que su empresa comparte conocimiento, entendemos mejor su negocio — y ahora mismo retomamos justo donde la dejamos."
       >
-        <div className="isalwa-risk-bar mb-4 max-w-sm !h-1.5 bg-white/70">
-          <span
-            className="!rounded-full bg-[var(--isalwa-info)] transition-[width] duration-500 ease-out"
-            style={{ width: `${Math.max(4, pct)}%` }}
-            aria-hidden
-          />
-        </div>
+        {showPercent ? (
+          <div className="isalwa-risk-bar mb-4 max-w-sm !h-1.5 bg-white/70">
+            <span
+              className="!rounded-full bg-[var(--isalwa-info)] transition-[width] duration-500 ease-out"
+              style={{ width: `${Math.max(4, pct)}%` }}
+              aria-hidden
+            />
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]/85">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
-            Qué tanto entiende Architect tu empresa: {pct}% ·{" "}
-            {understandingLevel(pct).toLowerCase()}
+            {showPercent
+              ? `Qué tanto entendemos tu empresa: ${pct}% · ${understandingLevel(pct).toLowerCase()}`
+              : `Qué tanto entendemos tu empresa: ${understandingLevel(pct)}`}
           </span>
           {estimatedMinutes ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">

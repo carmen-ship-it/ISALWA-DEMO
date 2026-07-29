@@ -48,7 +48,21 @@ function WhiteboardBlock({
   );
 }
 
-export function LivingWhiteboard({ board }: { board: WhiteboardState }) {
+export function LivingWhiteboard({
+  board,
+  variant = "consultant",
+}: {
+  board: WhiteboardState;
+  /**
+   * Living Whiteboard, Client Mode — the same engine fields, calmer labels.
+   * A client reading "Contradicciones" or "Supuestos" mid-conversation reads
+   * an internal debugging board, not a consulting deliverable. Consultants
+   * (who already read this vocabulary everywhere else) keep the raw labels;
+   * clients see the same content under the consultative framing a McKinsey
+   * deck would use. Presentation only — nothing here is hidden or dropped.
+   */
+  variant?: "consultant" | "client";
+}) {
   const facts = board.facts ?? [];
   const hypotheses = board.hypotheses ?? [];
   const risks = board.risks ?? [];
@@ -57,6 +71,7 @@ export function LivingWhiteboard({ board }: { board: WhiteboardState }) {
   const contradictions = board.contradictions ?? [];
   const ideas = board.ideas ?? [];
   const opportunities = board.opportunities ?? [];
+  const isClient = variant === "client";
 
   const empty =
     !board.businessModel &&
@@ -100,11 +115,20 @@ export function LivingWhiteboard({ board }: { board: WhiteboardState }) {
             value={board.potentialModules}
           />
           <WhiteboardBlock label="Hechos" value={facts} />
-          <WhiteboardBlock label="Hipótesis" value={hypotheses} />
+          <WhiteboardBlock
+            label={isClient ? "Aspectos por validar" : "Hipótesis"}
+            value={hypotheses}
+          />
           <WhiteboardBlock label="Riesgos" value={risks} />
           <WhiteboardBlock label="Incógnitas" value={unknowns} />
-          <WhiteboardBlock label="Supuestos" value={assumptions} />
-          <WhiteboardBlock label="Contradicciones" value={contradictions} />
+          <WhiteboardBlock
+            label={isClient ? "Información pendiente" : "Supuestos"}
+            value={assumptions}
+          />
+          <WhiteboardBlock
+            label={isClient ? "Puntos abiertos" : "Contradicciones"}
+            value={contradictions}
+          />
           <WhiteboardBlock label="Ideas" value={ideas} />
           <WhiteboardBlock label="Oportunidades" value={opportunities} />
         </div>

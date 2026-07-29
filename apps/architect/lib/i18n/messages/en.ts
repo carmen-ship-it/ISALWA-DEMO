@@ -120,6 +120,8 @@ export const en: MessageTree = {
       todayCtaDescriptionContinue:
         "Continue the discovery conversation to raise business understanding, or review what we've already found.",
       progressLabel: "Your progress",
+      expandMore: "See progress, open questions and next meeting",
+      collapseMore: "Hide additional detail",
       stillMissingKicker: "What's left to confirm",
       openQuestionsTitle: "Open questions",
       openQuestionsDescription: "Topics we still need to clarify.",
@@ -808,6 +810,8 @@ export const en: MessageTree = {
       healthGaugesTitle: "Health indicators",
       healthGaugesHint: "Relative health of each business area — Healthy, Needs attention, or Critical.",
       consultingRead: "Consulting read: {label}",
+      expandDetail: "See full breakdown by department and area",
+      collapseDetail: "Hide full breakdown",
     },
     learning: {
       kicker: "3 · What we keep learning",
@@ -1107,7 +1111,7 @@ export const en: MessageTree = {
     estimatedTime: "Estimated time: {minutes} minutes",
     whatToDoToday: "What should I do today?",
     viewExecutiveSummary: "View executive summary",
-    tagline: "Architect becomes more intelligent every time your company shares knowledge.",
+    tagline: "Every time your company shares knowledge, we understand your business better.",
   },
   executiveDailyBrief: {
     kicker: "Today's executive briefing",

@@ -24,7 +24,18 @@ function dimensionDisplay(dimension: DimensionStatus): string {
   return t("discoveryScoreCard.maturityInitial");
 }
 
-export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
+export function DiscoveryScoreCard({
+  score,
+  showPercent = true,
+}: {
+  score: DiscoveryScore;
+  /**
+   * Conversation, not exam — hides the live numeric percentage for a client
+   * mid-interview while keeping the same qualitative word every other
+   * surface already uses. Consultants keep the number. No new scoring.
+   */
+  showPercent?: boolean;
+}) {
   const { t } = useTranslations();
   const applicableDimensions = score.dimensions.filter(
     (dimension) => dimension.applicable !== false,
@@ -52,9 +63,11 @@ export function DiscoveryScoreCard({ score }: { score: DiscoveryScore }) {
         >
           {understandingLevel(score.overall)}
         </motion.span>
-        <span className="mb-1 text-lg text-[var(--isalwa-slate)]/60">
-          · {score.overall}%
-        </span>
+        {showPercent ? (
+          <span className="mb-1 text-lg text-[var(--isalwa-slate)]/60">
+            · {score.overall}%
+          </span>
+        ) : null}
       </div>
       {/* Confidence in plain, human language — never the raw score alone. */}
       <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">

@@ -45,6 +45,7 @@ export function StageBrief({
   pauseHref,
   onSkipQuestion,
   onSkipStage,
+  showPercent = true,
 }: {
   stage: GuidedStageDefinition;
   overallScore: number;
@@ -59,6 +60,14 @@ export function StageBrief({
   pauseHref: string;
   onSkipQuestion?: () => void;
   onSkipStage?: () => void;
+  /**
+   * Conversation, not exam — a client mid-interview reads a live percentage
+   * as a test score. Consultants (who already read scores everywhere else in
+   * Architect) still see the number and the progress bar; clients see only
+   * the same qualitative word (`understandingLevel`) the rest of the app
+   * already uses. No new scoring — same `overallScore`, different framing.
+   */
+  showPercent?: boolean;
 }) {
   const { index, total } = stagePosition(stage.id);
 
@@ -76,10 +85,12 @@ export function StageBrief({
           <div className="flex items-center justify-between text-xs text-[var(--isalwa-slate)]/80">
             <span>Comprensión del negocio</span>
             <span>
-              {overallScore}% · {understandingLevel(overallScore).toLowerCase()}
+              {showPercent
+                ? `${overallScore}% · ${understandingLevel(overallScore).toLowerCase()}`
+                : understandingLevel(overallScore)}
             </span>
           </div>
-          <Progress value={overallScore} className="mt-1.5" />
+          {showPercent ? <Progress value={overallScore} className="mt-1.5" /> : null}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
