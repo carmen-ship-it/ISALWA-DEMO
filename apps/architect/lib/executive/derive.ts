@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import { phaseLabel } from "@/lib/presentation";
+import { deriveReadinessVerdict } from "@/lib/readiness";
 import { hasManufacturingRelationshipEvidence } from "@/lib/solution";
 import { deriveExecutiveCockpit } from "./cockpit";
 import type { ExecutiveCockpit } from "./types";
@@ -132,8 +133,11 @@ export function deriveExecutiveExperience(
   // Same bar as the "learned" stage below — downstream artifacts (blueprint,
   // solution, deliverables) can exist as early drafts while discovery is
   // still thin, so their journey checkmarks stay honest by requiring the
-  // same real-evidence threshold, not just object presence.
-  const UNDERSTOOD = workspace.businessUnderstanding >= 40;
+  // same real-evidence threshold, not just object presence. Sourced from the
+  // canonical Readiness Verdict (`allowedOutputs.showRecommendations`) rather
+  // than a second `>= 40` scattered here — see `lib/readiness/verdict.ts`.
+  const UNDERSTOOD = deriveReadinessVerdict(workspace).allowedOutputs
+    .showRecommendations;
 
   const journey: JourneyStage[] = [
     {
@@ -148,11 +152,10 @@ export function deriveExecutiveExperience(
     {
       id: "learned",
       label: "Negocio comprendido",
-      detail:
-        workspace.businessUnderstanding >= 40
-          ? "Comprensión del negocio en buen camino"
-          : "Aún mapeando cómo opera la empresa",
-      complete: workspace.businessUnderstanding >= 40,
+      detail: UNDERSTOOD
+        ? "Comprensión del negocio en buen camino"
+        : "Aún mapeando cómo opera la empresa",
+      complete: UNDERSTOOD,
     },
     {
       id: "problems",

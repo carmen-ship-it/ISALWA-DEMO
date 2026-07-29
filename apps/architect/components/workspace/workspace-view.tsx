@@ -91,6 +91,7 @@ import {
   assessMissingInformation,
   assessReadiness,
   blueprintReadinessGate,
+  deriveReadinessVerdict,
 } from "@/lib/readiness";
 import { assessCapabilityDigitalTwin } from "@/lib/discovery-agent/capabilities";
 import {
@@ -341,6 +342,21 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   );
 
   /**
+   * The canonical Readiness Verdict (`lib/readiness/verdict.ts`) — composes
+   * `readiness`, `missingInformation` and the Blueprint/Implementation
+   * Package gates above plus the ceremony into one `phase` and one
+   * `allowedOutputs` map, so this screen answers "are we ready" once
+   * instead of re-checking `businessUnderstanding` thresholds inline.
+   */
+  const readinessVerdict = useMemo(
+    () =>
+      workspace
+        ? deriveReadinessVerdict(workspace, { discoveryCompletion })
+        : null,
+    [workspace, discoveryCompletion],
+  );
+
+  /**
    * Company Brain (Mission 21 — Company Brain pass) — the client-facing
    * "what does Architect know about my company" report, composed purely
    * from the Capability Digital Twin, the Missing Information Engine and
@@ -377,7 +393,8 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     !explainableConfidence ||
     !capabilityTwin ||
     !discoveryCompletion ||
-    !companyBrain
+    !companyBrain ||
+    !readinessVerdict
   ) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
@@ -401,11 +418,12 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     "equipo";
 
   // Guided Executive Navigation (Mission 12) — Dashboard's single answer to
-  // "¿Qué debo hacer hoy?": once there is enough evidence (same 40% bar used
-  // by lib/executive/derive.ts) and something concrete to react to, point at
-  // today's recommendations instead of repeating "continue the assessment"
-  // forever.
-  const dashboardUnderstood = workspace.businessUnderstanding >= 40;
+  // "¿Qué debo hacer hoy?": once there is enough evidence and something
+  // concrete to react to, point at today's recommendations instead of
+  // repeating "continue the assessment" forever. Reads the canonical
+  // Readiness Verdict's `allowedOutputs.showRecommendations` — the same bar
+  // `lib/executive/derive.ts` reads — instead of a second inline `>= 40`.
+  const dashboardUnderstood = readinessVerdict.allowedOutputs.showRecommendations;
   const dashboardHasRecommendations =
     explainedRecommendations.length > 0 || explainedModules.length > 0;
   const showTodaysRecommendations =

@@ -22,6 +22,11 @@
  *                           same overall number, broken into the categories a
  *                           client actually asks about, each with why and how
  *                           to raise it
+ *   verdict.ts               the canonical Readiness Verdict — composes every
+ *                           file above plus the Blueprint and Implementation
+ *                           Package gates into one client-facing phase and one
+ *                           `allowedOutputs` map, so no screen decides "are we
+ *                           ready" on its own scattered threshold
  *
  * Full write-up: `CONSULTANT_READINESS_ENGINE.md`,
  * `MISSING_INFORMATION_ENGINE.md`, `EXPLAINABLE_CONFIDENCE.md`.
@@ -71,6 +76,18 @@ export {
   recommendationEvidenceBasis,
   type RecommendationEvidenceInput,
 } from "./gate";
+
+export {
+  deriveReadinessVerdict,
+  BUILD_OS_DRAFT_THRESHOLD,
+  PHASE_LABELS_ES,
+  SHOW_RECOMMENDATIONS_THRESHOLD,
+  type AllowedOutputs,
+  type ClientPhase,
+  type DeriveReadinessVerdictOptions,
+  type ReadinessVerdict,
+  type ReadinessVerdictAction,
+} from "./verdict";
 
 export {
   applyReadinessToMemory,

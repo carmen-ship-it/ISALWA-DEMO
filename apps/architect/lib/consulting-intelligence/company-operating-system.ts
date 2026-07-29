@@ -14,7 +14,7 @@ import {
   livingDeliverableCopy,
   computeKnowledgeFingerprint,
 } from "@/lib/deliverables/living";
-import { snapshotFromWorkspace } from "@/lib/readiness";
+import { deriveReadinessVerdict, snapshotFromWorkspace } from "@/lib/readiness";
 import type {
   CompanyWorkspace,
   LivingDeliverableKind,
@@ -246,6 +246,7 @@ function statusFromOverview(
   item: LivingDeliverableOverview,
   understandingPercent: number,
   missingCount: number,
+  buildOsDraft: boolean,
 ): { status: OsArtifactStatus; statusLabel: string } {
   if (item.updateAvailable) {
     return {
@@ -254,7 +255,7 @@ function statusFromOverview(
     };
   }
   if (!item.latest) {
-    if (understandingPercent >= 35) {
+    if (buildOsDraft) {
       return {
         status: "ready_to_build",
         statusLabel: "Listo para construir",
@@ -291,6 +292,7 @@ function artifactFromLiving(
   item: LivingDeliverableOverview,
   builtFrom: OsBuiltFrom,
   understandingPercent: number,
+  buildOsDraft: boolean,
 ): OperatingSystemArtifact {
   const copy = livingDeliverableCopy(item.kind, workspace.companyName);
   const categoryId = KIND_CATEGORY[item.kind];
@@ -304,6 +306,7 @@ function artifactFromLiving(
     item,
     understandingPercent,
     missing.length,
+    buildOsDraft,
   );
 
   return {
@@ -379,9 +382,14 @@ export function buildCompanyOperatingSystem(
     discoverySessions: inventory.discoverySessions,
     meetings: inventory.meetings,
   };
+  // Same 35% bar as before this mission, now read from the canonical
+  // Readiness Verdict (`allowedOutputs.buildOsDraft`) instead of an inline
+  // `understandingPercent >= 35` — see `lib/readiness/verdict.ts`.
+  const buildOsDraft = deriveReadinessVerdict(workspace).allowedOutputs
+    .buildOsDraft;
 
   const artifacts = overview.map((item) =>
-    artifactFromLiving(workspace, item, builtFrom, understandingPercent),
+    artifactFromLiving(workspace, item, builtFrom, understandingPercent, buildOsDraft),
   );
 
   const categories: OsCapabilityCategory[] = CATEGORY_ORDER.map((id) => {

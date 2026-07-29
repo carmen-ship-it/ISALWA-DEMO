@@ -11,6 +11,7 @@ import {
   sectionSourceEngineLabel,
 } from "@/lib/implementation-package";
 import { useTranslations } from "@/lib/i18n";
+import { deriveReadinessVerdict } from "@/lib/readiness";
 import { getClientCompanyMemoryStore } from "@/lib/repositories";
 import { formatRelativeActivity } from "@/lib/workspace";
 import type { CompanyWorkspace } from "@/types";
@@ -18,6 +19,13 @@ import type { CompanyWorkspace } from "@/types";
 /**
  * Thin Mission 18 UI — Ready / Not ready + section list when threshold met.
  * Architecture references only; no code generation.
+ *
+ * Leads with the canonical Readiness Verdict's headline and named critical
+ * blockers (`lib/readiness/verdict.ts`) instead of the raw "78% vs 72%"
+ * comparison — the same Missing Information language the rest of the app
+ * already uses, so this panel never contradicts the Dashboard/Discovery
+ * verdict for the same evidence. The numeric threshold line is preserved,
+ * demoted below, for consultants who still want the exact figure.
  */
 export function ImplementationPackagePanel({
   workspace,
@@ -34,6 +42,8 @@ export function ImplementationPackagePanel({
   );
   const gate = workspace.implementationPackage?.gate ?? live.gate;
   const pack = workspace.implementationPackage ?? live.pack;
+  const verdict = useMemo(() => deriveReadinessVerdict(workspace), [workspace]);
+  const namedBlockers = verdict.criticalTopics.map((topic) => topic.headline);
 
   const refresh = async () => {
     setBusy(true);
@@ -67,15 +77,16 @@ export function ImplementationPackagePanel({
             ? t("implementationPackagePanel.ready")
             : t("implementationPackagePanel.notReady")}
         </h3>
-        <p className="mt-3 text-[var(--isalwa-slate)]">
-          {t("implementationPackagePanel.thresholdLine", {
-            threshold: IMPLEMENTATION_PACKAGE_THRESHOLD,
-            current: gate.businessUnderstanding,
-          })}
-          {gate.thresholdMet
-            ? t("implementationPackagePanel.thresholdMet")
-            : t("implementationPackagePanel.thresholdPending")}
-        </p>
+        <p className="mt-3 text-[var(--isalwa-slate)]">{verdict.clientHeadline}</p>
+        {!gate.ready && namedBlockers.length > 0 ? (
+          <ul className="mt-3 space-y-1.5">
+            {namedBlockers.map((headline) => (
+              <li key={headline} className="text-sm text-[var(--isalwa-slate)]">
+                {headline}
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <ul className="mt-4 space-y-2">
           {gate.notes.map((note) => (
             <li key={note} className="text-sm text-[var(--isalwa-slate)]">
@@ -90,6 +101,15 @@ export function ImplementationPackagePanel({
             })}
           </p>
         ) : null}
+        <p className="mt-3 text-xs text-[var(--isalwa-slate)]/60">
+          {t("implementationPackagePanel.thresholdLine", {
+            threshold: IMPLEMENTATION_PACKAGE_THRESHOLD,
+            current: gate.businessUnderstanding,
+          })}
+          {gate.thresholdMet
+            ? t("implementationPackagePanel.thresholdMet")
+            : t("implementationPackagePanel.thresholdPending")}
+        </p>
         <div className="mt-5">
           <Button
             type="button"
