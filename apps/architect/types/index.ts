@@ -726,6 +726,7 @@ export type {
   SolutionNavItem,
   SolutionPermission,
   SolutionRelationship,
+  SolutionRelationshipSource,
   SolutionRole,
   SolutionRoleName,
   SolutionWorkflowRef,

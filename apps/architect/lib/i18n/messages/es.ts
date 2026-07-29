@@ -545,6 +545,8 @@ export const es: MessageTree = {
     coreBusinessInfo: "Información central del negocio",
     howInfoConnects: "Cómo se conecta la información",
     relatesTo: "se relaciona con",
+    relationshipsProvenance: "Relaciones sugeridas a partir de las capacidades detectadas — un punto de partida típico de este tipo de negocio, pendiente de validar con la evidencia del cliente.",
+    productionRelationshipsLearning: "Aún estamos aprendiendo cómo se conectan las relaciones de producción — se mostrarán aquí en cuanto haya evidencia suficiente del cliente.",
     mainNavigation: "Navegación principal",
     accessPrinciples: "Principios de acceso",
     implementationSequence: "Secuencia de implementación",
@@ -636,6 +638,8 @@ export const es: MessageTree = {
     risk: "Riesgo",
     informationNodes: "{count} nodos de información",
     missing: "Falta: {items}",
+    evidenceDirect: "Evidencia del cliente",
+    evidenceInferred: "Inferido",
   },
   knowledgeUpload: {
     processing: "Procesando…",
@@ -1047,6 +1051,8 @@ export const es: MessageTree = {
     expandConnections: "Ver cómo se conectan las capacidades",
     collapseConnections: "Ocultar conexiones",
     connectionsLabel: "Conexiones",
+    connectionsProvenance: "Relaciones sugeridas a partir de las capacidades detectadas — un punto de partida típico, pendiente de validar con la evidencia del cliente.",
+    productionLearning: "Aún estamos aprendiendo cómo se conectan las relaciones de producción — se mostrarán aquí en cuanto haya evidencia suficiente del cliente.",
   },
   discoveryJourney: {
     businessUnderstanding: "Qué tanto entiende Architect tu empresa: {level}",

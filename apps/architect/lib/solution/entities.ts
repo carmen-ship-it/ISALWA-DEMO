@@ -8,14 +8,32 @@ import type {
   SolutionModule,
   SolutionModuleName,
 } from "@/types";
+import { buildEvidenceBlob } from "./modules";
 
 interface EntityRule {
   name: SolutionEntityName;
   purpose: string;
   owningModule: SolutionModuleName | null;
-  requires: (modules: Set<SolutionModuleName>, text: string) => boolean;
+  /**
+   * `text` is the narrow blueprint/module-name blob every rule has always
+   * used. `broaderText` additionally covers capabilities, pain points and
+   * systems (see `buildEvidenceBlob`) — only offered to rules that need a
+   * wider evidence net (e.g. manufacturing signals like "BOM"/"work order"
+   * that a client mentions in a pain point, not a formal entity name).
+   * Existing rules keep matching on `text` only, so behavior for every
+   * non-manufacturing entity is unchanged.
+   */
+  requires: (
+    modules: Set<SolutionModuleName>,
+    text: string,
+    broaderText: string,
+  ) => boolean;
   confidence: number;
 }
+
+/** Manufacturing text signals — same keyword set as the `Production`
+ * industry profile (`data/catalog.ts`) so evidence bars stay consistent. */
+const BOM_SIGNAL = /\bbom\b|bill of materials?|lista de materiales|receta de producci[oó]n/i;
 
 const RULES: EntityRule[] = [
   {
@@ -186,6 +204,30 @@ const RULES: EntityRule[] = [
     requires: (m) => m.has("Approvals"),
     confidence: 0.88,
   },
+  // Manufacturing signals — gated on the `Production` capability actually
+  // being recommended (see `lib/solution/modules.ts`), never invented just
+  // because the client is a manufacturer. Confidence stays below the CRM/
+  // Sales entities above: presence of the module implies work happens on a
+  // shop floor, but the exact shape of that work is still being validated
+  // with the client (see `NO_FABRICATED_CONTENT.md` / AI Constitution).
+  {
+    name: "Work Order",
+    purpose: "Orden de trabajo que da seguimiento a una producción específica en planta.",
+    owningModule: "Production",
+    requires: (m) => m.has("Production"),
+    confidence: 0.68,
+  },
+  {
+    name: "Bill of Materials",
+    purpose: "Lista de materiales y componentes necesarios para producir un artículo.",
+    owningModule: "Production",
+    // Requires the Production capability AND an explicit BOM/material-list
+    // mention — "Production" alone does not prove the client formally
+    // tracks bills of materials (many shops still run this from memory or a
+    // spreadsheet), so this stays unlearned until that evidence shows up.
+    requires: (m, _t, broaderText) => m.has("Production") && BOM_SIGNAL.test(broaderText),
+    confidence: 0.6,
+  },
 ];
 
 /**
@@ -205,6 +247,7 @@ export function detectEntities(
   ]
     .join(" ")
     .toLowerCase();
+  const broaderText = buildEvidenceBlob(blueprint, workspace);
 
   // Prefer blueprint entity names when they map to canonical set
   const fromBlueprint = blueprint.entities
@@ -216,7 +259,7 @@ export function detectEntities(
   const entities: SolutionEntity[] = [];
   for (const rule of RULES) {
     const blueprintHit = fromBlueprint.includes(rule.name);
-    if (!blueprintHit && !rule.requires(moduleSet, text)) continue;
+    if (!blueprintHit && !rule.requires(moduleSet, text, broaderText)) continue;
     entities.push({
       id: createId("sent"),
       name: rule.name,
@@ -227,6 +270,5 @@ export function detectEntities(
     });
   }
 
-  void workspace;
   return entities;
 }

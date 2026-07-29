@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { countDiscoverySessions } from "@/lib/memory/meeting-kind";
 import { phaseLabel } from "@/lib/presentation";
+import { hasManufacturingRelationshipEvidence } from "@/lib/solution";
 import { deriveExecutiveCockpit } from "./cockpit";
 import type { ExecutiveCockpit } from "./types";
 
@@ -85,6 +86,22 @@ export interface AnimatedBlueprintModel {
   departments: string[];
   modules: Array<{ id: string; name: string; purpose: string }>;
   connections: Array<{ from: string; to: string }>;
+  /**
+   * True whenever `connections` came from the deterministic entity-
+   * relationship catalog (`lib/solution/dependencies.ts`) rather than a
+   * client-evidenced relationship — true today for every non-empty
+   * `connections` list, since that catalog is the only source wired into
+   * `solution.relationships`. Drives a provenance footnote so these read as
+   * a suggested hypothesis, not discovered truth.
+   */
+  connectionsAreInferred: boolean;
+  /**
+   * True when the Production capability was recommended but no
+   * manufacturing-specific relationship (Work Order, Bill of Materials, …)
+   * has evidence yet — the UI should show an explicit "still learning
+   * production" state instead of only the generic commercial chain.
+   */
+  productionRelationshipsLearning: boolean;
 }
 
 export interface ExecutiveExperienceModel {
@@ -235,6 +252,7 @@ export function deriveExecutiveExperience(
   const reasoning = buildReasoningCards(workspace);
   const processes = buildProcessCards(workspace);
 
+  const solutionRelationships = solution?.relationships ?? [];
   const animated: AnimatedBlueprintModel = {
     departments:
       blueprint?.departments.map((d) => d.name) ??
@@ -245,10 +263,16 @@ export function deriveExecutiveExperience(
       name: m.name,
       purpose: m.purpose,
     })),
-    connections: (solution?.relationships ?? []).slice(0, 10).map((r) => ({
+    connections: solutionRelationships.slice(0, 10).map((r) => ({
       from: r.fromEntity,
       to: r.toEntity,
     })),
+    connectionsAreInferred: solutionRelationships.some(
+      (r) => r.source === "catalog_inferred",
+    ),
+    productionRelationshipsLearning:
+      (solution?.modules ?? []).some((m) => m.name === "Production") &&
+      !hasManufacturingRelationshipEvidence(solutionRelationships),
   };
 
   // "Sesión N", never "Día N" — a fabricated day count from raw meeting

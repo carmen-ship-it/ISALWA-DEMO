@@ -1,7 +1,11 @@
 export { deriveSolutionArchitecture } from "./derive";
-export { detectModules } from "./modules";
+export { detectModules, buildEvidenceBlob } from "./modules";
 export { detectEntities } from "./entities";
-export { detectRelationships } from "./dependencies";
+export {
+  detectRelationships,
+  MANUFACTURING_ENTITY_NAMES,
+  hasManufacturingRelationshipEvidence,
+} from "./dependencies";
 export { detectRoles } from "./roles";
 export { detectNavigation } from "./navigation";
 export { detectWorkflows } from "./workflows";

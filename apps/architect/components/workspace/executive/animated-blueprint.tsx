@@ -104,7 +104,18 @@ export function AnimatedBlueprint({
                 </motion.li>
               ))}
             </ul>
+            {model.connectionsAreInferred ? (
+              <p className="mt-3 text-xs italic text-[var(--isalwa-slate)]/60">
+                {t("animatedBlueprint.connectionsProvenance")}
+              </p>
+            ) : null}
           </ExecutiveDetail>
+        ) : null}
+
+        {model.productionRelationshipsLearning ? (
+          <p className="mt-6 border-t border-[var(--isalwa-mist)]/70 pt-4 text-sm text-[var(--isalwa-slate)]/80">
+            {t("animatedBlueprint.productionLearning")}
+          </p>
         ) : null}
       </div>
     </div>

@@ -445,6 +445,8 @@ const ENTITY_LABELS_ES: Record<string, string> = {
   Workflow: "Flujo de trabajo",
   Approval: "Aprobación",
   Product: "Producto",
+  "Work Order": "Orden de trabajo",
+  "Bill of Materials": "Lista de materiales",
 };
 
 /** Business entity name (Customer, Quote, Invoice, …) → Spanish. */

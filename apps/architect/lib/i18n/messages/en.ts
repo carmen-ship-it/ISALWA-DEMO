@@ -532,6 +532,8 @@ export const en: MessageTree = {
     coreBusinessInfo: "Core business information",
     howInfoConnects: "How information connects",
     relatesTo: "relates to",
+    relationshipsProvenance: "Relationships suggested from detected capabilities — a typical starting point for this kind of business, still pending validation against the client's own evidence.",
+    productionRelationshipsLearning: "We're still learning how production relationships connect — they'll appear here once there is enough evidence from the client.",
     mainNavigation: "Main navigation",
     accessPrinciples: "Access principles",
     implementationSequence: "Implementation sequence",
@@ -623,6 +625,8 @@ export const en: MessageTree = {
     risk: "Risk",
     informationNodes: "{count} information nodes",
     missing: "Missing: {items}",
+    evidenceDirect: "Client evidence",
+    evidenceInferred: "Inferred",
   },
   knowledgeUpload: {
     processing: "Processing…",
@@ -1030,6 +1034,8 @@ export const en: MessageTree = {
     expandConnections: "See how capabilities connect",
     collapseConnections: "Hide connections",
     connectionsLabel: "Connections",
+    connectionsProvenance: "Relationships suggested from detected capabilities — a typical starting point, still pending validation against the client's own evidence.",
+    productionLearning: "We're still learning how production relationships connect — they'll appear here once there is enough evidence from the client.",
   },
   discoveryJourney: {
     businessUnderstanding: "Business understanding: {level}",

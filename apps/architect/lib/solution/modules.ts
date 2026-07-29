@@ -16,7 +16,16 @@ interface ModuleRule {
   confidence: number;
 }
 
-function blob(blueprint: BusinessBlueprint, workspace: CompanyWorkspace): string {
+/**
+ * Broad, deterministic evidence blob (capabilities, workflows, systems, pain
+ * points, knowledge themes). Exported for reuse by `./entities.ts` so
+ * manufacturing-signal entities are gated on the same evidence breadth as
+ * the `Production` module itself — no separate, weaker text scan.
+ */
+export function buildEvidenceBlob(
+  blueprint: BusinessBlueprint,
+  workspace: CompanyWorkspace,
+): string {
   return [
     ...blueprint.capabilities.map((c) => c.name),
     ...blueprint.modules.map((m) => m.name),
@@ -215,7 +224,7 @@ export function detectModules(
   workspace: CompanyWorkspace,
   evidence: SolutionEvidenceRef[],
 ): SolutionModule[] {
-  const text = blob(blueprint, workspace);
+  const text = buildEvidenceBlob(blueprint, workspace);
   const detected: SolutionModule[] = [];
 
   for (const rule of RULES) {

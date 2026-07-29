@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { ExecutiveDetail } from "@/components/workspace/executive-detail";
 import { useTranslations } from "@/lib/i18n";
-import { SOLUTION_FUTURE_OUTPUTS } from "@/lib/solution";
+import {
+  hasManufacturingRelationshipEvidence,
+  SOLUTION_FUTURE_OUTPUTS,
+} from "@/lib/solution";
 import {
   complexityLabel,
   entityLabel,
@@ -192,6 +195,17 @@ export function SolutionArchitecturePanel({
                 </li>
               ))}
             </ul>
+            {architecture.relationships.some((rel) => rel.source === "catalog_inferred") ? (
+              <p className="mt-3 text-xs italic text-[var(--isalwa-slate)]/60">
+                {t("solutionArchitecturePanel.relationshipsProvenance")}
+              </p>
+            ) : null}
+            {architecture.modules.some((m) => m.name === "Production") &&
+            !hasManufacturingRelationshipEvidence(architecture.relationships) ? (
+              <p className="mt-2 text-xs text-[var(--isalwa-slate)]/80">
+                {t("solutionArchitecturePanel.productionRelationshipsLearning")}
+              </p>
+            ) : null}
           </Block>
 
           <Block title={t("solutionArchitecturePanel.mainNavigation")}>

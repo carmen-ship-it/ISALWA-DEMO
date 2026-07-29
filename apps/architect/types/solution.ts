@@ -12,6 +12,18 @@ export type SolutionEvidenceSource =
   | "consulting"
   | "memory";
 
+/**
+ * Where a `SolutionRelationship` claim actually comes from — surfaced in the
+ * UI so a static ERP/manufacturing template edge is never presented with the
+ * same authority as something discovered in the client's own data.
+ * - `catalog_inferred`: matched from the deterministic entity-relationship
+ *   catalog (`lib/solution/dependencies.ts`) because both entities happen to
+ *   be present. A plausible data-model hypothesis, not an observed fact.
+ * - `knowledge_evidence`: traced to a specific relationship extracted from
+ *   the client's own documents/interviews (`workspace.knowledge.relationships`).
+ */
+export type SolutionRelationshipSource = "catalog_inferred" | "knowledge_evidence";
+
 export type SolutionModuleName =
   | "CRM"
   | "Sales"
@@ -74,7 +86,9 @@ export type SolutionEntityName =
   | "Asset"
   | "Risk"
   | "Workflow"
-  | "Approval";
+  | "Approval"
+  | "Work Order"
+  | "Bill of Materials";
 
 export type SolutionFutureOutputKind =
   | "cursor_prompts"
@@ -118,6 +132,9 @@ export interface SolutionRelationship {
   toEntity: SolutionEntityName;
   label: string;
   confidence: number;
+  /** See `SolutionRelationshipSource` — always set so the UI can tell a
+   * template hypothesis apart from a client-evidenced relationship. */
+  source: SolutionRelationshipSource;
   evidence: SolutionEvidenceRef[];
 }
 

@@ -209,6 +209,12 @@ function DepartmentRow({
 }
 
 function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
+  // `knowledgeRelationshipId` is only set when this edge traces to a
+  // specific relationship extracted from the client's own documents/
+  // interviews (`workspace.knowledge.relationships`); everything else here
+  // is synthesized from department/system/handoff structure, so it gets an
+  // explicit "inferred" badge instead of reading as equally discovered.
+  const isDirectEvidence = rel.knowledgeRelationshipId != null;
   return (
     <li className="text-sm text-[var(--isalwa-slate)]">
       <span className="text-[var(--isalwa-kiln)]">{rel.fromLabel}</span>
@@ -219,6 +225,11 @@ function RelationshipRow({ rel }: { rel: CompanyRelationship }) {
       </span>
       <span className="ml-2 text-xs text-[var(--isalwa-slate)]/60">
         {strengthBandLabelEs(rel.confidence)}
+      </span>
+      <span className="ml-2 text-[10px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/50">
+        {isDirectEvidence
+          ? t("companyModelPanel.evidenceDirect")
+          : t("companyModelPanel.evidenceInferred")}
       </span>
     </li>
   );
