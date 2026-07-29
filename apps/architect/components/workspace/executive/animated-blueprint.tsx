@@ -94,13 +94,38 @@ export function AnimatedBlueprint({
                 <motion.li
                   key={`${c.from}-${c.to}-${i}`}
                   initial={{ opacity: 0, x: -6 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  animate={{ opacity: c.inferred ? 0.7 : 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.05, duration: 0.35 }}
-                  className="text-sm text-[var(--isalwa-slate)]"
+                  className={`flex items-center border-l-2 pl-2.5 text-sm text-[var(--isalwa-slate)] ${
+                    c.inferred
+                      ? "border-dashed border-[var(--isalwa-slate)]/35"
+                      : "border-solid border-[var(--isalwa-info)]/60"
+                  }`}
                 >
                   <span className="text-[var(--isalwa-kiln)]">{moduleLabel(c.from)}</span>
-                  <span className="mx-2 text-[var(--isalwa-slate)]/40">→</span>
-                  <span className="text-[var(--isalwa-kiln)]">{moduleLabel(c.to)}</span>
+                  <span
+                    className={`mx-2 ${c.inferred ? "text-[var(--isalwa-slate)]/35" : "text-[var(--isalwa-slate)]/60"}`}
+                    style={
+                      c.inferred
+                        ? {
+                            borderBottom: "1px dashed currentColor",
+                            display: "inline-block",
+                            width: "1.1em",
+                            height: "0.6em",
+                          }
+                        : undefined
+                    }
+                  >
+                    {c.inferred ? "" : "→"}
+                  </span>
+                  <span className={c.inferred ? "text-[var(--isalwa-slate)]" : "text-[var(--isalwa-kiln)]"}>
+                    {moduleLabel(c.to)}
+                  </span>
+                  {c.inferred ? (
+                    <span className="ml-2 text-[10px] uppercase tracking-[0.1em] text-[var(--isalwa-slate)]/45">
+                      {t("provenance.tier.inferred")}
+                    </span>
+                  ) : null}
                 </motion.li>
               ))}
             </ul>

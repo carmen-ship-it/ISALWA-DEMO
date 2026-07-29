@@ -86,14 +86,19 @@ export interface ExecutiveDashboardModel {
 export interface AnimatedBlueprintModel {
   departments: string[];
   modules: Array<{ id: string; name: string; purpose: string }>;
-  connections: Array<{ from: string; to: string }>;
   /**
-   * True whenever `connections` came from the deterministic entity-
-   * relationship catalog (`lib/solution/dependencies.ts`) rather than a
-   * client-evidenced relationship — true today for every non-empty
-   * `connections` list, since that catalog is the only source wired into
-   * `solution.relationships`. Drives a provenance footnote so these read as
-   * a suggested hypothesis, not discovered truth.
+   * `inferred` is per-connection (`source === "catalog_inferred"`, the
+   * deterministic entity-relationship catalog) rather than evidenced from a
+   * real meeting/document/knowledge relationship — drives the dashed vs
+   * solid line treatment in `AnimatedBlueprint`, never a second scoring
+   * model, just the same `SolutionRelationship.source` already computed.
+   */
+  connections: Array<{ from: string; to: string; inferred: boolean }>;
+  /**
+   * True whenever every connection above is inferred — true today for every
+   * non-empty `connections` list, since the deterministic catalog is the
+   * only source wired into `solution.relationships`. Drives a provenance
+   * footnote so these read as a suggested hypothesis, not discovered truth.
    */
   connectionsAreInferred: boolean;
   /**
@@ -269,6 +274,7 @@ export function deriveExecutiveExperience(
     connections: solutionRelationships.slice(0, 10).map((r) => ({
       from: r.fromEntity,
       to: r.toEntity,
+      inferred: r.source === "catalog_inferred",
     })),
     connectionsAreInferred: solutionRelationships.some(
       (r) => r.source === "catalog_inferred",
