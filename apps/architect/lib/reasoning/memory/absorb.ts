@@ -1,4 +1,5 @@
 import { createId, nowIso } from "@/lib/utils";
+import { INDUSTRY_PROFILES } from "@/data/catalog";
 import {
   composeIndustryBelief,
   detectIndustry,
@@ -21,12 +22,25 @@ import {
 import type {
   BusinessProfile,
   ConversationMemory,
+  DetectedSignal,
   DiscoveryDimension,
   KnownFact,
   PainPoint,
   Question,
   WhiteboardState,
 } from "@/types";
+
+const MANUFACTURING_KEYWORDS =
+  INDUSTRY_PROFILES.find((profile) => profile.id === "manufacturing")
+    ?.keywords ?? [];
+
+/** Reuses the manufacturing profile's own keyword list — no parallel vocabulary. */
+function hasManufacturingKeywords(text: string): boolean {
+  const normalized = text.toLowerCase();
+  return MANUFACTURING_KEYWORDS.some((keyword) =>
+    normalized.includes(keyword.toLowerCase()),
+  );
+}
 
 export function createEmptyMemory(): ConversationMemory {
   return {
@@ -163,10 +177,26 @@ function suggestModules(
   industry: ConversationMemory["summary"]["industry"],
   tools: string[],
   painTitles: string[],
+  signals: DetectedSignal[],
+  departments: string[],
+  evidenceText: string,
 ): string[] {
   const modules = new Set<string>(["CRM", "Sales"]);
 
-  if (industry === "manufacturing" || /production/i.test(painTitles.join(" "))) {
+  // Production/Maintenance widen gate: any one of production signal,
+  // manufacturing evidence (industry OR keywords), or a Producción
+  // department is enough — never require industry === "manufacturing" alone.
+  const hasProductionSignal = signals.some((signal) => signal.id === "production");
+  const hasManufacturingEvidence =
+    industry === "manufacturing" || hasManufacturingKeywords(evidenceText);
+  const hasProductionDepartment = departments.includes("Producción");
+
+  if (
+    hasProductionSignal ||
+    hasManufacturingEvidence ||
+    hasProductionDepartment ||
+    /production/i.test(painTitles.join(" "))
+  ) {
     modules.add("Production");
     modules.add("Maintenance");
   }
@@ -187,7 +217,11 @@ function suggestModules(
   return [...modules];
 }
 
-function buildWhiteboard(memory: ConversationMemory): WhiteboardState {
+function buildWhiteboard(
+  memory: ConversationMemory,
+  business: BusinessProfile,
+  evidenceText: string,
+): WhiteboardState {
   return {
     businessModel:
       memory.summary.businessModel ??
@@ -202,6 +236,9 @@ function buildWhiteboard(memory: ConversationMemory): WhiteboardState {
       memory.summary.industry,
       memory.summary.currentSoftware,
       memory.summary.painPoints,
+      business.signals,
+      memory.summary.departments,
+      evidenceText,
     ),
     facts: memory.whiteboard?.facts ?? [],
     hypotheses: memory.whiteboard?.hypotheses ?? [],
@@ -243,9 +280,8 @@ export function absorbAnswerIntoMemory(
   question: Question | null,
 ): { memory: ConversationMemory; business: BusinessProfile } {
   const quote = answerText.trim();
-  const detected = detectIndustry(
-    [business.description, quote].filter(Boolean).join("\n"),
-  );
+  const evidenceText = [business.description, quote].filter(Boolean).join("\n");
+  const detected = detectIndustry(evidenceText);
   const signals = mergeSignals(business.signals, detectSignals(quote));
   const tools = Array.from(
     new Set([...business.currentTools, ...extractTools(quote)]),
@@ -434,7 +470,7 @@ export function absorbAnswerIntoMemory(
   nextMemory = applyDiscoveryScore(nextMemory);
   nextMemory = {
     ...nextMemory,
-    whiteboard: buildWhiteboard(nextMemory),
+    whiteboard: buildWhiteboard(nextMemory, nextBusiness, evidenceText),
     unknownFacts: nextMemory.score.dimensions
       .filter((d) => d.applicable !== false && !d.covered)
       .map((d) => ({

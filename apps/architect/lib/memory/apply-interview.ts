@@ -26,6 +26,7 @@ import { evolveLivingReport } from "@/lib/reports/living-report";
 import { buildTimelineEventsFromInterview } from "@/lib/timeline/events";
 import { placeholderTranscriptDocument } from "@/lib/documents/placeholders";
 import { moduleLabel } from "@/lib/presentation";
+import { mergeInterviewIntoKnowledge } from "@/lib/memory/knowledge-from-interview";
 
 /**
  * Apply a completed interview into durable company memory.
@@ -108,6 +109,19 @@ export function applyInterviewToWorkspace(
   };
 
   meeting.conversationId = conversation.id;
+
+  /**
+   * Manufacturing Learning Pipeline — interview conversation evidence must
+   * become durable knowledge exactly like document evidence does, without
+   * requiring any upload. Reuses the same detectors + entity/relationship
+   * merge as `lib/intake/pipeline.ts`; see `knowledge-from-interview.ts`.
+   */
+  const knowledge = mergeInterviewIntoKnowledge(
+    workspace,
+    interview,
+    meeting,
+    stamp,
+  );
 
   const documents = [
     placeholderTranscriptDocument(workspace.id, meeting.title, stamp),
@@ -297,7 +311,7 @@ export function applyInterviewToWorkspace(
       ...timeline,
     ],
     documents,
-    knowledge: workspace.knowledge,
+    knowledge,
     blueprints,
     currentBlueprintId: nextBlueprint.id,
     solutionArchitecture,

@@ -6,7 +6,7 @@ import type {
 interface SignalRule {
   id: string;
   label: string;
-  category: PainCategory | "tool" | "process";
+  category: PainCategory | "tool" | "process" | "industry";
   patterns: RegExp[];
 }
 
@@ -136,6 +136,44 @@ const SIGNAL_RULES: SignalRule[] = [
       /\binbox\b/i,
       /\bbandeja\b/i,
       /\boutlook\b/i,
+    ],
+  },
+  {
+    id: "production",
+    label: "Producción y manufactura",
+    category: "industry",
+    patterns: [
+      // Manufacturing / industry keywords (bilingual).
+      /\bmanufactur\w*\b/i,
+      /\bfactory\b/i,
+      /\bf[aá]brica\b/i,
+      /\bfabricaci[oó]n\b/i,
+      /\bplant\b/i,
+      /\bplanta\b/i,
+      /\bmachining\b/i,
+      /\bmaquinado\b/i,
+      /\bkiln\b/i,
+      /\bhorno\b/i,
+      // Production department language.
+      /\bproducci[oó]n\b/i,
+      /\bproduction\s+(department|team)\b/i,
+      /\bdepartamento\s+de\s+producci[oó]n\b/i,
+      // Production workflow language.
+      /\bproduction\s+line\b/i,
+      /\bl[ií]nea\s+de\s+producci[oó]n\b/i,
+      /\bproduction\s+process\b/i,
+      /\bproceso\s+productivo\b/i,
+      /\bwork\s+order/i,
+      /\borden(?:es)?\s+de\s+producci[oó]n\b/i,
+      /\bshop\s+floor\b/i,
+      /\bpiso\s+de\s+producci[oó]n\b/i,
+      /\bassembly\b/i,
+      /\bensamblaje\b/i,
+      /\braw\s+material/i,
+      /\bmateria\s+prima\b/i,
+      /\bfinished\s+goods?\b/i,
+      /\bproducto\s+terminado\b/i,
+      /\bbom\b/i,
     ],
   },
 ];
