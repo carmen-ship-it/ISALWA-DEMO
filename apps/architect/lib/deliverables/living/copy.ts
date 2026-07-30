@@ -29,10 +29,10 @@ export interface LivingDeliverableCopy {
 
 const TITLES: Record<LivingDeliverableKind, { kicker: string; title: string; short: string; noun: string }> = {
   business_blueprint: {
-    kicker: "Blueprint de negocio",
-    title: "Blueprint de Negocio",
-    short: "Blueprint",
-    noun: "el Blueprint de Negocio",
+    kicker: "Plan de negocio",
+    title: "Plan de Negocio",
+    short: "Plan de negocio",
+    noun: "el Plan de Negocio",
   },
   company_playbook: {
     kicker: "Playbook de la empresa",
@@ -80,7 +80,7 @@ const TITLES: Record<LivingDeliverableKind, { kicker: string; title: string; sho
 
 const DESCRIPTIONS: Record<LivingDeliverableKind, (company: string) => string> = {
   business_blueprint: (c) =>
-    `Cómo opera ${c} hoy y cómo debería operar mañana — compuesto desde el Blueprint versionado.`,
+    `Cómo opera ${c} hoy y cómo debería operar mañana — compuesto desde el plan de negocio versionado.`,
   company_playbook: (c) =>
     `Misión, organización, principios de decisión y normas de comunicación de ${c}, desde lo que Architect ya sabe.`,
   employee_handbook: (c) =>
@@ -88,7 +88,7 @@ const DESCRIPTIONS: Record<LivingDeliverableKind, (company: string) => string> =
   sop_library: (c) =>
     `Salida del Sistema de Operaciones: un procedimiento por cada proceso que Architect ya descubrió en ${c}.`,
   job_description_library: (c) =>
-    `Roles y responsabilidades reales de ${c}, a partir de lo mapeado en el Company Brain.`,
+    `Roles y responsabilidades reales de ${c}, a partir de lo mapeado en el Cerebro de la Empresa.`,
   training_academy: (c) =>
     `Cómo el Sistema de Personas de ${c} multiplica lo que ya saben los mejores — guion de video y evaluación como hoja de ruta futura.`,
   ai_playbook: (c) =>

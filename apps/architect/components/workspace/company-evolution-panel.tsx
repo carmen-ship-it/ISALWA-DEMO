@@ -133,7 +133,7 @@ export function CompanyEvolutionPanel({
 
       <Card className="border-[var(--isalwa-mist)]/70 bg-[var(--isalwa-porcelain)]/80 px-5 py-5 shadow-none">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-          Historia del engagement
+          Historia de la relación de consultoría
         </p>
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
           Progreso real del trabajo de consultoría — no un registro técnico.
@@ -262,13 +262,13 @@ function consultingTimelineTitle(entry: EvolutionTimelineEntry): string {
     case "recommendation_added":
       return "Recomendaciones preparadas a partir de la evidencia";
     case "baseline":
-      return "Punto de partida del engagement";
+      return "Punto de partida de la relación de consultoría";
     case "visit":
       return "Avance en la conversación de descubrimiento";
     case "roadmap_advanced":
       return "Hoja de ruta actualizada";
     case "stage_changed":
-      return "Nueva etapa del engagement";
+      return "Nueva etapa de la relación de consultoría";
     default:
       return entry.title || evolutionKindLabel(entry.kind);
   }

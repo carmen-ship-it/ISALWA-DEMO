@@ -51,7 +51,7 @@ export function deriveMilestones(
         to.capturedAt,
         to.id,
         "Memoria evolutiva iniciada",
-        "Se estableció la línea base del engagement de consultoría.",
+        "Se estableció la línea base de la relación de consultoría.",
       ),
     ];
   }

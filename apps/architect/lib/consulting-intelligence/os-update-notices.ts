@@ -41,7 +41,7 @@ export function buildOsUpdateNotices(
       title: copy.title,
       shortTitle: copy.shortTitle,
       version,
-      message: `Tu ${copy.shortTitle} puede mejorarse — Architect encontró conocimiento nuevo desde la versión ${version}.`,
+      message: `Su ${copy.shortTitle} puede mejorarse — Architect encontró conocimiento nuevo desde la versión ${version}.`,
     };
   });
 

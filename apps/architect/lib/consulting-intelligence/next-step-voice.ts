@@ -98,7 +98,7 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
     return {
       message:
         "Ya conocemos bien el negocio — seguimos atentos a cada documento, respuesta o reunión nueva que lo cambie.",
-      actionLabel: "Revisar el Blueprint",
+      actionLabel: "Revisar el plan de negocio",
       actionKind: "review_blueprint",
       focusDimension: null,
     };
@@ -106,8 +106,8 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
 
   if (blueprintGate.state === "ready" && blueprintGate.unlocked) {
     return {
-      message: "Ya puedes generar el Blueprint del negocio.",
-      actionLabel: "Ver el Blueprint",
+      message: "Ya puede generar el plan de negocio.",
+      actionLabel: "Ver el plan de negocio",
       actionKind: "review_blueprint",
       focusDimension: null,
     };
@@ -130,7 +130,7 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
     const message =
       minutes > 0 && minutes <= MAX_MINUTES_FOR_ALMOST_DONE
         ? `Solo falta${minutes === 1 ? "" : "n"} ~${minutes} minuto${minutes === 1 ? "" : "s"} — a ${singleGap.label} ${gapPhrase}.`
-        : `A ${singleGap.label} ${gapPhrase} para seguir construyendo el conocimiento de tu empresa.`;
+        : `A ${singleGap.label} ${gapPhrase} para seguir construyendo el conocimiento de su empresa.`;
 
     return {
       message,
@@ -145,7 +145,7 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
     if (topOpportunity.uploadable && topOpportunity.uploadSuggestions[0]) {
       return {
         message: topOpportunity.headline,
-        actionLabel: `Enséñale a Architect: ${topOpportunity.uploadSuggestions[0]}`,
+        actionLabel: `Enséñele a Architect: ${topOpportunity.uploadSuggestions[0]}`,
         actionKind: "upload_document",
         focusDimension: null,
       };
@@ -161,8 +161,8 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
   if (readiness.overallState !== "ready") {
     return {
       message:
-        "Sigamos enseñándole a Architect cómo funciona tu empresa — así las recomendaciones se apoyan en evidencia real.",
-      actionLabel: "Continuemos entendiendo tu empresa",
+        "Sigamos enseñándole a Architect cómo funciona su empresa — así las recomendaciones se apoyan en evidencia real.",
+      actionLabel: "Continuemos entendiendo su empresa",
       actionKind: "continue_interview",
       focusDimension: null,
     };
@@ -170,7 +170,7 @@ export function buildNextStepVoice(input: NextStepVoiceInput): NextStepVoice {
 
   return {
     message: "Ya sabemos suficiente para avanzar — seguimos atentos a lo que cambie.",
-    actionLabel: "Revisar el Blueprint",
+    actionLabel: "Revisar el plan de negocio",
     actionKind: "review_blueprint",
     focusDimension: null,
   };

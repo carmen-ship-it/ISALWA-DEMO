@@ -16,7 +16,7 @@ const SECTION_META: Record<
   { title: string; sourceEngine: ImplementationSectionRef["sourceEngine"] }
 > = {
   business_blueprint: {
-    title: "Blueprint de negocio",
+    title: "Plan de negocio",
     sourceEngine: "blueprint",
   },
   solution_architecture: {
@@ -47,7 +47,7 @@ export function sectionSourceEngineLabel(
   engine: ImplementationSectionRef["sourceEngine"],
 ): string {
   const labels: Record<ImplementationSectionRef["sourceEngine"], string> = {
-    blueprint: "Blueprint",
+    blueprint: "Plan de negocio",
     solution: "Sistema recomendado",
     processes: "Procesos",
     consulting: "Consultoría",

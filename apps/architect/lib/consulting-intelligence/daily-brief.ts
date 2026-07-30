@@ -117,7 +117,7 @@ function clampPercent(value: number): number {
 }
 
 function buildHeadline(companyName: string, pct: number): string {
-  return `Hoy, qué tanto entiende Architect tu empresa (${companyName}) está en aproximadamente el ${pct}%.`;
+  return `Hoy, qué tanto entiende Architect su empresa (${companyName}) está en aproximadamente el ${pct}%.`;
 }
 
 /**
@@ -137,7 +137,7 @@ export function buildSinceLastVisit(
       hasChanges: false,
       changes: [],
       summary:
-        "Este es el primer briefing ejecutivo que abrimos aquí — desde tu próxima visita, esta sección te dirá exactamente qué cambió.",
+        "Este es el primer briefing ejecutivo que abrimos aquí — desde su próxima visita, esta sección le dirá exactamente qué cambió.",
     };
   }
 
@@ -192,8 +192,8 @@ export function buildSinceLastVisit(
       id: "understanding",
       label:
         understandingDelta > 0
-          ? `Qué tanto entiende Architect tu empresa subió de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`
-          : `Qué tanto entiende Architect tu empresa pasó de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`,
+          ? `Qué tanto entiende Architect su empresa subió de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`
+          : `Qué tanto entiende Architect su empresa pasó de ${clampPercent(lastVisit.businessUnderstanding)}% a ${clampPercent(workspace.businessUnderstanding)}%`,
     });
   }
 
@@ -204,8 +204,8 @@ export function buildSinceLastVisit(
     hasChanges,
     changes,
     summary: hasChanges
-      ? `Desde tu última visita: ${changes.map((c) => c.label).join(" · ")}.`
-      : "Sin cambios registrados desde tu última visita.",
+      ? `Desde su última visita: ${changes.map((c) => c.label).join(" · ")}.`
+      : "Sin cambios registrados desde su última visita.",
   };
 }
 

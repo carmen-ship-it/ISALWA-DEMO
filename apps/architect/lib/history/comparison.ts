@@ -245,7 +245,7 @@ export function compareSnapshots(
         "understanding",
         "neutral",
         "Sin cambios materiales",
-        "El estado del engagement se mantiene estable desde la captura anterior.",
+        "El estado de la relación de consultoría se mantiene estable desde la captura anterior.",
       ),
     );
   }

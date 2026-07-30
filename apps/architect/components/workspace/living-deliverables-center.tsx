@@ -147,7 +147,7 @@ export function LivingDeliverablesCenter({
         setErrorByKind((prev) => ({
           ...prev,
           [kind]:
-            "Architect todavía no tiene suficiente base (Blueprint) para construir esta parte del sistema operativo.",
+            "Architect todavía no tiene suficiente base (el plan de negocio) para construir esta parte del sistema operativo.",
         }));
         return;
       }
@@ -318,19 +318,19 @@ export function LivingDeliverablesCenter({
 
         <div className="mt-8 space-y-4">
           <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--isalwa-slate)]/60">
-            Tu empresa · {workspace.companyName}
+            Su empresa · {workspace.companyName}
           </p>
           {report.understandingPercent >= 35 &&
           report.progress.find((b) => b.id === "operating_system")?.percent === 0 ? (
             <div className="rounded-2xl bg-[var(--isalwa-tint-green)]/35 px-4 py-4 ring-1 ring-[var(--isalwa-tint-green-border)]/50">
               <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                Architect ya entiende suficientemente tu negocio para comenzar a construir tu
+                Architect ya entiende suficientemente su negocio para comenzar a construir su
                 sistema operativo.
               </p>
               <p className="mt-2 text-xs leading-relaxed text-[var(--isalwa-slate)]">
                 Abajo verá qué ya puede construir hoy y qué necesita un poco más de conocimiento.
                 Cero por ciento no significa fracaso — significa que aún no ha construido esa
-                salida; el conocimiento ya está en el Company Brain.
+                salida; el conocimiento ya está en el Cerebro de la Empresa.
               </p>
             </div>
           ) : null}
@@ -349,7 +349,7 @@ export function LivingDeliverablesCenter({
               <ProgressRow key={bar.id} bar={bar} />
             ))}
           <p className="pt-1 text-sm text-[var(--isalwa-kiln)]">
-            Estamos construyendo cómo opera tu empresa — no solo generando archivos.
+            Estamos construyendo cómo opera su empresa — no solo generando archivos.
           </p>
 
           <div className="mt-6 rounded-2xl border border-[var(--isalwa-mist)]/80 bg-white/70 px-4 py-4">

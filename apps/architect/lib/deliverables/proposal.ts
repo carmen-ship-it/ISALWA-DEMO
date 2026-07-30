@@ -17,7 +17,7 @@ export function buildProposal(
   return {
     kind: "proposal",
     title: `Propuesta de sistema operativo · ${company}`,
-    engagementSummary: `ISALWA Architect completó el descubrimiento para ${company}. Esta propuesta empaqueta el Blueprint de negocio, la Arquitectura de solución y el Motor de procesos en un encargo ejecutable.`,
+    engagementSummary: `ISALWA Architect completó el descubrimiento para ${company}. Esta propuesta empaqueta el Plan de negocio, la Arquitectura de solución y el Diseño de procesos en un encargo ejecutable.`,
     recommendedApproach: executiveRecommendation,
     scope: [
       ...(solution?.modules.slice(0, 8).map((m) => `Implementar ${moduleLabel(m.name)}`) ?? []),

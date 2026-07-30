@@ -457,7 +457,7 @@ export function buildCompanyOperatingSystem(
     readinessLabel: "Hoja de ruta",
     confidence: 0,
     evidenceCount: 0,
-    generatedFrom: ["Company Brain", "Sistema operativo"],
+    generatedFrom: ["Cerebro de la empresa", "Sistema operativo"],
     lastUpdatedAt: null,
     becauseWeUnderstand:
       "Se activa cuando el Manual y los SOPs existen como salidas del sistema operativo.",
@@ -470,15 +470,15 @@ export function buildCompanyOperatingSystem(
     id: "evolution_timeline",
     title: "Línea de evolución del sistema",
     description:
-      "Cada vez que el Company Brain mejora, el Operating System evoluciona. Solo hitos reales.",
+      "Cada vez que el Cerebro de la Empresa mejora, el Sistema Operativo evoluciona. Solo hitos reales.",
     readiness: (workspace.timeline ?? []).length > 0 ? "partial" : "needs_knowledge",
     readinessLabel: (workspace.timeline ?? []).length > 0 ? "Vivo" : "Sin hitos todavía",
     confidence: understandingPercent,
     evidenceCount: (workspace.timeline ?? []).length,
-    generatedFrom: ["Timeline", "Blueprint", "Sistema operativo"],
+    generatedFrom: ["Línea de tiempo", "Plan de negocio", "Sistema operativo"],
     lastUpdatedAt: workspace.timeline?.[0]?.date ?? null,
     becauseWeUnderstand:
-      "Mostramos solo eventos reales del timeline — nunca actividad inventada.",
+      "Mostramos solo eventos reales de la línea de tiempo — nunca actividad inventada.",
     deliverableKind: null,
     updateAvailable: false,
     hasVersion: (workspace.timeline ?? []).length > 0,
@@ -490,13 +490,13 @@ export function buildCompanyOperatingSystem(
     understandingPercent,
     headline: `Architect está construyendo el sistema operativo de ${workspace.companyName}.`,
     pipelineNote:
-      "Las salidas (PDF, Word, manuales, SOPs) son representaciones del mismo Company Brain — el producto es cómo opera la empresa.",
+      "Las salidas (PDF, Word, manuales, SOPs) son representaciones del mismo Cerebro de la Empresa — el producto es cómo opera la empresa.",
     promise:
-      "El Sistema Operativo de tu empresa crece con cada conversación, documento o reunión que sumamos al análisis.",
+      "El Sistema Operativo de su empresa crece con cada conversación, documento o reunión que sumamos al análisis.",
     pipeline: [
       { id: "conversation", label: "Conversación" },
       { id: "knowledge", label: "Conocimiento" },
-      { id: "brain", label: "Company Brain" },
+      { id: "brain", label: "Cerebro de la empresa" },
       { id: "os", label: "Sistema operativo" },
       { id: "results", label: "Resultados de negocio" },
     ],

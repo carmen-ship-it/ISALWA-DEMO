@@ -401,7 +401,7 @@ export const en: MessageTree = {
       knowledgeExtraction: { title: "Knowledge extraction", description: "Register the document as evidence and estimate its coverage area." },
       memory: { title: "Memory", description: "Merge evidence with Company Memory when discovery resumes." },
       recommendations: { title: "Recommendations", description: "Suggest modules, risks, and next questions — upcoming stage." },
-      reasoningEngine: { title: "Reasoning engine", description: "The consulting brain combines conversation, knowledge, and memory." },
+      reasoningEngine: { title: "Consulting reasoning", description: "The consulting brain combines conversation, knowledge, and memory." },
     },
     category: {
       companyDocuments: "Company documents",
@@ -436,7 +436,7 @@ export const en: MessageTree = {
     questionsForNextSession: "Questions for next session",
     unclearAreas: "Still unclear: {areas} — Architect will ask about this in the next discovery session.",
     entitiesFound: "Entities found",
-    entitiesFoundDescription: "What the knowledge engine has already identified — zero when the format doesn't yet have active content reading.",
+    entitiesFoundDescription: "What we've already identified — zero when the format doesn't yet have active content reading.",
     documents: "Documents",
     departments: "Departments",
     people: "People",
@@ -662,7 +662,7 @@ export const en: MessageTree = {
     analyzing: "Architect is learning…",
     tooLarge: "Exceeds the {maxMb}MB limit — not uploaded.",
     uploadedBy: "uploaded by {name}",
-    localStorageNotice: "Supabase Storage isn't configured — files are kept only in this browser for this session (not shared between Carmen and Álvaro, and lost on page reload). Configure Supabase Storage for real cloud persistence.",
+    localStorageNotice: "Supabase Storage isn't configured — files are kept only in this browser for this session (not shared between team members, and lost on page reload). Configure Supabase Storage for real cloud persistence.",
     uploadProgressLabel: "Upload progress",
     whatChangedKicker: "Learning summary",
     certaintyKicker: "How certain we are",
@@ -1076,7 +1076,7 @@ export const en: MessageTree = {
     kicker: "Discovery status",
     checklistLabel: "Capabilities validated with evidence",
     missingLabel: "Still confirming",
-    notTrackedLabel: "No dedicated evidence engine yet",
+    notTrackedLabel: "No evidence tracked yet",
     confidenceSuffix: "{confidence}/100",
     etaLabel: "about {minutes} minutes",
     emptyState: "Discovery hasn't started yet — this fills in with the first conversation.",
@@ -1126,7 +1126,7 @@ export const en: MessageTree = {
     noRecentLearning: "There is no activity recorded on the timeline yet.",
     milestonesKicker: "Next milestones",
     milestonesTitle: "What we still don't know",
-    milestonesDescription: "Business capabilities still open or without a dedicated evidence engine — each one is a concrete gap left to close.",
+    milestonesDescription: "Business capabilities still open or without evidence tracked yet — each one is a concrete gap left to close.",
     noMilestones: "No open milestones remain — we'll keep watching for anything that changes.",
   },
   companyBrain: {
@@ -1154,7 +1154,7 @@ export const en: MessageTree = {
       emptyWhy:
         "This doesn't mean we're done learning the business — we keep watching every new document, answer or meeting.",
       etaLabel: "~{minutes} min of conversation",
-      notTrackedBadge: "No dedicated engine",
+      notTrackedBadge: "Not tracked",
       teachCta: "Teach Architect",
     },
     recent: {

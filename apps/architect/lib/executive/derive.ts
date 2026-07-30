@@ -183,9 +183,9 @@ export function deriveExecutiveExperience(
           : `Borrador inicial · ${solution.modules.length} capacidad${solution.modules.length === 1 ? "" : "es"} por confirmar con más evidencia`
         : blueprint
           ? UNDERSTOOD
-            ? "Blueprint de negocio disponible"
-            : "Blueprint preliminar — se refinará con más descubrimiento"
-          : "Pendiente de blueprint de negocio",
+            ? "Plan de negocio disponible"
+            : "Plan de negocio preliminar — se refinará con más descubrimiento"
+          : "Pendiente del plan de negocio",
       complete: (solution != null || blueprint != null) && UNDERSTOOD,
     },
     {

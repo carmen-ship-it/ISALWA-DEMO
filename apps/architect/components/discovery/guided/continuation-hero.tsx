@@ -78,8 +78,8 @@ export function ContinuationHero({
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--isalwa-slate)]/85">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
             {showPercent
-              ? `Qué tanto entendemos tu empresa: ${pct}% · ${understandingLevel(pct).toLowerCase()}`
-              : `Qué tanto entendemos tu empresa: ${understandingLevel(pct)}`}
+              ? `Qué tanto entendemos su empresa: ${pct}% · ${understandingLevel(pct).toLowerCase()}`
+              : `Qué tanto entendemos su empresa: ${understandingLevel(pct)}`}
           </span>
           {estimatedMinutes ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 ring-1 ring-[var(--isalwa-tint-blue-border)]">
