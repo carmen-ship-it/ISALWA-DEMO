@@ -7,6 +7,7 @@ import type {
   CompanyWorkflowRef,
   CompanyWorkspace,
 } from "@/types";
+import { departmentLabel, roleLabel } from "@/lib/presentation";
 import { departmentByName } from "./departments";
 import { modelId } from "./ids";
 
@@ -42,7 +43,7 @@ export function deriveApprovals(
       processApprovalId: null,
       solutionApprovalRuleId: rule.id,
       operatingRuleId: null,
-      authority: rule.roles.join(", ") || "Manager",
+      authority: rule.roles.map(roleLabel).join(", ") || roleLabel("Manager"),
       workflowId: null,
       confidence: rule.confidence,
       evidence: evidence.slice(0, 2),
@@ -57,7 +58,7 @@ export function deriveApprovals(
       processApprovalId: null,
       solutionApprovalRuleId: null,
       operatingRuleId: rule.id,
-      authority: rule.domain,
+      authority: departmentLabel(rule.domain),
       workflowId: null,
       confidence: 0.7,
       evidence: [
@@ -89,8 +90,8 @@ export function deriveDecisionFlows(
       id: modelId("cdflow", approval.id),
       name: approval.name,
       trigger: wf
-        ? `Approval gate in ${wf.name}`
-        : "Operating / solution approval rule",
+        ? `Punto de aprobación en ${wf.name}`
+        : "Regla de aprobación operativa o de la solución",
       authority: approval.authority,
       approvalIds: [approval.id],
       workflowId: approval.workflowId,

@@ -67,7 +67,7 @@ export function deriveSystems(
       departmentIds: [],
       workflowIds: [],
       replacementStrategy:
-        integration.status === "retire" ? "Retire / replace" : null,
+        integration.status === "retire" ? "Retirar / reemplazar" : null,
       confidence: integration.confidence,
       evidence: evidence.slice(0, 2),
     });
@@ -80,7 +80,7 @@ export function deriveSystems(
     systems.push({
       id: modelId("csys", entity.id),
       name: entity.name,
-      purpose: entity.summary ?? "System observed in knowledge vault",
+      purpose: entity.summary ?? "Sistema observado en el expediente de conocimiento",
       blueprintSystemId: null,
       solutionIntegrationId: null,
       knowledgeEntityId: entity.id,

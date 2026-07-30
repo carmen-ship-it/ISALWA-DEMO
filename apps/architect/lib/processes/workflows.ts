@@ -76,8 +76,8 @@ export function deriveWorkflows(input: {
 
     const purpose =
       bw.outputs[0] != null
-        ? `Produce ${bw.outputs[0]} from ${bw.trigger}`
-        : `Execute ${bw.name} when ${bw.trigger}`;
+        ? `Produce ${bw.outputs[0]} a partir de ${bw.trigger}`
+        : `Ejecuta ${bw.name} cuando ${bw.trigger}`;
 
     const metrics = deriveMetrics({
       steps,

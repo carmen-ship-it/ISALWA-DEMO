@@ -138,7 +138,7 @@ export function buildProcessBook(
     }),
     visualizationWorkflowIds: processes.workflows.map((w) => w.id),
     evidence: [
-      { source: "process", id: processes.id, label: "Business Processes" },
+      { source: "process", id: processes.id, label: "Procesos de negocio" },
       ...evidence.slice(0, 3),
     ],
   };

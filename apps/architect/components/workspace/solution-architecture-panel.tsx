@@ -18,6 +18,7 @@ import {
   phaseLabel,
   recommendationStrength,
   roleLabel,
+  roleResponsibilitiesLabel,
   screenLabel,
   strengthHint,
 } from "@/lib/presentation";
@@ -50,22 +51,6 @@ const MODULE_PURPOSE_ES: Record<string, string> = {
   Knowledge: "Memoria de la empresa y evidencia con búsqueda.",
   "AI Assistant":
     "Asiste sobre datos duraderos — nunca se convierte en la fuente de verdad.",
-};
-
-/** `lib/solution/roles.ts` responsibilities — deterministic, display only. */
-const ROLE_RESPONSIBILITIES_ES: Record<string, string[]> = {
-  Owner: ["Definir prioridades", "Aprobar compromisos mayores"],
-  Manager: ["Supervisar equipos", "Aprobar dentro del umbral"],
-  Sales: ["Gestionar el embudo comercial", "Crear cotizaciones y pedidos"],
-  Purchasing: ["Buscar proveedores", "Emitir órdenes de compra"],
-  Production: ["Ejecutar órdenes de trabajo", "Reportar el estado de planta"],
-  Accounting: ["Facturar", "Aplicar pagos", "Reportar flujo de caja"],
-  Operations: ["Coordinar traspasos", "Resolver excepciones"],
-  Warehouse: ["Recibir y despachar inventario", "Mantener los conteos"],
-  HR: ["Mantener registros de empleados", "Asignar roles"],
-  Technician: ["Realizar mantenimiento o trabajo de campo"],
-  "Field Rep": ["Realizar visitas", "Registrar notas de campo"],
-  Administrator: ["Configurar accesos", "Administrar usuarios"],
 };
 
 /** `lib/solution/roles.ts` PERMISSION_CATALOG — deterministic, display only. */
@@ -146,7 +131,7 @@ export function SolutionArchitecturePanel({
             <li key={role.id}>
               <p className="text-[var(--isalwa-kiln)]">{roleLabel(role.name)}</p>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]/80">
-                {(ROLE_RESPONSIBILITIES_ES[role.name] ?? role.responsibilities).join(
+                {roleResponsibilitiesLabel(role.name, role.responsibilities).join(
                   " · ",
                 )}
               </p>

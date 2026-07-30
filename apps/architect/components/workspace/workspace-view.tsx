@@ -78,6 +78,7 @@ import {
 } from "@/components/workspace/workspace-tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "@/lib/i18n";
+import { moduleLabel, phaseLabel } from "@/lib/presentation";
 import { applyBrandOverrides } from "@/lib/brand";
 import { evolveCompanyHistory } from "@/lib/history";
 import { deriveExecutiveExperience, type JourneyStageId } from "@/lib/executive";
@@ -556,11 +557,13 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       ? roadmapPhases.map((phase, index) => ({
           id: phase.id,
           label: ROADMAP_LANES[Math.min(index, ROADMAP_LANES.length - 1)]!,
-          title: phase.name,
+          title: phaseLabel(phase.name),
           summary: phase.businessValue,
           detail:
             phase.modules.length > 0
-              ? t("workspaceView.roadmap.includes", { modules: phase.modules.join(" · ") })
+              ? t("workspaceView.roadmap.includes", {
+                  modules: phase.modules.map(moduleLabel).join(" · "),
+                })
               : undefined,
         }))
       : executive.dashboard.estimatedPhases.map((phase, index) => ({

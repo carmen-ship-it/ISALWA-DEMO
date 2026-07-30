@@ -9,6 +9,20 @@ import type {
 } from "@/types";
 import { modelId } from "./ids";
 
+const WORKFLOW_RELATIONSHIP_REASON_ES: Record<string, string> = {
+  feeds: "Un flujo de trabajo alimenta al otro.",
+  depends_on: "Un flujo de trabajo depende del otro.",
+  shares_actor: "Ambos flujos de trabajo comparten el mismo responsable.",
+  shares_system: "Ambos flujos de trabajo comparten el mismo sistema.",
+};
+
+function workflowRelationshipReason(relationship: string): string {
+  return (
+    WORKFLOW_RELATIONSHIP_REASON_ES[relationship] ??
+    `Flujos de trabajo relacionados (${relationship.replace(/_/g, " ")}).`
+  );
+}
+
 function criticalityFromRisk(
   risk: string | undefined,
 ): CompanyDependencyCriticality {
@@ -48,7 +62,7 @@ export function deriveDependencies(
       fromLabel: from.name,
       toId: to.id,
       toLabel: to.name,
-      reason: `Workflows ${dep.relationship.replace(/_/g, " ")}`,
+      reason: workflowRelationshipReason(dep.relationship),
       processDependencyId: dep.id,
       consultingRiskId: null,
       confidence: dep.confidence,

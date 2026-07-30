@@ -35,6 +35,7 @@ export {
   revisionLabel,
   riskLevelLabel,
   roleLabel,
+  roleResponsibilitiesLabel,
   ruleStatementLabel,
   screenLabel,
   severityLabel,

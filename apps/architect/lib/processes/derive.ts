@@ -135,7 +135,7 @@ export function deriveBusinessProcesses(input: {
     blueprintId: blueprint.id,
     blueprintVersion: blueprint.version,
     generatedAt: stamp,
-    summary: `Business processes for ${workspace.companyName} from Blueprint v${blueprint.version} — ${workflows.length} workflows, ${handoffs.length} handoffs, ${bottlenecks.length} bottlenecks.`,
+    summary: `Procesos de negocio de ${workspace.companyName} a partir del Plan de negocio v${blueprint.version} — ${workflows.length} flujos de trabajo, ${handoffs.length} traspasos, ${bottlenecks.length} cuellos de botella.`,
     workflows,
     actors,
     handoffs,

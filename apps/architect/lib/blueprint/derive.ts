@@ -354,7 +354,7 @@ function buildDepartments(
   return [...byDept.entries()].map(([name, capabilityIds]) => ({
     id: createId("dept"),
     name,
-    purpose: `${name} owns related operating capabilities.`,
+    purpose: `${departmentLabel(name)} es responsable de las capacidades operativas relacionadas.`,
     capabilityIds,
     headcountHint: null,
     evidence: refs.slice(0, 2),

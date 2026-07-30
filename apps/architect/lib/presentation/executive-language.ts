@@ -408,6 +408,33 @@ export function roleLabel(name: string): string {
   return ROLE_LABELS_ES[name] ?? name;
 }
 
+/** `lib/solution/roles.ts` responsibilities — deterministic, display only. */
+const ROLE_RESPONSIBILITIES_ES: Record<string, string[]> = {
+  Owner: ["Definir prioridades", "Aprobar compromisos mayores"],
+  Manager: ["Supervisar equipos", "Aprobar dentro del umbral"],
+  Sales: ["Gestionar el embudo comercial", "Crear cotizaciones y pedidos"],
+  Purchasing: ["Buscar proveedores", "Emitir órdenes de compra"],
+  Production: ["Ejecutar órdenes de trabajo", "Reportar el estado de planta"],
+  Accounting: ["Facturar", "Aplicar pagos", "Reportar flujo de caja"],
+  Operations: ["Coordinar traspasos", "Resolver excepciones"],
+  Warehouse: ["Recibir y despachar inventario", "Mantener los conteos"],
+  HR: ["Mantener registros de empleados", "Asignar roles"],
+  Technician: ["Realizar mantenimiento o trabajo de campo"],
+  "Field Rep": ["Realizar visitas", "Registrar notas de campo"],
+  Administrator: ["Configurar accesos", "Administrar usuarios"],
+};
+
+/**
+ * Solution role responsibilities → Spanish. Falls back to the raw
+ * (English) list only for roles not yet in the catalog above.
+ */
+export function roleResponsibilitiesLabel(
+  name: string,
+  responsibilities: string[],
+): string[] {
+  return ROLE_RESPONSIBILITIES_ES[name] ?? responsibilities;
+}
+
 const SCREEN_LABELS_ES: Record<string, string> = {
   Dashboard: "Panel principal",
   Reports: "Reportes",
@@ -705,6 +732,7 @@ const ACTOR_NAME_ES: Record<string, string> = {
   Purchasing: "Compras",
   Manager: "Gerente",
   Advisor: "Asesor",
+  Unknown: "Por confirmar",
 };
 
 /** Blueprint/process workflow actor name → Spanish. */

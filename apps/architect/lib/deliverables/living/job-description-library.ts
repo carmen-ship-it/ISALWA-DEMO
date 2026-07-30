@@ -6,7 +6,11 @@
  * already carry.
  */
 
-import { departmentLabel, roleLabel } from "@/lib/presentation";
+import {
+  departmentLabel,
+  roleLabel,
+  roleResponsibilitiesLabel,
+} from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   JobDescriptionDoc,
@@ -64,7 +68,7 @@ export function generateJobDescriptionLibrary(
       roleName: roleLabel(role.name),
       department: department ? departmentLabel(department.name) : null,
       peopleAssigned,
-      responsibilities: role.responsibilities,
+      responsibilities: roleResponsibilitiesLabel(role.name, role.responsibilities),
       missingKnowledge,
     };
   });

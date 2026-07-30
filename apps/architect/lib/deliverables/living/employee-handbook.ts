@@ -8,7 +8,12 @@
  */
 
 import { latestBlueprint } from "@/lib/blueprint";
-import { departmentLabel, roleLabel, systemPurposeLabel } from "@/lib/presentation";
+import {
+  departmentLabel,
+  roleLabel,
+  roleResponsibilitiesLabel,
+  systemPurposeLabel,
+} from "@/lib/presentation";
 import type {
   CompanyWorkspace,
   EmployeeHandbookContent,
@@ -49,12 +54,17 @@ export function generateEmployeeHandbook(
       title: "Roles y responsabilidades",
       body: model.roles
         .slice(0, 8)
-        .map(
-          (r) =>
-            `${roleLabel(r.name)}${
-              r.responsibilities.length > 0 ? `: ${r.responsibilities.join("; ")}` : " — responsabilidades aún no documentadas"
-            }.`,
-        )
+        .map((r) => {
+          const responsibilities = roleResponsibilitiesLabel(
+            r.name,
+            r.responsibilities,
+          );
+          return `${roleLabel(r.name)}${
+            responsibilities.length > 0
+              ? `: ${responsibilities.join("; ")}`
+              : " — responsabilidades aún no documentadas"
+          }.`;
+        })
         .join(" "),
     });
   } else {

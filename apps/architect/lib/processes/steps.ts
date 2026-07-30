@@ -21,27 +21,27 @@ function riskFromStep(step: BlueprintWorkflowStep): ProcessRiskLevel {
 
 function aiOpportunity(step: BlueprintWorkflowStep): string | null {
   if (step.automationPotential === "high") {
-    return "High AI opportunity — structured decision or extraction";
+    return "Alta oportunidad de IA — decisión o extracción estructurada";
   }
   if (step.automationPotential === "medium") {
-    return "Medium AI opportunity — assist actor with draft or triage";
+    return "Oportunidad media de IA — asistir al responsable con borrador o triage";
   }
   if (step.manual && /calculat|classif|match|extract|summar/i.test(step.name)) {
-    return "AI opportunity inferred from manual calculation/classification step";
+    return "Oportunidad de IA inferida de un paso manual de cálculo o clasificación";
   }
   return null;
 }
 
 function descriptionFor(step: BlueprintWorkflowStep): string {
   if (!isBlank(step.decision)) {
-    return `${step.name}: decision — ${step.decision}`;
+    return `${step.name}: decisión — ${step.decision}`;
   }
   const parts = [
-    !isBlank(step.input) ? `Input: ${step.input}` : null,
-    !isBlank(step.output) ? `Output: ${step.output}` : null,
+    !isBlank(step.input) ? `Entrada: ${step.input}` : null,
+    !isBlank(step.output) ? `Salida: ${step.output}` : null,
   ].filter(Boolean);
   if (parts.length === 0) {
-    return "Unknown step detail — not described in blueprint evidence";
+    return "Detalle del paso sin confirmar — no descrito en la evidencia del plan de negocio";
   }
   return parts.join(". ");
 }
@@ -77,8 +77,8 @@ export function deriveSteps(input: {
       description: descriptionFor(step),
       actor: actorUnknown ? "Unknown" : step.actor.trim(),
       actorUnknown,
-      inputs: isBlank(step.input) ? ["Unknown input"] : [step.input],
-      outputs: isBlank(step.output) ? ["Unknown output"] : [step.output],
+      inputs: isBlank(step.input) ? ["Entrada por confirmar"] : [step.input],
+      outputs: isBlank(step.output) ? ["Salida por confirmar"] : [step.output],
       systemsUsed,
       documentsUsed,
       estimatedDuration: step.estimatedTime,

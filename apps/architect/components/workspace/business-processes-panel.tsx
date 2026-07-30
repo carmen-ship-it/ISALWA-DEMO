@@ -26,7 +26,7 @@ import {
   type ProcessVisualizationContext,
   type VizNode,
 } from "@/lib/process-visualization";
-import { healthLabel, coverageBand, riskLevelLabel } from "@/lib/presentation";
+import { actorNameLabel, healthLabel, coverageBand, riskLevelLabel } from "@/lib/presentation";
 import { ProvenanceFootnote } from "@/components/workspace/provenance-footnote";
 import type { BusinessProcessModel } from "@/types";
 
@@ -467,7 +467,7 @@ function ProcessStudio({
                               ? AUTOMATION_COLORS[node.automation].badge
                               : overlay === "pain"
                                 ? PAIN_COLORS[node.pain].label
-                                : node.actor}
+                                : actorNameLabel(node.actor)}
                       </span>
                     </motion.button>
                   );

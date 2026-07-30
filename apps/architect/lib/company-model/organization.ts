@@ -4,20 +4,21 @@ import type {
   CompanyOrganization,
   CompanyWorkspace,
 } from "@/types";
+import { departmentLabel } from "@/lib/presentation";
 
 export function deriveOrganization(
   workspace: CompanyWorkspace,
   blueprint: BusinessBlueprint,
   evidence: CompanyModelEvidenceRef[],
 ): CompanyOrganization {
-  const deptNames = blueprint.departments.map((d) => d.name);
+  const deptNames = blueprint.departments.map((d) => departmentLabel(d.name));
   const summary = [
-    `${workspace.companyName} operating model from Blueprint v${blueprint.version}.`,
+    `Modelo operativo de ${workspace.companyName} a partir del Plan de negocio v${blueprint.version}.`,
     deptNames.length > 0
-      ? `Departments: ${deptNames.join(", ")}.`
-      : "Department structure still emerging from discovery.",
+      ? `Departamentos: ${deptNames.join(", ")}.`
+      : "La estructura de departamentos todavía está emergiendo del descubrimiento.",
     blueprint.currentState
-      ? `Current state: ${blueprint.currentState.slice(0, 180)}`
+      ? `Estado actual: ${blueprint.currentState.slice(0, 180)}`
       : "",
   ]
     .filter(Boolean)
