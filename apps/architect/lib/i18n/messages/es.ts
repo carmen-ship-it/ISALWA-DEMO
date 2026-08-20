@@ -80,6 +80,13 @@ export const es: MessageTree = {
     sectionProgress: "Sección {current} de {total}",
   },
   workspaceView: {
+    loadErrorTitle: "No pudimos abrir este espacio",
+    loadErrorBody:
+      "Los datos de la empresa no cargaron. Revise su conexión e intente de nuevo.",
+    loadMissingTitle: "Espacio no encontrado",
+    loadMissingBody:
+      "Este espacio de empresa aún no está disponible para su cuenta.",
+    loadRetry: "Intentar de nuevo",
     roadmapLanes: {
       today: "Hoy",
       next: "Siguiente",

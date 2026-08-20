@@ -75,6 +75,13 @@ export const en: MessageTree = {
     sectionProgress: "Section {current} of {total}",
   },
   workspaceView: {
+    loadErrorTitle: "We couldn't open this workspace",
+    loadErrorBody:
+      "The company data did not load. Check your connection and try again.",
+    loadMissingTitle: "Workspace not found",
+    loadMissingBody:
+      "This company workspace is not available for your account yet.",
+    loadRetry: "Try again",
     roadmapLanes: {
       today: "Today",
       next: "Next",

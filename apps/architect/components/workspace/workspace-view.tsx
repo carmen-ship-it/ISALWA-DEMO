@@ -170,6 +170,11 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   ] as const;
   const store = useMemo(() => getClientCompanyMemoryStore(), []);
   const [workspace, setWorkspace] = useState<CompanyWorkspace | null>(null);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "missing" | "error">(
+    "loading",
+  );
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [tab, setTab] = useState<WorkspaceTabId>("executive");
   const [focusDeliverableKind, setFocusDeliverableKind] =
     useState<LivingDeliverableKind | null>(null);
@@ -212,20 +217,46 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
   useEffect(() => {
     let cancelled = false;
 
-    const loadAndEvolve = async () => {
-      const next = await store.workspaces.get(workspaceId);
-      if (!next || cancelled) return;
+    const loadAndEvolve = async (opts?: { silent?: boolean }) => {
+      if (!opts?.silent) {
+        setLoadState("loading");
+        setLoadError(null);
+      }
+      try {
+        const next = await store.workspaces.get(workspaceId);
+        if (cancelled) return;
+        if (!next) {
+          setWorkspace(null);
+          setLoadState("missing");
+          return;
+        }
 
-      const { workspace: evolved } = evolveCompanyHistory(next);
-      const historyChanged =
-        JSON.stringify(next.evolutionHistory ?? null) !==
-        JSON.stringify(evolved.evolutionHistory);
+        const { workspace: evolved } = evolveCompanyHistory(next);
+        const historyChanged =
+          JSON.stringify(next.evolutionHistory ?? null) !==
+          JSON.stringify(evolved.evolutionHistory);
 
-      if (historyChanged) {
-        const saved = await store.workspaces.save(evolved);
-        if (!cancelled) setWorkspace(saved);
-      } else if (!cancelled) {
-        setWorkspace(next);
+        if (historyChanged) {
+          const saved = await store.workspaces.save(evolved);
+          if (!cancelled) {
+            setWorkspace(saved);
+            setLoadState("ready");
+            setLoadError(null);
+          }
+        } else if (!cancelled) {
+          setWorkspace(next);
+          setLoadState("ready");
+          setLoadError(null);
+        }
+      } catch (error) {
+        if (cancelled) return;
+        // Keep a previously rendered workspace on background refresh failure.
+        if (opts?.silent) return;
+        setWorkspace(null);
+        setLoadState("error");
+        setLoadError(
+          error instanceof Error ? error.message : t("workspaceView.loadErrorBody"),
+        );
       }
     };
 
@@ -238,11 +269,15 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       ) => () => void;
     };
     const unsubscribe = supabaseStore.subscribe?.(workspaceId, (next) => {
-      if (!cancelled) setWorkspace(next);
+      if (!cancelled) {
+        setWorkspace(next);
+        setLoadState("ready");
+        setLoadError(null);
+      }
     });
 
     const onFocus = () => {
-      void loadAndEvolve();
+      void loadAndEvolve({ silent: true });
     };
     window.addEventListener("focus", onFocus);
 
@@ -251,7 +286,7 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
       unsubscribe?.();
       window.removeEventListener("focus", onFocus);
     };
-  }, [store, workspaceId]);
+  }, [store, workspaceId, loadAttempt, t]);
 
   /**
    * Executive Daily Brief (Mission 20) — a browser-local "what did this
@@ -383,7 +418,36 @@ export function WorkspaceView({ workspaceId }: { workspaceId: string }) {
     [workspace],
   );
 
+  if (loadState === "error" || loadState === "missing") {
+    const titleKey =
+      loadState === "missing"
+        ? "workspaceView.loadMissingTitle"
+        : "workspaceView.loadErrorTitle";
+    const body =
+      loadState === "missing"
+        ? t("workspaceView.loadMissingBody")
+        : (loadError ?? t("workspaceView.loadErrorBody"));
+    return (
+      <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-4 px-6">
+        <p className="isalwa-kicker">{t("workspaceView.header.kicker")}</p>
+        <h1 className="font-serif text-2xl italic text-[var(--isalwa-slate)]">
+          {t(titleKey)}
+        </h1>
+        <p className="text-[var(--isalwa-slate)]/80">{body}</p>
+        <div>
+          <Button
+            type="button"
+            onClick={() => setLoadAttempt((n) => n + 1)}
+          >
+            {t("workspaceView.loadRetry")}
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   if (
+    loadState === "loading" ||
     !workspace ||
     !executive ||
     !effectiveBrand ||

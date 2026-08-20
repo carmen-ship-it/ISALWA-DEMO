@@ -65,7 +65,13 @@ export const ROLE_CAPABILITIES: Record<ArchitectRole, readonly AuthCapability[]>
   ],
 };
 
-export const PUBLIC_PATHS = ["/login"] as const;
+/**
+ * Paths reachable without a session.
+ * - `/login` — sign-in UI
+ * - `/api/auth/session` — must return JSON `{ session: null }`, not a login HTML redirect
+ * - `/api/cron` — Vercel Cron uses Bearer auth, not a browser session
+ */
+export const PUBLIC_PATHS = ["/login", "/api/auth/session", "/api/cron"] as const;
 
 export const CONSULTANT_ONLY_PATHS = ["/companies", "/preparation"] as const;
 
