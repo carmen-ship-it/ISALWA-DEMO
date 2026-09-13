@@ -1,0 +1,38 @@
+{
+  "name": "@isalwa/os-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"ok\"",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@isalwa/os-contracts": "workspace:*",
+    "@isalwa/os-database": "workspace:*",
+    "@isalwa/os-domain": "workspace:*",
+    "@isalwa/os-events": "workspace:*",
+    "@isalwa/os-party": "workspace:*",
+    "@isalwa/os-query": "workspace:*",
+    "@isalwa/os-work": "workspace:*",
+    "@isalwa/os-commercial": "workspace:*",
+    "@isalwa/os-workforce": "workspace:*",
+    "@isalwa/ts-utils": "workspace:*",
+    "@supabase/supabase-js": "^2.110.8",
+    "@nestjs/common": "^11.0.12",
+    "@nestjs/core": "^11.0.12",
+    "@nestjs/platform-express": "^11.0.12",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.12",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

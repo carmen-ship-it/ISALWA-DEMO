@@ -1,0 +1,45 @@
+import type { PartyTimelineEntryReadModel } from '@isalwa/os-contracts';
+import { formatTimestamp } from '@/lib/commercial/labels';
+import {
+  HISTORIAL_SCOPE_COPY,
+  timelineEntrySummary,
+  timelineEventLabel,
+} from '@/lib/commercial/timeline-labels';
+
+type PartyTimelineListProps = {
+  items: PartyTimelineEntryReadModel[];
+};
+
+export function PartyTimelineList({ items }: PartyTimelineListProps) {
+  return (
+    <>
+      <p className="mb-4 text-sm text-[var(--isalwa-slate)]">{HISTORIAL_SCOPE_COPY}</p>
+      <ol
+        className="space-y-4"
+        aria-label="Actividad del cliente, comercial, trabajo y aprobaciones, más reciente primero"
+      >
+        {items.map((entry) => (
+          <li
+            key={entry.entryId}
+            className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] px-4 py-3"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="font-medium text-[var(--isalwa-kiln)]">
+                {timelineEventLabel(entry.eventType)}
+              </p>
+              <time
+                className="text-sm text-[var(--isalwa-slate)]"
+                dateTime={entry.occurredAt}
+              >
+                {formatTimestamp(entry.occurredAt)}
+              </time>
+            </div>
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+              {timelineEntrySummary(entry)}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}

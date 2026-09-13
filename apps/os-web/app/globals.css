@@ -1,0 +1,92 @@
+@import "@isalwa/ui/tokens.css";
+@import "@isalwa/ui/chrome.css";
+@import "tailwindcss";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--isalwa-porcelain);
+  background-image: var(--isalwa-surface-hero);
+  background-attachment: fixed;
+  color: var(--isalwa-kiln);
+  font-family: var(--isalwa-font-sans);
+  font-size: var(--isalwa-text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.isalwa-page {
+  min-height: 100%;
+  max-width: var(--isalwa-page-max);
+  margin-inline: auto;
+  padding: var(--isalwa-space-6) var(--isalwa-space-4) var(--isalwa-space-12);
+}
+
+@media (min-width: 768px) {
+  .isalwa-page {
+    padding: var(--isalwa-space-8) var(--isalwa-space-6) var(--isalwa-space-12);
+  }
+}
+
+.isalwa-kicker {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--isalwa-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--isalwa-glaze);
+}
+
+.isalwa-page-title {
+  margin: 0;
+  font-family: var(--isalwa-font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.8vw, var(--isalwa-text-3xl));
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--isalwa-kiln);
+}
+
+.isalwa-section-label {
+  margin: 0;
+  font-size: var(--isalwa-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--isalwa-slate);
+}
+
+.isalwa-t-fast {
+  transition:
+    color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    background-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    border-color var(--isalwa-motion-fast) var(--isalwa-ease-out),
+    box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

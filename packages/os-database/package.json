@@ -1,0 +1,40 @@
+{
+  "name": "@isalwa/os-database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.json && rm -rf dist/generated && cp -R src/generated dist/generated",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"ok\"",
+    "prisma:generate": "prisma generate",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
+    "test": "node --import tsx --test --test-concurrency=1 src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@isalwa/os-contracts": "workspace:*",
+    "@isalwa/os-domain": "workspace:*",
+    "@isalwa/os-events": "workspace:*",
+    "@isalwa/os-party": "workspace:*",
+    "@isalwa/os-query": "workspace:*",
+    "@isalwa/os-work": "workspace:*",
+    "@isalwa/os-commercial": "workspace:*",
+    "@isalwa/os-workforce": "workspace:*",
+    "@isalwa/ts-utils": "workspace:*",
+    "@prisma/client": "^6.5.0"
+  },
+  "devDependencies": {
+    "@isalwa/os-contracts": "workspace:*",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

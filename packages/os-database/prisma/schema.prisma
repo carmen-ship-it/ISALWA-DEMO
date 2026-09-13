@@ -1,0 +1,927 @@
+// ISALWA OS Foundation schema (Step 10) — separate from legacy commercial schema.
+// Tables use os_* prefix. Same Postgres database URL as legacy is acceptable.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("OS_DATABASE_URL")
+}
+
+model OsOrganization {
+  id        String   @id
+  legalName String   @map("legal_name")
+  slug      String   @unique
+  status    String   @default("active")
+  timezone  String   @default("America/La_Paz")
+  locale    String   @default("es-BO")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members            OsOrganizationMember[]
+  departments        OsDepartment[]
+  territories        OsTerritory[]
+  roleAssignments    OsRoleAssignment[]
+  departmentAssignments OsDepartmentAssignment[]
+  managerAssignments OsManagerAssignment[]
+  delegations        OsDelegation[]
+  businessEvents     OsBusinessEvent[]
+  auditLogs          OsAuditLog[]
+  outboxMessages     OsOutboxMessage[]
+  outboxConsumerDedup OsOutboxConsumerDedup[]
+  idempotencyKeys    OsIdempotencyKey[]
+  capabilityStates   OsCapabilityState[]
+  workItems          OsWorkItem[]
+  parties            OsParty[]
+  partyRoleAssignments OsPartyRoleAssignment[]
+  contacts           OsContact[]
+  fiscalIdentities   OsFiscalIdentity[]
+  commercialAccounts OsCommercialAccount[]
+  leads              OsLead[]
+  partyDuplicateCandidates OsPartyDuplicateCandidate[]
+  partyMergeRequests OsPartyMergeRequest[]
+  workOwnershipHistory OsWorkItemOwnershipHistory[]
+  approvalRequests   OsApprovalRequest[]
+  projectionCheckpoints OsProjectionCheckpoint[]
+  projectionFreshness OsProjectionFreshness[]
+  partyReadModels    OsPartyReadModel[]
+  workReadModels     OsWorkReadModel[]
+  approvalReadModels OsApprovalReadModel[]
+  attentionReadModels OsAttentionReadModel[]
+  opportunityReadModels OsOpportunityReadModel[]
+  quoteReadModels       OsQuoteReadModel[]
+  quoteLineReadModels   OsQuoteLineReadModel[]
+  orderReadModels       OsOrderReadModel[]
+  partyTimelineEntries  OsPartyTimelineEntry[]
+  opportunities      OsOpportunity[]
+  quotes             OsQuote[]
+  quoteLines         OsQuoteLine[]
+  orders             OsOrder[]
+
+  @@map("os_organizations")
+}
+
+model OsPerson {
+  id         String   @id
+  givenName  String   @map("given_name")
+  familyName String   @map("family_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  version    Int      @default(0)
+
+  members        OsOrganizationMember[]
+  authIdentities OsAuthIdentity[]
+
+  @@map("os_persons")
+}
+
+model OsOrganizationMember {
+  id                String    @id
+  organizationId    String    @map("organization_id")
+  personId          String    @map("person_id")
+  employmentStatus  String    @map("employment_status")
+  accessStatus      String    @map("access_status")
+  employmentStartedAt DateTime? @map("employment_started_at")
+  employmentEndedAt   DateTime? @map("employment_ended_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  version           Int       @default(0)
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  person       OsPerson       @relation(fields: [personId], references: [id])
+
+  roleAssignments       OsRoleAssignment[]
+  departmentAssignments OsDepartmentAssignment[]
+  managerAssignments    OsManagerAssignment[] @relation("MemberManagers")
+  managedBy             OsManagerAssignment[] @relation("ManagedMembers")
+  delegationsGranted    OsDelegation[]        @relation("Delegator")
+  delegationsReceived   OsDelegation[]        @relation("Delegate")
+  ownedWorkItems        OsWorkItem[]          @relation("WorkOwner")
+
+  @@unique([organizationId, personId, employmentStartedAt])
+  @@index([organizationId, accessStatus])
+  @@map("os_organization_members")
+}
+
+model OsAuthIdentity {
+  id              String    @id
+  personId        String    @map("person_id")
+  provider        String
+  providerSubject String?   @map("provider_subject")
+  email           String
+  status          String
+  invitedAt       DateTime? @map("invited_at")
+  activatedAt     DateTime? @map("activated_at")
+  revokedAt       DateTime? @map("revoked_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  person OsPerson @relation(fields: [personId], references: [id])
+
+  @@unique([provider, email])
+  @@index([personId])
+  @@map("os_auth_identities")
+}
+
+model OsDepartment {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  name           String
+  code           String
+  parentId       String?  @map("parent_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  parent       OsDepartment?  @relation("DeptTree", fields: [parentId], references: [id])
+  children     OsDepartment[] @relation("DeptTree")
+  assignments  OsDepartmentAssignment[]
+
+  @@unique([organizationId, code])
+  @@map("os_departments")
+}
+
+model OsTerritory {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  name           String
+  code           String
+  parentId       String?  @map("parent_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  parent       OsTerritory?   @relation("TerritoryTree", fields: [parentId], references: [id])
+  children     OsTerritory[]  @relation("TerritoryTree")
+
+  @@unique([organizationId, code])
+  @@map("os_territories")
+}
+
+model OsRoleAssignment {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  memberId       String    @map("member_id")
+  roleKey        String    @map("role_key")
+  effectiveAt    DateTime  @map("effective_at")
+  endedAt        DateTime? @map("ended_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization       @relation(fields: [organizationId], references: [id])
+  member       OsOrganizationMember @relation(fields: [memberId], references: [id])
+
+  @@index([memberId, effectiveAt])
+  @@map("os_role_assignments")
+}
+
+model OsDepartmentAssignment {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  memberId       String    @map("member_id")
+  departmentId   String    @map("department_id")
+  effectiveAt    DateTime  @map("effective_at")
+  endedAt        DateTime? @map("ended_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization       @relation(fields: [organizationId], references: [id])
+  member       OsOrganizationMember @relation(fields: [memberId], references: [id])
+  department   OsDepartment         @relation(fields: [departmentId], references: [id])
+
+  @@index([memberId, effectiveAt])
+  @@map("os_department_assignments")
+}
+
+model OsManagerAssignment {
+  id              String    @id
+  organizationId  String    @map("organization_id")
+  memberId        String    @map("member_id")
+  managerMemberId String    @map("manager_member_id")
+  effectiveAt     DateTime  @map("effective_at")
+  endedAt         DateTime? @map("ended_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization       @relation(fields: [organizationId], references: [id])
+  member       OsOrganizationMember @relation("ManagedMembers", fields: [memberId], references: [id])
+  manager      OsOrganizationMember @relation("MemberManagers", fields: [managerMemberId], references: [id])
+
+  @@index([memberId, effectiveAt])
+  @@map("os_manager_assignments")
+}
+
+model OsDelegation {
+  id               String    @id
+  organizationId   String    @map("organization_id")
+  delegatorMemberId String   @map("delegator_member_id")
+  delegateMemberId String    @map("delegate_member_id")
+  scopesJson       Json      @map("scopes_json")
+  startsAt         DateTime  @map("starts_at")
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization       @relation(fields: [organizationId], references: [id])
+  delegator    OsOrganizationMember @relation("Delegator", fields: [delegatorMemberId], references: [id])
+  delegate     OsOrganizationMember @relation("Delegate", fields: [delegateMemberId], references: [id])
+
+  @@index([delegateMemberId, expiresAt])
+  @@map("os_delegations")
+}
+
+model OsWorkItem {
+  id                String    @id
+  organizationId    String    @map("organization_id")
+  ownerMemberId     String    @map("owner_member_id")
+  createdByMemberId String    @map("created_by_member_id")
+  title             String
+  description       String?
+  status            String    @default("open")
+  priority          String    @default("normal")
+  dueAt             DateTime? @map("due_at")
+  subjectType       String?   @map("subject_type")
+  subjectId         String?   @map("subject_id")
+  completedAt       DateTime? @map("completed_at")
+  cancelledAt       DateTime? @map("cancelled_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  version           Int       @default(0)
+
+  organization     OsOrganization              @relation(fields: [organizationId], references: [id])
+  owner            OsOrganizationMember        @relation("WorkOwner", fields: [ownerMemberId], references: [id])
+  ownershipHistory OsWorkItemOwnershipHistory[]
+  approvalRequests OsApprovalRequest[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, ownerMemberId, status])
+  @@map("os_work_items")
+}
+
+model OsWorkItemOwnershipHistory {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  workItemId        String   @map("work_item_id")
+  fromMemberId      String?  @map("from_member_id")
+  toMemberId        String   @map("to_member_id")
+  changedByMemberId String   @map("changed_by_member_id")
+  reason            String?
+  changedAt         DateTime @map("changed_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  workItem     OsWorkItem     @relation(fields: [workItemId], references: [id])
+
+  @@index([workItemId, changedAt])
+  @@map("os_work_item_ownership_history")
+}
+
+model OsApprovalRequest {
+  id                  String    @id
+  organizationId      String    @map("organization_id")
+  workItemId          String?   @map("work_item_id")
+  subjectType         String    @map("subject_type")
+  subjectId           String    @map("subject_id")
+  requestedByMemberId String    @map("requested_by_member_id")
+  approverMemberId    String    @map("approver_member_id")
+  status              String    @default("pending")
+  contextSnapshotJson Json      @map("context_snapshot_json")
+  decisionByMemberId  String?   @map("decision_by_member_id")
+  decisionReason      String?   @map("decision_reason")
+  decidedAt           DateTime? @map("decided_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  workItem     OsWorkItem?    @relation(fields: [workItemId], references: [id])
+
+  @@index([organizationId, status])
+  @@index([approverMemberId, status])
+  @@map("os_approval_requests")
+}
+
+model OsBusinessEvent {
+  id                   String   @id
+  organizationId       String   @map("organization_id")
+  eventType            String   @map("event_type")
+  occurredAt           DateTime @map("occurred_at")
+  recordedAt           DateTime @default(now()) @map("recorded_at")
+  actorMemberId        String?  @map("actor_member_id")
+  authorizationContext Json?    @map("authorization_context_json")
+  primaryEntityType    String   @map("primary_entity_type")
+  primaryEntityId      String   @map("primary_entity_id")
+  payloadJson          Json?    @map("payload_json")
+  provenance           String   @default("command")
+  correlationId        String   @map("correlation_id")
+  idempotencyKey       String?  @map("idempotency_key")
+  dataOrigin           String   @default("production") @map("data_origin")
+  capabilityKey        String?  @map("capability_key")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, occurredAt])
+  @@index([correlationId])
+  @@unique([organizationId, idempotencyKey])
+  @@map("os_business_events")
+}
+
+model OsAuditLog {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  actorMemberId  String?  @map("actor_member_id")
+  action         String
+  resourceType   String   @map("resource_type")
+  resourceId     String   @map("resource_id")
+  beforeJson     Json?    @map("before_json")
+  afterJson      Json?    @map("after_json")
+  correlationId  String   @map("correlation_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@map("os_audit_logs")
+}
+
+model OsOutboxMessage {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  eventId        String    @map("event_id")
+  payloadJson    Json      @map("payload_json")
+  status         String    @default("pending")
+  attemptCount   Int       @default(0) @map("attempt_count")
+  nextAttemptAt  DateTime? @map("next_attempt_at")
+  lastError      String?   @map("last_error")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  publishedAt    DateTime? @map("published_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([status, nextAttemptAt, createdAt])
+  @@map("os_outbox_messages")
+}
+
+model OsOutboxConsumerDedup {
+  organizationId String   @map("organization_id")
+  consumerKey      String   @map("consumer_key")
+  eventId          String   @map("event_id")
+  processedAt      DateTime @default(now()) @map("processed_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@id([organizationId, consumerKey, eventId])
+  @@map("os_outbox_consumer_dedup")
+}
+
+model OsIdempotencyKey {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  key            String
+  commandName    String   @map("command_name")
+  resultJson     Json     @map("result_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+  expiresAt      DateTime @map("expires_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, key])
+  @@map("os_idempotency_keys")
+}
+
+model OsCapabilityState {
+  organizationId String @map("organization_id")
+  capabilityKey  String @map("capability_key")
+  state          String
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@id([organizationId, capabilityKey])
+  @@map("os_capability_states")
+}
+
+model OsParty {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  partyKind         String   @map("party_kind")
+  displayName       String   @map("display_name")
+  legalName         String?  @map("legal_name")
+  status            String   @default("active")
+  mergedIntoPartyId String?  @map("merged_into_party_id")
+  version           Int      @default(0)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization      OsOrganization @relation(fields: [organizationId], references: [id])
+  mergedInto        OsParty?       @relation("PartyMergeLineage", fields: [mergedIntoPartyId], references: [id])
+  mergedFrom        OsParty[]      @relation("PartyMergeLineage")
+  roleAssignments   OsPartyRoleAssignment[]
+  contacts          OsContact[]    @relation("OrgPartyContacts")
+  fiscalIdentities  OsFiscalIdentity[]
+  commercialAccounts OsCommercialAccount[]
+  duplicateCandidatesA OsPartyDuplicateCandidate[] @relation("DupPartyA")
+  duplicateCandidatesB OsPartyDuplicateCandidate[] @relation("DupPartyB")
+  mergeRequestsSource OsPartyMergeRequest[] @relation("MergeSource")
+  mergeRequestsTarget OsPartyMergeRequest[] @relation("MergeTarget")
+  resolvedLeads     OsLead[]
+  opportunities     OsOpportunity[]
+  quotes            OsQuote[]
+  orders            OsOrder[]
+
+  @@index([organizationId, status])
+  @@map("os_parties")
+}
+
+model OsOpportunity {
+  id                    String    @id
+  organizationId        String    @map("organization_id")
+  partyId               String    @map("party_id")
+  commercialAccountId   String?   @map("commercial_account_id")
+  ownerMemberId         String    @map("owner_member_id")
+  title                 String
+  stage                 String    @default("open")
+  status                String    @default("open")
+  expectedValueCentavos BigInt?   @map("expected_value_centavos")
+  sourceMetadataJson    Json?     @map("source_metadata_json")
+  version               Int       @default(0)
+  closedAt              DateTime? @map("closed_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+  quotes       OsQuote[]
+
+  @@index([organizationId, partyId])
+  @@index([organizationId, ownerMemberId])
+  @@index([organizationId, status])
+  @@map("os_opportunities")
+}
+
+model OsQuote {
+  id                     String    @id
+  organizationId         String    @map("organization_id")
+  partyId                String    @map("party_id")
+  commercialAccountId    String?   @map("commercial_account_id")
+  opportunityId          String?   @map("opportunity_id")
+  ownerMemberId          String    @map("owner_member_id")
+  quoteNumber            String    @map("quote_number")
+  status                 String    @default("draft")
+  currency               String    @default("BOB")
+  subtotalCentavos       BigInt    @default(0) @map("subtotal_centavos")
+  headerDiscountCentavos BigInt    @default(0) @map("header_discount_centavos")
+  totalCentavos          BigInt    @default(0) @map("total_centavos")
+  revisionNumber         Int       @default(1) @map("revision_number")
+  notes                  String?
+  version                Int       @default(0)
+  submittedAt            DateTime? @map("submitted_at")
+  cancelledAt            DateTime? @map("cancelled_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+  opportunity  OsOpportunity?   @relation(fields: [opportunityId], references: [id])
+  lines        OsQuoteLine[]
+  orders       OsOrder[]
+
+  @@unique([organizationId, quoteNumber])
+  @@index([organizationId, partyId])
+  @@index([organizationId, status])
+  @@map("os_quotes")
+}
+
+model OsQuoteLine {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  quoteId           String   @map("quote_id")
+  lineNumber        Int      @map("line_number")
+  description       String
+  quantity          Int
+  unitLabel         String?  @map("unit_label")
+  unitPriceCentavos BigInt   @map("unit_price_centavos")
+  discountCentavos  BigInt   @default(0) @map("discount_centavos")
+  lineTotalCentavos BigInt   @map("line_total_centavos")
+  productRef        String?  @map("product_ref")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  quote        OsQuote          @relation(fields: [quoteId], references: [id])
+
+  @@unique([quoteId, lineNumber])
+  @@index([organizationId, quoteId])
+  @@map("os_quote_lines")
+}
+
+model OsOrder {
+  id                     String    @id
+  organizationId         String    @map("organization_id")
+  partyId                String    @map("party_id")
+  commercialAccountId    String?   @map("commercial_account_id")
+  quoteId                String    @map("quote_id")
+  ownerMemberId          String    @map("owner_member_id")
+  orderNumber            String    @map("order_number")
+  status                 String    @default("open")
+  currency               String    @default("BOB")
+  subtotalCentavos       BigInt    @map("subtotal_centavos")
+  headerDiscountCentavos BigInt    @default(0) @map("header_discount_centavos")
+  totalCentavos          BigInt    @map("total_centavos")
+  version                Int       @default(0)
+  cancelledAt            DateTime? @map("cancelled_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+  quote        OsQuote          @relation(fields: [quoteId], references: [id])
+
+  @@unique([organizationId, orderNumber])
+  @@index([organizationId, partyId])
+  @@index([organizationId, quoteId])
+  @@map("os_orders")
+}
+
+model OsPartyRoleAssignment {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  partyId        String    @map("party_id")
+  roleKey        String    @map("role_key")
+  effectiveAt    DateTime  @map("effective_at")
+  endedAt        DateTime? @map("ended_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+
+  @@index([partyId, effectiveAt])
+  @@index([organizationId, roleKey])
+  @@map("os_party_role_assignments")
+}
+
+model OsContact {
+  id                  String   @id
+  organizationId      String   @map("organization_id")
+  organizationPartyId String   @map("organization_party_id")
+  personPartyId       String?  @map("person_party_id")
+  givenName           String   @map("given_name")
+  familyName          String   @map("family_name")
+  email               String?
+  phone               String?
+  whatsapp            String?
+  title               String?
+  status              String   @default("active")
+  version             Int      @default(0)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  organization      OsOrganization @relation(fields: [organizationId], references: [id])
+  organizationParty OsParty        @relation("OrgPartyContacts", fields: [organizationPartyId], references: [id])
+
+  @@index([organizationPartyId])
+  @@map("os_contacts")
+}
+
+model OsFiscalIdentity {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  partyId        String    @map("party_id")
+  nit            String
+  razonSocial    String    @map("razon_social")
+  effectiveAt    DateTime  @map("effective_at")
+  endedAt        DateTime? @map("ended_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+
+  @@index([organizationId, nit])
+  @@index([partyId, effectiveAt])
+  @@map("os_fiscal_identities")
+}
+
+model OsCommercialAccount {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  partyId        String   @map("party_id")
+  territoryId    String?  @map("territory_id")
+  ownerMemberId  String?  @map("owner_member_id")
+  status         String   @default("active")
+  version        Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty          @relation(fields: [partyId], references: [id])
+
+  @@unique([organizationId, partyId])
+  @@map("os_commercial_accounts")
+}
+
+model OsLead {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  displayName     String   @map("display_name")
+  email           String?
+  phone           String?
+  status          String   @default("open")
+  resolvedPartyId String?  @map("resolved_party_id")
+  batchRef        String?  @map("batch_ref")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organization  OsOrganization @relation(fields: [organizationId], references: [id])
+  resolvedParty OsParty?       @relation(fields: [resolvedPartyId], references: [id])
+
+  @@index([organizationId, status])
+  @@map("os_leads")
+}
+
+model OsPartyDuplicateCandidate {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  partyIdA       String   @map("party_id_a")
+  partyIdB       String   @map("party_id_b")
+  matchReason    String   @map("match_reason")
+  confidence     Float
+  status         String   @default("suggested")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  partyA       OsParty          @relation("DupPartyA", fields: [partyIdA], references: [id])
+  partyB       OsParty          @relation("DupPartyB", fields: [partyIdB], references: [id])
+
+  @@unique([organizationId, partyIdA, partyIdB])
+  @@map("os_party_duplicate_candidates")
+}
+
+model OsPartyMergeRequest {
+  id                  String    @id
+  organizationId      String    @map("organization_id")
+  sourcePartyId       String    @map("source_party_id")
+  targetPartyId       String    @map("target_party_id")
+  status              String    @default("pending")
+  requestedByMemberId String    @map("requested_by_member_id")
+  decidedByMemberId   String?   @map("decided_by_member_id")
+  lineageSnapshotJson Json?     @map("lineage_snapshot_json")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  decidedAt           DateTime? @map("decided_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  sourceParty  OsParty          @relation("MergeSource", fields: [sourcePartyId], references: [id])
+  targetParty  OsParty          @relation("MergeTarget", fields: [targetPartyId], references: [id])
+
+  @@index([organizationId, status])
+  @@map("os_party_merge_requests")
+}
+
+model OsProjectionCheckpoint {
+  organizationId   String    @map("organization_id")
+  consumerKey      String    @map("consumer_key")
+  lastEventId      String?   @map("last_event_id")
+  lastOccurredAt   DateTime? @map("last_occurred_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@id([organizationId, consumerKey])
+  @@map("os_projection_checkpoints")
+}
+
+model OsProjectionFreshness {
+  organizationId        String    @map("organization_id")
+  consumerKey           String    @map("consumer_key")
+  lastSuccessAt         DateTime? @map("last_success_at")
+  lastEventOccurredAt   DateTime? @map("last_event_occurred_at")
+  pendingOutboxCount    Int       @default(0) @map("pending_outbox_count")
+  isStale               Boolean   @default(false) @map("is_stale")
+  lastError             String?   @map("last_error")
+  rebuiltAt             DateTime? @map("rebuilt_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@id([organizationId, consumerKey])
+  @@map("os_projection_freshness")
+}
+
+model OsPartyReadModel {
+  partyId                 String   @id @map("party_id")
+  organizationId          String   @map("organization_id")
+  partyKind               String   @map("party_kind")
+  displayName             String   @map("display_name")
+  legalName               String?  @map("legal_name")
+  status                  String
+  mergedIntoPartyId       String?  @map("merged_into_party_id")
+  activeRoleKeys          String[] @map("active_role_keys")
+  hasCommercialAccount    Boolean  @default(false) @map("has_commercial_account")
+  commercialAccountStatus String?  @map("commercial_account_status")
+  duplicateStatus         String?  @map("duplicate_status")
+  searchText              String   @map("search_text")
+  lastEventId             String?  @map("last_event_id")
+  lastOccurredAt          DateTime? @map("last_occurred_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status])
+  @@index([organizationId, displayName, partyId])
+  @@map("os_party_read_models")
+}
+
+model OsWorkReadModel {
+  workItemId            String    @id @map("work_item_id")
+  organizationId        String    @map("organization_id")
+  title                 String
+  description           String?
+  status                String
+  priority              String
+  ownerMemberId         String    @map("owner_member_id")
+  createdByMemberId     String    @map("created_by_member_id")
+  subjectType           String?   @map("subject_type")
+  subjectId             String?   @map("subject_id")
+  dueAt                 DateTime? @map("due_at")
+  completedAt           DateTime? @map("completed_at")
+  cancelledAt           DateTime? @map("cancelled_at")
+  pendingApprovalId     String?   @map("pending_approval_id")
+  approvalStatus        String    @default("none") @map("approval_status")
+  ownershipChangeCount  Int       @default(0) @map("ownership_change_count")
+  lastOwnershipChangeAt DateTime? @map("last_ownership_change_at")
+  lastReassignedAt      DateTime? @map("last_reassigned_at")
+  lastEventId           String?   @map("last_event_id")
+  lastOccurredAt        DateTime? @map("last_occurred_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status, ownerMemberId])
+  @@index([organizationId, ownerMemberId, status])
+  @@map("os_work_read_models")
+}
+
+model OsApprovalReadModel {
+  approvalRequestId   String    @id @map("approval_request_id")
+  organizationId      String    @map("organization_id")
+  workItemId          String?   @map("work_item_id")
+  subjectType         String    @map("subject_type")
+  subjectId           String    @map("subject_id")
+  requestedByMemberId String    @map("requested_by_member_id")
+  approverMemberId    String    @map("approver_member_id")
+  status              String
+  decisionByMemberId  String?   @map("decision_by_member_id")
+  decisionReason      String?   @map("decision_reason")
+  decidedAt           DateTime? @map("decided_at")
+  requiredScope       String?   @map("required_scope")
+  lastEventId         String?   @map("last_event_id")
+  lastOccurredAt      DateTime? @map("last_occurred_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status, approverMemberId])
+  @@index([organizationId, workItemId])
+  @@map("os_approval_read_models")
+}
+
+model OsAttentionReadModel {
+  attentionKey      String   @id @map("attention_key")
+  organizationId    String   @map("organization_id")
+  memberId          String   @map("member_id")
+  attentionType     String   @map("attention_type")
+  reasonCode        String   @map("reason_code")
+  reasonDetailJson  Json     @map("reason_detail_json")
+  resourceType      String   @map("resource_type")
+  resourceId        String   @map("resource_id")
+  workItemId        String?  @map("work_item_id")
+  approvalRequestId String?  @map("approval_request_id")
+  subjectType       String?  @map("subject_type")
+  subjectId         String?  @map("subject_id")
+  isActive          Boolean  @default(true) @map("is_active")
+  derivedAt         DateTime @map("derived_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, memberId, isActive])
+  @@map("os_attention_read_models")
+}
+
+model OsOpportunityReadModel {
+  opportunityId         String    @id @map("opportunity_id")
+  organizationId        String    @map("organization_id")
+  partyId               String    @map("party_id")
+  commercialAccountId   String?   @map("commercial_account_id")
+  ownerMemberId         String    @map("owner_member_id")
+  title                 String
+  stage                 String
+  status                String
+  expectedValueCentavos BigInt?   @map("expected_value_centavos")
+  closedAt              DateTime? @map("closed_at")
+  createdAt             DateTime  @map("created_at")
+  lastEventId           String?   @map("last_event_id")
+  lastOccurredAt        DateTime? @map("last_occurred_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status, ownerMemberId])
+  @@index([organizationId, partyId])
+  @@index([organizationId, title, opportunityId])
+  @@map("os_opportunity_read_models")
+}
+
+model OsQuoteReadModel {
+  quoteId                String    @id @map("quote_id")
+  organizationId         String    @map("organization_id")
+  partyId                String    @map("party_id")
+  commercialAccountId    String?   @map("commercial_account_id")
+  opportunityId          String?   @map("opportunity_id")
+  ownerMemberId          String    @map("owner_member_id")
+  quoteNumber            String    @map("quote_number")
+  status                 String
+  currency               String
+  subtotalCentavos       BigInt    @map("subtotal_centavos")
+  headerDiscountCentavos BigInt    @map("header_discount_centavos")
+  totalCentavos          BigInt    @map("total_centavos")
+  revisionNumber         Int       @map("revision_number")
+  notes                  String?
+  submittedAt            DateTime? @map("submitted_at")
+  cancelledAt            DateTime? @map("cancelled_at")
+  createdAt              DateTime  @map("created_at")
+  lastEventId            String?   @map("last_event_id")
+  lastOccurredAt         DateTime? @map("last_occurred_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status, ownerMemberId])
+  @@index([organizationId, partyId])
+  @@index([organizationId, opportunityId])
+  @@index([organizationId, quoteNumber, quoteId])
+  @@map("os_quote_read_models")
+}
+
+model OsQuoteLineReadModel {
+  quoteLineId       String   @id @map("quote_line_id")
+  organizationId    String   @map("organization_id")
+  quoteId           String   @map("quote_id")
+  lineNumber        Int      @map("line_number")
+  description       String
+  quantity          Int
+  unitLabel         String?  @map("unit_label")
+  unitPriceCentavos BigInt   @map("unit_price_centavos")
+  discountCentavos  BigInt   @map("discount_centavos")
+  lineTotalCentavos BigInt   @map("line_total_centavos")
+  productRef        String?  @map("product_ref")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@unique([quoteId, lineNumber])
+  @@index([organizationId, quoteId])
+  @@map("os_quote_line_read_models")
+}
+
+model OsOrderReadModel {
+  orderId                String    @id @map("order_id")
+  organizationId         String    @map("organization_id")
+  partyId                String    @map("party_id")
+  commercialAccountId    String?   @map("commercial_account_id")
+  quoteId                String    @map("quote_id")
+  ownerMemberId          String    @map("owner_member_id")
+  orderNumber            String    @map("order_number")
+  status                 String
+  currency               String
+  subtotalCentavos       BigInt    @map("subtotal_centavos")
+  headerDiscountCentavos BigInt    @map("header_discount_centavos")
+  totalCentavos          BigInt    @map("total_centavos")
+  cancelledAt            DateTime? @map("cancelled_at")
+  createdAt              DateTime  @map("created_at")
+  lastEventId            String?   @map("last_event_id")
+  lastOccurredAt         DateTime? @map("last_occurred_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status, ownerMemberId])
+  @@index([organizationId, partyId])
+  @@index([organizationId, quoteId])
+  @@index([organizationId, orderNumber, orderId])
+  @@map("os_order_read_models")
+}
+
+model OsPartyTimelineEntry {
+  entryId           String   @id @map("entry_id")
+  organizationId    String   @map("organization_id")
+  partyId           String   @map("party_id")
+  eventType         String   @map("event_type")
+  occurredAt        DateTime @map("occurred_at")
+  actorMemberId     String?  @map("actor_member_id")
+  correlationId     String   @map("correlation_id")
+  primaryEntityType String   @map("primary_entity_type")
+  primaryEntityId   String   @map("primary_entity_id")
+  factsJson         Json     @map("facts_json")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, partyId, occurredAt(sort: Desc), entryId(sort: Desc)])
+  @@map("os_party_timeline_entries")
+}

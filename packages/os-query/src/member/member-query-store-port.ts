@@ -1,0 +1,21 @@
+import type { ListMembersQuery, MemberSummaryReadModel } from '@isalwa/os-contracts';
+
+export type MemberDirectoryRow = MemberSummaryReadModel;
+
+export interface MemberQueryStorePort {
+  listMembers(
+    organizationId: string,
+    query: ListMembersQuery,
+    asOf: Date,
+  ): Promise<{ items: MemberDirectoryRow[]; hasMore: boolean }>;
+
+  getMemberSummary(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<MemberDirectoryRow | null>;
+
+  listCapabilityStateOverrides(
+    organizationId: string,
+  ): Promise<Array<{ capabilityKey: string; state: string; updatedAt: Date }>>;
+}

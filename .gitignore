@@ -30,6 +30,21 @@ credentials.json
 secrets/
 .preview-logs/
 
+# Confidential business data / spreadsheet intakes — never commit
+*.xls
+*.xlsx
+*.xlsm
+DATOS*
+*CLIENTES*.xls*
+*CLIENTES*.xlsx*
+docs/data/raw/
+.intake-confidential/
+
+# Local UAT / restore evidence (screenshots, dumps, markers)
+.step17-evidence/
+.ui-live-*-evidence/
+.temp-demo-secrets/
+
 # Database / local runtime
 .pgdata/
 *.sqlite
@@ -73,3 +88,4 @@ attached_assets/
 .replit
 .replitignore
 replit.md
+.temp-demo-secrets/
