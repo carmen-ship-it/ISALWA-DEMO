@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { AttentionItemReadModel } from '@isalwa/os-contracts';
 import {
+  attentionDueLabel,
   attentionHeadline,
+  attentionStatusTone,
   formatAttentionReason,
   formatAttentionType,
   formatSubjectType,
@@ -30,13 +32,10 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                 {formatAttentionReason(item)}
               </p>
-              {!compact ? (
-                <p className="mt-2 text-xs text-[var(--isalwa-slate)]">
-                  Se muestra porque el sistema detectó una condición pendiente — no es una tarea
-                  separada.
-                </p>
+              {attentionDueLabel(item) ? (
+                <p className="mt-1 text-sm text-[var(--isalwa-danger)]">{attentionDueLabel(item)}</p>
               ) : null}
-              {subject ? (
+              {!compact && subject ? (
                 <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Relacionado con: {subject}</p>
               ) : null}
               {href ? (
@@ -45,7 +44,9 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
                 </p>
               ) : null}
             </div>
-            <StatusPill tone="warning">{formatAttentionType(item.attentionType)}</StatusPill>
+            <StatusPill tone={attentionStatusTone(item.attentionType)}>
+              {formatAttentionType(item.attentionType)}
+            </StatusPill>
           </div>
         );
 

@@ -1,0 +1,122 @@
+'use server';
+
+import { createId } from '@isalwa/ts-utils';
+import { revalidatePath } from 'next/cache';
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { mapCommandError } from '@/lib/commercial/command-errors';
+import { partyHref } from '@/lib/party/navigation';
+import { followUpOwnerFromAuthenticatedSession } from '@/lib/auth/session-identity';
+import {
+  buildCompleteWorkPayload,
+  buildCreateFollowUpPayload,
+  FOLLOW_UP_COPY,
+  presentClientFollowUp,
+  resolveFollowUpSubject,
+} from '@/lib/work/follow-up';
+import { workItemHref } from '@/lib/work/navigation';
+
+export type FollowUpActionResult =
+  | {
+      ok: true;
+      pending: { title: string; statusLabel: string; dueLabel: string; workItemId: string };
+    }
+  | { ok: false; error: string };
+
+function revalidateFollowUpSurfaces(partyId?: string, workItemId?: string) {
+  if (partyId) {
+    revalidatePath(partyHref(partyId));
+    revalidatePath(`/clientes/${partyId}`, 'page');
+  }
+  revalidatePath('/trabajo');
+  if (workItemId) revalidatePath(workItemHref(workItemId));
+  // Cache refresh only. Does not edit Inicio. Derived queues stay derived.
+  revalidatePath('/inicio');
+}
+
+export async function createFollowUpAction(formData: FormData): Promise<FollowUpActionResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const title = String(formData.get('title') ?? '');
+  const description = String(formData.get('description') ?? '');
+  const dueAt = String(formData.get('dueAt') ?? '');
+
+  if (!partyId) return { ok: false, error: FOLLOW_UP_COPY.customerMissing };
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  let ownerMemberId: string;
+  try {
+    const session = await client.getAuthenticatedSession();
+    const owner = followUpOwnerFromAuthenticatedSession(session, {
+      ownerMemberId: formData.get('ownerMemberId'),
+      organizationId: formData.get('organizationId'),
+    });
+    if (!owner) return { ok: false, error: FOLLOW_UP_COPY.identityMissing };
+    ownerMemberId = owner;
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+
+  let commercialAccountId: string | null = null;
+  try {
+    const detail = await client.getParty(partyId);
+    commercialAccountId = detail.commercialAccount?.id ?? null;
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+
+  const subject = resolveFollowUpSubject({ partyId, commercialAccountId });
+  if (!subject) return { ok: false, error: FOLLOW_UP_COPY.customerMissing };
+
+  const built = buildCreateFollowUpPayload({
+    title,
+    description,
+    dueAt,
+    ownerMemberId,
+    subjectType: subject.subjectType,
+    subjectId: subject.subjectId,
+  });
+  if (!built.ok) return built;
+
+  try {
+    const result = await client.executeWorkCommand(built.command, built.payload, createId());
+    revalidateFollowUpSurfaces(partyId, String(result.data.workItemId ?? ''));
+    const presented = presentClientFollowUp({
+      title: String(built.payload.title ?? title.trim()),
+      status: 'open',
+      dueAt: typeof built.payload.dueAt === 'string' ? built.payload.dueAt : null,
+    });
+    return {
+      ok: true,
+      pending: {
+        title: presented.title,
+        statusLabel: presented.statusLabel,
+        dueLabel: presented.dueLabel,
+        workItemId: String(result.data.workItemId ?? ''),
+      },
+    };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function completeFollowUpAction(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+  const workItemId = String(formData.get('workItemId') ?? '').trim();
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const built = buildCompleteWorkPayload(workItemId);
+  if (!built.ok) return built;
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  try {
+    await client.executeWorkCommand(built.command, built.payload, createId());
+    revalidateFollowUpSurfaces(partyId || undefined, workItemId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}

@@ -13,19 +13,23 @@ import {
 } from '@/lib/work/labels';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { followUpStatusLabel, FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { workItemHref } from '@/lib/work/navigation';
 
 type WorkListProps = {
   items: WorkSummaryReadModel[];
   memberLabels: MemberLabelMap;
+  presentation?: 'work' | 'follow-up';
 };
 
-export function WorkList({ items, memberLabels }: WorkListProps) {
+export function WorkList({ items, memberLabels, presentation = 'work' }: WorkListProps) {
+  const followUp = presentation === 'follow-up';
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Lista de trabajo">
+    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Lista de trabajo'}>
       {items.map((work) => {
         const overdue = isWorkOverdue(work);
         const subject = formatSubjectType(work.subjectType);
+        const statusLabel = followUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
         return (
           <ListRow key={work.workItemId} as="li" className="px-1 py-1">
             <div className="rounded-[var(--isalwa-radius-control)] px-3 py-3">
@@ -48,9 +52,9 @@ export function WorkList({ items, memberLabels }: WorkListProps) {
                       <dd>Asignado a {memberLabel(memberLabels, work.ownerMemberId)}</dd>
                     </div>
                     <div>
-                      <dt className="sr-only">Vence</dt>
+                      <dt className="sr-only">{followUp ? FOLLOW_UP_COPY.due : 'Vence'}</dt>
                       <dd className={overdue ? 'text-[var(--isalwa-danger)]' : undefined}>
-                        Vence: {formatDueDate(work.dueAt)}
+                        {followUp ? FOLLOW_UP_COPY.due : 'Vence'}: {formatDueDate(work.dueAt)}
                       </dd>
                     </div>
                     {subject ? (
@@ -82,7 +86,7 @@ export function WorkList({ items, memberLabels }: WorkListProps) {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusPill tone={statusToneForWork(work.status)}>
-                    {formatWorkStatus(work.status)}
+                    {statusLabel}
                   </StatusPill>
                   <StatusPill tone={priorityTone(work.priority)}>
                     {formatPriority(work.priority)}

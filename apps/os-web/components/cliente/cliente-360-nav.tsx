@@ -5,7 +5,7 @@ const SECTIONS = [
   { id: 'resumen', label: 'Resumen' },
   { id: 'contactos', label: 'Contactos' },
   { id: 'relaciones', label: 'Relaciones' },
-  { id: 'trabajo', label: 'Trabajo' },
+  { id: 'trabajo', label: 'Seguimiento' },
   { id: 'oportunidades', label: 'Oportunidades' },
   { id: 'cotizaciones', label: 'Cotizaciones' },
   { id: 'pedidos', label: 'Pedidos' },

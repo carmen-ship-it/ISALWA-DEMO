@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
+import { CompleteFollowUpForm } from '@/components/work/complete-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -20,6 +21,7 @@ import {
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { approvalHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
 
 type WorkDetailPageProps = {
   params: Promise<{ workItemId: string }>;
@@ -40,11 +42,14 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
     ]);
     const overdue = isWorkOverdue(work);
     const subject = formatSubjectType(work.subjectType);
+    const customerFollowUp = work.subjectType ? isFollowUpSubjectType(work.subjectType) : false;
+    const partyId = work.subjectType === 'party' ? work.subjectId : null;
+    const statusLabel = customerFollowUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
 
     return (
       <PageContainer label={work.title}>
         <PageHeader
-          kicker="Trabajo"
+          kicker={customerFollowUp ? FOLLOW_UP_COPY.section : 'Trabajo'}
           title={work.title}
           action={
             <Link href="/trabajo">
@@ -59,7 +64,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
 
         <PageSection card className="p-6">
           <div className="flex flex-wrap gap-2">
-            <StatusPill tone={statusToneForWork(work.status)}>{formatWorkStatus(work.status)}</StatusPill>
+            <StatusPill tone={statusToneForWork(work.status)}>{statusLabel}</StatusPill>
             <StatusPill tone={priorityTone(work.priority)}>{formatPriority(work.priority)}</StatusPill>
             {overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
           </div>
@@ -78,7 +83,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
               </dd>
             </div>
             <div>
-              <dt className="isalwa-section-label">Vence</dt>
+              <dt className="isalwa-section-label">{customerFollowUp ? FOLLOW_UP_COPY.due : 'Vence'}</dt>
               <dd className={`mt-1 ${overdue ? 'text-[var(--isalwa-danger)]' : 'text-[var(--isalwa-kiln)]'}`}>
                 {formatDueDate(work.dueAt)}
               </dd>
@@ -117,6 +122,9 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
               </div>
             ) : null}
           </dl>
+          {work.status === 'open' ? (
+            <CompleteFollowUpForm workItemId={work.workItemId} partyId={partyId} />
+          ) : null}
         </PageSection>
       </PageContainer>
     );

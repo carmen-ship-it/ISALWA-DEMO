@@ -14,6 +14,7 @@ import {
 } from '@/components/party/party-role-badges';
 import { FutureSectionPlaceholder } from '@/components/party/party-placeholders';
 import { WorkList } from '@/components/work/work-list';
+import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -28,6 +29,7 @@ import {
 } from '@/lib/party/labels';
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -178,7 +180,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
 
           <PageSection id="trabajo" card className="scroll-mt-24 p-6">
             <SectionHeader
-              title="Trabajo"
+              title={FOLLOW_UP_COPY.section}
               action={
                 relatedWork.status === 'ok' && relatedWork.data.items.length > 0 ? (
                   <Link href={trabajoForPartyHref(partyId)} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
@@ -187,15 +189,16 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 ) : undefined
               }
             />
+            <RegisterFollowUpForm partyId={partyId} />
             <CommercialSectionState
               outcome={relatedWork}
-              emptyTitle="Sin trabajo abierto"
-              emptyDescription="No hay tareas abiertas vinculadas a esta empresa."
+              emptyTitle={FOLLOW_UP_COPY.emptyTitle}
+              emptyDescription={FOLLOW_UP_COPY.emptyDescription}
             >
               {(workData) => (
                 <>
                   <StaleProjectionBanner freshness={workData.freshness} />
-                  <WorkList items={workData.items} memberLabels={memberLabels} />
+                  <WorkList items={workData.items} memberLabels={memberLabels} presentation="follow-up" />
                 </>
               )}
             </CommercialSectionState>

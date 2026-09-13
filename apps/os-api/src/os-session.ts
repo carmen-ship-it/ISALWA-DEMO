@@ -53,6 +53,78 @@ export async function sessionFromDevHeaders(
   };
 }
 
+export type AuthenticatedSessionView = {
+  memberId: string;
+  organizationId: string;
+  accessStatus: 'active';
+};
+
+type MembershipStore = Pick<
+  OsWorkforceStore,
+  'findAuthIdentityByProviderSubject' | 'findActiveMemberForPerson'
+>;
+
+/**
+ * Canonical membership after the provider subject is known.
+ * Caller-supplied member ids are not an input. An organization hint must match
+ * the active membership or the read fails closed.
+ */
+export async function resolveActiveMembership(
+  store: MembershipStore,
+  input: { provider: 'supabase'; providerSubject: string; organizationHint?: string | null },
+): Promise<AuthenticatedSessionView & { personId: string; authIdentityId: string }> {
+  const providerSubject = input.providerSubject.trim();
+  if (!providerSubject) throw new Error('AUTH_REQUIRED');
+
+  const authIdentity = await store.findAuthIdentityByProviderSubject(input.provider, providerSubject);
+  if (!authIdentity || authIdentity.status !== 'active') {
+    throw new Error('AUTH_REQUIRED');
+  }
+
+  const organizationHint = input.organizationHint?.trim() || undefined;
+  const member = await store.findActiveMemberForPerson(authIdentity.personId, organizationHint);
+  if (!member || member.accessStatus !== 'active') {
+    throw new Error('ACCESS_REVOKED');
+  }
+  if (member.personId !== authIdentity.personId) {
+    throw new Error('TENANT_FORBIDDEN');
+  }
+  if (organizationHint && member.organizationId !== organizationHint) {
+    throw new Error('TENANT_FORBIDDEN');
+  }
+
+  return {
+    memberId: member.id,
+    organizationId: member.organizationId,
+    accessStatus: 'active',
+    personId: authIdentity.personId,
+    authIdentityId: authIdentity.id,
+  };
+}
+
+/** Public session read. Omits person, auth identity, and any caller-supplied ids. */
+export function toAuthenticatedSessionView(session: {
+  actorMemberId: string;
+  organizationId: string;
+}): AuthenticatedSessionView {
+  const memberId = session.actorMemberId.trim();
+  const organizationId = session.organizationId.trim();
+  if (!memberId || !organizationId) throw new Error('AUTH_REQUIRED');
+  return { memberId, organizationId, accessStatus: 'active' };
+}
+
+/** Expected auth failures stay 401/403 with a code only — never a raw store error. */
+export function authenticatedSessionHttpError(err: unknown): { status: number; body: { code: string } } {
+  const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+  if (code === 'AUTH_REQUIRED' || code === 'PROVIDER_NOT_CONFIGURED') {
+    return { status: 401, body: { code } };
+  }
+  if (code === 'ACCESS_REVOKED' || code === 'TENANT_FORBIDDEN' || code === 'PERMISSION_DENIED') {
+    return { status: 403, body: { code } };
+  }
+  return { status: 500, body: { code: 'INTERNAL_ERROR' } };
+}
+
 /** Production: JWT → provider subject → AuthIdentity → Member — never trust client member ids. */
 export async function sessionFromSupabaseJwt(
   req: Request,
@@ -74,27 +146,17 @@ export async function sessionFromSupabaseJwt(
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) throw new Error('AUTH_REQUIRED');
 
-  const providerSubject = data.user.id;
-  const authIdentity = await store.findAuthIdentityByProviderSubject('supabase', providerSubject);
-  if (!authIdentity || authIdentity.status !== 'active') {
-    throw new Error('AUTH_REQUIRED');
-  }
-
-  const orgHint = req.header(HEADER_ORG)?.trim();
-  const member = await store.findActiveMemberForPerson(authIdentity.personId, orgHint);
-  if (!member || member.accessStatus !== 'active') {
-    throw new Error('ACCESS_REVOKED');
-  }
-
-  if (orgHint && member.organizationId !== orgHint) {
-    throw new Error('TENANT_FORBIDDEN');
-  }
+  const membership = await resolveActiveMembership(store, {
+    provider: 'supabase',
+    providerSubject: data.user.id,
+    organizationHint: req.header(HEADER_ORG)?.trim(),
+  });
 
   return {
-    organizationId: member.organizationId,
-    actorMemberId: member.id,
-    personId: authIdentity.personId,
-    authIdentityId: authIdentity.id,
+    organizationId: membership.organizationId,
+    actorMemberId: membership.memberId,
+    personId: membership.personId,
+    authIdentityId: membership.authIdentityId,
     correlationId: correlationId(req),
     effectiveAt: new Date(),
   };

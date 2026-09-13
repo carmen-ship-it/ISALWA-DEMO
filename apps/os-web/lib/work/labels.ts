@@ -102,32 +102,53 @@ export function formatAttentionType(type: AttentionType): string {
     case 'open_work_assigned':
       return 'Trabajo pendiente';
     case 'reassigned_work':
-      return 'Trabajo reasignado';
+      return 'Reasignado a ti';
     case 'overdue_work':
-      return 'Trabajo vencido';
+      return 'Vencido';
     case 'pending_approval':
       return 'Aprobación pendiente';
     default:
-      return 'Necesita atención';
+      return 'Pendiente';
+  }
+}
+
+export function attentionStatusTone(
+  type: AttentionType,
+): 'neutral' | 'success' | 'warning' | 'danger' | 'info' {
+  switch (type) {
+    case 'overdue_work':
+      return 'danger';
+    case 'open_work_assigned':
+      return 'info';
+    case 'reassigned_work':
+    case 'pending_approval':
+      return 'warning';
+    default:
+      return 'neutral';
   }
 }
 
 export function formatAttentionReason(item: AttentionItemReadModel): string {
   switch (item.reasonCode) {
-    case 'work.open.owned': {
-      const title =
-        typeof item.reasonDetail.title === 'string' ? item.reasonDetail.title : null;
-      return title ? `Trabajo asignado: ${title}` : 'Tiene un trabajo asignado';
-    }
+    case 'work.open.owned':
+      return 'Trabajo asignado';
     case 'work.reassigned.to_you':
-      return 'Un trabajo fue reasignado a usted';
+      return 'Reasignado a ti';
     case 'work.open.overdue':
-      return 'Un trabajo asignado ya venció';
+      return 'Vencido';
     case 'approval.pending.for_you':
-      return 'Espera su decisión de aprobación';
+      return 'Aprobación pendiente';
     default:
-      return 'Requiere su revisión';
+      return 'Pendiente';
   }
+}
+
+/** Shows the due date already stored on an overdue item. Does not classify overdue. */
+export function attentionDueLabel(item: AttentionItemReadModel): string | null {
+  if (item.attentionType !== 'overdue_work') return null;
+  const dueAt = item.reasonDetail.dueAt;
+  if (typeof dueAt !== 'string') return null;
+  return `Venció: ${formatDueDate(dueAt)}`;
 }
 
 export function attentionHeadline(item: AttentionItemReadModel): string {

@@ -93,6 +93,47 @@ export const sampleAttention: AttentionItemReadModel = {
   isActive: true,
 };
 
+export const overdueAttention: AttentionItemReadModel = {
+  attentionKey: 'work:overdue:work-2',
+  organizationId: 'org-1',
+  memberId: 'mem-owner',
+  attentionType: 'overdue_work',
+  reasonCode: 'work.open.overdue',
+  reasonDetail: {
+    source: 'work_read_model',
+    workItemId: 'work-2',
+    title: 'Trabajo vencido',
+    dueAt: '2026-01-01T10:00:00.000Z',
+  },
+  resourceType: 'work_item',
+  resourceId: 'work-2',
+  workItemId: 'work-2',
+  approvalRequestId: null,
+  subjectType: 'party',
+  subjectId: 'party-1',
+  isActive: true,
+};
+
+export const reassignedAttention: AttentionItemReadModel = {
+  attentionKey: 'work:reassigned:work-1',
+  organizationId: 'org-1',
+  memberId: 'mem-owner',
+  attentionType: 'reassigned_work',
+  reasonCode: 'work.reassigned.to_you',
+  reasonDetail: {
+    source: 'ownership_history',
+    workItemId: 'work-1',
+    reassignedAt: '2026-08-20T10:00:00.000Z',
+  },
+  resourceType: 'work_item',
+  resourceId: 'work-1',
+  workItemId: 'work-1',
+  approvalRequestId: null,
+  subjectType: 'party',
+  subjectId: 'party-1',
+  isActive: true,
+};
+
 export const approvalAttention: AttentionItemReadModel = {
   attentionKey: 'approval:approver:appr-1',
   organizationId: 'org-1',

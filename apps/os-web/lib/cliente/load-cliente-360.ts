@@ -9,6 +9,7 @@ import type {
 } from '@/lib/commercial/types';
 import type { WorkListResponse } from '@/lib/work/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import { mergeRelatedWork } from '@/lib/work/follow-up';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
 
 export type Cliente360Data = {
@@ -33,15 +34,33 @@ export async function loadCliente360(
   partyId: string,
 ): Promise<Cliente360Data> {
   const detail = await client.getParty(partyId);
+  const commercialAccountId = detail.commercialAccount?.id ?? null;
 
   const [opportunities, quotes, orders, timeline, relatedWork] = await Promise.all([
     fetchCommercialSection(() => client.listOpportunities({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listQuotes({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listOrders({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listPartyTimeline(partyId, { limit: 20 })),
-    fetchCommercialSection(() =>
-      client.listWorkItems({ subjectType: 'party', subjectId: partyId, status: 'open', limit: 5 }),
-    ),
+    fetchCommercialSection(async () => {
+      const partyWork = await client.listWorkItems({
+        subjectType: 'party',
+        subjectId: partyId,
+        status: 'open',
+        limit: 5,
+      });
+      if (!commercialAccountId) return partyWork;
+      try {
+        const accountWork = await client.listWorkItems({
+          subjectType: 'commercial_account',
+          subjectId: commercialAccountId,
+          status: 'open',
+          limit: 5,
+        });
+        return mergeRelatedWork(partyWork, accountWork);
+      } catch {
+        return partyWork;
+      }
+    }),
   ]);
 
   const memberIds = new Set<string>();

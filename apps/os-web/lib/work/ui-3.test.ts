@@ -51,7 +51,7 @@ describe('UI-3 attention derivation UX', () => {
 
   it('explains why attention appears without treating it as a task', () => {
     assert.match(formatAttentionReason(sampleAttention), /asignado/i);
-    assert.match(formatAttentionReason(approvalAttention), /decisión/i);
+    assert.match(formatAttentionReason(approvalAttention), /aprobación/i);
   });
 
   it('links attention to existing trabajo/aprobaciones routes', () => {

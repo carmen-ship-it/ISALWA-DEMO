@@ -17,7 +17,9 @@ import type {
 } from '@/lib/workforce/types';
 import type { CommercialCommandResult } from '@/lib/commercial/command-types';
 import type { WorkforceCommandResult } from '@/lib/workforce/command-types';
-import type { CommercialCommandName, WorkforceCommandName } from '@isalwa/os-contracts';
+import type { CommercialCommandName, WorkCommandName, WorkforceCommandName } from '@isalwa/os-contracts';
+import type { WorkCommandResult } from '@/lib/work/command-types';
+import type { AuthenticatedSessionView } from '@/lib/auth/session-identity';
 import type {
   OpportunityDetailResponse,
   OpportunityListResponse,
@@ -177,6 +179,17 @@ export function createOsApiClient(auth: OsAuthContext) {
         idempotencyKey,
         retry: false,
       }),
+    executeWorkCommand: <T extends WorkCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<WorkCommandResult>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
     executeWorkforceCommand: <T extends WorkforceCommandName>(
       commandName: T,
       payload: Record<string, unknown>,
@@ -189,6 +202,7 @@ export function createOsApiClient(auth: OsAuthContext) {
         retry: false,
       }),
     health: () => request<{ status: string; service: string }>('/health'),
+    getAuthenticatedSession: () => request<AuthenticatedSessionView>('/session/me'),
     listAttention: (query?: Record<string, string | number | boolean>) =>
       request<AttentionListResponse>('/attention', { method: 'GET', query }),
     listWorkItems: (query?: Record<string, string | number | boolean>) =>
