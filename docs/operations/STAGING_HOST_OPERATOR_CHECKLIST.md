@@ -127,7 +127,10 @@ InviteMember later requires `SUPABASE_SERVICE_ROLE_KEY` on os-api (not validated
 
 ## Safety reminders
 
-- `REAL_DATA_ALLOWED = NO` until backup + restore drill.
-- G-02 DECISION PENDING · G-08 NOT APPROVED · Location/GPS DEFERRED.
+- `REAL_DATA_INFRA_GATE` (2026-09-13): **CONDITIONAL** — hosted restore drill PASS via `pg_dump`; Render **free** Postgres has **no managed PITR/backups**. Upgrade plan before production-scale real data.
+- `REAL_DATA_ALLOWED = NO` until Location import decision + importer dry-run + Carmen approval (infra alone is not enough).
+- Hosted tenant isolation: `scripts/verify-staging-hosted-tenant-isolation.mjs` (synthetic Tenant B).
+- Backup/restore: `docs/operations/BACKUP_RESTORE_RUNBOOK.md` + `./scripts/verify-staging-hosted-backup-restore.sh`
+- G-02 DECISION PENDING · G-08 NOT APPROVED · Location/GPS model IMPLEMENTED (map/import deferred).
 - No `OS_AUTH_MODE=dev` on public hosts.
 - Architect Supabase / Vercel Architect app: **do not touch**.
