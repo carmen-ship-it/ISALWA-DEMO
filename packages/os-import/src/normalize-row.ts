@@ -1,6 +1,6 @@
 import type { ImportInputRow } from '@isalwa/os-contracts';
 import { normalizeEmailKey, normalizeNameKey, normalizeNitKey } from './normalize-name';
-import { normalizeBoliviaPhone, phoneMatchKey } from './normalize-phone';
+import { normalizeBoliviaPhones, phoneMatchKey } from './normalize-phone';
 import { parseMapsUrl } from './parse-maps-url';
 import type { NormalizedImportRow } from './types';
 
@@ -22,10 +22,18 @@ export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
   const commercialName = row.commercialName.trim();
   const givenName = row.givenName.trim();
   const familyName = row.familyName.trim();
-  const celularNorm = normalizeBoliviaPhone(row.celular);
-  const telefonoNorm = normalizeBoliviaPhone(row.telefono);
-  const whatsapp = celularNorm;
-  const phone = telefonoNorm ?? celularNorm;
+  const celularNumbers = normalizeBoliviaPhones(row.celular);
+  const telefonoNumbers = normalizeBoliviaPhones(row.telefono);
+  const whatsapp = celularNumbers[0] ?? null;
+  const phone = telefonoNumbers[0] ?? celularNumbers[0] ?? null;
+  const stored = new Set([phone, whatsapp].filter((value): value is string => Boolean(value)));
+  const extraPhoneNotImported = [...celularNumbers, ...telefonoNumbers].filter(
+    (value) => !stored.has(value),
+  ).length;
+  const phoneKeys = [phone, whatsapp, ...celularNumbers, ...telefonoNumbers]
+    .map((value) => phoneMatchKey(value))
+    .filter((value): value is string => Boolean(value))
+    .filter((value, index, all) => all.indexOf(value) === index);
   const parsed = parseMapsUrl(row.mapsUrl);
 
   return {
@@ -39,6 +47,8 @@ export function normalizeImportRow(row: ImportInputRow): NormalizedImportRow {
     phone,
     whatsapp,
     phoneKey: phoneMatchKey(phone),
+    phoneKeys,
+    extraPhoneNotImported,
     nitKey: normalizeNitKey(row.nit),
     location: {
       kind: parsed.kind,

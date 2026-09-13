@@ -25,6 +25,7 @@ export function buildReceipt(input: {
   let provenanceOnly = 0;
   let skipped = 0;
   let personCandidates = 0;
+  let extraNotImported = 0;
 
   for (const row of analyzed) {
     if (row.outcome === 'REJECTED') {
@@ -52,6 +53,7 @@ export function buildReceipt(input: {
       if (row.normalized.location.kind === 'with_coords') withCoords += 1;
       else if (row.normalized.location.kind === 'provenance_only') provenanceOnly += 1;
       else skipped += 1;
+      extraNotImported += row.normalized.extraPhoneNotImported;
     }
   }
 
@@ -68,6 +70,10 @@ export function buildReceipt(input: {
     manualReview,
     errors,
     location: { withCoords, provenanceOnly, skipped },
+    phoneReview: {
+      extraNotImported,
+      code: extraNotImported > 0 ? 'EXTRA_PHONE_NOT_IMPORTED' : null,
+    },
     staff: {
       personCandidates,
       blockedAuthCreates: 0,

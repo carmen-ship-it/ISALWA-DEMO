@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeBoliviaPhone, phoneMatchKey } from './normalize-phone';
+import { normalizeBoliviaPhone, normalizeBoliviaPhones, phoneMatchKey } from './normalize-phone';
 import { parseMapsUrl } from './parse-maps-url';
 import { normalizeImportRow } from './normalize-row';
 import { analyzeRows, emptyCatalog } from './match';
@@ -15,6 +15,30 @@ describe('normalizeBoliviaPhone', () => {
     assert.equal(normalizeBoliviaPhone('+591 700-12345'), '+59170012345');
     assert.equal(normalizeBoliviaPhone('70012345.0'), '+59170012345');
     assert.equal(phoneMatchKey('+59170012345'), '59170012345');
+  });
+
+  it('splits separated mobiles and does not concatenate them', () => {
+    const numbers = normalizeBoliviaPhones('70011111/70022222');
+    assert.deepEqual(numbers, ['+59170011111', '+59170022222']);
+    const row = normalizeImportRow({
+      section: 'B',
+      rowIndex: 0,
+      commercialName: 'Split Phone Shop',
+      givenName: 'A',
+      familyName: 'B',
+      celular: '70011111/70022222',
+    });
+    assert.equal(row.section, 'B');
+    if (row.section !== 'B') return;
+    assert.equal(row.whatsapp, '+59170011111');
+    assert.equal(row.phone, '+59170011111');
+    assert.equal(row.extraPhoneNotImported, 1);
+    const analyzed = analyzeRows([row], emptyCatalog());
+    assert.equal(analyzed[0]?.outcome, 'CREATE');
+    const receipt = buildReceipt({ importBatchId: 'b', mode: 'dry_run', analyzed });
+    assert.equal(receipt.phoneReview.extraNotImported, 1);
+    assert.equal(receipt.phoneReview.code, 'EXTRA_PHONE_NOT_IMPORTED');
+    assert.equal(receipt.wouldCreate, 1);
   });
 });
 
@@ -39,6 +63,43 @@ describe('parseMapsUrl', () => {
     const parsed = parseMapsUrl('not-a-url');
     assert.equal(parsed.kind, 'skipped');
     assert.equal(parsed.provenanceUrl, null);
+  });
+
+  it('parses a plain comma in a Maps query', () => {
+    const raw = 'https://www.google.com/maps?q=-17.123,-63.456';
+    const parsed = parseMapsUrl(raw);
+    assert.equal(parsed.kind, 'with_coords');
+    assert.equal(parsed.latitude, -17.123);
+    assert.equal(parsed.longitude, -63.456);
+    assert.equal(parsed.provenanceUrl, raw);
+  });
+
+  it('decodes %2C and %2c before coordinate extraction and keeps the original URL', () => {
+    for (const encoded of ['%2C', '%2c']) {
+      const raw = `https://www.google.com/maps?q=-17.123${encoded}-63.456`;
+      const parsed = parseMapsUrl(raw);
+      assert.equal(parsed.kind, 'with_coords');
+      assert.equal(parsed.latitude, -17.123);
+      assert.equal(parsed.longitude, -63.456);
+      assert.equal(parsed.provenanceUrl, raw);
+    }
+  });
+
+  it('does not accept malformed or out-of-range coordinates', () => {
+    const malformed = parseMapsUrl('https://www.google.com/maps?q=not-a-coordinate');
+    assert.notEqual(malformed.kind, 'with_coords');
+    const outOfRange = parseMapsUrl('https://www.google.com/maps?q=91.0,-63.456');
+    assert.notEqual(outOfRange.kind, 'with_coords');
+    assert.equal(outOfRange.latitude, null);
+  });
+
+  it('keeps short maps.app.goo.gl provenance-only even if the path contains %2C', () => {
+    const raw = 'https://maps.app.goo.gl/AbCd%2CEf';
+    const parsed = parseMapsUrl(raw);
+    assert.equal(parsed.kind, 'provenance_only');
+    assert.equal(parsed.latitude, null);
+    assert.equal(parsed.longitude, null);
+    assert.equal(parsed.provenanceUrl, raw);
   });
 });
 

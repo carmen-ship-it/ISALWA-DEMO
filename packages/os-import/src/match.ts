@@ -26,6 +26,17 @@ function partiesByCommercialName(catalog: MatchCatalog, key: string): MatchCatal
   );
 }
 
+function uniqueParties(parties: MatchCatalogParty[]): MatchCatalogParty[] {
+  const seen = new Set<string>();
+  const unique: MatchCatalogParty[] = [];
+  for (const party of parties) {
+    if (seen.has(party.partyId)) continue;
+    seen.add(party.partyId);
+    unique.push(party);
+  }
+  return unique;
+}
+
 function partiesByPhone(catalog: MatchCatalog, phoneKey: string): MatchCatalogParty[] {
   return catalog.parties.filter(
     (p) =>
@@ -59,11 +70,12 @@ function classifyCustomer(
   batchSeen: { commercialKeys: Set<string>; phoneKeys: Set<string> },
 ): { outcome: AnalyzedImportRow['outcome']; refs: ImportEntityRefs; errorCode: string | null } {
   const nameHits = partiesByCommercialName(catalog, row.commercialNameKey);
-  const phoneHits = row.phoneKey ? partiesByPhone(catalog, row.phoneKey) : [];
+  const phoneKeys = row.phoneKeys.length > 0 ? row.phoneKeys : row.phoneKey ? [row.phoneKey] : [];
+  const phoneHits = uniqueParties(phoneKeys.flatMap((key) => partiesByPhone(catalog, key)));
   const nitHits = row.nitKey ? partiesByNit(catalog, row.nitKey) : [];
 
   const intraName = batchSeen.commercialKeys.has(row.commercialNameKey);
-  const intraPhone = row.phoneKey ? batchSeen.phoneKeys.has(row.phoneKey) : false;
+  const intraPhone = phoneKeys.some((key) => batchSeen.phoneKeys.has(key));
 
   if (intraName || intraPhone) {
     return {
@@ -194,6 +206,8 @@ function toSnapshot(row: NormalizedImportRow): Record<string, unknown> {
     personNameKey: row.personNameKey,
     hasPhone: Boolean(row.phoneKey),
     hasWhatsapp: Boolean(row.whatsapp),
+    extraPhoneNotImported: row.extraPhoneNotImported,
+    phoneReview: row.extraPhoneNotImported > 0 ? 'EXTRA_PHONE_NOT_IMPORTED' : null,
     hasNit: Boolean(row.nitKey),
     locationKind: row.location.kind,
     hasProvenance: Boolean(row.location.provenanceUrl),
@@ -246,16 +260,17 @@ export function analyzeRows(
       commercialKeys: batchCommercial,
       phoneKeys: batchPhones,
     });
-    if (classified.outcome === 'CREATE') {
+    const reservePhones = () => {
       batchCommercial.add(row.commercialNameKey);
-      if (row.phoneKey) batchPhones.add(row.phoneKey);
-    } else if (classified.outcome === 'POSSIBLE_DUPLICATE' || classified.outcome === 'REQUIRES_REVIEW') {
-      // Still reserve keys so a later CREATE cannot collide silently.
-      batchCommercial.add(row.commercialNameKey);
-      if (row.phoneKey) batchPhones.add(row.phoneKey);
-    } else if (classified.outcome === 'MATCH') {
-      batchCommercial.add(row.commercialNameKey);
-      if (row.phoneKey) batchPhones.add(row.phoneKey);
+      for (const key of row.phoneKeys) batchPhones.add(key);
+    };
+    if (
+      classified.outcome === 'CREATE' ||
+      classified.outcome === 'POSSIBLE_DUPLICATE' ||
+      classified.outcome === 'REQUIRES_REVIEW' ||
+      classified.outcome === 'MATCH'
+    ) {
+      reservePhones();
     }
 
     results.push({

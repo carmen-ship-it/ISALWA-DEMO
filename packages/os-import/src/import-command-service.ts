@@ -383,6 +383,8 @@ export class ImportCommandService {
               phone: (r.normalizedSnapshotJson.phone as string | null) ?? null,
               whatsapp: (r.normalizedSnapshotJson.whatsapp as string | null) ?? null,
               phoneKey: null,
+              phoneKeys: [],
+              extraPhoneNotImported: Number(r.normalizedSnapshotJson.extraPhoneNotImported ?? 0),
               nitKey: null,
               location: (r.normalizedSnapshotJson.location as NormalizedCustomerRow['location']) ?? {
                 kind: 'skipped',

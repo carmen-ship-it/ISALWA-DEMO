@@ -45,6 +45,10 @@ export type NormalizedCustomerRow = {
   phone: string | null;
   whatsapp: string | null;
   phoneKey: string | null;
+  /** Primary plus any extra valid numbers, for exact match only. */
+  phoneKeys: string[];
+  /** Valid numbers that Contact.phone / Contact.whatsapp cannot both store. */
+  extraPhoneNotImported: number;
   nitKey: string | null;
   location: LocationAnalysis;
 };
@@ -78,6 +82,10 @@ export type ImportReceipt = {
     withCoords: number;
     provenanceOnly: number;
     skipped: number;
+  };
+  phoneReview: {
+    extraNotImported: number;
+    code: 'EXTRA_PHONE_NOT_IMPORTED' | null;
   };
   staff: {
     personCandidates: number;

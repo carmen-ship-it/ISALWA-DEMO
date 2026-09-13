@@ -38,3 +38,35 @@ export function phoneMatchKey(normalized: string | null | undefined): string | n
   const digits = normalized.replace(/\D/g, '');
   return digits || null;
 }
+
+/**
+ * Split a cell only on explicit separators. Never concatenates tokens,
+ * and never invents a split inside a single formatted number.
+ */
+export function splitPhoneTokens(raw: string | number | null | undefined): string[] {
+  if (raw === null || raw === undefined || raw === '') return [];
+  if (typeof raw === 'number') return [String(Math.trunc(raw))];
+  const text = String(raw).trim();
+  if (!text) return [];
+  if (/^\d+\.0+$/.test(text)) return [text.replace(/\.0+$/, '')];
+  if (/[/|,;]/.test(text)) {
+    return text
+      .split(/[/|,;]+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+  return [text];
+}
+
+/** Each token is normalized alone. Invalid fragments are dropped, never joined. */
+export function normalizeBoliviaPhones(raw: string | number | null | undefined): string[] {
+  const seen = new Set<string>();
+  const numbers: string[] = [];
+  for (const token of splitPhoneTokens(raw)) {
+    const normalized = normalizeBoliviaPhone(token);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    numbers.push(normalized);
+  }
+  return numbers;
+}
