@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { AttentionItemReadModel } from '@isalwa/os-contracts';
 import {
-  attentionDueLabel,
   attentionHeadline,
   attentionStatusTone,
+  attentionStoredDueLabel,
   formatAttentionReason,
   formatAttentionType,
   formatSubjectType,
@@ -25,6 +25,7 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
       {items.map((item) => {
         const href = attentionTargetHref(item);
         const subject = formatSubjectType(item.subjectType);
+        const dueLabel = attentionStoredDueLabel(item);
         const content = (
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -32,8 +33,16 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                 {formatAttentionReason(item)}
               </p>
-              {attentionDueLabel(item) ? (
-                <p className="mt-1 text-sm text-[var(--isalwa-danger)]">{attentionDueLabel(item)}</p>
+              {dueLabel ? (
+                <p
+                  className={`mt-1 text-sm ${
+                    item.attentionType === 'overdue_work'
+                      ? 'text-[var(--isalwa-danger)]'
+                      : 'text-[var(--isalwa-slate)]'
+                  }`}
+                >
+                  {dueLabel}
+                </p>
               ) : null}
               {!compact && subject ? (
                 <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Relacionado con: {subject}</p>

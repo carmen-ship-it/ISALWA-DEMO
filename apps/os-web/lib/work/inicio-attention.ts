@@ -1,8 +1,11 @@
 import type { AttentionItemReadModel, AttentionType } from '@isalwa/os-contracts';
 import { t } from '@/lib/i18n/es';
+import { sortAttentionByDue } from '@/lib/work/due-order';
 
 /**
  * Display order of existing attention types only. No score, rank, or aging rule.
+ * Within a group, a stored due date orders items when present. Missing dates
+ * keep attentionKey order. This does not classify overdue or add a type.
  */
 export const INICIO_ATTENTION_GROUP_ORDER = [
   'overdue_work',
@@ -60,7 +63,7 @@ export function groupInicioAttention(items: AttentionItemReadModel[]): InicioAtt
     groups.push({
       id,
       title: inicioAttentionGroupTitle(id),
-      items: grouped,
+      items: sortAttentionByDue(grouped),
     });
   }
 
@@ -68,7 +71,7 @@ export function groupInicioAttention(items: AttentionItemReadModel[]): InicioAtt
     groups.push({
       id: 'other',
       title: inicioAttentionGroupTitle('other'),
-      items: other,
+      items: sortAttentionByDue(other),
     });
   }
 

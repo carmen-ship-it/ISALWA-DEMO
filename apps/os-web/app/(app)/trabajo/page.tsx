@@ -7,6 +7,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyHref } from '@/lib/party/navigation';
 import { t } from '@/lib/i18n/es';
+import { sortOpenWorkByDue } from '@/lib/work/due-order';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import Link from 'next/link';
@@ -31,9 +32,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       limit: 50,
       ...(filteredByParty ? { subjectType, subjectId } : {}),
     });
+    const items = sortOpenWorkByDue(result.items);
     const memberLabels = await resolveMemberLabels(
       client,
-      result.items.flatMap((item) => [item.ownerMemberId, item.createdByMemberId]),
+      items.flatMap((item) => [item.ownerMemberId, item.createdByMemberId]),
     );
 
     return (
@@ -44,7 +46,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           description={
             filteredByParty
               ? 'Trabajo abierto vinculado a un cliente.'
-              : result.items.length === 0
+              : items.length === 0
                 ? 'Cuando tenga trabajo asignado, lo verá aquí con fecha, estado y contexto.'
                 : undefined
           }
@@ -59,7 +61,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
 
         <StaleProjectionBanner freshness={result.freshness} />
 
-        {result.items.length === 0 ? (
+        {items.length === 0 ? (
           <EmptyState
             title={t('states.emptyTrabajo')}
             description={
@@ -71,7 +73,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           />
         ) : (
           <PageSection card className="p-2 md:p-3">
-            <WorkList items={result.items} memberLabels={memberLabels} />
+            <WorkList items={items} memberLabels={memberLabels} />
           </PageSection>
         )}
       </PageContainer>

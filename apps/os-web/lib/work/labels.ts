@@ -151,6 +151,21 @@ export function attentionDueLabel(item: AttentionItemReadModel): string | null {
   return `Venció: ${formatDueDate(dueAt)}`;
 }
 
+/**
+ * Employee due fact from a stored date. Does not treat a past date as overdue
+ * unless the item is already an overdue attention type.
+ */
+export function attentionStoredDueLabel(item: AttentionItemReadModel): string | null {
+  const overdue = attentionDueLabel(item);
+  if (overdue) return overdue;
+  if (!Object.prototype.hasOwnProperty.call(item.reasonDetail, 'dueAt')) return null;
+  const dueAt = item.reasonDetail.dueAt;
+  if (typeof dueAt !== 'string' || dueAt.trim() === '') return 'Sin fecha';
+  const formatted = formatDueDate(dueAt);
+  if (formatted === 'Sin fecha') return 'Sin fecha';
+  return `Vence: ${formatted}`;
+}
+
 export function attentionHeadline(item: AttentionItemReadModel): string {
   const detailTitle =
     typeof item.reasonDetail.title === 'string' ? item.reasonDetail.title : null;

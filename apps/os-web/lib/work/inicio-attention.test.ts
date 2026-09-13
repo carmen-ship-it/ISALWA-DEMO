@@ -71,13 +71,14 @@ describe('CC-1 inicio attention grouping', () => {
     assert.equal(groups[0]?.items[0]?.reasonCode, 'approval.pending.for_you');
   });
 
-  it('keeps encounter order inside a group', () => {
+  it('keeps equal due dates in the same group, ordered by attention key', () => {
     const later = { ...overdueAttention, attentionKey: 'work:overdue:later' };
     const earlier = { ...overdueAttention, attentionKey: 'work:overdue:earlier' };
     const groups = groupInicioAttention([later, earlier]);
+    assert.equal(groups[0]?.id, 'overdue_work');
     assert.deepEqual(
       groups[0]?.items.map((item) => item.attentionKey),
-      ['work:overdue:later', 'work:overdue:earlier'],
+      ['work:overdue:earlier', 'work:overdue:later'],
     );
   });
 

@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
+import { formatWorkDueLine } from '@/lib/work/due-order';
 import {
-  formatDueDate,
   formatPriority,
   formatSubjectType,
   formatWorkApprovalStatus,
   formatWorkStatus,
-  isWorkOverdue,
   priorityTone,
   statusToneForWork,
 } from '@/lib/work/labels';
@@ -27,7 +26,9 @@ export function WorkList({ items, memberLabels, presentation = 'work' }: WorkLis
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Lista de trabajo'}>
       {items.map((work) => {
-        const overdue = isWorkOverdue(work);
+        const due = formatWorkDueLine(work, {
+          caption: followUp ? FOLLOW_UP_COPY.due : 'Vence',
+        });
         const subject = formatSubjectType(work.subjectType);
         const statusLabel = followUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
         return (
@@ -53,8 +54,8 @@ export function WorkList({ items, memberLabels, presentation = 'work' }: WorkLis
                     </div>
                     <div>
                       <dt className="sr-only">{followUp ? FOLLOW_UP_COPY.due : 'Vence'}</dt>
-                      <dd className={overdue ? 'text-[var(--isalwa-danger)]' : undefined}>
-                        {followUp ? FOLLOW_UP_COPY.due : 'Vence'}: {formatDueDate(work.dueAt)}
+                      <dd className={due.overdue ? 'text-[var(--isalwa-danger)]' : undefined}>
+                        {due.text}
                       </dd>
                     </div>
                     {subject ? (
@@ -91,7 +92,7 @@ export function WorkList({ items, memberLabels, presentation = 'work' }: WorkLis
                   <StatusPill tone={priorityTone(work.priority)}>
                     {formatPriority(work.priority)}
                   </StatusPill>
-                  {overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
+                  {due.overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
+import { quoteHref } from '@/lib/commercial/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { followUpOwnerFromAuthenticatedSession } from '@/lib/auth/session-identity';
 import {
@@ -23,19 +24,24 @@ export type FollowUpActionResult =
     }
   | { ok: false; error: string };
 
-function revalidateFollowUpSurfaces(partyId?: string, workItemId?: string) {
+function revalidateFollowUpSurfaces(partyId?: string, workItemId?: string, quoteId?: string) {
   if (partyId) {
     revalidatePath(partyHref(partyId));
     revalidatePath(`/clientes/${partyId}`, 'page');
   }
   revalidatePath('/trabajo');
   if (workItemId) revalidatePath(workItemHref(workItemId));
+  if (partyId && quoteId) {
+    revalidatePath(quoteHref(partyId, quoteId));
+    revalidatePath('/cotizaciones');
+  }
   // Cache refresh only. Does not edit Inicio. Derived queues stay derived.
   revalidatePath('/inicio');
 }
 
 export async function createFollowUpAction(formData: FormData): Promise<FollowUpActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
+  const quoteId = String(formData.get('quoteId') ?? '').trim();
   const title = String(formData.get('title') ?? '');
   const description = String(formData.get('description') ?? '');
   const dueAt = String(formData.get('dueAt') ?? '');
@@ -82,7 +88,7 @@ export async function createFollowUpAction(formData: FormData): Promise<FollowUp
 
   try {
     const result = await client.executeWorkCommand(built.command, built.payload, createId());
-    revalidateFollowUpSurfaces(partyId, String(result.data.workItemId ?? ''));
+    revalidateFollowUpSurfaces(partyId, String(result.data.workItemId ?? ''), quoteId || undefined);
     const presented = presentClientFollowUp({
       title: String(built.payload.title ?? title.trim()),
       status: 'open',

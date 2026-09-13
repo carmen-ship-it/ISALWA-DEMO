@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { Button, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
 import { PageHeader } from '@/components/shell/page-header';
+import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -13,8 +14,10 @@ import {
   formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
+import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { formatCentavos } from '@/lib/commercial/money';
 import { partyHref } from '@/lib/party/navigation';
+import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -94,6 +97,15 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             ) : null}
           </dl>
         </PageSection>
+
+        {canRegisterQuoteFollowUp(quote.status) ? (
+          <PageSection card className="mt-6 p-6">
+            <SectionHeader title={FOLLOW_UP_COPY.section} />
+            <div className="mt-4">
+              <RegisterFollowUpForm partyId={quote.partyId} quoteId={quote.quoteId} />
+            </div>
+          </PageSection>
+        ) : null}
 
         <QuoteEditor partyId={partyId} quote={quote} />
       </PageContainer>

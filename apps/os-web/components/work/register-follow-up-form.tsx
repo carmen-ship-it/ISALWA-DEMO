@@ -9,12 +9,14 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 
 type RegisterFollowUpFormProps = {
   partyId: string;
+  /** Present only to refresh the quote page. Not a subject field. */
+  quoteId?: string;
 };
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
-export function RegisterFollowUpForm({ partyId }: RegisterFollowUpFormProps) {
+export function RegisterFollowUpForm({ partyId, quoteId }: RegisterFollowUpFormProps) {
   const router = useRouter();
   const [formKey, setFormKey] = useState(0);
   const [state, formAction] = useActionState(
@@ -50,6 +52,7 @@ export function RegisterFollowUpForm({ partyId }: RegisterFollowUpFormProps) {
       ) : null}
       <form key={formKey} action={formAction} className="mt-4 space-y-4">
         <input type="hidden" name="partyId" value={partyId} />
+        {quoteId ? <input type="hidden" name="quoteId" value={quoteId} /> : null}
         <div>
           <label htmlFor="follow-up-title" className="isalwa-section-label">
             {FOLLOW_UP_COPY.nextAction}
