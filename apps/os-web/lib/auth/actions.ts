@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createOsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { getOsAuthMode, getOsApiBaseUrl, isSupabaseConfigured } from '@/lib/auth/config';
 import { DEFAULT_POST_LOGIN, OS_DEV_SESSION_COOKIE } from '@/lib/auth/constants';
 import {
@@ -11,6 +12,7 @@ import {
   type DevSession,
 } from '@/lib/auth/dev-session';
 import { createServerSupabaseClient } from '@/lib/auth/supabase/server';
+import { t } from '@/lib/i18n/es';
 
 export type WebSession = {
   mode: 'supabase' | 'dev';
@@ -58,21 +60,45 @@ async function getSupabaseAccessToken(): Promise<string> {
   return session.access_token;
 }
 
-async function validateOsMembership(session: WebSession): Promise<boolean> {
-  try {
-    const client =
-      session.mode === 'supabase'
-        ? createOsApiClient({
-            mode: 'supabase',
-            accessToken: await getSupabaseAccessToken(),
-          })
-        : createOsApiClient({ mode: 'dev', session: session.devSession! });
-
+/** Probe os-api with an explicit token when possible (avoids cookie race after sign-in). */
+async function validateOsMembershipWithToken(accessToken: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const client = createOsApiClient({ mode: 'supabase', accessToken });
+  const attempt = async () => {
     await client.listAttention({ limit: '1' });
-    return true;
-  } catch {
-    return false;
+  };
+
+  try {
+    await attempt();
+    return { ok: true };
+  } catch (first) {
+    // Free-tier cold start / brief blip — retry once before failing closed.
+    if (first instanceof OsApiError && first.kind === 'unavailable') {
+      try {
+        await new Promise((r) => setTimeout(r, 1500));
+        await attempt();
+        return { ok: true };
+      } catch (second) {
+        return { ok: false, error: membershipProbeError(second) };
+      }
+    }
+    return { ok: false, error: membershipProbeError(first) };
   }
+}
+
+function membershipProbeError(err: unknown): string {
+  if (err instanceof OsApiError) {
+    if (err.code === 'ACCESS_REVOKED' || err.kind === 'forbidden') {
+      return t('login.errorNoMembership');
+    }
+    if (err.kind === 'unavailable') {
+      return 'El servicio no está disponible temporalmente. Espere unos segundos e intente de nuevo.';
+    }
+    if (err.kind === 'unauthorized') {
+      return t('login.errorNoMembership');
+    }
+    return err.message;
+  }
+  return 'No se pudo verificar el acceso a la empresa. Intente de nuevo.';
 }
 
 export async function signInAction(formData: FormData): Promise<{ error?: string; redirectTo?: string }> {
@@ -86,17 +112,23 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
   if (getOsAuthMode() === 'supabase' && isSupabaseConfigured()) {
     try {
       const supabase = await createServerSupabaseClient();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         return { error: 'Correo o contraseña incorrectos.' };
       }
 
-      const webSession = await getServerWebSession();
-      if (!webSession || !(await validateOsMembership(webSession))) {
+      const accessToken = data.session?.access_token;
+      if (!data.user || !accessToken) {
         await supabase.auth.signOut();
-        return {
-          error: 'Su cuenta no está vinculada a la empresa. Contacte a administración.',
-        };
+        return { error: 'No se pudo iniciar sesión. Intente de nuevo.' };
+      }
+
+      // Use the token from sign-in directly — do not re-read cookies via getSession()
+      // in the same Server Action (can race and false-fail membership).
+      const membership = await validateOsMembershipWithToken(accessToken);
+      if (!membership.ok) {
+        await supabase.auth.signOut();
+        return { error: membership.error };
       }
 
       return { redirectTo: DEFAULT_POST_LOGIN };
