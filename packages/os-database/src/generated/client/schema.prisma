@@ -38,6 +38,7 @@ model OsOrganization {
   parties                  OsParty[]
   partyRoleAssignments     OsPartyRoleAssignment[]
   contacts                 OsContact[]
+  locations                OsLocation[]
   fiscalIdentities         OsFiscalIdentity[]
   commercialAccounts       OsCommercialAccount[]
   leads                    OsLead[]
@@ -60,6 +61,8 @@ model OsOrganization {
   quotes                   OsQuote[]
   quoteLines               OsQuoteLine[]
   orders                   OsOrder[]
+  importBatches            OsImportBatch[]
+  importRows               OsImportRow[]
 
   @@map("os_organizations")
 }
@@ -414,6 +417,7 @@ model OsParty {
   mergedFrom           OsParty[]                   @relation("PartyMergeLineage")
   roleAssignments      OsPartyRoleAssignment[]
   contacts             OsContact[]                 @relation("OrgPartyContacts")
+  locations            OsLocation[]
   fiscalIdentities     OsFiscalIdentity[]
   commercialAccounts   OsCommercialAccount[]
   duplicateCandidatesA OsPartyDuplicateCandidate[] @relation("DupPartyA")
@@ -427,6 +431,72 @@ model OsParty {
 
   @@index([organizationId, status])
   @@map("os_parties")
+}
+
+/**
+ * Canonical Party location — coordinates belong to OS; Maps URL is provenance only.
+ */
+model OsLocation {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  partyId        String   @map("party_id")
+  label          String
+  addressText    String?  @map("address_text")
+  latitude       Float?
+  longitude      Float?
+  provenanceUrl  String?  @map("provenance_url")
+  status         String   @default("active")
+  version        Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  party        OsParty        @relation(fields: [partyId], references: [id])
+
+  @@index([organizationId, partyId])
+  @@index([organizationId, status])
+  @@map("os_locations")
+}
+
+model OsImportBatch {
+  id                 String    @id
+  organizationId     String    @map("organization_id")
+  sourceKind         String    @map("source_kind")
+  sourceFingerprint  String    @map("source_fingerprint")
+  status             String
+  createdByMemberId  String    @map("created_by_member_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  completedAt        DateTime? @map("completed_at")
+  receiptJson        Json      @map("receipt_json")
+  idempotencyKey     String    @map("idempotency_key")
+  reversedAt         DateTime? @map("reversed_at")
+  reversedEntityRefs Json?     @map("reversed_entity_refs")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  rows         OsImportRow[]
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status])
+  @@map("os_import_batches")
+}
+
+model OsImportRow {
+  id                     String  @id
+  importBatchId          String  @map("import_batch_id")
+  organizationId         String  @map("organization_id")
+  section                String
+  rowIndex               Int     @map("row_index")
+  outcome                String
+  entityRefsJson         Json    @map("entity_refs_json")
+  errorCode              String? @map("error_code")
+  normalizedSnapshotJson Json    @map("normalized_snapshot_json")
+
+  batch        OsImportBatch  @relation(fields: [importBatchId], references: [id])
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([importBatchId])
+  @@index([organizationId, importBatchId])
+  @@map("os_import_rows")
 }
 
 model OsOpportunity {

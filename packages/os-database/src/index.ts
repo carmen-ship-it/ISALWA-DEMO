@@ -4,6 +4,7 @@ export { PrismaOsOutboxStore } from './prisma-outbox-store';
 export { PrismaOsPartyStore } from './prisma-party-store';
 export { PrismaOsWorkStore } from './prisma-work-store';
 export { PrismaOsCommercialStore } from './prisma-commercial-store';
+export { PrismaOsImportStore } from './prisma-import-store';
 export {
   PrismaOsProjectionStore,
   encodePartySearchCursor,

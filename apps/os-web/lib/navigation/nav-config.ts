@@ -4,17 +4,38 @@ export type NavItem = {
   id: string;
   href: string;
   labelKey: string;
-  icon: 'home' | 'users' | 'briefcase' | 'check' | 'settings' | 'wallet' | 'message';
+  icon:
+    | 'home'
+    | 'users'
+    | 'target'
+    | 'fileText'
+    | 'briefcase'
+    | 'check'
+    | 'settings'
+    | 'wallet'
+    | 'message';
   /** When set, item is shown but not navigable — honest locked/future state. */
   state?: NavItemState;
   /** Requires server-side admin probe (people.admin). */
   requiresAdminProbe?: boolean;
 };
 
-/** Core production IA — employee vocabulary, not legacy demo nav. */
+/** Commercial-first production IA — employee vocabulary. */
 export const PRIMARY_NAV: NavItem[] = [
   { id: 'inicio', href: '/inicio', labelKey: 'nav.inicio', icon: 'home' },
   { id: 'clientes', href: '/clientes', labelKey: 'nav.clientes', icon: 'users' },
+  {
+    id: 'oportunidades',
+    href: '/oportunidades',
+    labelKey: 'nav.oportunidades',
+    icon: 'target',
+  },
+  {
+    id: 'cotizaciones',
+    href: '/cotizaciones',
+    labelKey: 'nav.cotizaciones',
+    icon: 'fileText',
+  },
   { id: 'trabajo', href: '/trabajo', labelKey: 'nav.trabajo', icon: 'briefcase' },
   { id: 'aprobaciones', href: '/aprobaciones', labelKey: 'nav.aprobaciones', icon: 'check' },
   {
@@ -26,7 +47,10 @@ export const PRIMARY_NAV: NavItem[] = [
   },
 ];
 
-/** Future capabilities — honest LOCKED until Lane G+ enables them. */
+/**
+ * Capability-locked surfaces — kept for direct-route gating only.
+ * Intentionally omitted from primary nav until product enables them.
+ */
 export const FUTURE_NAV: NavItem[] = [
   {
     id: 'finanzas',
@@ -44,6 +68,9 @@ export const FUTURE_NAV: NavItem[] = [
   },
 ];
 
+/** Ids that must never appear in the primary shell nav for now. */
+export const HIDDEN_PRIMARY_NAV_IDS = ['finanzas', 'mensajes'] as const;
+
 export function filterNavByAccess(
   items: NavItem[],
   access: { showAdmin: boolean },
@@ -52,6 +79,10 @@ export function filterNavByAccess(
     if (item.requiresAdminProbe && !access.showAdmin) return false;
     return true;
   });
+}
+
+export function primaryNavIds(access: { showAdmin: boolean }): string[] {
+  return filterNavByAccess(PRIMARY_NAV, access).map((item) => item.id);
 }
 
 export function isNavItemDisabled(item: NavItem): boolean {

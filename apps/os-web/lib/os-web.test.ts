@@ -41,6 +41,17 @@ describe('navigation access', () => {
     );
   });
 
+  it('includes commercial list routes in primary nav', () => {
+    assert.equal(
+      PRIMARY_NAV.some((item) => item.href === '/oportunidades'),
+      true,
+    );
+    assert.equal(
+      PRIMARY_NAV.some((item) => item.href === '/cotizaciones'),
+      true,
+    );
+  });
+
   it('marks locked nav items as disabled', () => {
     assert.equal(isNavItemDisabled({ ...PRIMARY_NAV[0], state: 'locked' }), true);
     assert.equal(isNavItemDisabled(PRIMARY_NAV[0]), false);

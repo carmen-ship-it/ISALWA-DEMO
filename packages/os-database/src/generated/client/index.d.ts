@@ -114,6 +114,21 @@ export type OsCapabilityState = $Result.DefaultSelection<Prisma.$OsCapabilitySta
  */
 export type OsParty = $Result.DefaultSelection<Prisma.$OsPartyPayload>
 /**
+ * Model OsLocation
+ * * Canonical Party location — coordinates belong to OS; Maps URL is provenance only.
+ */
+export type OsLocation = $Result.DefaultSelection<Prisma.$OsLocationPayload>
+/**
+ * Model OsImportBatch
+ * 
+ */
+export type OsImportBatch = $Result.DefaultSelection<Prisma.$OsImportBatchPayload>
+/**
+ * Model OsImportRow
+ * 
+ */
+export type OsImportRow = $Result.DefaultSelection<Prisma.$OsImportRowPayload>
+/**
  * Model OsOpportunity
  * 
  */
@@ -541,6 +556,36 @@ export class PrismaClient<
     * ```
     */
   get osParty(): Prisma.OsPartyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osLocation`: Exposes CRUD operations for the **OsLocation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsLocations
+    * const osLocations = await prisma.osLocation.findMany()
+    * ```
+    */
+  get osLocation(): Prisma.OsLocationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osImportBatch`: Exposes CRUD operations for the **OsImportBatch** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsImportBatches
+    * const osImportBatches = await prisma.osImportBatch.findMany()
+    * ```
+    */
+  get osImportBatch(): Prisma.OsImportBatchDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osImportRow`: Exposes CRUD operations for the **OsImportRow** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsImportRows
+    * const osImportRows = await prisma.osImportRow.findMany()
+    * ```
+    */
+  get osImportRow(): Prisma.OsImportRowDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.osOpportunity`: Exposes CRUD operations for the **OsOpportunity** model.
@@ -1222,6 +1267,9 @@ export namespace Prisma {
     OsIdempotencyKey: 'OsIdempotencyKey',
     OsCapabilityState: 'OsCapabilityState',
     OsParty: 'OsParty',
+    OsLocation: 'OsLocation',
+    OsImportBatch: 'OsImportBatch',
+    OsImportRow: 'OsImportRow',
     OsOpportunity: 'OsOpportunity',
     OsQuote: 'OsQuote',
     OsQuoteLine: 'OsQuoteLine',
@@ -1262,7 +1310,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2743,6 +2791,228 @@ export namespace Prisma {
           count: {
             args: Prisma.OsPartyCountArgs<ExtArgs>
             result: $Utils.Optional<OsPartyCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsLocation: {
+        payload: Prisma.$OsLocationPayload<ExtArgs>
+        fields: Prisma.OsLocationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsLocationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsLocationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          findFirst: {
+            args: Prisma.OsLocationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsLocationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          findMany: {
+            args: Prisma.OsLocationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>[]
+          }
+          create: {
+            args: Prisma.OsLocationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          createMany: {
+            args: Prisma.OsLocationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsLocationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>[]
+          }
+          delete: {
+            args: Prisma.OsLocationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          update: {
+            args: Prisma.OsLocationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsLocationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsLocationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsLocationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsLocationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsLocationPayload>
+          }
+          aggregate: {
+            args: Prisma.OsLocationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsLocation>
+          }
+          groupBy: {
+            args: Prisma.OsLocationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsLocationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsLocationCountArgs<ExtArgs>
+            result: $Utils.Optional<OsLocationCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsImportBatch: {
+        payload: Prisma.$OsImportBatchPayload<ExtArgs>
+        fields: Prisma.OsImportBatchFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsImportBatchFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsImportBatchFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          findFirst: {
+            args: Prisma.OsImportBatchFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsImportBatchFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          findMany: {
+            args: Prisma.OsImportBatchFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>[]
+          }
+          create: {
+            args: Prisma.OsImportBatchCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          createMany: {
+            args: Prisma.OsImportBatchCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsImportBatchCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>[]
+          }
+          delete: {
+            args: Prisma.OsImportBatchDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          update: {
+            args: Prisma.OsImportBatchUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsImportBatchDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsImportBatchUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsImportBatchUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsImportBatchUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportBatchPayload>
+          }
+          aggregate: {
+            args: Prisma.OsImportBatchAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsImportBatch>
+          }
+          groupBy: {
+            args: Prisma.OsImportBatchGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsImportBatchGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsImportBatchCountArgs<ExtArgs>
+            result: $Utils.Optional<OsImportBatchCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsImportRow: {
+        payload: Prisma.$OsImportRowPayload<ExtArgs>
+        fields: Prisma.OsImportRowFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsImportRowFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsImportRowFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          findFirst: {
+            args: Prisma.OsImportRowFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsImportRowFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          findMany: {
+            args: Prisma.OsImportRowFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>[]
+          }
+          create: {
+            args: Prisma.OsImportRowCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          createMany: {
+            args: Prisma.OsImportRowCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsImportRowCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>[]
+          }
+          delete: {
+            args: Prisma.OsImportRowDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          update: {
+            args: Prisma.OsImportRowUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsImportRowDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsImportRowUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsImportRowUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsImportRowUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsImportRowPayload>
+          }
+          aggregate: {
+            args: Prisma.OsImportRowAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsImportRow>
+          }
+          groupBy: {
+            args: Prisma.OsImportRowGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsImportRowGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsImportRowCountArgs<ExtArgs>
+            result: $Utils.Optional<OsImportRowCountAggregateOutputType> | number
           }
         }
       }
@@ -4490,6 +4760,9 @@ export namespace Prisma {
     osIdempotencyKey?: OsIdempotencyKeyOmit
     osCapabilityState?: OsCapabilityStateOmit
     osParty?: OsPartyOmit
+    osLocation?: OsLocationOmit
+    osImportBatch?: OsImportBatchOmit
+    osImportRow?: OsImportRowOmit
     osOpportunity?: OsOpportunityOmit
     osQuote?: OsQuoteOmit
     osQuoteLine?: OsQuoteLineOmit
@@ -4609,6 +4882,7 @@ export namespace Prisma {
     parties: number
     partyRoleAssignments: number
     contacts: number
+    locations: number
     fiscalIdentities: number
     commercialAccounts: number
     leads: number
@@ -4631,6 +4905,8 @@ export namespace Prisma {
     quotes: number
     quoteLines: number
     orders: number
+    importBatches: number
+    importRows: number
   }
 
   export type OsOrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4651,6 +4927,7 @@ export namespace Prisma {
     parties?: boolean | OsOrganizationCountOutputTypeCountPartiesArgs
     partyRoleAssignments?: boolean | OsOrganizationCountOutputTypeCountPartyRoleAssignmentsArgs
     contacts?: boolean | OsOrganizationCountOutputTypeCountContactsArgs
+    locations?: boolean | OsOrganizationCountOutputTypeCountLocationsArgs
     fiscalIdentities?: boolean | OsOrganizationCountOutputTypeCountFiscalIdentitiesArgs
     commercialAccounts?: boolean | OsOrganizationCountOutputTypeCountCommercialAccountsArgs
     leads?: boolean | OsOrganizationCountOutputTypeCountLeadsArgs
@@ -4673,6 +4950,8 @@ export namespace Prisma {
     quotes?: boolean | OsOrganizationCountOutputTypeCountQuotesArgs
     quoteLines?: boolean | OsOrganizationCountOutputTypeCountQuoteLinesArgs
     orders?: boolean | OsOrganizationCountOutputTypeCountOrdersArgs
+    importBatches?: boolean | OsOrganizationCountOutputTypeCountImportBatchesArgs
+    importRows?: boolean | OsOrganizationCountOutputTypeCountImportRowsArgs
   }
 
   // Custom InputTypes
@@ -4803,6 +5082,13 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountContactsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsContactWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountLocationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsLocationWhereInput
   }
 
   /**
@@ -4957,6 +5243,20 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsOrderWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountImportBatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsImportBatchWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountImportRowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsImportRowWhereInput
   }
 
 
@@ -5204,6 +5504,7 @@ export namespace Prisma {
     mergedFrom: number
     roleAssignments: number
     contacts: number
+    locations: number
     fiscalIdentities: number
     commercialAccounts: number
     duplicateCandidatesA: number
@@ -5220,6 +5521,7 @@ export namespace Prisma {
     mergedFrom?: boolean | OsPartyCountOutputTypeCountMergedFromArgs
     roleAssignments?: boolean | OsPartyCountOutputTypeCountRoleAssignmentsArgs
     contacts?: boolean | OsPartyCountOutputTypeCountContactsArgs
+    locations?: boolean | OsPartyCountOutputTypeCountLocationsArgs
     fiscalIdentities?: boolean | OsPartyCountOutputTypeCountFiscalIdentitiesArgs
     commercialAccounts?: boolean | OsPartyCountOutputTypeCountCommercialAccountsArgs
     duplicateCandidatesA?: boolean | OsPartyCountOutputTypeCountDuplicateCandidatesAArgs
@@ -5262,6 +5564,13 @@ export namespace Prisma {
    */
   export type OsPartyCountOutputTypeCountContactsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsContactWhereInput
+  }
+
+  /**
+   * OsPartyCountOutputType without action
+   */
+  export type OsPartyCountOutputTypeCountLocationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsLocationWhereInput
   }
 
   /**
@@ -5332,6 +5641,37 @@ export namespace Prisma {
    */
   export type OsPartyCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsOrderWhereInput
+  }
+
+
+  /**
+   * Count Type OsImportBatchCountOutputType
+   */
+
+  export type OsImportBatchCountOutputType = {
+    rows: number
+  }
+
+  export type OsImportBatchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rows?: boolean | OsImportBatchCountOutputTypeCountRowsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OsImportBatchCountOutputType without action
+   */
+  export type OsImportBatchCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatchCountOutputType
+     */
+    select?: OsImportBatchCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OsImportBatchCountOutputType without action
+   */
+  export type OsImportBatchCountOutputTypeCountRowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsImportRowWhereInput
   }
 
 
@@ -5615,6 +5955,7 @@ export namespace Prisma {
     parties?: boolean | OsOrganization$partiesArgs<ExtArgs>
     partyRoleAssignments?: boolean | OsOrganization$partyRoleAssignmentsArgs<ExtArgs>
     contacts?: boolean | OsOrganization$contactsArgs<ExtArgs>
+    locations?: boolean | OsOrganization$locationsArgs<ExtArgs>
     fiscalIdentities?: boolean | OsOrganization$fiscalIdentitiesArgs<ExtArgs>
     commercialAccounts?: boolean | OsOrganization$commercialAccountsArgs<ExtArgs>
     leads?: boolean | OsOrganization$leadsArgs<ExtArgs>
@@ -5637,6 +5978,8 @@ export namespace Prisma {
     quotes?: boolean | OsOrganization$quotesArgs<ExtArgs>
     quoteLines?: boolean | OsOrganization$quoteLinesArgs<ExtArgs>
     orders?: boolean | OsOrganization$ordersArgs<ExtArgs>
+    importBatches?: boolean | OsOrganization$importBatchesArgs<ExtArgs>
+    importRows?: boolean | OsOrganization$importRowsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osOrganization"]>
 
@@ -5692,6 +6035,7 @@ export namespace Prisma {
     parties?: boolean | OsOrganization$partiesArgs<ExtArgs>
     partyRoleAssignments?: boolean | OsOrganization$partyRoleAssignmentsArgs<ExtArgs>
     contacts?: boolean | OsOrganization$contactsArgs<ExtArgs>
+    locations?: boolean | OsOrganization$locationsArgs<ExtArgs>
     fiscalIdentities?: boolean | OsOrganization$fiscalIdentitiesArgs<ExtArgs>
     commercialAccounts?: boolean | OsOrganization$commercialAccountsArgs<ExtArgs>
     leads?: boolean | OsOrganization$leadsArgs<ExtArgs>
@@ -5714,6 +6058,8 @@ export namespace Prisma {
     quotes?: boolean | OsOrganization$quotesArgs<ExtArgs>
     quoteLines?: boolean | OsOrganization$quoteLinesArgs<ExtArgs>
     orders?: boolean | OsOrganization$ordersArgs<ExtArgs>
+    importBatches?: boolean | OsOrganization$importBatchesArgs<ExtArgs>
+    importRows?: boolean | OsOrganization$importRowsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsOrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5739,6 +6085,7 @@ export namespace Prisma {
       parties: Prisma.$OsPartyPayload<ExtArgs>[]
       partyRoleAssignments: Prisma.$OsPartyRoleAssignmentPayload<ExtArgs>[]
       contacts: Prisma.$OsContactPayload<ExtArgs>[]
+      locations: Prisma.$OsLocationPayload<ExtArgs>[]
       fiscalIdentities: Prisma.$OsFiscalIdentityPayload<ExtArgs>[]
       commercialAccounts: Prisma.$OsCommercialAccountPayload<ExtArgs>[]
       leads: Prisma.$OsLeadPayload<ExtArgs>[]
@@ -5761,6 +6108,8 @@ export namespace Prisma {
       quotes: Prisma.$OsQuotePayload<ExtArgs>[]
       quoteLines: Prisma.$OsQuoteLinePayload<ExtArgs>[]
       orders: Prisma.$OsOrderPayload<ExtArgs>[]
+      importBatches: Prisma.$OsImportBatchPayload<ExtArgs>[]
+      importRows: Prisma.$OsImportRowPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6182,6 +6531,7 @@ export namespace Prisma {
     parties<T extends OsOrganization$partiesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$partiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPartyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     partyRoleAssignments<T extends OsOrganization$partyRoleAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$partyRoleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPartyRoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contacts<T extends OsOrganization$contactsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    locations<T extends OsOrganization$locationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$locationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     fiscalIdentities<T extends OsOrganization$fiscalIdentitiesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$fiscalIdentitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFiscalIdentityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     commercialAccounts<T extends OsOrganization$commercialAccountsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$commercialAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommercialAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     leads<T extends OsOrganization$leadsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6204,6 +6554,8 @@ export namespace Prisma {
     quotes<T extends OsOrganization$quotesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$quotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quoteLines<T extends OsOrganization$quoteLinesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$quoteLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsQuoteLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends OsOrganization$ordersArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    importBatches<T extends OsOrganization$importBatchesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$importBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    importRows<T extends OsOrganization$importRowsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$importRowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7037,6 +7389,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsOrganization.locations
+   */
+  export type OsOrganization$locationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    where?: OsLocationWhereInput
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    cursor?: OsLocationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsLocationScalarFieldEnum | OsLocationScalarFieldEnum[]
+  }
+
+  /**
    * OsOrganization.fiscalIdentities
    */
   export type OsOrganization$fiscalIdentitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7562,6 +7938,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsOrderScalarFieldEnum | OsOrderScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.importBatches
+   */
+  export type OsOrganization$importBatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    where?: OsImportBatchWhereInput
+    orderBy?: OsImportBatchOrderByWithRelationInput | OsImportBatchOrderByWithRelationInput[]
+    cursor?: OsImportBatchWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsImportBatchScalarFieldEnum | OsImportBatchScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.importRows
+   */
+  export type OsOrganization$importRowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    where?: OsImportRowWhereInput
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    cursor?: OsImportRowWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsImportRowScalarFieldEnum | OsImportRowScalarFieldEnum[]
   }
 
   /**
@@ -28377,6 +28801,7 @@ export namespace Prisma {
     mergedFrom?: boolean | OsParty$mergedFromArgs<ExtArgs>
     roleAssignments?: boolean | OsParty$roleAssignmentsArgs<ExtArgs>
     contacts?: boolean | OsParty$contactsArgs<ExtArgs>
+    locations?: boolean | OsParty$locationsArgs<ExtArgs>
     fiscalIdentities?: boolean | OsParty$fiscalIdentitiesArgs<ExtArgs>
     commercialAccounts?: boolean | OsParty$commercialAccountsArgs<ExtArgs>
     duplicateCandidatesA?: boolean | OsParty$duplicateCandidatesAArgs<ExtArgs>
@@ -28440,6 +28865,7 @@ export namespace Prisma {
     mergedFrom?: boolean | OsParty$mergedFromArgs<ExtArgs>
     roleAssignments?: boolean | OsParty$roleAssignmentsArgs<ExtArgs>
     contacts?: boolean | OsParty$contactsArgs<ExtArgs>
+    locations?: boolean | OsParty$locationsArgs<ExtArgs>
     fiscalIdentities?: boolean | OsParty$fiscalIdentitiesArgs<ExtArgs>
     commercialAccounts?: boolean | OsParty$commercialAccountsArgs<ExtArgs>
     duplicateCandidatesA?: boolean | OsParty$duplicateCandidatesAArgs<ExtArgs>
@@ -28469,6 +28895,7 @@ export namespace Prisma {
       mergedFrom: Prisma.$OsPartyPayload<ExtArgs>[]
       roleAssignments: Prisma.$OsPartyRoleAssignmentPayload<ExtArgs>[]
       contacts: Prisma.$OsContactPayload<ExtArgs>[]
+      locations: Prisma.$OsLocationPayload<ExtArgs>[]
       fiscalIdentities: Prisma.$OsFiscalIdentityPayload<ExtArgs>[]
       commercialAccounts: Prisma.$OsCommercialAccountPayload<ExtArgs>[]
       duplicateCandidatesA: Prisma.$OsPartyDuplicateCandidatePayload<ExtArgs>[]
@@ -28890,6 +29317,7 @@ export namespace Prisma {
     mergedFrom<T extends OsParty$mergedFromArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$mergedFromArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPartyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     roleAssignments<T extends OsParty$roleAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$roleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPartyRoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contacts<T extends OsParty$contactsArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    locations<T extends OsParty$locationsArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$locationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     fiscalIdentities<T extends OsParty$fiscalIdentitiesArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$fiscalIdentitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFiscalIdentityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     commercialAccounts<T extends OsParty$commercialAccountsArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$commercialAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCommercialAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     duplicateCandidatesA<T extends OsParty$duplicateCandidatesAArgs<ExtArgs> = {}>(args?: Subset<T, OsParty$duplicateCandidatesAArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPartyDuplicateCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -29426,6 +29854,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsParty.locations
+   */
+  export type OsParty$locationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    where?: OsLocationWhereInput
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    cursor?: OsLocationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsLocationScalarFieldEnum | OsLocationScalarFieldEnum[]
+  }
+
+  /**
    * OsParty.fiscalIdentities
    */
   export type OsParty$fiscalIdentitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -29681,6 +30133,3520 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OsPartyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsLocation
+   */
+
+  export type AggregateOsLocation = {
+    _count: OsLocationCountAggregateOutputType | null
+    _avg: OsLocationAvgAggregateOutputType | null
+    _sum: OsLocationSumAggregateOutputType | null
+    _min: OsLocationMinAggregateOutputType | null
+    _max: OsLocationMaxAggregateOutputType | null
+  }
+
+  export type OsLocationAvgAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+    version: number | null
+  }
+
+  export type OsLocationSumAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+    version: number | null
+  }
+
+  export type OsLocationMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    label: string | null
+    addressText: string | null
+    latitude: number | null
+    longitude: number | null
+    provenanceUrl: string | null
+    status: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OsLocationMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    partyId: string | null
+    label: string | null
+    addressText: string | null
+    latitude: number | null
+    longitude: number | null
+    provenanceUrl: string | null
+    status: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OsLocationCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    partyId: number
+    label: number
+    addressText: number
+    latitude: number
+    longitude: number
+    provenanceUrl: number
+    status: number
+    version: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OsLocationAvgAggregateInputType = {
+    latitude?: true
+    longitude?: true
+    version?: true
+  }
+
+  export type OsLocationSumAggregateInputType = {
+    latitude?: true
+    longitude?: true
+    version?: true
+  }
+
+  export type OsLocationMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    label?: true
+    addressText?: true
+    latitude?: true
+    longitude?: true
+    provenanceUrl?: true
+    status?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OsLocationMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    label?: true
+    addressText?: true
+    latitude?: true
+    longitude?: true
+    provenanceUrl?: true
+    status?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OsLocationCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    partyId?: true
+    label?: true
+    addressText?: true
+    latitude?: true
+    longitude?: true
+    provenanceUrl?: true
+    status?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OsLocationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsLocation to aggregate.
+     */
+    where?: OsLocationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsLocations to fetch.
+     */
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsLocationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsLocations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsLocations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsLocations
+    **/
+    _count?: true | OsLocationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsLocationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsLocationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsLocationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsLocationMaxAggregateInputType
+  }
+
+  export type GetOsLocationAggregateType<T extends OsLocationAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsLocation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsLocation[P]>
+      : GetScalarType<T[P], AggregateOsLocation[P]>
+  }
+
+
+
+
+  export type OsLocationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsLocationWhereInput
+    orderBy?: OsLocationOrderByWithAggregationInput | OsLocationOrderByWithAggregationInput[]
+    by: OsLocationScalarFieldEnum[] | OsLocationScalarFieldEnum
+    having?: OsLocationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsLocationCountAggregateInputType | true
+    _avg?: OsLocationAvgAggregateInputType
+    _sum?: OsLocationSumAggregateInputType
+    _min?: OsLocationMinAggregateInputType
+    _max?: OsLocationMaxAggregateInputType
+  }
+
+  export type OsLocationGroupByOutputType = {
+    id: string
+    organizationId: string
+    partyId: string
+    label: string
+    addressText: string | null
+    latitude: number | null
+    longitude: number | null
+    provenanceUrl: string | null
+    status: string
+    version: number
+    createdAt: Date
+    updatedAt: Date
+    _count: OsLocationCountAggregateOutputType | null
+    _avg: OsLocationAvgAggregateOutputType | null
+    _sum: OsLocationSumAggregateOutputType | null
+    _min: OsLocationMinAggregateOutputType | null
+    _max: OsLocationMaxAggregateOutputType | null
+  }
+
+  type GetOsLocationGroupByPayload<T extends OsLocationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsLocationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsLocationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsLocationGroupByOutputType[P]>
+            : GetScalarType<T[P], OsLocationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsLocationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    label?: boolean
+    addressText?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    provenanceUrl?: boolean
+    status?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osLocation"]>
+
+  export type OsLocationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    label?: boolean
+    addressText?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    provenanceUrl?: boolean
+    status?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osLocation"]>
+
+  export type OsLocationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    label?: boolean
+    addressText?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    provenanceUrl?: boolean
+    status?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osLocation"]>
+
+  export type OsLocationSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    partyId?: boolean
+    label?: boolean
+    addressText?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    provenanceUrl?: boolean
+    status?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OsLocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "partyId" | "label" | "addressText" | "latitude" | "longitude" | "provenanceUrl" | "status" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["osLocation"]>
+  export type OsLocationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }
+  export type OsLocationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }
+  export type OsLocationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    party?: boolean | OsPartyDefaultArgs<ExtArgs>
+  }
+
+  export type $OsLocationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsLocation"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      party: Prisma.$OsPartyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      partyId: string
+      label: string
+      addressText: string | null
+      latitude: number | null
+      longitude: number | null
+      provenanceUrl: string | null
+      status: string
+      version: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["osLocation"]>
+    composites: {}
+  }
+
+  type OsLocationGetPayload<S extends boolean | null | undefined | OsLocationDefaultArgs> = $Result.GetResult<Prisma.$OsLocationPayload, S>
+
+  type OsLocationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsLocationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsLocationCountAggregateInputType | true
+    }
+
+  export interface OsLocationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsLocation'], meta: { name: 'OsLocation' } }
+    /**
+     * Find zero or one OsLocation that matches the filter.
+     * @param {OsLocationFindUniqueArgs} args - Arguments to find a OsLocation
+     * @example
+     * // Get one OsLocation
+     * const osLocation = await prisma.osLocation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsLocationFindUniqueArgs>(args: SelectSubset<T, OsLocationFindUniqueArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsLocation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsLocationFindUniqueOrThrowArgs} args - Arguments to find a OsLocation
+     * @example
+     * // Get one OsLocation
+     * const osLocation = await prisma.osLocation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsLocationFindUniqueOrThrowArgs>(args: SelectSubset<T, OsLocationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsLocation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationFindFirstArgs} args - Arguments to find a OsLocation
+     * @example
+     * // Get one OsLocation
+     * const osLocation = await prisma.osLocation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsLocationFindFirstArgs>(args?: SelectSubset<T, OsLocationFindFirstArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsLocation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationFindFirstOrThrowArgs} args - Arguments to find a OsLocation
+     * @example
+     * // Get one OsLocation
+     * const osLocation = await prisma.osLocation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsLocationFindFirstOrThrowArgs>(args?: SelectSubset<T, OsLocationFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsLocations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsLocations
+     * const osLocations = await prisma.osLocation.findMany()
+     * 
+     * // Get first 10 OsLocations
+     * const osLocations = await prisma.osLocation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osLocationWithIdOnly = await prisma.osLocation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsLocationFindManyArgs>(args?: SelectSubset<T, OsLocationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsLocation.
+     * @param {OsLocationCreateArgs} args - Arguments to create a OsLocation.
+     * @example
+     * // Create one OsLocation
+     * const OsLocation = await prisma.osLocation.create({
+     *   data: {
+     *     // ... data to create a OsLocation
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsLocationCreateArgs>(args: SelectSubset<T, OsLocationCreateArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsLocations.
+     * @param {OsLocationCreateManyArgs} args - Arguments to create many OsLocations.
+     * @example
+     * // Create many OsLocations
+     * const osLocation = await prisma.osLocation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsLocationCreateManyArgs>(args?: SelectSubset<T, OsLocationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsLocations and returns the data saved in the database.
+     * @param {OsLocationCreateManyAndReturnArgs} args - Arguments to create many OsLocations.
+     * @example
+     * // Create many OsLocations
+     * const osLocation = await prisma.osLocation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsLocations and only return the `id`
+     * const osLocationWithIdOnly = await prisma.osLocation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsLocationCreateManyAndReturnArgs>(args?: SelectSubset<T, OsLocationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsLocation.
+     * @param {OsLocationDeleteArgs} args - Arguments to delete one OsLocation.
+     * @example
+     * // Delete one OsLocation
+     * const OsLocation = await prisma.osLocation.delete({
+     *   where: {
+     *     // ... filter to delete one OsLocation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsLocationDeleteArgs>(args: SelectSubset<T, OsLocationDeleteArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsLocation.
+     * @param {OsLocationUpdateArgs} args - Arguments to update one OsLocation.
+     * @example
+     * // Update one OsLocation
+     * const osLocation = await prisma.osLocation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsLocationUpdateArgs>(args: SelectSubset<T, OsLocationUpdateArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsLocations.
+     * @param {OsLocationDeleteManyArgs} args - Arguments to filter OsLocations to delete.
+     * @example
+     * // Delete a few OsLocations
+     * const { count } = await prisma.osLocation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsLocationDeleteManyArgs>(args?: SelectSubset<T, OsLocationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsLocations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsLocations
+     * const osLocation = await prisma.osLocation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsLocationUpdateManyArgs>(args: SelectSubset<T, OsLocationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsLocations and returns the data updated in the database.
+     * @param {OsLocationUpdateManyAndReturnArgs} args - Arguments to update many OsLocations.
+     * @example
+     * // Update many OsLocations
+     * const osLocation = await prisma.osLocation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsLocations and only return the `id`
+     * const osLocationWithIdOnly = await prisma.osLocation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsLocationUpdateManyAndReturnArgs>(args: SelectSubset<T, OsLocationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsLocation.
+     * @param {OsLocationUpsertArgs} args - Arguments to update or create a OsLocation.
+     * @example
+     * // Update or create a OsLocation
+     * const osLocation = await prisma.osLocation.upsert({
+     *   create: {
+     *     // ... data to create a OsLocation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsLocation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsLocationUpsertArgs>(args: SelectSubset<T, OsLocationUpsertArgs<ExtArgs>>): Prisma__OsLocationClient<$Result.GetResult<Prisma.$OsLocationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsLocations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationCountArgs} args - Arguments to filter OsLocations to count.
+     * @example
+     * // Count the number of OsLocations
+     * const count = await prisma.osLocation.count({
+     *   where: {
+     *     // ... the filter for the OsLocations we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsLocationCountArgs>(
+      args?: Subset<T, OsLocationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsLocationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsLocation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsLocationAggregateArgs>(args: Subset<T, OsLocationAggregateArgs>): Prisma.PrismaPromise<GetOsLocationAggregateType<T>>
+
+    /**
+     * Group by OsLocation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsLocationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsLocationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsLocationGroupByArgs['orderBy'] }
+        : { orderBy?: OsLocationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsLocationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsLocationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsLocation model
+   */
+  readonly fields: OsLocationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsLocation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsLocationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    party<T extends OsPartyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsPartyDefaultArgs<ExtArgs>>): Prisma__OsPartyClient<$Result.GetResult<Prisma.$OsPartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsLocation model
+   */
+  interface OsLocationFieldRefs {
+    readonly id: FieldRef<"OsLocation", 'String'>
+    readonly organizationId: FieldRef<"OsLocation", 'String'>
+    readonly partyId: FieldRef<"OsLocation", 'String'>
+    readonly label: FieldRef<"OsLocation", 'String'>
+    readonly addressText: FieldRef<"OsLocation", 'String'>
+    readonly latitude: FieldRef<"OsLocation", 'Float'>
+    readonly longitude: FieldRef<"OsLocation", 'Float'>
+    readonly provenanceUrl: FieldRef<"OsLocation", 'String'>
+    readonly status: FieldRef<"OsLocation", 'String'>
+    readonly version: FieldRef<"OsLocation", 'Int'>
+    readonly createdAt: FieldRef<"OsLocation", 'DateTime'>
+    readonly updatedAt: FieldRef<"OsLocation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsLocation findUnique
+   */
+  export type OsLocationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsLocation to fetch.
+     */
+    where: OsLocationWhereUniqueInput
+  }
+
+  /**
+   * OsLocation findUniqueOrThrow
+   */
+  export type OsLocationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsLocation to fetch.
+     */
+    where: OsLocationWhereUniqueInput
+  }
+
+  /**
+   * OsLocation findFirst
+   */
+  export type OsLocationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsLocation to fetch.
+     */
+    where?: OsLocationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsLocations to fetch.
+     */
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsLocations.
+     */
+    cursor?: OsLocationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsLocations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsLocations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsLocations.
+     */
+    distinct?: OsLocationScalarFieldEnum | OsLocationScalarFieldEnum[]
+  }
+
+  /**
+   * OsLocation findFirstOrThrow
+   */
+  export type OsLocationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsLocation to fetch.
+     */
+    where?: OsLocationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsLocations to fetch.
+     */
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsLocations.
+     */
+    cursor?: OsLocationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsLocations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsLocations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsLocations.
+     */
+    distinct?: OsLocationScalarFieldEnum | OsLocationScalarFieldEnum[]
+  }
+
+  /**
+   * OsLocation findMany
+   */
+  export type OsLocationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsLocations to fetch.
+     */
+    where?: OsLocationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsLocations to fetch.
+     */
+    orderBy?: OsLocationOrderByWithRelationInput | OsLocationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsLocations.
+     */
+    cursor?: OsLocationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsLocations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsLocations.
+     */
+    skip?: number
+    distinct?: OsLocationScalarFieldEnum | OsLocationScalarFieldEnum[]
+  }
+
+  /**
+   * OsLocation create
+   */
+  export type OsLocationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsLocation.
+     */
+    data: XOR<OsLocationCreateInput, OsLocationUncheckedCreateInput>
+  }
+
+  /**
+   * OsLocation createMany
+   */
+  export type OsLocationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsLocations.
+     */
+    data: OsLocationCreateManyInput | OsLocationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsLocation createManyAndReturn
+   */
+  export type OsLocationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsLocations.
+     */
+    data: OsLocationCreateManyInput | OsLocationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsLocation update
+   */
+  export type OsLocationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsLocation.
+     */
+    data: XOR<OsLocationUpdateInput, OsLocationUncheckedUpdateInput>
+    /**
+     * Choose, which OsLocation to update.
+     */
+    where: OsLocationWhereUniqueInput
+  }
+
+  /**
+   * OsLocation updateMany
+   */
+  export type OsLocationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsLocations.
+     */
+    data: XOR<OsLocationUpdateManyMutationInput, OsLocationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsLocations to update
+     */
+    where?: OsLocationWhereInput
+    /**
+     * Limit how many OsLocations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsLocation updateManyAndReturn
+   */
+  export type OsLocationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * The data used to update OsLocations.
+     */
+    data: XOR<OsLocationUpdateManyMutationInput, OsLocationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsLocations to update
+     */
+    where?: OsLocationWhereInput
+    /**
+     * Limit how many OsLocations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsLocation upsert
+   */
+  export type OsLocationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsLocation to update in case it exists.
+     */
+    where: OsLocationWhereUniqueInput
+    /**
+     * In case the OsLocation found by the `where` argument doesn't exist, create a new OsLocation with this data.
+     */
+    create: XOR<OsLocationCreateInput, OsLocationUncheckedCreateInput>
+    /**
+     * In case the OsLocation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsLocationUpdateInput, OsLocationUncheckedUpdateInput>
+  }
+
+  /**
+   * OsLocation delete
+   */
+  export type OsLocationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+    /**
+     * Filter which OsLocation to delete.
+     */
+    where: OsLocationWhereUniqueInput
+  }
+
+  /**
+   * OsLocation deleteMany
+   */
+  export type OsLocationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsLocations to delete
+     */
+    where?: OsLocationWhereInput
+    /**
+     * Limit how many OsLocations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsLocation without action
+   */
+  export type OsLocationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsLocation
+     */
+    select?: OsLocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsLocation
+     */
+    omit?: OsLocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsLocationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsImportBatch
+   */
+
+  export type AggregateOsImportBatch = {
+    _count: OsImportBatchCountAggregateOutputType | null
+    _min: OsImportBatchMinAggregateOutputType | null
+    _max: OsImportBatchMaxAggregateOutputType | null
+  }
+
+  export type OsImportBatchMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    sourceKind: string | null
+    sourceFingerprint: string | null
+    status: string | null
+    createdByMemberId: string | null
+    createdAt: Date | null
+    completedAt: Date | null
+    idempotencyKey: string | null
+    reversedAt: Date | null
+  }
+
+  export type OsImportBatchMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    sourceKind: string | null
+    sourceFingerprint: string | null
+    status: string | null
+    createdByMemberId: string | null
+    createdAt: Date | null
+    completedAt: Date | null
+    idempotencyKey: string | null
+    reversedAt: Date | null
+  }
+
+  export type OsImportBatchCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    sourceKind: number
+    sourceFingerprint: number
+    status: number
+    createdByMemberId: number
+    createdAt: number
+    completedAt: number
+    receiptJson: number
+    idempotencyKey: number
+    reversedAt: number
+    reversedEntityRefs: number
+    _all: number
+  }
+
+
+  export type OsImportBatchMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    sourceKind?: true
+    sourceFingerprint?: true
+    status?: true
+    createdByMemberId?: true
+    createdAt?: true
+    completedAt?: true
+    idempotencyKey?: true
+    reversedAt?: true
+  }
+
+  export type OsImportBatchMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    sourceKind?: true
+    sourceFingerprint?: true
+    status?: true
+    createdByMemberId?: true
+    createdAt?: true
+    completedAt?: true
+    idempotencyKey?: true
+    reversedAt?: true
+  }
+
+  export type OsImportBatchCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    sourceKind?: true
+    sourceFingerprint?: true
+    status?: true
+    createdByMemberId?: true
+    createdAt?: true
+    completedAt?: true
+    receiptJson?: true
+    idempotencyKey?: true
+    reversedAt?: true
+    reversedEntityRefs?: true
+    _all?: true
+  }
+
+  export type OsImportBatchAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsImportBatch to aggregate.
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportBatches to fetch.
+     */
+    orderBy?: OsImportBatchOrderByWithRelationInput | OsImportBatchOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsImportBatchWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportBatches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportBatches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsImportBatches
+    **/
+    _count?: true | OsImportBatchCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsImportBatchMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsImportBatchMaxAggregateInputType
+  }
+
+  export type GetOsImportBatchAggregateType<T extends OsImportBatchAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsImportBatch]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsImportBatch[P]>
+      : GetScalarType<T[P], AggregateOsImportBatch[P]>
+  }
+
+
+
+
+  export type OsImportBatchGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsImportBatchWhereInput
+    orderBy?: OsImportBatchOrderByWithAggregationInput | OsImportBatchOrderByWithAggregationInput[]
+    by: OsImportBatchScalarFieldEnum[] | OsImportBatchScalarFieldEnum
+    having?: OsImportBatchScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsImportBatchCountAggregateInputType | true
+    _min?: OsImportBatchMinAggregateInputType
+    _max?: OsImportBatchMaxAggregateInputType
+  }
+
+  export type OsImportBatchGroupByOutputType = {
+    id: string
+    organizationId: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt: Date
+    completedAt: Date | null
+    receiptJson: JsonValue
+    idempotencyKey: string
+    reversedAt: Date | null
+    reversedEntityRefs: JsonValue | null
+    _count: OsImportBatchCountAggregateOutputType | null
+    _min: OsImportBatchMinAggregateOutputType | null
+    _max: OsImportBatchMaxAggregateOutputType | null
+  }
+
+  type GetOsImportBatchGroupByPayload<T extends OsImportBatchGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsImportBatchGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsImportBatchGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsImportBatchGroupByOutputType[P]>
+            : GetScalarType<T[P], OsImportBatchGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsImportBatchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    sourceKind?: boolean
+    sourceFingerprint?: boolean
+    status?: boolean
+    createdByMemberId?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+    receiptJson?: boolean
+    idempotencyKey?: boolean
+    reversedAt?: boolean
+    reversedEntityRefs?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    rows?: boolean | OsImportBatch$rowsArgs<ExtArgs>
+    _count?: boolean | OsImportBatchCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportBatch"]>
+
+  export type OsImportBatchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    sourceKind?: boolean
+    sourceFingerprint?: boolean
+    status?: boolean
+    createdByMemberId?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+    receiptJson?: boolean
+    idempotencyKey?: boolean
+    reversedAt?: boolean
+    reversedEntityRefs?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportBatch"]>
+
+  export type OsImportBatchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    sourceKind?: boolean
+    sourceFingerprint?: boolean
+    status?: boolean
+    createdByMemberId?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+    receiptJson?: boolean
+    idempotencyKey?: boolean
+    reversedAt?: boolean
+    reversedEntityRefs?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportBatch"]>
+
+  export type OsImportBatchSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    sourceKind?: boolean
+    sourceFingerprint?: boolean
+    status?: boolean
+    createdByMemberId?: boolean
+    createdAt?: boolean
+    completedAt?: boolean
+    receiptJson?: boolean
+    idempotencyKey?: boolean
+    reversedAt?: boolean
+    reversedEntityRefs?: boolean
+  }
+
+  export type OsImportBatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "sourceKind" | "sourceFingerprint" | "status" | "createdByMemberId" | "createdAt" | "completedAt" | "receiptJson" | "idempotencyKey" | "reversedAt" | "reversedEntityRefs", ExtArgs["result"]["osImportBatch"]>
+  export type OsImportBatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    rows?: boolean | OsImportBatch$rowsArgs<ExtArgs>
+    _count?: boolean | OsImportBatchCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OsImportBatchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsImportBatchIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsImportBatchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsImportBatch"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      rows: Prisma.$OsImportRowPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      sourceKind: string
+      sourceFingerprint: string
+      status: string
+      createdByMemberId: string
+      createdAt: Date
+      completedAt: Date | null
+      receiptJson: Prisma.JsonValue
+      idempotencyKey: string
+      reversedAt: Date | null
+      reversedEntityRefs: Prisma.JsonValue | null
+    }, ExtArgs["result"]["osImportBatch"]>
+    composites: {}
+  }
+
+  type OsImportBatchGetPayload<S extends boolean | null | undefined | OsImportBatchDefaultArgs> = $Result.GetResult<Prisma.$OsImportBatchPayload, S>
+
+  type OsImportBatchCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsImportBatchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsImportBatchCountAggregateInputType | true
+    }
+
+  export interface OsImportBatchDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsImportBatch'], meta: { name: 'OsImportBatch' } }
+    /**
+     * Find zero or one OsImportBatch that matches the filter.
+     * @param {OsImportBatchFindUniqueArgs} args - Arguments to find a OsImportBatch
+     * @example
+     * // Get one OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsImportBatchFindUniqueArgs>(args: SelectSubset<T, OsImportBatchFindUniqueArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsImportBatch that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsImportBatchFindUniqueOrThrowArgs} args - Arguments to find a OsImportBatch
+     * @example
+     * // Get one OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsImportBatchFindUniqueOrThrowArgs>(args: SelectSubset<T, OsImportBatchFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsImportBatch that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchFindFirstArgs} args - Arguments to find a OsImportBatch
+     * @example
+     * // Get one OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsImportBatchFindFirstArgs>(args?: SelectSubset<T, OsImportBatchFindFirstArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsImportBatch that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchFindFirstOrThrowArgs} args - Arguments to find a OsImportBatch
+     * @example
+     * // Get one OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsImportBatchFindFirstOrThrowArgs>(args?: SelectSubset<T, OsImportBatchFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsImportBatches that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsImportBatches
+     * const osImportBatches = await prisma.osImportBatch.findMany()
+     * 
+     * // Get first 10 OsImportBatches
+     * const osImportBatches = await prisma.osImportBatch.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osImportBatchWithIdOnly = await prisma.osImportBatch.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsImportBatchFindManyArgs>(args?: SelectSubset<T, OsImportBatchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsImportBatch.
+     * @param {OsImportBatchCreateArgs} args - Arguments to create a OsImportBatch.
+     * @example
+     * // Create one OsImportBatch
+     * const OsImportBatch = await prisma.osImportBatch.create({
+     *   data: {
+     *     // ... data to create a OsImportBatch
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsImportBatchCreateArgs>(args: SelectSubset<T, OsImportBatchCreateArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsImportBatches.
+     * @param {OsImportBatchCreateManyArgs} args - Arguments to create many OsImportBatches.
+     * @example
+     * // Create many OsImportBatches
+     * const osImportBatch = await prisma.osImportBatch.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsImportBatchCreateManyArgs>(args?: SelectSubset<T, OsImportBatchCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsImportBatches and returns the data saved in the database.
+     * @param {OsImportBatchCreateManyAndReturnArgs} args - Arguments to create many OsImportBatches.
+     * @example
+     * // Create many OsImportBatches
+     * const osImportBatch = await prisma.osImportBatch.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsImportBatches and only return the `id`
+     * const osImportBatchWithIdOnly = await prisma.osImportBatch.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsImportBatchCreateManyAndReturnArgs>(args?: SelectSubset<T, OsImportBatchCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsImportBatch.
+     * @param {OsImportBatchDeleteArgs} args - Arguments to delete one OsImportBatch.
+     * @example
+     * // Delete one OsImportBatch
+     * const OsImportBatch = await prisma.osImportBatch.delete({
+     *   where: {
+     *     // ... filter to delete one OsImportBatch
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsImportBatchDeleteArgs>(args: SelectSubset<T, OsImportBatchDeleteArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsImportBatch.
+     * @param {OsImportBatchUpdateArgs} args - Arguments to update one OsImportBatch.
+     * @example
+     * // Update one OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsImportBatchUpdateArgs>(args: SelectSubset<T, OsImportBatchUpdateArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsImportBatches.
+     * @param {OsImportBatchDeleteManyArgs} args - Arguments to filter OsImportBatches to delete.
+     * @example
+     * // Delete a few OsImportBatches
+     * const { count } = await prisma.osImportBatch.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsImportBatchDeleteManyArgs>(args?: SelectSubset<T, OsImportBatchDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsImportBatches.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsImportBatches
+     * const osImportBatch = await prisma.osImportBatch.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsImportBatchUpdateManyArgs>(args: SelectSubset<T, OsImportBatchUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsImportBatches and returns the data updated in the database.
+     * @param {OsImportBatchUpdateManyAndReturnArgs} args - Arguments to update many OsImportBatches.
+     * @example
+     * // Update many OsImportBatches
+     * const osImportBatch = await prisma.osImportBatch.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsImportBatches and only return the `id`
+     * const osImportBatchWithIdOnly = await prisma.osImportBatch.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsImportBatchUpdateManyAndReturnArgs>(args: SelectSubset<T, OsImportBatchUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsImportBatch.
+     * @param {OsImportBatchUpsertArgs} args - Arguments to update or create a OsImportBatch.
+     * @example
+     * // Update or create a OsImportBatch
+     * const osImportBatch = await prisma.osImportBatch.upsert({
+     *   create: {
+     *     // ... data to create a OsImportBatch
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsImportBatch we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsImportBatchUpsertArgs>(args: SelectSubset<T, OsImportBatchUpsertArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsImportBatches.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchCountArgs} args - Arguments to filter OsImportBatches to count.
+     * @example
+     * // Count the number of OsImportBatches
+     * const count = await prisma.osImportBatch.count({
+     *   where: {
+     *     // ... the filter for the OsImportBatches we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsImportBatchCountArgs>(
+      args?: Subset<T, OsImportBatchCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsImportBatchCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsImportBatch.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsImportBatchAggregateArgs>(args: Subset<T, OsImportBatchAggregateArgs>): Prisma.PrismaPromise<GetOsImportBatchAggregateType<T>>
+
+    /**
+     * Group by OsImportBatch.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportBatchGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsImportBatchGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsImportBatchGroupByArgs['orderBy'] }
+        : { orderBy?: OsImportBatchGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsImportBatchGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsImportBatchGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsImportBatch model
+   */
+  readonly fields: OsImportBatchFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsImportBatch.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsImportBatchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    rows<T extends OsImportBatch$rowsArgs<ExtArgs> = {}>(args?: Subset<T, OsImportBatch$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsImportBatch model
+   */
+  interface OsImportBatchFieldRefs {
+    readonly id: FieldRef<"OsImportBatch", 'String'>
+    readonly organizationId: FieldRef<"OsImportBatch", 'String'>
+    readonly sourceKind: FieldRef<"OsImportBatch", 'String'>
+    readonly sourceFingerprint: FieldRef<"OsImportBatch", 'String'>
+    readonly status: FieldRef<"OsImportBatch", 'String'>
+    readonly createdByMemberId: FieldRef<"OsImportBatch", 'String'>
+    readonly createdAt: FieldRef<"OsImportBatch", 'DateTime'>
+    readonly completedAt: FieldRef<"OsImportBatch", 'DateTime'>
+    readonly receiptJson: FieldRef<"OsImportBatch", 'Json'>
+    readonly idempotencyKey: FieldRef<"OsImportBatch", 'String'>
+    readonly reversedAt: FieldRef<"OsImportBatch", 'DateTime'>
+    readonly reversedEntityRefs: FieldRef<"OsImportBatch", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsImportBatch findUnique
+   */
+  export type OsImportBatchFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportBatch to fetch.
+     */
+    where: OsImportBatchWhereUniqueInput
+  }
+
+  /**
+   * OsImportBatch findUniqueOrThrow
+   */
+  export type OsImportBatchFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportBatch to fetch.
+     */
+    where: OsImportBatchWhereUniqueInput
+  }
+
+  /**
+   * OsImportBatch findFirst
+   */
+  export type OsImportBatchFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportBatch to fetch.
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportBatches to fetch.
+     */
+    orderBy?: OsImportBatchOrderByWithRelationInput | OsImportBatchOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsImportBatches.
+     */
+    cursor?: OsImportBatchWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportBatches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportBatches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsImportBatches.
+     */
+    distinct?: OsImportBatchScalarFieldEnum | OsImportBatchScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportBatch findFirstOrThrow
+   */
+  export type OsImportBatchFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportBatch to fetch.
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportBatches to fetch.
+     */
+    orderBy?: OsImportBatchOrderByWithRelationInput | OsImportBatchOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsImportBatches.
+     */
+    cursor?: OsImportBatchWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportBatches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportBatches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsImportBatches.
+     */
+    distinct?: OsImportBatchScalarFieldEnum | OsImportBatchScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportBatch findMany
+   */
+  export type OsImportBatchFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportBatches to fetch.
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportBatches to fetch.
+     */
+    orderBy?: OsImportBatchOrderByWithRelationInput | OsImportBatchOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsImportBatches.
+     */
+    cursor?: OsImportBatchWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportBatches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportBatches.
+     */
+    skip?: number
+    distinct?: OsImportBatchScalarFieldEnum | OsImportBatchScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportBatch create
+   */
+  export type OsImportBatchCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsImportBatch.
+     */
+    data: XOR<OsImportBatchCreateInput, OsImportBatchUncheckedCreateInput>
+  }
+
+  /**
+   * OsImportBatch createMany
+   */
+  export type OsImportBatchCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsImportBatches.
+     */
+    data: OsImportBatchCreateManyInput | OsImportBatchCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsImportBatch createManyAndReturn
+   */
+  export type OsImportBatchCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsImportBatches.
+     */
+    data: OsImportBatchCreateManyInput | OsImportBatchCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsImportBatch update
+   */
+  export type OsImportBatchUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsImportBatch.
+     */
+    data: XOR<OsImportBatchUpdateInput, OsImportBatchUncheckedUpdateInput>
+    /**
+     * Choose, which OsImportBatch to update.
+     */
+    where: OsImportBatchWhereUniqueInput
+  }
+
+  /**
+   * OsImportBatch updateMany
+   */
+  export type OsImportBatchUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsImportBatches.
+     */
+    data: XOR<OsImportBatchUpdateManyMutationInput, OsImportBatchUncheckedUpdateManyInput>
+    /**
+     * Filter which OsImportBatches to update
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * Limit how many OsImportBatches to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsImportBatch updateManyAndReturn
+   */
+  export type OsImportBatchUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * The data used to update OsImportBatches.
+     */
+    data: XOR<OsImportBatchUpdateManyMutationInput, OsImportBatchUncheckedUpdateManyInput>
+    /**
+     * Filter which OsImportBatches to update
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * Limit how many OsImportBatches to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsImportBatch upsert
+   */
+  export type OsImportBatchUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsImportBatch to update in case it exists.
+     */
+    where: OsImportBatchWhereUniqueInput
+    /**
+     * In case the OsImportBatch found by the `where` argument doesn't exist, create a new OsImportBatch with this data.
+     */
+    create: XOR<OsImportBatchCreateInput, OsImportBatchUncheckedCreateInput>
+    /**
+     * In case the OsImportBatch was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsImportBatchUpdateInput, OsImportBatchUncheckedUpdateInput>
+  }
+
+  /**
+   * OsImportBatch delete
+   */
+  export type OsImportBatchDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+    /**
+     * Filter which OsImportBatch to delete.
+     */
+    where: OsImportBatchWhereUniqueInput
+  }
+
+  /**
+   * OsImportBatch deleteMany
+   */
+  export type OsImportBatchDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsImportBatches to delete
+     */
+    where?: OsImportBatchWhereInput
+    /**
+     * Limit how many OsImportBatches to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsImportBatch.rows
+   */
+  export type OsImportBatch$rowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    where?: OsImportRowWhereInput
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    cursor?: OsImportRowWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsImportRowScalarFieldEnum | OsImportRowScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportBatch without action
+   */
+  export type OsImportBatchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportBatch
+     */
+    select?: OsImportBatchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportBatch
+     */
+    omit?: OsImportBatchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportBatchInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsImportRow
+   */
+
+  export type AggregateOsImportRow = {
+    _count: OsImportRowCountAggregateOutputType | null
+    _avg: OsImportRowAvgAggregateOutputType | null
+    _sum: OsImportRowSumAggregateOutputType | null
+    _min: OsImportRowMinAggregateOutputType | null
+    _max: OsImportRowMaxAggregateOutputType | null
+  }
+
+  export type OsImportRowAvgAggregateOutputType = {
+    rowIndex: number | null
+  }
+
+  export type OsImportRowSumAggregateOutputType = {
+    rowIndex: number | null
+  }
+
+  export type OsImportRowMinAggregateOutputType = {
+    id: string | null
+    importBatchId: string | null
+    organizationId: string | null
+    section: string | null
+    rowIndex: number | null
+    outcome: string | null
+    errorCode: string | null
+  }
+
+  export type OsImportRowMaxAggregateOutputType = {
+    id: string | null
+    importBatchId: string | null
+    organizationId: string | null
+    section: string | null
+    rowIndex: number | null
+    outcome: string | null
+    errorCode: string | null
+  }
+
+  export type OsImportRowCountAggregateOutputType = {
+    id: number
+    importBatchId: number
+    organizationId: number
+    section: number
+    rowIndex: number
+    outcome: number
+    entityRefsJson: number
+    errorCode: number
+    normalizedSnapshotJson: number
+    _all: number
+  }
+
+
+  export type OsImportRowAvgAggregateInputType = {
+    rowIndex?: true
+  }
+
+  export type OsImportRowSumAggregateInputType = {
+    rowIndex?: true
+  }
+
+  export type OsImportRowMinAggregateInputType = {
+    id?: true
+    importBatchId?: true
+    organizationId?: true
+    section?: true
+    rowIndex?: true
+    outcome?: true
+    errorCode?: true
+  }
+
+  export type OsImportRowMaxAggregateInputType = {
+    id?: true
+    importBatchId?: true
+    organizationId?: true
+    section?: true
+    rowIndex?: true
+    outcome?: true
+    errorCode?: true
+  }
+
+  export type OsImportRowCountAggregateInputType = {
+    id?: true
+    importBatchId?: true
+    organizationId?: true
+    section?: true
+    rowIndex?: true
+    outcome?: true
+    entityRefsJson?: true
+    errorCode?: true
+    normalizedSnapshotJson?: true
+    _all?: true
+  }
+
+  export type OsImportRowAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsImportRow to aggregate.
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportRows to fetch.
+     */
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsImportRowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportRows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportRows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsImportRows
+    **/
+    _count?: true | OsImportRowCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsImportRowAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsImportRowSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsImportRowMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsImportRowMaxAggregateInputType
+  }
+
+  export type GetOsImportRowAggregateType<T extends OsImportRowAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsImportRow]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsImportRow[P]>
+      : GetScalarType<T[P], AggregateOsImportRow[P]>
+  }
+
+
+
+
+  export type OsImportRowGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsImportRowWhereInput
+    orderBy?: OsImportRowOrderByWithAggregationInput | OsImportRowOrderByWithAggregationInput[]
+    by: OsImportRowScalarFieldEnum[] | OsImportRowScalarFieldEnum
+    having?: OsImportRowScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsImportRowCountAggregateInputType | true
+    _avg?: OsImportRowAvgAggregateInputType
+    _sum?: OsImportRowSumAggregateInputType
+    _min?: OsImportRowMinAggregateInputType
+    _max?: OsImportRowMaxAggregateInputType
+  }
+
+  export type OsImportRowGroupByOutputType = {
+    id: string
+    importBatchId: string
+    organizationId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonValue
+    errorCode: string | null
+    normalizedSnapshotJson: JsonValue
+    _count: OsImportRowCountAggregateOutputType | null
+    _avg: OsImportRowAvgAggregateOutputType | null
+    _sum: OsImportRowSumAggregateOutputType | null
+    _min: OsImportRowMinAggregateOutputType | null
+    _max: OsImportRowMaxAggregateOutputType | null
+  }
+
+  type GetOsImportRowGroupByPayload<T extends OsImportRowGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsImportRowGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsImportRowGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsImportRowGroupByOutputType[P]>
+            : GetScalarType<T[P], OsImportRowGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsImportRowSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    importBatchId?: boolean
+    organizationId?: boolean
+    section?: boolean
+    rowIndex?: boolean
+    outcome?: boolean
+    entityRefsJson?: boolean
+    errorCode?: boolean
+    normalizedSnapshotJson?: boolean
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportRow"]>
+
+  export type OsImportRowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    importBatchId?: boolean
+    organizationId?: boolean
+    section?: boolean
+    rowIndex?: boolean
+    outcome?: boolean
+    entityRefsJson?: boolean
+    errorCode?: boolean
+    normalizedSnapshotJson?: boolean
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportRow"]>
+
+  export type OsImportRowSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    importBatchId?: boolean
+    organizationId?: boolean
+    section?: boolean
+    rowIndex?: boolean
+    outcome?: boolean
+    entityRefsJson?: boolean
+    errorCode?: boolean
+    normalizedSnapshotJson?: boolean
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osImportRow"]>
+
+  export type OsImportRowSelectScalar = {
+    id?: boolean
+    importBatchId?: boolean
+    organizationId?: boolean
+    section?: boolean
+    rowIndex?: boolean
+    outcome?: boolean
+    entityRefsJson?: boolean
+    errorCode?: boolean
+    normalizedSnapshotJson?: boolean
+  }
+
+  export type OsImportRowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "importBatchId" | "organizationId" | "section" | "rowIndex" | "outcome" | "entityRefsJson" | "errorCode" | "normalizedSnapshotJson", ExtArgs["result"]["osImportRow"]>
+  export type OsImportRowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsImportRowIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsImportRowIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    batch?: boolean | OsImportBatchDefaultArgs<ExtArgs>
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsImportRowPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsImportRow"
+    objects: {
+      batch: Prisma.$OsImportBatchPayload<ExtArgs>
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      importBatchId: string
+      organizationId: string
+      section: string
+      rowIndex: number
+      outcome: string
+      entityRefsJson: Prisma.JsonValue
+      errorCode: string | null
+      normalizedSnapshotJson: Prisma.JsonValue
+    }, ExtArgs["result"]["osImportRow"]>
+    composites: {}
+  }
+
+  type OsImportRowGetPayload<S extends boolean | null | undefined | OsImportRowDefaultArgs> = $Result.GetResult<Prisma.$OsImportRowPayload, S>
+
+  type OsImportRowCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsImportRowFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsImportRowCountAggregateInputType | true
+    }
+
+  export interface OsImportRowDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsImportRow'], meta: { name: 'OsImportRow' } }
+    /**
+     * Find zero or one OsImportRow that matches the filter.
+     * @param {OsImportRowFindUniqueArgs} args - Arguments to find a OsImportRow
+     * @example
+     * // Get one OsImportRow
+     * const osImportRow = await prisma.osImportRow.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsImportRowFindUniqueArgs>(args: SelectSubset<T, OsImportRowFindUniqueArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsImportRow that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsImportRowFindUniqueOrThrowArgs} args - Arguments to find a OsImportRow
+     * @example
+     * // Get one OsImportRow
+     * const osImportRow = await prisma.osImportRow.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsImportRowFindUniqueOrThrowArgs>(args: SelectSubset<T, OsImportRowFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsImportRow that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowFindFirstArgs} args - Arguments to find a OsImportRow
+     * @example
+     * // Get one OsImportRow
+     * const osImportRow = await prisma.osImportRow.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsImportRowFindFirstArgs>(args?: SelectSubset<T, OsImportRowFindFirstArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsImportRow that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowFindFirstOrThrowArgs} args - Arguments to find a OsImportRow
+     * @example
+     * // Get one OsImportRow
+     * const osImportRow = await prisma.osImportRow.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsImportRowFindFirstOrThrowArgs>(args?: SelectSubset<T, OsImportRowFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsImportRows that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsImportRows
+     * const osImportRows = await prisma.osImportRow.findMany()
+     * 
+     * // Get first 10 OsImportRows
+     * const osImportRows = await prisma.osImportRow.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osImportRowWithIdOnly = await prisma.osImportRow.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsImportRowFindManyArgs>(args?: SelectSubset<T, OsImportRowFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsImportRow.
+     * @param {OsImportRowCreateArgs} args - Arguments to create a OsImportRow.
+     * @example
+     * // Create one OsImportRow
+     * const OsImportRow = await prisma.osImportRow.create({
+     *   data: {
+     *     // ... data to create a OsImportRow
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsImportRowCreateArgs>(args: SelectSubset<T, OsImportRowCreateArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsImportRows.
+     * @param {OsImportRowCreateManyArgs} args - Arguments to create many OsImportRows.
+     * @example
+     * // Create many OsImportRows
+     * const osImportRow = await prisma.osImportRow.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsImportRowCreateManyArgs>(args?: SelectSubset<T, OsImportRowCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsImportRows and returns the data saved in the database.
+     * @param {OsImportRowCreateManyAndReturnArgs} args - Arguments to create many OsImportRows.
+     * @example
+     * // Create many OsImportRows
+     * const osImportRow = await prisma.osImportRow.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsImportRows and only return the `id`
+     * const osImportRowWithIdOnly = await prisma.osImportRow.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsImportRowCreateManyAndReturnArgs>(args?: SelectSubset<T, OsImportRowCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsImportRow.
+     * @param {OsImportRowDeleteArgs} args - Arguments to delete one OsImportRow.
+     * @example
+     * // Delete one OsImportRow
+     * const OsImportRow = await prisma.osImportRow.delete({
+     *   where: {
+     *     // ... filter to delete one OsImportRow
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsImportRowDeleteArgs>(args: SelectSubset<T, OsImportRowDeleteArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsImportRow.
+     * @param {OsImportRowUpdateArgs} args - Arguments to update one OsImportRow.
+     * @example
+     * // Update one OsImportRow
+     * const osImportRow = await prisma.osImportRow.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsImportRowUpdateArgs>(args: SelectSubset<T, OsImportRowUpdateArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsImportRows.
+     * @param {OsImportRowDeleteManyArgs} args - Arguments to filter OsImportRows to delete.
+     * @example
+     * // Delete a few OsImportRows
+     * const { count } = await prisma.osImportRow.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsImportRowDeleteManyArgs>(args?: SelectSubset<T, OsImportRowDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsImportRows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsImportRows
+     * const osImportRow = await prisma.osImportRow.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsImportRowUpdateManyArgs>(args: SelectSubset<T, OsImportRowUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsImportRows and returns the data updated in the database.
+     * @param {OsImportRowUpdateManyAndReturnArgs} args - Arguments to update many OsImportRows.
+     * @example
+     * // Update many OsImportRows
+     * const osImportRow = await prisma.osImportRow.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsImportRows and only return the `id`
+     * const osImportRowWithIdOnly = await prisma.osImportRow.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsImportRowUpdateManyAndReturnArgs>(args: SelectSubset<T, OsImportRowUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsImportRow.
+     * @param {OsImportRowUpsertArgs} args - Arguments to update or create a OsImportRow.
+     * @example
+     * // Update or create a OsImportRow
+     * const osImportRow = await prisma.osImportRow.upsert({
+     *   create: {
+     *     // ... data to create a OsImportRow
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsImportRow we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsImportRowUpsertArgs>(args: SelectSubset<T, OsImportRowUpsertArgs<ExtArgs>>): Prisma__OsImportRowClient<$Result.GetResult<Prisma.$OsImportRowPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsImportRows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowCountArgs} args - Arguments to filter OsImportRows to count.
+     * @example
+     * // Count the number of OsImportRows
+     * const count = await prisma.osImportRow.count({
+     *   where: {
+     *     // ... the filter for the OsImportRows we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsImportRowCountArgs>(
+      args?: Subset<T, OsImportRowCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsImportRowCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsImportRow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsImportRowAggregateArgs>(args: Subset<T, OsImportRowAggregateArgs>): Prisma.PrismaPromise<GetOsImportRowAggregateType<T>>
+
+    /**
+     * Group by OsImportRow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsImportRowGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsImportRowGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsImportRowGroupByArgs['orderBy'] }
+        : { orderBy?: OsImportRowGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsImportRowGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsImportRowGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsImportRow model
+   */
+  readonly fields: OsImportRowFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsImportRow.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsImportRowClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    batch<T extends OsImportBatchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsImportBatchDefaultArgs<ExtArgs>>): Prisma__OsImportBatchClient<$Result.GetResult<Prisma.$OsImportBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsImportRow model
+   */
+  interface OsImportRowFieldRefs {
+    readonly id: FieldRef<"OsImportRow", 'String'>
+    readonly importBatchId: FieldRef<"OsImportRow", 'String'>
+    readonly organizationId: FieldRef<"OsImportRow", 'String'>
+    readonly section: FieldRef<"OsImportRow", 'String'>
+    readonly rowIndex: FieldRef<"OsImportRow", 'Int'>
+    readonly outcome: FieldRef<"OsImportRow", 'String'>
+    readonly entityRefsJson: FieldRef<"OsImportRow", 'Json'>
+    readonly errorCode: FieldRef<"OsImportRow", 'String'>
+    readonly normalizedSnapshotJson: FieldRef<"OsImportRow", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsImportRow findUnique
+   */
+  export type OsImportRowFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportRow to fetch.
+     */
+    where: OsImportRowWhereUniqueInput
+  }
+
+  /**
+   * OsImportRow findUniqueOrThrow
+   */
+  export type OsImportRowFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportRow to fetch.
+     */
+    where: OsImportRowWhereUniqueInput
+  }
+
+  /**
+   * OsImportRow findFirst
+   */
+  export type OsImportRowFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportRow to fetch.
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportRows to fetch.
+     */
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsImportRows.
+     */
+    cursor?: OsImportRowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportRows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportRows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsImportRows.
+     */
+    distinct?: OsImportRowScalarFieldEnum | OsImportRowScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportRow findFirstOrThrow
+   */
+  export type OsImportRowFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportRow to fetch.
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportRows to fetch.
+     */
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsImportRows.
+     */
+    cursor?: OsImportRowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportRows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportRows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsImportRows.
+     */
+    distinct?: OsImportRowScalarFieldEnum | OsImportRowScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportRow findMany
+   */
+  export type OsImportRowFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter, which OsImportRows to fetch.
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsImportRows to fetch.
+     */
+    orderBy?: OsImportRowOrderByWithRelationInput | OsImportRowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsImportRows.
+     */
+    cursor?: OsImportRowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsImportRows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsImportRows.
+     */
+    skip?: number
+    distinct?: OsImportRowScalarFieldEnum | OsImportRowScalarFieldEnum[]
+  }
+
+  /**
+   * OsImportRow create
+   */
+  export type OsImportRowCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsImportRow.
+     */
+    data: XOR<OsImportRowCreateInput, OsImportRowUncheckedCreateInput>
+  }
+
+  /**
+   * OsImportRow createMany
+   */
+  export type OsImportRowCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsImportRows.
+     */
+    data: OsImportRowCreateManyInput | OsImportRowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsImportRow createManyAndReturn
+   */
+  export type OsImportRowCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsImportRows.
+     */
+    data: OsImportRowCreateManyInput | OsImportRowCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsImportRow update
+   */
+  export type OsImportRowUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsImportRow.
+     */
+    data: XOR<OsImportRowUpdateInput, OsImportRowUncheckedUpdateInput>
+    /**
+     * Choose, which OsImportRow to update.
+     */
+    where: OsImportRowWhereUniqueInput
+  }
+
+  /**
+   * OsImportRow updateMany
+   */
+  export type OsImportRowUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsImportRows.
+     */
+    data: XOR<OsImportRowUpdateManyMutationInput, OsImportRowUncheckedUpdateManyInput>
+    /**
+     * Filter which OsImportRows to update
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * Limit how many OsImportRows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsImportRow updateManyAndReturn
+   */
+  export type OsImportRowUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * The data used to update OsImportRows.
+     */
+    data: XOR<OsImportRowUpdateManyMutationInput, OsImportRowUncheckedUpdateManyInput>
+    /**
+     * Filter which OsImportRows to update
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * Limit how many OsImportRows to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsImportRow upsert
+   */
+  export type OsImportRowUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsImportRow to update in case it exists.
+     */
+    where: OsImportRowWhereUniqueInput
+    /**
+     * In case the OsImportRow found by the `where` argument doesn't exist, create a new OsImportRow with this data.
+     */
+    create: XOR<OsImportRowCreateInput, OsImportRowUncheckedCreateInput>
+    /**
+     * In case the OsImportRow was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsImportRowUpdateInput, OsImportRowUncheckedUpdateInput>
+  }
+
+  /**
+   * OsImportRow delete
+   */
+  export type OsImportRowDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
+    /**
+     * Filter which OsImportRow to delete.
+     */
+    where: OsImportRowWhereUniqueInput
+  }
+
+  /**
+   * OsImportRow deleteMany
+   */
+  export type OsImportRowDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsImportRows to delete
+     */
+    where?: OsImportRowWhereInput
+    /**
+     * Limit how many OsImportRows to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsImportRow without action
+   */
+  export type OsImportRowDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsImportRow
+     */
+    select?: OsImportRowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsImportRow
+     */
+    omit?: OsImportRowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsImportRowInclude<ExtArgs> | null
   }
 
 
@@ -56256,6 +60222,57 @@ export namespace Prisma {
   export type OsPartyScalarFieldEnum = (typeof OsPartyScalarFieldEnum)[keyof typeof OsPartyScalarFieldEnum]
 
 
+  export const OsLocationScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    partyId: 'partyId',
+    label: 'label',
+    addressText: 'addressText',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    provenanceUrl: 'provenanceUrl',
+    status: 'status',
+    version: 'version',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OsLocationScalarFieldEnum = (typeof OsLocationScalarFieldEnum)[keyof typeof OsLocationScalarFieldEnum]
+
+
+  export const OsImportBatchScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    sourceKind: 'sourceKind',
+    sourceFingerprint: 'sourceFingerprint',
+    status: 'status',
+    createdByMemberId: 'createdByMemberId',
+    createdAt: 'createdAt',
+    completedAt: 'completedAt',
+    receiptJson: 'receiptJson',
+    idempotencyKey: 'idempotencyKey',
+    reversedAt: 'reversedAt',
+    reversedEntityRefs: 'reversedEntityRefs'
+  };
+
+  export type OsImportBatchScalarFieldEnum = (typeof OsImportBatchScalarFieldEnum)[keyof typeof OsImportBatchScalarFieldEnum]
+
+
+  export const OsImportRowScalarFieldEnum: {
+    id: 'id',
+    importBatchId: 'importBatchId',
+    organizationId: 'organizationId',
+    section: 'section',
+    rowIndex: 'rowIndex',
+    outcome: 'outcome',
+    entityRefsJson: 'entityRefsJson',
+    errorCode: 'errorCode',
+    normalizedSnapshotJson: 'normalizedSnapshotJson'
+  };
+
+  export type OsImportRowScalarFieldEnum = (typeof OsImportRowScalarFieldEnum)[keyof typeof OsImportRowScalarFieldEnum]
+
+
   export const OsOpportunityScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
@@ -56780,20 +60797,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'BigInt'
-   */
-  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
-    
-
-
-  /**
-   * Reference to a field of type 'BigInt[]'
-   */
-  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -56804,6 +60807,20 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt[]'
+   */
+  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
 
 
@@ -56846,6 +60863,7 @@ export namespace Prisma {
     parties?: OsPartyListRelationFilter
     partyRoleAssignments?: OsPartyRoleAssignmentListRelationFilter
     contacts?: OsContactListRelationFilter
+    locations?: OsLocationListRelationFilter
     fiscalIdentities?: OsFiscalIdentityListRelationFilter
     commercialAccounts?: OsCommercialAccountListRelationFilter
     leads?: OsLeadListRelationFilter
@@ -56868,6 +60886,8 @@ export namespace Prisma {
     quotes?: OsQuoteListRelationFilter
     quoteLines?: OsQuoteLineListRelationFilter
     orders?: OsOrderListRelationFilter
+    importBatches?: OsImportBatchListRelationFilter
+    importRows?: OsImportRowListRelationFilter
   }
 
   export type OsOrganizationOrderByWithRelationInput = {
@@ -56896,6 +60916,7 @@ export namespace Prisma {
     parties?: OsPartyOrderByRelationAggregateInput
     partyRoleAssignments?: OsPartyRoleAssignmentOrderByRelationAggregateInput
     contacts?: OsContactOrderByRelationAggregateInput
+    locations?: OsLocationOrderByRelationAggregateInput
     fiscalIdentities?: OsFiscalIdentityOrderByRelationAggregateInput
     commercialAccounts?: OsCommercialAccountOrderByRelationAggregateInput
     leads?: OsLeadOrderByRelationAggregateInput
@@ -56918,6 +60939,8 @@ export namespace Prisma {
     quotes?: OsQuoteOrderByRelationAggregateInput
     quoteLines?: OsQuoteLineOrderByRelationAggregateInput
     orders?: OsOrderOrderByRelationAggregateInput
+    importBatches?: OsImportBatchOrderByRelationAggregateInput
+    importRows?: OsImportRowOrderByRelationAggregateInput
   }
 
   export type OsOrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -56949,6 +60972,7 @@ export namespace Prisma {
     parties?: OsPartyListRelationFilter
     partyRoleAssignments?: OsPartyRoleAssignmentListRelationFilter
     contacts?: OsContactListRelationFilter
+    locations?: OsLocationListRelationFilter
     fiscalIdentities?: OsFiscalIdentityListRelationFilter
     commercialAccounts?: OsCommercialAccountListRelationFilter
     leads?: OsLeadListRelationFilter
@@ -56971,6 +60995,8 @@ export namespace Prisma {
     quotes?: OsQuoteListRelationFilter
     quoteLines?: OsQuoteLineListRelationFilter
     orders?: OsOrderListRelationFilter
+    importBatches?: OsImportBatchListRelationFilter
+    importRows?: OsImportRowListRelationFilter
   }, "id" | "slug">
 
   export type OsOrganizationOrderByWithAggregationInput = {
@@ -58434,6 +62460,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyListRelationFilter
     roleAssignments?: OsPartyRoleAssignmentListRelationFilter
     contacts?: OsContactListRelationFilter
+    locations?: OsLocationListRelationFilter
     fiscalIdentities?: OsFiscalIdentityListRelationFilter
     commercialAccounts?: OsCommercialAccountListRelationFilter
     duplicateCandidatesA?: OsPartyDuplicateCandidateListRelationFilter
@@ -58462,6 +62489,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyOrderByRelationAggregateInput
     roleAssignments?: OsPartyRoleAssignmentOrderByRelationAggregateInput
     contacts?: OsContactOrderByRelationAggregateInput
+    locations?: OsLocationOrderByRelationAggregateInput
     fiscalIdentities?: OsFiscalIdentityOrderByRelationAggregateInput
     commercialAccounts?: OsCommercialAccountOrderByRelationAggregateInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateOrderByRelationAggregateInput
@@ -58493,6 +62521,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyListRelationFilter
     roleAssignments?: OsPartyRoleAssignmentListRelationFilter
     contacts?: OsContactListRelationFilter
+    locations?: OsLocationListRelationFilter
     fiscalIdentities?: OsFiscalIdentityListRelationFilter
     commercialAccounts?: OsCommercialAccountListRelationFilter
     duplicateCandidatesA?: OsPartyDuplicateCandidateListRelationFilter
@@ -58537,6 +62566,275 @@ export namespace Prisma {
     version?: IntWithAggregatesFilter<"OsParty"> | number
     createdAt?: DateTimeWithAggregatesFilter<"OsParty"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OsParty"> | Date | string
+  }
+
+  export type OsLocationWhereInput = {
+    AND?: OsLocationWhereInput | OsLocationWhereInput[]
+    OR?: OsLocationWhereInput[]
+    NOT?: OsLocationWhereInput | OsLocationWhereInput[]
+    id?: StringFilter<"OsLocation"> | string
+    organizationId?: StringFilter<"OsLocation"> | string
+    partyId?: StringFilter<"OsLocation"> | string
+    label?: StringFilter<"OsLocation"> | string
+    addressText?: StringNullableFilter<"OsLocation"> | string | null
+    latitude?: FloatNullableFilter<"OsLocation"> | number | null
+    longitude?: FloatNullableFilter<"OsLocation"> | number | null
+    provenanceUrl?: StringNullableFilter<"OsLocation"> | string | null
+    status?: StringFilter<"OsLocation"> | string
+    version?: IntFilter<"OsLocation"> | number
+    createdAt?: DateTimeFilter<"OsLocation"> | Date | string
+    updatedAt?: DateTimeFilter<"OsLocation"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    party?: XOR<OsPartyScalarRelationFilter, OsPartyWhereInput>
+  }
+
+  export type OsLocationOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    label?: SortOrder
+    addressText?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    provenanceUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    party?: OsPartyOrderByWithRelationInput
+  }
+
+  export type OsLocationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsLocationWhereInput | OsLocationWhereInput[]
+    OR?: OsLocationWhereInput[]
+    NOT?: OsLocationWhereInput | OsLocationWhereInput[]
+    organizationId?: StringFilter<"OsLocation"> | string
+    partyId?: StringFilter<"OsLocation"> | string
+    label?: StringFilter<"OsLocation"> | string
+    addressText?: StringNullableFilter<"OsLocation"> | string | null
+    latitude?: FloatNullableFilter<"OsLocation"> | number | null
+    longitude?: FloatNullableFilter<"OsLocation"> | number | null
+    provenanceUrl?: StringNullableFilter<"OsLocation"> | string | null
+    status?: StringFilter<"OsLocation"> | string
+    version?: IntFilter<"OsLocation"> | number
+    createdAt?: DateTimeFilter<"OsLocation"> | Date | string
+    updatedAt?: DateTimeFilter<"OsLocation"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    party?: XOR<OsPartyScalarRelationFilter, OsPartyWhereInput>
+  }, "id">
+
+  export type OsLocationOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    label?: SortOrder
+    addressText?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    provenanceUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OsLocationCountOrderByAggregateInput
+    _avg?: OsLocationAvgOrderByAggregateInput
+    _max?: OsLocationMaxOrderByAggregateInput
+    _min?: OsLocationMinOrderByAggregateInput
+    _sum?: OsLocationSumOrderByAggregateInput
+  }
+
+  export type OsLocationScalarWhereWithAggregatesInput = {
+    AND?: OsLocationScalarWhereWithAggregatesInput | OsLocationScalarWhereWithAggregatesInput[]
+    OR?: OsLocationScalarWhereWithAggregatesInput[]
+    NOT?: OsLocationScalarWhereWithAggregatesInput | OsLocationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsLocation"> | string
+    organizationId?: StringWithAggregatesFilter<"OsLocation"> | string
+    partyId?: StringWithAggregatesFilter<"OsLocation"> | string
+    label?: StringWithAggregatesFilter<"OsLocation"> | string
+    addressText?: StringNullableWithAggregatesFilter<"OsLocation"> | string | null
+    latitude?: FloatNullableWithAggregatesFilter<"OsLocation"> | number | null
+    longitude?: FloatNullableWithAggregatesFilter<"OsLocation"> | number | null
+    provenanceUrl?: StringNullableWithAggregatesFilter<"OsLocation"> | string | null
+    status?: StringWithAggregatesFilter<"OsLocation"> | string
+    version?: IntWithAggregatesFilter<"OsLocation"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"OsLocation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OsLocation"> | Date | string
+  }
+
+  export type OsImportBatchWhereInput = {
+    AND?: OsImportBatchWhereInput | OsImportBatchWhereInput[]
+    OR?: OsImportBatchWhereInput[]
+    NOT?: OsImportBatchWhereInput | OsImportBatchWhereInput[]
+    id?: StringFilter<"OsImportBatch"> | string
+    organizationId?: StringFilter<"OsImportBatch"> | string
+    sourceKind?: StringFilter<"OsImportBatch"> | string
+    sourceFingerprint?: StringFilter<"OsImportBatch"> | string
+    status?: StringFilter<"OsImportBatch"> | string
+    createdByMemberId?: StringFilter<"OsImportBatch"> | string
+    createdAt?: DateTimeFilter<"OsImportBatch"> | Date | string
+    completedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    receiptJson?: JsonFilter<"OsImportBatch">
+    idempotencyKey?: StringFilter<"OsImportBatch"> | string
+    reversedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    reversedEntityRefs?: JsonNullableFilter<"OsImportBatch">
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    rows?: OsImportRowListRelationFilter
+  }
+
+  export type OsImportBatchOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    sourceKind?: SortOrder
+    sourceFingerprint?: SortOrder
+    status?: SortOrder
+    createdByMemberId?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    receiptJson?: SortOrder
+    idempotencyKey?: SortOrder
+    reversedAt?: SortOrderInput | SortOrder
+    reversedEntityRefs?: SortOrderInput | SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    rows?: OsImportRowOrderByRelationAggregateInput
+  }
+
+  export type OsImportBatchWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    organizationId_idempotencyKey?: OsImportBatchOrganizationIdIdempotencyKeyCompoundUniqueInput
+    AND?: OsImportBatchWhereInput | OsImportBatchWhereInput[]
+    OR?: OsImportBatchWhereInput[]
+    NOT?: OsImportBatchWhereInput | OsImportBatchWhereInput[]
+    organizationId?: StringFilter<"OsImportBatch"> | string
+    sourceKind?: StringFilter<"OsImportBatch"> | string
+    sourceFingerprint?: StringFilter<"OsImportBatch"> | string
+    status?: StringFilter<"OsImportBatch"> | string
+    createdByMemberId?: StringFilter<"OsImportBatch"> | string
+    createdAt?: DateTimeFilter<"OsImportBatch"> | Date | string
+    completedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    receiptJson?: JsonFilter<"OsImportBatch">
+    idempotencyKey?: StringFilter<"OsImportBatch"> | string
+    reversedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    reversedEntityRefs?: JsonNullableFilter<"OsImportBatch">
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    rows?: OsImportRowListRelationFilter
+  }, "id" | "organizationId_idempotencyKey">
+
+  export type OsImportBatchOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    sourceKind?: SortOrder
+    sourceFingerprint?: SortOrder
+    status?: SortOrder
+    createdByMemberId?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    receiptJson?: SortOrder
+    idempotencyKey?: SortOrder
+    reversedAt?: SortOrderInput | SortOrder
+    reversedEntityRefs?: SortOrderInput | SortOrder
+    _count?: OsImportBatchCountOrderByAggregateInput
+    _max?: OsImportBatchMaxOrderByAggregateInput
+    _min?: OsImportBatchMinOrderByAggregateInput
+  }
+
+  export type OsImportBatchScalarWhereWithAggregatesInput = {
+    AND?: OsImportBatchScalarWhereWithAggregatesInput | OsImportBatchScalarWhereWithAggregatesInput[]
+    OR?: OsImportBatchScalarWhereWithAggregatesInput[]
+    NOT?: OsImportBatchScalarWhereWithAggregatesInput | OsImportBatchScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    organizationId?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    sourceKind?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    sourceFingerprint?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    status?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    createdByMemberId?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OsImportBatch"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"OsImportBatch"> | Date | string | null
+    receiptJson?: JsonWithAggregatesFilter<"OsImportBatch">
+    idempotencyKey?: StringWithAggregatesFilter<"OsImportBatch"> | string
+    reversedAt?: DateTimeNullableWithAggregatesFilter<"OsImportBatch"> | Date | string | null
+    reversedEntityRefs?: JsonNullableWithAggregatesFilter<"OsImportBatch">
+  }
+
+  export type OsImportRowWhereInput = {
+    AND?: OsImportRowWhereInput | OsImportRowWhereInput[]
+    OR?: OsImportRowWhereInput[]
+    NOT?: OsImportRowWhereInput | OsImportRowWhereInput[]
+    id?: StringFilter<"OsImportRow"> | string
+    importBatchId?: StringFilter<"OsImportRow"> | string
+    organizationId?: StringFilter<"OsImportRow"> | string
+    section?: StringFilter<"OsImportRow"> | string
+    rowIndex?: IntFilter<"OsImportRow"> | number
+    outcome?: StringFilter<"OsImportRow"> | string
+    entityRefsJson?: JsonFilter<"OsImportRow">
+    errorCode?: StringNullableFilter<"OsImportRow"> | string | null
+    normalizedSnapshotJson?: JsonFilter<"OsImportRow">
+    batch?: XOR<OsImportBatchScalarRelationFilter, OsImportBatchWhereInput>
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }
+
+  export type OsImportRowOrderByWithRelationInput = {
+    id?: SortOrder
+    importBatchId?: SortOrder
+    organizationId?: SortOrder
+    section?: SortOrder
+    rowIndex?: SortOrder
+    outcome?: SortOrder
+    entityRefsJson?: SortOrder
+    errorCode?: SortOrderInput | SortOrder
+    normalizedSnapshotJson?: SortOrder
+    batch?: OsImportBatchOrderByWithRelationInput
+    organization?: OsOrganizationOrderByWithRelationInput
+  }
+
+  export type OsImportRowWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsImportRowWhereInput | OsImportRowWhereInput[]
+    OR?: OsImportRowWhereInput[]
+    NOT?: OsImportRowWhereInput | OsImportRowWhereInput[]
+    importBatchId?: StringFilter<"OsImportRow"> | string
+    organizationId?: StringFilter<"OsImportRow"> | string
+    section?: StringFilter<"OsImportRow"> | string
+    rowIndex?: IntFilter<"OsImportRow"> | number
+    outcome?: StringFilter<"OsImportRow"> | string
+    entityRefsJson?: JsonFilter<"OsImportRow">
+    errorCode?: StringNullableFilter<"OsImportRow"> | string | null
+    normalizedSnapshotJson?: JsonFilter<"OsImportRow">
+    batch?: XOR<OsImportBatchScalarRelationFilter, OsImportBatchWhereInput>
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }, "id">
+
+  export type OsImportRowOrderByWithAggregationInput = {
+    id?: SortOrder
+    importBatchId?: SortOrder
+    organizationId?: SortOrder
+    section?: SortOrder
+    rowIndex?: SortOrder
+    outcome?: SortOrder
+    entityRefsJson?: SortOrder
+    errorCode?: SortOrderInput | SortOrder
+    normalizedSnapshotJson?: SortOrder
+    _count?: OsImportRowCountOrderByAggregateInput
+    _avg?: OsImportRowAvgOrderByAggregateInput
+    _max?: OsImportRowMaxOrderByAggregateInput
+    _min?: OsImportRowMinOrderByAggregateInput
+    _sum?: OsImportRowSumOrderByAggregateInput
+  }
+
+  export type OsImportRowScalarWhereWithAggregatesInput = {
+    AND?: OsImportRowScalarWhereWithAggregatesInput | OsImportRowScalarWhereWithAggregatesInput[]
+    OR?: OsImportRowScalarWhereWithAggregatesInput[]
+    NOT?: OsImportRowScalarWhereWithAggregatesInput | OsImportRowScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsImportRow"> | string
+    importBatchId?: StringWithAggregatesFilter<"OsImportRow"> | string
+    organizationId?: StringWithAggregatesFilter<"OsImportRow"> | string
+    section?: StringWithAggregatesFilter<"OsImportRow"> | string
+    rowIndex?: IntWithAggregatesFilter<"OsImportRow"> | number
+    outcome?: StringWithAggregatesFilter<"OsImportRow"> | string
+    entityRefsJson?: JsonWithAggregatesFilter<"OsImportRow">
+    errorCode?: StringNullableWithAggregatesFilter<"OsImportRow"> | string | null
+    normalizedSnapshotJson?: JsonWithAggregatesFilter<"OsImportRow">
   }
 
   export type OsOpportunityWhereInput = {
@@ -60723,6 +65021,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -60745,6 +65044,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateInput = {
@@ -60773,6 +65074,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -60795,6 +65097,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUpdateInput = {
@@ -60823,6 +65127,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -60845,6 +65150,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateInput = {
@@ -60873,6 +65180,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -60895,6 +65203,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateManyInput = {
@@ -62440,6 +66750,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -62466,6 +66777,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -62492,6 +66804,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -62518,6 +66831,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -62565,6 +66879,299 @@ export namespace Prisma {
     version?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationCreateInput = {
+    id: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutLocationsInput
+    party: OsPartyCreateNestedOneWithoutLocationsInput
+  }
+
+  export type OsLocationUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OsLocationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutLocationsNestedInput
+    party?: OsPartyUpdateOneRequiredWithoutLocationsNestedInput
+  }
+
+  export type OsLocationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationCreateManyInput = {
+    id: string
+    organizationId: string
+    partyId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OsLocationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsImportBatchCreateInput = {
+    id: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    organization: OsOrganizationCreateNestedOneWithoutImportBatchesInput
+    rows?: OsImportRowCreateNestedManyWithoutBatchInput
+  }
+
+  export type OsImportBatchUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowUncheckedCreateNestedManyWithoutBatchInput
+  }
+
+  export type OsImportBatchUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    organization?: OsOrganizationUpdateOneRequiredWithoutImportBatchesNestedInput
+    rows?: OsImportRowUpdateManyWithoutBatchNestedInput
+  }
+
+  export type OsImportBatchUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowUncheckedUpdateManyWithoutBatchNestedInput
+  }
+
+  export type OsImportBatchCreateManyInput = {
+    id: string
+    organizationId: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportBatchUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportBatchUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowCreateInput = {
+    id: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+    batch: OsImportBatchCreateNestedOneWithoutRowsInput
+    organization: OsOrganizationCreateNestedOneWithoutImportRowsInput
+  }
+
+  export type OsImportRowUncheckedCreateInput = {
+    id: string
+    importBatchId: string
+    organizationId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+    batch?: OsImportBatchUpdateOneRequiredWithoutRowsNestedInput
+    organization?: OsOrganizationUpdateOneRequiredWithoutImportRowsNestedInput
+  }
+
+  export type OsImportRowUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    importBatchId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowCreateManyInput = {
+    id: string
+    importBatchId: string
+    organizationId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    importBatchId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
   }
 
   export type OsOpportunityCreateInput = {
@@ -65106,6 +69713,12 @@ export namespace Prisma {
     none?: OsContactWhereInput
   }
 
+  export type OsLocationListRelationFilter = {
+    every?: OsLocationWhereInput
+    some?: OsLocationWhereInput
+    none?: OsLocationWhereInput
+  }
+
   export type OsFiscalIdentityListRelationFilter = {
     every?: OsFiscalIdentityWhereInput
     some?: OsFiscalIdentityWhereInput
@@ -65238,6 +69851,18 @@ export namespace Prisma {
     none?: OsOrderWhereInput
   }
 
+  export type OsImportBatchListRelationFilter = {
+    every?: OsImportBatchWhereInput
+    some?: OsImportBatchWhereInput
+    none?: OsImportBatchWhereInput
+  }
+
+  export type OsImportRowListRelationFilter = {
+    every?: OsImportRowWhereInput
+    some?: OsImportRowWhereInput
+    none?: OsImportRowWhereInput
+  }
+
   export type OsOrganizationMemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -65303,6 +69928,10 @@ export namespace Prisma {
   }
 
   export type OsContactOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsLocationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -65391,6 +70020,14 @@ export namespace Prisma {
   }
 
   export type OsOrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsImportBatchOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsImportRowOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -66437,6 +71074,186 @@ export namespace Prisma {
     version?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type OsPartyScalarRelationFilter = {
+    is?: OsPartyWhereInput
+    isNot?: OsPartyWhereInput
+  }
+
+  export type OsLocationCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    label?: SortOrder
+    addressText?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    provenanceUrl?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsLocationAvgOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+    version?: SortOrder
+  }
+
+  export type OsLocationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    label?: SortOrder
+    addressText?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    provenanceUrl?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsLocationMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    partyId?: SortOrder
+    label?: SortOrder
+    addressText?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    provenanceUrl?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OsLocationSumOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+    version?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type OsImportBatchOrganizationIdIdempotencyKeyCompoundUniqueInput = {
+    organizationId: string
+    idempotencyKey: string
+  }
+
+  export type OsImportBatchCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    sourceKind?: SortOrder
+    sourceFingerprint?: SortOrder
+    status?: SortOrder
+    createdByMemberId?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+    receiptJson?: SortOrder
+    idempotencyKey?: SortOrder
+    reversedAt?: SortOrder
+    reversedEntityRefs?: SortOrder
+  }
+
+  export type OsImportBatchMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    sourceKind?: SortOrder
+    sourceFingerprint?: SortOrder
+    status?: SortOrder
+    createdByMemberId?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+    idempotencyKey?: SortOrder
+    reversedAt?: SortOrder
+  }
+
+  export type OsImportBatchMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    sourceKind?: SortOrder
+    sourceFingerprint?: SortOrder
+    status?: SortOrder
+    createdByMemberId?: SortOrder
+    createdAt?: SortOrder
+    completedAt?: SortOrder
+    idempotencyKey?: SortOrder
+    reversedAt?: SortOrder
+  }
+
+  export type OsImportBatchScalarRelationFilter = {
+    is?: OsImportBatchWhereInput
+    isNot?: OsImportBatchWhereInput
+  }
+
+  export type OsImportRowCountOrderByAggregateInput = {
+    id?: SortOrder
+    importBatchId?: SortOrder
+    organizationId?: SortOrder
+    section?: SortOrder
+    rowIndex?: SortOrder
+    outcome?: SortOrder
+    entityRefsJson?: SortOrder
+    errorCode?: SortOrder
+    normalizedSnapshotJson?: SortOrder
+  }
+
+  export type OsImportRowAvgOrderByAggregateInput = {
+    rowIndex?: SortOrder
+  }
+
+  export type OsImportRowMaxOrderByAggregateInput = {
+    id?: SortOrder
+    importBatchId?: SortOrder
+    organizationId?: SortOrder
+    section?: SortOrder
+    rowIndex?: SortOrder
+    outcome?: SortOrder
+    errorCode?: SortOrder
+  }
+
+  export type OsImportRowMinOrderByAggregateInput = {
+    id?: SortOrder
+    importBatchId?: SortOrder
+    organizationId?: SortOrder
+    section?: SortOrder
+    rowIndex?: SortOrder
+    outcome?: SortOrder
+    errorCode?: SortOrder
+  }
+
+  export type OsImportRowSumOrderByAggregateInput = {
+    rowIndex?: SortOrder
+  }
+
   export type BigIntNullableFilter<$PrismaModel = never> = {
     equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
     in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
@@ -66446,11 +71263,6 @@ export namespace Prisma {
     gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
     gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
     not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
-  }
-
-  export type OsPartyScalarRelationFilter = {
-    is?: OsPartyWhereInput
-    isNot?: OsPartyWhereInput
   }
 
   export type OsOpportunityCountOrderByAggregateInput = {
@@ -67894,6 +72706,13 @@ export namespace Prisma {
     connect?: OsContactWhereUniqueInput | OsContactWhereUniqueInput[]
   }
 
+  export type OsLocationCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput> | OsLocationCreateWithoutOrganizationInput[] | OsLocationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutOrganizationInput | OsLocationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsLocationCreateManyOrganizationInputEnvelope
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+  }
+
   export type OsFiscalIdentityCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsFiscalIdentityCreateWithoutOrganizationInput, OsFiscalIdentityUncheckedCreateWithoutOrganizationInput> | OsFiscalIdentityCreateWithoutOrganizationInput[] | OsFiscalIdentityUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsFiscalIdentityCreateOrConnectWithoutOrganizationInput | OsFiscalIdentityCreateOrConnectWithoutOrganizationInput[]
@@ -68048,6 +72867,20 @@ export namespace Prisma {
     connect?: OsOrderWhereUniqueInput | OsOrderWhereUniqueInput[]
   }
 
+  export type OsImportBatchCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput> | OsImportBatchCreateWithoutOrganizationInput[] | OsImportBatchUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutOrganizationInput | OsImportBatchCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsImportBatchCreateManyOrganizationInputEnvelope
+    connect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+  }
+
+  export type OsImportRowCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput> | OsImportRowCreateWithoutOrganizationInput[] | OsImportRowUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutOrganizationInput | OsImportRowCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsImportRowCreateManyOrganizationInputEnvelope
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+  }
+
   export type OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsOrganizationMemberCreateWithoutOrganizationInput, OsOrganizationMemberUncheckedCreateWithoutOrganizationInput> | OsOrganizationMemberCreateWithoutOrganizationInput[] | OsOrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsOrganizationMemberCreateOrConnectWithoutOrganizationInput | OsOrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -68165,6 +72998,13 @@ export namespace Prisma {
     connectOrCreate?: OsContactCreateOrConnectWithoutOrganizationInput | OsContactCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsContactCreateManyOrganizationInputEnvelope
     connect?: OsContactWhereUniqueInput | OsContactWhereUniqueInput[]
+  }
+
+  export type OsLocationUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput> | OsLocationCreateWithoutOrganizationInput[] | OsLocationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutOrganizationInput | OsLocationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsLocationCreateManyOrganizationInputEnvelope
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
   }
 
   export type OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -68319,6 +73159,20 @@ export namespace Prisma {
     connectOrCreate?: OsOrderCreateOrConnectWithoutOrganizationInput | OsOrderCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsOrderCreateManyOrganizationInputEnvelope
     connect?: OsOrderWhereUniqueInput | OsOrderWhereUniqueInput[]
+  }
+
+  export type OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput> | OsImportBatchCreateWithoutOrganizationInput[] | OsImportBatchUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutOrganizationInput | OsImportBatchCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsImportBatchCreateManyOrganizationInputEnvelope
+    connect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+  }
+
+  export type OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput> | OsImportRowCreateWithoutOrganizationInput[] | OsImportRowUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutOrganizationInput | OsImportRowCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsImportRowCreateManyOrganizationInputEnvelope
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -68565,6 +73419,20 @@ export namespace Prisma {
     update?: OsContactUpdateWithWhereUniqueWithoutOrganizationInput | OsContactUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsContactUpdateManyWithWhereWithoutOrganizationInput | OsContactUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsContactScalarWhereInput | OsContactScalarWhereInput[]
+  }
+
+  export type OsLocationUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput> | OsLocationCreateWithoutOrganizationInput[] | OsLocationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutOrganizationInput | OsLocationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsLocationUpsertWithWhereUniqueWithoutOrganizationInput | OsLocationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsLocationCreateManyOrganizationInputEnvelope
+    set?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    disconnect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    delete?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    update?: OsLocationUpdateWithWhereUniqueWithoutOrganizationInput | OsLocationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsLocationUpdateManyWithWhereWithoutOrganizationInput | OsLocationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
   }
 
   export type OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput = {
@@ -68875,6 +73743,34 @@ export namespace Prisma {
     deleteMany?: OsOrderScalarWhereInput | OsOrderScalarWhereInput[]
   }
 
+  export type OsImportBatchUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput> | OsImportBatchCreateWithoutOrganizationInput[] | OsImportBatchUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutOrganizationInput | OsImportBatchCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsImportBatchUpsertWithWhereUniqueWithoutOrganizationInput | OsImportBatchUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsImportBatchCreateManyOrganizationInputEnvelope
+    set?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    disconnect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    delete?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    connect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    update?: OsImportBatchUpdateWithWhereUniqueWithoutOrganizationInput | OsImportBatchUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsImportBatchUpdateManyWithWhereWithoutOrganizationInput | OsImportBatchUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsImportBatchScalarWhereInput | OsImportBatchScalarWhereInput[]
+  }
+
+  export type OsImportRowUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput> | OsImportRowCreateWithoutOrganizationInput[] | OsImportRowUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutOrganizationInput | OsImportRowCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsImportRowUpsertWithWhereUniqueWithoutOrganizationInput | OsImportRowUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsImportRowCreateManyOrganizationInputEnvelope
+    set?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    disconnect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    delete?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    update?: OsImportRowUpdateWithWhereUniqueWithoutOrganizationInput | OsImportRowUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsImportRowUpdateManyWithWhereWithoutOrganizationInput | OsImportRowUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
+  }
+
   export type OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsOrganizationMemberCreateWithoutOrganizationInput, OsOrganizationMemberUncheckedCreateWithoutOrganizationInput> | OsOrganizationMemberCreateWithoutOrganizationInput[] | OsOrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsOrganizationMemberCreateOrConnectWithoutOrganizationInput | OsOrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -69111,6 +74007,20 @@ export namespace Prisma {
     update?: OsContactUpdateWithWhereUniqueWithoutOrganizationInput | OsContactUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsContactUpdateManyWithWhereWithoutOrganizationInput | OsContactUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsContactScalarWhereInput | OsContactScalarWhereInput[]
+  }
+
+  export type OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput> | OsLocationCreateWithoutOrganizationInput[] | OsLocationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutOrganizationInput | OsLocationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsLocationUpsertWithWhereUniqueWithoutOrganizationInput | OsLocationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsLocationCreateManyOrganizationInputEnvelope
+    set?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    disconnect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    delete?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    update?: OsLocationUpdateWithWhereUniqueWithoutOrganizationInput | OsLocationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsLocationUpdateManyWithWhereWithoutOrganizationInput | OsLocationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
   }
 
   export type OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -69419,6 +74329,34 @@ export namespace Prisma {
     update?: OsOrderUpdateWithWhereUniqueWithoutOrganizationInput | OsOrderUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsOrderUpdateManyWithWhereWithoutOrganizationInput | OsOrderUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsOrderScalarWhereInput | OsOrderScalarWhereInput[]
+  }
+
+  export type OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput> | OsImportBatchCreateWithoutOrganizationInput[] | OsImportBatchUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutOrganizationInput | OsImportBatchCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsImportBatchUpsertWithWhereUniqueWithoutOrganizationInput | OsImportBatchUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsImportBatchCreateManyOrganizationInputEnvelope
+    set?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    disconnect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    delete?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    connect?: OsImportBatchWhereUniqueInput | OsImportBatchWhereUniqueInput[]
+    update?: OsImportBatchUpdateWithWhereUniqueWithoutOrganizationInput | OsImportBatchUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsImportBatchUpdateManyWithWhereWithoutOrganizationInput | OsImportBatchUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsImportBatchScalarWhereInput | OsImportBatchScalarWhereInput[]
+  }
+
+  export type OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput> | OsImportRowCreateWithoutOrganizationInput[] | OsImportRowUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutOrganizationInput | OsImportRowCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsImportRowUpsertWithWhereUniqueWithoutOrganizationInput | OsImportRowUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsImportRowCreateManyOrganizationInputEnvelope
+    set?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    disconnect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    delete?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    update?: OsImportRowUpdateWithWhereUniqueWithoutOrganizationInput | OsImportRowUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsImportRowUpdateManyWithWhereWithoutOrganizationInput | OsImportRowUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutPersonInput = {
@@ -70484,6 +75422,13 @@ export namespace Prisma {
     connect?: OsContactWhereUniqueInput | OsContactWhereUniqueInput[]
   }
 
+  export type OsLocationCreateNestedManyWithoutPartyInput = {
+    create?: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput> | OsLocationCreateWithoutPartyInput[] | OsLocationUncheckedCreateWithoutPartyInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutPartyInput | OsLocationCreateOrConnectWithoutPartyInput[]
+    createMany?: OsLocationCreateManyPartyInputEnvelope
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+  }
+
   export type OsFiscalIdentityCreateNestedManyWithoutPartyInput = {
     create?: XOR<OsFiscalIdentityCreateWithoutPartyInput, OsFiscalIdentityUncheckedCreateWithoutPartyInput> | OsFiscalIdentityCreateWithoutPartyInput[] | OsFiscalIdentityUncheckedCreateWithoutPartyInput[]
     connectOrCreate?: OsFiscalIdentityCreateOrConnectWithoutPartyInput | OsFiscalIdentityCreateOrConnectWithoutPartyInput[]
@@ -70573,6 +75518,13 @@ export namespace Prisma {
     connectOrCreate?: OsContactCreateOrConnectWithoutOrganizationPartyInput | OsContactCreateOrConnectWithoutOrganizationPartyInput[]
     createMany?: OsContactCreateManyOrganizationPartyInputEnvelope
     connect?: OsContactWhereUniqueInput | OsContactWhereUniqueInput[]
+  }
+
+  export type OsLocationUncheckedCreateNestedManyWithoutPartyInput = {
+    create?: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput> | OsLocationCreateWithoutPartyInput[] | OsLocationUncheckedCreateWithoutPartyInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutPartyInput | OsLocationCreateOrConnectWithoutPartyInput[]
+    createMany?: OsLocationCreateManyPartyInputEnvelope
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
   }
 
   export type OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput = {
@@ -70703,6 +75655,20 @@ export namespace Prisma {
     update?: OsContactUpdateWithWhereUniqueWithoutOrganizationPartyInput | OsContactUpdateWithWhereUniqueWithoutOrganizationPartyInput[]
     updateMany?: OsContactUpdateManyWithWhereWithoutOrganizationPartyInput | OsContactUpdateManyWithWhereWithoutOrganizationPartyInput[]
     deleteMany?: OsContactScalarWhereInput | OsContactScalarWhereInput[]
+  }
+
+  export type OsLocationUpdateManyWithoutPartyNestedInput = {
+    create?: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput> | OsLocationCreateWithoutPartyInput[] | OsLocationUncheckedCreateWithoutPartyInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutPartyInput | OsLocationCreateOrConnectWithoutPartyInput[]
+    upsert?: OsLocationUpsertWithWhereUniqueWithoutPartyInput | OsLocationUpsertWithWhereUniqueWithoutPartyInput[]
+    createMany?: OsLocationCreateManyPartyInputEnvelope
+    set?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    disconnect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    delete?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    update?: OsLocationUpdateWithWhereUniqueWithoutPartyInput | OsLocationUpdateWithWhereUniqueWithoutPartyInput[]
+    updateMany?: OsLocationUpdateManyWithWhereWithoutPartyInput | OsLocationUpdateManyWithWhereWithoutPartyInput[]
+    deleteMany?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
   }
 
   export type OsFiscalIdentityUpdateManyWithoutPartyNestedInput = {
@@ -70887,6 +75853,20 @@ export namespace Prisma {
     deleteMany?: OsContactScalarWhereInput | OsContactScalarWhereInput[]
   }
 
+  export type OsLocationUncheckedUpdateManyWithoutPartyNestedInput = {
+    create?: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput> | OsLocationCreateWithoutPartyInput[] | OsLocationUncheckedCreateWithoutPartyInput[]
+    connectOrCreate?: OsLocationCreateOrConnectWithoutPartyInput | OsLocationCreateOrConnectWithoutPartyInput[]
+    upsert?: OsLocationUpsertWithWhereUniqueWithoutPartyInput | OsLocationUpsertWithWhereUniqueWithoutPartyInput[]
+    createMany?: OsLocationCreateManyPartyInputEnvelope
+    set?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    disconnect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    delete?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    connect?: OsLocationWhereUniqueInput | OsLocationWhereUniqueInput[]
+    update?: OsLocationUpdateWithWhereUniqueWithoutPartyInput | OsLocationUpdateWithWhereUniqueWithoutPartyInput[]
+    updateMany?: OsLocationUpdateManyWithWhereWithoutPartyInput | OsLocationUpdateManyWithWhereWithoutPartyInput[]
+    deleteMany?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
+  }
+
   export type OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput = {
     create?: XOR<OsFiscalIdentityCreateWithoutPartyInput, OsFiscalIdentityUncheckedCreateWithoutPartyInput> | OsFiscalIdentityCreateWithoutPartyInput[] | OsFiscalIdentityUncheckedCreateWithoutPartyInput[]
     connectOrCreate?: OsFiscalIdentityCreateOrConnectWithoutPartyInput | OsFiscalIdentityCreateOrConnectWithoutPartyInput[]
@@ -71025,6 +76005,126 @@ export namespace Prisma {
     update?: OsOrderUpdateWithWhereUniqueWithoutPartyInput | OsOrderUpdateWithWhereUniqueWithoutPartyInput[]
     updateMany?: OsOrderUpdateManyWithWhereWithoutPartyInput | OsOrderUpdateManyWithWhereWithoutPartyInput[]
     deleteMany?: OsOrderScalarWhereInput | OsOrderScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutLocationsInput = {
+    create?: XOR<OsOrganizationCreateWithoutLocationsInput, OsOrganizationUncheckedCreateWithoutLocationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutLocationsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsPartyCreateNestedOneWithoutLocationsInput = {
+    create?: XOR<OsPartyCreateWithoutLocationsInput, OsPartyUncheckedCreateWithoutLocationsInput>
+    connectOrCreate?: OsPartyCreateOrConnectWithoutLocationsInput
+    connect?: OsPartyWhereUniqueInput
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutLocationsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutLocationsInput, OsOrganizationUncheckedCreateWithoutLocationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutLocationsInput
+    upsert?: OsOrganizationUpsertWithoutLocationsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutLocationsInput, OsOrganizationUpdateWithoutLocationsInput>, OsOrganizationUncheckedUpdateWithoutLocationsInput>
+  }
+
+  export type OsPartyUpdateOneRequiredWithoutLocationsNestedInput = {
+    create?: XOR<OsPartyCreateWithoutLocationsInput, OsPartyUncheckedCreateWithoutLocationsInput>
+    connectOrCreate?: OsPartyCreateOrConnectWithoutLocationsInput
+    upsert?: OsPartyUpsertWithoutLocationsInput
+    connect?: OsPartyWhereUniqueInput
+    update?: XOR<XOR<OsPartyUpdateToOneWithWhereWithoutLocationsInput, OsPartyUpdateWithoutLocationsInput>, OsPartyUncheckedUpdateWithoutLocationsInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutImportBatchesInput = {
+    create?: XOR<OsOrganizationCreateWithoutImportBatchesInput, OsOrganizationUncheckedCreateWithoutImportBatchesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutImportBatchesInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsImportRowCreateNestedManyWithoutBatchInput = {
+    create?: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput> | OsImportRowCreateWithoutBatchInput[] | OsImportRowUncheckedCreateWithoutBatchInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutBatchInput | OsImportRowCreateOrConnectWithoutBatchInput[]
+    createMany?: OsImportRowCreateManyBatchInputEnvelope
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+  }
+
+  export type OsImportRowUncheckedCreateNestedManyWithoutBatchInput = {
+    create?: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput> | OsImportRowCreateWithoutBatchInput[] | OsImportRowUncheckedCreateWithoutBatchInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutBatchInput | OsImportRowCreateOrConnectWithoutBatchInput[]
+    createMany?: OsImportRowCreateManyBatchInputEnvelope
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutImportBatchesNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutImportBatchesInput, OsOrganizationUncheckedCreateWithoutImportBatchesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutImportBatchesInput
+    upsert?: OsOrganizationUpsertWithoutImportBatchesInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutImportBatchesInput, OsOrganizationUpdateWithoutImportBatchesInput>, OsOrganizationUncheckedUpdateWithoutImportBatchesInput>
+  }
+
+  export type OsImportRowUpdateManyWithoutBatchNestedInput = {
+    create?: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput> | OsImportRowCreateWithoutBatchInput[] | OsImportRowUncheckedCreateWithoutBatchInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutBatchInput | OsImportRowCreateOrConnectWithoutBatchInput[]
+    upsert?: OsImportRowUpsertWithWhereUniqueWithoutBatchInput | OsImportRowUpsertWithWhereUniqueWithoutBatchInput[]
+    createMany?: OsImportRowCreateManyBatchInputEnvelope
+    set?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    disconnect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    delete?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    update?: OsImportRowUpdateWithWhereUniqueWithoutBatchInput | OsImportRowUpdateWithWhereUniqueWithoutBatchInput[]
+    updateMany?: OsImportRowUpdateManyWithWhereWithoutBatchInput | OsImportRowUpdateManyWithWhereWithoutBatchInput[]
+    deleteMany?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
+  }
+
+  export type OsImportRowUncheckedUpdateManyWithoutBatchNestedInput = {
+    create?: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput> | OsImportRowCreateWithoutBatchInput[] | OsImportRowUncheckedCreateWithoutBatchInput[]
+    connectOrCreate?: OsImportRowCreateOrConnectWithoutBatchInput | OsImportRowCreateOrConnectWithoutBatchInput[]
+    upsert?: OsImportRowUpsertWithWhereUniqueWithoutBatchInput | OsImportRowUpsertWithWhereUniqueWithoutBatchInput[]
+    createMany?: OsImportRowCreateManyBatchInputEnvelope
+    set?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    disconnect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    delete?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    connect?: OsImportRowWhereUniqueInput | OsImportRowWhereUniqueInput[]
+    update?: OsImportRowUpdateWithWhereUniqueWithoutBatchInput | OsImportRowUpdateWithWhereUniqueWithoutBatchInput[]
+    updateMany?: OsImportRowUpdateManyWithWhereWithoutBatchInput | OsImportRowUpdateManyWithWhereWithoutBatchInput[]
+    deleteMany?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
+  }
+
+  export type OsImportBatchCreateNestedOneWithoutRowsInput = {
+    create?: XOR<OsImportBatchCreateWithoutRowsInput, OsImportBatchUncheckedCreateWithoutRowsInput>
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutRowsInput
+    connect?: OsImportBatchWhereUniqueInput
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutImportRowsInput = {
+    create?: XOR<OsOrganizationCreateWithoutImportRowsInput, OsOrganizationUncheckedCreateWithoutImportRowsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutImportRowsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsImportBatchUpdateOneRequiredWithoutRowsNestedInput = {
+    create?: XOR<OsImportBatchCreateWithoutRowsInput, OsImportBatchUncheckedCreateWithoutRowsInput>
+    connectOrCreate?: OsImportBatchCreateOrConnectWithoutRowsInput
+    upsert?: OsImportBatchUpsertWithoutRowsInput
+    connect?: OsImportBatchWhereUniqueInput
+    update?: XOR<XOR<OsImportBatchUpdateToOneWithWhereWithoutRowsInput, OsImportBatchUpdateWithoutRowsInput>, OsImportBatchUncheckedUpdateWithoutRowsInput>
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutImportRowsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutImportRowsInput, OsOrganizationUncheckedCreateWithoutImportRowsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutImportRowsInput
+    upsert?: OsOrganizationUpsertWithoutImportRowsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutImportRowsInput, OsOrganizationUpdateWithoutImportRowsInput>, OsOrganizationUncheckedUpdateWithoutImportRowsInput>
   }
 
   export type OsOrganizationCreateNestedOneWithoutOpportunitiesInput = {
@@ -71919,6 +77019,33 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type NestedBigIntNullableFilter<$PrismaModel = never> = {
     equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
     in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
@@ -71944,17 +77071,6 @@ export namespace Prisma {
     _sum?: NestedBigIntNullableFilter<$PrismaModel>
     _min?: NestedBigIntNullableFilter<$PrismaModel>
     _max?: NestedBigIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedBigIntFilter<$PrismaModel = never> = {
@@ -72482,6 +77598,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -72507,6 +77624,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -72596,6 +77714,44 @@ export namespace Prisma {
 
   export type OsContactCreateManyOrganizationInputEnvelope = {
     data: OsContactCreateManyOrganizationInput | OsContactCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsLocationCreateWithoutOrganizationInput = {
+    id: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    party: OsPartyCreateNestedOneWithoutLocationsInput
+  }
+
+  export type OsLocationUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    partyId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OsLocationCreateOrConnectWithoutOrganizationInput = {
+    where: OsLocationWhereUniqueInput
+    create: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsLocationCreateManyOrganizationInputEnvelope = {
+    data: OsLocationCreateManyOrganizationInput | OsLocationCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -73477,6 +78633,78 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsImportBatchCreateWithoutOrganizationInput = {
+    id: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowCreateNestedManyWithoutBatchInput
+  }
+
+  export type OsImportBatchUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowUncheckedCreateNestedManyWithoutBatchInput
+  }
+
+  export type OsImportBatchCreateOrConnectWithoutOrganizationInput = {
+    where: OsImportBatchWhereUniqueInput
+    create: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsImportBatchCreateManyOrganizationInputEnvelope = {
+    data: OsImportBatchCreateManyOrganizationInput | OsImportBatchCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsImportRowCreateWithoutOrganizationInput = {
+    id: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+    batch: OsImportBatchCreateNestedOneWithoutRowsInput
+  }
+
+  export type OsImportRowUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    importBatchId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowCreateOrConnectWithoutOrganizationInput = {
+    where: OsImportRowWhereUniqueInput
+    create: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsImportRowCreateManyOrganizationInputEnvelope = {
+    data: OsImportRowCreateManyOrganizationInput | OsImportRowCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OsOrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OsOrganizationMemberWhereUniqueInput
     update: XOR<OsOrganizationMemberUpdateWithoutOrganizationInput, OsOrganizationMemberUncheckedUpdateWithoutOrganizationInput>
@@ -73998,6 +79226,40 @@ export namespace Prisma {
     version?: IntFilter<"OsContact"> | number
     createdAt?: DateTimeFilter<"OsContact"> | Date | string
     updatedAt?: DateTimeFilter<"OsContact"> | Date | string
+  }
+
+  export type OsLocationUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsLocationWhereUniqueInput
+    update: XOR<OsLocationUpdateWithoutOrganizationInput, OsLocationUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsLocationCreateWithoutOrganizationInput, OsLocationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsLocationUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsLocationWhereUniqueInput
+    data: XOR<OsLocationUpdateWithoutOrganizationInput, OsLocationUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsLocationUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsLocationScalarWhereInput
+    data: XOR<OsLocationUpdateManyMutationInput, OsLocationUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsLocationScalarWhereInput = {
+    AND?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
+    OR?: OsLocationScalarWhereInput[]
+    NOT?: OsLocationScalarWhereInput | OsLocationScalarWhereInput[]
+    id?: StringFilter<"OsLocation"> | string
+    organizationId?: StringFilter<"OsLocation"> | string
+    partyId?: StringFilter<"OsLocation"> | string
+    label?: StringFilter<"OsLocation"> | string
+    addressText?: StringNullableFilter<"OsLocation"> | string | null
+    latitude?: FloatNullableFilter<"OsLocation"> | number | null
+    longitude?: FloatNullableFilter<"OsLocation"> | number | null
+    provenanceUrl?: StringNullableFilter<"OsLocation"> | string | null
+    status?: StringFilter<"OsLocation"> | string
+    version?: IntFilter<"OsLocation"> | number
+    createdAt?: DateTimeFilter<"OsLocation"> | Date | string
+    updatedAt?: DateTimeFilter<"OsLocation"> | Date | string
   }
 
   export type OsFiscalIdentityUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -74766,6 +80028,71 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OsOrder"> | Date | string
   }
 
+  export type OsImportBatchUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsImportBatchWhereUniqueInput
+    update: XOR<OsImportBatchUpdateWithoutOrganizationInput, OsImportBatchUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsImportBatchCreateWithoutOrganizationInput, OsImportBatchUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsImportBatchUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsImportBatchWhereUniqueInput
+    data: XOR<OsImportBatchUpdateWithoutOrganizationInput, OsImportBatchUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsImportBatchUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsImportBatchScalarWhereInput
+    data: XOR<OsImportBatchUpdateManyMutationInput, OsImportBatchUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsImportBatchScalarWhereInput = {
+    AND?: OsImportBatchScalarWhereInput | OsImportBatchScalarWhereInput[]
+    OR?: OsImportBatchScalarWhereInput[]
+    NOT?: OsImportBatchScalarWhereInput | OsImportBatchScalarWhereInput[]
+    id?: StringFilter<"OsImportBatch"> | string
+    organizationId?: StringFilter<"OsImportBatch"> | string
+    sourceKind?: StringFilter<"OsImportBatch"> | string
+    sourceFingerprint?: StringFilter<"OsImportBatch"> | string
+    status?: StringFilter<"OsImportBatch"> | string
+    createdByMemberId?: StringFilter<"OsImportBatch"> | string
+    createdAt?: DateTimeFilter<"OsImportBatch"> | Date | string
+    completedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    receiptJson?: JsonFilter<"OsImportBatch">
+    idempotencyKey?: StringFilter<"OsImportBatch"> | string
+    reversedAt?: DateTimeNullableFilter<"OsImportBatch"> | Date | string | null
+    reversedEntityRefs?: JsonNullableFilter<"OsImportBatch">
+  }
+
+  export type OsImportRowUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsImportRowWhereUniqueInput
+    update: XOR<OsImportRowUpdateWithoutOrganizationInput, OsImportRowUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsImportRowCreateWithoutOrganizationInput, OsImportRowUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsImportRowUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsImportRowWhereUniqueInput
+    data: XOR<OsImportRowUpdateWithoutOrganizationInput, OsImportRowUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsImportRowUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsImportRowScalarWhereInput
+    data: XOR<OsImportRowUpdateManyMutationInput, OsImportRowUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsImportRowScalarWhereInput = {
+    AND?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
+    OR?: OsImportRowScalarWhereInput[]
+    NOT?: OsImportRowScalarWhereInput | OsImportRowScalarWhereInput[]
+    id?: StringFilter<"OsImportRow"> | string
+    importBatchId?: StringFilter<"OsImportRow"> | string
+    organizationId?: StringFilter<"OsImportRow"> | string
+    section?: StringFilter<"OsImportRow"> | string
+    rowIndex?: IntFilter<"OsImportRow"> | number
+    outcome?: StringFilter<"OsImportRow"> | string
+    entityRefsJson?: JsonFilter<"OsImportRow">
+    errorCode?: StringNullableFilter<"OsImportRow"> | string | null
+    normalizedSnapshotJson?: JsonFilter<"OsImportRow">
+  }
+
   export type OsOrganizationMemberCreateWithoutPersonInput = {
     id: string
     employmentStatus: string
@@ -74924,6 +80251,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -74946,6 +80274,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutMembersInput = {
@@ -74973,6 +80303,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -74995,6 +80326,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutMembersInput = {
@@ -75289,6 +80622,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -75311,6 +80645,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutMembersInput = {
@@ -75338,6 +80674,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -75360,6 +80697,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPersonUpsertWithoutMembersInput = {
@@ -75586,6 +80925,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -75608,6 +80948,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -75635,6 +80977,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -75657,6 +81000,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -75783,6 +81128,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -75805,6 +81151,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -75832,6 +81180,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -75854,6 +81203,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsDepartmentUpsertWithoutChildrenInput = {
@@ -75944,6 +81295,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -75966,6 +81318,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutTerritoriesInput = {
@@ -75993,6 +81347,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -76015,6 +81370,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutTerritoriesInput = {
@@ -76109,6 +81466,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -76131,6 +81489,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutTerritoriesInput = {
@@ -76158,6 +81518,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -76180,6 +81541,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsTerritoryUpsertWithoutChildrenInput = {
@@ -76252,6 +81615,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -76274,6 +81638,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -76301,6 +81667,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -76323,6 +81690,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -76409,6 +81778,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -76431,6 +81801,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -76458,6 +81830,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -76480,6 +81853,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutRoleAssignmentsInput = {
@@ -76556,6 +81931,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -76578,6 +81954,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentAssignmentsInput = {
@@ -76605,6 +81983,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -76627,6 +82006,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentAssignmentsInput = {
@@ -76738,6 +82119,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -76760,6 +82142,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentAssignmentsInput = {
@@ -76787,6 +82171,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -76809,6 +82194,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDepartmentAssignmentsInput = {
@@ -76916,6 +82303,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -76938,6 +82326,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutManagerAssignmentsInput = {
@@ -76965,6 +82355,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -76987,6 +82378,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutManagerAssignmentsInput = {
@@ -77116,6 +82509,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -77138,6 +82532,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutManagerAssignmentsInput = {
@@ -77165,6 +82561,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -77187,6 +82584,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutManagedByInput = {
@@ -77312,6 +82711,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -77334,6 +82734,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDelegationsInput = {
@@ -77361,6 +82763,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -77383,6 +82786,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDelegationsInput = {
@@ -77512,6 +82917,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -77534,6 +82940,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDelegationsInput = {
@@ -77561,6 +82969,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -77583,6 +82992,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDelegationsGrantedInput = {
@@ -77708,6 +83119,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -77730,6 +83142,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkItemsInput = {
@@ -77757,6 +83171,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -77779,6 +83194,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkItemsInput = {
@@ -77935,6 +83352,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -77957,6 +83375,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkItemsInput = {
@@ -77984,6 +83404,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -78006,6 +83427,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutOwnedWorkItemsInput = {
@@ -78115,6 +83538,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -78136,6 +83560,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkOwnershipHistoryInput = {
@@ -78164,6 +83590,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -78185,6 +83612,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkOwnershipHistoryInput = {
@@ -78274,6 +83703,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -78295,6 +83725,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkOwnershipHistoryInput = {
@@ -78323,6 +83755,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -78344,6 +83777,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutOwnershipHistoryInput = {
@@ -78423,6 +83858,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -78444,6 +83880,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalRequestsInput = {
@@ -78472,6 +83910,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -78493,6 +83932,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalRequestsInput = {
@@ -78582,6 +84023,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -78603,6 +84045,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -78631,6 +84075,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -78652,6 +84097,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutApprovalRequestsInput = {
@@ -78730,6 +84177,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -78752,6 +84200,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutBusinessEventsInput = {
@@ -78779,6 +84229,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -78801,6 +84252,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutBusinessEventsInput = {
@@ -78844,6 +84297,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -78866,6 +84320,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutBusinessEventsInput = {
@@ -78893,6 +84349,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -78915,6 +84372,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAuditLogsInput = {
@@ -78942,6 +84401,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -78964,6 +84424,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -78991,6 +84453,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79013,6 +84476,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -79056,6 +84521,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -79078,6 +84544,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -79105,6 +84573,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -79127,6 +84596,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxMessagesInput = {
@@ -79154,6 +84625,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -79176,6 +84648,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxMessagesInput = {
@@ -79203,6 +84677,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79225,6 +84700,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxMessagesInput = {
@@ -79268,6 +84745,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -79290,6 +84768,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxMessagesInput = {
@@ -79317,6 +84797,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -79339,6 +84820,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxConsumerDedupInput = {
@@ -79366,6 +84849,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -79388,6 +84872,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxConsumerDedupInput = {
@@ -79415,6 +84901,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79437,6 +84924,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxConsumerDedupInput = {
@@ -79480,6 +84969,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -79502,6 +84992,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxConsumerDedupInput = {
@@ -79529,6 +85021,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -79551,6 +85044,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIdempotencyKeysInput = {
@@ -79578,6 +85073,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -79600,6 +85096,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIdempotencyKeysInput = {
@@ -79627,6 +85125,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79649,6 +85148,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIdempotencyKeysInput = {
@@ -79692,6 +85193,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -79714,6 +85216,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIdempotencyKeysInput = {
@@ -79741,6 +85245,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -79763,6 +85268,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCapabilityStatesInput = {
@@ -79790,6 +85297,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -79812,6 +85320,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCapabilityStatesInput = {
@@ -79839,6 +85349,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -79861,6 +85372,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCapabilityStatesInput = {
@@ -79904,6 +85417,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -79926,6 +85440,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCapabilityStatesInput = {
@@ -79953,6 +85469,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -79975,6 +85492,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartiesInput = {
@@ -80002,6 +85521,7 @@ export namespace Prisma {
     workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -80024,6 +85544,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartiesInput = {
@@ -80051,6 +85573,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -80073,6 +85596,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartiesInput = {
@@ -80093,6 +85618,7 @@ export namespace Prisma {
     mergedInto?: OsPartyCreateNestedOneWithoutMergedFromInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -80118,6 +85644,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -80148,6 +85675,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -80173,6 +85701,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -80262,6 +85791,44 @@ export namespace Prisma {
 
   export type OsContactCreateManyOrganizationPartyInputEnvelope = {
     data: OsContactCreateManyOrganizationPartyInput | OsContactCreateManyOrganizationPartyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsLocationCreateWithoutPartyInput = {
+    id: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutLocationsInput
+  }
+
+  export type OsLocationUncheckedCreateWithoutPartyInput = {
+    id: string
+    organizationId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OsLocationCreateOrConnectWithoutPartyInput = {
+    where: OsLocationWhereUniqueInput
+    create: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput>
+  }
+
+  export type OsLocationCreateManyPartyInputEnvelope = {
+    data: OsLocationCreateManyPartyInput | OsLocationCreateManyPartyInput[]
     skipDuplicates?: boolean
   }
 
@@ -80671,6 +86238,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -80693,6 +86261,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartiesInput = {
@@ -80720,6 +86290,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -80742,6 +86313,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergedFromInput = {
@@ -80768,6 +86341,7 @@ export namespace Prisma {
     mergedInto?: OsPartyUpdateOneWithoutMergedFromNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -80793,6 +86367,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -80851,6 +86426,22 @@ export namespace Prisma {
   export type OsContactUpdateManyWithWhereWithoutOrganizationPartyInput = {
     where: OsContactScalarWhereInput
     data: XOR<OsContactUpdateManyMutationInput, OsContactUncheckedUpdateManyWithoutOrganizationPartyInput>
+  }
+
+  export type OsLocationUpsertWithWhereUniqueWithoutPartyInput = {
+    where: OsLocationWhereUniqueInput
+    update: XOR<OsLocationUpdateWithoutPartyInput, OsLocationUncheckedUpdateWithoutPartyInput>
+    create: XOR<OsLocationCreateWithoutPartyInput, OsLocationUncheckedCreateWithoutPartyInput>
+  }
+
+  export type OsLocationUpdateWithWhereUniqueWithoutPartyInput = {
+    where: OsLocationWhereUniqueInput
+    data: XOR<OsLocationUpdateWithoutPartyInput, OsLocationUncheckedUpdateWithoutPartyInput>
+  }
+
+  export type OsLocationUpdateManyWithWhereWithoutPartyInput = {
+    where: OsLocationScalarWhereInput
+    data: XOR<OsLocationUpdateManyMutationInput, OsLocationUncheckedUpdateManyWithoutPartyInput>
   }
 
   export type OsFiscalIdentityUpsertWithWhereUniqueWithoutPartyInput = {
@@ -81013,7 +86604,7 @@ export namespace Prisma {
     data: XOR<OsOrderUpdateManyMutationInput, OsOrderUncheckedUpdateManyWithoutPartyInput>
   }
 
-  export type OsOrganizationCreateWithoutOpportunitiesInput = {
+  export type OsOrganizationCreateWithoutLocationsInput = {
     id: string
     legalName: string
     slug: string
@@ -81057,12 +86648,15 @@ export namespace Prisma {
     quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
     orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
     partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
-  export type OsOrganizationUncheckedCreateWithoutOpportunitiesInput = {
+  export type OsOrganizationUncheckedCreateWithoutLocationsInput = {
     id: string
     legalName: string
     slug: string
@@ -81106,9 +86700,928 @@ export namespace Prisma {
     quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
     orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
     partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutLocationsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutLocationsInput, OsOrganizationUncheckedCreateWithoutLocationsInput>
+  }
+
+  export type OsPartyCreateWithoutLocationsInput = {
+    id: string
+    partyKind: string
+    displayName: string
+    legalName?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPartiesInput
+    mergedInto?: OsPartyCreateNestedOneWithoutMergedFromInput
+    mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
+    roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
+    duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
+    duplicateCandidatesB?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyBInput
+    mergeRequestsSource?: OsPartyMergeRequestCreateNestedManyWithoutSourcePartyInput
+    mergeRequestsTarget?: OsPartyMergeRequestCreateNestedManyWithoutTargetPartyInput
+    resolvedLeads?: OsLeadCreateNestedManyWithoutResolvedPartyInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutPartyInput
+    quotes?: OsQuoteCreateNestedManyWithoutPartyInput
+    orders?: OsOrderCreateNestedManyWithoutPartyInput
+  }
+
+  export type OsPartyUncheckedCreateWithoutLocationsInput = {
+    id: string
+    organizationId: string
+    partyKind: string
+    displayName: string
+    legalName?: string | null
+    status?: string
+    mergedIntoPartyId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
+    roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
+    duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
+    duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyBInput
+    mergeRequestsSource?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutSourcePartyInput
+    mergeRequestsTarget?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutTargetPartyInput
+    resolvedLeads?: OsLeadUncheckedCreateNestedManyWithoutResolvedPartyInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutPartyInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutPartyInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutPartyInput
+  }
+
+  export type OsPartyCreateOrConnectWithoutLocationsInput = {
+    where: OsPartyWhereUniqueInput
+    create: XOR<OsPartyCreateWithoutLocationsInput, OsPartyUncheckedCreateWithoutLocationsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutLocationsInput = {
+    update: XOR<OsOrganizationUpdateWithoutLocationsInput, OsOrganizationUncheckedUpdateWithoutLocationsInput>
+    create: XOR<OsOrganizationCreateWithoutLocationsInput, OsOrganizationUncheckedCreateWithoutLocationsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutLocationsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutLocationsInput, OsOrganizationUncheckedUpdateWithoutLocationsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsPartyUpsertWithoutLocationsInput = {
+    update: XOR<OsPartyUpdateWithoutLocationsInput, OsPartyUncheckedUpdateWithoutLocationsInput>
+    create: XOR<OsPartyCreateWithoutLocationsInput, OsPartyUncheckedCreateWithoutLocationsInput>
+    where?: OsPartyWhereInput
+  }
+
+  export type OsPartyUpdateToOneWithWhereWithoutLocationsInput = {
+    where?: OsPartyWhereInput
+    data: XOR<OsPartyUpdateWithoutLocationsInput, OsPartyUncheckedUpdateWithoutLocationsInput>
+  }
+
+  export type OsPartyUpdateWithoutLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyKind?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    legalName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPartiesNestedInput
+    mergedInto?: OsPartyUpdateOneWithoutMergedFromNestedInput
+    mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
+    roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
+    duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
+    duplicateCandidatesB?: OsPartyDuplicateCandidateUpdateManyWithoutPartyBNestedInput
+    mergeRequestsSource?: OsPartyMergeRequestUpdateManyWithoutSourcePartyNestedInput
+    mergeRequestsTarget?: OsPartyMergeRequestUpdateManyWithoutTargetPartyNestedInput
+    resolvedLeads?: OsLeadUpdateManyWithoutResolvedPartyNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutPartyNestedInput
+    quotes?: OsQuoteUpdateManyWithoutPartyNestedInput
+    orders?: OsOrderUpdateManyWithoutPartyNestedInput
+  }
+
+  export type OsPartyUncheckedUpdateWithoutLocationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    partyKind?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    legalName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    mergedIntoPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
+    roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
+    duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
+    duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyBNestedInput
+    mergeRequestsSource?: OsPartyMergeRequestUncheckedUpdateManyWithoutSourcePartyNestedInput
+    mergeRequestsTarget?: OsPartyMergeRequestUncheckedUpdateManyWithoutTargetPartyNestedInput
+    resolvedLeads?: OsLeadUncheckedUpdateManyWithoutResolvedPartyNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutPartyNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutPartyNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutPartyNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutImportBatchesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutImportBatchesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutImportBatchesInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutImportBatchesInput, OsOrganizationUncheckedCreateWithoutImportBatchesInput>
+  }
+
+  export type OsImportRowCreateWithoutBatchInput = {
+    id: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+    organization: OsOrganizationCreateNestedOneWithoutImportRowsInput
+  }
+
+  export type OsImportRowUncheckedCreateWithoutBatchInput = {
+    id: string
+    organizationId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowCreateOrConnectWithoutBatchInput = {
+    where: OsImportRowWhereUniqueInput
+    create: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput>
+  }
+
+  export type OsImportRowCreateManyBatchInputEnvelope = {
+    data: OsImportRowCreateManyBatchInput | OsImportRowCreateManyBatchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsOrganizationUpsertWithoutImportBatchesInput = {
+    update: XOR<OsOrganizationUpdateWithoutImportBatchesInput, OsOrganizationUncheckedUpdateWithoutImportBatchesInput>
+    create: XOR<OsOrganizationCreateWithoutImportBatchesInput, OsOrganizationUncheckedCreateWithoutImportBatchesInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutImportBatchesInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutImportBatchesInput, OsOrganizationUncheckedUpdateWithoutImportBatchesInput>
+  }
+
+  export type OsOrganizationUpdateWithoutImportBatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutImportBatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsImportRowUpsertWithWhereUniqueWithoutBatchInput = {
+    where: OsImportRowWhereUniqueInput
+    update: XOR<OsImportRowUpdateWithoutBatchInput, OsImportRowUncheckedUpdateWithoutBatchInput>
+    create: XOR<OsImportRowCreateWithoutBatchInput, OsImportRowUncheckedCreateWithoutBatchInput>
+  }
+
+  export type OsImportRowUpdateWithWhereUniqueWithoutBatchInput = {
+    where: OsImportRowWhereUniqueInput
+    data: XOR<OsImportRowUpdateWithoutBatchInput, OsImportRowUncheckedUpdateWithoutBatchInput>
+  }
+
+  export type OsImportRowUpdateManyWithWhereWithoutBatchInput = {
+    where: OsImportRowScalarWhereInput
+    data: XOR<OsImportRowUpdateManyMutationInput, OsImportRowUncheckedUpdateManyWithoutBatchInput>
+  }
+
+  export type OsImportBatchCreateWithoutRowsInput = {
+    id: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    organization: OsOrganizationCreateNestedOneWithoutImportBatchesInput
+  }
+
+  export type OsImportBatchUncheckedCreateWithoutRowsInput = {
+    id: string
+    organizationId: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportBatchCreateOrConnectWithoutRowsInput = {
+    where: OsImportBatchWhereUniqueInput
+    create: XOR<OsImportBatchCreateWithoutRowsInput, OsImportBatchUncheckedCreateWithoutRowsInput>
+  }
+
+  export type OsOrganizationCreateWithoutImportRowsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutImportRowsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutImportRowsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutImportRowsInput, OsOrganizationUncheckedCreateWithoutImportRowsInput>
+  }
+
+  export type OsImportBatchUpsertWithoutRowsInput = {
+    update: XOR<OsImportBatchUpdateWithoutRowsInput, OsImportBatchUncheckedUpdateWithoutRowsInput>
+    create: XOR<OsImportBatchCreateWithoutRowsInput, OsImportBatchUncheckedCreateWithoutRowsInput>
+    where?: OsImportBatchWhereInput
+  }
+
+  export type OsImportBatchUpdateToOneWithWhereWithoutRowsInput = {
+    where?: OsImportBatchWhereInput
+    data: XOR<OsImportBatchUpdateWithoutRowsInput, OsImportBatchUncheckedUpdateWithoutRowsInput>
+  }
+
+  export type OsImportBatchUpdateWithoutRowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    organization?: OsOrganizationUpdateOneRequiredWithoutImportBatchesNestedInput
+  }
+
+  export type OsImportBatchUncheckedUpdateWithoutRowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsOrganizationUpsertWithoutImportRowsInput = {
+    update: XOR<OsOrganizationUpdateWithoutImportRowsInput, OsOrganizationUncheckedUpdateWithoutImportRowsInput>
+    create: XOR<OsOrganizationCreateWithoutImportRowsInput, OsOrganizationUncheckedCreateWithoutImportRowsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutImportRowsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutImportRowsInput, OsOrganizationUncheckedUpdateWithoutImportRowsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutImportRowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutImportRowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutOpportunitiesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutOpportunitiesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunitiesInput = {
@@ -81130,6 +87643,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -81155,6 +87669,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -81264,6 +87779,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -81285,6 +87801,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunitiesInput = {
@@ -81313,6 +87831,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -81334,6 +87853,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOpportunitiesInput = {
@@ -81361,6 +87882,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -81386,6 +87908,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -81439,6 +87962,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -81460,6 +87984,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuotesInput = {
@@ -81488,6 +88014,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -81509,6 +88036,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuotesInput = {
@@ -81530,6 +88059,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -81555,6 +88085,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -81733,6 +88264,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -81754,6 +88286,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuotesInput = {
@@ -81782,6 +88316,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -81803,6 +88338,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutQuotesInput = {
@@ -81830,6 +88367,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -81855,6 +88393,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -81969,6 +88508,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -81990,6 +88530,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLinesInput = {
@@ -82018,6 +88560,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82039,6 +88582,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLinesInput = {
@@ -82134,6 +88679,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -82155,6 +88701,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLinesInput = {
@@ -82183,6 +88731,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -82204,6 +88753,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsQuoteUpsertWithoutLinesInput = {
@@ -82289,6 +88840,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -82310,6 +88862,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrdersInput = {
@@ -82338,6 +88892,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82359,6 +88914,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrdersInput = {
@@ -82380,6 +88937,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -82405,6 +88963,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -82509,6 +89068,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -82530,6 +89090,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrdersInput = {
@@ -82558,6 +89120,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -82579,6 +89142,8 @@ export namespace Prisma {
     opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOrdersInput = {
@@ -82606,6 +89171,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -82631,6 +89197,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -82724,6 +89291,7 @@ export namespace Prisma {
     workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -82746,6 +89314,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyRoleAssignmentsInput = {
@@ -82773,6 +89343,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -82795,6 +89366,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyRoleAssignmentsInput = {
@@ -82815,6 +89388,7 @@ export namespace Prisma {
     mergedInto?: OsPartyCreateNestedOneWithoutMergedFromInput
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -82840,6 +89414,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -82893,6 +89468,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -82915,6 +89491,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyRoleAssignmentsInput = {
@@ -82942,6 +89520,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -82964,6 +89543,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutRoleAssignmentsInput = {
@@ -82990,6 +89571,7 @@ export namespace Prisma {
     mergedInto?: OsPartyUpdateOneWithoutMergedFromNestedInput
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -83015,6 +89597,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -83052,6 +89635,7 @@ export namespace Prisma {
     workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -83074,6 +89658,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutContactsInput = {
@@ -83101,6 +89687,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -83123,6 +89710,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutContactsInput = {
@@ -83143,6 +89732,7 @@ export namespace Prisma {
     mergedInto?: OsPartyCreateNestedOneWithoutMergedFromInput
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -83168,6 +89758,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -83221,6 +89812,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -83243,6 +89835,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutContactsInput = {
@@ -83270,6 +89864,7 @@ export namespace Prisma {
     workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -83292,6 +89887,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutContactsInput = {
@@ -83318,6 +89915,7 @@ export namespace Prisma {
     mergedInto?: OsPartyUpdateOneWithoutMergedFromNestedInput
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -83343,6 +89941,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -83381,6 +89980,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
@@ -83402,6 +90002,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFiscalIdentitiesInput = {
@@ -83430,6 +90032,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -83451,6 +90054,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFiscalIdentitiesInput = {
@@ -83472,6 +90077,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyBInput
@@ -83497,6 +90103,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyBInput
@@ -83550,6 +90157,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
@@ -83571,6 +90179,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFiscalIdentitiesInput = {
@@ -83599,6 +90209,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -83620,6 +90231,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutFiscalIdentitiesInput = {
@@ -83647,6 +90260,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUpdateManyWithoutPartyBNestedInput
@@ -83672,6 +90286,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyBNestedInput
@@ -83709,6 +90324,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
@@ -83730,6 +90346,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommercialAccountsInput = {
@@ -83758,6 +90376,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -83779,6 +90398,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommercialAccountsInput = {
@@ -83800,6 +90421,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyBInput
@@ -83825,6 +90447,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyBInput
@@ -83878,6 +90501,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
@@ -83899,6 +90523,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommercialAccountsInput = {
@@ -83927,6 +90553,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -83948,6 +90575,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutCommercialAccountsInput = {
@@ -83975,6 +90604,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUpdateManyWithoutPartyBNestedInput
@@ -84000,6 +90630,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyBNestedInput
@@ -84037,6 +90668,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
@@ -84058,6 +90690,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLeadsInput = {
@@ -84086,6 +90720,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
@@ -84107,6 +90742,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLeadsInput = {
@@ -84128,6 +90765,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -84153,6 +90791,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -84206,6 +90845,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
@@ -84227,6 +90867,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLeadsInput = {
@@ -84255,6 +90897,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -84276,6 +90919,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutResolvedLeadsInput = {
@@ -84303,6 +90948,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -84328,6 +90974,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -84365,6 +91012,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -84386,6 +91034,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyDuplicateCandidatesInput = {
@@ -84414,6 +91064,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -84435,6 +91086,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyDuplicateCandidatesInput = {
@@ -84456,6 +91109,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyBInput
@@ -84481,6 +91135,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyBInput
@@ -84511,6 +91166,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -84536,6 +91192,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -84589,6 +91246,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -84610,6 +91268,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyDuplicateCandidatesInput = {
@@ -84638,6 +91298,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -84659,6 +91320,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutDuplicateCandidatesAInput = {
@@ -84686,6 +91349,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUpdateManyWithoutPartyBNestedInput
@@ -84711,6 +91375,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesB?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyBNestedInput
@@ -84747,6 +91412,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -84772,6 +91438,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -84809,6 +91476,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -84830,6 +91498,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyMergeRequestsInput = {
@@ -84858,6 +91528,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -84879,6 +91550,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyMergeRequestsInput = {
@@ -84900,6 +91573,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -84925,6 +91599,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -84955,6 +91630,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutPartyInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateCreateNestedManyWithoutPartyAInput
@@ -84980,6 +91656,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedCreateNestedManyWithoutMergedIntoInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutPartyInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationPartyInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutPartyInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutPartyInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutPartyInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutPartyAInput
@@ -85033,6 +91710,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -85054,6 +91732,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyMergeRequestsInput = {
@@ -85082,6 +91762,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85103,6 +91784,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergeRequestsSourceInput = {
@@ -85130,6 +91813,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -85155,6 +91839,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -85191,6 +91876,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -85216,6 +91902,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -85253,6 +91940,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -85274,6 +91962,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionCheckpointsInput = {
@@ -85302,6 +91992,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -85323,6 +92014,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionCheckpointsInput = {
@@ -85367,6 +92060,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -85388,6 +92082,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionCheckpointsInput = {
@@ -85416,6 +92112,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85437,6 +92134,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProjectionFreshnessInput = {
@@ -85465,6 +92164,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -85486,6 +92186,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionFreshnessInput = {
@@ -85514,6 +92216,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -85535,6 +92238,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionFreshnessInput = {
@@ -85579,6 +92284,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -85600,6 +92306,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionFreshnessInput = {
@@ -85628,6 +92336,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85649,6 +92358,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyReadModelsInput = {
@@ -85677,6 +92388,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -85698,6 +92410,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyReadModelsInput = {
@@ -85726,6 +92440,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -85747,6 +92462,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyReadModelsInput = {
@@ -85791,6 +92508,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -85812,6 +92530,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyReadModelsInput = {
@@ -85840,6 +92560,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -85861,6 +92582,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutWorkReadModelsInput = {
@@ -85889,6 +92612,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -85910,6 +92634,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkReadModelsInput = {
@@ -85938,6 +92664,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -85959,6 +92686,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkReadModelsInput = {
@@ -86003,6 +92732,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -86024,6 +92754,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkReadModelsInput = {
@@ -86052,6 +92784,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86073,6 +92806,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutApprovalReadModelsInput = {
@@ -86101,6 +92836,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -86122,6 +92858,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalReadModelsInput = {
@@ -86150,6 +92888,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -86171,6 +92910,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalReadModelsInput = {
@@ -86215,6 +92956,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -86236,6 +92978,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalReadModelsInput = {
@@ -86264,6 +93008,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86285,6 +93030,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAttentionReadModelsInput = {
@@ -86313,6 +93060,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -86334,6 +93082,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAttentionReadModelsInput = {
@@ -86362,6 +93112,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -86383,6 +93134,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAttentionReadModelsInput = {
@@ -86427,6 +93180,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -86448,6 +93202,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAttentionReadModelsInput = {
@@ -86476,6 +93232,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86497,6 +93254,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunityReadModelsInput = {
@@ -86525,6 +93284,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -86546,6 +93306,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunityReadModelsInput = {
@@ -86574,6 +93336,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -86595,6 +93358,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunityReadModelsInput = {
@@ -86639,6 +93404,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -86660,6 +93426,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunityReadModelsInput = {
@@ -86688,6 +93456,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86709,6 +93478,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteReadModelsInput = {
@@ -86737,6 +93508,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -86758,6 +93530,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteReadModelsInput = {
@@ -86786,6 +93560,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -86807,6 +93582,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteReadModelsInput = {
@@ -86851,6 +93628,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -86872,6 +93650,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteReadModelsInput = {
@@ -86900,6 +93680,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -86921,6 +93702,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteLineReadModelsInput = {
@@ -86949,6 +93732,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -86970,6 +93754,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLineReadModelsInput = {
@@ -86998,6 +93784,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -87019,6 +93806,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLineReadModelsInput = {
@@ -87063,6 +93852,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -87084,6 +93874,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLineReadModelsInput = {
@@ -87112,6 +93904,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -87133,6 +93926,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderReadModelsInput = {
@@ -87161,6 +93956,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -87182,6 +93978,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderReadModelsInput = {
@@ -87210,6 +94008,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -87231,6 +94030,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderReadModelsInput = {
@@ -87275,6 +94076,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -87296,6 +94098,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderReadModelsInput = {
@@ -87324,6 +94128,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -87345,6 +94150,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyTimelineEntriesInput = {
@@ -87373,6 +94180,7 @@ export namespace Prisma {
     parties?: OsPartyCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadCreateNestedManyWithoutOrganizationInput
@@ -87394,6 +94202,8 @@ export namespace Prisma {
     quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyTimelineEntriesInput = {
@@ -87422,6 +94232,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
     contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
     fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
     commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
     leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
@@ -87443,6 +94254,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
     quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
     orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyTimelineEntriesInput = {
@@ -87487,6 +94300,7 @@ export namespace Prisma {
     parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
@@ -87508,6 +94322,8 @@ export namespace Prisma {
     quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyTimelineEntriesInput = {
@@ -87536,6 +94352,7 @@ export namespace Prisma {
     parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
     partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
     leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -87557,6 +94374,8 @@ export namespace Prisma {
     quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
     quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
     orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberCreateManyOrganizationInput = {
@@ -87736,6 +94555,20 @@ export namespace Prisma {
     phone?: string | null
     whatsapp?: string | null
     title?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OsLocationCreateManyOrganizationInput = {
+    id: string
+    partyId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
     status?: string
     version?: number
     createdAt?: Date | string
@@ -88066,6 +94899,31 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type OsImportBatchCreateManyOrganizationInput = {
+    id: string
+    sourceKind: string
+    sourceFingerprint: string
+    status: string
+    createdByMemberId: string
+    createdAt?: Date | string
+    completedAt?: Date | string | null
+    receiptJson: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    reversedAt?: Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowCreateManyOrganizationInput = {
+    id: string
+    importBatchId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
   }
 
   export type OsOrganizationMemberUpdateWithoutOrganizationInput = {
@@ -88543,6 +95401,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -88568,6 +95427,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -88661,6 +95521,48 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     title?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    party?: OsPartyUpdateOneRequiredWithoutLocationsNestedInput
+  }
+
+  export type OsLocationUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     version?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89651,6 +96553,83 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OsImportBatchUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowUpdateManyWithoutBatchNestedInput
+  }
+
+  export type OsImportBatchUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+    rows?: OsImportRowUncheckedUpdateManyWithoutBatchNestedInput
+  }
+
+  export type OsImportBatchUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceKind?: StringFieldUpdateOperationsInput | string
+    sourceFingerprint?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    receiptJson?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reversedEntityRefs?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+    batch?: OsImportBatchUpdateOneRequiredWithoutRowsNestedInput
+  }
+
+  export type OsImportRowUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    importBatchId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    importBatchId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+  }
+
   export type OsOrganizationMemberCreateManyPersonInput = {
     id: string
     organizationId: string
@@ -90316,6 +97295,20 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type OsLocationCreateManyPartyInput = {
+    id: string
+    organizationId: string
+    label: string
+    addressText?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    provenanceUrl?: string | null
+    status?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type OsFiscalIdentityCreateManyPartyInput = {
     id: string
     organizationId: string
@@ -90461,6 +97454,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUpdateManyWithoutPartyANestedInput
@@ -90486,6 +97480,7 @@ export namespace Prisma {
     mergedFrom?: OsPartyUncheckedUpdateManyWithoutMergedIntoNestedInput
     roleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutPartyNestedInput
     contacts?: OsContactUncheckedUpdateManyWithoutOrganizationPartyNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutPartyNestedInput
     fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutPartyNestedInput
     commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutPartyNestedInput
     duplicateCandidatesA?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutPartyANestedInput
@@ -90579,6 +97574,48 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
     title?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationUpdateWithoutPartyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutLocationsNestedInput
+  }
+
+  export type OsLocationUncheckedUpdateWithoutPartyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsLocationUncheckedUpdateManyWithoutPartyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    addressText?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    provenanceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     version?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90985,6 +98022,50 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsImportRowCreateManyBatchInput = {
+    id: string
+    organizationId: string
+    section: string
+    rowIndex: number
+    outcome: string
+    entityRefsJson: JsonNullValueInput | InputJsonValue
+    errorCode?: string | null
+    normalizedSnapshotJson: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUpdateWithoutBatchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+    organization?: OsOrganizationUpdateOneRequiredWithoutImportRowsNestedInput
+  }
+
+  export type OsImportRowUncheckedUpdateWithoutBatchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type OsImportRowUncheckedUpdateManyWithoutBatchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
+    rowIndex?: IntFieldUpdateOperationsInput | number
+    outcome?: StringFieldUpdateOperationsInput | string
+    entityRefsJson?: JsonNullValueInput | InputJsonValue
+    errorCode?: NullableStringFieldUpdateOperationsInput | string | null
+    normalizedSnapshotJson?: JsonNullValueInput | InputJsonValue
   }
 
   export type OsQuoteCreateManyOpportunityInput = {

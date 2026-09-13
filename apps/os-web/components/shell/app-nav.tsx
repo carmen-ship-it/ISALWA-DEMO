@@ -5,15 +5,15 @@ import { usePathname } from 'next/navigation';
 import {
   Briefcase,
   CheckCircle2,
+  FileText,
   Home,
   MessageSquare,
   Settings,
+  Target,
   Users,
   Wallet,
 } from 'lucide-react';
-import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { cx } from '@isalwa/ui';
-import { resolveFutureNavItems } from '@/lib/capabilities/resolve-nav';
 import {
   filterNavByAccess,
   isNavItemDisabled,
@@ -25,6 +25,8 @@ import { t } from '@/lib/i18n/es';
 const ICONS = {
   home: Home,
   users: Users,
+  target: Target,
+  fileText: FileText,
   briefcase: Briefcase,
   check: CheckCircle2,
   settings: Settings,
@@ -34,7 +36,8 @@ const ICONS = {
 
 type AppNavProps = {
   showAdmin: boolean;
-  capabilities: CapabilityStateReadModel[];
+  /** Kept for shell API stability; future capability nav is intentionally not rendered. */
+  capabilities?: unknown;
   mobile?: boolean;
   onNavigate?: () => void;
 };
@@ -42,12 +45,10 @@ type AppNavProps = {
 function NavLink({
   item,
   active,
-  badge,
   onNavigate,
 }: {
-  item: NavItem & { badge?: string | null };
+  item: NavItem;
   active: boolean;
-  badge?: string | null;
   onNavigate?: () => void;
 }) {
   const Icon = ICONS[item.icon];
@@ -66,17 +67,12 @@ function NavLink({
     <>
       <Icon aria-hidden size={18} strokeWidth={1.75} />
       <span className="flex-1">{label}</span>
-      {badge ? (
-        <span className="rounded-full bg-[color-mix(in_srgb,var(--isalwa-copper)_14%,white)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-copper)]">
-          {badge}
-        </span>
-      ) : null}
     </>
   );
 
   if (disabled) {
     return (
-      <span className={className} aria-disabled="true" title={badge ?? undefined}>
+      <span className={className} aria-disabled="true">
         {content}
       </span>
     );
@@ -89,17 +85,9 @@ function NavLink({
   );
 }
 
-export function AppNav({ showAdmin, capabilities, mobile, onNavigate }: AppNavProps) {
+export function AppNav({ showAdmin, mobile, onNavigate }: AppNavProps) {
   const pathname = usePathname();
-  const futureNav = resolveFutureNavItems(capabilities).map((item) => ({
-    id: item.id,
-    href: item.href,
-    labelKey: item.labelKey,
-    icon: item.icon,
-    state: item.state,
-    badge: item.badge,
-  }));
-  const items = [...filterNavByAccess(PRIMARY_NAV, { showAdmin }), ...futureNav];
+  const items = filterNavByAccess(PRIMARY_NAV, { showAdmin });
 
   return (
     <nav aria-label={t('nav.mainNav')} className={mobile ? 'flex flex-col gap-1 p-4' : 'flex flex-col gap-1'}>
@@ -107,7 +95,6 @@ export function AppNav({ showAdmin, capabilities, mobile, onNavigate }: AppNavPr
         <NavLink
           key={item.id}
           item={item}
-          badge={'badge' in item ? item.badge : null}
           active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
           onNavigate={onNavigate}
         />

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
+import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -38,11 +39,14 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           kicker="Cotización"
           title={quote.quoteNumber}
           action={
-            <Link href={partyHref(partyId)}>
-              <Button type="button" variant="secondary">
-                Volver al cliente
-              </Button>
-            </Link>
+            <div className="flex flex-wrap items-start justify-end gap-3">
+              <QuotePdfDownloadButton quoteId={quote.quoteId} quoteNumber={quote.quoteNumber} />
+              <Link href={partyHref(partyId)}>
+                <Button type="button" variant="secondary">
+                  Volver al cliente
+                </Button>
+              </Link>
+            </div>
           }
         />
 

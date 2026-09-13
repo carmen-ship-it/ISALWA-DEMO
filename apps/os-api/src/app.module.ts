@@ -4,6 +4,7 @@ import { MembersController } from './members.controller';
 import { HealthController } from './health.controller';
 import { BootstrapController } from './bootstrap.controller';
 import { PartiesController } from './parties.controller';
+import { LocationsController } from './locations.controller';
 import { WorkItemsController } from './work-items.controller';
 import { ApprovalsController } from './approvals.controller';
 import { AttentionController } from './attention.controller';
@@ -24,6 +25,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     MembersController,
     CapabilitiesController,
     PartiesController,
+    LocationsController,
     WorkItemsController,
     ApprovalsController,
     AttentionController,

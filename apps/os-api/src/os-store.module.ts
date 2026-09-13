@@ -7,6 +7,7 @@ import {
   PrismaOsWorkforceStore,
   PrismaOsWorkStore,
   PrismaOsCommercialStore,
+  PrismaOsImportStore,
   PrismaMemberQueryStore,
   encodePartySearchCursor,
 } from '@isalwa/os-database';
@@ -18,9 +19,10 @@ import {
   type AuthProviderPort,
   type OsWorkforceStore,
 } from '@isalwa/os-workforce';
-import { PartyCommandService, type OsPartyStore } from '@isalwa/os-party';
+import { PartyCommandService, LocationCommandService, type OsPartyStore } from '@isalwa/os-party';
 import { WorkCommandService, type OsWorkStore } from '@isalwa/os-work';
 import { CommercialCommandService, type OsCommercialStore } from '@isalwa/os-commercial';
+import { ImportCommandService, type OsImportStore } from '@isalwa/os-import';
 import type { OsOutboxStorePort } from '@isalwa/os-events';
 import { OutboxWorkerHost, OutboxRecoveryService } from '@isalwa/os-events';
 import {
@@ -48,6 +50,7 @@ import {
   type OsProjectionStorePort,
   type MemberQueryStorePort,
 } from '@isalwa/os-query';
+import { QuotePdfService } from './quote-pdf.service';
 
 export const OS_STORE = Symbol('OS_STORE');
 export const OS_PARTY_STORE = Symbol('OS_PARTY_STORE');
@@ -56,9 +59,12 @@ export const OS_PROJECTION_STORE = Symbol('OS_PROJECTION_STORE');
 export const OS_OUTBOX_STORE = Symbol('OS_OUTBOX_STORE');
 export const OS_COMMAND_SERVICE = Symbol('OS_COMMAND_SERVICE');
 export const OS_PARTY_COMMAND_SERVICE = Symbol('OS_PARTY_COMMAND_SERVICE');
+export const OS_LOCATION_COMMAND_SERVICE = Symbol('OS_LOCATION_COMMAND_SERVICE');
 export const OS_WORK_COMMAND_SERVICE = Symbol('OS_WORK_COMMAND_SERVICE');
 export const OS_COMMERCIAL_STORE = Symbol('OS_COMMERCIAL_STORE');
 export const OS_COMMERCIAL_COMMAND_SERVICE = Symbol('OS_COMMERCIAL_COMMAND_SERVICE');
+export const OS_IMPORT_STORE = Symbol('OS_IMPORT_STORE');
+export const OS_IMPORT_COMMAND_SERVICE = Symbol('OS_IMPORT_COMMAND_SERVICE');
 export const OS_PARTY_QUERY_SERVICE = Symbol('OS_PARTY_QUERY_SERVICE');
 export const OS_WORK_QUERY_SERVICE = Symbol('OS_WORK_QUERY_SERVICE');
 export const OS_APPROVAL_QUERY_SERVICE = Symbol('OS_APPROVAL_QUERY_SERVICE');
@@ -68,6 +74,7 @@ export const OS_PARTY_TIMELINE_QUERY_SERVICE = Symbol('OS_PARTY_TIMELINE_QUERY_S
 export const OS_MEMBER_QUERY_STORE = Symbol('OS_MEMBER_QUERY_STORE');
 export const OS_MEMBER_QUERY_SERVICE = Symbol('OS_MEMBER_QUERY_SERVICE');
 export const OS_CAPABILITY_QUERY_SERVICE = Symbol('OS_CAPABILITY_QUERY_SERVICE');
+export const OS_QUOTE_PDF_SERVICE = Symbol('OS_QUOTE_PDF_SERVICE');
 export const OS_PROJECTION_RUNNER = Symbol('OS_PROJECTION_RUNNER');
 export const OS_OUTBOX_WORKER_HOST = Symbol('OS_OUTBOX_WORKER_HOST');
 export const OS_OUTBOX_RECOVERY_SERVICE = Symbol('OS_OUTBOX_RECOVERY_SERVICE');
@@ -150,6 +157,17 @@ function createCommercialStore(): OsCommercialStore {
   throw new Error('Commercial lane requires Postgres store');
 }
 
+function createImportStore(): OsImportStore {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaOsImportStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Import lane requires Postgres store');
+}
+
 function createMemberQueryStore(): MemberQueryStorePort {
   const prisma = getOsPrisma();
   if (prisma) {
@@ -168,6 +186,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
     { provide: OS_PARTY_STORE, useFactory: createPartyStore },
     { provide: OS_WORK_STORE, useFactory: createWorkStore },
     { provide: OS_COMMERCIAL_STORE, useFactory: createCommercialStore },
+    { provide: OS_IMPORT_STORE, useFactory: createImportStore },
     { provide: OS_PROJECTION_STORE, useFactory: createProjectionStore },
     { provide: OS_OUTBOX_STORE, useFactory: createOutboxStore },
     {
@@ -182,6 +201,11 @@ function createMemberQueryStore(): MemberQueryStorePort {
       inject: [OS_PARTY_STORE],
     },
     {
+      provide: OS_LOCATION_COMMAND_SERVICE,
+      useFactory: (store: OsPartyStore) => new LocationCommandService(store),
+      inject: [OS_PARTY_STORE],
+    },
+    {
       provide: OS_WORK_COMMAND_SERVICE,
       useFactory: (store: OsWorkStore) => new WorkCommandService(store),
       inject: [OS_WORK_STORE],
@@ -190,6 +214,21 @@ function createMemberQueryStore(): MemberQueryStorePort {
       provide: OS_COMMERCIAL_COMMAND_SERVICE,
       useFactory: (store: OsCommercialStore) => new CommercialCommandService(store),
       inject: [OS_COMMERCIAL_STORE],
+    },
+    {
+      provide: OS_IMPORT_COMMAND_SERVICE,
+      useFactory: (
+        importStore: OsImportStore,
+        partyStore: OsPartyStore,
+        partyCommands: PartyCommandService,
+        locationCommands: LocationCommandService,
+      ) => new ImportCommandService(importStore, partyStore, partyCommands, locationCommands),
+      inject: [
+        OS_IMPORT_STORE,
+        OS_PARTY_STORE,
+        OS_PARTY_COMMAND_SERVICE,
+        OS_LOCATION_COMMAND_SERVICE,
+      ],
     },
     {
       provide: OS_PARTY_QUERY_SERVICE,
@@ -267,6 +306,11 @@ function createMemberQueryStore(): MemberQueryStorePort {
       inject: [OS_MEMBER_QUERY_STORE],
     },
     {
+      provide: OS_QUOTE_PDF_SERVICE,
+      useFactory: (partyStore: OsPartyStore) => new QuotePdfService(partyStore),
+      inject: [OS_PARTY_STORE],
+    },
+    {
       provide: OS_PROJECTION_RUNNER,
       useFactory: (
         outboxStore: OsOutboxStorePort,
@@ -327,6 +371,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_OUTBOX_STORE,
     OS_COMMAND_SERVICE,
     OS_PARTY_COMMAND_SERVICE,
+    OS_LOCATION_COMMAND_SERVICE,
+    OS_IMPORT_STORE,
+    OS_IMPORT_COMMAND_SERVICE,
     OS_WORK_COMMAND_SERVICE,
     OS_COMMERCIAL_STORE,
     OS_COMMERCIAL_COMMAND_SERVICE,
@@ -338,6 +385,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_PARTY_TIMELINE_QUERY_SERVICE,
     OS_MEMBER_QUERY_SERVICE,
     OS_CAPABILITY_QUERY_SERVICE,
+    OS_QUOTE_PDF_SERVICE,
     OS_PROJECTION_RUNNER,
     OS_OUTBOX_WORKER_HOST,
     OS_OUTBOX_RECOVERY_SERVICE,

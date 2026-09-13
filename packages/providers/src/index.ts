@@ -3,9 +3,10 @@ import { MockEmailProvider } from './email/mock';
 import { MockMapsProvider } from './maps/mock';
 import { MockMessagingProvider } from './messaging/mock';
 import { MockPdfProvider } from './pdf/mock';
+import { PdfLibPdfProvider } from './pdf/pdflib';
 import { MockSearchProvider } from './search/mock';
 import { MockStorageProvider } from './storage/mock';
-import type { ProviderRegistry } from './types/index';
+import type { PdfProvider, ProviderRegistry } from './types/index';
 
 export * from './types/index';
 export { MockMessagingProvider } from './messaging/mock';
@@ -28,7 +29,18 @@ export { MockAiProvider } from './ai/mock';
 export { MockStorageProvider } from './storage/mock';
 export { MockSearchProvider } from './search/mock';
 export { MockPdfProvider } from './pdf/mock';
+export { PdfLibPdfProvider } from './pdf/pdflib';
 export { MockEmailProvider } from './email/mock';
+export {
+  formatBobCentavos,
+  formatQuotePdfDate,
+  sanitizeQuotePdfFilename,
+} from './pdf/quote-pdf-document';
+export type {
+  QuotePdfDocument,
+  QuotePdfLine,
+  QuotePdfRenderInput,
+} from './pdf/quote-pdf-document';
 
 export type ProviderEnv = {
   MESSAGING_PROVIDER?: string;
@@ -41,6 +53,19 @@ export type ProviderEnv = {
   NODE_ENV?: string;
   ALLOW_MOCK_PROVIDERS?: string;
 };
+
+/**
+ * Create the live Quote PDF provider without requiring the full registry.
+ * Default is pdf-lib (portable server-side). Use mock only when explicitly requested.
+ */
+export function createPdfProvider(env: ProviderEnv = process.env): PdfProvider {
+  const mode = (env.PDF_PROVIDER ?? 'pdflib').toLowerCase();
+  if (mode === 'mock') {
+    return new MockPdfProvider();
+  }
+  // playwright / reactpdf reserved names map to pdf-lib until dedicated adapters ship
+  return new PdfLibPdfProvider();
+}
 
 /**
  * Boot-time registry. Live adapters will be added in later milestones.
@@ -68,23 +93,21 @@ export function createProviderRegistry(env: ProviderEnv = process.env): Provider
     );
   }
 
-  // M1: only mocks are implemented. Requesting a live name still returns mock
-  // but labels mode for health transparency until adapters ship.
-  const asLiveLabel = (requested: string, mockName: string) =>
-    requested === 'mock' ? mockName : `${mockName} (pending:${requested})`;
-
   const messaging = new MockMessagingProvider();
   const maps = new MockMapsProvider();
   const ai = new MockAiProvider();
   const storage = new MockStorageProvider();
   const search = new MockSearchProvider();
-  const pdf = new MockPdfProvider();
+  const pdf =
+    pdfMode === 'mock' ? new MockPdfProvider() : new PdfLibPdfProvider();
   const email = new MockEmailProvider();
 
-  // Annotate requested mode without forking call sites
-  void asLiveLabel;
   void messagingMode;
   void mapsMode;
+  void aiMode;
+  void storageMode;
+  void searchMode;
+  void emailMode;
 
   return { messaging, maps, ai, storage, search, pdf, email };
 }

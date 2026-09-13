@@ -37,14 +37,14 @@ describe('UI-4 money rendering', () => {
   });
 
   it('renders optional centavos from DTO strings', () => {
-    assert.equal(formatOptionalCentavos(sampleOpportunity.expectedValueCentavos), 'Bs. 125.000,00');
+    assert.equal(formatOptionalCentavos(sampleOpportunity.expectedValueCentavos), 'Bs. 3.850,00');
     assert.equal(formatOptionalCentavos(null), null);
   });
 
   it('quote detail line totals use canonical centavo strings', () => {
     const line = sampleQuoteDetail.lines[0];
-    assert.equal(formatCentavos(line.lineTotalCentavos, 'BOB'), 'Bs. 50.000,00');
-    assert.equal(formatCentavos(line.unitPriceCentavos, 'BOB'), 'Bs. 25.000,00');
+    assert.equal(formatCentavos(line.lineTotalCentavos, 'BOB'), 'Bs. 1.850,00');
+    assert.equal(formatCentavos(line.unitPriceCentavos, 'BOB'), 'Bs. 185,00');
   });
 });
 

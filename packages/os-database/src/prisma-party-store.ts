@@ -9,6 +9,7 @@ import type {
   FiscalIdentityRecord,
   IdempotencyRecord,
   LeadRecord,
+  LocationRecord,
   MemberRecord,
   MergeRequestRecord,
   PartyRecord,
@@ -65,6 +66,62 @@ export class PrismaOsPartyStore implements OsPartyStore {
   async getPartyInOrg(organizationId: string, partyId: string): Promise<PartyRecord | null> {
     const row = await this.db().osParty.findFirst({ where: { id: partyId, organizationId } });
     return row ? mapParty(row) : null;
+  }
+
+  async getLocationInOrg(organizationId: string, locationId: string): Promise<LocationRecord | null> {
+    const row = await this.db().osLocation.findFirst({ where: { id: locationId, organizationId } });
+    return row ? mapLocation(row) : null;
+  }
+
+  async listLocationsForParty(organizationId: string, partyId: string): Promise<LocationRecord[]> {
+    const rows = await this.db().osLocation.findMany({
+      where: { organizationId, partyId },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    return rows.map(mapLocation);
+  }
+
+  async insertLocation(location: LocationRecord): Promise<void> {
+    await this.db().osLocation.create({
+      data: {
+        id: location.id,
+        organizationId: location.organizationId,
+        partyId: location.partyId,
+        label: location.label,
+        addressText: location.addressText,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        provenanceUrl: location.provenanceUrl,
+        status: location.status,
+        version: location.version,
+        createdAt: location.createdAt,
+        updatedAt: location.updatedAt,
+      },
+    });
+  }
+
+  async updateLocation(
+    organizationId: string,
+    locationId: string,
+    patch: Partial<
+      Pick<
+        LocationRecord,
+        | 'label'
+        | 'addressText'
+        | 'latitude'
+        | 'longitude'
+        | 'provenanceUrl'
+        | 'status'
+        | 'version'
+      >
+    >,
+    expectedVersion: number,
+  ): Promise<void> {
+    const result = await this.db().osLocation.updateMany({
+      where: { id: locationId, organizationId, version: expectedVersion },
+      data: patch,
+    });
+    if (result.count === 0) throw new Error('CONFLICT');
   }
 
   async insertParty(party: PartyRecord): Promise<void> {
@@ -592,6 +649,36 @@ function mapContact(row: {
     title: row.title,
     status: row.status,
     version: row.version,
+  };
+}
+
+function mapLocation(row: {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  label: string;
+  addressText: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  provenanceUrl: string | null;
+  status: string;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+}): LocationRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    partyId: row.partyId,
+    label: row.label,
+    addressText: row.addressText,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    provenanceUrl: row.provenanceUrl,
+    status: row.status as LocationRecord['status'],
+    version: row.version,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 

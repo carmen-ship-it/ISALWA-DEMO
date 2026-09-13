@@ -15,22 +15,29 @@ import {
   type OsCommandName,
   OS_COMMAND_NAMES,
   PARTY_COMMAND_NAMES,
+  LOCATION_COMMAND_NAMES,
   WORK_COMMAND_NAMES,
   WORKFORCE_COMMAND_NAMES,
   COMMERCIAL_COMMAND_NAMES,
+  IMPORT_COMMAND_NAMES,
   type PartyCommandName,
+  type LocationCommandName,
+  type ImportCommandName,
   type WorkCommandName,
   type WorkforceCommandName,
   type CommercialCommandName,
 } from '@isalwa/os-contracts';
-import type { PartyCommandService } from '@isalwa/os-party';
+import type { LocationCommandService, PartyCommandService } from '@isalwa/os-party';
+import type { ImportCommandService } from '@isalwa/os-import';
 import type { WorkCommandService } from '@isalwa/os-work';
 import type { CommercialCommandService } from '@isalwa/os-commercial';
 import type { OsWorkforceStore, WorkforceCommandService } from '@isalwa/os-workforce';
 import { resolveSession } from './os-session';
 import {
   OS_COMMAND_SERVICE,
+  OS_LOCATION_COMMAND_SERVICE,
   OS_PARTY_COMMAND_SERVICE,
+  OS_IMPORT_COMMAND_SERVICE,
   OS_STORE,
   OS_WORK_COMMAND_SERVICE,
   OS_COMMERCIAL_COMMAND_SERVICE,
@@ -45,6 +52,8 @@ function mapError(err: unknown): HttpException {
         ? HttpStatus.FORBIDDEN
         : code === 'NOT_FOUND'
           ? HttpStatus.NOT_FOUND
+          : code === 'IMPORT_DISABLED'
+            ? HttpStatus.FORBIDDEN
           : code === 'VALIDATION_FAILED' || code === 'CONFLICT'
             ? HttpStatus.BAD_REQUEST
             : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -57,6 +66,14 @@ function isWorkforceCommand(command: OsCommandName): command is WorkforceCommand
 
 function isPartyCommand(command: OsCommandName): command is PartyCommandName {
   return (PARTY_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
+function isLocationCommand(command: OsCommandName): command is LocationCommandName {
+  return (LOCATION_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
+function isImportCommand(command: OsCommandName): command is ImportCommandName {
+  return (IMPORT_COMMAND_NAMES as readonly string[]).includes(command);
 }
 
 function isWorkCommand(command: OsCommandName): command is WorkCommandName {
@@ -72,6 +89,8 @@ export class CommandsController {
   constructor(
     @Inject(OS_COMMAND_SERVICE) private readonly workforceCommands: WorkforceCommandService,
     @Inject(OS_PARTY_COMMAND_SERVICE) private readonly partyCommands: PartyCommandService,
+    @Inject(OS_LOCATION_COMMAND_SERVICE) private readonly locationCommands: LocationCommandService,
+    @Inject(OS_IMPORT_COMMAND_SERVICE) private readonly importCommands: ImportCommandService,
     @Inject(OS_WORK_COMMAND_SERVICE) private readonly workCommands: WorkCommandService,
     @Inject(OS_COMMERCIAL_COMMAND_SERVICE) private readonly commercialCommands: CommercialCommandService,
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
@@ -106,6 +125,22 @@ export class CommandsController {
       }
       if (isPartyCommand(command)) {
         return await this.partyCommands.execute(
+          command,
+          session,
+          parsed.data as Record<string, unknown>,
+          idempotencyKey,
+        );
+      }
+      if (isLocationCommand(command)) {
+        return await this.locationCommands.execute(
+          command,
+          session,
+          parsed.data as Record<string, unknown>,
+          idempotencyKey,
+        );
+      }
+      if (isImportCommand(command)) {
+        return await this.importCommands.execute(
           command,
           session,
           parsed.data as Record<string, unknown>,

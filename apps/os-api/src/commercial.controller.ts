@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   Req,
+  StreamableFile,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
@@ -17,7 +18,8 @@ import {
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { buildQueryContext, type CommercialQueryService } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
-import { OS_COMMERCIAL_QUERY_SERVICE, OS_STORE } from './os-store.module';
+import { OS_COMMERCIAL_QUERY_SERVICE, OS_QUOTE_PDF_SERVICE, OS_STORE } from './os-store.module';
+import type { QuotePdfService } from './quote-pdf.service';
 
 function toHttp(err: unknown): HttpException {
   if (err instanceof HttpException) return err;
@@ -31,8 +33,10 @@ function toHttp(err: unknown): HttpException {
           ? HttpStatus.NOT_FOUND
           : code === 'VALIDATION_FAILED'
             ? HttpStatus.BAD_REQUEST
-            : HttpStatus.INTERNAL_SERVER_ERROR;
-  return new HttpException({ code }, status);
+            : code === 'PDF_RENDER_FAILED'
+              ? HttpStatus.INTERNAL_SERVER_ERROR
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+  return new HttpException({ code: code === 'PDF_RENDER_FAILED' ? 'PDF_RENDER_FAILED' : code }, status);
 }
 
 @Controller('opportunities')
@@ -74,6 +78,7 @@ export class QuotesController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_COMMERCIAL_QUERY_SERVICE) private readonly commercialQuery: CommercialQueryService,
+    @Inject(OS_QUOTE_PDF_SERVICE) private readonly quotePdf: QuotePdfService,
   ) {}
 
   @Get()
@@ -86,6 +91,32 @@ export class QuotesController {
       }
       const ctx = await buildQueryContext(session, this.workforceStore);
       return await this.commercialQuery.listQuotes(ctx, parsed.data);
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
+  @Get(':quoteId/pdf')
+  async getPdf(
+    @Param('quoteId') quoteId: string,
+    @Query('disposition') disposition: string | undefined,
+    @Req() req: Request,
+  ) {
+    try {
+      const trimmed = quoteId?.trim();
+      if (!trimmed) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      const { quote } = await this.commercialQuery.getQuote(ctx, trimmed);
+      const rendered = await this.quotePdf.renderAuthorizedQuote(quote);
+      const inline = disposition === 'inline';
+      const contentDisposition = `${inline ? 'inline' : 'attachment'}; filename="${rendered.filename}"`;
+      return new StreamableFile(Buffer.from(rendered.bytes), {
+        type: rendered.contentType,
+        disposition: contentDisposition,
+      });
     } catch (err) {
       throw toHttp(err);
     }

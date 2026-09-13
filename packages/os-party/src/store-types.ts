@@ -1,4 +1,4 @@
-import type { PartyKind, PartyRoleKey, PartyStatus } from '@isalwa/os-contracts';
+import type { LocationStatus, PartyKind, PartyRoleKey, PartyStatus } from '@isalwa/os-contracts';
 
 export type PartyRecord = {
   id: string;
@@ -9,6 +9,21 @@ export type PartyRecord = {
   status: PartyStatus;
   mergedIntoPartyId: string | null;
   version: number;
+};
+
+export type LocationRecord = {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  label: string;
+  addressText: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  provenanceUrl: string | null;
+  status: LocationStatus;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type PartyRoleAssignmentRecord = {

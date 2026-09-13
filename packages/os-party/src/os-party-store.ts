@@ -7,6 +7,7 @@ import type {
   FiscalIdentityRecord,
   IdempotencyRecord,
   LeadRecord,
+  LocationRecord,
   MemberRecord,
   MergeRequestRecord,
   PartyRecord,
@@ -26,6 +27,27 @@ export interface OsPartyStore {
   updateParty(
     partyId: string,
     patch: Partial<Pick<PartyRecord, 'displayName' | 'legalName' | 'status' | 'mergedIntoPartyId' | 'version'>>,
+    expectedVersion: number,
+  ): Promise<void>;
+
+  getLocationInOrg(organizationId: string, locationId: string): Promise<LocationRecord | null>;
+  listLocationsForParty(organizationId: string, partyId: string): Promise<LocationRecord[]>;
+  insertLocation(location: LocationRecord): Promise<void>;
+  updateLocation(
+    organizationId: string,
+    locationId: string,
+    patch: Partial<
+      Pick<
+        LocationRecord,
+        | 'label'
+        | 'addressText'
+        | 'latitude'
+        | 'longitude'
+        | 'provenanceUrl'
+        | 'status'
+        | 'version'
+      >
+    >,
     expectedVersion: number,
   ): Promise<void>;
 

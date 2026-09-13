@@ -124,6 +124,43 @@ export function createOsApiClient(auth: OsAuthContext) {
     return (await response.json()) as T;
   }
 
+  async function requestBinary(
+    path: string,
+    options: OsApiRequestOptions = {},
+  ): Promise<{ bytes: ArrayBuffer; contentType: string; filename: string | null }> {
+    const method = options.method ?? 'GET';
+    const correlationId = createId();
+    const headers: Record<string, string> = {
+      Accept: 'application/pdf, application/json',
+      'x-correlation-id': correlationId,
+      ...authHeaders(auth),
+    };
+
+    const response = await fetchWithRetry(
+      buildUrl(path, options.query),
+      {
+        method,
+        headers,
+        signal: options.signal,
+        cache: 'no-store',
+      },
+      options.retry ?? method === 'GET',
+    );
+
+    if (!response.ok) {
+      throw await parseOsApiError(response);
+    }
+
+    const contentType = response.headers.get('content-type') ?? 'application/octet-stream';
+    const disposition = response.headers.get('content-disposition') ?? '';
+    const filenameMatch = /filename="([^"]+)"/i.exec(disposition);
+    return {
+      bytes: await response.arrayBuffer(),
+      contentType,
+      filename: filenameMatch?.[1] ?? null,
+    };
+  }
+
   return {
     get: <T>(path: string, query?: OsApiRequestOptions['query']) =>
       request<T>(path, { method: 'GET', query }),
@@ -180,6 +217,17 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<QuoteListResponse>('/quotes', { method: 'GET', query }),
     getQuote: (quoteId: string) =>
       request<QuoteDetailResponse>(`/quotes/${encodeURIComponent(quoteId)}`),
+    getQuotePdf: async (quoteId: string, opts?: { inline?: boolean }) => {
+      const binary = await requestBinary(`/quotes/${encodeURIComponent(quoteId)}/pdf`, {
+        method: 'GET',
+        query: opts?.inline ? { disposition: 'inline' } : undefined,
+      });
+      return {
+        bytes: binary.bytes,
+        contentType: binary.contentType || 'application/pdf',
+        filename: binary.filename ?? `cotizacion-${quoteId}.pdf`,
+      };
+    },
     listOrders: (query?: Record<string, string | number | boolean>) =>
       request<OrderListResponse>('/orders', { method: 'GET', query }),
     getOrder: (orderId: string) =>

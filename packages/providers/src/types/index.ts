@@ -1,3 +1,11 @@
+import type { QuotePdfRenderInput } from '../pdf/quote-pdf-document';
+
+export type {
+  QuotePdfDocument,
+  QuotePdfLine,
+  QuotePdfRenderInput,
+} from '../pdf/quote-pdf-document';
+
 export type ProviderName =
   | 'mock'
   | 'meta'
@@ -12,6 +20,7 @@ export type ProviderName =
   | 'meilisearch'
   | 'playwright'
   | 'reactpdf'
+  | 'pdflib'
   | 'resend';
 
 export interface ProviderInfo {
@@ -64,7 +73,7 @@ export interface SearchProvider {
 
 export interface PdfProvider {
   readonly info: ProviderInfo;
-  renderQuotePdf(input: { quoteNumber: string; html: string }): Promise<Uint8Array>;
+  renderQuotePdf(input: QuotePdfRenderInput): Promise<Uint8Array>;
   health(): Promise<'up' | 'degraded' | 'down'>;
 }
 

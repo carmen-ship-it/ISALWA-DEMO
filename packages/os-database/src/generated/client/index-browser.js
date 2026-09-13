@@ -355,6 +355,48 @@ exports.Prisma.OsPartyScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OsLocationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  partyId: 'partyId',
+  label: 'label',
+  addressText: 'addressText',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  provenanceUrl: 'provenanceUrl',
+  status: 'status',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OsImportBatchScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  sourceKind: 'sourceKind',
+  sourceFingerprint: 'sourceFingerprint',
+  status: 'status',
+  createdByMemberId: 'createdByMemberId',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt',
+  receiptJson: 'receiptJson',
+  idempotencyKey: 'idempotencyKey',
+  reversedAt: 'reversedAt',
+  reversedEntityRefs: 'reversedEntityRefs'
+};
+
+exports.Prisma.OsImportRowScalarFieldEnum = {
+  id: 'id',
+  importBatchId: 'importBatchId',
+  organizationId: 'organizationId',
+  section: 'section',
+  rowIndex: 'rowIndex',
+  outcome: 'outcome',
+  entityRefsJson: 'entityRefsJson',
+  errorCode: 'errorCode',
+  normalizedSnapshotJson: 'normalizedSnapshotJson'
+};
+
 exports.Prisma.OsOpportunityScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -755,6 +797,9 @@ exports.Prisma.ModelName = {
   OsIdempotencyKey: 'OsIdempotencyKey',
   OsCapabilityState: 'OsCapabilityState',
   OsParty: 'OsParty',
+  OsLocation: 'OsLocation',
+  OsImportBatch: 'OsImportBatch',
+  OsImportRow: 'OsImportRow',
   OsOpportunity: 'OsOpportunity',
   OsQuote: 'OsQuote',
   OsQuoteLine: 'OsQuoteLine',

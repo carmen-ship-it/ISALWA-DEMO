@@ -161,18 +161,20 @@ Steps:
 
 ## Staging hosted (Render) — operator path
 
-**Resource:** Render Postgres `isalwa-os-staging` (`dpg-dajd3kh5efls738falcg-a`), plan **free**, region virginia, Postgres 16.
+**Resource:** Render Postgres `isalwa-os-staging` (`dpg-dajd3kh5efls738falcg-a`), plan **0.1c-256mb**, region virginia, Postgres 16. Same instance id after the 2026-09-13 compute upgrade. Free-plan `expiresAt` is gone. HA remains disabled. Disk 1 GB.
 
-### Managed backup (actual plan truth)
+### Managed backup (verified provider state, 2026-09-13)
 
-| Capability | Status on current free plan |
-|------------|-----------------------------|
-| Managed automated backups | **Unavailable / not offered on free** |
-| PITR | **Unavailable on free** |
-| High availability | Disabled |
-| Operator recovery | **Required:** `pg_dump` off-host |
+`GET /v1/postgres/dpg-dajd3kh5efls738falcg-a/recovery`:
 
-Do not assume Dashboard PITR exists until the database is upgraded to a paid plan that documents backups.
+| Field | Value |
+|-------|--------|
+| recoveryStatus | `AVAILABLE` |
+| startsAt | `2026-09-13T18:20:13Z` |
+
+`GET /v1/postgres/dpg-dajd3kh5efls738falcg-a/export` returns 200. No logical export has been created yet (count 0). Creating one is a Dashboard/API export, not a second database.
+
+The recovery API does not return a numeric retention cap. Earliest restore point is `startsAt`. Operator `pg_dump` remains the long-term off-host copy.
 
 ### Off-host dump (canonical)
 
