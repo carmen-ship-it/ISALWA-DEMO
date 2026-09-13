@@ -92,31 +92,6 @@ export class PartiesController {
     }
   }
 
-  @Get(':partyId/locations')
-  async listPartyLocations(@Param('partyId') partyId: string, @Req() req: Request) {
-    try {
-      const session = await resolveSession(req, this.workforceStore);
-      const party = await this.partyStore.getPartyInOrg(session.organizationId, partyId);
-      if (!party) {
-        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
-      }
-      const locations = await this.partyStore.listLocationsForParty(session.organizationId, partyId);
-      return { partyId, locations };
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
-      const status =
-        code === 'AUTH_REQUIRED'
-          ? HttpStatus.UNAUTHORIZED
-          : code === 'TENANT_FORBIDDEN' ||
-              code === 'PERMISSION_DENIED' ||
-              code === 'ACCESS_REVOKED'
-            ? HttpStatus.FORBIDDEN
-            : HttpStatus.INTERNAL_SERVER_ERROR;
-      throw new HttpException({ code }, status);
-    }
-  }
-
   @Get(':partyId')
   async getParty(@Param('partyId') partyId: string, @Req() req: Request) {
     try {
