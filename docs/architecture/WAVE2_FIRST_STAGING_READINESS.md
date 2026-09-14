@@ -1,6 +1,6 @@
 # Wave 2 — First Staging Readiness Review
 
-Candidate: `a41e4941f4c3c68617e99b081fe0c123f6bc8841` (P0 blocker pass; lineage via `fea5193` / `96c797b`)  
+Candidate: `8aa82c32bfeb3112ce8a5a81983afb3757c10379` (P0 blocker pass; lineage via `fea5193` / `96c797b`)  
 Branch: `wave2/candidate-unified`  
 Parent lineage includes: `29d63bc` → `96c797b` → `fea5193` → this SHA  
 Integration pin: `316426f272bce29924ffd4991da88ffe7d421bbd` (unmoved)  
