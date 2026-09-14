@@ -231,14 +231,16 @@ export function plannedCapabilitiesFor(
 }
 
 /**
- * Guard sequence before any write (env + confirm + supabase parse + URL host).
+ * Guard sequence before any write.
+ * Confirm latch runs first so a clean-room CLI load (no secrets) fails on
+ * STAGING_FIXTURE_CONFIRM_REQUIRED after modules resolve.
  * DB name / migration count require a live connection and run next in main().
  */
 export function assertPreConnectGuards(
   env: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env,
 ): { supabaseUrl: string; databaseUrl: string; projectRef: string } {
-  assertRequiredFixtureEnv(env);
   assertStagingFixtureConfirm(env);
+  assertRequiredFixtureEnv(env);
   const supabaseUrl = requireEnvFrom(env, 'SUPABASE_URL');
   const databaseUrl = requireEnvFrom(env, 'OS_DATABASE_URL');
   const projectRef = assertSupabaseStagingProject(supabaseUrl);

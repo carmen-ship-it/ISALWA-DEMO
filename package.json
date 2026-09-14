@@ -22,7 +22,9 @@
     "seed:demo": "pnpm --filter @isalwa/database seed:demo",
     "seed:ci": "pnpm --filter @isalwa/database seed:ci",
     "seed:validate": "pnpm --filter @isalwa/database seed:validate",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "fixture:wave2-roles:prepare": "pnpm --filter @isalwa/os-database^... run build",
+    "fixture:wave2-roles": "pnpm run fixture:wave2-roles:prepare && pnpm --filter @isalwa/os-database run fixture:wave2-roles"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

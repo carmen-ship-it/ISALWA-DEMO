@@ -4,8 +4,8 @@
  * HOSTED_APP_SHA remains ef7eeab… — this file is fixture tooling only.
  *
  * Guard order (writes only after all pass):
- * 1. env presence
- * 2. STAGING_FIXTURE_CONFIRM=1
+ * 1. STAGING_FIXTURE_CONFIRM=1
+ * 2. env presence
  * 3. Supabase project ref
  * 4. OS_DATABASE_URL host marker
  * 5. connect DB
@@ -13,6 +13,10 @@
  * 7. migration count === 29
  * 8. real-tenant protection
  * 9. fixture writes
+ *
+ * Clean-room prerequisite (workspace packages export dist/, which is gitignored):
+ *   pnpm install --frozen-lockfile
+ *   pnpm run fixture:wave2-roles:prepare
  *
  * Required env:
  *   OS_DATABASE_URL
@@ -28,6 +32,7 @@
  * Passwords (local only, never in receipt): …-wave2-role-passwords.json
  *
  * Run (allowlisted IP, after FIXTURE_EXECUTION_READY):
+ *   pnpm run fixture:wave2-roles:prepare
  *   STAGING_FIXTURE_CONFIRM=1 pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
  */
 import { mkdirSync, writeFileSync, chmodSync, existsSync, readFileSync } from 'node:fs';

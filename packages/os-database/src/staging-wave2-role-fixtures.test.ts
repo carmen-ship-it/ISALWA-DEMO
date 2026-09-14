@@ -43,6 +43,22 @@ describe('staging-wave2-role-fixtures guards', () => {
     );
   });
 
+  it('A2: confirm fails before secrets (clean-room load path)', () => {
+    assert.throws(() => assertPreConnectGuards({}), /STAGING_FIXTURE_CONFIRM_REQUIRED/);
+    assert.throws(
+      () => assertPreConnectGuards({ STAGING_FIXTURE_CONFIRM: undefined }),
+      /STAGING_FIXTURE_CONFIRM_REQUIRED/,
+    );
+  });
+
+  it('A3: package exports point at gitignored dist (clean-room needs prepare)', () => {
+    // Documents root cause of MODULE_NOT_FOUND for @isalwa/ts-utils in fresh worktrees.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pkg = require('../../ts-utils/package.json') as { main?: string; exports?: { '.': { default?: string } } };
+    assert.equal(pkg.main, './dist/index.js');
+    assert.equal(pkg.exports?.['.']?.default, './dist/index.js');
+  });
+
   it('B: wrong DB name => fail before writes', () => {
     assert.throws(() => assertStagingDatabaseName('isalwa_os_production'), /UNEXPECTED_DATABASE_NAME/);
     assert.throws(() => assertStagingDatabaseName('postgres'), /UNEXPECTED_DATABASE_NAME/);
@@ -71,7 +87,7 @@ describe('staging-wave2-role-fixtures guards', () => {
     );
   });
 
-  it('D: missing required env => fail', () => {
+  it('D: missing required env => fail (after confirm)', () => {
     assert.throws(() => assertRequiredFixtureEnv({}), /MISSING_ENV:OS_DATABASE_URL/);
     assert.throws(
       () =>
@@ -81,6 +97,10 @@ describe('staging-wave2-role-fixtures guards', () => {
           SUPABASE_ANON_KEY: validEnv.SUPABASE_ANON_KEY,
         }),
       /MISSING_ENV:SUPABASE_SERVICE_ROLE_KEY/,
+    );
+    assert.throws(
+      () => assertPreConnectGuards({ STAGING_FIXTURE_CONFIRM: '1' }),
+      /MISSING_ENV:OS_DATABASE_URL/,
     );
   });
 

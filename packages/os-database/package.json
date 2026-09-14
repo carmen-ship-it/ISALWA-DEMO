@@ -17,7 +17,8 @@
     "prisma:generate": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
     "migrate:dev": "prisma migrate dev",
-    "test": "node --import tsx --test --test-concurrency=1 src/**/*.test.ts"
+    "test": "node --import tsx --test --test-concurrency=1 src/**/*.test.ts",
+    "fixture:wave2-roles": "node --import tsx src/staging-wave2-role-fixtures.ts"
   },
   "dependencies": {
     "@isalwa/os-contracts": "workspace:*",
@@ -30,7 +31,8 @@
     "@isalwa/os-import": "workspace:*",
     "@isalwa/os-workforce": "workspace:*",
     "@isalwa/ts-utils": "workspace:*",
-    "@prisma/client": "^6.5.0"
+    "@prisma/client": "^6.5.0",
+    "@supabase/supabase-js": "^2.110.8"
   },
   "devDependencies": {
     "@isalwa/os-contracts": "workspace:*",
