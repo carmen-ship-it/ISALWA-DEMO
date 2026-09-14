@@ -37,6 +37,14 @@ export const PartySummaryReadModelSchema = z.object({
   mergedIntoPartyId: z.string().nullable(),
   duplicateStatus: z.enum(['suggested', 'pending_merge', 'none']).nullable(),
   searchText: z.string(),
+  /** Stored contact phone. Absent when the search response was not enriched. */
+  primaryPhone: z.string().nullable().optional(),
+  /** Commercial-account owner. Null means no owner was stored, not an inferred role. */
+  commercialOwnerMemberId: z.string().nullable().optional(),
+  /** True only when an active location has coordinates. A Maps link is not enough. */
+  hasCoordinates: z.boolean().optional(),
+  /** Provenance only. Not a map coordinate and not a geocode. */
+  locationProvenanceUrl: z.string().nullable().optional(),
 });
 
 export type PartySummaryReadModel = z.infer<typeof PartySummaryReadModelSchema>;

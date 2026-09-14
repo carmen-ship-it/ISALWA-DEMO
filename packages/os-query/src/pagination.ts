@@ -19,5 +19,13 @@ export function toPartySummary(model: PartySummaryReadModel): PartySummaryReadMo
     mergedIntoPartyId: model.mergedIntoPartyId,
     duplicateStatus: model.duplicateStatus,
     searchText: model.searchText,
+    ...(model.primaryPhone !== undefined ? { primaryPhone: model.primaryPhone } : {}),
+    ...(model.commercialOwnerMemberId !== undefined
+      ? { commercialOwnerMemberId: model.commercialOwnerMemberId }
+      : {}),
+    ...(model.hasCoordinates !== undefined ? { hasCoordinates: model.hasCoordinates } : {}),
+    ...(model.locationProvenanceUrl !== undefined
+      ? { locationProvenanceUrl: model.locationProvenanceUrl }
+      : {}),
   };
 }

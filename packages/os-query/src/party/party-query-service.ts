@@ -1,5 +1,11 @@
-import type { SearchPartiesQuery } from '@isalwa/os-contracts';
-import { OS_PROJECTION_CONSUMER_KEYS } from '@isalwa/os-contracts';
+import type { PartySummaryReadModel, SearchPartiesQuery } from '@isalwa/os-contracts';
+import {
+  locationHasCoordinates,
+  OS_PROJECTION_CONSUMER_KEYS,
+  selectLocationProvenanceUrl,
+  selectPrimaryPhone,
+} from '@isalwa/os-contracts';
+import type { PartyOperatingSource } from '@isalwa/os-party';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
@@ -13,6 +19,11 @@ export type PartySearchResult = PaginatedResult<ReturnType<typeof toPartySummary
 export type PartyQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
   encodeCursor: (displayName: string, partyId: string) => string;
+  /** Optional so existing search tests keep working. When set, one batch, never per row. */
+  listOperatingSources?: (
+    organizationId: string,
+    partyIds: string[],
+  ) => Promise<PartyOperatingSource[]>;
 };
 
 export class PartyQueryService {
@@ -47,11 +58,37 @@ export class PartyQueryService {
     const nextCursor =
       hasMore && last ? this.deps.encodeCursor(last.displayName, last.partyId) : null;
 
+    const summaries = items.map((item) => toPartySummary(item));
+    const enriched = await this.attachOperatingFacts(ctx.organizationId, summaries);
+
     return {
-      items: items.map((item) => toPartySummary(item)),
+      items: enriched,
       meta: { nextCursor, limit, hasMore },
       freshness,
     };
+  }
+
+  private async attachOperatingFacts(
+    organizationId: string,
+    items: PartySummaryReadModel[],
+  ): Promise<PartySummaryReadModel[]> {
+    if (!this.deps.listOperatingSources || items.length === 0) return items;
+    const sources = await this.deps.listOperatingSources(
+      organizationId,
+      items.map((item) => item.partyId),
+    );
+    const byId = new Map(sources.map((source) => [source.partyId, source]));
+    return items.map((item) => {
+      const source = byId.get(item.partyId);
+      if (!source) return item;
+      return {
+        ...item,
+        primaryPhone: selectPrimaryPhone(source.contacts),
+        commercialOwnerMemberId: source.commercialOwnerMemberId,
+        hasCoordinates: source.locations.some(locationHasCoordinates),
+        locationProvenanceUrl: selectLocationProvenanceUrl(source.locations),
+      };
+    });
   }
 
   async getPartySummary(ctx: QueryContext, partyId: string) {
