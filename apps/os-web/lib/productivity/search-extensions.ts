@@ -10,6 +10,24 @@ export type SearchPartyHit = {
   primaryPhone: string | null;
 };
 
+/** Matches TENANT_SURFACE_REQUIRED_SCOPE.contact. Not a caller-supplied tenant. */
+export const CONTACT_MATCH_SCOPE = 'commercial.team.read';
+
+export type TrustedContactSession = {
+  readonly organizationId: string;
+  readonly grantedScopes: readonly string[];
+};
+
+export type ContactMatchDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
+
+export type ContactMatchRead = {
+  items: SearchContactHit[];
+  code: ContactMatchDenialCode | null;
+  count: number;
+  suggestions: SearchContactHit[];
+  autocomplete: SearchContactHit[];
+};
+
 export type SearchContactHit = {
   id: string;
   givenName: string;
@@ -17,6 +35,7 @@ export type SearchContactHit = {
   email: string | null;
   phone: string | null;
   status: string;
+  organizationId?: string | null;
 };
 
 const ID_LIKE = /^[a-z0-9_-]{8,}$/i;
@@ -38,11 +57,58 @@ export function contactMatches(contact: SearchContactHit, query: string): boolea
   );
 }
 
+function trustedContactOrganization(
+  session: TrustedContactSession | null | undefined,
+): string | null {
+  if (!session || typeof session.organizationId !== 'string') return null;
+  const trimmed = session.organizationId.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function holdsContactScope(session: TrustedContactSession | null | undefined): boolean {
+  return (session?.grantedScopes ?? []).some((scope) => scope.trim() === CONTACT_MATCH_SCOPE);
+}
+
+const NO_CONTACT_EVIDENCE: ContactMatchRead = {
+  items: [],
+  code: null,
+  count: 0,
+  suggestions: [],
+  autocomplete: [],
+};
+
+/**
+ * Name, email, and phone evidence is emitted only for contacts in the
+ * authenticated session tenant. Another tenant contributes no name, mask,
+ * count, score, or candidate existence.
+ */
+export function matchingContactsRead(
+  contacts: readonly SearchContactHit[],
+  query: string,
+  session?: TrustedContactSession | null,
+): ContactMatchRead {
+  const organizationId = trustedContactOrganization(session);
+  if (!organizationId) return { ...NO_CONTACT_EVIDENCE, code: 'AUTH_REQUIRED' };
+  if (!holdsContactScope(session)) return { ...NO_CONTACT_EVIDENCE, code: 'ROLE_FORBIDDEN' };
+
+  const items = contacts.filter(
+    (contact) => contact.organizationId === organizationId && contactMatches(contact, query),
+  );
+  return {
+    items,
+    code: null,
+    count: items.length,
+    suggestions: items,
+    autocomplete: items,
+  };
+}
+
 export function matchingContacts(
   contacts: readonly SearchContactHit[],
   query: string,
+  session?: TrustedContactSession | null,
 ): SearchContactHit[] {
-  return contacts.filter((contact) => contactMatches(contact, query));
+  return matchingContactsRead(contacts, query, session).items;
 }
 
 function usableLabel(label: string): boolean {
@@ -97,9 +163,10 @@ export function extensionItemsForParty(
   party: SearchPartyHit,
   contacts: readonly SearchContactHit[],
   query: string,
+  session?: TrustedContactSession | null,
 ): PaletteItem[] {
   const customer = annotateCustomerHit(party, query);
-  const contactsMatched = matchingContacts(contacts, query)
+  const contactsMatched = matchingContacts(contacts, query, session)
     .map((contact) => contactPaletteItem(party, contact))
     .filter((item): item is PaletteItem => item !== null);
   return [customer, ...contactsMatched].filter((item): item is PaletteItem => item !== null);

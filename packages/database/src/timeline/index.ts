@@ -4,5 +4,10 @@
  */
 
 export { emitCommercialEvent, buildActivityCreateManyInput } from './emit';
-export { listAccountTimeline } from './read';
-export type { TimelineReadItem } from './read';
+export { listAccountTimeline, TIMELINE_READ_SCOPE } from './read';
+export type {
+  TimelineReadItem,
+  TimelineReadResult,
+  TimelineDenialCode,
+  TrustedTimelineSession,
+} from './read';

@@ -16,21 +16,121 @@ type LineInput = {
   unitPriceCentavos?: number;
 };
 
+/** Matches TENANT_SURFACE_REQUIRED_SCOPE.product. Not a caller-supplied tenant. */
+const PRODUCT_READ_SCOPE = 'master_data.admin';
+/** Matches TENANT_SURFACE_REQUIRED_SCOPE.quote. Not a caller-supplied tenant. */
+const QUOTE_READ_SCOPE = 'commercial.team.read';
+
+export type TrustedCommerceSession = {
+  readonly organizationId: string;
+  readonly grantedScopes: readonly string[];
+};
+
+export type CommerceDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
+
+type ProductListRow = {
+  id: string;
+  sku: string;
+  name: string;
+  listPriceCentavos: bigint;
+  category: { name: string };
+};
+
+type QuoteListRow = {
+  id: string;
+  number: string;
+  status: string;
+  accountId: string;
+  totalCentavos: bigint;
+  createdAt: Date;
+  sentAt: Date | null;
+  account: { tradeName: string | null; legalName: string };
+  items: unknown[];
+};
+
+export type CommerceReadDb = {
+  product: {
+    findMany: (args: {
+      where: {
+        organizationId: string;
+        isActive: true;
+        OR?: Array<Record<string, { contains: string; mode: 'insensitive' }>>;
+      };
+      orderBy: { name: 'asc' };
+      take: number;
+      include: { category: true };
+    }) => Promise<ProductListRow[]>;
+  };
+  quote: {
+    findMany: (args: {
+      where: { organizationId: string; accountId?: string };
+      orderBy: { createdAt: 'desc' };
+      take: number;
+      include: { account: true; items: true };
+    }) => Promise<QuoteListRow[]>;
+  };
+};
+
+export type CommerceListResult<T> = {
+  items: T[];
+  code: CommerceDenialCode | null;
+  count: number;
+};
+
+function trustedCommerceOrganization(
+  session: TrustedCommerceSession | null | undefined,
+): string | null {
+  if (!session || typeof session.organizationId !== 'string') return null;
+  const trimmed = session.organizationId.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function holdsCommerceScope(
+  session: TrustedCommerceSession | null | undefined,
+  required: string,
+): boolean {
+  return (session?.grantedScopes ?? []).some((scope) => scope.trim() === required);
+}
+
+function commerceReadDb(explicit: CommerceReadDb | null | undefined): CommerceReadDb | null {
+  if (explicit !== undefined) return explicit;
+  return getPrisma() as CommerceReadDb | null;
+}
+
 @Injectable()
 export class CommerceService {
   constructor(@Inject(PROVIDER_REGISTRY) private readonly providers: ProviderRegistry) {}
 
-  async listProducts(q?: string) {
-    const prisma = getPrisma();
-    if (!prisma) return { items: [] };
+  async listProducts(
+    q?: string,
+    session?: TrustedCommerceSession | null,
+    db?: CommerceReadDb | null,
+  ): Promise<
+    CommerceListResult<{
+      id: string;
+      sku: string;
+      name: string;
+      category: string;
+      listPrice: ReturnType<typeof money>;
+    }>
+  > {
+    const organizationId = trustedCommerceOrganization(session);
+    if (!organizationId) return { items: [], code: 'AUTH_REQUIRED', count: 0 };
+    if (!holdsCommerceScope(session, PRODUCT_READ_SCOPE)) {
+      return { items: [], code: 'ROLE_FORBIDDEN', count: 0 };
+    }
+    const prisma = commerceReadDb(db);
+    if (!prisma) return { items: [], code: null, count: 0 };
+    const needle = q?.trim() ?? '';
     const items = await prisma.product.findMany({
       where: {
+        organizationId,
         isActive: true,
-        ...(q
+        ...(needle
           ? {
               OR: [
-                { name: { contains: q, mode: 'insensitive' } },
-                { sku: { contains: q, mode: 'insensitive' } },
+                { name: { contains: needle, mode: 'insensitive' as const } },
+                { sku: { contains: needle, mode: 'insensitive' as const } },
               ],
             }
           : {}),
@@ -39,15 +139,14 @@ export class CommerceService {
       take: 40,
       include: { category: true },
     });
-    return {
-      items: items.map((p) => ({
-        id: p.id,
-        sku: p.sku,
-        name: p.name,
-        category: p.category.name,
-        listPrice: money(p.listPriceCentavos),
-      })),
-    };
+    const mapped = items.map((p) => ({
+      id: p.id,
+      sku: p.sku,
+      name: p.name,
+      category: p.category.name,
+      listPrice: money(p.listPriceCentavos),
+    }));
+    return { items: mapped, code: null, count: mapped.length };
   }
 
   async lastPrice(accountId: string, productId: string) {
@@ -73,28 +172,51 @@ export class CommerceService {
     };
   }
 
-  async listQuotes(accountId?: string) {
-    const prisma = getPrisma();
-    if (!prisma) return { items: [] };
+  async listQuotes(
+    accountId?: string,
+    session?: TrustedCommerceSession | null,
+    db?: CommerceReadDb | null,
+  ): Promise<
+    CommerceListResult<{
+      id: string;
+      number: string;
+      status: string;
+      accountId: string;
+      accountName: string;
+      total: ReturnType<typeof money>;
+      lineCount: number;
+      createdAt: Date;
+      sentAt: Date | null;
+    }>
+  > {
+    const organizationId = trustedCommerceOrganization(session);
+    if (!organizationId) return { items: [], code: 'AUTH_REQUIRED', count: 0 };
+    if (!holdsCommerceScope(session, QUOTE_READ_SCOPE)) {
+      return { items: [], code: 'ROLE_FORBIDDEN', count: 0 };
+    }
+    const prisma = commerceReadDb(db);
+    if (!prisma) return { items: [], code: null, count: 0 };
     const items = await prisma.quote.findMany({
-      where: accountId ? { accountId } : {},
+      where: {
+        organizationId,
+        ...(accountId ? { accountId } : {}),
+      },
       orderBy: { createdAt: 'desc' },
       take: 30,
       include: { account: true, items: true },
     });
-    return {
-      items: items.map((q) => ({
-        id: q.id,
-        number: q.number,
-        status: q.status,
-        accountId: q.accountId,
-        accountName: q.account.tradeName ?? q.account.legalName,
-        total: money(q.totalCentavos),
-        lineCount: q.items.length,
-        createdAt: q.createdAt,
-        sentAt: q.sentAt,
-      })),
-    };
+    const mapped = items.map((q) => ({
+      id: q.id,
+      number: q.number,
+      status: q.status,
+      accountId: q.accountId,
+      accountName: q.account.tradeName ?? q.account.legalName,
+      total: money(q.totalCentavos),
+      lineCount: q.items.length,
+      createdAt: q.createdAt,
+      sentAt: q.sentAt,
+    }));
+    return { items: mapped, code: null, count: mapped.length };
   }
 
   async getQuote(id: string) {

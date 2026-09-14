@@ -40,6 +40,7 @@ describe('search extensions', () => {
       [
         {
           id: 'c1',
+          organizationId: 'org-session-alpha',
           givenName: 'Ana',
           familyName: 'Quispe',
           email: null,
@@ -48,6 +49,7 @@ describe('search extensions', () => {
         },
         {
           id: 'c2',
+          organizationId: 'org-session-alpha',
           givenName: 'Luis',
           familyName: 'Paz',
           email: null,
@@ -56,6 +58,7 @@ describe('search extensions', () => {
         },
       ],
       '700-1111',
+      { organizationId: 'org-session-alpha', grantedScopes: ['commercial.team.read'] },
     );
     assert.equal(items.some((item) => item.detail?.includes('700-1111')), true);
     assert.equal(items.some((item) => item.label === 'Ana Quispe'), true);

@@ -674,16 +674,53 @@ export type OpenQuestionSignal = {
   origin: 'deterministic';
 };
 
+/** Matches TENANT_SURFACE_REQUIRED_SCOPE.customer_communication. */
+export const UNCONFIRMED_QUESTION_SCOPE = 'commercial.team.read';
+
+export type TrustedEvidenceSession = {
+  readonly organizationId: string;
+  readonly grantedScopes: readonly string[];
+};
+
+export type QuestionDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
+
+export type UnconfirmedQuestionRead = {
+  items: OpenQuestionSignal[];
+  code: QuestionDenialCode | null;
+  count: number;
+};
+
+function trustedEvidenceOrganization(
+  session: TrustedEvidenceSession | null | undefined,
+): string | null {
+  if (!session || typeof session.organizationId !== 'string') return null;
+  const trimmed = session.organizationId.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function holdsQuestionScope(session: TrustedEvidenceSession | null | undefined): boolean {
+  return (session?.grantedScopes ?? []).some((scope) => scope.trim() === UNCONFIRMED_QUESTION_SCOPE);
+}
+
 /**
  * Bounded question detection. Not a model.
  * An outbound reply is not available here, and would not close the question.
+ * Question text is copied only from messages whose organizationId is the
+ * authenticated session tenant. Another tenant's text is never projected.
  */
-export function listUnconfirmedCustomerQuestions(
+export function readUnconfirmedCustomerQuestions(
   messages: readonly NormalizedConversationMessage[],
-): OpenQuestionSignal[] {
-  return messages
-    .filter((message) => questionRemainsOpen({ text: message.text, markedResolved: false }))
-    .map((message) => ({
+  session?: TrustedEvidenceSession | null,
+): UnconfirmedQuestionRead {
+  const organizationId = trustedEvidenceOrganization(session);
+  if (!organizationId) return { items: [], code: 'AUTH_REQUIRED', count: 0 };
+  if (!holdsQuestionScope(session)) return { items: [], code: 'ROLE_FORBIDDEN', count: 0 };
+
+  const items: OpenQuestionSignal[] = [];
+  for (const message of messages) {
+    if (message.organizationId !== organizationId) continue;
+    if (!questionRemainsOpen({ text: message.text, markedResolved: false })) continue;
+    items.push({
       messageId: message.id,
       text: message.text,
       sourceType: 'customer_message',
@@ -691,7 +728,16 @@ export function listUnconfirmedCustomerQuestions(
       companyConfirmed: false,
       resolvedByOutbound: false,
       origin: 'deterministic',
-    }));
+    });
+  }
+  return { items, code: null, count: items.length };
+}
+
+export function listUnconfirmedCustomerQuestions(
+  messages: readonly NormalizedConversationMessage[],
+  session?: TrustedEvidenceSession | null,
+): OpenQuestionSignal[] {
+  return readUnconfirmedCustomerQuestions(messages, session).items;
 }
 
 export type ConversationIntelligenceRequest = {

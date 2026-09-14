@@ -427,10 +427,13 @@ describe('evidence review and AI-ready context', () => {
     assert.equal(brief.nextStep, null);
     assert.equal(brief.canonicalMutation, 'refused');
 
-    const questions = listUnconfirmedCustomerQuestions([
-      inbound({ id: 'q-1', text: '¿Cuándo llega?' }),
-      inbound({ id: 'plain', text: 'Ya pagué' }),
-    ]);
+    const questions = listUnconfirmedCustomerQuestions(
+      [
+        inbound({ id: 'q-1', text: '¿Cuándo llega?' }),
+        inbound({ id: 'plain', text: 'Ya pagué' }),
+      ],
+      { organizationId: 'org-a', grantedScopes: ['commercial.team.read'] },
+    );
     assert.equal(questions.length, 1);
     assert.equal(questions[0]?.messageId, 'q-1');
     assert.equal(questions[0]?.confirmationState, 'unconfirmed');
