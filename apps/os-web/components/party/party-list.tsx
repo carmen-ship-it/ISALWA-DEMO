@@ -2,6 +2,7 @@ import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
 import type { PartySummaryReadModel } from '@isalwa/os-contracts';
 import { panelHref, parsePanel, type ListQueryState } from '@/lib/lists/url-state';
 import { formatPartyRoles, formatPartyStatus, partyStatusTone } from '@/lib/party/labels';
+import { partyListLocationMeta } from '@/lib/party/next-action';
 import { partyHref } from '@/lib/party/navigation';
 import type { MemberLabelMap } from '@/lib/work/member-resolver';
 import { memberLabel } from '@/lib/work/member-resolver';
@@ -22,7 +23,7 @@ function operatingMeta(party: PartySummaryReadModel, memberLabels?: MemberLabelM
   const ownerId = party.commercialOwnerMemberId?.trim();
   const owner = ownerId && memberLabels ? `Responsable: ${memberLabel(memberLabels, ownerId)}` : null;
   const phone = party.primaryPhone?.trim() || null;
-  const location = party.hasCoordinates === true ? 'Ubicación disponible' : null;
+  const location = partyListLocationMeta(party);
   return [owner, phone, location].filter((part): part is string => Boolean(part)).join(' · ');
 }
 
