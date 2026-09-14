@@ -16,7 +16,8 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
-import { GuidanceNote } from '@/components/guidance/guidance-note';
+import { GuidanceNotes } from '@/components/guidance/guidance-note';
+import { guidanceForSendQuote } from '@/lib/guidance/select';
 
 type QuoteEditorProps = {
   partyId: string;
@@ -300,14 +301,7 @@ export function QuoteEditor({ partyId, quote }: QuoteEditorProps) {
         <h2 className={documentTitleClass}>Enviar cotización</h2>
         <FormFeedback error={submitState.error} success={submitState.success} />
         <form action={submitAction} className="mt-8 space-y-4">
-          <GuidanceNote
-            kind="consejo"
-            title="Antes de enviar cotización"
-            items={[
-              'Revise el cliente, las líneas y las cantidades.',
-              'Si hace falta aprobación, solicítela. Enviar no la otorga.',
-            ]}
-          />
+          <GuidanceNotes notes={guidanceForSendQuote({ lineCount: quote.lines.length })} />
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="quoteId" value={quote.quoteId} />
           <CommandSubmitButton label="Enviar cotización" pendingLabel="Enviando…" />

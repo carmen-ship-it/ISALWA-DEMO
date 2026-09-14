@@ -6,6 +6,8 @@ import { PageSection } from '@isalwa/ui';
 import { createQuoteAction } from '@/lib/commercial/actions';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { GuidanceNotes } from '@/components/guidance/guidance-note';
+import { guidanceForCreateQuote } from '@/lib/guidance/select';
 
 type QuoteCreateFormProps = {
   partyId: string;
@@ -35,6 +37,7 @@ export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: Qu
       </p>
       <FormFeedback error={state?.error} />
       <form action={formAction} className="mt-4 space-y-4">
+        <GuidanceNotes notes={guidanceForCreateQuote()} />
         <input type="hidden" name="partyId" value={partyId} />
         <input type="hidden" name="opportunityId" value={opportunityId} />
         <div>
