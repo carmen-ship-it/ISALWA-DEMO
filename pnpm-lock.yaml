@@ -222,6 +222,9 @@ importers:
       '@isalwa/os-contracts':
         specifier: workspace:*
         version: link:../../packages/os-contracts
+      '@isalwa/os-domain':
+        specifier: workspace:*
+        version: link:../../packages/os-domain
       '@isalwa/ts-utils':
         specifier: workspace:*
         version: link:../../packages/ts-utils

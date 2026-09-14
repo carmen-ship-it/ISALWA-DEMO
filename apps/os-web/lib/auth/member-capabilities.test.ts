@@ -131,13 +131,28 @@ describe('decideCapability', () => {
   });
 
   it('does not treat people.admin as a manager or operating shortcut', () => {
-    for (const required of LISTED_SCOPES) {
+    const blocked = [
+      ...LISTED_SCOPES,
+      'finance.operational.record',
+    ];
+    for (const required of blocked) {
       assert.equal(
         decideCapability(input({ grantedScopes: ['people.admin'], requiredScope: required })),
         'ROLE_FORBIDDEN',
         required,
       );
     }
+  });
+
+  it('denies terminated employment even when access still says active', () => {
+    assert.equal(
+      decideCapability(input({ accessStatus: 'active', employmentStatus: 'terminated' })),
+      'MEMBER_INACTIVE',
+    );
+    assert.equal(
+      decideCapability(input({ accessStatus: 'active', employmentStatus: 'inactive' })),
+      'MEMBER_INACTIVE',
+    );
   });
 
   it('does not treat management.org.read as system admin or as a mutation', () => {
@@ -279,9 +294,10 @@ describe('loadMemberCapabilities', () => {
     assert.doesNotMatch(loader, /localStorage/);
     assert.doesNotMatch(loader, /document\.cookie/);
     assert.match(loader, /getServerOsAuthContext/);
-    assert.match(loader, /getAuthenticatedSession/);
-    assert.match(loader, /getMember\(session\.memberId\)/);
-    assert.match(loader, /trustedMemberCapabilitySnapshot/);
+    assert.match(loader, /getTrustedAuthorization/);
+    assert.match(loader, /acceptTrustedMemberContext/);
+    assert.doesNotMatch(loader, /getMember\(/);
+    assert.doesNotMatch(loader, /grantedScopes/);
     assert.doesNotMatch(source, /OS_DEV_SESSION_COOKIE/);
     assert.doesNotMatch(source, /cookies\(/);
   });

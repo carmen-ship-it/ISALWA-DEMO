@@ -1,21 +1,28 @@
 /**
- * Server session scopes. Extends the existing path. Does not replace it.
+ * Web server loader for the one trusted member context.
  *
  * Supabase cookie or dev session
  *   → getServerOsAuthContext (apps/os-web/lib/auth/actions.ts)
- *   → os-api resolveSession (JWT → AuthIdentity → Member, or validated dev headers)
- *   → GET /session/me for memberId / organizationId
- *   → GET /members/:memberId summary.roleKeys (active role assignments only)
- *   → this snapshot
- *   → decideCapability
+ *   → GET /session/authorization
+ *   → os-api loadTrustedMemberContextFromRequest
+ *   → AuthIdentity → active Member → stored assignments
+ *   → acceptTrustedMemberContext
  *
- * GET /capabilities is the capability registry, not a member grant list.
- * Role keys are not written to a cookie, localStorage, or any client claim.
- * Cargo and job title are not inputs. A held scope never implies another scope.
- * Delegated scopes are not on the member summary. This loader does not invent them.
+ * GET /session/me and GET /members/:id are not the grant source. A member
+ * summary roleKeys list is not a second session. Cargo and title grant
+ * nothing. A held scope never implies another scope.
+ *
+ * A null result is denial, not an empty allow. This loader does not attach
+ * an HTTP session for other API routes.
  */
 
-import { scopeImplies } from '@isalwa/os-contracts';
+import {
+  acceptTrustedMemberContext,
+  decideStoredGrant,
+  lifecycleDenial,
+  type TrustedCapabilityDecision,
+  type TrustedMemberContext,
+} from '@isalwa/os-domain';
 
 /** Exact assignment strings this session check recognizes. None implies another. */
 export const SESSION_CAPABILITY_SCOPES = [
@@ -43,21 +50,19 @@ export type MemberCapabilitySnapshot = {
   grantedScopes: readonly string[];
 };
 
-export type CapabilityDecision =
-  | 'allow'
-  | 'AUTH_REQUIRED'
-  | 'ROLE_FORBIDDEN'
-  | 'TENANT_FORBIDDEN'
-  | 'MEMBER_INACTIVE';
+export type CapabilityDecision = TrustedCapabilityDecision;
 
 export type DecideCapabilityInput = {
   organizationId?: string | null;
   memberId?: string | null;
   accessStatus?: string | null;
+  employmentStatus?: string | null;
   grantedScopes?: readonly string[] | null;
   requiredScope?: string | null;
   resourceOrganizationId?: string | null;
 };
+
+export type { TrustedMemberContext };
 
 type AuthenticatedSessionIdentity = {
   memberId: string;
@@ -65,57 +70,16 @@ type AuthenticatedSessionIdentity = {
   accessStatus: string;
 };
 
-type MemberAuthorizationClient = {
-  getAuthenticatedSession(): Promise<AuthenticatedSessionIdentity>;
-  getMember(memberId: string): Promise<unknown>;
-};
-
-const ACTIVE_ACCESS = 'active';
-const INVITED_ACCESS = 'invited';
-
-function trimmed(value: string | null | undefined): string {
-  return value?.trim() ?? '';
-}
-
 function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
 /**
- * Lifecycle follows ACCESS_STATUSES and assertMemberActive:
- * invited is not yet a member who can act; suspended and revoked cannot act;
- * any other non-active status is denied. Only 'active' can hold a scope.
- */
-function lifecycleDecision(accessStatus: string): CapabilityDecision | null {
-  if (accessStatus === INVITED_ACCESS) return 'AUTH_REQUIRED';
-  if (accessStatus !== ACTIVE_ACCESS) return 'MEMBER_INACTIVE';
-  return null;
-}
-
-/**
- * Pure deny helper. Does not fetch. Caller-supplied cargo, title, and extra
- * fields are ignored because they are not part of the decision.
- * A matching scope string does not survive a wrong tenant or a non-active member.
+ * Same rule as the shared context. Cargo and title are not part of the input.
+ * A matching scope string does not survive a wrong tenant or a closed lifecycle.
  */
 export function decideCapability(input: DecideCapabilityInput): CapabilityDecision {
-  const organizationId = trimmed(input.organizationId);
-  const memberId = trimmed(input.memberId);
-  if (!organizationId || !memberId) return 'AUTH_REQUIRED';
-
-  const lifecycle = lifecycleDecision(trimmed(input.accessStatus));
-  if (lifecycle) return lifecycle;
-
-  const resourceOrganizationId = trimmed(input.resourceOrganizationId);
-  if (!resourceOrganizationId || resourceOrganizationId !== organizationId) {
-    return 'TENANT_FORBIDDEN';
-  }
-
-  const requiredScope = trimmed(input.requiredScope);
-  const granted = input.grantedScopes ?? [];
-  const held = granted.some((scope) => typeof scope === 'string' && scopeImplies(scope, requiredScope));
-  if (!requiredScope || !held) return 'ROLE_FORBIDDEN';
-
-  return 'allow';
+  return decideStoredGrant(input);
 }
 
 function roleKeysFromMemberRead(member: unknown): readonly string[] | null {
@@ -133,10 +97,9 @@ function roleKeysFromMemberRead(member: unknown): readonly string[] | null {
 }
 
 /**
- * Projects an already authenticated API session and the member read it names.
- * Scopes come only from summary.roleKeys. A grantedScopes field, cargo, or
- * title on either object is ignored. A body that names a different member or
- * tenant is discarded.
+ * Fail-closed view of a member read. Not the grant source. The loader uses
+ * acceptTrustedMemberContext. A closed lifecycle returns null instead of
+ * exposing stored role keys. Cargo, title, and a grantedScopes field are ignored.
  */
 export function trustedMemberCapabilitySnapshot(
   session: AuthenticatedSessionIdentity,
@@ -167,6 +130,16 @@ export function trustedMemberCapabilitySnapshot(
   const accessStatus = summaryStatus || memberStatus;
   if (!accessStatus) return null;
 
+  const summaryEmployment = text(
+    (body.summary as { employmentStatus?: unknown } | undefined)?.employmentStatus,
+  );
+  const memberEmployment = text(
+    (body.member as { employmentStatus?: unknown } | undefined)?.employmentStatus,
+  );
+  if (summaryEmployment && memberEmployment && summaryEmployment !== memberEmployment) return null;
+  const employmentStatus = summaryEmployment || memberEmployment;
+  if (lifecycleDenial({ accessStatus, employmentStatus })) return null;
+
   const grantedScopes = roleKeysFromMemberRead(member);
   if (!grantedScopes) return null;
 
@@ -174,24 +147,22 @@ export function trustedMemberCapabilitySnapshot(
 }
 
 /**
- * Loads the authenticated member's explicit role keys from os-api.
- * Arguments are ignored. A scope list, member id, or tenant passed by the
- * caller is not a grant. A null result is AUTH_REQUIRED, not an empty allow.
- * There is no browser claim to trust.
+ * Loads the one trusted context from os-api. Arguments are ignored.
+ * A scope list, member id, or tenant passed by the caller is not a grant.
+ * A null result is denial, not an empty allow.
  */
 export async function loadMemberCapabilities(
   ...callerSupplied: readonly unknown[]
-): Promise<MemberCapabilitySnapshot | null> {
+): Promise<TrustedMemberContext | null> {
   void callerSupplied;
   try {
     const { getServerOsAuthContext } = await import('./actions');
     const { createOsApiClient } = await import('../api/os-api-client');
     const auth = await getServerOsAuthContext();
     if (!auth) return null;
-    const client: MemberAuthorizationClient = createOsApiClient(auth);
-    const session = await client.getAuthenticatedSession();
-    const member = await client.getMember(session.memberId);
-    return trustedMemberCapabilitySnapshot(session, member);
+    const client = createOsApiClient(auth);
+    const payload = await client.getTrustedAuthorization();
+    return acceptTrustedMemberContext(payload);
   } catch {
     return null;
   }
