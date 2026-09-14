@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { PageContainer, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
+import { PedidoCaseSections } from '@/components/operations/pedido-case-sections';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
@@ -20,10 +21,16 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
-import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import {
+  buildPedidoCaseFile,
+  pedidoGrantedScopesFromSession,
+  timelineEntriesForPedido,
+  type FactLoad,
+  type PedidoHistoryEntry,
+} from '@/lib/operations/pedido-case-file';
 
 type OrderDetailPageProps = {
   params: Promise<{ partyId: string; orderId: string }>;
@@ -55,55 +62,109 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     const customerName = partyLabel(partyLabels, order.partyId);
     const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
     const ownerLabel = memberLabel(memberLabels, order.ownerMemberId);
-    let sourceQuoteNumber: string | null = null;
-    if (order.quoteId) {
+
+    // Agent 0 wire: pass loadMemberCapabilities from
+    // apps/os-web/lib/auth/member-capabilities.ts (Worker B). Do not invent it.
+    // A missing list stays null and scope-gated sections fail closed.
+    const grantedScopes = pedidoGrantedScopesFromSession(null);
+    const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+    const unavailableFacts = {
+      grants: { status: 'unavailable' as const },
+      customerDate: { status: 'unavailable' as const },
+      productionDate: { status: 'unavailable' as const },
+      classification: { status: 'unavailable' as const },
+      issues: { status: 'unavailable' as const },
+      informed: { status: 'unavailable' as const },
+      allocations: { status: 'unavailable' as const },
+      deliveries: { status: 'unavailable' as const },
+      warehouseExits: { status: 'unavailable' as const },
+      receipts: { status: 'unavailable' as const },
+    };
+    const orderSnapshot = {
+      organizationId: order.organizationId,
+      orderId: order.orderId,
+      orderNumber: order.orderNumber,
+      partyId: order.partyId,
+      customerName,
+      ownerMemberId: order.ownerMemberId,
+      ownerLabel,
+      statusLabel: formatOrderStatus(order.status),
+      createdAt: order.createdAt,
+      cancelledAt: order.cancelledAt,
+    };
+    const accessProbe = buildPedidoCaseFile({
+      order: orderSnapshot,
+      actorMemberId,
+      grantedScopes,
+      asOf: new Date(),
+      ...unavailableFacts,
+    });
+
+    let quoteNumber: FactLoad<string | null> = order.quoteId
+      ? { status: 'unavailable' }
+      : { status: 'empty' };
+    if (accessProbe.gates.comercial === 'open' && order.quoteId) {
       try {
         const { quote } = await client.getQuote(order.quoteId);
-        sourceQuoteNumber = quote.quoteNumber;
+        quoteNumber = quote.quoteNumber?.trim()
+          ? { status: 'loaded', value: quote.quoteNumber }
+          : { status: 'unavailable' };
       } catch {
-        sourceQuoteNumber = null;
+        quoteNumber = { status: 'unavailable' };
       }
     }
+
+    let history: FactLoad<PedidoHistoryEntry[]> = { status: 'unavailable' };
+    if (accessProbe.gates.historial === 'open') {
+      try {
+        const timeline = await client.listPartyTimeline(order.partyId);
+        const entries = timelineEntriesForPedido(timeline.items, order.organizationId, order.orderId);
+        history = entries.length > 0 ? { status: 'loaded', value: entries } : { status: 'empty' };
+      } catch {
+        history = { status: 'unavailable' };
+      }
+    }
+
     let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
     let approvals: SubjectApprovalItem[] = [];
-    if (order.status === 'open') {
+    if (accessProbe.gates.comercial === 'open' && order.status === 'open') {
       try {
-        const [members, history] = await Promise.all([
+        const [members, approvalHistory] = await Promise.all([
           client.listActiveMemberOptions(),
           client.listSubjectApprovals('order', order.orderId),
         ]);
         approvalMembers = members.items;
-        approvals = history.items as SubjectApprovalItem[];
+        approvals = approvalHistory.items as SubjectApprovalItem[];
       } catch {
         approvalMembers = [];
         approvals = [];
       }
     }
 
-    const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
-    const operating = buildPedidoOperatingView({
-      order: {
-        organizationId: order.organizationId,
-        orderId: order.orderId,
-        orderNumber: order.orderNumber,
-        partyId: order.partyId,
-        customerName,
-        ownerMemberId: order.ownerMemberId,
-        ownerLabel,
-        statusLabel: formatOrderStatus(order.status),
-        createdAt: order.createdAt,
-        cancelledAt: order.cancelledAt,
-      },
+    const linesLoaded: FactLoad<number> =
+      order.lines == null
+        ? { status: 'unavailable' }
+        : order.lines.length === 0
+          ? { status: 'empty' }
+          : { status: 'loaded', value: order.lines.length };
+
+    const file = buildPedidoCaseFile({
+      order: orderSnapshot,
       actorMemberId,
+      grantedScopes,
       asOf: new Date(),
-      apiAuthorizedDocument: true,
-      grants: [],
-      allocations: null,
-      deliveries: null,
-      classification: null,
-      customerDate: null,
-      productionDate: null,
+      ...unavailableFacts,
+      history,
+      quoteNumber,
+      linesLoaded,
+      totalLabel: formatCentavos(order.totalCentavos, order.currency),
+      statusLabel: formatOrderStatus(order.status),
     });
+
+    const comercialOpen = file.gates.comercial === 'open';
+    const evidenciaOpen = file.gates.evidencia === 'open';
+    const showApproval =
+      comercialOpen && (authority?.canRequestApproval === true || approvals.length > 0);
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -120,105 +181,96 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PedidoOperatingSummary view={operating} />
+        <PedidoOperatingSummary file={file} />
 
-        <div className="mt-10">
-          <OrderCasePanel
-            organizationId={order.organizationId}
-            orderId={order.orderId}
-            facts={[]}
-            releases={[]}
-            availability="unavailable"
-          />
-        </div>
-
-        <PageSection card className="mt-10 bg-white p-8 md:p-10">
-          <StatusPill tone={statusTone(order.status)}>
-            {formatOrderStatus(order.status)}
-          </StatusPill>
-
-          {resultado === 'pedido' ? (
-            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-              Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
-            </p>
-          ) : (
-            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              Pedido registrado desde una cotización.
-            </p>
-          )}
-
-          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
-            <div>
-              <dt className="isalwa-section-label">Cliente</dt>
-              <dd className="mt-2">
-                <Link href={partyHref(partyId)} className={documentLinkClass}>
-                  {customerName}
-                </Link>
-              </dd>
-            </div>
-            <div>
-              <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
-            </div>
-            {order.quoteId ? (
-              <div>
-                <dt className="isalwa-section-label">Cotización de origen</dt>
-                <dd className="mt-2">
-                  <Link href={quoteHref(partyId, order.quoteId)} className={documentLinkClass}>
-                    {sourceQuoteNumber ?? 'Ver cotización'}
-                  </Link>
-                </dd>
-              </div>
-            ) : null}
-            <div>
-              <dt className="isalwa-section-label">Total</dt>
-              <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
-                {formatCentavos(order.totalCentavos, order.currency)}
-              </dd>
-            </div>
-            <div>
-              <dt className="isalwa-section-label">Creado</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.createdAt)}</dd>
-            </div>
-            {order.cancelledAt ? (
-              <div>
-                <dt className="isalwa-section-label">Cancelado</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.cancelledAt)}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </PageSection>
-
-        {operating.sections.lines ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
-            <OrderLines currency={order.currency} lines={order.lines} />
-          </PageSection>
+        {resultado === 'pedido' ? (
+          <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+            Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
+          </p>
         ) : null}
 
-        {order.status === 'open' || approvals.length > 0 ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
-            <SectionHeader
-              title={
-                <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-                  Aprobación
-                </h2>
-              }
-            />
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              La aprobación registra una decisión humana. No cambia el pedido ni crea otro pedido.
-            </p>
-            <div className="mt-8">
-              <CommercialApprovalPanel
-                partyId={partyId}
-                subjectType="order"
-                subjectId={order.orderId}
-                canRequest={authority?.canRequestApproval === true}
-                members={approvalMembers}
-                approvals={approvals}
+        <PedidoCaseSections
+          file={file}
+          slots={{
+            comercial: comercialOpen ? (
+              <div className="grid gap-8">
+                <StatusPill tone={statusTone(order.status)}>{formatOrderStatus(order.status)}</StatusPill>
+                <dl className="grid gap-8 sm:grid-cols-2">
+                  <div>
+                    <dt className="isalwa-section-label">Cliente</dt>
+                    <dd className="mt-2">
+                      <Link href={partyHref(partyId)} className={documentLinkClass}>
+                        {customerName}
+                      </Link>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="isalwa-section-label">Responsable</dt>
+                    <dd className="mt-2 text-sm text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
+                  </div>
+                  {order.quoteId ? (
+                    <div>
+                      <dt className="isalwa-section-label">Cotización de origen</dt>
+                      <dd className="mt-2">
+                        <Link href={quoteHref(partyId, order.quoteId)} className={documentLinkClass}>
+                          {quoteNumber.status === 'loaded' && quoteNumber.value
+                            ? quoteNumber.value
+                            : 'Ver cotización'}
+                        </Link>
+                      </dd>
+                    </div>
+                  ) : null}
+                  <div>
+                    <dt className="isalwa-section-label">Total</dt>
+                    <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
+                      {formatCentavos(order.totalCentavos, order.currency)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="isalwa-section-label">Creado</dt>
+                    <dd className="mt-2 text-sm text-[var(--isalwa-kiln)]">{formatTimestamp(order.createdAt)}</dd>
+                  </div>
+                </dl>
+                {linesLoaded.status === 'loaded' ? (
+                  <OrderLines currency={order.currency} lines={order.lines ?? []} />
+                ) : null}
+                {showApproval ? (
+                  <div>
+                    <SectionHeader
+                      title={
+                        <h3 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+                          Aprobación
+                        </h3>
+                      }
+                    />
+                    <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                      La aprobación registra una decisión humana. No cambia el pedido ni crea otro pedido.
+                    </p>
+                    <div className="mt-8">
+                      <CommercialApprovalPanel
+                        partyId={partyId}
+                        subjectType="order"
+                        subjectId={order.orderId}
+                        canRequest={authority?.canRequestApproval === true}
+                        members={approvalMembers}
+                        approvals={approvals}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null,
+            evidencia: evidenciaOpen ? (
+              <OrderCasePanel
+                organizationId={order.organizationId}
+                orderId={order.orderId}
+                facts={[]}
+                releases={[]}
+                availability="unavailable"
               />
-            </div>
-          </PageSection>
-        ) : null}
+            ) : null,
+          }}
+        />
       </PageContainer>
     );
   } catch (err) {
