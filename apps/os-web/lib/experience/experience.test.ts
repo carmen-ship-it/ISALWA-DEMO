@@ -3,8 +3,16 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { formatBobDisplay, formatBoliviaDate, formatMoneyDisplay } from './format';
-import { filterSearchableOptions, type SearchableOption } from './searchable-select';
+import { formatBobDisplay, formatBoliviaDate, formatMoneyDisplay, stepQuantity } from './format';
+import {
+  SEARCHABLE_SELECT_VISIBLE_LIMIT,
+  canSelectSearchableOption,
+  filterSearchableOptions,
+  nextSearchableIndex,
+  searchableSelectMode,
+  windowSearchableOptions,
+  type SearchableOption,
+} from './searchable-select';
 import { workStateView } from './work-state';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -14,6 +22,14 @@ const searchableSelectSource = readFileSync(
 );
 const workStateSource = readFileSync(
   resolve(here, '../../components/experience/work-state.tsx'),
+  'utf8',
+);
+const quantityFieldSource = readFileSync(
+  resolve(here, '../../components/experience/quantity-field.tsx'),
+  'utf8',
+);
+const taskSectionSource = readFileSync(
+  resolve(here, '../../components/experience/task-section.tsx'),
   'utf8',
 );
 
@@ -61,6 +77,53 @@ describe('SearchableSelect filter', () => {
     assert.doesNotMatch(searchableSelectSource, /fetch\s*\(/);
     assert.doesNotMatch(searchableSelectSource, /supabase|useSWR|getServerSession|createBrowserClient/i);
   });
+
+  it('keeps a long list a typeahead instead of a giant dropdown', () => {
+    const catalog = Array.from({ length: 40 }, (_, index) => ({
+      id: `p-${index}`,
+      label: `Producto ${index}`,
+    }));
+    const blank = searchableSelectMode({
+      optionCount: catalog.length,
+      query: '   ',
+      matchCount: catalog.length,
+      access: 'enabled',
+    });
+    const windowed = windowSearchableOptions(catalog);
+
+    assert.equal(blank, 'prompt');
+    assert.equal(windowed.visible.length, SEARCHABLE_SELECT_VISIBLE_LIMIT);
+    assert.equal(windowed.truncated, true);
+    assert.ok(windowed.visible.every((option) => catalog.includes(option)));
+    assert.ok(windowed.totalMatches === catalog.length);
+    assert.match(searchableSelectSource, /windowSearchableOptions\(/);
+    assert.match(searchableSelectSource, /searchableSelectMode\(/);
+    assert.doesNotMatch(searchableSelectSource, /filtered\.map\(/);
+  });
+
+  it('separates empty, no-results, and permission, and returns focus on Escape', () => {
+    assert.equal(
+      searchableSelectMode({ optionCount: 0, query: '', matchCount: 0, access: 'enabled' }),
+      'empty',
+    );
+    assert.equal(
+      searchableSelectMode({ optionCount: 3, query: 'zzz', matchCount: 0, access: 'enabled' }),
+      'no-results',
+    );
+    assert.equal(
+      searchableSelectMode({ optionCount: 20, query: 'pro', matchCount: 4, access: 'permission-denied' }),
+      'locked',
+    );
+    assert.equal(canSelectSearchableOption({ id: 'a', label: 'Alfa', unavailableReason: 'Sin permiso' }), false);
+    assert.equal(canSelectSearchableOption(OPTIONS[1]), true);
+    assert.equal(nextSearchableIndex(0, 12, 'End'), 11);
+    assert.equal(nextSearchableIndex(0, 0, 'ArrowDown'), 0);
+    assert.match(searchableSelectSource, /returnFocus\(/);
+    assert.match(searchableSelectSource, /Escape/);
+    assert.match(searchableSelectSource, /tabIndex=\{-1\}/);
+    assert.match(searchableSelectSource, /No hay opciones|SEARCHABLE_SELECT_COPY\.emptyTitle/);
+    assert.match(searchableSelectSource, /Sin permiso para elegir|SEARCHABLE_SELECT_COPY\.permission/);
+  });
 });
 
 describe('WorkState', () => {
@@ -79,6 +142,34 @@ describe('WorkState', () => {
     assert.equal(supplied.showsCount, true);
     assert.doesNotMatch(workStateSource, /count\s*=\s*0|count\s*\?\?\s*0|\|\|\s*0/);
     assert.match(workStateSource, /view\.showsCount/);
+    const denied = workStateView('permission-denied');
+    const unavailable = workStateView('disabled');
+    assert.equal(denied.title, 'Sin permiso');
+    assert.equal(unavailable.title, 'No disponible');
+    assert.equal(denied.count, null);
+    assert.equal(unavailable.showsCount, false);
+  });
+});
+
+describe('Quantity step', () => {
+  it('does not invent a zero when decreasing an empty quantity', () => {
+    assert.equal(stepQuantity(null, 'down'), null);
+    assert.equal(stepQuantity(0, 'down'), 0);
+    assert.equal(stepQuantity(2, 'down'), 1);
+    assert.equal(stepQuantity(null, 'up'), 1);
+    assert.match(quantityFieldSource, /QUANTITY_FIELD_COPY\.decrease/);
+    assert.match(quantityFieldSource, /QUANTITY_FIELD_COPY\.increase/);
+    assert.match(quantityFieldSource, /Sin permiso para cambiar la cantidad|QUANTITY_FIELD_COPY\.permission/);
+    assert.match(quantityFieldSource, /Sin cantidad|QUANTITY_FIELD_COPY\.empty/);
+  });
+});
+
+describe('Task section', () => {
+  it('keeps the detail trigger visible and returns focus when the drawer closes', () => {
+    assert.match(taskSectionSource, /WorkState/);
+    assert.match(taskSectionSource, /returnFocus\(/);
+    assert.match(taskSectionSource, /drawerLabel/);
+    assert.doesNotMatch(taskSectionSource, /hover:opacity-0|group-hover:opacity-0|invisible group-hover/);
   });
 });
 

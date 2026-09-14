@@ -90,3 +90,33 @@ export function parseQuantityDraft(input: string): number | null {
   const value = Number.parseInt(trimmed, 10);
   return Number.isSafeInteger(value) ? value : null;
 }
+
+export const QUANTITY_FIELD_COPY = {
+  empty: 'Sin cantidad',
+  disabled: 'No disponible',
+  permission: 'Sin permiso para cambiar la cantidad',
+  decrease: 'Disminuir',
+  increase: 'Aumentar',
+} as const;
+
+/**
+ * Step a caller-owned integer quantity.
+ * Decrementing an empty value stays empty. It does not invent 0.
+ * Incrementing an empty value is an explicit step to 1, still empty until the operator asks.
+ */
+export function stepQuantity(
+  value: number | null,
+  direction: 'up' | 'down',
+  bounds: { min?: number; max?: number } = {},
+): number | null {
+  const min = bounds.min ?? 0;
+  const max = bounds.max;
+  if (direction === 'down') {
+    if (value == null || value <= min) return value ?? null;
+    return value - 1;
+  }
+  const next = value == null ? Math.max(min, 1) : value + 1;
+  if (max != null && next > max) return value;
+  if (next < min || !Number.isSafeInteger(next)) return value;
+  return next;
+}
