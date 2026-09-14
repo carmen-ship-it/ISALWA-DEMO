@@ -14,6 +14,7 @@ import { listHref, parseListQuery } from '@/lib/lists/url-state';
 import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 const PAGE_LIMIT = 25;
 
@@ -46,7 +47,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
     );
 
     return (
-      <PageContainer label={t('pages.aprobaciones.title')}>
+      <PageContainer label={t('pages.aprobaciones.title')} data-tour={TOUR_TARGET.approvalConsequence}>
         <PageHeader
           kicker={t('pages.aprobaciones.kicker')}
           title={t('pages.aprobaciones.title')}
@@ -85,7 +86,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
     );
   } catch (err) {
     return (
-      <PageContainer label={t('pages.aprobaciones.title')}>
+      <PageContainer label={t('pages.aprobaciones.title')} data-tour={TOUR_TARGET.approvalConsequence}>
         <PageHeader kicker={t('pages.aprobaciones.kicker')} title={t('pages.aprobaciones.title')} />
         <QuerySurfaceState error={classifyQueryError(err)} />
       </PageContainer>
