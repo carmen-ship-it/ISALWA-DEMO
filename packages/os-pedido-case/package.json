@@ -10,6 +10,11 @@
     "lint": "echo \"ok\"",
     "test": "node --import tsx --test src/**/*.test.ts"
   },
+  "dependencies": {
+    "@isalwa/os-read-dates": "workspace:*",
+    "@isalwa/os-read-fulfillment": "workspace:*",
+    "@isalwa/os-read-ops": "workspace:*"
+  },
   "devDependencies": {
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
