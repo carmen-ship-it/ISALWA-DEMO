@@ -3,8 +3,12 @@ import type {
   OrderSummaryReadModel,
   QuoteSummaryReadModel,
 } from '@isalwa/os-contracts';
+import { ExecutiveCommandCenter } from '@/components/executive/command-center-panel';
 import { formatCentavos } from '@/lib/commercial/money';
-import { elapsedAge } from '@/lib/time/elapsed';
+import {
+  composeExecutiveCommand,
+  submittedQuoteAttentionLine,
+} from '@/lib/executive/command-center';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type ExecutiveLensProps = {
@@ -78,21 +82,22 @@ function ExceptionList({
   quotesPartial: boolean;
 }) {
   const submitted = quotes.filter((item) => item.status === 'submitted' && item.submittedAt);
-  const oldest = submitted
-    .map((item) => item.submittedAt)
-    .filter((value): value is string => Boolean(value))
-    .sort()[0];
-  const age = oldest ? elapsedAge(oldest) : null;
-  if (submitted.length === 0 && !quotesPartial) return null;
+  const model = composeExecutiveCommand({
+    quotesSubmitted: submitted,
+    partial: quotesPartial,
+    identity: 'omit',
+  });
+  const oldest = model.quoteWaiting.find((item) => item.agePhrase)?.agePhrase ?? null;
+  const summary = submittedQuoteAttentionLine(model.quoteWaiting.length, oldest);
+  if (model.quoteWaiting.length === 0 && !quotesPartial) return null;
 
   return (
     <div className="mt-5 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-info)_8%,white)] px-4 py-3">
       <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Necesita atención</p>
       <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {submitted.length > 0
-          ? `${submitted.length} cotización${submitted.length === 1 ? '' : 'es'} enviada${submitted.length === 1 ? '' : 's'}${age ? `. La más antigua, ${age.phrase}` : ''}. No es un plazo incumplido.`
-          : 'Hay más cotizaciones de las que esta lectura muestra.'}
+        {summary ?? 'Hay más cotizaciones de las que esta lectura muestra.'}
       </p>
+      <ExecutiveCommandCenter model={model} tone="quotes" quoteSummary={false} />
     </div>
   );
 }
