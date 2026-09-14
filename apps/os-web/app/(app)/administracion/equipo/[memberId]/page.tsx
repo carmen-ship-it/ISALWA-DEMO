@@ -186,8 +186,6 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
               visibility={visibility}
               departments={adminOptions.departments}
               roles={adminOptions.roles}
-              managers={adminOptions.managers}
-              delegates={adminOptions.delegates}
             />
           </div>
         ) : null}

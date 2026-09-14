@@ -13,13 +13,12 @@ import {
 import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
-
-type MemberOption = { memberId: string; label: string };
+import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 
 type OpportunityActionsPanelProps = {
   partyId: string;
   opportunity: OpportunitySummaryReadModel;
-  memberOptions: MemberOption[];
+  currentOwnerLabel?: string;
 };
 
 const initial = { error: null as string | null, success: null as string | null };
@@ -27,7 +26,7 @@ const initial = { error: null as string | null, success: null as string | null }
 export function OpportunityActionsPanel({
   partyId,
   opportunity,
-  memberOptions,
+  currentOwnerLabel,
 }: OpportunityActionsPanelProps) {
   const router = useRouter();
   const [closed, setClosed] = useState(false);
@@ -135,7 +134,7 @@ export function OpportunityActionsPanel({
         </form>
       </PageSection>
 
-      {memberOptions.length > 0 ? (
+      {isOpen ? (
         <PageSection card className="bg-white p-8 md:p-10">
           <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">Asignar responsable</h2>
           <FormFeedback error={ownerState.error} success={ownerState.success} />
@@ -146,19 +145,14 @@ export function OpportunityActionsPanel({
               <label htmlFor="owner-select" className="isalwa-section-label">
                 Responsable
               </label>
-              <select
+              <ServerMemberTypeahead
                 id="owner-select"
                 name="ownerMemberId"
                 required
-                defaultValue={opportunity.ownerMemberId}
-                className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
-              >
-                {memberOptions.map((option) => (
-                  <option key={option.memberId} value={option.memberId}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                defaultMemberId={opportunity.ownerMemberId}
+                defaultLabel={currentOwnerLabel ?? ''}
+                placeholder="Buscar responsable"
+              />
             </div>
             <CommandSubmitButton label="Guardar responsable" pendingLabel="Guardando…" variant="secondary" />
           </form>

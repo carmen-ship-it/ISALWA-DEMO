@@ -6,8 +6,6 @@ export type SelectOption = { value: string; label: string };
 export type MemberAdminOptions = {
   departments: SelectOption[];
   roles: SelectOption[];
-  managers: SelectOption[];
-  delegates: SelectOption[];
 };
 
 function uniqueDepartments(
@@ -33,7 +31,28 @@ function uniqueRoles(items: Array<{ roleKeys: string[] }>): SelectOption[] {
     .map((value) => ({ value, label: formatRoleKey(value) }));
 }
 
-function memberSelectOptions(
+/**
+ * Derives small department/role enums from a bounded directory page.
+ * Manager/delegate pickers use ServerMemberTypeahead (server search) — not this list.
+ */
+export async function loadMemberAdminOptions(
+  client: OsApiClient,
+  _targetMemberId: string,
+): Promise<MemberAdminOptions> {
+  const { items } = await client.listMembers({ limit: 100 });
+  return {
+    departments: uniqueDepartments(items),
+    roles: uniqueRoles(items),
+  };
+}
+
+/** Delegation scopes verified in workforce integration tests (not invented categories). */
+export const DELEGATION_SCOPE_OPTIONS: SelectOption[] = [
+  { value: 'approval.act', label: 'Actuar en aprobaciones delegadas' },
+];
+
+/** @deprecated Prefer ServerMemberTypeahead. Kept for display helpers only. */
+export function memberSelectOptions(
   items: Array<{
     memberId: string;
     displayName: string;
@@ -51,22 +70,3 @@ function memberSelectOptions(
     }))
     .sort((a, b) => a.label.localeCompare(b.label, 'es'));
 }
-
-/** Directory-backed pickers — no static HR catalog. */
-export async function loadMemberAdminOptions(
-  client: OsApiClient,
-  targetMemberId: string,
-): Promise<MemberAdminOptions> {
-  const { items } = await client.listMembers({ limit: 100 });
-  return {
-    departments: uniqueDepartments(items),
-    roles: uniqueRoles(items),
-    managers: memberSelectOptions(items, targetMemberId),
-    delegates: memberSelectOptions(items),
-  };
-}
-
-/** Delegation scopes verified in workforce integration tests (not invented categories). */
-export const DELEGATION_SCOPE_OPTIONS: SelectOption[] = [
-  { value: 'approval.act', label: 'Actuar en aprobaciones delegadas' },
-];

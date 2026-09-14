@@ -1060,6 +1060,7 @@ exports.Prisma.OsWarehouseOutboundNoteScalarFieldEnum = {
   orderId: 'orderId',
   documentKind: 'documentKind',
   numberingPolicy: 'numberingPolicy',
+  externalDocumentNumber: 'externalDocumentNumber',
   exitedAt: 'exitedAt',
   bornAt: 'bornAt',
   createdAt: 'createdAt'
@@ -1096,6 +1097,7 @@ exports.Prisma.OsDeliveryNoteScalarFieldEnum = {
   orderId: 'orderId',
   documentKind: 'documentKind',
   numberingPolicy: 'numberingPolicy',
+  externalDocumentNumber: 'externalDocumentNumber',
   deliveredAt: 'deliveredAt',
   bornAt: 'bornAt',
   createdAt: 'createdAt'

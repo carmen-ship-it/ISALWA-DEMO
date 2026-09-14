@@ -221,8 +221,27 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<ApprovalListResponse>('/approvals', { method: 'GET', query }),
     getApproval: (approvalRequestId: string) =>
       request<ApprovalDetailResponse>(`/approvals/${encodeURIComponent(approvalRequestId)}`),
-    listActiveMemberOptions: () =>
-      request<{ items: Array<{ memberId: string; displayName: string }> }>('/members/active-options'),
+    listActiveMemberOptions: (query?: Record<string, string | number | boolean>) =>
+      request<{ items: Array<{ memberId: string; displayName: string }>; hasMore?: boolean }>(
+        '/members/active-options',
+        { method: 'GET', query },
+      ),
+    searchActiveMembers: (query: {
+      q: string;
+      limit?: number;
+      excludeMemberId?: string;
+    }) =>
+      request<{ items: Array<{ memberId: string; displayName: string }>; hasMore?: boolean }>(
+        '/members/active-options',
+        {
+          method: 'GET',
+          query: {
+            q: query.q,
+            limit: query.limit ?? 20,
+            ...(query.excludeMemberId ? { excludeMemberId: query.excludeMemberId } : {}),
+          },
+        },
+      ),
     listSubjectApprovals: (subjectType: string, subjectId: string) =>
       request<{ items: Array<Record<string, unknown>> }>('/approvals/subject', {
         method: 'GET',

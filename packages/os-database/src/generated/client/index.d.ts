@@ -88244,6 +88244,7 @@ export namespace Prisma {
     orderId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    externalDocumentNumber: string | null
     exitedAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -88256,6 +88257,7 @@ export namespace Prisma {
     orderId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    externalDocumentNumber: string | null
     exitedAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -88268,6 +88270,7 @@ export namespace Prisma {
     orderId: number
     documentKind: number
     numberingPolicy: number
+    externalDocumentNumber: number
     exitedAt: number
     bornAt: number
     createdAt: number
@@ -88282,6 +88285,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     exitedAt?: true
     bornAt?: true
     createdAt?: true
@@ -88294,6 +88298,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     exitedAt?: true
     bornAt?: true
     createdAt?: true
@@ -88306,6 +88311,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     exitedAt?: true
     bornAt?: true
     createdAt?: true
@@ -88391,6 +88397,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber: string | null
     exitedAt: Date
     bornAt: Date
     createdAt: Date
@@ -88420,6 +88427,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     exitedAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -88432,6 +88440,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     exitedAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -88444,6 +88453,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     exitedAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -88456,12 +88466,13 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     exitedAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
   }
 
-  export type OsWarehouseOutboundNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "warehouseExitId" | "orderId" | "documentKind" | "numberingPolicy" | "exitedAt" | "bornAt" | "createdAt", ExtArgs["result"]["osWarehouseOutboundNote"]>
+  export type OsWarehouseOutboundNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "warehouseExitId" | "orderId" | "documentKind" | "numberingPolicy" | "externalDocumentNumber" | "exitedAt" | "bornAt" | "createdAt", ExtArgs["result"]["osWarehouseOutboundNote"]>
 
   export type $OsWarehouseOutboundNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OsWarehouseOutboundNote"
@@ -88473,6 +88484,10 @@ export namespace Prisma {
       orderId: string
       documentKind: string
       numberingPolicy: string
+      /**
+       * Source-preserved printed number only. Not an OS-generated sequence.
+       */
+      externalDocumentNumber: string | null
       exitedAt: Date
       bornAt: Date
       createdAt: Date
@@ -88905,6 +88920,7 @@ export namespace Prisma {
     readonly orderId: FieldRef<"OsWarehouseOutboundNote", 'String'>
     readonly documentKind: FieldRef<"OsWarehouseOutboundNote", 'String'>
     readonly numberingPolicy: FieldRef<"OsWarehouseOutboundNote", 'String'>
+    readonly externalDocumentNumber: FieldRef<"OsWarehouseOutboundNote", 'String'>
     readonly exitedAt: FieldRef<"OsWarehouseOutboundNote", 'DateTime'>
     readonly bornAt: FieldRef<"OsWarehouseOutboundNote", 'DateTime'>
     readonly createdAt: FieldRef<"OsWarehouseOutboundNote", 'DateTime'>
@@ -91419,6 +91435,7 @@ export namespace Prisma {
     orderId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    externalDocumentNumber: string | null
     deliveredAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -91431,6 +91448,7 @@ export namespace Prisma {
     orderId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    externalDocumentNumber: string | null
     deliveredAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -91443,6 +91461,7 @@ export namespace Prisma {
     orderId: number
     documentKind: number
     numberingPolicy: number
+    externalDocumentNumber: number
     deliveredAt: number
     bornAt: number
     createdAt: number
@@ -91457,6 +91476,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -91469,6 +91489,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -91481,6 +91502,7 @@ export namespace Prisma {
     orderId?: true
     documentKind?: true
     numberingPolicy?: true
+    externalDocumentNumber?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -91566,6 +91588,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber: string | null
     deliveredAt: Date
     bornAt: Date
     createdAt: Date
@@ -91595,6 +91618,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -91607,6 +91631,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -91619,6 +91644,7 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -91631,12 +91657,13 @@ export namespace Prisma {
     orderId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    externalDocumentNumber?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
   }
 
-  export type OsDeliveryNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "deliveryId" | "orderId" | "documentKind" | "numberingPolicy" | "deliveredAt" | "bornAt" | "createdAt", ExtArgs["result"]["osDeliveryNote"]>
+  export type OsDeliveryNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "deliveryId" | "orderId" | "documentKind" | "numberingPolicy" | "externalDocumentNumber" | "deliveredAt" | "bornAt" | "createdAt", ExtArgs["result"]["osDeliveryNote"]>
 
   export type $OsDeliveryNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OsDeliveryNote"
@@ -91648,6 +91675,10 @@ export namespace Prisma {
       orderId: string
       documentKind: string
       numberingPolicy: string
+      /**
+       * Source-preserved printed number only. Not an OS-generated sequence.
+       */
+      externalDocumentNumber: string | null
       deliveredAt: Date
       bornAt: Date
       createdAt: Date
@@ -92080,6 +92111,7 @@ export namespace Prisma {
     readonly orderId: FieldRef<"OsDeliveryNote", 'String'>
     readonly documentKind: FieldRef<"OsDeliveryNote", 'String'>
     readonly numberingPolicy: FieldRef<"OsDeliveryNote", 'String'>
+    readonly externalDocumentNumber: FieldRef<"OsDeliveryNote", 'String'>
     readonly deliveredAt: FieldRef<"OsDeliveryNote", 'DateTime'>
     readonly bornAt: FieldRef<"OsDeliveryNote", 'DateTime'>
     readonly createdAt: FieldRef<"OsDeliveryNote", 'DateTime'>
@@ -113412,6 +113444,7 @@ export namespace Prisma {
     orderId: 'orderId',
     documentKind: 'documentKind',
     numberingPolicy: 'numberingPolicy',
+    externalDocumentNumber: 'externalDocumentNumber',
     exitedAt: 'exitedAt',
     bornAt: 'bornAt',
     createdAt: 'createdAt'
@@ -113457,6 +113490,7 @@ export namespace Prisma {
     orderId: 'orderId',
     documentKind: 'documentKind',
     numberingPolicy: 'numberingPolicy',
+    externalDocumentNumber: 'externalDocumentNumber',
     deliveredAt: 'deliveredAt',
     bornAt: 'bornAt',
     createdAt: 'createdAt'
@@ -120130,6 +120164,7 @@ export namespace Prisma {
     orderId?: StringFilter<"OsWarehouseOutboundNote"> | string
     documentKind?: StringFilter<"OsWarehouseOutboundNote"> | string
     numberingPolicy?: StringFilter<"OsWarehouseOutboundNote"> | string
+    externalDocumentNumber?: StringNullableFilter<"OsWarehouseOutboundNote"> | string | null
     exitedAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
     bornAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
     createdAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
@@ -120142,6 +120177,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrderInput | SortOrder
     exitedAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -120157,6 +120193,7 @@ export namespace Prisma {
     orderId?: StringFilter<"OsWarehouseOutboundNote"> | string
     documentKind?: StringFilter<"OsWarehouseOutboundNote"> | string
     numberingPolicy?: StringFilter<"OsWarehouseOutboundNote"> | string
+    externalDocumentNumber?: StringNullableFilter<"OsWarehouseOutboundNote"> | string | null
     exitedAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
     bornAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
     createdAt?: DateTimeFilter<"OsWarehouseOutboundNote"> | Date | string
@@ -120169,6 +120206,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrderInput | SortOrder
     exitedAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -120187,6 +120225,7 @@ export namespace Prisma {
     orderId?: StringWithAggregatesFilter<"OsWarehouseOutboundNote"> | string
     documentKind?: StringWithAggregatesFilter<"OsWarehouseOutboundNote"> | string
     numberingPolicy?: StringWithAggregatesFilter<"OsWarehouseOutboundNote"> | string
+    externalDocumentNumber?: StringNullableWithAggregatesFilter<"OsWarehouseOutboundNote"> | string | null
     exitedAt?: DateTimeWithAggregatesFilter<"OsWarehouseOutboundNote"> | Date | string
     bornAt?: DateTimeWithAggregatesFilter<"OsWarehouseOutboundNote"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"OsWarehouseOutboundNote"> | Date | string
@@ -120348,6 +120387,7 @@ export namespace Prisma {
     orderId?: StringFilter<"OsDeliveryNote"> | string
     documentKind?: StringFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringFilter<"OsDeliveryNote"> | string
+    externalDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
     deliveredAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     bornAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
@@ -120360,6 +120400,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrderInput | SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -120375,6 +120416,7 @@ export namespace Prisma {
     orderId?: StringFilter<"OsDeliveryNote"> | string
     documentKind?: StringFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringFilter<"OsDeliveryNote"> | string
+    externalDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
     deliveredAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     bornAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
@@ -120387,6 +120429,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrderInput | SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -120405,6 +120448,7 @@ export namespace Prisma {
     orderId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
     documentKind?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    externalDocumentNumber?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
     deliveredAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
     bornAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
@@ -128906,6 +128950,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     exitedAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -128918,6 +128963,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     exitedAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -128930,6 +128976,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -128942,6 +128989,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -128954,6 +129002,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     exitedAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -128966,6 +129015,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -128978,6 +129028,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129158,6 +129209,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     deliveredAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -129170,6 +129222,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     deliveredAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -129182,6 +129235,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129194,6 +129248,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129206,6 +129261,7 @@ export namespace Prisma {
     orderId: string
     documentKind: string
     numberingPolicy: string
+    externalDocumentNumber?: string | null
     deliveredAt: Date | string
     bornAt: Date | string
     createdAt?: Date | string
@@ -129218,6 +129274,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129230,6 +129287,7 @@ export namespace Prisma {
     orderId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -135500,6 +135558,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     exitedAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -135512,6 +135571,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     exitedAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -135524,6 +135584,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     exitedAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -135616,6 +135677,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -135628,6 +135690,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -135640,6 +135703,7 @@ export namespace Prisma {
     orderId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    externalDocumentNumber?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder

@@ -2,9 +2,11 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** `96c797bdee606605a19b8460569ff39a95409c02`  
-Parent: `29d63bc19928733068d691d27e038cf5f70dd506`  
-Clean build re-proven on this SHA (see `WAVE2_FIRST_STAGING_READINESS.md`). Prior `29d63bc` build proof is **not** silently inherited for packages changed since then; this matrix reflects re-run evidence at `96c797b`.
+**Exact candidate SHA:** _(set to ending SHA after this P0 pass commit)_  
+Parent lineage: `fea519369eca49f19485d569a4e786d3df101840` → P0 member selector + quote-authority decision lock.  
+Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
+
+Prior `96c797b` / `fea5193` build proofs are **not** silently inherited — re-prove on ending SHA.
 
 Legend cells: Y = yes for that state · — = no · P = partial · U = UNPROVEN · G = FOUNDATION_GAP · D = BUSINESS_DECISION_REQUIRED · X = CROSS_LANE · H = HOLD
 
@@ -18,15 +20,18 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | WAVE2_FIRST_STAGING_READINESS | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
-| Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact @96c797b | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
+| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | WAVE2_P0_FIRST_PILOT_BLOCKER_PASS | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
+| Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
+| Quote convert | commercial.quote.convert.own vs CreateOrder | Carmen | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | — | Y | — | — | — | — | — | — | D CROSS_LANE — unwired |
+| Member picker | ServerMemberTypeahead + searchActiveMembers | Admin/Comercial | P0_MEMBER_SELECTOR_INVENTORY | Y | Y | Y | Y | — | — | — | — | — | HOSTED/BROWSER unproven |
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Session | Canonical request/session resolver | Platform | apps/api + os-api trusted session | Y | Y | Y | Y | — | — | U | — | — | none |
 | Authz | Server-derived org + capabilities | Platform | trusted session | Y | Y | Y | Y | — | — | U | — | — | none |
 | Authz | Client tenant/scope not authority | Platform | Gate A predicates | Y | Y | Y | Y | — | — | U | — | — | none |
+| Isolation | Member search tenant predicate | Platform | member-search.adversarial | Y | Y | Y | Y | — | — | U | — | — | hosted adversarial |
 
 LOCAL_HTTP: prior route proof on candidate (session/party/location/outbox/quote PDF).
 

@@ -14,6 +14,12 @@ export type ActiveMemberOption = {
   displayName: string;
 };
 
+export type SearchActiveMembersQuery = {
+  q: string;
+  limit?: number;
+  excludeMemberId?: string;
+};
+
 export class MemberQueryService {
   constructor(private readonly deps: MemberQueryServiceDeps) {}
 
@@ -23,7 +29,7 @@ export class MemberQueryService {
     assertQueryTenantResource(ctx, ctx.organizationId);
     const { items } = await this.deps.store.listMembers(
       ctx.organizationId,
-      { accessStatus: 'active', limit: 100 },
+      { accessStatus: 'active', employmentStatus: 'active', limit: 100 },
       ctx.effectiveAt,
     );
     return {
@@ -31,6 +37,26 @@ export class MemberQueryService {
         .filter((item) => item.accessStatus === 'active')
         .map((item) => ({ memberId: item.memberId, displayName: item.displayName })),
     };
+  }
+
+  /**
+   * Tenant-scoped active member search for pickers.
+   * Organization is applied before search/limit. Name fields only (no email for member_active).
+   */
+  async searchActiveMembers(
+    ctx: QueryContext,
+    query: SearchActiveMembersQuery,
+  ): Promise<{ items: ActiveMemberOption[]; hasMore: boolean }> {
+    assertQueryScope(ctx, 'member_active');
+    assertQueryTenantResource(ctx, ctx.organizationId);
+    const q = query.q.trim();
+    if (q.length < 2) return { items: [], hasMore: false };
+    const limit = Math.min(Math.max(query.limit ?? 20, 1), 50);
+    return this.deps.store.searchActiveMembers(
+      ctx.organizationId,
+      { q, limit, excludeMemberId: query.excludeMemberId },
+      ctx.effectiveAt,
+    );
   }
 
   async listMembers(

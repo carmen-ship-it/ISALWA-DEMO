@@ -64,18 +64,18 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         sourceQuoteNumber = null;
       }
     }
-    let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
+    let approvalMemberLabels = new Map<string, string>();
     let approvals: SubjectApprovalItem[] = [];
     if (order.status === 'open') {
       try {
-        const [members, history] = await Promise.all([
-          client.listActiveMemberOptions(),
-          client.listSubjectApprovals('order', order.orderId),
-        ]);
-        approvalMembers = members.items;
+        const history = await client.listSubjectApprovals('order', order.orderId);
         approvals = history.items as SubjectApprovalItem[];
+        const ids = [
+          ...new Set(approvals.flatMap((row) => [row.approverMemberId, row.requestedByMemberId].filter(Boolean))),
+        ] as string[];
+        approvalMemberLabels = await resolveMemberLabels(client, ids);
       } catch {
-        approvalMembers = [];
+        approvalMemberLabels = new Map();
         approvals = [];
       }
     }
@@ -213,7 +213,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
                 subjectType="order"
                 subjectId={order.orderId}
                 canRequest={authority?.canRequestApproval === true}
-                members={approvalMembers}
+                memberLabels={approvalMemberLabels}
                 approvals={approvals}
               />
             </div>

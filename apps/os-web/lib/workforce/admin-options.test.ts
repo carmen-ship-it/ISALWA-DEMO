@@ -42,7 +42,5 @@ describe('loadMemberAdminOptions', () => {
       { value: 'people.admin', label: 'Administración de personas' },
       { value: 'sales_rep', label: 'Ventas' },
     ]);
-    assert.equal(options.managers.length, 1);
-    assert.equal(options.managers[0]?.value, 'm2');
   });
 });

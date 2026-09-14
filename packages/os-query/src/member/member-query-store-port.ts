@@ -10,6 +10,12 @@ export interface MemberQueryStorePort extends DirectReportLookup {
     asOf: Date,
   ): Promise<{ items: MemberDirectoryRow[]; hasMore: boolean }>;
 
+  searchActiveMembers(
+    organizationId: string,
+    query: { q: string; limit: number; excludeMemberId?: string },
+    asOf: Date,
+  ): Promise<{ items: Array<{ memberId: string; displayName: string }>; hasMore: boolean }>;
+
   getMemberSummary(
     organizationId: string,
     memberId: string,

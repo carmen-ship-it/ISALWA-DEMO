@@ -155,10 +155,8 @@ export async function lookupMembers(query: string): Promise<
   const ready = await clientOrSession();
   if (!ready.ok) return ready;
   try {
-    const page = await ready.client.listMembers({
+    const page = await ready.client.searchActiveMembers({
       q,
-      accessStatus: 'active',
-      employmentStatus: 'active',
       limit: LOOKUP_LIMIT,
     });
     return {
@@ -166,7 +164,6 @@ export async function lookupMembers(query: string): Promise<
       authorized: true,
       items: page.items
         .filter((member) => !isEngineeringFixtureCopy(member.displayName))
-        .slice(0, LOOKUP_LIMIT)
         .map((member) => ({ value: member.memberId, label: member.displayName })),
     };
   } catch (err) {

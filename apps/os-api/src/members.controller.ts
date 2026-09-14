@@ -56,11 +56,22 @@ export class MembersController {
   }
 
   @Get('active-options')
-  async listActiveOptions(@Req() req: Request) {
+  async listActiveOptions(@Query() queryParams: Record<string, string>, @Req() req: Request) {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const ctx = await buildQueryContext(session, this.workforceStore);
-      return await this.memberQuery.listActiveMemberOptions(ctx);
+      const q = typeof queryParams.q === 'string' ? queryParams.q.trim() : '';
+      // Picker path: require server-side search. Do not dump a capped full roster.
+      if (q.length < 2) {
+        return { items: [], hasMore: false };
+      }
+      const limitRaw = Number(queryParams.limit ?? 20);
+      const limit = Number.isFinite(limitRaw) ? limitRaw : 20;
+      return await this.memberQuery.searchActiveMembers(ctx, {
+        q,
+        limit,
+        excludeMemberId: queryParams.excludeMemberId,
+      });
     } catch (err) {
       throw toHttp(err);
     }

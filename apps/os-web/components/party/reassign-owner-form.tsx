@@ -5,23 +5,22 @@ import { useActionState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
-import { MemberTypeahead } from '@/components/operating/member-typeahead';
+import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 import { reassignCommercialAccountOwnerAction } from '@/lib/commercial/actions';
 import { guidanceForReassignOwner } from '@/lib/guidance/select';
-import type { ActiveMemberOption } from '@/lib/commercial/types';
 
 type ReassignOwnerFormProps = {
   partyId: string;
   commercialAccountId: string;
   currentOwnerLabel: string;
-  members: ActiveMemberOption[];
+  currentOwnerMemberId?: string;
 };
 
 export function ReassignOwnerForm({
   partyId,
   commercialAccountId,
   currentOwnerLabel,
-  members,
+  currentOwnerMemberId,
 }: ReassignOwnerFormProps) {
   const router = useRouter();
   const [state, action] = useActionState(
@@ -46,15 +45,12 @@ export function ReassignOwnerForm({
         <label htmlFor="reassign-owner" className="block text-sm text-[var(--isalwa-slate)]">
           Nuevo responsable
         </label>
-        <MemberTypeahead
+        <ServerMemberTypeahead
           id="reassign-owner"
           name="ownerMemberId"
           required
+          excludeMemberId={currentOwnerMemberId}
           placeholder="Buscar un miembro activo"
-          options={members.map((member) => ({
-            value: member.memberId,
-            label: member.displayName,
-          }))}
         />
       </div>
       <label className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">

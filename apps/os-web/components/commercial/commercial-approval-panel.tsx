@@ -10,25 +10,26 @@ import {
   decideCommercialApprovalAction,
   requestCommercialApprovalAction,
 } from '@/lib/commercial/actions';
-import type { ActiveMemberOption, SubjectApprovalItem } from '@/lib/commercial/types';
+import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { formatTimestamp } from '@/lib/commercial/labels';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 
 type CommercialApprovalPanelProps = {
   partyId: string;
   subjectType: 'quote' | 'order';
   subjectId: string;
   canRequest: boolean;
-  members: ActiveMemberOption[];
+  memberLabels?: ReadonlyMap<string, string>;
   approvals: SubjectApprovalItem[];
 };
 
 const fieldClass =
   'mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
-function memberName(members: ActiveMemberOption[], memberId: string): string {
-  return members.find((member) => member.memberId === memberId)?.displayName ?? 'Miembro del equipo';
+function memberName(labels: ReadonlyMap<string, string> | undefined, memberId: string): string {
+  return labels?.get(memberId) ?? 'Miembro del equipo';
 }
 
 export function CommercialApprovalPanel({
@@ -36,7 +37,7 @@ export function CommercialApprovalPanel({
   subjectType,
   subjectId,
   canRequest,
-  members,
+  memberLabels,
   approvals,
 }: CommercialApprovalPanelProps) {
   const router = useRouter();
@@ -73,7 +74,7 @@ export function CommercialApprovalPanel({
               <li key={approval.approvalRequestId} className="py-6 first:pt-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm text-[var(--isalwa-kiln)]">
-                    Aprobador: {memberName(members, approval.approverMemberId)}
+                    Aprobador: {memberName(memberLabels, approval.approverMemberId)}
                   </p>
                   <StatusPill tone={statusToneForApproval(approval.status)}>
                     {formatApprovalStatus(approval.status)}
@@ -90,7 +91,7 @@ export function CommercialApprovalPanel({
                     <p className="text-[var(--isalwa-slate)]">Aprobación pendiente. No crea un pedido.</p>
                     <p className="font-medium text-[var(--isalwa-kiln)]">A quién acudir</p>
                     <p className="text-[var(--isalwa-slate)]">
-                      {memberName(members, approval.approverMemberId)} — aprobador actual
+                      {memberName(memberLabels, approval.approverMemberId)} — aprobador actual
                     </p>
                   </div>
                 ) : null}
@@ -123,16 +124,12 @@ export function CommercialApprovalPanel({
           <input type="hidden" name="subjectId" value={subjectId} />
           <label className="block text-sm text-[var(--isalwa-slate)]">
             Aprobador
-            <select className={fieldClass} name="approverMemberId" required defaultValue="">
-              <option value="" disabled>
-                Seleccione un miembro activo
-              </option>
-              {members.map((member) => (
-                <option key={member.memberId} value={member.memberId}>
-                  {member.displayName}
-                </option>
-              ))}
-            </select>
+            <ServerMemberTypeahead
+              id="approver-member"
+              name="approverMemberId"
+              required
+              placeholder="Buscar aprobador"
+            />
           </label>
           <label className="block text-sm text-[var(--isalwa-slate)]">
             Nota

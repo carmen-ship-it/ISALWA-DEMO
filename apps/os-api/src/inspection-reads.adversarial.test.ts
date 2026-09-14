@@ -508,6 +508,10 @@ describe('MemberQueryService', () => {
           calls.push({ method: 'listMembers', organizationId });
           return { items: sameOrg(rows, organizationId), hasMore: false };
         },
+        async searchActiveMembers(organizationId: string) {
+          calls.push({ method: 'searchActiveMembers', organizationId });
+          return { items: [], hasMore: false };
+        },
         async getMemberSummary(organizationId: string, memberId: string) {
           calls.push({ method: 'getMemberSummary', organizationId, extra: memberId });
           return sameOrg(rows, organizationId).find((row) => row.memberId === memberId) ?? null;
@@ -572,6 +576,9 @@ describe('CapabilityQueryService.getCapabilityState', () => {
           return [{ capabilityKey: 'finance', state: 'LOCKED', updatedAt: AS_OF }];
         },
         async listMembers() {
+          return { items: [], hasMore: false };
+        },
+        async searchActiveMembers() {
           return { items: [], hasMore: false };
         },
         async getMemberSummary() {

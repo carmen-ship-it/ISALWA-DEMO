@@ -26,6 +26,14 @@ export function canConvertQuoteToOrder(input: {
   return hasExplicitScope(input.grantedScopes, COMMERCIAL_ORDER_CONVERT_SCOPE);
 }
 
+/**
+ * Live CreateOrder uses canConvertQuoteToOrder only.
+ * commercial.quote.convert.own / canConvertOwnEligibleQuote are NOT wired.
+ * Do not treat that scope as active convert authority until Carmen decides.
+ * CROSS_LANE_CHANGE_REQUEST — see docs/architecture/QUOTE_CONVERSION_AUTHORITY_DECISION.md
+ */
+export const QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER = false as const;
+
 export function canReassignCommercialAccountOwner(grantedScopes: readonly string[]): boolean {
   return hasExplicitScope(grantedScopes, COMMERCIAL_ACCOUNT_REASSIGN_SCOPE);
 }

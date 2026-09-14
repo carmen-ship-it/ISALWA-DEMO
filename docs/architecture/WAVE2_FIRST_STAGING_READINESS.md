@@ -180,7 +180,7 @@ See:
 5. Coordination prior-decision read authority if Coordinar promises history.  
 6. No fake zeros / UNPROVEN labeled in Pedido/Gerencia.  
 7. Hosted browser proof of security negatives for tenant isolation.  
-8. Replace giant member `<select>` / fetch-capped directory pickers on admin + commercial forms (humiliation H1.1) if those screens are in the pilot path.
+8. ~~Replace giant member `<select>` / fetch-capped directory pickers~~ → **local FIX** (`ServerMemberTypeahead`); still need HOSTED browser proof before Isa/Álvaro.
 
 **P1 — visibly closed/unavailable OK**
 
@@ -234,7 +234,8 @@ See:
 - **Local-testable now:** copy/contracts presence, Entrega boundary copy, reader UNPROVEN≠zero unit semantics, permission deny unit tests.  
 - **Require hosted browser:** typeahead/fetch-all, pagination, drawers/Escape/focus, narrow viewport, refresh/back, Guided fake-complete, autocomplete leakage, dead buttons on live pages.
 
-**Obvious P0 UI defect from inspection (no redesign):** Admin/commercial member pickers use unbounded-ish `<select>` fed by `listMembers({ limit: 100 })` / limit 50 (`admin-options`, `member-options`, opportunity/approval panels). Typeahead is explicitly not implemented (`member-directory-typeahead` / “select amplio”). This fails humiliation case H1.1 for large teams and is a **P0 usability/security surface** before Isa/Álvaro if those screens are in the pilot path. Warehouse allocate desk also dumps full in-memory product/pedido lists into `<select>` (memory-backed; risk if lists grow).
+- **Obvious P0 UI defect (fixed this pass, local only):** Admin/commercial member pickers no longer use giant `<select>` + capped `listMembers` / active-options dump. Replaced with `ServerMemberTypeahead` + tenant-scoped `searchActiveMembers` (`docs/architecture/P0_MEMBER_SELECTOR_INVENTORY.md`). HOSTED/BROWSER still UNPROVEN.
+- Warehouse allocate desk still dumps in-memory product/pedido lists into `<select>` → **P1** while those journeys remain BLOCKED on live writers.
 
 No new dead-button / fake-KPI code defect was proven beyond honesty risks already gated in readers.
 

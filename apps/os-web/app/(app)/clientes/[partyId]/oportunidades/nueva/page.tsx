@@ -6,7 +6,6 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { loadMemberOptionsForAdmin } from '@/lib/commercial/member-options';
 import { partyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -23,7 +22,6 @@ export default async function NewOpportunityPage({ params }: NewOpportunityPageP
 
   try {
     const { party } = await client.getParty(partyId);
-    const memberOptions = await loadMemberOptionsForAdmin(client);
 
     return (
       <PageContainer label="Nueva oportunidad">
@@ -40,7 +38,7 @@ export default async function NewOpportunityPage({ params }: NewOpportunityPageP
             </Link>
           }
         />
-        <OpportunityCreateForm partyId={partyId} memberOptions={memberOptions} />
+        <OpportunityCreateForm partyId={partyId} />
       </PageContainer>
     );
   } catch (err) {

@@ -45,7 +45,8 @@ export const PRODUCTIVITY_NOT_IMPLEMENTED = [
   },
   {
     id: 'member-directory-typeahead',
-    reason: 'La lista de miembros activos es un select amplio. Miembro y aprobador solo se buscan con consulta acotada de administración.',
+    reason:
+      'Picker de miembros activos usa búsqueda servidor (/members/active-options?q=). El directorio admin completo sigue siendo people.admin con consulta acotada.',
   },
   {
     id: 'coverage-reassignment',

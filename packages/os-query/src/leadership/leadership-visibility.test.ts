@@ -464,6 +464,9 @@ describe('pilot leadership visibility', () => {
         async listMembers() {
           return { items: [], hasMore: false };
         },
+        async searchActiveMembers() {
+          return { items: [], hasMore: false };
+        },
         async getMemberSummary() {
           return null;
         },

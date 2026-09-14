@@ -14,6 +14,7 @@ import { listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
+import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type ClientesPageProps = {
@@ -50,13 +51,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       .map((item) => item.commercialOwnerMemberId)
       .filter((id): id is string => Boolean(id));
     const memberLabels =
-      ownerIds.length > 0
-        ? new Map(
-            (await client.listActiveMemberOptions().catch(() => ({ items: [] }))).items.map(
-              (member) => [member.memberId, member.displayName] as const,
-            ),
-          )
-        : undefined;
+      ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
     const hasSearchCriteria = Boolean(q || roleKey || status);
     const isEmpty = result.items.length === 0;
     const addHref = canAddCustomer ? newCustomerHref(q) : undefined;

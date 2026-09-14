@@ -1,12 +1,11 @@
 import { ReassignOwnerForm } from '@/components/party/reassign-owner-form';
-import type { ActiveMemberOption } from '@/lib/commercial/types';
 import type { CommercialOwnerView } from '@/lib/party/customer-self-service';
 
 type CommercialOwnerLineProps = {
   owner: CommercialOwnerView;
   partyId?: string;
   commercialAccountId?: string | null;
-  members?: ActiveMemberOption[];
+  currentOwnerMemberId?: string | null;
   /** Stored-owner note from the Cliente 360 composition. Not a guessed name. */
   note?: string | null;
 };
@@ -15,7 +14,7 @@ export function CommercialOwnerLine({
   owner,
   partyId,
   commercialAccountId,
-  members = [],
+  currentOwnerMemberId = null,
   note = null,
 }: CommercialOwnerLineProps) {
   return (
@@ -30,7 +29,7 @@ export function CommercialOwnerLine({
           partyId={partyId}
           commercialAccountId={commercialAccountId}
           currentOwnerLabel={owner.label}
-          members={members}
+          currentOwnerMemberId={currentOwnerMemberId ?? undefined}
         />
       ) : null}
     </div>

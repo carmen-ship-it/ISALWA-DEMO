@@ -124,12 +124,23 @@ export class PrismaMemberQueryStore implements MemberQueryStorePort {
   ): Promise<{ items: MemberSummaryReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeMemberCursor(query.cursor);
+    const needle = query.q?.trim().toLowerCase();
 
     const rows = await this.prisma.osOrganizationMember.findMany({
       where: {
         organizationId,
         ...(query.accessStatus ? { accessStatus: query.accessStatus } : {}),
         ...(query.employmentStatus ? { employmentStatus: query.employmentStatus } : {}),
+        ...(needle
+          ? {
+              person: {
+                OR: [
+                  { givenName: { contains: needle, mode: 'insensitive' } },
+                  { familyName: { contains: needle, mode: 'insensitive' } },
+                ],
+              },
+            }
+          : {}),
       },
       include: {
         person: true,
@@ -161,8 +172,8 @@ export class PrismaMemberQueryStore implements MemberQueryStorePort {
       mapped = mapped.filter((m) => m.departmentId === query.departmentId);
     }
 
-    if (query.q) {
-      const needle = query.q.toLowerCase();
+    // Admin directory may also match email after tenant-scoped name filter.
+    if (needle) {
       mapped = mapped.filter(
         (m) =>
           m.displayName.toLowerCase().includes(needle) ||
@@ -180,6 +191,43 @@ export class PrismaMemberQueryStore implements MemberQueryStorePort {
 
     const hasMore = mapped.length > limit;
     const items = hasMore ? mapped.slice(0, limit) : mapped;
+    return { items, hasMore };
+  }
+
+  async searchActiveMembers(
+    organizationId: string,
+    query: { q: string; limit: number; excludeMemberId?: string },
+    _asOf: Date,
+  ): Promise<{ items: Array<{ memberId: string; displayName: string }>; hasMore: boolean }> {
+    const needle = query.q.trim();
+    if (needle.length < 2) return { items: [], hasMore: false };
+
+    const rows = await this.prisma.osOrganizationMember.findMany({
+      where: {
+        organizationId,
+        accessStatus: 'active',
+        employmentStatus: 'active',
+        ...(query.excludeMemberId ? { id: { not: query.excludeMemberId } } : {}),
+        person: {
+          OR: [
+            { givenName: { contains: needle, mode: 'insensitive' } },
+            { familyName: { contains: needle, mode: 'insensitive' } },
+          ],
+        },
+      },
+      include: { person: true },
+      orderBy: [{ person: { familyName: 'asc' } }, { id: 'asc' }],
+      take: query.limit + 1,
+    });
+
+    const hasMore = rows.length > query.limit;
+    const slice = hasMore ? rows.slice(0, query.limit) : rows;
+    const items = slice.map((row) => {
+      const givenName = row.person.givenName;
+      const familyName = row.person.familyName;
+      const displayName = [givenName, familyName].filter(Boolean).join(' ').trim() || 'Miembro';
+      return { memberId: row.id, displayName };
+    });
     return { items, hasMore };
   }
 

@@ -40,7 +40,6 @@ import {
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
-import type { ActiveMemberOption } from '@/lib/commercial/types';
 import type { Cliente360Composition } from '@/lib/party/next-action';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
@@ -152,7 +151,6 @@ function IdentityLetterhead({
   owner,
   partyId,
   commercialAccount,
-  members,
   canEditParty,
   composition,
 }: {
@@ -162,7 +160,6 @@ function IdentityLetterhead({
   owner: ReturnType<typeof commercialOwnerView>;
   partyId: string;
   commercialAccount: PartyDetailResponse['commercialAccount'];
-  members: ActiveMemberOption[];
   canEditParty: boolean;
   composition: Cliente360Composition;
 }) {
@@ -219,7 +216,7 @@ function IdentityLetterhead({
           owner={owner}
           partyId={partyId}
           commercialAccountId={commercialAccount.id}
-          members={members}
+          currentOwnerMemberId={commercialAccount.ownerMemberId}
           note={composition.owner.note}
         />
       ) : (
@@ -264,9 +261,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
       actorIsMasterDataAdmin ? ['master_data.admin'] : [],
     );
     const canReassignOwner = detail.commercialAuthority?.canReassignOwner === true;
-    const ownerMembers = canReassignOwner
-      ? (await client.listActiveMemberOptions().catch(() => ({ items: [] }))).items
-      : [];
     const owner = commercialOwnerView(
       commercialAccount?.ownerMemberId,
       commercialAccount?.ownerMemberId
@@ -332,7 +326,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
           owner={owner}
           partyId={partyId}
           commercialAccount={commercialAccount}
-          members={ownerMembers}
           canEditParty={canEditParty}
           composition={composition}
         />

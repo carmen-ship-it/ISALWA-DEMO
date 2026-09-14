@@ -19,6 +19,7 @@ import {
   suspendMemberAction,
   terminateMemberAction,
 } from '@/lib/workforce/actions';
+import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
@@ -31,8 +32,6 @@ type MemberAdminActionsPanelProps = {
   visibility: MemberAdminVisibility;
   departments: SelectOption[];
   roles: SelectOption[];
-  managers: SelectOption[];
-  delegates: SelectOption[];
 };
 
 const initial = { error: null as string | null, success: null as string | null };
@@ -66,8 +65,6 @@ export function MemberAdminActionsPanel({
   visibility,
   departments,
   roles,
-  managers,
-  delegates,
 }: MemberAdminActionsPanelProps) {
   const [terminateConfirm, setTerminateConfirm] = useState(false);
   const [suspendConfirm, setSuspendConfirm] = useState(false);
@@ -282,22 +279,16 @@ export function MemberAdminActionsPanel({
                   <label htmlFor="manager-select" className="isalwa-section-label">
                     Responsable
                   </label>
-                  <select
+                  <ServerMemberTypeahead
                     id="manager-select"
                     name="managerMemberId"
                     required
-                    defaultValue={summary.managerMemberId ?? ''}
-                    className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
-                  >
-                    <option value="" disabled>
-                      Seleccione…
-                    </option>
-                    {managers.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    mode="admin"
+                    excludeMemberId={memberId}
+                    defaultMemberId={summary.managerMemberId ?? ''}
+                    defaultLabel=""
+                    placeholder="Buscar responsable"
+                  />
                 </div>
                 <CommandSubmitButton label="Cambiar responsable" variant="secondary" />
               </form>
@@ -428,19 +419,15 @@ export function MemberAdminActionsPanel({
                   <label htmlFor="delegate-select" className="isalwa-section-label">
                     Delegado
                   </label>
-                  <select
+                  <ServerMemberTypeahead
                     id="delegate-select"
                     name="delegateMemberId"
                     required
-                    defaultValue={memberId}
-                    className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
-                  >
-                    {delegates.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    mode="admin"
+                    defaultMemberId={memberId}
+                    defaultLabel=""
+                    placeholder="Buscar delegado"
+                  />
                 </div>
                 <div>
                   <label htmlFor="delegation-scope" className="isalwa-section-label">

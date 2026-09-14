@@ -13,7 +13,6 @@ import {
   presentStage,
   statusTone,
 } from '@/lib/commercial/labels';
-import { loadMemberOptionsForAdmin } from '@/lib/commercial/member-options';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { newQuoteHref } from '@/lib/commercial/navigation';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
@@ -40,7 +39,6 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
     const partyLabels = await resolvePartyLabels(client, [opportunity.partyId]);
     const customerName = partyLabel(partyLabels, opportunity.partyId);
     const memberLabels = await resolveMemberLabels(client, [opportunity.ownerMemberId]);
-    const memberOptions = await loadMemberOptionsForAdmin(client);
     const value = formatOptionalCentavos(opportunity.expectedValueCentavos ?? undefined, 'BOB');
     const isOpen = opportunity.status === 'open';
 
@@ -118,7 +116,7 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
         <OpportunityActionsPanel
           partyId={partyId}
           opportunity={opportunity}
-          memberOptions={memberOptions}
+          currentOwnerLabel={memberLabel(memberLabels, opportunity.ownerMemberId)}
         />
       </PageContainer>
     );

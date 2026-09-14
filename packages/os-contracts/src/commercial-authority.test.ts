@@ -3,6 +3,9 @@ import { describe, it } from 'node:test';
 import {
   COMMERCIAL_ACCOUNT_REASSIGN_SCOPE,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
+  COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
+  QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER,
+  canConvertOwnEligibleQuote,
   canConvertQuoteToOrder,
   canReassignCommercialAccountOwner,
   canRequestCommercialSubjectApproval,
@@ -59,6 +62,27 @@ describe('provisional commercial authority', () => {
         scope,
       );
     }
+  });
+
+  it('keeps commercial.quote.convert.own unwired from CreateOrder live gate', () => {
+    assert.equal(QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER, false);
+    assert.equal(
+      canConvertQuoteToOrder({
+        actorMemberId: OTHER,
+        grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
+        quoteOwnerMemberId: OWNER,
+      }),
+      false,
+    );
+    assert.equal(
+      canConvertOwnEligibleQuote({
+        actorMemberId: OWNER,
+        quoteOwnerMemberId: OWNER,
+        quoteStatus: 'submitted',
+        grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
+      }),
+      true,
+    );
   });
 
   it('does not treat read-only leadership, ownership, or people.admin as reassignment authority', () => {

@@ -65,18 +65,18 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     const relatedOrders =
       quote.status === 'accepted' ? await client.listOrders({ quoteId: quote.quoteId, partyId, limit: 5 }) : null;
     const relatedOrder = relatedOrders?.items[0] ?? null;
-    let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
+    let approvalMemberLabels = new Map<string, string>();
     let approvals: SubjectApprovalItem[] = [];
     if (quote.status === 'submitted' || quote.status === 'accepted') {
       try {
-        const [members, history] = await Promise.all([
-          client.listActiveMemberOptions(),
-          client.listSubjectApprovals('quote', quote.quoteId),
-        ]);
-        approvalMembers = members.items;
+        const history = await client.listSubjectApprovals('quote', quote.quoteId);
         approvals = history.items as SubjectApprovalItem[];
+        const ids = [
+          ...new Set(approvals.flatMap((row) => [row.approverMemberId, row.requestedByMemberId].filter(Boolean))),
+        ] as string[];
+        approvalMemberLabels = await resolveMemberLabels(client, ids);
       } catch {
-        approvalMembers = [];
+        approvalMemberLabels = new Map();
         approvals = [];
       }
     }
@@ -303,7 +303,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 subjectType="quote"
                 subjectId={quote.quoteId}
                 canRequest={authority?.canRequestApproval === true}
-                members={approvalMembers}
+                memberLabels={approvalMemberLabels}
                 approvals={approvals}
               />
             </div>
