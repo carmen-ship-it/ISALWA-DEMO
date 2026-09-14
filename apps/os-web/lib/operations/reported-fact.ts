@@ -1,12 +1,14 @@
 import { formatCentavos } from '../commercial/money';
 
 /**
- * In-memory reported fact. Not stored. Not a ledger, dispatch, or stock record.
+ * Reported operational fact. Not a ledger, dispatch, or stock record.
  *
  * `source` is always `manual`. `confirmation` is always `pending`.
- * There is no confirm and no persist. Storing this needs a schema change
- * from the schema owner (Agent 0) — do not add a migration from this lane.
+ * The table `os_reported_operational_facts` can store the row, but this
+ * module does not write it: the API command is not wired here.
+ * `recordReportedOperationalFact` always returns persisted: false.
  *
+ * A report must not update party, quote, order, location, or payment rows.
  * Do not attach instances to the seven imported customers.
  */
 
@@ -39,6 +41,8 @@ type ReportedFactBase = {
   note: string | null;
   activity: ReportedFactActivity;
   reversalReason: string | null;
+  /** Prior report this one replaces. Not a canonical correction. */
+  correctsFactId: string | null;
 };
 
 export type PaymentReportedFact = ReportedFactBase & {
@@ -206,6 +210,7 @@ function baseFrom(input: CreateBase): ReportedFactBase {
     note: optionalText(input.note),
     activity: 'active',
     reversalReason: null,
+    correctsFactId: null,
   };
 }
 
@@ -343,4 +348,209 @@ export function manualFactsSummary(facts: readonly ReportedOperationalFact[]): s
   if (facts.length === 0) return 'No hay datos manuales reportados.';
   const noun = facts.length === 1 ? 'dato manual' : 'datos manuales';
   return `${facts.length} ${noun}. Pendiente de confirmar.`;
+}
+
+export const REPORTED_FACT_NOT_PERSISTED_COPY =
+  'No se guardó en el sistema. Sigue pendiente de confirmar y no modifica cobranza, despacho ni inventario.';
+
+export const MANUAL_OPERATIONS_INTRO =
+  'Anote lo que alguien informa. El dato no se confirma solo y no cambia el registro comercial.';
+
+export const PAYMENT_BOUNDARY =
+  'No confirma el pago. No crea un movimiento de cobranza. No cambia el pedido ni la cotización.';
+
+export const DISPATCH_BOUNDARY =
+  'No autoriza el despacho. No cambia la logística ni el pedido.';
+
+export const STOCK_BOUNDARY =
+  'No es un movimiento de inventario. No cambia existencias.';
+
+export const PROVENANCE_LIMITS = [
+  'No confirma el hecho.',
+  'No modifica cobranza, despacho, inventario, cotización, pedido ni ubicación.',
+  'Anular no reescribe el valor reportado.',
+] as const;
+
+export const MANUAL_PAYMENT_COPY = {
+  title: 'Pago reportado',
+  intro: 'Anote el monto que alguien informa. No confirma el pago y no entra a cobranza.',
+  amount: 'Monto reportado (Bs.)',
+  method: 'Medio reportado',
+  note: 'Nota',
+  submit: 'Anotar pago reportado',
+  boundary: PAYMENT_BOUNDARY,
+} as const;
+
+export const MANUAL_DISPATCH_COPY = {
+  title: 'Despacho reportado',
+  intro: 'Anote el estado que alguien informa. No cambia la logística.',
+  state: 'Estado reportado',
+  placeholder: 'Según quien informa',
+  note: 'Nota',
+  submit: 'Anotar despacho reportado',
+  boundary: DISPATCH_BOUNDARY,
+} as const;
+
+export const INVENTORY_SNAPSHOT_COPY = {
+  title: 'Stock reportado',
+  intro: 'Es una foto del momento que alguien informa. No mueve almacén.',
+  item: 'Ítem',
+  quantity: 'Cantidad reportada',
+  unit: 'Unidad',
+  note: 'Nota',
+  submit: 'Anotar stock reportado',
+  boundary: STOCK_BOUNDARY,
+} as const;
+
+export const CORRECTION_COPY = {
+  title: 'Corrección y procedencia',
+  reverse: 'Anular este registro',
+  reason: 'Motivo de la anulación',
+  hint: 'Anular no reescribe el valor y no confirma el hecho. Si la cifra estaba mal, anote un registro nuevo.',
+  nextLinks: 'El próximo dato anotado señala el registro anulado. El valor anterior no se reescribe.',
+} as const;
+
+export type ReportedFactWriteResult = {
+  persisted: false;
+  reason: 'api_command_unwired';
+  fact: ReportedOperationalFact;
+  notice: typeof REPORTED_FACT_NOT_PERSISTED_COPY;
+};
+
+/** Draft only. Does not insert, even though the table exists. */
+export function recordReportedOperationalFact(
+  input: CreateReportedFactInput,
+): ReportedFactWriteResult {
+  return {
+    persisted: false,
+    reason: 'api_command_unwired',
+    fact: createReportedOperationalFact(input),
+    notice: REPORTED_FACT_NOT_PERSISTED_COPY,
+  };
+}
+
+/**
+ * Interprets a boliviano amount as centavos. Does not post a ledger.
+ * "4.500,00" and "4500.50" are display amounts, not stored postings.
+ */
+export function parseReportedAmountToCentavos(input: string): string {
+  const trimmed = input.trim().replace(/\s/g, '').replace(/^bs\.?/i, '');
+  if (!trimmed || /[^\d.,]/.test(trimmed)) {
+    throw new Error('amount must be a reported amount, not a ledger posting');
+  }
+
+  const lastComma = trimmed.lastIndexOf(',');
+  const lastDot = trimmed.lastIndexOf('.');
+  let normalized = trimmed;
+
+  if (lastComma >= 0 && lastDot >= 0) {
+    normalized =
+      lastComma > lastDot
+        ? trimmed.replace(/\./g, '').replace(',', '.')
+        : trimmed.replace(/,/g, '');
+  } else if (lastComma >= 0) {
+    const decimals = trimmed.length - lastComma - 1;
+    const groups = trimmed.split(',');
+    normalized =
+      decimals === 3 && groups.length === 2
+        ? trimmed.replace(/,/g, '')
+        : trimmed.replace(',', '.');
+  } else if (lastDot >= 0) {
+    const decimals = trimmed.length - lastDot - 1;
+    const groups = trimmed.split('.');
+    if (decimals === 3 && groups.length === 2) {
+      normalized = trimmed.replace(/\./g, '');
+    }
+  }
+
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
+    throw new Error('amount must be a reported amount with at most two decimals. This is not a ledger posting.');
+  }
+
+  const [whole, frac = ''] = normalized.split('.');
+  const centavos = `${whole}${frac.padEnd(2, '0')}`.replace(/^0+(?=\d)/, '');
+  if (!/^[1-9]\d*$/.test(centavos)) {
+    throw new Error('amountCentavos must be a positive integer. This is not a ledger posting.');
+  }
+  return centavos;
+}
+
+export function reportedFactMayMutateCanonical(): false {
+  return false;
+}
+
+/** Operator-facing failure. Does not mention a ledger posting as if one were attempted. */
+export function reportedFactErrorCopy(error: unknown): string {
+  const message = error instanceof Error ? error.message : '';
+  if (/confirmed or official truth/i.test(message)) {
+    return 'No escriba el dato como si ya estuviera confirmado.';
+  }
+  if (/already reversed|not overwritten/i.test(message)) {
+    return 'Ese registro ya está anulado. El valor no se reescribe.';
+  }
+  if (/amount|centavos|ledger/i.test(message)) {
+    return 'El monto reportado tiene que ser mayor que cero.';
+  }
+  if (/quantity|snapshot/i.test(message)) {
+    return 'La cantidad tiene que ser un número entero. No es un movimiento de inventario.';
+  }
+  if (/same subject/i.test(message)) {
+    return 'La corrección se queda en el mismo registro. No mueve el dato comercial.';
+  }
+  return 'No se pudo anotar el dato manual.';
+}
+
+export type ReportedFactProvenanceView = {
+  lines: string[];
+  limits: readonly string[];
+};
+
+export function reportedFactProvenance(fact: ReportedOperationalFact): ReportedFactProvenanceView {
+  const copy = reportedFactCopy(fact);
+  const lines = [
+    copy.title,
+    copy.value,
+    copy.confirmation,
+    copy.source,
+    copy.recordedBy,
+    copy.provenanceLine,
+  ];
+  if (fact.kind === 'stock') lines.push(fact.itemLabel);
+  if (copy.method) lines.push(copy.method);
+  if (copy.when) lines.push(copy.when);
+  if (fact.correctsFactId) lines.push('Corrige un registro anterior. El valor anterior no se reescribe.');
+  if (fact.sourceReference) lines.push(`Referencia: ${fact.sourceReference}`);
+  if (copy.note) lines.push(copy.note);
+  if (copy.reversal) lines.push(copy.reversal);
+  return { lines, limits: PROVENANCE_LIMITS };
+}
+
+/** Points a new report at a prior one. Does not rewrite the prior value and does not confirm either. */
+export function linkCorrection(
+  fact: ReportedOperationalFact,
+  priorFactId: string,
+): ReportedOperationalFact {
+  lock(fact);
+  return lock({ ...fact, correctsFactId: requireText(priorFactId, 'priorFactId') });
+}
+
+/**
+ * Reverses the prior report and builds a replacement that points at it.
+ * Neither row is stored. Neither updates the subject.
+ */
+export function correctReportedFact(
+  original: ReportedOperationalFact,
+  replacement: CreateReportedFactInput,
+  reason: string,
+): { reversed: ReportedOperationalFact; replacement: ReportedOperationalFact; persisted: false } {
+  const reversed = reverseReportedFact(original, reason);
+  const next = createReportedOperationalFact(replacement);
+  if (next.subjectId !== original.subjectId || next.organizationId !== original.organizationId) {
+    throw new Error('A correction stays on the same subject. It does not move a canonical record.');
+  }
+  return {
+    reversed,
+    replacement: lock({ ...next, correctsFactId: original.id }),
+    persisted: false,
+  };
 }

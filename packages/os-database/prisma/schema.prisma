@@ -63,6 +63,7 @@ model OsOrganization {
   orders             OsOrder[]
   importBatches      OsImportBatch[]
   importRows         OsImportRow[]
+  reportedOperationalFacts OsReportedOperationalFact[]
 
   @@map("os_organizations")
 }
@@ -992,4 +993,38 @@ model OsPartyTimelineEntry {
 
   @@index([organizationId, partyId, occurredAt(sort: Desc), entryId(sort: Desc)])
   @@map("os_party_timeline_entries")
+}
+
+/// Manual report only. Not a payment posting, dispatch order, or inventory ledger.
+/// `source` stays manual and `confirmation` stays pending. Do not confirm in place.
+/// Subject is an opaque reference: this row must not update party, quote, order, or location rows.
+model OsReportedOperationalFact {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  kind               String
+  subjectType        String   @map("subject_type")
+  subjectId          String   @map("subject_id")
+  reportedAt         DateTime @map("reported_at")
+  reportedByMemberId String?  @map("reported_by_member_id")
+  reportedByLabel    String   @map("reported_by_label")
+  source             String   @default("manual")
+  confirmation       String   @default("pending")
+  activity           String   @default("active")
+  reversalReason     String?  @map("reversal_reason")
+  sourceReference    String?  @map("source_reference")
+  note               String?
+  payloadJson        Json     @map("payload_json")
+  correctsFactId     String?  @map("corrects_fact_id")
+  idempotencyKey     String?  @map("idempotency_key")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization              @relation(fields: [organizationId], references: [id])
+  correctsFact OsReportedOperationalFact?  @relation("ReportedFactCorrection", fields: [correctsFactId], references: [id])
+  corrections  OsReportedOperationalFact[] @relation("ReportedFactCorrection")
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, subjectType, subjectId])
+  @@index([organizationId, kind, activity])
+  @@index([organizationId, reportedAt])
+  @@map("os_reported_operational_facts")
 }
