@@ -2,7 +2,7 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** _(set to ending SHA after this P0 pass commit)_  
+**Exact candidate SHA:** `a41e4941f4c3c68617e99b081fe0c123f6bc8841`  
 Parent lineage: `fea519369eca49f19485d569a4e786d3df101840` → P0 member selector + quote-authority decision lock.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
 
