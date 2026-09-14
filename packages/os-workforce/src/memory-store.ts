@@ -105,12 +105,13 @@ export class MemoryOsStore implements OsWorkforceStore {
     organizationId?: string,
   ): Promise<MemberRecord | null> {
     const active = this.members.filter(
-      (m) =>
-        m.personId === personId &&
-        m.accessStatus === 'active' &&
-        (organizationId ? m.organizationId === organizationId : true),
+      (member) => member.personId === personId && member.accessStatus === 'active',
     );
-    return active.length === 1 ? active[0]! : active[0] ?? null;
+    const scoped =
+      organizationId === undefined
+        ? active
+        : active.filter((member) => member.organizationId === organizationId);
+    return scoped.length === 1 ? scoped[0]! : null;
   }
 
   async listRoleAssignmentsForMember(

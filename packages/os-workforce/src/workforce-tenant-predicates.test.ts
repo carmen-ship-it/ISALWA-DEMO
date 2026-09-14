@@ -386,3 +386,86 @@ describe('workforce tenant predicates', () => {
     );
   });
 });
+
+describe('findActiveMemberForPerson', () => {
+  async function twoActiveMemberships() {
+    const store = new MemoryOsStore();
+    const home = await store.seedOrganization('Home', 'home');
+    const other = await store.seedOrganization('Other', 'other');
+    const personId = createId();
+    await store.insertPerson({ id: personId, givenName: 'Ana', familyName: 'Pérez', version: 0 });
+    const homeMemberId = createId();
+    const otherMemberId = createId();
+    await store.insertMember({
+      id: homeMemberId,
+      organizationId: home.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date('2026-01-01'),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    await store.insertMember({
+      id: otherMemberId,
+      organizationId: other.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date('2026-02-01'),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    return { store, personId, home, other, homeMemberId, otherMemberId };
+  }
+
+  it('fails closed when several active memberships exist and no organization is passed', async () => {
+    const { store, personId } = await twoActiveMemberships();
+    assert.equal(await store.findActiveMemberForPerson(personId), null);
+  });
+
+  it('returns only the membership in the requested organization', async () => {
+    const { store, personId, home, other, homeMemberId, otherMemberId } = await twoActiveMemberships();
+    assert.equal((await store.findActiveMemberForPerson(personId, home.id))?.id, homeMemberId);
+    assert.equal((await store.findActiveMemberForPerson(personId, other.id))?.id, otherMemberId);
+  });
+
+  it('does not return another tenant when the requested organization has no active membership', async () => {
+    const { store, personId } = await twoActiveMemberships();
+    assert.equal(await store.findActiveMemberForPerson(personId, 'org-absent'), null);
+  });
+
+  it('fails closed when the requested organization has more than one active membership', async () => {
+    const { store, personId, home } = await twoActiveMemberships();
+    await store.insertMember({
+      id: createId(),
+      organizationId: home.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date('2026-03-01'),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    assert.equal(await store.findActiveMemberForPerson(personId, home.id), null);
+  });
+
+  it('returns the sole active membership when no organization is passed', async () => {
+    const store = new MemoryOsStore();
+    const org = await store.seedOrganization('Only', 'only');
+    const personId = createId();
+    const memberId = createId();
+    await store.insertPerson({ id: personId, givenName: 'Ana', familyName: 'Pérez', version: 0 });
+    await store.insertMember({
+      id: memberId,
+      organizationId: org.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date('2026-01-01'),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    assert.equal((await store.findActiveMemberForPerson(personId))?.id, memberId);
+  });
+});

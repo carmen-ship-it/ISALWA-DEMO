@@ -33,6 +33,13 @@ export interface OsWorkforceStore {
   ): Promise<AuthIdentityRecord[]>;
   /** organizationId, when present, is a proven tenant predicate — not a client argument. */
   listMembersForPerson(personId: string, organizationId?: string): Promise<MemberRecord[]>;
+  /**
+   * Active membership for a person. Person has no organization column.
+   * Without organizationId, return the row only when exactly one active membership exists.
+   * Several active memberships is fail-closed (null) — never an arbitrary first row.
+   * With organizationId, return that person's membership in that organization only, else null.
+   * A caller cannot select another tenant.
+   */
   findActiveMemberForPerson(
     personId: string,
     organizationId?: string,
