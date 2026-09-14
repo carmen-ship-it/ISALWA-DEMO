@@ -3,7 +3,6 @@ import { GuidanceNotes } from '@/components/guidance/guidance-note';
 import { WalkthroughHelpPanel } from '@/components/walkthrough/walkthrough-help-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { ayudaSections } from '@/lib/guidance/select';
-import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 export default function AyudaPage() {
   const sections = ayudaSections();
@@ -11,7 +10,7 @@ export default function AyudaPage() {
   const workflows = sections.filter((section) => section.id !== 'standing-rules');
 
   return (
-    <PageContainer label="Cómo trabajamos" data-tour={TOUR_TARGET.help}>
+    <PageContainer label="Cómo trabajamos">
       <PageHeader
         kicker="Ayuda"
         title="Cómo trabajamos"

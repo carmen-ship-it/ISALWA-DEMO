@@ -7,9 +7,9 @@ import { GuideProvider } from './guide-provider';
 
 /**
  * Persistent journey panel. Children stay mounted — this is not a tooltip
- * overlay that unmounts when a page target disappears.
- * Optional `viewer` hides a journey the viewer cannot open. The shell does
- * not pass it yet; nav links still hide a concrete page missing from the nav.
+ * overlay and it does not target page elements.
+ * Optional `viewer.roleKeys` hides floor journeys from a finance-only viewer.
+ * App shell does not pass role keys; nav links still hide a page missing from the nav.
  */
 export function WalkthroughShell({
   children,

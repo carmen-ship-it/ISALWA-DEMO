@@ -9,10 +9,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { journeysForViewer, type GuideViewer } from '@/lib/walkthrough/journeys';
+import { nowAnswer, roleCue, journeysForViewer, type GuideViewer } from '@/lib/walkthrough/journeys';
 import { GUIDE_STORAGE_KEY, loadGuide, saveGuide } from '@/lib/walkthrough/persistence';
 import {
   continueGuide,
+  currentJourney,
   dismissGuide,
   replayFromAyuda,
   resetGuide,
@@ -26,6 +27,8 @@ type GuideContextValue = {
   ready: boolean;
   record: GuideRecord;
   journeys: ReturnType<typeof journeysForViewer>;
+  prompt: string;
+  roleCue: string | null;
   dismiss: () => void;
   reveal: () => void;
   reset: () => void;
@@ -75,10 +78,19 @@ export function GuideProvider({
     if (hrefs.length > 0) setOpenHrefs(hrefs);
   }, [viewer?.openHrefs]);
 
-  const journeys = useMemo(
-    () => journeysForViewer({ openHrefs, roleKeys: viewer?.roleKeys }),
+  const viewerState = useMemo<GuideViewer>(
+    () => ({ openHrefs, roleKeys: viewer?.roleKeys }),
     [openHrefs, viewer?.roleKeys],
   );
+
+  const journeys = useMemo(() => journeysForViewer(viewerState), [viewerState]);
+
+  const active = currentJourney(record, journeys) ?? journeys[0] ?? null;
+  const stop = active
+    ? active.stops[Math.min(Math.max(record.stopIndex, 0), active.stops.length - 1)] ?? active.stops[0]
+    : null;
+  const prompt = stop ? nowAnswer(stop, viewerState) : '';
+  const cue = active ? roleCue(active, viewerState) : null;
 
   useEffect(() => {
     if (!ready || journeys.length === 0) return;
@@ -102,6 +114,8 @@ export function GuideProvider({
       ready,
       record,
       journeys,
+      prompt,
+      roleCue: cue,
       dismiss: () => commit(dismissGuide(record)),
       reveal: () => commit(revealGuide(record)),
       reset: () => commit(resetGuide()),
@@ -112,7 +126,7 @@ export function GuideProvider({
         return outcome;
       },
     }),
-    [commit, journeys, ready, record],
+    [commit, cue, journeys, prompt, ready, record],
   );
 
   return <GuideContext.Provider value={value}>{children}</GuideContext.Provider>;

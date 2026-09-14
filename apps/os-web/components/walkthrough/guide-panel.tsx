@@ -3,17 +3,11 @@
 import { useEffect, useId, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, Panel, StatusPill } from '@isalwa/ui';
+import { Button, Panel } from '@isalwa/ui';
 import { GUIDE_CHROME, progressLabel } from '@/lib/walkthrough/copy';
 import { handleGuideEscape, restoreHeadingFocus } from '@/lib/walkthrough/focus';
 import { currentJourney } from '@/lib/walkthrough/progress';
 import { useGuide } from './guide-provider';
-
-function pillFor(kind: 'route' | 'pattern' | 'wave') {
-  if (kind === 'route') return { tone: 'neutral' as const, label: GUIDE_CHROME.routePill };
-  if (kind === 'pattern') return { tone: 'demo' as const, label: GUIDE_CHROME.patternPill };
-  return { tone: 'demo' as const, label: GUIDE_CHROME.wavePill };
-}
 
 export function GuidePanel() {
   const api = useGuide();
@@ -57,7 +51,6 @@ export function GuidePanel() {
   if (!journey) return null;
   const stop = journey.stops[Math.min(api.record.stopIndex, journey.stops.length - 1)] ?? journey.stops[0];
   if (!stop) return null;
-  const pill = pillFor(stop.kind);
 
   function hide() {
     api?.dismiss();
@@ -77,7 +70,7 @@ export function GuidePanel() {
           <div>
             <p className="isalwa-kicker">{GUIDE_CHROME.kicker}</p>
             <h2 id={titleId} className="mt-1 font-medium text-[var(--isalwa-kiln)]">
-              {GUIDE_CHROME.title}
+              {journey.title}
             </h2>
           </div>
           <Button
@@ -90,15 +83,16 @@ export function GuidePanel() {
             {GUIDE_CHROME.close}
           </Button>
         </div>
-        <p className="mt-3 text-sm font-medium text-[var(--isalwa-kiln)]">{journey.title}</p>
-        <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">{journey.summary}</p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
-          <span className="text-xs text-[var(--isalwa-slate)]">
-            {progressLabel(api.record.stopIndex, journey.stops.length)}
-          </span>
-        </div>
-        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{stop.body}</p>
+        {api.roleCue ? (
+          <p className="mt-2 text-xs uppercase tracking-wide text-[var(--isalwa-slate)]">{api.roleCue}</p>
+        ) : null}
+        <p className="mt-3 text-sm font-medium text-[var(--isalwa-kiln)]">{GUIDE_CHROME.nowQuestion}</p>
+        <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-guide-now="">
+          {api.prompt}
+        </p>
+        <p className="mt-2 text-xs text-[var(--isalwa-slate)]">
+          {progressLabel(api.record.stopIndex, journey.stops.length)}
+        </p>
         {notice ? (
           <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]" aria-live="polite">
             {notice}

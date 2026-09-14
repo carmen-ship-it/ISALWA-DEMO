@@ -1,8 +1,10 @@
 import { GUIDE_CHROME, progressLabel, replayLabel } from './copy';
 import {
   JOURNEYS,
-  WAVE_PENDING,
+  MISSING_ROUTE,
+  continueHref,
   journeyById,
+  type GuideStop,
   type Journey,
 } from './journeys';
 
@@ -19,7 +21,7 @@ export type GuideRecord = {
 export type ContinueOutcome = {
   record: GuideRecord;
   href: string | null;
-  blocked: 'wave' | 'pattern' | null;
+  blocked: 'missing' | 'pattern' | null;
   message: string | null;
 };
 
@@ -90,12 +92,13 @@ export function continueGuide(
     return { record, href: null, blocked: null, message: null };
   }
   const stop = current.stops[Math.min(Math.max(record.stopIndex, 0), current.stops.length - 1)];
-  if (!stop || stop.href == null) {
+  const href = continueHref(stop?.href);
+  if (!stop || !href) {
     return {
       record,
       href: null,
-      blocked: stop?.kind === 'pattern' ? 'pattern' : 'wave',
-      message: stop?.pending ?? WAVE_PENDING,
+      blocked: stop?.kind === 'pattern' ? 'pattern' : 'missing',
+      message: stop?.pending ?? stop?.now ?? MISSING_ROUTE,
     };
   }
 
@@ -108,7 +111,7 @@ export function continueGuide(
         stopIndex: nextStop,
         panelHidden: false,
       },
-      href: stop.href,
+      href,
       blocked: null,
       message: null,
     };
@@ -128,19 +131,25 @@ export function continueGuide(
       completedJourneyIds: completed,
       panelHidden: false,
     },
-    href: stop.href,
+    href,
     blocked: null,
     message: null,
   };
 }
 
+function stopCopy(stop: GuideStop): string[] {
+  const lines = [stop.title, stop.body, stop.now];
+  if (stop.nowByLens) lines.push(...Object.values(stop.nowByLens));
+  if (stop.pending) lines.push(stop.pending);
+  return lines;
+}
+
 export function collectGuideCopy(): string[] {
-  const lines: string[] = [...Object.values(GUIDE_CHROME)];
+  const lines: string[] = [...Object.values(GUIDE_CHROME), MISSING_ROUTE];
   for (const journey of JOURNEYS) {
     lines.push(journey.title, journey.summary, replayLabel(journey.title));
     journey.stops.forEach((stop, index) => {
-      lines.push(stop.title, stop.body, progressLabel(index, journey.stops.length));
-      if (stop.pending) lines.push(stop.pending);
+      lines.push(...stopCopy(stop), progressLabel(index, journey.stops.length));
     });
   }
   return lines;

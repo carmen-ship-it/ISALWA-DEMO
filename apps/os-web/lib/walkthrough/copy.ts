@@ -1,8 +1,9 @@
-/** Chrome for Modo guiado. No names, numbers, or search suggestions. */
+/** Chrome for Modo guiado. No names, numbers, or claims that a capability is live. */
 
 export const GUIDE_CHROME = {
   kicker: 'Modo guiado',
-  title: 'Recorrido del piloto',
+  title: 'Qué hacer ahora',
+  nowQuestion: '¿Qué hago ahora?',
   continue: 'Continuar',
   close: 'Cerrar',
   show: 'Mostrar recorrido',
@@ -10,10 +11,11 @@ export const GUIDE_CHROME = {
   replay: 'Repetir',
   ayuda: 'Repetir desde Ayuda',
   localNote: 'El avance queda en este navegador. No es un registro de la empresa.',
-  routePill: 'En esta rama',
-  wavePill: 'En esta ola',
-  patternPill: 'Sin ejemplo',
   closeLabel: 'Cerrar recorrido',
+  roleSales: 'Para ventas',
+  roleFloor: 'Para operaciones',
+  roleManagement: 'Para gerencia',
+  roleFinance: 'Para finanzas',
 } as const;
 
 export function progressLabel(index: number, total: number): string {

@@ -1,14 +1,20 @@
 export {
+  FINANCE_HIDDEN_JOURNEY_IDS,
   GUIDE_ROUTES_IN_BRANCH,
   JOURNEYS,
+  MISSING_ROUTE,
   PATTERN_PENDING,
-  WAVE_PENDING,
+  continueHref,
   isBranchRoute,
+  isFinanceOnly,
   journeyById,
   journeyVisible,
   journeysForViewer,
+  nowAnswer,
+  roleCue,
+  viewerLens,
 } from './journeys';
-export type { BranchRoute, GuideStop, GuideViewer, Journey, StopKind } from './journeys';
+export type { BranchRoute, GuideLens, GuideStop, GuideViewer, Journey, StopKind } from './journeys';
 export { GUIDE_CHROME, progressLabel, replayLabel } from './copy';
 export { findPageHeading, handleGuideEscape, restoreHeadingFocus } from './focus';
 export type { GuideDoc, GuideFocusable } from './focus';

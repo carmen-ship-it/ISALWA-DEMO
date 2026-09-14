@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { GUIDE_CHROME } from './copy';
 import { handleGuideEscape, restoreHeadingFocus, type GuideDoc, type GuideFocusable } from './focus';
-import { JOURNEYS, journeysForViewer } from './journeys';
+import {
+  GUIDE_ROUTES_IN_BRANCH,
+  JOURNEYS,
+  continueHref,
+  journeysForViewer,
+  nowAnswer,
+} from './journeys';
 import {
   GUIDE_STORAGE_KEY,
   LEGACY_WALKTHROUGH_STORAGE_KEY,
@@ -177,7 +183,33 @@ describe('modo guiado', () => {
     });
     assert.equal(outcome.href, null);
     assert.equal(outcome.blocked, 'pattern');
-    assert.doesNotMatch(outcome.message ?? '', /#\d|PED-|pedido\s+\d/i);
+    assert.match(outcome.message ?? '', /ya existe/);
+    assert.doesNotMatch(outcome.message ?? '', /#\d|PED-|pedido\s+\d|orderId/i);
+  });
+
+  it('a problem points at coordinación or an existing pedido and does not invent a case', () => {
+    const first = continueGuide({
+      ...initialGuideRecord(),
+      currentJourneyId: 'problema',
+      stopIndex: 0,
+    });
+    assert.equal(first.href, '/coordinacion');
+    assert.equal(first.blocked, null);
+    const second = continueGuide(first.record);
+    assert.equal(second.href, null);
+    assert.equal(second.blocked, 'pattern');
+    assert.match(second.message ?? '', /ya existe/);
+    assert.doesNotMatch(`${first.message ?? ''} ${second.message ?? ''}`, /caso\s+\d|#\d|PED-/i);
+  });
+
+  it('Continuar refuses a route that is not a page on this branch', () => {
+    assert.equal(continueHref('/produccion'), '/produccion');
+    assert.equal(continueHref('/clientes/x/pedidos/1'), null);
+    assert.equal(continueHref('/no-existe'), null);
+    assert.equal(continueHref(null), null);
+    for (const href of GUIDE_ROUTES_IN_BRANCH) {
+      assert.equal(existsSync(join(here, `../../app/(app)${href}/page.tsx`)), true, href);
+    }
   });
 
   it('refresh resumes the stored journey instead of a chapter from another page', () => {
@@ -226,7 +258,50 @@ describe('modo guiado', () => {
     const finance = journeysForViewer({ roleKeys: ['finance.admin'] }).map((journey) => journey.id);
     assert.equal(finance.includes('produccion'), false);
     assert.equal(finance.includes('almacen'), false);
+    assert.equal(finance.includes('entregar'), false);
+    assert.equal(finance.includes('coordinar'), false);
+    assert.equal(finance.includes('problema'), false);
     assert.equal(finance.includes('vender'), true);
+    assert.equal(finance.includes('gerencia'), true);
+
+    const financeRecord = journeysForViewer({
+      roleKeys: ['finance.operational.record'],
+      openHrefs: ['/inicio', '/produccion', '/almacen', '/entregas', '/coordinacion', '/clientes'],
+    }).map((journey) => journey.id);
+    for (const id of ['produccion', 'almacen', 'entregar', 'coordinar']) {
+      assert.equal(financeRecord.includes(id), false, id);
+    }
+
+    const floor = journeysForViewer({ roleKeys: ['production.operational.record'] }).map(
+      (journey) => journey.id,
+    );
+    assert.equal(floor.includes('produccion'), true);
+    assert.equal(floor.includes('almacen'), true);
+  });
+
+  it('answers ¿Qué hago ahora? without claiming a capability is live', () => {
+    const panel = readFileSync(
+      join(here, '../../components/walkthrough/guide-panel.tsx'),
+      'utf8',
+    );
+    assert.match(panel, /nowQuestion/);
+    assert.match(GUIDE_CHROME.nowQuestion, /¿Qué hago ahora\?/);
+
+    const entregar = JOURNEYS.find((journey) => journey.id === 'entregar');
+    const gerencia = JOURNEYS.find((journey) => journey.id === 'gerencia');
+    assert.ok(entregar?.stops[0]);
+    assert.ok(gerencia?.stops[0]);
+    assert.match(nowAnswer(entregar.stops[0], { roleKeys: ['operations'] }), /No confirme un número/);
+    assert.doesNotMatch(nowAnswer(entregar.stops[0], { roleKeys: ['operations'] }), /\d/);
+    assert.match(nowAnswer(gerencia.stops[0], { roleKeys: ['finance.admin'] }), /No invente cifras/);
+    assert.doesNotMatch(nowAnswer(gerencia.stops[0], { roleKeys: ['org.admin'] }), /\d|Bs\.|USD/);
+
+    const copy = collectGuideCopy().join('\n');
+    assert.match(copy, /¿Qué hago ahora\?/);
+    assert.doesNotMatch(
+      copy,
+      /en vivo|conectad|cargad|disponible|oficial|whatsapp|mapa|esta ola|nota de entrega|\blive\b/i,
+    );
   });
 
   it('panel copy contains no organization id and no customer name', () => {
