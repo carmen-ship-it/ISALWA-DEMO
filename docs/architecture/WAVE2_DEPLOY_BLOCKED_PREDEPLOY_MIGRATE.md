@@ -60,3 +60,7 @@ Also ensure Render can fetch commit `ef7eeab` (already on `ops/gate-c-migrate-ef
 | BROWSER-VERIFIED | NO |
 | USER-ACCEPTED | NO |
 | SAFE FOR ISA / ÁLVARO | NO |
+
+## Remediation follow-up
+
+See `WAVE2_PREDEPLOY_MIGRATE_OWNERSHIP.md` — **CONFIG_CHANGE_REQUIRES_APPROVAL** (clearing preDeploy may `service_updated`-deploy `main`).
