@@ -1,60 +1,37 @@
-export type {
-  TourChapter,
-  TourRunState,
-  TourStateLabel,
-  TourStep,
-  TourWelcome,
-  WalkthroughEvent,
-  WalkthroughRecord,
-} from './types';
-export { TOUR_RUN_STATES, TOUR_STATE_LABELS } from './types';
-export { TOUR_TARGET, TOUR_TARGET_IDS } from './targets';
-export type { TourTargetId } from './targets';
-export { FALLBACK_WELCOME, SHELL_CONTROLS, STATE_LABEL_TEXT } from './copy';
-export { initialWalkthroughRecord, reduceWalkthrough } from './state';
 export {
-  WALKTHROUGH_STORAGE_KEY,
-  loadWalkthrough,
-  parseWalkthroughRecord,
-  saveWalkthrough,
-  shouldOpenTourOnLoad,
+  GUIDE_ROUTES_IN_BRANCH,
+  JOURNEYS,
+  PATTERN_PENDING,
+  WAVE_PENDING,
+  isBranchRoute,
+  journeyById,
+  journeyVisible,
+  journeysForViewer,
+} from './journeys';
+export type { BranchRoute, GuideStop, GuideViewer, Journey, StopKind } from './journeys';
+export { GUIDE_CHROME, progressLabel, replayLabel } from './copy';
+export { findPageHeading, handleGuideEscape, restoreHeadingFocus } from './focus';
+export type { GuideDoc, GuideFocusable } from './focus';
+export {
+  continueGuide,
+  currentJourney,
+  dismissGuide,
+  initialGuideRecord,
+  replayFromAyuda,
+  resetGuide,
+  resumeGuide,
+  revealGuide,
+  collectGuideCopy,
+} from './progress';
+export type { ContinueOutcome, GuideRecord } from './progress';
+export {
+  GUIDE_STORAGE_KEY,
+  LEGACY_WALKTHROUGH_STORAGE_KEY,
+  loadGuide,
+  parseGuideRecord,
+  resumeTooltipOverlay,
+  saveGuide,
 } from './persistence';
 export type { KeyValueStore } from './persistence';
-export { captureFocus, handleTourEscape, restoreFocus } from './focus';
-export type { Focusable, TourFocusSession, TourSurface } from './focus';
-export {
-  canOfferTour,
-  hasBlockingDialog,
-  hasVisibleBox,
-  isStepAvailable,
-  placeTourCard,
-  prefersReducedMotion,
-  routeMatches,
-  scrollBehavior,
-  selectAvailableStep,
-  skipMissingTarget,
-} from './targeting';
-export {
-  getChapters,
-  getWelcome,
-  isTourStateLabel,
-  normalizeChapter,
-  normalizeStep,
-  registerChapter,
-  registerWelcome,
-} from './registry';
-export {
-  advanceRun,
-  chapterForPathname,
-  chapterHref,
-  chapterRunState,
-  emptyChapterRun,
-  flattenChapters,
-  nextIndexSkippingMissing,
-  pageKeyFromPathname,
-  replayableChapters,
-  shouldOfferFirstVisit,
-  startRun,
-} from './plan';
-export type { ReplayableChapter } from './plan';
-export { loadWalkthroughContent } from './content';
+export { TOUR_TARGET, TOUR_TARGET_IDS } from './targets';
+export type { TourTargetId } from './targets';

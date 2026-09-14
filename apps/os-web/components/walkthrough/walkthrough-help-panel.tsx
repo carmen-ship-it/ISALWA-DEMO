@@ -1,113 +1,36 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { Button, Panel } from '@isalwa/ui';
-import { FALLBACK_WELCOME, SHELL_CONTROLS } from '@/lib/walkthrough/copy';
-import {
-  extraExplanationLines,
-  replayControlLabels,
-  resolveReplayableChapters,
-  startGeneralReplay,
-  startListedChapter,
-  type ReplayRunnerFields,
-} from '@/lib/walkthrough/learning-replay';
-import { TOUR_TARGET } from '@/lib/walkthrough/targets';
-import { useWalkthrough } from './walkthrough-provider';
+import { GUIDE_CHROME, replayLabel } from '@/lib/walkthrough/copy';
+import { useGuide } from './guide-provider';
 
-function useWalkthroughWithReplay() {
-  return useWalkthrough() as ReturnType<typeof useWalkthrough> & ReplayRunnerFields;
-}
-
-export function LearningModeControl() {
-  const api = useWalkthroughWithReplay();
-  const enabled = api.record.learningMode;
-  const extra = extraExplanationLines(enabled);
-
-  return (
-    <div data-tour={TOUR_TARGET.learningMode}>
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          variant={enabled ? 'secondary' : 'ghost'}
-          aria-pressed={enabled}
-          aria-describedby="learning-mode-description"
-          onClick={() => api.setLearningMode(!enabled)}
-        >
-          Modo aprendizaje
-        </Button>
-      </div>
-      <p
-        id="learning-mode-description"
-        className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]"
-      >
-        {enabled
-          ? 'Actívalo si quieres ver explicaciones extra mientras trabajas.'
-          : 'Puedes apagarlo cuando ya te sientas cómodo.'}
-      </p>
-      {enabled
-        ? extra.map((line) => (
-            <p key={line} className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              {line}
-            </p>
-          ))
-        : null}
-    </div>
-  );
-}
+export { replayFromAyuda } from '@/lib/walkthrough/progress';
 
 export function WalkthroughHelpPanel() {
-  const api = useWalkthroughWithReplay();
-  const pathname = usePathname() || '/';
-  const chapters = resolveReplayableChapters(api.replayableChapters);
-  const labels = replayControlLabels();
-  const notStarted = api.record.runState === 'NOT_STARTED';
-  const actions = {
-    startChapter: api.startChapter,
-    replay: api.replay,
-    startPageTour: api.startPageTour,
-    pageChapter: api.pageChapter,
-  };
+  const api = useGuide();
+  const journeys = api?.journeys ?? [];
 
   return (
-    <Panel padded className="mb-8">
-      <p className="isalwa-kicker">Recorrido</p>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{FALLBACK_WELCOME.body}</p>
+    <Panel padded className="mb-8" data-guide-replay="ayuda">
+      <p className="isalwa-kicker">{GUIDE_CHROME.kicker}</p>
+      <h2 className="mt-1 text-lg font-medium text-[var(--isalwa-kiln)]">{GUIDE_CHROME.title}</h2>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {GUIDE_CHROME.localNote}
+      </p>
       <div className="mt-4 flex flex-wrap gap-2">
-        {notStarted ? (
-          <Button type="button" onClick={api.openWelcome}>
-            {SHELL_CONTROLS.start}
-          </Button>
-        ) : null}
-        {api.record.runState === 'IN_PROGRESS' ? (
-          <Button type="button" onClick={api.resume}>
-            {SHELL_CONTROLS.next}
-          </Button>
-        ) : null}
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => startGeneralReplay(actions, chapters, api.chapterStates, pathname)}
-        >
-          {labels.general}
-        </Button>
-        <Button type="button" variant="secondary" onClick={api.startPageTour} disabled={!api.pageChapter}>
-          {labels.page}
-        </Button>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {chapters.map((chapter) => (
+        {journeys.map((journey) => (
           <Button
-            key={chapter.chapterId}
+            key={journey.id}
             type="button"
             variant="secondary"
-            onClick={() => startListedChapter(actions, chapter.chapterId, pathname)}
+            onClick={() => api?.replay(journey.id)}
           >
-            {chapter.label}
+            {replayLabel(journey.title)}
           </Button>
         ))}
-      </div>
-      <div className="mt-4">
-        <LearningModeControl />
+        <Button type="button" variant="ghost" onClick={() => api?.reset()}>
+          {GUIDE_CHROME.reset}
+        </Button>
       </div>
     </Panel>
   );
