@@ -5,6 +5,7 @@ import type {
   IdempotencyRecord,
   MemberRecord,
   OpportunityRecord,
+  OrderLineRecord,
   OrderRecord,
   PartyRecord,
   QuoteLineRecord,
@@ -97,6 +98,8 @@ export interface OsCommercialStore {
   nextQuoteLineNumber(quoteId: string): Promise<number>;
 
   insertOrder(record: OrderRecord): Promise<void>;
+  insertOrderLines(records: OrderLineRecord[]): Promise<void>;
+  listOrderLines(organizationId: string, orderId: string): Promise<OrderLineRecord[]>;
   getOrderInOrg(organizationId: string, orderId: string): Promise<OrderRecord | null>;
   getOrderForQuote(organizationId: string, quoteId: string): Promise<OrderRecord | null>;
   updateOrder(

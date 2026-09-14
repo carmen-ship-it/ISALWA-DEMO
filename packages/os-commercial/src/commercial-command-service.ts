@@ -24,6 +24,7 @@ import {
   parseCentavos,
 } from './money';
 import type { OsCommercialStore } from './os-commercial-store';
+import { copyQuoteLinesToOrderLines } from './order-lines';
 import type { OpportunityRecord, OrderRecord, QuoteLineRecord, QuoteRecord } from './store-types';
 
 export type CommandResult = {
@@ -904,6 +905,13 @@ export class CommercialCommandService {
     const orderCount = await store.countOrdersForOrg(ctx.organizationId);
     const orderNumber = `O-${String(orderCount + 1).padStart(6, '0')}`;
     const now = ctx.effectiveAt;
+    const orderLines = copyQuoteLinesToOrderLines({
+      organizationId: ctx.organizationId,
+      orderId,
+      quoteId,
+      lines,
+      copiedAt: now,
+    });
     const order: OrderRecord = {
       id: orderId,
       organizationId: ctx.organizationId,
@@ -923,6 +931,7 @@ export class CommercialCommandService {
       updatedAt: now,
     };
     await store.insertOrder(order);
+    await store.insertOrderLines(orderLines);
     await store.updateQuote(
       quoteId,
       { status: 'accepted', version: quote.version + 1 },
@@ -941,6 +950,8 @@ export class CommercialCommandService {
         quoteId,
         partyId: quote.partyId,
         totalCentavos: centavosToString(order.totalCentavos),
+        lineCount: orderLines.length,
+        quoteLineIds: orderLines.map((line) => line.quoteLineId),
       },
     );
   }

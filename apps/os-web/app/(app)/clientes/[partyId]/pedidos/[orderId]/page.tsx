@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
+import { OrderLines } from '@/components/commercial/order-lines';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -138,6 +139,10 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
               </div>
             ) : null}
           </dl>
+        </PageSection>
+
+        <PageSection card className="mt-10 bg-white p-8 md:p-10">
+          <OrderLines currency={order.currency} lines={order.lines} />
         </PageSection>
 
         {order.status === 'open' || approvals.length > 0 ? (

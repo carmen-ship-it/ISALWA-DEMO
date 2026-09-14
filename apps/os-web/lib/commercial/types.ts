@@ -7,6 +7,7 @@ import type {
   QuoteDetailReadModel,
   QuoteSummaryReadModel,
 } from '@isalwa/os-contracts';
+import type { OrderLineView } from '@/lib/commercial/order-lines';
 
 export type CommercialListResponse<T> = {
   items: T[];
@@ -36,7 +37,10 @@ export type QuoteDetailResponse = {
 };
 
 export type OrderDetailResponse = {
-  order: OrderSummaryReadModel;
+  order: OrderSummaryReadModel & {
+    /** Null or omitted when line snapshots were not loaded. Empty means not recorded. */
+    lines?: OrderLineView[] | null;
+  };
   freshness: ProjectionFreshness | null;
   authority?: CommercialSubjectAuthority;
 };
