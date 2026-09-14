@@ -22,8 +22,8 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | ef7eeab local pilot | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
-| Gate C evidence | live staging read-only | Platform | WAVE2_GATE_C_EVIDENCE_RESULT | Y | Y | — | Y | — | — | — | — | — | DB proven; SQL safe; recovery unproven |
-| Staging apply plan | controlled phases 0–7 | Platform | WAVE2_CONTROLLED_STAGING_APPLY_PLAN | Y | Y | — | Y | — | — | — | — | — | BLOCKED_RECOVERY_NOT_PROVEN |
+| Gate C migrate | staging `_prisma_migrations`=29 | Platform | WAVE2_GATE_C_EVIDENCE_RESULT | Y | Y | Y | Y | — | — | — | — | — | MIGRATED_AND_VERIFIED; app not deployed |
+| Staging deploy pass | exact SHA ef7eeab | Platform | WAVE2_NEXT_STAGING_DEPLOY_PASS | Y | — | — | Y | — | — | — | — | — | PLANNED — await authorize |
 | Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
 | Quote convert | owner OR coverage OR order.convert | Comercial | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | Y | Y | Y | — | — | — | — | — | coverage migration unapplied |
@@ -35,7 +35,7 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 | Coordination write | decision.record prisma_port | Auxiliar | os-coordination-read | Y | Y | Y | Y | — | — | — | — | — | read P1 visible limit |
 | Warehouse selectors | SearchableSelect on allocate | Almacén | warehouse-desk | Y | Y | Y | Y | — | — | — | — | — | server search when live load grows |
 | Payment evidence | reported fact prisma_port | Caja | reported-operational-fact-writer | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
-| Purchase transition | status workflow | Compras | Gate C | Y | — | — | — | — | — | — | — | — | BLOCKED_BY_GATE_C |
+| Purchase transition | status workflow | Compras | Gate C migrate applied empty | Y | Y | — | Y | — | — | — | — | — | Schema migrated; HOSTED/BROWSER still unproven |
 | Member picker | ServerMemberTypeahead + searchActiveMembers | Admin/Comercial | P0_MEMBER_SELECTOR_INVENTORY | Y | Y | Y | Y | — | — | — | — | — | HOSTED/BROWSER unproven |
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |

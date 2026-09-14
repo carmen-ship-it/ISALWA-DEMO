@@ -3,23 +3,25 @@
 **Exact SHA:** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
 **Branch:** `wave2/candidate-unified`  
 **Integration pin:** `316426f272bce29924ffd4991da88ffe7d421bbd` (do not move)  
-**Deploy this document alone:** **NO**
+**Deploy this document alone:** **NO** until Carmen authorizes  
+**Gate C:** **MIGRATED_AND_VERIFIED** (staging DB count **29**; remigrate **forbidden**)  
+**Next pass doc:** `WAVE2_NEXT_STAGING_DEPLOY_PASS.md`
 
 ## Preflight
 
-| Check | Expected | Status this pass |
+| Check | Expected | Status |
 |---|---|---|
-| Worktree HEAD = `ef7eeab…` | Exact match | PASS (local) |
-| Clean worktree (or docs-only prep commits disclosed) | Clean for deploy | Prep docs may follow |
+| Worktree HEAD = `ef7eeab…` | Exact match | Required at deploy |
+| Clean worktree for app deploy | Clean (docs tip may differ) | Confirm at deploy |
 | Branch | `wave2/candidate-unified` | PASS |
-| Pushed to remote | Required before host deploy | **UNKNOWN / not this pass** |
-| `pnpm install --frozen-lockfile` | PASS | Proven on prior pass; re-run at deploy |
-| `pnpm -r build` | PASS | Proven on prior pass; re-run at deploy |
-| Prisma validate | PASS | Proven on prior pass |
-| Gate C evidence SQL executed | Live results | **BLOCKED** |
-| Migration inventory reviewed | SQL-classified | PASS (repo) |
-| Purchase REWRITE excluded | HOLD | PASS (policy) |
-| Prisma deploy vs `#14` hold strategy | Explicit | **OPEN — see apply plan Phase 2** |
+| Pushed to remote | Required before host deploy | Confirm at deploy |
+| `pnpm install --frozen-lockfile` | PASS | Re-run at deploy |
+| `pnpm -r build` | PASS | Re-run at deploy |
+| Prisma validate | PASS | Re-run at deploy |
+| Gate C migrate | `_prisma_migrations` = 29 | **PASS — operator verified** |
+| Baseline drift | NONE | **PASS — operator verified** |
+| Wave 2 empty post-migrate | 0 rows | **PASS — operator verified** |
+| Purchase workflow migration | Applied with chain | **PASS on empty staging** |
 
 ## Environment / config (secret **names** only)
 
@@ -50,21 +52,19 @@ No secret values in `NEXT_PUBLIC_*`. Canonical session resolver remains server/o
 
 ## Migration execution mechanism
 
-- Command: `pnpm --filter @isalwa/os-database migrate:deploy`
-- Requires `OS_DATABASE_URL`
-- Applies pending migrations in timestamp order
-- **Blocked interaction:** `#14` purchase REWRITE — see apply plan
+- **Already executed** at `ef7eeab` on `isalwa_os_staging` (Carmen `/tmp/isalwa-gate-c-migrate`).  
+- **Do not** run `migrate:deploy` again in the deploy pass unless a new pending migration appears.  
+- Confirm count remains **29** before app deploy.
 
 ## Deploy process (when authorized)
 
-1. Confirm Gate C PASS + apply window approved  
-2. Baseline SQL capture  
-3. Controlled migrate (additive window only)  
-4. Post-migrate SQL capture  
-5. Deploy os-api @ `ef7eeab`  
-6. Deploy os-web @ `ef7eeab`  
-7. Health + auth smoke  
-8. Capture proof artifacts  
+1. Confirm Gate C = MIGRATED_AND_VERIFIED + `_prisma_migrations` still 29  
+2. Confirm deploy candidate SHA = `ef7eeab` pushed  
+3. Deploy os-api @ `ef7eeab`  
+4. Deploy os-web @ `ef7eeab`  
+5. Health + auth + tenant smoke (see next-pass doc)  
+6. Synthetic fixtures (separate step) before role gauntlet  
+7. Capture proof artifacts — do not advance USER-ACCEPTED here  
 
 ## Health / smoke
 
@@ -77,7 +77,7 @@ No secret values in `NEXT_PUBLIC_*`. Canonical session resolver remains server/o
 
 ## Rollback trigger
 
-Any of: migrate failure; unexpected count drift on seven customers; purchase statuses remapped without approval; auth/session regression; health fail after deploy.
+Any of: unexpected seven-customer / baseline drift; auth/session regression; health fail after deploy; Prisma/schema mismatch against migrated DB.
 
 ## Rollback procedure
 

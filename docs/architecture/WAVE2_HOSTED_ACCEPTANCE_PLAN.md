@@ -1,7 +1,8 @@
 # Wave 2 — hosted acceptance plan (`ef7eeab`) — PREPARED, NOT EXECUTED
 
 **Exact candidate:** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**Do not execute until Carmen authorizes after controlled migrate + deploy.**
+**Gate C:** MIGRATED_AND_VERIFIED. **Do not execute until Carmen authorizes after application deploy of `ef7eeab`.**  
+Purchase status workflow migration is **applied** on empty staging (no longer schema-HOLD). Hosted Compras still unproven until deploy + fixtures + browser.
 
 ## Sequence
 
