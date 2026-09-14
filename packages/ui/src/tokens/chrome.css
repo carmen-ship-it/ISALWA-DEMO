@@ -430,12 +430,35 @@
 .isalwa-status-chip[data-tone="gray"]   { background: var(--isalwa-tint-gray);   color: var(--isalwa-tint-gray-ink); }
 
 /* ── Reduced motion overrides ──────────────────────────────────────────── */
+.isalwa-operating-row:hover {
+  background: color-mix(in srgb, var(--isalwa-porcelain) 70%, white);
+}
+.isalwa-operating-row:active {
+  background: color-mix(in srgb, var(--isalwa-mist) 55%, white);
+}
+.isalwa-drawer {
+  animation: isalwa-drawer-in 180ms var(--isalwa-ease-out);
+}
+.isalwa-drawer-scrim {
+  animation: isalwa-drawer-fade 180ms var(--isalwa-ease-out);
+}
+@keyframes isalwa-drawer-in {
+  from { transform: translateX(12px); opacity: 0.6; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes isalwa-drawer-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .isalwa-enter,
   .isalwa-whisper,
   .isalwa-fade-in,
   .isalwa-bar-expand,
-  .isalwa-risk-bar > span {
+  .isalwa-risk-bar > span,
+  .isalwa-drawer,
+  .isalwa-drawer-scrim {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

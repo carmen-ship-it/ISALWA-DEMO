@@ -1,8 +1,10 @@
+import { cache } from 'react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { usableGivenName } from '@/lib/shell/greeting';
 
 const PERMISSION_DENIAL_CODES = new Set([
   'PERMISSION_DENIED',
@@ -12,6 +14,8 @@ const PERMISSION_DENIAL_CODES = new Set([
 
 export type ShellContext = {
   displayLabel: string;
+  /** Human given name when the session member has one. Never an email. */
+  givenName: string | null;
   showAdmin: boolean;
   canCreateCustomer: boolean;
   actorKey: string | null;
@@ -30,6 +34,7 @@ function shell(
 ): ShellContext {
   return {
     displayLabel: displayLabelOf(displayLabel),
+    givenName: null,
     showAdmin: false,
     canCreateCustomer: false,
     actorKey: null,
@@ -54,7 +59,7 @@ function classifyProbeError(err: unknown): ShellContext['osAccess'] {
   return 'unavailable';
 }
 
-export async function loadShellContext(): Promise<ShellContext | null> {
+export const loadShellContext = cache(async function loadShellContext(): Promise<ShellContext | null> {
   const webSession = await getServerWebSession();
   if (!webSession) return null;
 
@@ -74,6 +79,7 @@ export async function loadShellContext(): Promise<ShellContext | null> {
   let showAdmin = false;
   let canCreateCustomer = false;
   let actorKey: string | null = null;
+  let givenName: string | null = null;
   let capabilities: CapabilityStateReadModel[] = [];
 
   try {
@@ -99,9 +105,11 @@ export async function loadShellContext(): Promise<ShellContext | null> {
       const session = await client.getAuthenticatedSession();
       if (session.memberId && session.organizationId) {
         actorKey = `${session.organizationId}:${session.memberId}`;
+        givenName = await readMemberGivenName(client, session.memberId);
       }
     } catch {
       actorKey = null;
+      givenName = null;
     }
 
     try {
@@ -114,10 +122,23 @@ export async function loadShellContext(): Promise<ShellContext | null> {
 
   return {
     displayLabel: displayLabelOf(webSession.displayLabel),
+    givenName,
     showAdmin,
     canCreateCustomer,
     actorKey,
     osAccess,
     capabilities,
   };
+});
+
+async function readMemberGivenName(
+  client: ReturnType<typeof createOsApiClient>,
+  memberId: string,
+): Promise<string | null> {
+  try {
+    const member = await client.getMember(memberId);
+    return usableGivenName(member.summary.givenName);
+  } catch {
+    return null;
+  }
 }

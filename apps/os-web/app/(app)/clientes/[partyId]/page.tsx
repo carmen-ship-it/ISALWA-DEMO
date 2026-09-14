@@ -6,6 +6,7 @@ import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { QuoteList } from '@/components/commercial/quote-list';
+import { existingMapsAction } from '@/components/operating/customer-quick-view';
 import { CommercialOwnerLine } from '@/components/party/commercial-owner-line';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
@@ -19,7 +20,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
-import { newOpportunityHref } from '@/lib/commercial/navigation';
+import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import {
@@ -37,6 +38,10 @@ import {
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
+import { formatWorkDueLine, sortOpenWorkByDue } from '@/lib/work/due-order';
+import { workItemHref } from '@/lib/work/navigation';
+import { staffFacingSubject } from '@/lib/work/staff-subject';
+import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { ActiveMemberOption } from '@/lib/commercial/types';
 import type { PartyDetailResponse } from '@/lib/party/types';
 
@@ -49,6 +54,83 @@ const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underlin
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
   return detail.roles.map((role) => role.roleKey);
+}
+
+function nextDueWork(items: readonly WorkSummaryReadModel[]): WorkSummaryReadModel | null {
+  const datedOpen = items.filter((item) => item.status === 'open' && Boolean(item.dueAt));
+  if (datedOpen.length === 0) return null;
+  return sortOpenWorkByDue(datedOpen)[0] ?? null;
+}
+
+function CustomerCompactHeader({
+  displayName,
+  status,
+  ownerLabel,
+  contactName,
+  phone,
+  maps,
+  partyId,
+  nextAction,
+}: {
+  displayName: string;
+  status: string;
+  ownerLabel: string | null;
+  contactName: string | null;
+  phone: string | null;
+  maps: { href: string; label: string } | null;
+  partyId: string;
+  nextAction: WorkSummaryReadModel | null;
+}) {
+  const facts = [
+    ownerLabel ? `Responsable: ${ownerLabel}` : null,
+    contactName,
+    phone,
+  ].filter((fact): fact is string => Boolean(fact));
+  const due = nextAction ? formatWorkDueLine(nextAction) : null;
+
+  return (
+    <div className="mb-6 flex flex-col gap-2 border-b border-[var(--isalwa-mist)] pb-4">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="min-w-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <p className="truncate text-sm font-medium text-[var(--isalwa-kiln)]">{displayName}</p>
+            <PartyStatusBadge status={status} />
+          </div>
+          {facts.length > 0 ? (
+            <p className="mt-1 break-words text-xs leading-4 text-[var(--isalwa-slate)]">{facts.join(' · ')}</p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {maps ? (
+            <a href={maps.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+              {maps.label}
+            </a>
+          ) : null}
+          <Link href={newOpportunityHref(partyId)} className={linkClass}>
+            Nueva oportunidad
+          </Link>
+          <Link href={clienteSectionHref(partyId, 'trabajo')} className={linkClass}>
+            {FOLLOW_UP_COPY.action}
+          </Link>
+        </div>
+      </div>
+      {nextAction && due ? (
+        <p className="text-sm text-[var(--isalwa-kiln)]">
+          <span className="font-medium">{FOLLOW_UP_COPY.nextAction}</span>
+          {' · '}
+          <Link href={workItemHref(nextAction.workItemId)} className={linkClass}>
+            {staffFacingSubject({
+              title: nextAction.title,
+              description: nextAction.description,
+              subjectType: nextAction.subjectType,
+              customerName: displayName,
+            })}
+          </Link>
+          <span className="text-[var(--isalwa-slate)]"> · {due.text}</span>
+        </p>
+      ) : null}
+    </div>
+  );
 }
 
 function CustomerNotFound() {
@@ -196,6 +278,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
         : null,
       canReassignOwner,
     );
+    const maps = locations.status === 'ok' ? existingMapsAction(locations.data.locations) : null;
+    const nextAction = relatedWork.status === 'ok' ? nextDueWork(relatedWork.data.items) : null;
+    const headerContact = contact ? contactDisplayName(contact.givenName, contact.familyName) : null;
 
     return (
       <PageContainer label={displayName} className="min-w-0">
@@ -215,6 +300,17 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             <StaleProjectionBanner stale />
           </div>
         ) : null}
+
+        <CustomerCompactHeader
+          displayName={displayName}
+          status={party.status}
+          ownerLabel={commercialAccount?.ownerMemberId ? owner.label : null}
+          contactName={headerContact}
+          phone={contact?.phone?.trim() || null}
+          maps={maps}
+          partyId={partyId}
+          nextAction={nextAction}
+        />
 
         <IdentityLetterhead
           party={party}

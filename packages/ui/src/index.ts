@@ -62,4 +62,18 @@ export type {
   IconProps,
   CommercialEventIconKind,
 } from './components/icons';
+export {
+  OperatingRow,
+  OverflowMenu,
+  ContextDrawer,
+  FeedbackNote,
+} from './components/operating';
+export type {
+  OperatingRowProps,
+  OverflowItem,
+  OverflowMenuProps,
+  ContextDrawerProps,
+  FeedbackTone,
+  FeedbackNoteProps,
+} from './components/operating';
 export { cx } from './lib/cx';

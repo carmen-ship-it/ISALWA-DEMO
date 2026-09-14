@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
@@ -11,9 +11,16 @@ import { UserMenu } from '@/components/shell/user-menu';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 
+const ShellIdentityContext = createContext<string | null>(null);
+
+export function useShellGivenName(): string | null {
+  return useContext(ShellIdentityContext);
+}
+
 type AppShellProps = {
   children: ReactNode;
   displayLabel: string;
+  givenName: string | null;
   showAdmin: boolean;
   canCreateCustomer: boolean;
   actorKey: string | null;
@@ -23,6 +30,7 @@ type AppShellProps = {
 export function AppShell({
   children,
   displayLabel,
+  givenName,
   showAdmin,
   canCreateCustomer,
   actorKey,
@@ -74,7 +82,10 @@ export function AppShell({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [mobileOpen]);
 
+  const actorLabel = givenName ?? displayLabel;
+
   return (
+    <ShellIdentityContext.Provider value={givenName}>
     <div className="min-h-screen bg-[var(--isalwa-white)] lg:grid lg:grid-cols-[18rem_1fr]">
       <aside className="hidden bg-[var(--isalwa-mist)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto">
         <div className="px-6 pb-4 pt-8">
@@ -121,7 +132,7 @@ export function AppShell({
                 setPaletteOpen(true);
               }}
             />
-            <UserMenu displayLabel={displayLabel} />
+            <UserMenu displayLabel={actorLabel} />
           </div>
         </header>
         <CommandPalette
@@ -166,5 +177,6 @@ export function AppShell({
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
+    </ShellIdentityContext.Provider>
   );
 }

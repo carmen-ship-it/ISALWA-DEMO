@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { MemberTypeahead } from '@/components/operating/member-typeahead';
 import { reassignCommercialAccountOwnerAction } from '@/lib/commercial/actions';
 import type { ActiveMemberOption } from '@/lib/commercial/types';
 
@@ -13,9 +14,6 @@ type ReassignOwnerFormProps = {
   currentOwnerLabel: string;
   members: ActiveMemberOption[];
 };
-
-const fieldClass =
-  'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export function ReassignOwnerForm({
   partyId,
@@ -41,19 +39,21 @@ export function ReassignOwnerForm({
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="commercialAccountId" value={commercialAccountId} />
       <p className="text-sm text-[var(--isalwa-slate)]">Responsable actual: {currentOwnerLabel}</p>
-      <label className="block text-sm text-[var(--isalwa-slate)]">
-        Nuevo responsable
-        <select className={fieldClass} name="ownerMemberId" required defaultValue="">
-          <option value="" disabled>
-            Seleccione un miembro activo
-          </option>
-          {members.map((member) => (
-            <option key={member.memberId} value={member.memberId}>
-              {member.displayName}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div>
+        <label htmlFor="reassign-owner" className="block text-sm text-[var(--isalwa-slate)]">
+          Nuevo responsable
+        </label>
+        <MemberTypeahead
+          id="reassign-owner"
+          name="ownerMemberId"
+          required
+          placeholder="Buscar un miembro activo"
+          options={members.map((member) => ({
+            value: member.memberId,
+            label: member.displayName,
+          }))}
+        />
+      </div>
       <label className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">
         <input type="checkbox" name="confirmed" value="yes" required className="mt-1" />
         Confirmo el cambio de responsable

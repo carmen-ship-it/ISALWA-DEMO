@@ -1,16 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
 import { searchPalette } from '@/lib/shell/command-search';
 import {
   applyPick,
+  contextualPaletteActions,
   groupPaletteItems,
   matchesPaletteQuery,
   paletteActions,
   paletteNav,
+  palettePathContext,
   PALETTE_MIN_QUERY,
   parseRecents,
   recentsStorageKey,
@@ -43,6 +45,7 @@ export function CommandPalette({
   returnFocusRef,
 }: CommandPaletteProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const listId = useId();
   const [query, setQuery] = useState('');
@@ -101,9 +104,12 @@ export function CommandPalette({
 
   const items = useMemo(() => {
     const q = query.trim();
-    const actions = paletteActions({ canCreateCustomer, canInvite: showAdmin }).filter((item) =>
-      matchesPaletteQuery(item, q),
-    );
+    const access = { canCreateCustomer, canInvite: showAdmin };
+    const actions = (
+      pathname && palettePathContext(pathname)
+        ? contextualPaletteActions(pathname, access)
+        : paletteActions(access)
+    ).filter((item) => matchesPaletteQuery(item, q));
     const nav = paletteNav(showAdmin).filter((item) => matchesPaletteQuery(item, q));
     if (pick) {
       return remote
@@ -114,7 +120,7 @@ export function CommandPalette({
       return [...actions, ...recents, ...nav];
     }
     return [...actions, ...remote, ...nav.filter((item) => matchesPaletteQuery(item, q))];
-  }, [canCreateCustomer, pick, query, recents, remote, showAdmin]);
+  }, [canCreateCustomer, pathname, pick, query, recents, remote, showAdmin]);
 
   const groups = useMemo(() => groupPaletteItems(items), [items]);
   const flat = useMemo(() => groups.flatMap((group) => group.items), [groups]);

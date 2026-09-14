@@ -1,49 +1,58 @@
-import Link from 'next/link';
-import { ListRow } from '@isalwa/ui';
+import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
 import type { PartySummaryReadModel } from '@isalwa/os-contracts';
-import {
-  CommercialBadge,
-  PartyRoleBadges,
-  PartyStatusBadge,
-} from '@/components/party/party-role-badges';
-import { multiRoleHint } from '@/lib/party/labels';
+import { panelHref, parsePanel, type ListQueryState } from '@/lib/lists/url-state';
+import { formatPartyRoles, formatPartyStatus, partyStatusTone } from '@/lib/party/labels';
 import { partyHref } from '@/lib/party/navigation';
 
 type PartyListProps = {
   items: PartySummaryReadModel[];
+  listPath?: string;
+  listQuery?: ListQueryState;
 };
 
-export function PartyList({ items }: PartyListProps) {
+function relationshipLabel(roleKeys: string[]): string {
+  const labels = formatPartyRoles(roleKeys);
+  return labels.length > 0 ? labels.join(', ') : 'Sin relación';
+}
+
+export function PartyList({ items, listPath, listQuery }: PartyListProps) {
+  const openPanel = parsePanel(listQuery?.panel);
+
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Lista de clientes y relaciones">
+    <ul className="m-0 list-none p-0" aria-label="Lista de clientes y relaciones">
       {items.map((party) => {
-        const hint = multiRoleHint(party.activeRoleKeys);
         const displayName = party.displayName || party.legalName || 'Sin nombre';
+        const detailHref = partyHref(party.partyId);
+        const quickHref = listPath
+          ? panelHref(listPath, listQuery ?? {}, `party:${party.partyId}`)
+          : undefined;
+        const selected = openPanel?.kind === 'party' && openPanel.id === party.partyId;
+
         return (
-          <ListRow key={party.partyId} as="li" className="px-1 py-1">
-            <Link
-              href={partyHref(party.partyId)}
-              className="isalwa-t-fast block min-w-0 rounded-[var(--isalwa-radius-control)] px-3 py-2.5 outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-            >
-              <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
-                <div className="min-w-0 flex-1">
-                  <p className="break-words font-medium leading-snug text-[var(--isalwa-kiln)]">{displayName}</p>
-                  {party.legalName && party.legalName !== party.displayName ? (
-                    <p className="mt-0.5 break-words text-sm leading-snug text-[var(--isalwa-slate)]">{party.legalName}</p>
-                  ) : null}
-                  {hint ? <p className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">{hint}</p> : null}
-                </div>
-                <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
-                  <PartyRoleBadges roleKeys={party.activeRoleKeys} size="sm" />
-                  <PartyStatusBadge status={party.status} duplicateStatus={party.duplicateStatus} />
-                  <CommercialBadge
-                    hasCommercialAccount={party.hasCommercialAccount}
-                    commercialAccountStatus={party.commercialAccountStatus}
+          <li key={party.partyId}>
+            <OperatingRow
+              href={detailHref}
+              selected={selected}
+              subject={displayName}
+              meta={relationshipLabel(party.activeRoleKeys)}
+              status={
+                <StatusPill tone={partyStatusTone(party.status)}>
+                  {formatPartyStatus(party.status)}
+                </StatusPill>
+              }
+              actions={
+                quickHref ? (
+                  <OverflowMenu
+                    label={`Más acciones de ${displayName}`}
+                    items={[
+                      { id: 'open', label: 'Abrir', href: detailHref },
+                      { id: 'quick', label: 'Vista rápida', href: quickHref },
+                    ]}
                   />
-                </div>
-              </div>
-            </Link>
-          </ListRow>
+                ) : undefined
+              }
+            />
+          </li>
         );
       })}
     </ul>

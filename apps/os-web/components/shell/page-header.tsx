@@ -6,16 +6,17 @@ type PageHeaderProps = {
   title: string;
   description?: string;
   action?: ReactNode;
+  className?: string;
 };
 
-export function PageHeader({ kicker, title, description, action }: PageHeaderProps) {
+export function PageHeader({ kicker, title, description, action, className }: PageHeaderProps) {
   return (
     <ExperienceHeader
       kicker={kicker ?? ''}
       title={title}
       subtitle={description}
       actions={action}
-      className="mb-8"
+      className={className ?? 'mb-5 md:mb-6'}
     />
   );
 }

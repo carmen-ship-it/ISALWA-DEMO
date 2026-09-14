@@ -110,6 +110,74 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
   return items;
 }
 
+type PalettePathContext =
+  | { kind: 'customer'; partyId: string }
+  | { kind: 'opportunity'; partyId: string; opportunityId: string };
+
+function pathnameOnly(input: string): string {
+  const cut = input.trim().split(/[?#]/, 1)[0] ?? '';
+  if (!cut.startsWith('/') || cut.startsWith('//')) return '';
+  return cut.length > 1 ? cut.replace(/\/+$/, '') : cut;
+}
+
+function decodePathSegment(raw: string): string | null {
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+  const id = decoded.trim();
+  if (!id || id === '.' || id === '..') return null;
+  if (/[/?#\\]/.test(id)) return null;
+  return id;
+}
+
+/** Ids already present in the URL. Does not infer owner, price, approver, or stage. */
+export function palettePathContext(pathname: string): PalettePathContext | null {
+  const path = pathnameOnly(pathname);
+  const opportunity = path.match(/^\/clientes\/([^/]+)\/oportunidades\/([^/]+)$/);
+  if (opportunity) {
+    const partyId = decodePathSegment(opportunity[1] ?? '');
+    const opportunityId = decodePathSegment(opportunity[2] ?? '');
+    if (!partyId || partyId === 'nuevo' || !opportunityId || opportunityId === 'nueva') return null;
+    return { kind: 'opportunity', partyId, opportunityId };
+  }
+  const customer = path.match(/^\/clientes\/([^/]+)$/);
+  if (!customer) return null;
+  const partyId = decodePathSegment(customer[1] ?? '');
+  if (!partyId || partyId === 'nuevo') return null;
+  return { kind: 'customer', partyId };
+}
+
+function directAction(item: PaletteItem, href: string): PaletteItem {
+  return {
+    key: item.key,
+    kind: item.kind,
+    label: item.label,
+    href,
+  };
+}
+
+export function contextualPaletteActions(pathname: string, access: PaletteAccess): PaletteItem[] {
+  const actions = paletteActions(access);
+  const context = palettePathContext(pathname);
+  if (!context) return actions;
+
+  return actions.map((item) => {
+    if (context.kind === 'customer' && item.key === 'action:opportunity') {
+      return directAction(item, newOpportunityHref(context.partyId));
+    }
+    if (context.kind === 'customer' && item.key === 'action:follow-up') {
+      return directAction(item, clienteSectionHref(context.partyId, 'trabajo'));
+    }
+    if (context.kind === 'opportunity' && item.key === 'action:quote') {
+      return directAction(item, newQuoteHref(context.partyId, context.opportunityId));
+    }
+    return item;
+  });
+}
+
 export function paletteNav(showAdmin: boolean): PaletteItem[] {
   return filterNavByAccess(PRIMARY_NAV, { showAdmin }).map((item) => ({
     key: `nav:${item.id}`,

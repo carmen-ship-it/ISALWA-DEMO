@@ -52,6 +52,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
       <SessionGuard />
       <AppShell
         displayLabel={shell.displayLabel}
+        givenName={shell.givenName}
         showAdmin={shell.showAdmin}
         canCreateCustomer={shell.canCreateCustomer}
         actorKey={shell.actorKey}

@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { PageContainer, PageSection } from '@isalwa/ui';
+import { CustomerQuickView } from '@/components/operating/customer-quick-view';
 import { PartyList } from '@/components/party/party-list';
 import { PartyEmptySearch } from '@/components/party/party-placeholders';
 import { PartySearchForm } from '@/components/party/party-search-form';
@@ -8,13 +10,14 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
-import { clientesSearchHref, newCustomerHref } from '@/lib/party/navigation';
+import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type ClientesPageProps = {
-  searchParams: Promise<PartySearchParams>;
+  searchParams: Promise<PartySearchParams & { panel?: string | string[] }>;
 };
 
 const addCustomerClass =
@@ -22,14 +25,16 @@ const addCustomerClass =
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
+  const listQuery = parseListQuery(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
-  const q = params.q?.trim();
-  const roleKey = params.roleKey?.trim();
-  const status = params.status?.trim();
-  const cursor = params.cursor?.trim();
+  const q = listQuery.q;
+  const roleKey = listQuery.roleKey;
+  const status = listQuery.status;
+  const cursor = listQuery.cursor;
+  const panel = parsePanel(listQuery.panel);
   const canAddCustomer = await actorCanMutateMasterData(client);
 
   try {
@@ -69,18 +74,19 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <PartyEmptySearch hasQuery={hasSearchCriteria} addCustomerHref={addHref} />
           ) : (
             <>
-              <PageSection card className="mt-4 p-2 md:p-3">
-                <PartyList items={result.items} />
+              <PageSection card className="mt-4 p-0">
+                <PartyList items={result.items} listPath="/clientes" listQuery={listQuery} />
               </PageSection>
 
               {result.meta.hasMore && result.meta.nextCursor ? (
                 <div className="mt-6 flex justify-center">
                   <Link
-                    href={clientesSearchHref({
+                    href={listHref('/clientes', {
                       q,
                       roleKey,
                       status,
                       cursor: result.meta.nextCursor,
+                      panel: listQuery.panel,
                     })}
                     className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                   >
@@ -91,6 +97,17 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             </>
           )}
         </div>
+
+        {panel?.kind === 'party' ? (
+          <Suspense fallback={null}>
+            <CustomerQuickView
+              client={client}
+              partyId={panel.id}
+              listPath="/clientes"
+              listQuery={listQuery}
+            />
+          </Suspense>
+        ) : null}
       </PageContainer>
     );
   } catch (err) {

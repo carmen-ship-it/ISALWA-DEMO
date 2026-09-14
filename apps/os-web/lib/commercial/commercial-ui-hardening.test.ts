@@ -103,18 +103,20 @@ describe('oportunidades list contract', () => {
 
 describe('cotizaciones list filters', () => {
   it('supports draft and submitted as canonical filters', () => {
-    assert.deepEqual([...QUOTE_LIST_STATUSES], ['draft', 'submitted']);
+    assert.deepEqual([...QUOTE_LIST_STATUSES], ['draft', 'submitted', 'accepted', 'cancelled']);
     assert.equal(parseQuoteListStatus(undefined), 'draft');
     assert.equal(parseQuoteListStatus('draft'), 'draft');
     assert.equal(parseQuoteListStatus('submitted'), 'submitted');
-    assert.equal(parseQuoteListStatus('accepted'), 'draft');
+    assert.equal(parseQuoteListStatus('accepted'), 'accepted');
+    assert.equal(parseQuoteListStatus('cancelled'), 'cancelled');
+    assert.equal(parseQuoteListStatus('won'), 'draft');
   });
 
   it('builds Spanish filter tabs and list hrefs', () => {
     const options = quoteStatusFilterOptions('draft');
     assert.deepEqual(
       options.map((option) => option.label),
-      ['Borrador', 'Enviadas'],
+      ['Borrador', 'Enviadas', 'Aceptadas', 'Canceladas'],
     );
     assert.equal(cotizacionesHref('submitted'), '/cotizaciones?status=submitted');
   });
