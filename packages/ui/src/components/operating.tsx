@@ -8,6 +8,16 @@ import {
   type ReactNode,
 } from 'react';
 import { cx } from '../lib/cx';
+import {
+  QUICK_VIEW_OPENER_ATTR,
+  bindDrawerKeys,
+  findQuickViewOpener,
+  panelReturnKey,
+  peekQuickViewOpener,
+  rememberQuickViewOpener,
+  restoreQuickViewFocus,
+  type FocusNode,
+} from './quick-view-focus';
 
 export type OperatingRowProps = {
   subject: ReactNode;
@@ -90,6 +100,7 @@ export function OverflowMenu({ label = 'Más acciones', items }: OverflowMenuPro
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuId = useId();
   const visible = items.filter((item) => item.href || item.onSelect);
+  const openerKey = visible.map((item) => panelReturnKey(item.href)).find((key) => key) ?? null;
 
   useEffect(() => {
     if (!open) return;
@@ -121,6 +132,7 @@ export function OverflowMenu({ label = 'Más acciones', items }: OverflowMenuPro
         aria-expanded={open}
         aria-controls={menuId}
         aria-label={label}
+        {...(openerKey ? { [QUICK_VIEW_OPENER_ATTR]: openerKey } : {})}
         onClick={() => setOpen((value) => !value)}
         className="isalwa-t-fast inline-flex h-8 w-8 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-slate)] outline-none hover:bg-[var(--isalwa-mist)] hover:text-[var(--isalwa-kiln)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
       >
@@ -139,7 +151,11 @@ export function OverflowMenu({ label = 'Más acciones', items }: OverflowMenuPro
                   role="menuitem"
                   href={item.href}
                   className="block px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-porcelain)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    const key = panelReturnKey(item.href);
+                    if (key) rememberQuickViewOpener(key);
+                    setOpen(false);
+                  }}
                 >
                   {item.label}
                 </a>
@@ -173,24 +189,32 @@ export type ContextDrawerProps = {
 
 export function ContextDrawer({ open, title, onClose, children }: ContextDrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const openerKeyRef = useRef<string | null>(null);
+  const capturedRef = useRef<FocusNode | null>(null);
+  const onCloseRef = useRef(onClose);
   const titleId = useId();
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
-    const previous = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    openerKeyRef.current = peekQuickViewOpener();
+    capturedRef.current = findQuickViewOpener(document, openerKeyRef.current);
     closeRef.current?.focus();
-    function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    }
-    document.addEventListener('keydown', onKey);
+    const releaseKeys = bindDrawerKeys(document, dialog, () => onCloseRef.current());
     return () => {
-      document.removeEventListener('keydown', onKey);
-      previous?.focus();
+      releaseKeys();
+      const key = openerKeyRef.current;
+      const captured = capturedRef.current;
+      openerKeyRef.current = null;
+      capturedRef.current = null;
+      restoreQuickViewFocus(document, key, captured, (callback) => {
+        window.setTimeout(callback, 0);
+      });
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -203,6 +227,7 @@ export function ContextDrawer({ open, title, onClose, children }: ContextDrawerP
         onClick={onClose}
       />
       <aside
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
