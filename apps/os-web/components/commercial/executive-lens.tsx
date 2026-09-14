@@ -4,6 +4,7 @@ import type {
   QuoteSummaryReadModel,
 } from '@isalwa/os-contracts';
 import { formatCentavos } from '@/lib/commercial/money';
+import { elapsedAge } from '@/lib/time/elapsed';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type ExecutiveLensProps = {
@@ -81,7 +82,7 @@ function ExceptionList({
     .map((item) => item.submittedAt)
     .filter((value): value is string => Boolean(value))
     .sort()[0];
-  const age = null;
+  const age = oldest ? elapsedAge(oldest) : null;
   if (submitted.length === 0 && !quotesPartial) return null;
 
   return (
