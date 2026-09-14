@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@isalwa/os-contracts": "workspace:*",
+    "@isalwa/os-domain": "workspace:*",
     "@isalwa/ts-utils": "workspace:*",
     "@isalwa/ui": "workspace:*",
     "@supabase/ssr": "^0.12.3",

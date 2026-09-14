@@ -180,3 +180,56 @@ export async function resolveSession(req: Request, store: OsWorkforceStore): Pro
 
   return sessionFromDevHeaders(req, store);
 }
+
+export type AuthenticatedProviderSubject = {
+  provider: string;
+  providerSubject: string;
+};
+
+/**
+ * Proves the provider session and returns the subject already stored on
+ * AuthIdentity. Does not select a Member and does not read organization or
+ * scope claims. Membership selection belongs to the trusted context resolver.
+ */
+export async function resolveAuthenticatedProviderSubject(
+  req: Request,
+  store: Pick<OsWorkforceStore, 'findAuthIdentityById'>,
+): Promise<AuthenticatedProviderSubject> {
+  const raw = process.env.OS_AUTH_MODE?.trim().toLowerCase();
+  const mode = raw ?? 'dev';
+  if (mode !== 'dev' && mode !== 'supabase') {
+    throw new Error('AUTH_CONFIGURATION_INVALID');
+  }
+
+  if (mode === 'supabase') {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('PROVIDER_NOT_CONFIGURED');
+    }
+    const authHeader = req.header('authorization')?.trim();
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) throw new Error('AUTH_REQUIRED');
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data.user?.id) throw new Error('AUTH_REQUIRED');
+    return { provider: 'supabase', providerSubject: data.user.id };
+  }
+
+  if (getRuntimeProfile() !== 'development') {
+    throw new Error('AUTH_REQUIRED');
+  }
+
+  const authIdentityId = req.header(HEADER_AUTH)?.trim();
+  const personId = req.header(HEADER_PERSON)?.trim();
+  if (!authIdentityId || !personId) throw new Error('AUTH_REQUIRED');
+
+  const auth = await store.findAuthIdentityById(authIdentityId);
+  if (!auth || auth.personId !== personId || auth.status !== 'active' || !auth.providerSubject) {
+    throw new Error('AUTH_REQUIRED');
+  }
+  return { provider: auth.provider, providerSubject: auth.providerSubject };
+}

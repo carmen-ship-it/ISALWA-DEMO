@@ -209,6 +209,8 @@ export function createOsApiClient(auth: OsAuthContext) {
       }),
     health: () => request<{ status: string; service: string }>('/health'),
     getAuthenticatedSession: () => request<AuthenticatedSessionView>('/session/me'),
+    getTrustedAuthorization: () =>
+      request<Record<string, unknown>>('/session/authorization'),
     listAttention: (query?: Record<string, string | number | boolean>) =>
       request<AttentionListResponse>('/attention', { method: 'GET', query }),
     listWorkItems: (query?: Record<string, string | number | boolean>) =>
