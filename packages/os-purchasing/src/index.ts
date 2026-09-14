@@ -2,8 +2,12 @@ export { InMemoryPurchaseRequestStore } from './in-memory-store';
 export type { PurchaseRequestStoreFailure, PurchaseRequestStoreResult } from './in-memory-store';
 
 export {
+  LEGACY_PURCHASE_REQUEST_STATUS_MAP,
   PURCHASE_REQUEST_BOUNDARY,
+  PURCHASE_REQUEST_HAPPY_PATH,
+  PURCHASE_REQUEST_NEXT_ACTION_LABELS,
   PURCHASE_REQUEST_REORDER_POLICY,
+  PURCHASE_REQUEST_ROLES,
   PURCHASE_REQUEST_SOURCE,
   PURCHASE_REQUEST_STATUSES,
   PURCHASE_REQUEST_STATUS_LABELS,
@@ -11,14 +15,22 @@ export {
   PURCHASE_REQUEST_TABLES,
   addPurchaseRequestNote,
   assignPurchaseRequestBuyer,
+  authorizePurchaseRequestRead,
   changePurchaseRequestStatus,
+  countPurchaseRequests,
   createPurchaseRequest,
   isPurchaseRequestStatus,
+  mapLegacyPurchaseRequestStatus,
   nextPurchaseRequestStatuses,
   purchaseRequestClaimsOfficialStock,
+  purchaseRequestForwardStatus,
   purchaseRequestMayPostInventory,
+  purchaseRequestNextActionLabel,
   purchaseRequestStatusLabel,
   purchaseRequestTriggersReorder,
+  readPurchaseRequestQueue,
+  searchPurchaseRequests,
+  suggestPurchaseBuyers,
 } from '../../os-contracts/src/purchase-request';
 
 export type {
@@ -26,10 +38,17 @@ export type {
   AssignPurchaseRequestBuyerInput,
   ChangePurchaseRequestStatusInput,
   CreatePurchaseRequestInput,
+  PurchaseBuyerCandidate,
+  PurchaseBuyerSuggestionResult,
   PurchaseRequest,
+  PurchaseRequestAccessFailure,
+  PurchaseRequestCountResult,
   PurchaseRequestFailure,
   PurchaseRequestNote,
+  PurchaseRequestQueueResult,
   PurchaseRequestResult,
+  PurchaseRequestSearchResult,
+  PurchaseRequestSession,
   PurchaseRequestStatus,
   PurchaseRequestStatusEntry,
 } from '../../os-contracts/src/purchase-request';
