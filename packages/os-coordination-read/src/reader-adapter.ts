@@ -6,12 +6,17 @@
  * warehouse exit, delivery, and release (os-read-fulfillment under
  * management.org.read).
  *
- * Finished goods has a reader and no model. That source stays UNPROVEN.
- * A missing model is not zero awaiting allocation.
+ * Finished goods is a warehouse receipt when the receipt port is connected.
+ * A missing port stays UNPROVEN. An authorized empty query is NO_FACT.
+ * Neither is zero stock and neither allocates to a Pedido.
  *
- * Prior decisions have no read capability. This adapter does not call
- * listCoordinationDecisions and does not treat coordination.decision.record
- * or operations.coordinator.record as a read gate.
+ * Customer-informed uses only CustomerDateInformedRecord through the date
+ * reader. A conversation is not that fact. A general informed-of-order
+ * record remains a foundation gap and is not invented here.
+ *
+ * Prior decisions are persisted. No canonical read capability exists.
+ * This adapter does not call listCoordinationDecisions and does not treat
+ * coordination.decision.record or operations.coordinator.record as a read gate.
  *
  * Omitted sources stay UNPROVEN. commercial.team.read does not unlock the
  * board. Title and cargo grant nothing. MEETING_REPLACEMENT stays UNPROVEN.
@@ -34,13 +39,14 @@ import {
   type PurchaseRequest,
   type PurchaseRequestStatus,
 } from '@isalwa/os-contracts';
-import { readOrderDateRisk, type DateReadDb } from '../../os-read-dates/src/index';
+import { readOrderCustomerInformedState, readOrderDateRisk, type DateReadDb } from '../../os-read-dates/src/index';
 import type { ProductionDateIssueFact } from '../../os-read-dates/src/rows';
 import {
   readFinishedGoodsReceipts,
   readOrderAllocations,
   readProductionFacts,
   readPurchaseRequests,
+  type FinishedGoodsReceiptFact,
   type OrderAllocationFact,
   type PurchaseRequestFact,
 } from '../../os-read-ops/src/index';
@@ -64,6 +70,7 @@ import type {
   CoordinationExceptionsResult,
   CoordinationInjectedSources,
   CoordinationTrustedContext,
+  CustomerInformedSourceFact,
   DateRiskSourceFact,
   DeliverySourceFact,
   InjectedSource,
@@ -350,11 +357,55 @@ async function readOperatingSources(
     purchase: opsInjected(purchase, (facts) => facts.map(toPurchase)),
     production: opsInjected(production, toProduction),
     allocation: opsInjected(allocation, (facts) => facts.map(toAllocation)),
-    finishedGoods:
-      finishedGoods.state === 'UNPROVEN'
-        ? { status: 'UNPROVEN', reason: finishedGoods.reason || finishedGoods.reasonCode }
-        : { status: 'UNPROVEN', reason: 'missing_model' },
+    finishedGoods: opsInjected(finishedGoods, (facts) => facts.map(toFinishedGoodsQuantity)),
   };
+}
+
+function toFinishedGoodsQuantity(fact: FinishedGoodsReceiptFact) {
+  return {
+    organizationId: fact.organizationId,
+    productId: fact.productId,
+    quantity: fact.quantity,
+    receiptId: fact.id,
+  };
+}
+
+async function readCustomerInformedSource(
+  context: CoordinationTrustedContext,
+  organizationId: string,
+  dates: CoordinationDateReader,
+): Promise<InjectedSource<CustomerInformedSourceFact>> {
+  const orderIds = [...new Set(dates.orderIds.map((id) => id.trim()).filter(Boolean))];
+  if (orderIds.length === 0) return { status: 'UNPROVEN', reason: 'unqueried' };
+  const facts: CustomerInformedSourceFact[] = [];
+  for (const orderId of orderIds) {
+    const result = await readOrderCustomerInformedState(
+      dates.db,
+      { organizationId, grantedScopes: scopesOf(context) },
+      orderId,
+    );
+    if (result.coverage === 'UNPROVEN') return { status: 'UNPROVEN', reason: result.denial };
+    if (result.coverage === 'ERROR') return { status: 'ERROR', reason: 'query_failed' };
+    if (result.coverage === 'NO_FACT') continue;
+    for (const row of result.fact) {
+      if (row.organizationId !== organizationId || !SUBJECT_TYPES.has(row.subjectType)) continue;
+      if (row.notified === true) {
+        facts.push({
+          id: row.id,
+          issueId: row.issueId,
+          organizationId: row.organizationId,
+          subjectType: row.subjectType,
+          subjectId: row.subjectId,
+          note: row.note,
+          recordedByMemberId: row.recordedByMemberId,
+          recordedAt: row.recordedAt,
+          notified: true,
+        });
+      }
+    }
+  }
+  if (facts.length === 0) return { status: 'NO_FACT' };
+  return { status: 'AVAILABLE', facts };
 }
 
 async function readFulfillmentSources(
@@ -406,7 +457,12 @@ export async function getCoordinationExceptionsFromReaders(
 
   if (ports.dates) {
     sources.dateRisk = await readDateRiskSource(trustedContext, organizationId, ports.dates);
+    sources.customerInformed = await readCustomerInformedSource(trustedContext, organizationId, ports.dates);
   }
+  sources.priorDecisions = trustedContext.sources?.priorDecisions ?? {
+    status: 'DENIED',
+    reason: 'no_coordination_read_capability',
+  };
   if (ports.operating) {
     Object.assign(sources, await readOperatingSources(trustedContext, organizationId, ports.operating.db));
   }

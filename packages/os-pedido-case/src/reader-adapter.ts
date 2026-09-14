@@ -23,6 +23,7 @@ import {
   COMPANY_OPERATING_READ_SCOPE,
   holdsExactScope,
   readFinishedGoodsReceipts,
+  type FinishedGoodsReceiptFact,
   readOrderAllocations,
   readProductionFacts,
   readPurchaseRequests,
@@ -32,7 +33,6 @@ import {
   type PurchaseRequestFact,
   type ReadResult,
   type TrustedOperatingSession,
-  type UnprovenRead,
 } from '@isalwa/os-read-ops';
 import {
   FulfillmentReadService,
@@ -351,11 +351,44 @@ async function mapAllocation(
   };
 }
 
-function mapFinishedGoods(result: UnprovenRead): InjectedSection<never> {
-  if (result.reasonCode === 'NO_LIVE_READER' || result.reason === 'missing_model') {
-    return unproven('missing_model');
+function mapFinishedGoods(
+  result: ReadResult<FinishedGoodsReceiptFact>,
+): InjectedSection<{
+  receipts: Array<{
+    receiptId: string;
+    productId: string;
+    quantity: string;
+    receivedAt: string;
+    warehouseLabel: string;
+    allocatesToOrder: false;
+    officialStock: false;
+  }>;
+}> {
+  if (result.state === 'UNPROVEN') {
+    if (result.reasonCode === 'NO_LIVE_READER' || result.reason === 'missing_model') {
+      return unproven('missing_model');
+    }
+    return unproven(result.reason || 'reader_not_connected');
   }
-  return unproven(result.reasonCode || result.reason || 'reader_not_connected');
+  if (result.state === 'ERROR') return error(result.reason);
+  if (result.state === 'NO_FACT' || result.facts.length === 0) {
+    return noFact('no_recorded_receipt', 'No hay producto terminado registrado.');
+  }
+  return {
+    state: 'AVAILABLE',
+    fact: {
+      receipts: result.facts.map((row) => ({
+        receiptId: row.id,
+        productId: row.productId,
+        quantity: row.quantity,
+        receivedAt: row.receivedAt,
+        warehouseLabel: row.warehouseLabel,
+        allocatesToOrder: false as const,
+        officialStock: false as const,
+      })),
+    },
+    displayCopy: 'Producto terminado en almacén.',
+  };
 }
 
 function mapDeniedCompanyRead<T>(

@@ -86,6 +86,7 @@ model OsOrganization {
   productionDateIssues                  ProductionDateIssue[]
   customerDateInformedRecords           CustomerDateInformedRecord[]
   orderAllocations                      OsOrderAllocation[]
+  finishedGoodsReceipts                 OsFinishedGoodsReceipt[]
   purchaseRequests                      OsPurchaseRequest[]
 
   priceLists                         OsPriceList[]
@@ -1776,6 +1777,35 @@ model OsOrderAllocation {
   @@index([organizationId, productId, allocatedAt])
   @@index([organizationId, orderLineId, allocatedAt])
   @@map("os_order_allocations")
+}
+
+// Listo is a receipt into Almacén de Productos Terminados.
+// It is not an allocation, a Pedido assignment, a delivery, a payment, or a stock ledger.
+// product_id is opaque. No SKU, valuation, cost, tax, or order relationship.
+// production_trace_entry_id and quema_id are optional citations of existing production facts.
+// They do not create Order → ProductionRun.
+model OsFinishedGoodsReceipt {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  productId              String   @map("product_id")
+  quantity               String
+  warehouseLabel         String   @default("Almacén de Productos Terminados") @map("warehouse_label")
+  receivedAt             DateTime @map("received_at")
+  recordedAt             DateTime @map("recorded_at")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("explicit_command")
+  productionTraceEntryId String?  @map("production_trace_entry_id")
+  quemaId                String?  @map("quema_id")
+  correctsReceiptId      String?  @map("corrects_receipt_id")
+  correctionReason       String?  @map("correction_reason")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, productId, receivedAt])
+  @@index([organizationId, receivedAt])
+  @@map("os_finished_goods_receipts")
 }
 
 // fragment: purchase-request.prisma

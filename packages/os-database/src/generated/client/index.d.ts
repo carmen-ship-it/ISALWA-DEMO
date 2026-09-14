@@ -412,6 +412,11 @@ export type CustomerDateInformedRecord = $Result.DefaultSelection<Prisma.$Custom
  */
 export type OsOrderAllocation = $Result.DefaultSelection<Prisma.$OsOrderAllocationPayload>
 /**
+ * Model OsFinishedGoodsReceipt
+ * 
+ */
+export type OsFinishedGoodsReceipt = $Result.DefaultSelection<Prisma.$OsFinishedGoodsReceiptPayload>
+/**
  * Model OsPurchaseRequest
  * 
  */
@@ -426,6 +431,26 @@ export type OsPurchaseRequestStatusHistory = $Result.DefaultSelection<Prisma.$Os
  * Notes and evidence references. A reference is not a stock reading.
  */
 export type OsPurchaseRequestNote = $Result.DefaultSelection<Prisma.$OsPurchaseRequestNotePayload>
+/**
+ * Model OsPriceList
+ * 
+ */
+export type OsPriceList = $Result.DefaultSelection<Prisma.$OsPriceListPayload>
+/**
+ * Model OsPriceEntry
+ * One sourced amount in one context. Not the advisor quoted price.
+ */
+export type OsPriceEntry = $Result.DefaultSelection<Prisma.$OsPriceEntryPayload>
+/**
+ * Model OsSpecialOrderClassification
+ * 
+ */
+export type OsSpecialOrderClassification = $Result.DefaultSelection<Prisma.$OsSpecialOrderClassificationPayload>
+/**
+ * Model OsCoordinationDecision
+ * 
+ */
+export type OsCoordinationDecision = $Result.DefaultSelection<Prisma.$OsCoordinationDecisionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1316,6 +1341,16 @@ export class PrismaClient<
   get osOrderAllocation(): Prisma.OsOrderAllocationDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.osFinishedGoodsReceipt`: Exposes CRUD operations for the **OsFinishedGoodsReceipt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsFinishedGoodsReceipts
+    * const osFinishedGoodsReceipts = await prisma.osFinishedGoodsReceipt.findMany()
+    * ```
+    */
+  get osFinishedGoodsReceipt(): Prisma.OsFinishedGoodsReceiptDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.osPurchaseRequest`: Exposes CRUD operations for the **OsPurchaseRequest** model.
     * Example usage:
     * ```ts
@@ -1344,6 +1379,46 @@ export class PrismaClient<
     * ```
     */
   get osPurchaseRequestNote(): Prisma.OsPurchaseRequestNoteDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osPriceList`: Exposes CRUD operations for the **OsPriceList** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsPriceLists
+    * const osPriceLists = await prisma.osPriceList.findMany()
+    * ```
+    */
+  get osPriceList(): Prisma.OsPriceListDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osPriceEntry`: Exposes CRUD operations for the **OsPriceEntry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsPriceEntries
+    * const osPriceEntries = await prisma.osPriceEntry.findMany()
+    * ```
+    */
+  get osPriceEntry(): Prisma.OsPriceEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osSpecialOrderClassification`: Exposes CRUD operations for the **OsSpecialOrderClassification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsSpecialOrderClassifications
+    * const osSpecialOrderClassifications = await prisma.osSpecialOrderClassification.findMany()
+    * ```
+    */
+  get osSpecialOrderClassification(): Prisma.OsSpecialOrderClassificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.osCoordinationDecision`: Exposes CRUD operations for the **OsCoordinationDecision** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsCoordinationDecisions
+    * const osCoordinationDecisions = await prisma.osCoordinationDecision.findMany()
+    * ```
+    */
+  get osCoordinationDecision(): Prisma.OsCoordinationDecisionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1862,9 +1937,14 @@ export namespace Prisma {
     ProductionDateIssue: 'ProductionDateIssue',
     CustomerDateInformedRecord: 'CustomerDateInformedRecord',
     OsOrderAllocation: 'OsOrderAllocation',
+    OsFinishedGoodsReceipt: 'OsFinishedGoodsReceipt',
     OsPurchaseRequest: 'OsPurchaseRequest',
     OsPurchaseRequestStatusHistory: 'OsPurchaseRequestStatusHistory',
-    OsPurchaseRequestNote: 'OsPurchaseRequestNote'
+    OsPurchaseRequestNote: 'OsPurchaseRequestNote',
+    OsPriceList: 'OsPriceList',
+    OsPriceEntry: 'OsPriceEntry',
+    OsSpecialOrderClassification: 'OsSpecialOrderClassification',
+    OsCoordinationDecision: 'OsCoordinationDecision'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1883,7 +1963,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCoordinationDecision"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -7585,6 +7665,80 @@ export namespace Prisma {
           }
         }
       }
+      OsFinishedGoodsReceipt: {
+        payload: Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>
+        fields: Prisma.OsFinishedGoodsReceiptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsFinishedGoodsReceiptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsFinishedGoodsReceiptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          findFirst: {
+            args: Prisma.OsFinishedGoodsReceiptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsFinishedGoodsReceiptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          findMany: {
+            args: Prisma.OsFinishedGoodsReceiptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>[]
+          }
+          create: {
+            args: Prisma.OsFinishedGoodsReceiptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          createMany: {
+            args: Prisma.OsFinishedGoodsReceiptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsFinishedGoodsReceiptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>[]
+          }
+          delete: {
+            args: Prisma.OsFinishedGoodsReceiptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          update: {
+            args: Prisma.OsFinishedGoodsReceiptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsFinishedGoodsReceiptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsFinishedGoodsReceiptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsFinishedGoodsReceiptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsFinishedGoodsReceiptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsFinishedGoodsReceiptPayload>
+          }
+          aggregate: {
+            args: Prisma.OsFinishedGoodsReceiptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsFinishedGoodsReceipt>
+          }
+          groupBy: {
+            args: Prisma.OsFinishedGoodsReceiptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsFinishedGoodsReceiptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsFinishedGoodsReceiptCountArgs<ExtArgs>
+            result: $Utils.Optional<OsFinishedGoodsReceiptCountAggregateOutputType> | number
+          }
+        }
+      }
       OsPurchaseRequest: {
         payload: Prisma.$OsPurchaseRequestPayload<ExtArgs>
         fields: Prisma.OsPurchaseRequestFieldRefs
@@ -7807,6 +7961,302 @@ export namespace Prisma {
           }
         }
       }
+      OsPriceList: {
+        payload: Prisma.$OsPriceListPayload<ExtArgs>
+        fields: Prisma.OsPriceListFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsPriceListFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsPriceListFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          findFirst: {
+            args: Prisma.OsPriceListFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsPriceListFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          findMany: {
+            args: Prisma.OsPriceListFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>[]
+          }
+          create: {
+            args: Prisma.OsPriceListCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          createMany: {
+            args: Prisma.OsPriceListCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsPriceListCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>[]
+          }
+          delete: {
+            args: Prisma.OsPriceListDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          update: {
+            args: Prisma.OsPriceListUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsPriceListDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsPriceListUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsPriceListUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsPriceListUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceListPayload>
+          }
+          aggregate: {
+            args: Prisma.OsPriceListAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsPriceList>
+          }
+          groupBy: {
+            args: Prisma.OsPriceListGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsPriceListGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsPriceListCountArgs<ExtArgs>
+            result: $Utils.Optional<OsPriceListCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsPriceEntry: {
+        payload: Prisma.$OsPriceEntryPayload<ExtArgs>
+        fields: Prisma.OsPriceEntryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsPriceEntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsPriceEntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          findFirst: {
+            args: Prisma.OsPriceEntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsPriceEntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          findMany: {
+            args: Prisma.OsPriceEntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>[]
+          }
+          create: {
+            args: Prisma.OsPriceEntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          createMany: {
+            args: Prisma.OsPriceEntryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsPriceEntryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>[]
+          }
+          delete: {
+            args: Prisma.OsPriceEntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          update: {
+            args: Prisma.OsPriceEntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsPriceEntryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsPriceEntryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsPriceEntryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsPriceEntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsPriceEntryPayload>
+          }
+          aggregate: {
+            args: Prisma.OsPriceEntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsPriceEntry>
+          }
+          groupBy: {
+            args: Prisma.OsPriceEntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsPriceEntryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsPriceEntryCountArgs<ExtArgs>
+            result: $Utils.Optional<OsPriceEntryCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsSpecialOrderClassification: {
+        payload: Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>
+        fields: Prisma.OsSpecialOrderClassificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsSpecialOrderClassificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsSpecialOrderClassificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          findFirst: {
+            args: Prisma.OsSpecialOrderClassificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsSpecialOrderClassificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          findMany: {
+            args: Prisma.OsSpecialOrderClassificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>[]
+          }
+          create: {
+            args: Prisma.OsSpecialOrderClassificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          createMany: {
+            args: Prisma.OsSpecialOrderClassificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsSpecialOrderClassificationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>[]
+          }
+          delete: {
+            args: Prisma.OsSpecialOrderClassificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          update: {
+            args: Prisma.OsSpecialOrderClassificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsSpecialOrderClassificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsSpecialOrderClassificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsSpecialOrderClassificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsSpecialOrderClassificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsSpecialOrderClassificationPayload>
+          }
+          aggregate: {
+            args: Prisma.OsSpecialOrderClassificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsSpecialOrderClassification>
+          }
+          groupBy: {
+            args: Prisma.OsSpecialOrderClassificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsSpecialOrderClassificationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsSpecialOrderClassificationCountArgs<ExtArgs>
+            result: $Utils.Optional<OsSpecialOrderClassificationCountAggregateOutputType> | number
+          }
+        }
+      }
+      OsCoordinationDecision: {
+        payload: Prisma.$OsCoordinationDecisionPayload<ExtArgs>
+        fields: Prisma.OsCoordinationDecisionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsCoordinationDecisionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsCoordinationDecisionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          findFirst: {
+            args: Prisma.OsCoordinationDecisionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsCoordinationDecisionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          findMany: {
+            args: Prisma.OsCoordinationDecisionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>[]
+          }
+          create: {
+            args: Prisma.OsCoordinationDecisionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          createMany: {
+            args: Prisma.OsCoordinationDecisionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsCoordinationDecisionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>[]
+          }
+          delete: {
+            args: Prisma.OsCoordinationDecisionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          update: {
+            args: Prisma.OsCoordinationDecisionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsCoordinationDecisionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsCoordinationDecisionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsCoordinationDecisionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsCoordinationDecisionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCoordinationDecisionPayload>
+          }
+          aggregate: {
+            args: Prisma.OsCoordinationDecisionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsCoordinationDecision>
+          }
+          groupBy: {
+            args: Prisma.OsCoordinationDecisionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsCoordinationDecisionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsCoordinationDecisionCountArgs<ExtArgs>
+            result: $Utils.Optional<OsCoordinationDecisionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -7980,9 +8430,14 @@ export namespace Prisma {
     productionDateIssue?: ProductionDateIssueOmit
     customerDateInformedRecord?: CustomerDateInformedRecordOmit
     osOrderAllocation?: OsOrderAllocationOmit
+    osFinishedGoodsReceipt?: OsFinishedGoodsReceiptOmit
     osPurchaseRequest?: OsPurchaseRequestOmit
     osPurchaseRequestStatusHistory?: OsPurchaseRequestStatusHistoryOmit
     osPurchaseRequestNote?: OsPurchaseRequestNoteOmit
+    osPriceList?: OsPriceListOmit
+    osPriceEntry?: OsPriceEntryOmit
+    osSpecialOrderClassification?: OsSpecialOrderClassificationOmit
+    osCoordinationDecision?: OsCoordinationDecisionOmit
   }
 
   /* Types for Logging */
@@ -8127,7 +8582,12 @@ export namespace Prisma {
     productionDateIssues: number
     customerDateInformedRecords: number
     orderAllocations: number
+    finishedGoodsReceipts: number
     purchaseRequests: number
+    priceLists: number
+    priceEntries: number
+    specialOrderClassifications: number
+    coordinationDecisions: number
   }
 
   export type OsOrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8195,7 +8655,12 @@ export namespace Prisma {
     productionDateIssues?: boolean | OsOrganizationCountOutputTypeCountProductionDateIssuesArgs
     customerDateInformedRecords?: boolean | OsOrganizationCountOutputTypeCountCustomerDateInformedRecordsArgs
     orderAllocations?: boolean | OsOrganizationCountOutputTypeCountOrderAllocationsArgs
+    finishedGoodsReceipts?: boolean | OsOrganizationCountOutputTypeCountFinishedGoodsReceiptsArgs
     purchaseRequests?: boolean | OsOrganizationCountOutputTypeCountPurchaseRequestsArgs
+    priceLists?: boolean | OsOrganizationCountOutputTypeCountPriceListsArgs
+    priceEntries?: boolean | OsOrganizationCountOutputTypeCountPriceEntriesArgs
+    specialOrderClassifications?: boolean | OsOrganizationCountOutputTypeCountSpecialOrderClassificationsArgs
+    coordinationDecisions?: boolean | OsOrganizationCountOutputTypeCountCoordinationDecisionsArgs
   }
 
   // Custom InputTypes
@@ -8660,8 +9125,43 @@ export namespace Prisma {
   /**
    * OsOrganizationCountOutputType without action
    */
+  export type OsOrganizationCountOutputTypeCountFinishedGoodsReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsFinishedGoodsReceiptWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
   export type OsOrganizationCountOutputTypeCountPurchaseRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsPurchaseRequestWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountPriceListsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceListWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountPriceEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceEntryWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountSpecialOrderClassificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsSpecialOrderClassificationWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountCoordinationDecisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCoordinationDecisionWhereInput
   }
 
 
@@ -9261,12 +9761,14 @@ export namespace Prisma {
     provenance: number
     attributes: number
     statusEvents: number
+    priceEntries: number
   }
 
   export type OsCatalogProductCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     provenance?: boolean | OsCatalogProductCountOutputTypeCountProvenanceArgs
     attributes?: boolean | OsCatalogProductCountOutputTypeCountAttributesArgs
     statusEvents?: boolean | OsCatalogProductCountOutputTypeCountStatusEventsArgs
+    priceEntries?: boolean | OsCatalogProductCountOutputTypeCountPriceEntriesArgs
   }
 
   // Custom InputTypes
@@ -9299,6 +9801,13 @@ export namespace Prisma {
    */
   export type OsCatalogProductCountOutputTypeCountStatusEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsCatalogProductStatusEventWhereInput
+  }
+
+  /**
+   * OsCatalogProductCountOutputType without action
+   */
+  export type OsCatalogProductCountOutputTypeCountPriceEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceEntryWhereInput
   }
 
 
@@ -9698,6 +10207,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type OsPriceListCountOutputType
+   */
+
+  export type OsPriceListCountOutputType = {
+    entries: number
+  }
+
+  export type OsPriceListCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entries?: boolean | OsPriceListCountOutputTypeCountEntriesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OsPriceListCountOutputType without action
+   */
+  export type OsPriceListCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceListCountOutputType
+     */
+    select?: OsPriceListCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OsPriceListCountOutputType without action
+   */
+  export type OsPriceListCountOutputTypeCountEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceEntryWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -9953,7 +10493,12 @@ export namespace Prisma {
     productionDateIssues?: boolean | OsOrganization$productionDateIssuesArgs<ExtArgs>
     customerDateInformedRecords?: boolean | OsOrganization$customerDateInformedRecordsArgs<ExtArgs>
     orderAllocations?: boolean | OsOrganization$orderAllocationsArgs<ExtArgs>
+    finishedGoodsReceipts?: boolean | OsOrganization$finishedGoodsReceiptsArgs<ExtArgs>
     purchaseRequests?: boolean | OsOrganization$purchaseRequestsArgs<ExtArgs>
+    priceLists?: boolean | OsOrganization$priceListsArgs<ExtArgs>
+    priceEntries?: boolean | OsOrganization$priceEntriesArgs<ExtArgs>
+    specialOrderClassifications?: boolean | OsOrganization$specialOrderClassificationsArgs<ExtArgs>
+    coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osOrganization"]>
 
@@ -10056,7 +10601,12 @@ export namespace Prisma {
     productionDateIssues?: boolean | OsOrganization$productionDateIssuesArgs<ExtArgs>
     customerDateInformedRecords?: boolean | OsOrganization$customerDateInformedRecordsArgs<ExtArgs>
     orderAllocations?: boolean | OsOrganization$orderAllocationsArgs<ExtArgs>
+    finishedGoodsReceipts?: boolean | OsOrganization$finishedGoodsReceiptsArgs<ExtArgs>
     purchaseRequests?: boolean | OsOrganization$purchaseRequestsArgs<ExtArgs>
+    priceLists?: boolean | OsOrganization$priceListsArgs<ExtArgs>
+    priceEntries?: boolean | OsOrganization$priceEntriesArgs<ExtArgs>
+    specialOrderClassifications?: boolean | OsOrganization$specialOrderClassificationsArgs<ExtArgs>
+    coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsOrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -10129,7 +10679,12 @@ export namespace Prisma {
       productionDateIssues: Prisma.$ProductionDateIssuePayload<ExtArgs>[]
       customerDateInformedRecords: Prisma.$CustomerDateInformedRecordPayload<ExtArgs>[]
       orderAllocations: Prisma.$OsOrderAllocationPayload<ExtArgs>[]
+      finishedGoodsReceipts: Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>[]
       purchaseRequests: Prisma.$OsPurchaseRequestPayload<ExtArgs>[]
+      priceLists: Prisma.$OsPriceListPayload<ExtArgs>[]
+      priceEntries: Prisma.$OsPriceEntryPayload<ExtArgs>[]
+      specialOrderClassifications: Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>[]
+      coordinationDecisions: Prisma.$OsCoordinationDecisionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10598,7 +11153,12 @@ export namespace Prisma {
     productionDateIssues<T extends OsOrganization$productionDateIssuesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$productionDateIssuesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductionDateIssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerDateInformedRecords<T extends OsOrganization$customerDateInformedRecordsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerDateInformedRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerDateInformedRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orderAllocations<T extends OsOrganization$orderAllocationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$orderAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsOrderAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    finishedGoodsReceipts<T extends OsOrganization$finishedGoodsReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$finishedGoodsReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchaseRequests<T extends OsOrganization$purchaseRequestsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$purchaseRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPurchaseRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    priceLists<T extends OsOrganization$priceListsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$priceListsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    priceEntries<T extends OsOrganization$priceEntriesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$priceEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    specialOrderClassifications<T extends OsOrganization$specialOrderClassificationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$specialOrderClassificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    coordinationDecisions<T extends OsOrganization$coordinationDecisionsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$coordinationDecisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12560,6 +13120,30 @@ export namespace Prisma {
   }
 
   /**
+   * OsOrganization.finishedGoodsReceipts
+   */
+  export type OsOrganization$finishedGoodsReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    where?: OsFinishedGoodsReceiptWhereInput
+    orderBy?: OsFinishedGoodsReceiptOrderByWithRelationInput | OsFinishedGoodsReceiptOrderByWithRelationInput[]
+    cursor?: OsFinishedGoodsReceiptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsFinishedGoodsReceiptScalarFieldEnum | OsFinishedGoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
    * OsOrganization.purchaseRequests
    */
   export type OsOrganization$purchaseRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12581,6 +13165,102 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsPurchaseRequestScalarFieldEnum | OsPurchaseRequestScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.priceLists
+   */
+  export type OsOrganization$priceListsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    where?: OsPriceListWhereInput
+    orderBy?: OsPriceListOrderByWithRelationInput | OsPriceListOrderByWithRelationInput[]
+    cursor?: OsPriceListWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsPriceListScalarFieldEnum | OsPriceListScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.priceEntries
+   */
+  export type OsOrganization$priceEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    where?: OsPriceEntryWhereInput
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    cursor?: OsPriceEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.specialOrderClassifications
+   */
+  export type OsOrganization$specialOrderClassificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    where?: OsSpecialOrderClassificationWhereInput
+    orderBy?: OsSpecialOrderClassificationOrderByWithRelationInput | OsSpecialOrderClassificationOrderByWithRelationInput[]
+    cursor?: OsSpecialOrderClassificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsSpecialOrderClassificationScalarFieldEnum | OsSpecialOrderClassificationScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.coordinationDecisions
+   */
+  export type OsOrganization$coordinationDecisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    where?: OsCoordinationDecisionWhereInput
+    orderBy?: OsCoordinationDecisionOrderByWithRelationInput | OsCoordinationDecisionOrderByWithRelationInput[]
+    cursor?: OsCoordinationDecisionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCoordinationDecisionScalarFieldEnum | OsCoordinationDecisionScalarFieldEnum[]
   }
 
   /**
@@ -68481,6 +69161,7 @@ export namespace Prisma {
     provenance?: boolean | OsCatalogProduct$provenanceArgs<ExtArgs>
     attributes?: boolean | OsCatalogProduct$attributesArgs<ExtArgs>
     statusEvents?: boolean | OsCatalogProduct$statusEventsArgs<ExtArgs>
+    priceEntries?: boolean | OsCatalogProduct$priceEntriesArgs<ExtArgs>
     _count?: boolean | OsCatalogProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osCatalogProduct"]>
 
@@ -68540,6 +69221,7 @@ export namespace Prisma {
     provenance?: boolean | OsCatalogProduct$provenanceArgs<ExtArgs>
     attributes?: boolean | OsCatalogProduct$attributesArgs<ExtArgs>
     statusEvents?: boolean | OsCatalogProduct$statusEventsArgs<ExtArgs>
+    priceEntries?: boolean | OsCatalogProduct$priceEntriesArgs<ExtArgs>
     _count?: boolean | OsCatalogProductCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsCatalogProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -68556,6 +69238,7 @@ export namespace Prisma {
       provenance: Prisma.$OsCatalogProductProvenancePayload<ExtArgs>[]
       attributes: Prisma.$OsCatalogProductAttributePayload<ExtArgs>[]
       statusEvents: Prisma.$OsCatalogProductStatusEventPayload<ExtArgs>[]
+      priceEntries: Prisma.$OsPriceEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       organizationId: string
@@ -68969,6 +69652,7 @@ export namespace Prisma {
     provenance<T extends OsCatalogProduct$provenanceArgs<ExtArgs> = {}>(args?: Subset<T, OsCatalogProduct$provenanceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCatalogProductProvenancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     attributes<T extends OsCatalogProduct$attributesArgs<ExtArgs> = {}>(args?: Subset<T, OsCatalogProduct$attributesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCatalogProductAttributePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     statusEvents<T extends OsCatalogProduct$statusEventsArgs<ExtArgs> = {}>(args?: Subset<T, OsCatalogProduct$statusEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCatalogProductStatusEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    priceEntries<T extends OsCatalogProduct$priceEntriesArgs<ExtArgs> = {}>(args?: Subset<T, OsCatalogProduct$priceEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -69476,6 +70160,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsCatalogProductStatusEventScalarFieldEnum | OsCatalogProductStatusEventScalarFieldEnum[]
+  }
+
+  /**
+   * OsCatalogProduct.priceEntries
+   */
+  export type OsCatalogProduct$priceEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    where?: OsPriceEntryWhereInput
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    cursor?: OsPriceEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
   }
 
   /**
@@ -102014,6 +102722,1194 @@ export namespace Prisma {
 
 
   /**
+   * Model OsFinishedGoodsReceipt
+   */
+
+  export type AggregateOsFinishedGoodsReceipt = {
+    _count: OsFinishedGoodsReceiptCountAggregateOutputType | null
+    _min: OsFinishedGoodsReceiptMinAggregateOutputType | null
+    _max: OsFinishedGoodsReceiptMaxAggregateOutputType | null
+  }
+
+  export type OsFinishedGoodsReceiptMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    productId: string | null
+    quantity: string | null
+    warehouseLabel: string | null
+    receivedAt: Date | null
+    recordedAt: Date | null
+    actorMemberId: string | null
+    actorLabel: string | null
+    source: string | null
+    productionTraceEntryId: string | null
+    quemaId: string | null
+    correctsReceiptId: string | null
+    correctionReason: string | null
+    idempotencyKey: string | null
+  }
+
+  export type OsFinishedGoodsReceiptMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    productId: string | null
+    quantity: string | null
+    warehouseLabel: string | null
+    receivedAt: Date | null
+    recordedAt: Date | null
+    actorMemberId: string | null
+    actorLabel: string | null
+    source: string | null
+    productionTraceEntryId: string | null
+    quemaId: string | null
+    correctsReceiptId: string | null
+    correctionReason: string | null
+    idempotencyKey: string | null
+  }
+
+  export type OsFinishedGoodsReceiptCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    productId: number
+    quantity: number
+    warehouseLabel: number
+    receivedAt: number
+    recordedAt: number
+    actorMemberId: number
+    actorLabel: number
+    source: number
+    productionTraceEntryId: number
+    quemaId: number
+    correctsReceiptId: number
+    correctionReason: number
+    idempotencyKey: number
+    _all: number
+  }
+
+
+  export type OsFinishedGoodsReceiptMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    productId?: true
+    quantity?: true
+    warehouseLabel?: true
+    receivedAt?: true
+    recordedAt?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    productionTraceEntryId?: true
+    quemaId?: true
+    correctsReceiptId?: true
+    correctionReason?: true
+    idempotencyKey?: true
+  }
+
+  export type OsFinishedGoodsReceiptMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    productId?: true
+    quantity?: true
+    warehouseLabel?: true
+    receivedAt?: true
+    recordedAt?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    productionTraceEntryId?: true
+    quemaId?: true
+    correctsReceiptId?: true
+    correctionReason?: true
+    idempotencyKey?: true
+  }
+
+  export type OsFinishedGoodsReceiptCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    productId?: true
+    quantity?: true
+    warehouseLabel?: true
+    receivedAt?: true
+    recordedAt?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    productionTraceEntryId?: true
+    quemaId?: true
+    correctsReceiptId?: true
+    correctionReason?: true
+    idempotencyKey?: true
+    _all?: true
+  }
+
+  export type OsFinishedGoodsReceiptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsFinishedGoodsReceipt to aggregate.
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsFinishedGoodsReceipts to fetch.
+     */
+    orderBy?: OsFinishedGoodsReceiptOrderByWithRelationInput | OsFinishedGoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsFinishedGoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsFinishedGoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsFinishedGoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsFinishedGoodsReceipts
+    **/
+    _count?: true | OsFinishedGoodsReceiptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsFinishedGoodsReceiptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsFinishedGoodsReceiptMaxAggregateInputType
+  }
+
+  export type GetOsFinishedGoodsReceiptAggregateType<T extends OsFinishedGoodsReceiptAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsFinishedGoodsReceipt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsFinishedGoodsReceipt[P]>
+      : GetScalarType<T[P], AggregateOsFinishedGoodsReceipt[P]>
+  }
+
+
+
+
+  export type OsFinishedGoodsReceiptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsFinishedGoodsReceiptWhereInput
+    orderBy?: OsFinishedGoodsReceiptOrderByWithAggregationInput | OsFinishedGoodsReceiptOrderByWithAggregationInput[]
+    by: OsFinishedGoodsReceiptScalarFieldEnum[] | OsFinishedGoodsReceiptScalarFieldEnum
+    having?: OsFinishedGoodsReceiptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsFinishedGoodsReceiptCountAggregateInputType | true
+    _min?: OsFinishedGoodsReceiptMinAggregateInputType
+    _max?: OsFinishedGoodsReceiptMaxAggregateInputType
+  }
+
+  export type OsFinishedGoodsReceiptGroupByOutputType = {
+    id: string
+    organizationId: string
+    productId: string
+    quantity: string
+    warehouseLabel: string
+    receivedAt: Date
+    recordedAt: Date
+    actorMemberId: string | null
+    actorLabel: string
+    source: string
+    productionTraceEntryId: string | null
+    quemaId: string | null
+    correctsReceiptId: string | null
+    correctionReason: string | null
+    idempotencyKey: string | null
+    _count: OsFinishedGoodsReceiptCountAggregateOutputType | null
+    _min: OsFinishedGoodsReceiptMinAggregateOutputType | null
+    _max: OsFinishedGoodsReceiptMaxAggregateOutputType | null
+  }
+
+  type GetOsFinishedGoodsReceiptGroupByPayload<T extends OsFinishedGoodsReceiptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsFinishedGoodsReceiptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsFinishedGoodsReceiptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsFinishedGoodsReceiptGroupByOutputType[P]>
+            : GetScalarType<T[P], OsFinishedGoodsReceiptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsFinishedGoodsReceiptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    productId?: boolean
+    quantity?: boolean
+    warehouseLabel?: boolean
+    receivedAt?: boolean
+    recordedAt?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    productionTraceEntryId?: boolean
+    quemaId?: boolean
+    correctsReceiptId?: boolean
+    correctionReason?: boolean
+    idempotencyKey?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osFinishedGoodsReceipt"]>
+
+  export type OsFinishedGoodsReceiptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    productId?: boolean
+    quantity?: boolean
+    warehouseLabel?: boolean
+    receivedAt?: boolean
+    recordedAt?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    productionTraceEntryId?: boolean
+    quemaId?: boolean
+    correctsReceiptId?: boolean
+    correctionReason?: boolean
+    idempotencyKey?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osFinishedGoodsReceipt"]>
+
+  export type OsFinishedGoodsReceiptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    productId?: boolean
+    quantity?: boolean
+    warehouseLabel?: boolean
+    receivedAt?: boolean
+    recordedAt?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    productionTraceEntryId?: boolean
+    quemaId?: boolean
+    correctsReceiptId?: boolean
+    correctionReason?: boolean
+    idempotencyKey?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osFinishedGoodsReceipt"]>
+
+  export type OsFinishedGoodsReceiptSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    productId?: boolean
+    quantity?: boolean
+    warehouseLabel?: boolean
+    receivedAt?: boolean
+    recordedAt?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    productionTraceEntryId?: boolean
+    quemaId?: boolean
+    correctsReceiptId?: boolean
+    correctionReason?: boolean
+    idempotencyKey?: boolean
+  }
+
+  export type OsFinishedGoodsReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "productId" | "quantity" | "warehouseLabel" | "receivedAt" | "recordedAt" | "actorMemberId" | "actorLabel" | "source" | "productionTraceEntryId" | "quemaId" | "correctsReceiptId" | "correctionReason" | "idempotencyKey", ExtArgs["result"]["osFinishedGoodsReceipt"]>
+  export type OsFinishedGoodsReceiptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsFinishedGoodsReceiptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsFinishedGoodsReceiptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsFinishedGoodsReceiptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsFinishedGoodsReceipt"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      productId: string
+      quantity: string
+      warehouseLabel: string
+      receivedAt: Date
+      recordedAt: Date
+      actorMemberId: string | null
+      actorLabel: string
+      source: string
+      productionTraceEntryId: string | null
+      quemaId: string | null
+      correctsReceiptId: string | null
+      correctionReason: string | null
+      idempotencyKey: string | null
+    }, ExtArgs["result"]["osFinishedGoodsReceipt"]>
+    composites: {}
+  }
+
+  type OsFinishedGoodsReceiptGetPayload<S extends boolean | null | undefined | OsFinishedGoodsReceiptDefaultArgs> = $Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload, S>
+
+  type OsFinishedGoodsReceiptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsFinishedGoodsReceiptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsFinishedGoodsReceiptCountAggregateInputType | true
+    }
+
+  export interface OsFinishedGoodsReceiptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsFinishedGoodsReceipt'], meta: { name: 'OsFinishedGoodsReceipt' } }
+    /**
+     * Find zero or one OsFinishedGoodsReceipt that matches the filter.
+     * @param {OsFinishedGoodsReceiptFindUniqueArgs} args - Arguments to find a OsFinishedGoodsReceipt
+     * @example
+     * // Get one OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsFinishedGoodsReceiptFindUniqueArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptFindUniqueArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsFinishedGoodsReceipt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsFinishedGoodsReceiptFindUniqueOrThrowArgs} args - Arguments to find a OsFinishedGoodsReceipt
+     * @example
+     * // Get one OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsFinishedGoodsReceiptFindUniqueOrThrowArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsFinishedGoodsReceipt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptFindFirstArgs} args - Arguments to find a OsFinishedGoodsReceipt
+     * @example
+     * // Get one OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsFinishedGoodsReceiptFindFirstArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptFindFirstArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsFinishedGoodsReceipt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptFindFirstOrThrowArgs} args - Arguments to find a OsFinishedGoodsReceipt
+     * @example
+     * // Get one OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsFinishedGoodsReceiptFindFirstOrThrowArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsFinishedGoodsReceipts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipts = await prisma.osFinishedGoodsReceipt.findMany()
+     * 
+     * // Get first 10 OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipts = await prisma.osFinishedGoodsReceipt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osFinishedGoodsReceiptWithIdOnly = await prisma.osFinishedGoodsReceipt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsFinishedGoodsReceiptFindManyArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsFinishedGoodsReceipt.
+     * @param {OsFinishedGoodsReceiptCreateArgs} args - Arguments to create a OsFinishedGoodsReceipt.
+     * @example
+     * // Create one OsFinishedGoodsReceipt
+     * const OsFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.create({
+     *   data: {
+     *     // ... data to create a OsFinishedGoodsReceipt
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsFinishedGoodsReceiptCreateArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptCreateArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsFinishedGoodsReceipts.
+     * @param {OsFinishedGoodsReceiptCreateManyArgs} args - Arguments to create many OsFinishedGoodsReceipts.
+     * @example
+     * // Create many OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsFinishedGoodsReceiptCreateManyArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsFinishedGoodsReceipts and returns the data saved in the database.
+     * @param {OsFinishedGoodsReceiptCreateManyAndReturnArgs} args - Arguments to create many OsFinishedGoodsReceipts.
+     * @example
+     * // Create many OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsFinishedGoodsReceipts and only return the `id`
+     * const osFinishedGoodsReceiptWithIdOnly = await prisma.osFinishedGoodsReceipt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsFinishedGoodsReceiptCreateManyAndReturnArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsFinishedGoodsReceipt.
+     * @param {OsFinishedGoodsReceiptDeleteArgs} args - Arguments to delete one OsFinishedGoodsReceipt.
+     * @example
+     * // Delete one OsFinishedGoodsReceipt
+     * const OsFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.delete({
+     *   where: {
+     *     // ... filter to delete one OsFinishedGoodsReceipt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsFinishedGoodsReceiptDeleteArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptDeleteArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsFinishedGoodsReceipt.
+     * @param {OsFinishedGoodsReceiptUpdateArgs} args - Arguments to update one OsFinishedGoodsReceipt.
+     * @example
+     * // Update one OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsFinishedGoodsReceiptUpdateArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptUpdateArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsFinishedGoodsReceipts.
+     * @param {OsFinishedGoodsReceiptDeleteManyArgs} args - Arguments to filter OsFinishedGoodsReceipts to delete.
+     * @example
+     * // Delete a few OsFinishedGoodsReceipts
+     * const { count } = await prisma.osFinishedGoodsReceipt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsFinishedGoodsReceiptDeleteManyArgs>(args?: SelectSubset<T, OsFinishedGoodsReceiptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsFinishedGoodsReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsFinishedGoodsReceiptUpdateManyArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsFinishedGoodsReceipts and returns the data updated in the database.
+     * @param {OsFinishedGoodsReceiptUpdateManyAndReturnArgs} args - Arguments to update many OsFinishedGoodsReceipts.
+     * @example
+     * // Update many OsFinishedGoodsReceipts
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsFinishedGoodsReceipts and only return the `id`
+     * const osFinishedGoodsReceiptWithIdOnly = await prisma.osFinishedGoodsReceipt.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsFinishedGoodsReceiptUpdateManyAndReturnArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsFinishedGoodsReceipt.
+     * @param {OsFinishedGoodsReceiptUpsertArgs} args - Arguments to update or create a OsFinishedGoodsReceipt.
+     * @example
+     * // Update or create a OsFinishedGoodsReceipt
+     * const osFinishedGoodsReceipt = await prisma.osFinishedGoodsReceipt.upsert({
+     *   create: {
+     *     // ... data to create a OsFinishedGoodsReceipt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsFinishedGoodsReceipt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsFinishedGoodsReceiptUpsertArgs>(args: SelectSubset<T, OsFinishedGoodsReceiptUpsertArgs<ExtArgs>>): Prisma__OsFinishedGoodsReceiptClient<$Result.GetResult<Prisma.$OsFinishedGoodsReceiptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsFinishedGoodsReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptCountArgs} args - Arguments to filter OsFinishedGoodsReceipts to count.
+     * @example
+     * // Count the number of OsFinishedGoodsReceipts
+     * const count = await prisma.osFinishedGoodsReceipt.count({
+     *   where: {
+     *     // ... the filter for the OsFinishedGoodsReceipts we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsFinishedGoodsReceiptCountArgs>(
+      args?: Subset<T, OsFinishedGoodsReceiptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsFinishedGoodsReceiptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsFinishedGoodsReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsFinishedGoodsReceiptAggregateArgs>(args: Subset<T, OsFinishedGoodsReceiptAggregateArgs>): Prisma.PrismaPromise<GetOsFinishedGoodsReceiptAggregateType<T>>
+
+    /**
+     * Group by OsFinishedGoodsReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsFinishedGoodsReceiptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsFinishedGoodsReceiptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsFinishedGoodsReceiptGroupByArgs['orderBy'] }
+        : { orderBy?: OsFinishedGoodsReceiptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsFinishedGoodsReceiptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsFinishedGoodsReceiptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsFinishedGoodsReceipt model
+   */
+  readonly fields: OsFinishedGoodsReceiptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsFinishedGoodsReceipt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsFinishedGoodsReceiptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsFinishedGoodsReceipt model
+   */
+  interface OsFinishedGoodsReceiptFieldRefs {
+    readonly id: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly organizationId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly productId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly quantity: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly warehouseLabel: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly receivedAt: FieldRef<"OsFinishedGoodsReceipt", 'DateTime'>
+    readonly recordedAt: FieldRef<"OsFinishedGoodsReceipt", 'DateTime'>
+    readonly actorMemberId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly actorLabel: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly source: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly productionTraceEntryId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly quemaId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly correctsReceiptId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly correctionReason: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly idempotencyKey: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsFinishedGoodsReceipt findUnique
+   */
+  export type OsFinishedGoodsReceiptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which OsFinishedGoodsReceipt to fetch.
+     */
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * OsFinishedGoodsReceipt findUniqueOrThrow
+   */
+  export type OsFinishedGoodsReceiptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which OsFinishedGoodsReceipt to fetch.
+     */
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * OsFinishedGoodsReceipt findFirst
+   */
+  export type OsFinishedGoodsReceiptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which OsFinishedGoodsReceipt to fetch.
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsFinishedGoodsReceipts to fetch.
+     */
+    orderBy?: OsFinishedGoodsReceiptOrderByWithRelationInput | OsFinishedGoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsFinishedGoodsReceipts.
+     */
+    cursor?: OsFinishedGoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsFinishedGoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsFinishedGoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsFinishedGoodsReceipts.
+     */
+    distinct?: OsFinishedGoodsReceiptScalarFieldEnum | OsFinishedGoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * OsFinishedGoodsReceipt findFirstOrThrow
+   */
+  export type OsFinishedGoodsReceiptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which OsFinishedGoodsReceipt to fetch.
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsFinishedGoodsReceipts to fetch.
+     */
+    orderBy?: OsFinishedGoodsReceiptOrderByWithRelationInput | OsFinishedGoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsFinishedGoodsReceipts.
+     */
+    cursor?: OsFinishedGoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsFinishedGoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsFinishedGoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsFinishedGoodsReceipts.
+     */
+    distinct?: OsFinishedGoodsReceiptScalarFieldEnum | OsFinishedGoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * OsFinishedGoodsReceipt findMany
+   */
+  export type OsFinishedGoodsReceiptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which OsFinishedGoodsReceipts to fetch.
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsFinishedGoodsReceipts to fetch.
+     */
+    orderBy?: OsFinishedGoodsReceiptOrderByWithRelationInput | OsFinishedGoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsFinishedGoodsReceipts.
+     */
+    cursor?: OsFinishedGoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsFinishedGoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsFinishedGoodsReceipts.
+     */
+    skip?: number
+    distinct?: OsFinishedGoodsReceiptScalarFieldEnum | OsFinishedGoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * OsFinishedGoodsReceipt create
+   */
+  export type OsFinishedGoodsReceiptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsFinishedGoodsReceipt.
+     */
+    data: XOR<OsFinishedGoodsReceiptCreateInput, OsFinishedGoodsReceiptUncheckedCreateInput>
+  }
+
+  /**
+   * OsFinishedGoodsReceipt createMany
+   */
+  export type OsFinishedGoodsReceiptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsFinishedGoodsReceipts.
+     */
+    data: OsFinishedGoodsReceiptCreateManyInput | OsFinishedGoodsReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsFinishedGoodsReceipt createManyAndReturn
+   */
+  export type OsFinishedGoodsReceiptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsFinishedGoodsReceipts.
+     */
+    data: OsFinishedGoodsReceiptCreateManyInput | OsFinishedGoodsReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsFinishedGoodsReceipt update
+   */
+  export type OsFinishedGoodsReceiptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsFinishedGoodsReceipt.
+     */
+    data: XOR<OsFinishedGoodsReceiptUpdateInput, OsFinishedGoodsReceiptUncheckedUpdateInput>
+    /**
+     * Choose, which OsFinishedGoodsReceipt to update.
+     */
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * OsFinishedGoodsReceipt updateMany
+   */
+  export type OsFinishedGoodsReceiptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsFinishedGoodsReceipts.
+     */
+    data: XOR<OsFinishedGoodsReceiptUpdateManyMutationInput, OsFinishedGoodsReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which OsFinishedGoodsReceipts to update
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * Limit how many OsFinishedGoodsReceipts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsFinishedGoodsReceipt updateManyAndReturn
+   */
+  export type OsFinishedGoodsReceiptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to update OsFinishedGoodsReceipts.
+     */
+    data: XOR<OsFinishedGoodsReceiptUpdateManyMutationInput, OsFinishedGoodsReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which OsFinishedGoodsReceipts to update
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * Limit how many OsFinishedGoodsReceipts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsFinishedGoodsReceipt upsert
+   */
+  export type OsFinishedGoodsReceiptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsFinishedGoodsReceipt to update in case it exists.
+     */
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+    /**
+     * In case the OsFinishedGoodsReceipt found by the `where` argument doesn't exist, create a new OsFinishedGoodsReceipt with this data.
+     */
+    create: XOR<OsFinishedGoodsReceiptCreateInput, OsFinishedGoodsReceiptUncheckedCreateInput>
+    /**
+     * In case the OsFinishedGoodsReceipt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsFinishedGoodsReceiptUpdateInput, OsFinishedGoodsReceiptUncheckedUpdateInput>
+  }
+
+  /**
+   * OsFinishedGoodsReceipt delete
+   */
+  export type OsFinishedGoodsReceiptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter which OsFinishedGoodsReceipt to delete.
+     */
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * OsFinishedGoodsReceipt deleteMany
+   */
+  export type OsFinishedGoodsReceiptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsFinishedGoodsReceipts to delete
+     */
+    where?: OsFinishedGoodsReceiptWhereInput
+    /**
+     * Limit how many OsFinishedGoodsReceipts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsFinishedGoodsReceipt without action
+   */
+  export type OsFinishedGoodsReceiptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsFinishedGoodsReceipt
+     */
+    select?: OsFinishedGoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsFinishedGoodsReceipt
+     */
+    omit?: OsFinishedGoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsFinishedGoodsReceiptInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model OsPurchaseRequest
    */
 
@@ -105603,6 +107499,4775 @@ export namespace Prisma {
 
 
   /**
+   * Model OsPriceList
+   */
+
+  export type AggregateOsPriceList = {
+    _count: OsPriceListCountAggregateOutputType | null
+    _avg: OsPriceListAvgAggregateOutputType | null
+    _sum: OsPriceListSumAggregateOutputType | null
+    _min: OsPriceListMinAggregateOutputType | null
+    _max: OsPriceListMaxAggregateOutputType | null
+  }
+
+  export type OsPriceListAvgAggregateOutputType = {
+    sourcePage: number | null
+  }
+
+  export type OsPriceListSumAggregateOutputType = {
+    sourcePage: number | null
+  }
+
+  export type OsPriceListMinAggregateOutputType = {
+    organizationId: string | null
+    id: string | null
+    version: string | null
+    currency: string | null
+    effectiveFrom: Date | null
+    effectiveTo: Date | null
+    sourceFilename: string | null
+    sourceSha256: string | null
+    sourcePage: number | null
+    sourceExcerpt: string | null
+    printedContext: string | null
+    createdAt: Date | null
+  }
+
+  export type OsPriceListMaxAggregateOutputType = {
+    organizationId: string | null
+    id: string | null
+    version: string | null
+    currency: string | null
+    effectiveFrom: Date | null
+    effectiveTo: Date | null
+    sourceFilename: string | null
+    sourceSha256: string | null
+    sourcePage: number | null
+    sourceExcerpt: string | null
+    printedContext: string | null
+    createdAt: Date | null
+  }
+
+  export type OsPriceListCountAggregateOutputType = {
+    organizationId: number
+    id: number
+    version: number
+    currency: number
+    effectiveFrom: number
+    effectiveTo: number
+    sourceFilename: number
+    sourceSha256: number
+    sourcePage: number
+    sourceExcerpt: number
+    printedContext: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsPriceListAvgAggregateInputType = {
+    sourcePage?: true
+  }
+
+  export type OsPriceListSumAggregateInputType = {
+    sourcePage?: true
+  }
+
+  export type OsPriceListMinAggregateInputType = {
+    organizationId?: true
+    id?: true
+    version?: true
+    currency?: true
+    effectiveFrom?: true
+    effectiveTo?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+  }
+
+  export type OsPriceListMaxAggregateInputType = {
+    organizationId?: true
+    id?: true
+    version?: true
+    currency?: true
+    effectiveFrom?: true
+    effectiveTo?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+  }
+
+  export type OsPriceListCountAggregateInputType = {
+    organizationId?: true
+    id?: true
+    version?: true
+    currency?: true
+    effectiveFrom?: true
+    effectiveTo?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsPriceListAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsPriceList to aggregate.
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceLists to fetch.
+     */
+    orderBy?: OsPriceListOrderByWithRelationInput | OsPriceListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsPriceListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsPriceLists
+    **/
+    _count?: true | OsPriceListCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsPriceListAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsPriceListSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsPriceListMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsPriceListMaxAggregateInputType
+  }
+
+  export type GetOsPriceListAggregateType<T extends OsPriceListAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsPriceList]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsPriceList[P]>
+      : GetScalarType<T[P], AggregateOsPriceList[P]>
+  }
+
+
+
+
+  export type OsPriceListGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceListWhereInput
+    orderBy?: OsPriceListOrderByWithAggregationInput | OsPriceListOrderByWithAggregationInput[]
+    by: OsPriceListScalarFieldEnum[] | OsPriceListScalarFieldEnum
+    having?: OsPriceListScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsPriceListCountAggregateInputType | true
+    _avg?: OsPriceListAvgAggregateInputType
+    _sum?: OsPriceListSumAggregateInputType
+    _min?: OsPriceListMinAggregateInputType
+    _max?: OsPriceListMaxAggregateInputType
+  }
+
+  export type OsPriceListGroupByOutputType = {
+    organizationId: string
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date
+    effectiveTo: Date | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt: Date
+    _count: OsPriceListCountAggregateOutputType | null
+    _avg: OsPriceListAvgAggregateOutputType | null
+    _sum: OsPriceListSumAggregateOutputType | null
+    _min: OsPriceListMinAggregateOutputType | null
+    _max: OsPriceListMaxAggregateOutputType | null
+  }
+
+  type GetOsPriceListGroupByPayload<T extends OsPriceListGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsPriceListGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsPriceListGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsPriceListGroupByOutputType[P]>
+            : GetScalarType<T[P], OsPriceListGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsPriceListSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    version?: boolean
+    currency?: boolean
+    effectiveFrom?: boolean
+    effectiveTo?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    entries?: boolean | OsPriceList$entriesArgs<ExtArgs>
+    _count?: boolean | OsPriceListCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceList"]>
+
+  export type OsPriceListSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    version?: boolean
+    currency?: boolean
+    effectiveFrom?: boolean
+    effectiveTo?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceList"]>
+
+  export type OsPriceListSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    version?: boolean
+    currency?: boolean
+    effectiveFrom?: boolean
+    effectiveTo?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceList"]>
+
+  export type OsPriceListSelectScalar = {
+    organizationId?: boolean
+    id?: boolean
+    version?: boolean
+    currency?: boolean
+    effectiveFrom?: boolean
+    effectiveTo?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsPriceListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"organizationId" | "id" | "version" | "currency" | "effectiveFrom" | "effectiveTo" | "sourceFilename" | "sourceSha256" | "sourcePage" | "sourceExcerpt" | "printedContext" | "createdAt", ExtArgs["result"]["osPriceList"]>
+  export type OsPriceListInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    entries?: boolean | OsPriceList$entriesArgs<ExtArgs>
+    _count?: boolean | OsPriceListCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OsPriceListIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsPriceListIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsPriceListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsPriceList"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      entries: Prisma.$OsPriceEntryPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      organizationId: string
+      id: string
+      version: string
+      currency: string
+      effectiveFrom: Date
+      effectiveTo: Date | null
+      sourceFilename: string
+      sourceSha256: string
+      sourcePage: number | null
+      sourceExcerpt: string
+      printedContext: string
+      createdAt: Date
+    }, ExtArgs["result"]["osPriceList"]>
+    composites: {}
+  }
+
+  type OsPriceListGetPayload<S extends boolean | null | undefined | OsPriceListDefaultArgs> = $Result.GetResult<Prisma.$OsPriceListPayload, S>
+
+  type OsPriceListCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsPriceListFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsPriceListCountAggregateInputType | true
+    }
+
+  export interface OsPriceListDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsPriceList'], meta: { name: 'OsPriceList' } }
+    /**
+     * Find zero or one OsPriceList that matches the filter.
+     * @param {OsPriceListFindUniqueArgs} args - Arguments to find a OsPriceList
+     * @example
+     * // Get one OsPriceList
+     * const osPriceList = await prisma.osPriceList.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsPriceListFindUniqueArgs>(args: SelectSubset<T, OsPriceListFindUniqueArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsPriceList that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsPriceListFindUniqueOrThrowArgs} args - Arguments to find a OsPriceList
+     * @example
+     * // Get one OsPriceList
+     * const osPriceList = await prisma.osPriceList.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsPriceListFindUniqueOrThrowArgs>(args: SelectSubset<T, OsPriceListFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsPriceList that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListFindFirstArgs} args - Arguments to find a OsPriceList
+     * @example
+     * // Get one OsPriceList
+     * const osPriceList = await prisma.osPriceList.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsPriceListFindFirstArgs>(args?: SelectSubset<T, OsPriceListFindFirstArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsPriceList that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListFindFirstOrThrowArgs} args - Arguments to find a OsPriceList
+     * @example
+     * // Get one OsPriceList
+     * const osPriceList = await prisma.osPriceList.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsPriceListFindFirstOrThrowArgs>(args?: SelectSubset<T, OsPriceListFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsPriceLists that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsPriceLists
+     * const osPriceLists = await prisma.osPriceList.findMany()
+     * 
+     * // Get first 10 OsPriceLists
+     * const osPriceLists = await prisma.osPriceList.findMany({ take: 10 })
+     * 
+     * // Only select the `organizationId`
+     * const osPriceListWithOrganizationIdOnly = await prisma.osPriceList.findMany({ select: { organizationId: true } })
+     * 
+     */
+    findMany<T extends OsPriceListFindManyArgs>(args?: SelectSubset<T, OsPriceListFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsPriceList.
+     * @param {OsPriceListCreateArgs} args - Arguments to create a OsPriceList.
+     * @example
+     * // Create one OsPriceList
+     * const OsPriceList = await prisma.osPriceList.create({
+     *   data: {
+     *     // ... data to create a OsPriceList
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsPriceListCreateArgs>(args: SelectSubset<T, OsPriceListCreateArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsPriceLists.
+     * @param {OsPriceListCreateManyArgs} args - Arguments to create many OsPriceLists.
+     * @example
+     * // Create many OsPriceLists
+     * const osPriceList = await prisma.osPriceList.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsPriceListCreateManyArgs>(args?: SelectSubset<T, OsPriceListCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsPriceLists and returns the data saved in the database.
+     * @param {OsPriceListCreateManyAndReturnArgs} args - Arguments to create many OsPriceLists.
+     * @example
+     * // Create many OsPriceLists
+     * const osPriceList = await prisma.osPriceList.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsPriceLists and only return the `organizationId`
+     * const osPriceListWithOrganizationIdOnly = await prisma.osPriceList.createManyAndReturn({
+     *   select: { organizationId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsPriceListCreateManyAndReturnArgs>(args?: SelectSubset<T, OsPriceListCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsPriceList.
+     * @param {OsPriceListDeleteArgs} args - Arguments to delete one OsPriceList.
+     * @example
+     * // Delete one OsPriceList
+     * const OsPriceList = await prisma.osPriceList.delete({
+     *   where: {
+     *     // ... filter to delete one OsPriceList
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsPriceListDeleteArgs>(args: SelectSubset<T, OsPriceListDeleteArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsPriceList.
+     * @param {OsPriceListUpdateArgs} args - Arguments to update one OsPriceList.
+     * @example
+     * // Update one OsPriceList
+     * const osPriceList = await prisma.osPriceList.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsPriceListUpdateArgs>(args: SelectSubset<T, OsPriceListUpdateArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsPriceLists.
+     * @param {OsPriceListDeleteManyArgs} args - Arguments to filter OsPriceLists to delete.
+     * @example
+     * // Delete a few OsPriceLists
+     * const { count } = await prisma.osPriceList.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsPriceListDeleteManyArgs>(args?: SelectSubset<T, OsPriceListDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsPriceLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsPriceLists
+     * const osPriceList = await prisma.osPriceList.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsPriceListUpdateManyArgs>(args: SelectSubset<T, OsPriceListUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsPriceLists and returns the data updated in the database.
+     * @param {OsPriceListUpdateManyAndReturnArgs} args - Arguments to update many OsPriceLists.
+     * @example
+     * // Update many OsPriceLists
+     * const osPriceList = await prisma.osPriceList.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsPriceLists and only return the `organizationId`
+     * const osPriceListWithOrganizationIdOnly = await prisma.osPriceList.updateManyAndReturn({
+     *   select: { organizationId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsPriceListUpdateManyAndReturnArgs>(args: SelectSubset<T, OsPriceListUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsPriceList.
+     * @param {OsPriceListUpsertArgs} args - Arguments to update or create a OsPriceList.
+     * @example
+     * // Update or create a OsPriceList
+     * const osPriceList = await prisma.osPriceList.upsert({
+     *   create: {
+     *     // ... data to create a OsPriceList
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsPriceList we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsPriceListUpsertArgs>(args: SelectSubset<T, OsPriceListUpsertArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsPriceLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListCountArgs} args - Arguments to filter OsPriceLists to count.
+     * @example
+     * // Count the number of OsPriceLists
+     * const count = await prisma.osPriceList.count({
+     *   where: {
+     *     // ... the filter for the OsPriceLists we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsPriceListCountArgs>(
+      args?: Subset<T, OsPriceListCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsPriceListCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsPriceList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsPriceListAggregateArgs>(args: Subset<T, OsPriceListAggregateArgs>): Prisma.PrismaPromise<GetOsPriceListAggregateType<T>>
+
+    /**
+     * Group by OsPriceList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceListGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsPriceListGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsPriceListGroupByArgs['orderBy'] }
+        : { orderBy?: OsPriceListGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsPriceListGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsPriceListGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsPriceList model
+   */
+  readonly fields: OsPriceListFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsPriceList.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsPriceListClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    entries<T extends OsPriceList$entriesArgs<ExtArgs> = {}>(args?: Subset<T, OsPriceList$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsPriceList model
+   */
+  interface OsPriceListFieldRefs {
+    readonly organizationId: FieldRef<"OsPriceList", 'String'>
+    readonly id: FieldRef<"OsPriceList", 'String'>
+    readonly version: FieldRef<"OsPriceList", 'String'>
+    readonly currency: FieldRef<"OsPriceList", 'String'>
+    readonly effectiveFrom: FieldRef<"OsPriceList", 'DateTime'>
+    readonly effectiveTo: FieldRef<"OsPriceList", 'DateTime'>
+    readonly sourceFilename: FieldRef<"OsPriceList", 'String'>
+    readonly sourceSha256: FieldRef<"OsPriceList", 'String'>
+    readonly sourcePage: FieldRef<"OsPriceList", 'Int'>
+    readonly sourceExcerpt: FieldRef<"OsPriceList", 'String'>
+    readonly printedContext: FieldRef<"OsPriceList", 'String'>
+    readonly createdAt: FieldRef<"OsPriceList", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsPriceList findUnique
+   */
+  export type OsPriceListFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceList to fetch.
+     */
+    where: OsPriceListWhereUniqueInput
+  }
+
+  /**
+   * OsPriceList findUniqueOrThrow
+   */
+  export type OsPriceListFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceList to fetch.
+     */
+    where: OsPriceListWhereUniqueInput
+  }
+
+  /**
+   * OsPriceList findFirst
+   */
+  export type OsPriceListFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceList to fetch.
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceLists to fetch.
+     */
+    orderBy?: OsPriceListOrderByWithRelationInput | OsPriceListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsPriceLists.
+     */
+    cursor?: OsPriceListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsPriceLists.
+     */
+    distinct?: OsPriceListScalarFieldEnum | OsPriceListScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceList findFirstOrThrow
+   */
+  export type OsPriceListFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceList to fetch.
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceLists to fetch.
+     */
+    orderBy?: OsPriceListOrderByWithRelationInput | OsPriceListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsPriceLists.
+     */
+    cursor?: OsPriceListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsPriceLists.
+     */
+    distinct?: OsPriceListScalarFieldEnum | OsPriceListScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceList findMany
+   */
+  export type OsPriceListFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceLists to fetch.
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceLists to fetch.
+     */
+    orderBy?: OsPriceListOrderByWithRelationInput | OsPriceListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsPriceLists.
+     */
+    cursor?: OsPriceListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceLists.
+     */
+    skip?: number
+    distinct?: OsPriceListScalarFieldEnum | OsPriceListScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceList create
+   */
+  export type OsPriceListCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsPriceList.
+     */
+    data: XOR<OsPriceListCreateInput, OsPriceListUncheckedCreateInput>
+  }
+
+  /**
+   * OsPriceList createMany
+   */
+  export type OsPriceListCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsPriceLists.
+     */
+    data: OsPriceListCreateManyInput | OsPriceListCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsPriceList createManyAndReturn
+   */
+  export type OsPriceListCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsPriceLists.
+     */
+    data: OsPriceListCreateManyInput | OsPriceListCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsPriceList update
+   */
+  export type OsPriceListUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsPriceList.
+     */
+    data: XOR<OsPriceListUpdateInput, OsPriceListUncheckedUpdateInput>
+    /**
+     * Choose, which OsPriceList to update.
+     */
+    where: OsPriceListWhereUniqueInput
+  }
+
+  /**
+   * OsPriceList updateMany
+   */
+  export type OsPriceListUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsPriceLists.
+     */
+    data: XOR<OsPriceListUpdateManyMutationInput, OsPriceListUncheckedUpdateManyInput>
+    /**
+     * Filter which OsPriceLists to update
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * Limit how many OsPriceLists to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsPriceList updateManyAndReturn
+   */
+  export type OsPriceListUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * The data used to update OsPriceLists.
+     */
+    data: XOR<OsPriceListUpdateManyMutationInput, OsPriceListUncheckedUpdateManyInput>
+    /**
+     * Filter which OsPriceLists to update
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * Limit how many OsPriceLists to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsPriceList upsert
+   */
+  export type OsPriceListUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsPriceList to update in case it exists.
+     */
+    where: OsPriceListWhereUniqueInput
+    /**
+     * In case the OsPriceList found by the `where` argument doesn't exist, create a new OsPriceList with this data.
+     */
+    create: XOR<OsPriceListCreateInput, OsPriceListUncheckedCreateInput>
+    /**
+     * In case the OsPriceList was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsPriceListUpdateInput, OsPriceListUncheckedUpdateInput>
+  }
+
+  /**
+   * OsPriceList delete
+   */
+  export type OsPriceListDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+    /**
+     * Filter which OsPriceList to delete.
+     */
+    where: OsPriceListWhereUniqueInput
+  }
+
+  /**
+   * OsPriceList deleteMany
+   */
+  export type OsPriceListDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsPriceLists to delete
+     */
+    where?: OsPriceListWhereInput
+    /**
+     * Limit how many OsPriceLists to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsPriceList.entries
+   */
+  export type OsPriceList$entriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    where?: OsPriceEntryWhereInput
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    cursor?: OsPriceEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceList without action
+   */
+  export type OsPriceListDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceList
+     */
+    select?: OsPriceListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceList
+     */
+    omit?: OsPriceListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceListInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsPriceEntry
+   */
+
+  export type AggregateOsPriceEntry = {
+    _count: OsPriceEntryCountAggregateOutputType | null
+    _avg: OsPriceEntryAvgAggregateOutputType | null
+    _sum: OsPriceEntrySumAggregateOutputType | null
+    _min: OsPriceEntryMinAggregateOutputType | null
+    _max: OsPriceEntryMaxAggregateOutputType | null
+  }
+
+  export type OsPriceEntryAvgAggregateOutputType = {
+    amountCentavos: number | null
+    sourcePage: number | null
+  }
+
+  export type OsPriceEntrySumAggregateOutputType = {
+    amountCentavos: bigint | null
+    sourcePage: number | null
+  }
+
+  export type OsPriceEntryMinAggregateOutputType = {
+    organizationId: string | null
+    id: string | null
+    priceListId: string | null
+    productId: string | null
+    context: string | null
+    currency: string | null
+    amountCentavos: bigint | null
+    sourceFilename: string | null
+    sourceSha256: string | null
+    sourcePage: number | null
+    sourceExcerpt: string | null
+    printedContext: string | null
+    createdAt: Date | null
+  }
+
+  export type OsPriceEntryMaxAggregateOutputType = {
+    organizationId: string | null
+    id: string | null
+    priceListId: string | null
+    productId: string | null
+    context: string | null
+    currency: string | null
+    amountCentavos: bigint | null
+    sourceFilename: string | null
+    sourceSha256: string | null
+    sourcePage: number | null
+    sourceExcerpt: string | null
+    printedContext: string | null
+    createdAt: Date | null
+  }
+
+  export type OsPriceEntryCountAggregateOutputType = {
+    organizationId: number
+    id: number
+    priceListId: number
+    productId: number
+    context: number
+    currency: number
+    amountCentavos: number
+    sourceFilename: number
+    sourceSha256: number
+    sourcePage: number
+    sourceExcerpt: number
+    printedContext: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsPriceEntryAvgAggregateInputType = {
+    amountCentavos?: true
+    sourcePage?: true
+  }
+
+  export type OsPriceEntrySumAggregateInputType = {
+    amountCentavos?: true
+    sourcePage?: true
+  }
+
+  export type OsPriceEntryMinAggregateInputType = {
+    organizationId?: true
+    id?: true
+    priceListId?: true
+    productId?: true
+    context?: true
+    currency?: true
+    amountCentavos?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+  }
+
+  export type OsPriceEntryMaxAggregateInputType = {
+    organizationId?: true
+    id?: true
+    priceListId?: true
+    productId?: true
+    context?: true
+    currency?: true
+    amountCentavos?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+  }
+
+  export type OsPriceEntryCountAggregateInputType = {
+    organizationId?: true
+    id?: true
+    priceListId?: true
+    productId?: true
+    context?: true
+    currency?: true
+    amountCentavos?: true
+    sourceFilename?: true
+    sourceSha256?: true
+    sourcePage?: true
+    sourceExcerpt?: true
+    printedContext?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsPriceEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsPriceEntry to aggregate.
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceEntries to fetch.
+     */
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsPriceEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsPriceEntries
+    **/
+    _count?: true | OsPriceEntryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OsPriceEntryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OsPriceEntrySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsPriceEntryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsPriceEntryMaxAggregateInputType
+  }
+
+  export type GetOsPriceEntryAggregateType<T extends OsPriceEntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsPriceEntry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsPriceEntry[P]>
+      : GetScalarType<T[P], AggregateOsPriceEntry[P]>
+  }
+
+
+
+
+  export type OsPriceEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsPriceEntryWhereInput
+    orderBy?: OsPriceEntryOrderByWithAggregationInput | OsPriceEntryOrderByWithAggregationInput[]
+    by: OsPriceEntryScalarFieldEnum[] | OsPriceEntryScalarFieldEnum
+    having?: OsPriceEntryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsPriceEntryCountAggregateInputType | true
+    _avg?: OsPriceEntryAvgAggregateInputType
+    _sum?: OsPriceEntrySumAggregateInputType
+    _min?: OsPriceEntryMinAggregateInputType
+    _max?: OsPriceEntryMaxAggregateInputType
+  }
+
+  export type OsPriceEntryGroupByOutputType = {
+    organizationId: string
+    id: string
+    priceListId: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt: Date
+    _count: OsPriceEntryCountAggregateOutputType | null
+    _avg: OsPriceEntryAvgAggregateOutputType | null
+    _sum: OsPriceEntrySumAggregateOutputType | null
+    _min: OsPriceEntryMinAggregateOutputType | null
+    _max: OsPriceEntryMaxAggregateOutputType | null
+  }
+
+  type GetOsPriceEntryGroupByPayload<T extends OsPriceEntryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsPriceEntryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsPriceEntryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsPriceEntryGroupByOutputType[P]>
+            : GetScalarType<T[P], OsPriceEntryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsPriceEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    priceListId?: boolean
+    productId?: boolean
+    context?: boolean
+    currency?: boolean
+    amountCentavos?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceEntry"]>
+
+  export type OsPriceEntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    priceListId?: boolean
+    productId?: boolean
+    context?: boolean
+    currency?: boolean
+    amountCentavos?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceEntry"]>
+
+  export type OsPriceEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    organizationId?: boolean
+    id?: boolean
+    priceListId?: boolean
+    productId?: boolean
+    context?: boolean
+    currency?: boolean
+    amountCentavos?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osPriceEntry"]>
+
+  export type OsPriceEntrySelectScalar = {
+    organizationId?: boolean
+    id?: boolean
+    priceListId?: boolean
+    productId?: boolean
+    context?: boolean
+    currency?: boolean
+    amountCentavos?: boolean
+    sourceFilename?: boolean
+    sourceSha256?: boolean
+    sourcePage?: boolean
+    sourceExcerpt?: boolean
+    printedContext?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsPriceEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"organizationId" | "id" | "priceListId" | "productId" | "context" | "currency" | "amountCentavos" | "sourceFilename" | "sourceSha256" | "sourcePage" | "sourceExcerpt" | "printedContext" | "createdAt", ExtArgs["result"]["osPriceEntry"]>
+  export type OsPriceEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }
+  export type OsPriceEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }
+  export type OsPriceEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+    priceList?: boolean | OsPriceListDefaultArgs<ExtArgs>
+    product?: boolean | OsCatalogProductDefaultArgs<ExtArgs>
+  }
+
+  export type $OsPriceEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsPriceEntry"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+      priceList: Prisma.$OsPriceListPayload<ExtArgs>
+      product: Prisma.$OsCatalogProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      organizationId: string
+      id: string
+      priceListId: string
+      productId: string
+      context: string
+      currency: string
+      amountCentavos: bigint
+      sourceFilename: string
+      sourceSha256: string
+      sourcePage: number | null
+      sourceExcerpt: string
+      printedContext: string
+      createdAt: Date
+    }, ExtArgs["result"]["osPriceEntry"]>
+    composites: {}
+  }
+
+  type OsPriceEntryGetPayload<S extends boolean | null | undefined | OsPriceEntryDefaultArgs> = $Result.GetResult<Prisma.$OsPriceEntryPayload, S>
+
+  type OsPriceEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsPriceEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsPriceEntryCountAggregateInputType | true
+    }
+
+  export interface OsPriceEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsPriceEntry'], meta: { name: 'OsPriceEntry' } }
+    /**
+     * Find zero or one OsPriceEntry that matches the filter.
+     * @param {OsPriceEntryFindUniqueArgs} args - Arguments to find a OsPriceEntry
+     * @example
+     * // Get one OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsPriceEntryFindUniqueArgs>(args: SelectSubset<T, OsPriceEntryFindUniqueArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsPriceEntry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsPriceEntryFindUniqueOrThrowArgs} args - Arguments to find a OsPriceEntry
+     * @example
+     * // Get one OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsPriceEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, OsPriceEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsPriceEntry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryFindFirstArgs} args - Arguments to find a OsPriceEntry
+     * @example
+     * // Get one OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsPriceEntryFindFirstArgs>(args?: SelectSubset<T, OsPriceEntryFindFirstArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsPriceEntry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryFindFirstOrThrowArgs} args - Arguments to find a OsPriceEntry
+     * @example
+     * // Get one OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsPriceEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, OsPriceEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsPriceEntries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsPriceEntries
+     * const osPriceEntries = await prisma.osPriceEntry.findMany()
+     * 
+     * // Get first 10 OsPriceEntries
+     * const osPriceEntries = await prisma.osPriceEntry.findMany({ take: 10 })
+     * 
+     * // Only select the `organizationId`
+     * const osPriceEntryWithOrganizationIdOnly = await prisma.osPriceEntry.findMany({ select: { organizationId: true } })
+     * 
+     */
+    findMany<T extends OsPriceEntryFindManyArgs>(args?: SelectSubset<T, OsPriceEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsPriceEntry.
+     * @param {OsPriceEntryCreateArgs} args - Arguments to create a OsPriceEntry.
+     * @example
+     * // Create one OsPriceEntry
+     * const OsPriceEntry = await prisma.osPriceEntry.create({
+     *   data: {
+     *     // ... data to create a OsPriceEntry
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsPriceEntryCreateArgs>(args: SelectSubset<T, OsPriceEntryCreateArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsPriceEntries.
+     * @param {OsPriceEntryCreateManyArgs} args - Arguments to create many OsPriceEntries.
+     * @example
+     * // Create many OsPriceEntries
+     * const osPriceEntry = await prisma.osPriceEntry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsPriceEntryCreateManyArgs>(args?: SelectSubset<T, OsPriceEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsPriceEntries and returns the data saved in the database.
+     * @param {OsPriceEntryCreateManyAndReturnArgs} args - Arguments to create many OsPriceEntries.
+     * @example
+     * // Create many OsPriceEntries
+     * const osPriceEntry = await prisma.osPriceEntry.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsPriceEntries and only return the `organizationId`
+     * const osPriceEntryWithOrganizationIdOnly = await prisma.osPriceEntry.createManyAndReturn({
+     *   select: { organizationId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsPriceEntryCreateManyAndReturnArgs>(args?: SelectSubset<T, OsPriceEntryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsPriceEntry.
+     * @param {OsPriceEntryDeleteArgs} args - Arguments to delete one OsPriceEntry.
+     * @example
+     * // Delete one OsPriceEntry
+     * const OsPriceEntry = await prisma.osPriceEntry.delete({
+     *   where: {
+     *     // ... filter to delete one OsPriceEntry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsPriceEntryDeleteArgs>(args: SelectSubset<T, OsPriceEntryDeleteArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsPriceEntry.
+     * @param {OsPriceEntryUpdateArgs} args - Arguments to update one OsPriceEntry.
+     * @example
+     * // Update one OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsPriceEntryUpdateArgs>(args: SelectSubset<T, OsPriceEntryUpdateArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsPriceEntries.
+     * @param {OsPriceEntryDeleteManyArgs} args - Arguments to filter OsPriceEntries to delete.
+     * @example
+     * // Delete a few OsPriceEntries
+     * const { count } = await prisma.osPriceEntry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsPriceEntryDeleteManyArgs>(args?: SelectSubset<T, OsPriceEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsPriceEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsPriceEntries
+     * const osPriceEntry = await prisma.osPriceEntry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsPriceEntryUpdateManyArgs>(args: SelectSubset<T, OsPriceEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsPriceEntries and returns the data updated in the database.
+     * @param {OsPriceEntryUpdateManyAndReturnArgs} args - Arguments to update many OsPriceEntries.
+     * @example
+     * // Update many OsPriceEntries
+     * const osPriceEntry = await prisma.osPriceEntry.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsPriceEntries and only return the `organizationId`
+     * const osPriceEntryWithOrganizationIdOnly = await prisma.osPriceEntry.updateManyAndReturn({
+     *   select: { organizationId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsPriceEntryUpdateManyAndReturnArgs>(args: SelectSubset<T, OsPriceEntryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsPriceEntry.
+     * @param {OsPriceEntryUpsertArgs} args - Arguments to update or create a OsPriceEntry.
+     * @example
+     * // Update or create a OsPriceEntry
+     * const osPriceEntry = await prisma.osPriceEntry.upsert({
+     *   create: {
+     *     // ... data to create a OsPriceEntry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsPriceEntry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsPriceEntryUpsertArgs>(args: SelectSubset<T, OsPriceEntryUpsertArgs<ExtArgs>>): Prisma__OsPriceEntryClient<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsPriceEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryCountArgs} args - Arguments to filter OsPriceEntries to count.
+     * @example
+     * // Count the number of OsPriceEntries
+     * const count = await prisma.osPriceEntry.count({
+     *   where: {
+     *     // ... the filter for the OsPriceEntries we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsPriceEntryCountArgs>(
+      args?: Subset<T, OsPriceEntryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsPriceEntryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsPriceEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsPriceEntryAggregateArgs>(args: Subset<T, OsPriceEntryAggregateArgs>): Prisma.PrismaPromise<GetOsPriceEntryAggregateType<T>>
+
+    /**
+     * Group by OsPriceEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsPriceEntryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsPriceEntryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsPriceEntryGroupByArgs['orderBy'] }
+        : { orderBy?: OsPriceEntryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsPriceEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsPriceEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsPriceEntry model
+   */
+  readonly fields: OsPriceEntryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsPriceEntry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsPriceEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    priceList<T extends OsPriceListDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsPriceListDefaultArgs<ExtArgs>>): Prisma__OsPriceListClient<$Result.GetResult<Prisma.$OsPriceListPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    product<T extends OsCatalogProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsCatalogProductDefaultArgs<ExtArgs>>): Prisma__OsCatalogProductClient<$Result.GetResult<Prisma.$OsCatalogProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsPriceEntry model
+   */
+  interface OsPriceEntryFieldRefs {
+    readonly organizationId: FieldRef<"OsPriceEntry", 'String'>
+    readonly id: FieldRef<"OsPriceEntry", 'String'>
+    readonly priceListId: FieldRef<"OsPriceEntry", 'String'>
+    readonly productId: FieldRef<"OsPriceEntry", 'String'>
+    readonly context: FieldRef<"OsPriceEntry", 'String'>
+    readonly currency: FieldRef<"OsPriceEntry", 'String'>
+    readonly amountCentavos: FieldRef<"OsPriceEntry", 'BigInt'>
+    readonly sourceFilename: FieldRef<"OsPriceEntry", 'String'>
+    readonly sourceSha256: FieldRef<"OsPriceEntry", 'String'>
+    readonly sourcePage: FieldRef<"OsPriceEntry", 'Int'>
+    readonly sourceExcerpt: FieldRef<"OsPriceEntry", 'String'>
+    readonly printedContext: FieldRef<"OsPriceEntry", 'String'>
+    readonly createdAt: FieldRef<"OsPriceEntry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsPriceEntry findUnique
+   */
+  export type OsPriceEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceEntry to fetch.
+     */
+    where: OsPriceEntryWhereUniqueInput
+  }
+
+  /**
+   * OsPriceEntry findUniqueOrThrow
+   */
+  export type OsPriceEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceEntry to fetch.
+     */
+    where: OsPriceEntryWhereUniqueInput
+  }
+
+  /**
+   * OsPriceEntry findFirst
+   */
+  export type OsPriceEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceEntry to fetch.
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceEntries to fetch.
+     */
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsPriceEntries.
+     */
+    cursor?: OsPriceEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsPriceEntries.
+     */
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceEntry findFirstOrThrow
+   */
+  export type OsPriceEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceEntry to fetch.
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceEntries to fetch.
+     */
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsPriceEntries.
+     */
+    cursor?: OsPriceEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsPriceEntries.
+     */
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceEntry findMany
+   */
+  export type OsPriceEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which OsPriceEntries to fetch.
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsPriceEntries to fetch.
+     */
+    orderBy?: OsPriceEntryOrderByWithRelationInput | OsPriceEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsPriceEntries.
+     */
+    cursor?: OsPriceEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsPriceEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsPriceEntries.
+     */
+    skip?: number
+    distinct?: OsPriceEntryScalarFieldEnum | OsPriceEntryScalarFieldEnum[]
+  }
+
+  /**
+   * OsPriceEntry create
+   */
+  export type OsPriceEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsPriceEntry.
+     */
+    data: XOR<OsPriceEntryCreateInput, OsPriceEntryUncheckedCreateInput>
+  }
+
+  /**
+   * OsPriceEntry createMany
+   */
+  export type OsPriceEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsPriceEntries.
+     */
+    data: OsPriceEntryCreateManyInput | OsPriceEntryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsPriceEntry createManyAndReturn
+   */
+  export type OsPriceEntryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsPriceEntries.
+     */
+    data: OsPriceEntryCreateManyInput | OsPriceEntryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsPriceEntry update
+   */
+  export type OsPriceEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsPriceEntry.
+     */
+    data: XOR<OsPriceEntryUpdateInput, OsPriceEntryUncheckedUpdateInput>
+    /**
+     * Choose, which OsPriceEntry to update.
+     */
+    where: OsPriceEntryWhereUniqueInput
+  }
+
+  /**
+   * OsPriceEntry updateMany
+   */
+  export type OsPriceEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsPriceEntries.
+     */
+    data: XOR<OsPriceEntryUpdateManyMutationInput, OsPriceEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which OsPriceEntries to update
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * Limit how many OsPriceEntries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsPriceEntry updateManyAndReturn
+   */
+  export type OsPriceEntryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * The data used to update OsPriceEntries.
+     */
+    data: XOR<OsPriceEntryUpdateManyMutationInput, OsPriceEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which OsPriceEntries to update
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * Limit how many OsPriceEntries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsPriceEntry upsert
+   */
+  export type OsPriceEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsPriceEntry to update in case it exists.
+     */
+    where: OsPriceEntryWhereUniqueInput
+    /**
+     * In case the OsPriceEntry found by the `where` argument doesn't exist, create a new OsPriceEntry with this data.
+     */
+    create: XOR<OsPriceEntryCreateInput, OsPriceEntryUncheckedCreateInput>
+    /**
+     * In case the OsPriceEntry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsPriceEntryUpdateInput, OsPriceEntryUncheckedUpdateInput>
+  }
+
+  /**
+   * OsPriceEntry delete
+   */
+  export type OsPriceEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+    /**
+     * Filter which OsPriceEntry to delete.
+     */
+    where: OsPriceEntryWhereUniqueInput
+  }
+
+  /**
+   * OsPriceEntry deleteMany
+   */
+  export type OsPriceEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsPriceEntries to delete
+     */
+    where?: OsPriceEntryWhereInput
+    /**
+     * Limit how many OsPriceEntries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsPriceEntry without action
+   */
+  export type OsPriceEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsPriceEntry
+     */
+    select?: OsPriceEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsPriceEntry
+     */
+    omit?: OsPriceEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsPriceEntryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsSpecialOrderClassification
+   */
+
+  export type AggregateOsSpecialOrderClassification = {
+    _count: OsSpecialOrderClassificationCountAggregateOutputType | null
+    _min: OsSpecialOrderClassificationMinAggregateOutputType | null
+    _max: OsSpecialOrderClassificationMaxAggregateOutputType | null
+  }
+
+  export type OsSpecialOrderClassificationMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    orderId: string | null
+    classification: string | null
+    requiresProductionPlanning: boolean | null
+    actorMemberId: string | null
+    actorLabel: string | null
+    source: string | null
+    recordedAt: Date | null
+    previousClassification: string | null
+    previousRequiresProductionPlanning: boolean | null
+    createdAt: Date | null
+  }
+
+  export type OsSpecialOrderClassificationMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    orderId: string | null
+    classification: string | null
+    requiresProductionPlanning: boolean | null
+    actorMemberId: string | null
+    actorLabel: string | null
+    source: string | null
+    recordedAt: Date | null
+    previousClassification: string | null
+    previousRequiresProductionPlanning: boolean | null
+    createdAt: Date | null
+  }
+
+  export type OsSpecialOrderClassificationCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    orderId: number
+    classification: number
+    requiresProductionPlanning: number
+    actorMemberId: number
+    actorLabel: number
+    source: number
+    recordedAt: number
+    previousClassification: number
+    previousRequiresProductionPlanning: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsSpecialOrderClassificationMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    orderId?: true
+    classification?: true
+    requiresProductionPlanning?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    recordedAt?: true
+    previousClassification?: true
+    previousRequiresProductionPlanning?: true
+    createdAt?: true
+  }
+
+  export type OsSpecialOrderClassificationMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    orderId?: true
+    classification?: true
+    requiresProductionPlanning?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    recordedAt?: true
+    previousClassification?: true
+    previousRequiresProductionPlanning?: true
+    createdAt?: true
+  }
+
+  export type OsSpecialOrderClassificationCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    orderId?: true
+    classification?: true
+    requiresProductionPlanning?: true
+    actorMemberId?: true
+    actorLabel?: true
+    source?: true
+    recordedAt?: true
+    previousClassification?: true
+    previousRequiresProductionPlanning?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsSpecialOrderClassificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsSpecialOrderClassification to aggregate.
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsSpecialOrderClassifications to fetch.
+     */
+    orderBy?: OsSpecialOrderClassificationOrderByWithRelationInput | OsSpecialOrderClassificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsSpecialOrderClassificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsSpecialOrderClassifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsSpecialOrderClassifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsSpecialOrderClassifications
+    **/
+    _count?: true | OsSpecialOrderClassificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsSpecialOrderClassificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsSpecialOrderClassificationMaxAggregateInputType
+  }
+
+  export type GetOsSpecialOrderClassificationAggregateType<T extends OsSpecialOrderClassificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsSpecialOrderClassification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsSpecialOrderClassification[P]>
+      : GetScalarType<T[P], AggregateOsSpecialOrderClassification[P]>
+  }
+
+
+
+
+  export type OsSpecialOrderClassificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsSpecialOrderClassificationWhereInput
+    orderBy?: OsSpecialOrderClassificationOrderByWithAggregationInput | OsSpecialOrderClassificationOrderByWithAggregationInput[]
+    by: OsSpecialOrderClassificationScalarFieldEnum[] | OsSpecialOrderClassificationScalarFieldEnum
+    having?: OsSpecialOrderClassificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsSpecialOrderClassificationCountAggregateInputType | true
+    _min?: OsSpecialOrderClassificationMinAggregateInputType
+    _max?: OsSpecialOrderClassificationMaxAggregateInputType
+  }
+
+  export type OsSpecialOrderClassificationGroupByOutputType = {
+    id: string
+    organizationId: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date
+    previousClassification: string | null
+    previousRequiresProductionPlanning: boolean | null
+    createdAt: Date
+    _count: OsSpecialOrderClassificationCountAggregateOutputType | null
+    _min: OsSpecialOrderClassificationMinAggregateOutputType | null
+    _max: OsSpecialOrderClassificationMaxAggregateOutputType | null
+  }
+
+  type GetOsSpecialOrderClassificationGroupByPayload<T extends OsSpecialOrderClassificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsSpecialOrderClassificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsSpecialOrderClassificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsSpecialOrderClassificationGroupByOutputType[P]>
+            : GetScalarType<T[P], OsSpecialOrderClassificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsSpecialOrderClassificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    orderId?: boolean
+    classification?: boolean
+    requiresProductionPlanning?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    recordedAt?: boolean
+    previousClassification?: boolean
+    previousRequiresProductionPlanning?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osSpecialOrderClassification"]>
+
+  export type OsSpecialOrderClassificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    orderId?: boolean
+    classification?: boolean
+    requiresProductionPlanning?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    recordedAt?: boolean
+    previousClassification?: boolean
+    previousRequiresProductionPlanning?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osSpecialOrderClassification"]>
+
+  export type OsSpecialOrderClassificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    orderId?: boolean
+    classification?: boolean
+    requiresProductionPlanning?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    recordedAt?: boolean
+    previousClassification?: boolean
+    previousRequiresProductionPlanning?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osSpecialOrderClassification"]>
+
+  export type OsSpecialOrderClassificationSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    orderId?: boolean
+    classification?: boolean
+    requiresProductionPlanning?: boolean
+    actorMemberId?: boolean
+    actorLabel?: boolean
+    source?: boolean
+    recordedAt?: boolean
+    previousClassification?: boolean
+    previousRequiresProductionPlanning?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsSpecialOrderClassificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "orderId" | "classification" | "requiresProductionPlanning" | "actorMemberId" | "actorLabel" | "source" | "recordedAt" | "previousClassification" | "previousRequiresProductionPlanning" | "createdAt", ExtArgs["result"]["osSpecialOrderClassification"]>
+  export type OsSpecialOrderClassificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsSpecialOrderClassificationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsSpecialOrderClassificationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsSpecialOrderClassificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsSpecialOrderClassification"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      orderId: string
+      classification: string
+      requiresProductionPlanning: boolean
+      actorMemberId: string | null
+      actorLabel: string
+      source: string
+      recordedAt: Date
+      previousClassification: string | null
+      previousRequiresProductionPlanning: boolean | null
+      createdAt: Date
+    }, ExtArgs["result"]["osSpecialOrderClassification"]>
+    composites: {}
+  }
+
+  type OsSpecialOrderClassificationGetPayload<S extends boolean | null | undefined | OsSpecialOrderClassificationDefaultArgs> = $Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload, S>
+
+  type OsSpecialOrderClassificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsSpecialOrderClassificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsSpecialOrderClassificationCountAggregateInputType | true
+    }
+
+  export interface OsSpecialOrderClassificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsSpecialOrderClassification'], meta: { name: 'OsSpecialOrderClassification' } }
+    /**
+     * Find zero or one OsSpecialOrderClassification that matches the filter.
+     * @param {OsSpecialOrderClassificationFindUniqueArgs} args - Arguments to find a OsSpecialOrderClassification
+     * @example
+     * // Get one OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsSpecialOrderClassificationFindUniqueArgs>(args: SelectSubset<T, OsSpecialOrderClassificationFindUniqueArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsSpecialOrderClassification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsSpecialOrderClassificationFindUniqueOrThrowArgs} args - Arguments to find a OsSpecialOrderClassification
+     * @example
+     * // Get one OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsSpecialOrderClassificationFindUniqueOrThrowArgs>(args: SelectSubset<T, OsSpecialOrderClassificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsSpecialOrderClassification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationFindFirstArgs} args - Arguments to find a OsSpecialOrderClassification
+     * @example
+     * // Get one OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsSpecialOrderClassificationFindFirstArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationFindFirstArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsSpecialOrderClassification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationFindFirstOrThrowArgs} args - Arguments to find a OsSpecialOrderClassification
+     * @example
+     * // Get one OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsSpecialOrderClassificationFindFirstOrThrowArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsSpecialOrderClassifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsSpecialOrderClassifications
+     * const osSpecialOrderClassifications = await prisma.osSpecialOrderClassification.findMany()
+     * 
+     * // Get first 10 OsSpecialOrderClassifications
+     * const osSpecialOrderClassifications = await prisma.osSpecialOrderClassification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osSpecialOrderClassificationWithIdOnly = await prisma.osSpecialOrderClassification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsSpecialOrderClassificationFindManyArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsSpecialOrderClassification.
+     * @param {OsSpecialOrderClassificationCreateArgs} args - Arguments to create a OsSpecialOrderClassification.
+     * @example
+     * // Create one OsSpecialOrderClassification
+     * const OsSpecialOrderClassification = await prisma.osSpecialOrderClassification.create({
+     *   data: {
+     *     // ... data to create a OsSpecialOrderClassification
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsSpecialOrderClassificationCreateArgs>(args: SelectSubset<T, OsSpecialOrderClassificationCreateArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsSpecialOrderClassifications.
+     * @param {OsSpecialOrderClassificationCreateManyArgs} args - Arguments to create many OsSpecialOrderClassifications.
+     * @example
+     * // Create many OsSpecialOrderClassifications
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsSpecialOrderClassificationCreateManyArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsSpecialOrderClassifications and returns the data saved in the database.
+     * @param {OsSpecialOrderClassificationCreateManyAndReturnArgs} args - Arguments to create many OsSpecialOrderClassifications.
+     * @example
+     * // Create many OsSpecialOrderClassifications
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsSpecialOrderClassifications and only return the `id`
+     * const osSpecialOrderClassificationWithIdOnly = await prisma.osSpecialOrderClassification.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsSpecialOrderClassificationCreateManyAndReturnArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsSpecialOrderClassification.
+     * @param {OsSpecialOrderClassificationDeleteArgs} args - Arguments to delete one OsSpecialOrderClassification.
+     * @example
+     * // Delete one OsSpecialOrderClassification
+     * const OsSpecialOrderClassification = await prisma.osSpecialOrderClassification.delete({
+     *   where: {
+     *     // ... filter to delete one OsSpecialOrderClassification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsSpecialOrderClassificationDeleteArgs>(args: SelectSubset<T, OsSpecialOrderClassificationDeleteArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsSpecialOrderClassification.
+     * @param {OsSpecialOrderClassificationUpdateArgs} args - Arguments to update one OsSpecialOrderClassification.
+     * @example
+     * // Update one OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsSpecialOrderClassificationUpdateArgs>(args: SelectSubset<T, OsSpecialOrderClassificationUpdateArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsSpecialOrderClassifications.
+     * @param {OsSpecialOrderClassificationDeleteManyArgs} args - Arguments to filter OsSpecialOrderClassifications to delete.
+     * @example
+     * // Delete a few OsSpecialOrderClassifications
+     * const { count } = await prisma.osSpecialOrderClassification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsSpecialOrderClassificationDeleteManyArgs>(args?: SelectSubset<T, OsSpecialOrderClassificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsSpecialOrderClassifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsSpecialOrderClassifications
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsSpecialOrderClassificationUpdateManyArgs>(args: SelectSubset<T, OsSpecialOrderClassificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsSpecialOrderClassifications and returns the data updated in the database.
+     * @param {OsSpecialOrderClassificationUpdateManyAndReturnArgs} args - Arguments to update many OsSpecialOrderClassifications.
+     * @example
+     * // Update many OsSpecialOrderClassifications
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsSpecialOrderClassifications and only return the `id`
+     * const osSpecialOrderClassificationWithIdOnly = await prisma.osSpecialOrderClassification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsSpecialOrderClassificationUpdateManyAndReturnArgs>(args: SelectSubset<T, OsSpecialOrderClassificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsSpecialOrderClassification.
+     * @param {OsSpecialOrderClassificationUpsertArgs} args - Arguments to update or create a OsSpecialOrderClassification.
+     * @example
+     * // Update or create a OsSpecialOrderClassification
+     * const osSpecialOrderClassification = await prisma.osSpecialOrderClassification.upsert({
+     *   create: {
+     *     // ... data to create a OsSpecialOrderClassification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsSpecialOrderClassification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsSpecialOrderClassificationUpsertArgs>(args: SelectSubset<T, OsSpecialOrderClassificationUpsertArgs<ExtArgs>>): Prisma__OsSpecialOrderClassificationClient<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsSpecialOrderClassifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationCountArgs} args - Arguments to filter OsSpecialOrderClassifications to count.
+     * @example
+     * // Count the number of OsSpecialOrderClassifications
+     * const count = await prisma.osSpecialOrderClassification.count({
+     *   where: {
+     *     // ... the filter for the OsSpecialOrderClassifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsSpecialOrderClassificationCountArgs>(
+      args?: Subset<T, OsSpecialOrderClassificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsSpecialOrderClassificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsSpecialOrderClassification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsSpecialOrderClassificationAggregateArgs>(args: Subset<T, OsSpecialOrderClassificationAggregateArgs>): Prisma.PrismaPromise<GetOsSpecialOrderClassificationAggregateType<T>>
+
+    /**
+     * Group by OsSpecialOrderClassification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsSpecialOrderClassificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsSpecialOrderClassificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsSpecialOrderClassificationGroupByArgs['orderBy'] }
+        : { orderBy?: OsSpecialOrderClassificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsSpecialOrderClassificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsSpecialOrderClassificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsSpecialOrderClassification model
+   */
+  readonly fields: OsSpecialOrderClassificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsSpecialOrderClassification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsSpecialOrderClassificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsSpecialOrderClassification model
+   */
+  interface OsSpecialOrderClassificationFieldRefs {
+    readonly id: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly organizationId: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly orderId: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly classification: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly requiresProductionPlanning: FieldRef<"OsSpecialOrderClassification", 'Boolean'>
+    readonly actorMemberId: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly actorLabel: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly source: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly recordedAt: FieldRef<"OsSpecialOrderClassification", 'DateTime'>
+    readonly previousClassification: FieldRef<"OsSpecialOrderClassification", 'String'>
+    readonly previousRequiresProductionPlanning: FieldRef<"OsSpecialOrderClassification", 'Boolean'>
+    readonly createdAt: FieldRef<"OsSpecialOrderClassification", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsSpecialOrderClassification findUnique
+   */
+  export type OsSpecialOrderClassificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsSpecialOrderClassification to fetch.
+     */
+    where: OsSpecialOrderClassificationWhereUniqueInput
+  }
+
+  /**
+   * OsSpecialOrderClassification findUniqueOrThrow
+   */
+  export type OsSpecialOrderClassificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsSpecialOrderClassification to fetch.
+     */
+    where: OsSpecialOrderClassificationWhereUniqueInput
+  }
+
+  /**
+   * OsSpecialOrderClassification findFirst
+   */
+  export type OsSpecialOrderClassificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsSpecialOrderClassification to fetch.
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsSpecialOrderClassifications to fetch.
+     */
+    orderBy?: OsSpecialOrderClassificationOrderByWithRelationInput | OsSpecialOrderClassificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsSpecialOrderClassifications.
+     */
+    cursor?: OsSpecialOrderClassificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsSpecialOrderClassifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsSpecialOrderClassifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsSpecialOrderClassifications.
+     */
+    distinct?: OsSpecialOrderClassificationScalarFieldEnum | OsSpecialOrderClassificationScalarFieldEnum[]
+  }
+
+  /**
+   * OsSpecialOrderClassification findFirstOrThrow
+   */
+  export type OsSpecialOrderClassificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsSpecialOrderClassification to fetch.
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsSpecialOrderClassifications to fetch.
+     */
+    orderBy?: OsSpecialOrderClassificationOrderByWithRelationInput | OsSpecialOrderClassificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsSpecialOrderClassifications.
+     */
+    cursor?: OsSpecialOrderClassificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsSpecialOrderClassifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsSpecialOrderClassifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsSpecialOrderClassifications.
+     */
+    distinct?: OsSpecialOrderClassificationScalarFieldEnum | OsSpecialOrderClassificationScalarFieldEnum[]
+  }
+
+  /**
+   * OsSpecialOrderClassification findMany
+   */
+  export type OsSpecialOrderClassificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter, which OsSpecialOrderClassifications to fetch.
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsSpecialOrderClassifications to fetch.
+     */
+    orderBy?: OsSpecialOrderClassificationOrderByWithRelationInput | OsSpecialOrderClassificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsSpecialOrderClassifications.
+     */
+    cursor?: OsSpecialOrderClassificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsSpecialOrderClassifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsSpecialOrderClassifications.
+     */
+    skip?: number
+    distinct?: OsSpecialOrderClassificationScalarFieldEnum | OsSpecialOrderClassificationScalarFieldEnum[]
+  }
+
+  /**
+   * OsSpecialOrderClassification create
+   */
+  export type OsSpecialOrderClassificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsSpecialOrderClassification.
+     */
+    data: XOR<OsSpecialOrderClassificationCreateInput, OsSpecialOrderClassificationUncheckedCreateInput>
+  }
+
+  /**
+   * OsSpecialOrderClassification createMany
+   */
+  export type OsSpecialOrderClassificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsSpecialOrderClassifications.
+     */
+    data: OsSpecialOrderClassificationCreateManyInput | OsSpecialOrderClassificationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsSpecialOrderClassification createManyAndReturn
+   */
+  export type OsSpecialOrderClassificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsSpecialOrderClassifications.
+     */
+    data: OsSpecialOrderClassificationCreateManyInput | OsSpecialOrderClassificationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsSpecialOrderClassification update
+   */
+  export type OsSpecialOrderClassificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsSpecialOrderClassification.
+     */
+    data: XOR<OsSpecialOrderClassificationUpdateInput, OsSpecialOrderClassificationUncheckedUpdateInput>
+    /**
+     * Choose, which OsSpecialOrderClassification to update.
+     */
+    where: OsSpecialOrderClassificationWhereUniqueInput
+  }
+
+  /**
+   * OsSpecialOrderClassification updateMany
+   */
+  export type OsSpecialOrderClassificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsSpecialOrderClassifications.
+     */
+    data: XOR<OsSpecialOrderClassificationUpdateManyMutationInput, OsSpecialOrderClassificationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsSpecialOrderClassifications to update
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * Limit how many OsSpecialOrderClassifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsSpecialOrderClassification updateManyAndReturn
+   */
+  export type OsSpecialOrderClassificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * The data used to update OsSpecialOrderClassifications.
+     */
+    data: XOR<OsSpecialOrderClassificationUpdateManyMutationInput, OsSpecialOrderClassificationUncheckedUpdateManyInput>
+    /**
+     * Filter which OsSpecialOrderClassifications to update
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * Limit how many OsSpecialOrderClassifications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsSpecialOrderClassification upsert
+   */
+  export type OsSpecialOrderClassificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsSpecialOrderClassification to update in case it exists.
+     */
+    where: OsSpecialOrderClassificationWhereUniqueInput
+    /**
+     * In case the OsSpecialOrderClassification found by the `where` argument doesn't exist, create a new OsSpecialOrderClassification with this data.
+     */
+    create: XOR<OsSpecialOrderClassificationCreateInput, OsSpecialOrderClassificationUncheckedCreateInput>
+    /**
+     * In case the OsSpecialOrderClassification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsSpecialOrderClassificationUpdateInput, OsSpecialOrderClassificationUncheckedUpdateInput>
+  }
+
+  /**
+   * OsSpecialOrderClassification delete
+   */
+  export type OsSpecialOrderClassificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+    /**
+     * Filter which OsSpecialOrderClassification to delete.
+     */
+    where: OsSpecialOrderClassificationWhereUniqueInput
+  }
+
+  /**
+   * OsSpecialOrderClassification deleteMany
+   */
+  export type OsSpecialOrderClassificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsSpecialOrderClassifications to delete
+     */
+    where?: OsSpecialOrderClassificationWhereInput
+    /**
+     * Limit how many OsSpecialOrderClassifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsSpecialOrderClassification without action
+   */
+  export type OsSpecialOrderClassificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsSpecialOrderClassification
+     */
+    select?: OsSpecialOrderClassificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsSpecialOrderClassification
+     */
+    omit?: OsSpecialOrderClassificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsSpecialOrderClassificationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OsCoordinationDecision
+   */
+
+  export type AggregateOsCoordinationDecision = {
+    _count: OsCoordinationDecisionCountAggregateOutputType | null
+    _min: OsCoordinationDecisionMinAggregateOutputType | null
+    _max: OsCoordinationDecisionMaxAggregateOutputType | null
+  }
+
+  export type OsCoordinationDecisionMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    kind: string | null
+    decision: string | null
+    ownerLabel: string | null
+    ownerMemberId: string | null
+    dueAt: string | null
+    actorLabel: string | null
+    actorMemberId: string | null
+    occurredAt: Date | null
+    linkedCaseId: string | null
+    notes: string | null
+    resolvesDecisionId: string | null
+    recordedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type OsCoordinationDecisionMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    kind: string | null
+    decision: string | null
+    ownerLabel: string | null
+    ownerMemberId: string | null
+    dueAt: string | null
+    actorLabel: string | null
+    actorMemberId: string | null
+    occurredAt: Date | null
+    linkedCaseId: string | null
+    notes: string | null
+    resolvesDecisionId: string | null
+    recordedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type OsCoordinationDecisionCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    kind: number
+    decision: number
+    ownerLabel: number
+    ownerMemberId: number
+    dueAt: number
+    actorLabel: number
+    actorMemberId: number
+    occurredAt: number
+    linkedCaseId: number
+    notes: number
+    resolvesDecisionId: number
+    recordedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsCoordinationDecisionMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    kind?: true
+    decision?: true
+    ownerLabel?: true
+    ownerMemberId?: true
+    dueAt?: true
+    actorLabel?: true
+    actorMemberId?: true
+    occurredAt?: true
+    linkedCaseId?: true
+    notes?: true
+    resolvesDecisionId?: true
+    recordedAt?: true
+    createdAt?: true
+  }
+
+  export type OsCoordinationDecisionMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    kind?: true
+    decision?: true
+    ownerLabel?: true
+    ownerMemberId?: true
+    dueAt?: true
+    actorLabel?: true
+    actorMemberId?: true
+    occurredAt?: true
+    linkedCaseId?: true
+    notes?: true
+    resolvesDecisionId?: true
+    recordedAt?: true
+    createdAt?: true
+  }
+
+  export type OsCoordinationDecisionCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    kind?: true
+    decision?: true
+    ownerLabel?: true
+    ownerMemberId?: true
+    dueAt?: true
+    actorLabel?: true
+    actorMemberId?: true
+    occurredAt?: true
+    linkedCaseId?: true
+    notes?: true
+    resolvesDecisionId?: true
+    recordedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsCoordinationDecisionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCoordinationDecision to aggregate.
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCoordinationDecisions to fetch.
+     */
+    orderBy?: OsCoordinationDecisionOrderByWithRelationInput | OsCoordinationDecisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsCoordinationDecisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCoordinationDecisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCoordinationDecisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsCoordinationDecisions
+    **/
+    _count?: true | OsCoordinationDecisionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsCoordinationDecisionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsCoordinationDecisionMaxAggregateInputType
+  }
+
+  export type GetOsCoordinationDecisionAggregateType<T extends OsCoordinationDecisionAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsCoordinationDecision]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsCoordinationDecision[P]>
+      : GetScalarType<T[P], AggregateOsCoordinationDecision[P]>
+  }
+
+
+
+
+  export type OsCoordinationDecisionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCoordinationDecisionWhereInput
+    orderBy?: OsCoordinationDecisionOrderByWithAggregationInput | OsCoordinationDecisionOrderByWithAggregationInput[]
+    by: OsCoordinationDecisionScalarFieldEnum[] | OsCoordinationDecisionScalarFieldEnum
+    having?: OsCoordinationDecisionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsCoordinationDecisionCountAggregateInputType | true
+    _min?: OsCoordinationDecisionMinAggregateInputType
+    _max?: OsCoordinationDecisionMaxAggregateInputType
+  }
+
+  export type OsCoordinationDecisionGroupByOutputType = {
+    id: string
+    organizationId: string
+    kind: string
+    decision: string
+    ownerLabel: string | null
+    ownerMemberId: string | null
+    dueAt: string | null
+    actorLabel: string
+    actorMemberId: string | null
+    occurredAt: Date
+    linkedCaseId: string | null
+    notes: string | null
+    resolvesDecisionId: string | null
+    recordedAt: Date
+    createdAt: Date
+    _count: OsCoordinationDecisionCountAggregateOutputType | null
+    _min: OsCoordinationDecisionMinAggregateOutputType | null
+    _max: OsCoordinationDecisionMaxAggregateOutputType | null
+  }
+
+  type GetOsCoordinationDecisionGroupByPayload<T extends OsCoordinationDecisionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsCoordinationDecisionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsCoordinationDecisionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsCoordinationDecisionGroupByOutputType[P]>
+            : GetScalarType<T[P], OsCoordinationDecisionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsCoordinationDecisionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    kind?: boolean
+    decision?: boolean
+    ownerLabel?: boolean
+    ownerMemberId?: boolean
+    dueAt?: boolean
+    actorLabel?: boolean
+    actorMemberId?: boolean
+    occurredAt?: boolean
+    linkedCaseId?: boolean
+    notes?: boolean
+    resolvesDecisionId?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCoordinationDecision"]>
+
+  export type OsCoordinationDecisionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    kind?: boolean
+    decision?: boolean
+    ownerLabel?: boolean
+    ownerMemberId?: boolean
+    dueAt?: boolean
+    actorLabel?: boolean
+    actorMemberId?: boolean
+    occurredAt?: boolean
+    linkedCaseId?: boolean
+    notes?: boolean
+    resolvesDecisionId?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCoordinationDecision"]>
+
+  export type OsCoordinationDecisionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    kind?: boolean
+    decision?: boolean
+    ownerLabel?: boolean
+    ownerMemberId?: boolean
+    dueAt?: boolean
+    actorLabel?: boolean
+    actorMemberId?: boolean
+    occurredAt?: boolean
+    linkedCaseId?: boolean
+    notes?: boolean
+    resolvesDecisionId?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCoordinationDecision"]>
+
+  export type OsCoordinationDecisionSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    kind?: boolean
+    decision?: boolean
+    ownerLabel?: boolean
+    ownerMemberId?: boolean
+    dueAt?: boolean
+    actorLabel?: boolean
+    actorMemberId?: boolean
+    occurredAt?: boolean
+    linkedCaseId?: boolean
+    notes?: boolean
+    resolvesDecisionId?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsCoordinationDecisionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "kind" | "decision" | "ownerLabel" | "ownerMemberId" | "dueAt" | "actorLabel" | "actorMemberId" | "occurredAt" | "linkedCaseId" | "notes" | "resolvesDecisionId" | "recordedAt" | "createdAt", ExtArgs["result"]["osCoordinationDecision"]>
+  export type OsCoordinationDecisionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsCoordinationDecisionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsCoordinationDecisionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsCoordinationDecisionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsCoordinationDecision"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      kind: string
+      decision: string
+      ownerLabel: string | null
+      ownerMemberId: string | null
+      /**
+       * Caller-provided date or instant. Not a meeting slot. Stored as text so a date is not rewritten.
+       */
+      dueAt: string | null
+      actorLabel: string
+      actorMemberId: string | null
+      occurredAt: Date
+      linkedCaseId: string | null
+      notes: string | null
+      resolvesDecisionId: string | null
+      recordedAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["osCoordinationDecision"]>
+    composites: {}
+  }
+
+  type OsCoordinationDecisionGetPayload<S extends boolean | null | undefined | OsCoordinationDecisionDefaultArgs> = $Result.GetResult<Prisma.$OsCoordinationDecisionPayload, S>
+
+  type OsCoordinationDecisionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsCoordinationDecisionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsCoordinationDecisionCountAggregateInputType | true
+    }
+
+  export interface OsCoordinationDecisionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsCoordinationDecision'], meta: { name: 'OsCoordinationDecision' } }
+    /**
+     * Find zero or one OsCoordinationDecision that matches the filter.
+     * @param {OsCoordinationDecisionFindUniqueArgs} args - Arguments to find a OsCoordinationDecision
+     * @example
+     * // Get one OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsCoordinationDecisionFindUniqueArgs>(args: SelectSubset<T, OsCoordinationDecisionFindUniqueArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsCoordinationDecision that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsCoordinationDecisionFindUniqueOrThrowArgs} args - Arguments to find a OsCoordinationDecision
+     * @example
+     * // Get one OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsCoordinationDecisionFindUniqueOrThrowArgs>(args: SelectSubset<T, OsCoordinationDecisionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCoordinationDecision that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionFindFirstArgs} args - Arguments to find a OsCoordinationDecision
+     * @example
+     * // Get one OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsCoordinationDecisionFindFirstArgs>(args?: SelectSubset<T, OsCoordinationDecisionFindFirstArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCoordinationDecision that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionFindFirstOrThrowArgs} args - Arguments to find a OsCoordinationDecision
+     * @example
+     * // Get one OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsCoordinationDecisionFindFirstOrThrowArgs>(args?: SelectSubset<T, OsCoordinationDecisionFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsCoordinationDecisions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsCoordinationDecisions
+     * const osCoordinationDecisions = await prisma.osCoordinationDecision.findMany()
+     * 
+     * // Get first 10 OsCoordinationDecisions
+     * const osCoordinationDecisions = await prisma.osCoordinationDecision.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osCoordinationDecisionWithIdOnly = await prisma.osCoordinationDecision.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsCoordinationDecisionFindManyArgs>(args?: SelectSubset<T, OsCoordinationDecisionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsCoordinationDecision.
+     * @param {OsCoordinationDecisionCreateArgs} args - Arguments to create a OsCoordinationDecision.
+     * @example
+     * // Create one OsCoordinationDecision
+     * const OsCoordinationDecision = await prisma.osCoordinationDecision.create({
+     *   data: {
+     *     // ... data to create a OsCoordinationDecision
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsCoordinationDecisionCreateArgs>(args: SelectSubset<T, OsCoordinationDecisionCreateArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsCoordinationDecisions.
+     * @param {OsCoordinationDecisionCreateManyArgs} args - Arguments to create many OsCoordinationDecisions.
+     * @example
+     * // Create many OsCoordinationDecisions
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsCoordinationDecisionCreateManyArgs>(args?: SelectSubset<T, OsCoordinationDecisionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsCoordinationDecisions and returns the data saved in the database.
+     * @param {OsCoordinationDecisionCreateManyAndReturnArgs} args - Arguments to create many OsCoordinationDecisions.
+     * @example
+     * // Create many OsCoordinationDecisions
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsCoordinationDecisions and only return the `id`
+     * const osCoordinationDecisionWithIdOnly = await prisma.osCoordinationDecision.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsCoordinationDecisionCreateManyAndReturnArgs>(args?: SelectSubset<T, OsCoordinationDecisionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsCoordinationDecision.
+     * @param {OsCoordinationDecisionDeleteArgs} args - Arguments to delete one OsCoordinationDecision.
+     * @example
+     * // Delete one OsCoordinationDecision
+     * const OsCoordinationDecision = await prisma.osCoordinationDecision.delete({
+     *   where: {
+     *     // ... filter to delete one OsCoordinationDecision
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsCoordinationDecisionDeleteArgs>(args: SelectSubset<T, OsCoordinationDecisionDeleteArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsCoordinationDecision.
+     * @param {OsCoordinationDecisionUpdateArgs} args - Arguments to update one OsCoordinationDecision.
+     * @example
+     * // Update one OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsCoordinationDecisionUpdateArgs>(args: SelectSubset<T, OsCoordinationDecisionUpdateArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsCoordinationDecisions.
+     * @param {OsCoordinationDecisionDeleteManyArgs} args - Arguments to filter OsCoordinationDecisions to delete.
+     * @example
+     * // Delete a few OsCoordinationDecisions
+     * const { count } = await prisma.osCoordinationDecision.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsCoordinationDecisionDeleteManyArgs>(args?: SelectSubset<T, OsCoordinationDecisionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCoordinationDecisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsCoordinationDecisions
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsCoordinationDecisionUpdateManyArgs>(args: SelectSubset<T, OsCoordinationDecisionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCoordinationDecisions and returns the data updated in the database.
+     * @param {OsCoordinationDecisionUpdateManyAndReturnArgs} args - Arguments to update many OsCoordinationDecisions.
+     * @example
+     * // Update many OsCoordinationDecisions
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsCoordinationDecisions and only return the `id`
+     * const osCoordinationDecisionWithIdOnly = await prisma.osCoordinationDecision.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsCoordinationDecisionUpdateManyAndReturnArgs>(args: SelectSubset<T, OsCoordinationDecisionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsCoordinationDecision.
+     * @param {OsCoordinationDecisionUpsertArgs} args - Arguments to update or create a OsCoordinationDecision.
+     * @example
+     * // Update or create a OsCoordinationDecision
+     * const osCoordinationDecision = await prisma.osCoordinationDecision.upsert({
+     *   create: {
+     *     // ... data to create a OsCoordinationDecision
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsCoordinationDecision we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsCoordinationDecisionUpsertArgs>(args: SelectSubset<T, OsCoordinationDecisionUpsertArgs<ExtArgs>>): Prisma__OsCoordinationDecisionClient<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsCoordinationDecisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionCountArgs} args - Arguments to filter OsCoordinationDecisions to count.
+     * @example
+     * // Count the number of OsCoordinationDecisions
+     * const count = await prisma.osCoordinationDecision.count({
+     *   where: {
+     *     // ... the filter for the OsCoordinationDecisions we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsCoordinationDecisionCountArgs>(
+      args?: Subset<T, OsCoordinationDecisionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsCoordinationDecisionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsCoordinationDecision.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsCoordinationDecisionAggregateArgs>(args: Subset<T, OsCoordinationDecisionAggregateArgs>): Prisma.PrismaPromise<GetOsCoordinationDecisionAggregateType<T>>
+
+    /**
+     * Group by OsCoordinationDecision.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCoordinationDecisionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsCoordinationDecisionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsCoordinationDecisionGroupByArgs['orderBy'] }
+        : { orderBy?: OsCoordinationDecisionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsCoordinationDecisionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsCoordinationDecisionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsCoordinationDecision model
+   */
+  readonly fields: OsCoordinationDecisionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsCoordinationDecision.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsCoordinationDecisionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsCoordinationDecision model
+   */
+  interface OsCoordinationDecisionFieldRefs {
+    readonly id: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly organizationId: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly kind: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly decision: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly ownerLabel: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly ownerMemberId: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly dueAt: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly actorLabel: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly actorMemberId: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly occurredAt: FieldRef<"OsCoordinationDecision", 'DateTime'>
+    readonly linkedCaseId: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly notes: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly resolvesDecisionId: FieldRef<"OsCoordinationDecision", 'String'>
+    readonly recordedAt: FieldRef<"OsCoordinationDecision", 'DateTime'>
+    readonly createdAt: FieldRef<"OsCoordinationDecision", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsCoordinationDecision findUnique
+   */
+  export type OsCoordinationDecisionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCoordinationDecision to fetch.
+     */
+    where: OsCoordinationDecisionWhereUniqueInput
+  }
+
+  /**
+   * OsCoordinationDecision findUniqueOrThrow
+   */
+  export type OsCoordinationDecisionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCoordinationDecision to fetch.
+     */
+    where: OsCoordinationDecisionWhereUniqueInput
+  }
+
+  /**
+   * OsCoordinationDecision findFirst
+   */
+  export type OsCoordinationDecisionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCoordinationDecision to fetch.
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCoordinationDecisions to fetch.
+     */
+    orderBy?: OsCoordinationDecisionOrderByWithRelationInput | OsCoordinationDecisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCoordinationDecisions.
+     */
+    cursor?: OsCoordinationDecisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCoordinationDecisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCoordinationDecisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCoordinationDecisions.
+     */
+    distinct?: OsCoordinationDecisionScalarFieldEnum | OsCoordinationDecisionScalarFieldEnum[]
+  }
+
+  /**
+   * OsCoordinationDecision findFirstOrThrow
+   */
+  export type OsCoordinationDecisionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCoordinationDecision to fetch.
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCoordinationDecisions to fetch.
+     */
+    orderBy?: OsCoordinationDecisionOrderByWithRelationInput | OsCoordinationDecisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCoordinationDecisions.
+     */
+    cursor?: OsCoordinationDecisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCoordinationDecisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCoordinationDecisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCoordinationDecisions.
+     */
+    distinct?: OsCoordinationDecisionScalarFieldEnum | OsCoordinationDecisionScalarFieldEnum[]
+  }
+
+  /**
+   * OsCoordinationDecision findMany
+   */
+  export type OsCoordinationDecisionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCoordinationDecisions to fetch.
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCoordinationDecisions to fetch.
+     */
+    orderBy?: OsCoordinationDecisionOrderByWithRelationInput | OsCoordinationDecisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsCoordinationDecisions.
+     */
+    cursor?: OsCoordinationDecisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCoordinationDecisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCoordinationDecisions.
+     */
+    skip?: number
+    distinct?: OsCoordinationDecisionScalarFieldEnum | OsCoordinationDecisionScalarFieldEnum[]
+  }
+
+  /**
+   * OsCoordinationDecision create
+   */
+  export type OsCoordinationDecisionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsCoordinationDecision.
+     */
+    data: XOR<OsCoordinationDecisionCreateInput, OsCoordinationDecisionUncheckedCreateInput>
+  }
+
+  /**
+   * OsCoordinationDecision createMany
+   */
+  export type OsCoordinationDecisionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsCoordinationDecisions.
+     */
+    data: OsCoordinationDecisionCreateManyInput | OsCoordinationDecisionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsCoordinationDecision createManyAndReturn
+   */
+  export type OsCoordinationDecisionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsCoordinationDecisions.
+     */
+    data: OsCoordinationDecisionCreateManyInput | OsCoordinationDecisionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCoordinationDecision update
+   */
+  export type OsCoordinationDecisionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsCoordinationDecision.
+     */
+    data: XOR<OsCoordinationDecisionUpdateInput, OsCoordinationDecisionUncheckedUpdateInput>
+    /**
+     * Choose, which OsCoordinationDecision to update.
+     */
+    where: OsCoordinationDecisionWhereUniqueInput
+  }
+
+  /**
+   * OsCoordinationDecision updateMany
+   */
+  export type OsCoordinationDecisionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsCoordinationDecisions.
+     */
+    data: XOR<OsCoordinationDecisionUpdateManyMutationInput, OsCoordinationDecisionUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCoordinationDecisions to update
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * Limit how many OsCoordinationDecisions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCoordinationDecision updateManyAndReturn
+   */
+  export type OsCoordinationDecisionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * The data used to update OsCoordinationDecisions.
+     */
+    data: XOR<OsCoordinationDecisionUpdateManyMutationInput, OsCoordinationDecisionUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCoordinationDecisions to update
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * Limit how many OsCoordinationDecisions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCoordinationDecision upsert
+   */
+  export type OsCoordinationDecisionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsCoordinationDecision to update in case it exists.
+     */
+    where: OsCoordinationDecisionWhereUniqueInput
+    /**
+     * In case the OsCoordinationDecision found by the `where` argument doesn't exist, create a new OsCoordinationDecision with this data.
+     */
+    create: XOR<OsCoordinationDecisionCreateInput, OsCoordinationDecisionUncheckedCreateInput>
+    /**
+     * In case the OsCoordinationDecision was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsCoordinationDecisionUpdateInput, OsCoordinationDecisionUncheckedUpdateInput>
+  }
+
+  /**
+   * OsCoordinationDecision delete
+   */
+  export type OsCoordinationDecisionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+    /**
+     * Filter which OsCoordinationDecision to delete.
+     */
+    where: OsCoordinationDecisionWhereUniqueInput
+  }
+
+  /**
+   * OsCoordinationDecision deleteMany
+   */
+  export type OsCoordinationDecisionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCoordinationDecisions to delete
+     */
+    where?: OsCoordinationDecisionWhereInput
+    /**
+     * Limit how many OsCoordinationDecisions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCoordinationDecision without action
+   */
+  export type OsCoordinationDecisionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCoordinationDecision
+     */
+    select?: OsCoordinationDecisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCoordinationDecision
+     */
+    omit?: OsCoordinationDecisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCoordinationDecisionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -106955,6 +113620,27 @@ export namespace Prisma {
   export type OsOrderAllocationScalarFieldEnum = (typeof OsOrderAllocationScalarFieldEnum)[keyof typeof OsOrderAllocationScalarFieldEnum]
 
 
+  export const OsFinishedGoodsReceiptScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    productId: 'productId',
+    quantity: 'quantity',
+    warehouseLabel: 'warehouseLabel',
+    receivedAt: 'receivedAt',
+    recordedAt: 'recordedAt',
+    actorMemberId: 'actorMemberId',
+    actorLabel: 'actorLabel',
+    source: 'source',
+    productionTraceEntryId: 'productionTraceEntryId',
+    quemaId: 'quemaId',
+    correctsReceiptId: 'correctsReceiptId',
+    correctionReason: 'correctionReason',
+    idempotencyKey: 'idempotencyKey'
+  };
+
+  export type OsFinishedGoodsReceiptScalarFieldEnum = (typeof OsFinishedGoodsReceiptScalarFieldEnum)[keyof typeof OsFinishedGoodsReceiptScalarFieldEnum]
+
+
   export const OsPurchaseRequestScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
@@ -107013,6 +113699,82 @@ export namespace Prisma {
   };
 
   export type OsPurchaseRequestNoteScalarFieldEnum = (typeof OsPurchaseRequestNoteScalarFieldEnum)[keyof typeof OsPurchaseRequestNoteScalarFieldEnum]
+
+
+  export const OsPriceListScalarFieldEnum: {
+    organizationId: 'organizationId',
+    id: 'id',
+    version: 'version',
+    currency: 'currency',
+    effectiveFrom: 'effectiveFrom',
+    effectiveTo: 'effectiveTo',
+    sourceFilename: 'sourceFilename',
+    sourceSha256: 'sourceSha256',
+    sourcePage: 'sourcePage',
+    sourceExcerpt: 'sourceExcerpt',
+    printedContext: 'printedContext',
+    createdAt: 'createdAt'
+  };
+
+  export type OsPriceListScalarFieldEnum = (typeof OsPriceListScalarFieldEnum)[keyof typeof OsPriceListScalarFieldEnum]
+
+
+  export const OsPriceEntryScalarFieldEnum: {
+    organizationId: 'organizationId',
+    id: 'id',
+    priceListId: 'priceListId',
+    productId: 'productId',
+    context: 'context',
+    currency: 'currency',
+    amountCentavos: 'amountCentavos',
+    sourceFilename: 'sourceFilename',
+    sourceSha256: 'sourceSha256',
+    sourcePage: 'sourcePage',
+    sourceExcerpt: 'sourceExcerpt',
+    printedContext: 'printedContext',
+    createdAt: 'createdAt'
+  };
+
+  export type OsPriceEntryScalarFieldEnum = (typeof OsPriceEntryScalarFieldEnum)[keyof typeof OsPriceEntryScalarFieldEnum]
+
+
+  export const OsSpecialOrderClassificationScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    orderId: 'orderId',
+    classification: 'classification',
+    requiresProductionPlanning: 'requiresProductionPlanning',
+    actorMemberId: 'actorMemberId',
+    actorLabel: 'actorLabel',
+    source: 'source',
+    recordedAt: 'recordedAt',
+    previousClassification: 'previousClassification',
+    previousRequiresProductionPlanning: 'previousRequiresProductionPlanning',
+    createdAt: 'createdAt'
+  };
+
+  export type OsSpecialOrderClassificationScalarFieldEnum = (typeof OsSpecialOrderClassificationScalarFieldEnum)[keyof typeof OsSpecialOrderClassificationScalarFieldEnum]
+
+
+  export const OsCoordinationDecisionScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    kind: 'kind',
+    decision: 'decision',
+    ownerLabel: 'ownerLabel',
+    ownerMemberId: 'ownerMemberId',
+    dueAt: 'dueAt',
+    actorLabel: 'actorLabel',
+    actorMemberId: 'actorMemberId',
+    occurredAt: 'occurredAt',
+    linkedCaseId: 'linkedCaseId',
+    notes: 'notes',
+    resolvesDecisionId: 'resolvesDecisionId',
+    recordedAt: 'recordedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type OsCoordinationDecisionScalarFieldEnum = (typeof OsCoordinationDecisionScalarFieldEnum)[keyof typeof OsCoordinationDecisionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -107238,7 +114000,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueListRelationFilter
     customerDateInformedRecords?: CustomerDateInformedRecordListRelationFilter
     orderAllocations?: OsOrderAllocationListRelationFilter
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptListRelationFilter
     purchaseRequests?: OsPurchaseRequestListRelationFilter
+    priceLists?: OsPriceListListRelationFilter
+    priceEntries?: OsPriceEntryListRelationFilter
+    specialOrderClassifications?: OsSpecialOrderClassificationListRelationFilter
+    coordinationDecisions?: OsCoordinationDecisionListRelationFilter
   }
 
   export type OsOrganizationOrderByWithRelationInput = {
@@ -107314,7 +114081,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueOrderByRelationAggregateInput
     customerDateInformedRecords?: CustomerDateInformedRecordOrderByRelationAggregateInput
     orderAllocations?: OsOrderAllocationOrderByRelationAggregateInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptOrderByRelationAggregateInput
     purchaseRequests?: OsPurchaseRequestOrderByRelationAggregateInput
+    priceLists?: OsPriceListOrderByRelationAggregateInput
+    priceEntries?: OsPriceEntryOrderByRelationAggregateInput
+    specialOrderClassifications?: OsSpecialOrderClassificationOrderByRelationAggregateInput
+    coordinationDecisions?: OsCoordinationDecisionOrderByRelationAggregateInput
   }
 
   export type OsOrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -107393,7 +114165,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueListRelationFilter
     customerDateInformedRecords?: CustomerDateInformedRecordListRelationFilter
     orderAllocations?: OsOrderAllocationListRelationFilter
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptListRelationFilter
     purchaseRequests?: OsPurchaseRequestListRelationFilter
+    priceLists?: OsPriceListListRelationFilter
+    priceEntries?: OsPriceEntryListRelationFilter
+    specialOrderClassifications?: OsSpecialOrderClassificationListRelationFilter
+    coordinationDecisions?: OsCoordinationDecisionListRelationFilter
   }, "id" | "slug">
 
   export type OsOrganizationOrderByWithAggregationInput = {
@@ -111759,6 +118536,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceListRelationFilter
     attributes?: OsCatalogProductAttributeListRelationFilter
     statusEvents?: OsCatalogProductStatusEventListRelationFilter
+    priceEntries?: OsPriceEntryListRelationFilter
   }
 
   export type OsCatalogProductOrderByWithRelationInput = {
@@ -111779,6 +118557,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceOrderByRelationAggregateInput
     attributes?: OsCatalogProductAttributeOrderByRelationAggregateInput
     statusEvents?: OsCatalogProductStatusEventOrderByRelationAggregateInput
+    priceEntries?: OsPriceEntryOrderByRelationAggregateInput
   }
 
   export type OsCatalogProductWhereUniqueInput = Prisma.AtLeast<{
@@ -111804,6 +118583,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceListRelationFilter
     attributes?: OsCatalogProductAttributeListRelationFilter
     statusEvents?: OsCatalogProductStatusEventListRelationFilter
+    priceEntries?: OsPriceEntryListRelationFilter
   }, "organizationId_id" | "organizationId_canonicalKey">
 
   export type OsCatalogProductOrderByWithAggregationInput = {
@@ -114421,6 +121201,111 @@ export namespace Prisma {
     idempotencyKey?: StringNullableWithAggregatesFilter<"OsOrderAllocation"> | string | null
   }
 
+  export type OsFinishedGoodsReceiptWhereInput = {
+    AND?: OsFinishedGoodsReceiptWhereInput | OsFinishedGoodsReceiptWhereInput[]
+    OR?: OsFinishedGoodsReceiptWhereInput[]
+    NOT?: OsFinishedGoodsReceiptWhereInput | OsFinishedGoodsReceiptWhereInput[]
+    id?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    organizationId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    quantity?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    warehouseLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    receivedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    recordedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    actorMemberId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    actorLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    source?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }
+
+  export type OsFinishedGoodsReceiptOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    productId?: SortOrder
+    quantity?: SortOrder
+    warehouseLabel?: SortOrder
+    receivedAt?: SortOrder
+    recordedAt?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    productionTraceEntryId?: SortOrderInput | SortOrder
+    quemaId?: SortOrderInput | SortOrder
+    correctsReceiptId?: SortOrderInput | SortOrder
+    correctionReason?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+  }
+
+  export type OsFinishedGoodsReceiptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsFinishedGoodsReceiptWhereInput | OsFinishedGoodsReceiptWhereInput[]
+    OR?: OsFinishedGoodsReceiptWhereInput[]
+    NOT?: OsFinishedGoodsReceiptWhereInput | OsFinishedGoodsReceiptWhereInput[]
+    organizationId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    quantity?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    warehouseLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    receivedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    recordedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    actorMemberId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    actorLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    source?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }, "id">
+
+  export type OsFinishedGoodsReceiptOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    productId?: SortOrder
+    quantity?: SortOrder
+    warehouseLabel?: SortOrder
+    receivedAt?: SortOrder
+    recordedAt?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    productionTraceEntryId?: SortOrderInput | SortOrder
+    quemaId?: SortOrderInput | SortOrder
+    correctsReceiptId?: SortOrderInput | SortOrder
+    correctionReason?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    _count?: OsFinishedGoodsReceiptCountOrderByAggregateInput
+    _max?: OsFinishedGoodsReceiptMaxOrderByAggregateInput
+    _min?: OsFinishedGoodsReceiptMinOrderByAggregateInput
+  }
+
+  export type OsFinishedGoodsReceiptScalarWhereWithAggregatesInput = {
+    AND?: OsFinishedGoodsReceiptScalarWhereWithAggregatesInput | OsFinishedGoodsReceiptScalarWhereWithAggregatesInput[]
+    OR?: OsFinishedGoodsReceiptScalarWhereWithAggregatesInput[]
+    NOT?: OsFinishedGoodsReceiptScalarWhereWithAggregatesInput | OsFinishedGoodsReceiptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    organizationId?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    productId?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    quantity?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    warehouseLabel?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    receivedAt?: DateTimeWithAggregatesFilter<"OsFinishedGoodsReceipt"> | Date | string
+    recordedAt?: DateTimeWithAggregatesFilter<"OsFinishedGoodsReceipt"> | Date | string
+    actorMemberId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    actorLabel?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    source?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
+    productionTraceEntryId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    quemaId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctsReceiptId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctionReason?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+  }
+
   export type OsPurchaseRequestWhereInput = {
     AND?: OsPurchaseRequestWhereInput | OsPurchaseRequestWhereInput[]
     OR?: OsPurchaseRequestWhereInput[]
@@ -114728,6 +121613,403 @@ export namespace Prisma {
     evidenceReference?: StringNullableWithAggregatesFilter<"OsPurchaseRequestNote"> | string | null
   }
 
+  export type OsPriceListWhereInput = {
+    AND?: OsPriceListWhereInput | OsPriceListWhereInput[]
+    OR?: OsPriceListWhereInput[]
+    NOT?: OsPriceListWhereInput | OsPriceListWhereInput[]
+    organizationId?: StringFilter<"OsPriceList"> | string
+    id?: StringFilter<"OsPriceList"> | string
+    version?: StringFilter<"OsPriceList"> | string
+    currency?: StringFilter<"OsPriceList"> | string
+    effectiveFrom?: DateTimeFilter<"OsPriceList"> | Date | string
+    effectiveTo?: DateTimeNullableFilter<"OsPriceList"> | Date | string | null
+    sourceFilename?: StringFilter<"OsPriceList"> | string
+    sourceSha256?: StringFilter<"OsPriceList"> | string
+    sourcePage?: IntNullableFilter<"OsPriceList"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceList"> | string
+    printedContext?: StringFilter<"OsPriceList"> | string
+    createdAt?: DateTimeFilter<"OsPriceList"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    entries?: OsPriceEntryListRelationFilter
+  }
+
+  export type OsPriceListOrderByWithRelationInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    version?: SortOrder
+    currency?: SortOrder
+    effectiveFrom?: SortOrder
+    effectiveTo?: SortOrderInput | SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrderInput | SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    entries?: OsPriceEntryOrderByRelationAggregateInput
+  }
+
+  export type OsPriceListWhereUniqueInput = Prisma.AtLeast<{
+    organizationId_version?: OsPriceListOrganizationIdVersionCompoundUniqueInput
+    organizationId_id?: OsPriceListOrganizationIdIdCompoundUniqueInput
+    AND?: OsPriceListWhereInput | OsPriceListWhereInput[]
+    OR?: OsPriceListWhereInput[]
+    NOT?: OsPriceListWhereInput | OsPriceListWhereInput[]
+    organizationId?: StringFilter<"OsPriceList"> | string
+    id?: StringFilter<"OsPriceList"> | string
+    version?: StringFilter<"OsPriceList"> | string
+    currency?: StringFilter<"OsPriceList"> | string
+    effectiveFrom?: DateTimeFilter<"OsPriceList"> | Date | string
+    effectiveTo?: DateTimeNullableFilter<"OsPriceList"> | Date | string | null
+    sourceFilename?: StringFilter<"OsPriceList"> | string
+    sourceSha256?: StringFilter<"OsPriceList"> | string
+    sourcePage?: IntNullableFilter<"OsPriceList"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceList"> | string
+    printedContext?: StringFilter<"OsPriceList"> | string
+    createdAt?: DateTimeFilter<"OsPriceList"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    entries?: OsPriceEntryListRelationFilter
+  }, "organizationId_id" | "organizationId_version">
+
+  export type OsPriceListOrderByWithAggregationInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    version?: SortOrder
+    currency?: SortOrder
+    effectiveFrom?: SortOrder
+    effectiveTo?: SortOrderInput | SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrderInput | SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+    _count?: OsPriceListCountOrderByAggregateInput
+    _avg?: OsPriceListAvgOrderByAggregateInput
+    _max?: OsPriceListMaxOrderByAggregateInput
+    _min?: OsPriceListMinOrderByAggregateInput
+    _sum?: OsPriceListSumOrderByAggregateInput
+  }
+
+  export type OsPriceListScalarWhereWithAggregatesInput = {
+    AND?: OsPriceListScalarWhereWithAggregatesInput | OsPriceListScalarWhereWithAggregatesInput[]
+    OR?: OsPriceListScalarWhereWithAggregatesInput[]
+    NOT?: OsPriceListScalarWhereWithAggregatesInput | OsPriceListScalarWhereWithAggregatesInput[]
+    organizationId?: StringWithAggregatesFilter<"OsPriceList"> | string
+    id?: StringWithAggregatesFilter<"OsPriceList"> | string
+    version?: StringWithAggregatesFilter<"OsPriceList"> | string
+    currency?: StringWithAggregatesFilter<"OsPriceList"> | string
+    effectiveFrom?: DateTimeWithAggregatesFilter<"OsPriceList"> | Date | string
+    effectiveTo?: DateTimeNullableWithAggregatesFilter<"OsPriceList"> | Date | string | null
+    sourceFilename?: StringWithAggregatesFilter<"OsPriceList"> | string
+    sourceSha256?: StringWithAggregatesFilter<"OsPriceList"> | string
+    sourcePage?: IntNullableWithAggregatesFilter<"OsPriceList"> | number | null
+    sourceExcerpt?: StringWithAggregatesFilter<"OsPriceList"> | string
+    printedContext?: StringWithAggregatesFilter<"OsPriceList"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OsPriceList"> | Date | string
+  }
+
+  export type OsPriceEntryWhereInput = {
+    AND?: OsPriceEntryWhereInput | OsPriceEntryWhereInput[]
+    OR?: OsPriceEntryWhereInput[]
+    NOT?: OsPriceEntryWhereInput | OsPriceEntryWhereInput[]
+    organizationId?: StringFilter<"OsPriceEntry"> | string
+    id?: StringFilter<"OsPriceEntry"> | string
+    priceListId?: StringFilter<"OsPriceEntry"> | string
+    productId?: StringFilter<"OsPriceEntry"> | string
+    context?: StringFilter<"OsPriceEntry"> | string
+    currency?: StringFilter<"OsPriceEntry"> | string
+    amountCentavos?: BigIntFilter<"OsPriceEntry"> | bigint | number
+    sourceFilename?: StringFilter<"OsPriceEntry"> | string
+    sourceSha256?: StringFilter<"OsPriceEntry"> | string
+    sourcePage?: IntNullableFilter<"OsPriceEntry"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceEntry"> | string
+    printedContext?: StringFilter<"OsPriceEntry"> | string
+    createdAt?: DateTimeFilter<"OsPriceEntry"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    priceList?: XOR<OsPriceListScalarRelationFilter, OsPriceListWhereInput>
+    product?: XOR<OsCatalogProductScalarRelationFilter, OsCatalogProductWhereInput>
+  }
+
+  export type OsPriceEntryOrderByWithRelationInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    priceListId?: SortOrder
+    productId?: SortOrder
+    context?: SortOrder
+    currency?: SortOrder
+    amountCentavos?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrderInput | SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+    priceList?: OsPriceListOrderByWithRelationInput
+    product?: OsCatalogProductOrderByWithRelationInput
+  }
+
+  export type OsPriceEntryWhereUniqueInput = Prisma.AtLeast<{
+    organizationId_priceListId_productId_context?: OsPriceEntryOrganizationIdPriceListIdProductIdContextCompoundUniqueInput
+    organizationId_id?: OsPriceEntryOrganizationIdIdCompoundUniqueInput
+    AND?: OsPriceEntryWhereInput | OsPriceEntryWhereInput[]
+    OR?: OsPriceEntryWhereInput[]
+    NOT?: OsPriceEntryWhereInput | OsPriceEntryWhereInput[]
+    organizationId?: StringFilter<"OsPriceEntry"> | string
+    id?: StringFilter<"OsPriceEntry"> | string
+    priceListId?: StringFilter<"OsPriceEntry"> | string
+    productId?: StringFilter<"OsPriceEntry"> | string
+    context?: StringFilter<"OsPriceEntry"> | string
+    currency?: StringFilter<"OsPriceEntry"> | string
+    amountCentavos?: BigIntFilter<"OsPriceEntry"> | bigint | number
+    sourceFilename?: StringFilter<"OsPriceEntry"> | string
+    sourceSha256?: StringFilter<"OsPriceEntry"> | string
+    sourcePage?: IntNullableFilter<"OsPriceEntry"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceEntry"> | string
+    printedContext?: StringFilter<"OsPriceEntry"> | string
+    createdAt?: DateTimeFilter<"OsPriceEntry"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+    priceList?: XOR<OsPriceListScalarRelationFilter, OsPriceListWhereInput>
+    product?: XOR<OsCatalogProductScalarRelationFilter, OsCatalogProductWhereInput>
+  }, "organizationId_id" | "organizationId_priceListId_productId_context">
+
+  export type OsPriceEntryOrderByWithAggregationInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    priceListId?: SortOrder
+    productId?: SortOrder
+    context?: SortOrder
+    currency?: SortOrder
+    amountCentavos?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrderInput | SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+    _count?: OsPriceEntryCountOrderByAggregateInput
+    _avg?: OsPriceEntryAvgOrderByAggregateInput
+    _max?: OsPriceEntryMaxOrderByAggregateInput
+    _min?: OsPriceEntryMinOrderByAggregateInput
+    _sum?: OsPriceEntrySumOrderByAggregateInput
+  }
+
+  export type OsPriceEntryScalarWhereWithAggregatesInput = {
+    AND?: OsPriceEntryScalarWhereWithAggregatesInput | OsPriceEntryScalarWhereWithAggregatesInput[]
+    OR?: OsPriceEntryScalarWhereWithAggregatesInput[]
+    NOT?: OsPriceEntryScalarWhereWithAggregatesInput | OsPriceEntryScalarWhereWithAggregatesInput[]
+    organizationId?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    id?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    priceListId?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    productId?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    context?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    currency?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    amountCentavos?: BigIntWithAggregatesFilter<"OsPriceEntry"> | bigint | number
+    sourceFilename?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    sourceSha256?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    sourcePage?: IntNullableWithAggregatesFilter<"OsPriceEntry"> | number | null
+    sourceExcerpt?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    printedContext?: StringWithAggregatesFilter<"OsPriceEntry"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OsPriceEntry"> | Date | string
+  }
+
+  export type OsSpecialOrderClassificationWhereInput = {
+    AND?: OsSpecialOrderClassificationWhereInput | OsSpecialOrderClassificationWhereInput[]
+    OR?: OsSpecialOrderClassificationWhereInput[]
+    NOT?: OsSpecialOrderClassificationWhereInput | OsSpecialOrderClassificationWhereInput[]
+    id?: StringFilter<"OsSpecialOrderClassification"> | string
+    organizationId?: StringFilter<"OsSpecialOrderClassification"> | string
+    orderId?: StringFilter<"OsSpecialOrderClassification"> | string
+    classification?: StringFilter<"OsSpecialOrderClassification"> | string
+    requiresProductionPlanning?: BoolFilter<"OsSpecialOrderClassification"> | boolean
+    actorMemberId?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    actorLabel?: StringFilter<"OsSpecialOrderClassification"> | string
+    source?: StringFilter<"OsSpecialOrderClassification"> | string
+    recordedAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+    previousClassification?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    previousRequiresProductionPlanning?: BoolNullableFilter<"OsSpecialOrderClassification"> | boolean | null
+    createdAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }
+
+  export type OsSpecialOrderClassificationOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    orderId?: SortOrder
+    classification?: SortOrder
+    requiresProductionPlanning?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    recordedAt?: SortOrder
+    previousClassification?: SortOrderInput | SortOrder
+    previousRequiresProductionPlanning?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+  }
+
+  export type OsSpecialOrderClassificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsSpecialOrderClassificationWhereInput | OsSpecialOrderClassificationWhereInput[]
+    OR?: OsSpecialOrderClassificationWhereInput[]
+    NOT?: OsSpecialOrderClassificationWhereInput | OsSpecialOrderClassificationWhereInput[]
+    organizationId?: StringFilter<"OsSpecialOrderClassification"> | string
+    orderId?: StringFilter<"OsSpecialOrderClassification"> | string
+    classification?: StringFilter<"OsSpecialOrderClassification"> | string
+    requiresProductionPlanning?: BoolFilter<"OsSpecialOrderClassification"> | boolean
+    actorMemberId?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    actorLabel?: StringFilter<"OsSpecialOrderClassification"> | string
+    source?: StringFilter<"OsSpecialOrderClassification"> | string
+    recordedAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+    previousClassification?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    previousRequiresProductionPlanning?: BoolNullableFilter<"OsSpecialOrderClassification"> | boolean | null
+    createdAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }, "id">
+
+  export type OsSpecialOrderClassificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    orderId?: SortOrder
+    classification?: SortOrder
+    requiresProductionPlanning?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    recordedAt?: SortOrder
+    previousClassification?: SortOrderInput | SortOrder
+    previousRequiresProductionPlanning?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: OsSpecialOrderClassificationCountOrderByAggregateInput
+    _max?: OsSpecialOrderClassificationMaxOrderByAggregateInput
+    _min?: OsSpecialOrderClassificationMinOrderByAggregateInput
+  }
+
+  export type OsSpecialOrderClassificationScalarWhereWithAggregatesInput = {
+    AND?: OsSpecialOrderClassificationScalarWhereWithAggregatesInput | OsSpecialOrderClassificationScalarWhereWithAggregatesInput[]
+    OR?: OsSpecialOrderClassificationScalarWhereWithAggregatesInput[]
+    NOT?: OsSpecialOrderClassificationScalarWhereWithAggregatesInput | OsSpecialOrderClassificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    organizationId?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    orderId?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    classification?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    requiresProductionPlanning?: BoolWithAggregatesFilter<"OsSpecialOrderClassification"> | boolean
+    actorMemberId?: StringNullableWithAggregatesFilter<"OsSpecialOrderClassification"> | string | null
+    actorLabel?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    source?: StringWithAggregatesFilter<"OsSpecialOrderClassification"> | string
+    recordedAt?: DateTimeWithAggregatesFilter<"OsSpecialOrderClassification"> | Date | string
+    previousClassification?: StringNullableWithAggregatesFilter<"OsSpecialOrderClassification"> | string | null
+    previousRequiresProductionPlanning?: BoolNullableWithAggregatesFilter<"OsSpecialOrderClassification"> | boolean | null
+    createdAt?: DateTimeWithAggregatesFilter<"OsSpecialOrderClassification"> | Date | string
+  }
+
+  export type OsCoordinationDecisionWhereInput = {
+    AND?: OsCoordinationDecisionWhereInput | OsCoordinationDecisionWhereInput[]
+    OR?: OsCoordinationDecisionWhereInput[]
+    NOT?: OsCoordinationDecisionWhereInput | OsCoordinationDecisionWhereInput[]
+    id?: StringFilter<"OsCoordinationDecision"> | string
+    organizationId?: StringFilter<"OsCoordinationDecision"> | string
+    kind?: StringFilter<"OsCoordinationDecision"> | string
+    decision?: StringFilter<"OsCoordinationDecision"> | string
+    ownerLabel?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    ownerMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    dueAt?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    actorLabel?: StringFilter<"OsCoordinationDecision"> | string
+    actorMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    occurredAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    linkedCaseId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    notes?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    resolvesDecisionId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    recordedAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    createdAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }
+
+  export type OsCoordinationDecisionOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    kind?: SortOrder
+    decision?: SortOrder
+    ownerLabel?: SortOrderInput | SortOrder
+    ownerMemberId?: SortOrderInput | SortOrder
+    dueAt?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    linkedCaseId?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    resolvesDecisionId?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+  }
+
+  export type OsCoordinationDecisionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsCoordinationDecisionWhereInput | OsCoordinationDecisionWhereInput[]
+    OR?: OsCoordinationDecisionWhereInput[]
+    NOT?: OsCoordinationDecisionWhereInput | OsCoordinationDecisionWhereInput[]
+    organizationId?: StringFilter<"OsCoordinationDecision"> | string
+    kind?: StringFilter<"OsCoordinationDecision"> | string
+    decision?: StringFilter<"OsCoordinationDecision"> | string
+    ownerLabel?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    ownerMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    dueAt?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    actorLabel?: StringFilter<"OsCoordinationDecision"> | string
+    actorMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    occurredAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    linkedCaseId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    notes?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    resolvesDecisionId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    recordedAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    createdAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }, "id">
+
+  export type OsCoordinationDecisionOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    kind?: SortOrder
+    decision?: SortOrder
+    ownerLabel?: SortOrderInput | SortOrder
+    ownerMemberId?: SortOrderInput | SortOrder
+    dueAt?: SortOrderInput | SortOrder
+    actorLabel?: SortOrder
+    actorMemberId?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    linkedCaseId?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    resolvesDecisionId?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: OsCoordinationDecisionCountOrderByAggregateInput
+    _max?: OsCoordinationDecisionMaxOrderByAggregateInput
+    _min?: OsCoordinationDecisionMinOrderByAggregateInput
+  }
+
+  export type OsCoordinationDecisionScalarWhereWithAggregatesInput = {
+    AND?: OsCoordinationDecisionScalarWhereWithAggregatesInput | OsCoordinationDecisionScalarWhereWithAggregatesInput[]
+    OR?: OsCoordinationDecisionScalarWhereWithAggregatesInput[]
+    NOT?: OsCoordinationDecisionScalarWhereWithAggregatesInput | OsCoordinationDecisionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsCoordinationDecision"> | string
+    organizationId?: StringWithAggregatesFilter<"OsCoordinationDecision"> | string
+    kind?: StringWithAggregatesFilter<"OsCoordinationDecision"> | string
+    decision?: StringWithAggregatesFilter<"OsCoordinationDecision"> | string
+    ownerLabel?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    ownerMemberId?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    dueAt?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    actorLabel?: StringWithAggregatesFilter<"OsCoordinationDecision"> | string
+    actorMemberId?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    occurredAt?: DateTimeWithAggregatesFilter<"OsCoordinationDecision"> | Date | string
+    linkedCaseId?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    resolvesDecisionId?: StringNullableWithAggregatesFilter<"OsCoordinationDecision"> | string | null
+    recordedAt?: DateTimeWithAggregatesFilter<"OsCoordinationDecision"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"OsCoordinationDecision"> | Date | string
+  }
+
   export type OsOrganizationCreateInput = {
     id: string
     legalName: string
@@ -114801,7 +122083,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateInput = {
@@ -114877,7 +122164,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUpdateInput = {
@@ -114953,7 +122245,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateInput = {
@@ -115029,7 +122326,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateManyInput = {
@@ -119838,6 +127140,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUncheckedCreateInput = {
@@ -119857,6 +127160,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeUncheckedCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventUncheckedCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUpdateInput = {
@@ -119876,6 +127180,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateInput = {
@@ -119895,6 +127200,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUncheckedUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUncheckedUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductCreateManyInput = {
@@ -122827,6 +130133,131 @@ export namespace Prisma {
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OsFinishedGoodsReceiptCreateInput = {
+    id: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+    organization: OsOrganizationCreateNestedOneWithoutFinishedGoodsReceiptsInput
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+  }
+
+  export type OsFinishedGoodsReceiptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    organization?: OsOrganizationUpdateOneRequiredWithoutFinishedGoodsReceiptsNestedInput
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsFinishedGoodsReceiptCreateManyInput = {
+    id: string
+    organizationId: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+  }
+
+  export type OsFinishedGoodsReceiptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type OsPurchaseRequestCreateInput = {
     id: string
     requestingArea: string
@@ -123187,6 +130618,452 @@ export namespace Prisma {
     actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: StringFieldUpdateOperationsInput | string
     evidenceReference?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsPriceListCreateInput = {
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPriceListsInput
+    entries?: OsPriceEntryCreateNestedManyWithoutPriceListInput
+  }
+
+  export type OsPriceListUncheckedCreateInput = {
+    organizationId: string
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    entries?: OsPriceEntryUncheckedCreateNestedManyWithoutPriceListInput
+  }
+
+  export type OsPriceListUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPriceListsNestedInput
+    entries?: OsPriceEntryUpdateManyWithoutPriceListNestedInput
+  }
+
+  export type OsPriceListUncheckedUpdateInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entries?: OsPriceEntryUncheckedUpdateManyWithoutPriceListNestedInput
+  }
+
+  export type OsPriceListCreateManyInput = {
+    organizationId: string
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceListUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceListUncheckedUpdateManyInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryCreateInput = {
+    id: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPriceEntriesInput
+    priceList: OsPriceListCreateNestedOneWithoutEntriesInput
+    product: OsCatalogProductCreateNestedOneWithoutPriceEntriesInput
+  }
+
+  export type OsPriceEntryUncheckedCreateInput = {
+    organizationId: string
+    id: string
+    priceListId: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPriceEntriesNestedInput
+    priceList?: OsPriceListUpdateOneRequiredWithoutEntriesNestedInput
+    product?: OsCatalogProductUpdateOneRequiredWithoutPriceEntriesNestedInput
+  }
+
+  export type OsPriceEntryUncheckedUpdateInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryCreateManyInput = {
+    organizationId: string
+    id: string
+    priceListId: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationCreateInput = {
+    id: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutSpecialOrderClassificationsInput
+  }
+
+  export type OsSpecialOrderClassificationUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+  }
+
+  export type OsSpecialOrderClassificationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutSpecialOrderClassificationsNestedInput
+  }
+
+  export type OsSpecialOrderClassificationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationCreateManyInput = {
+    id: string
+    organizationId: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+  }
+
+  export type OsSpecialOrderClassificationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionCreateInput = {
+    id: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCoordinationDecisionsInput
+  }
+
+  export type OsCoordinationDecisionUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type OsCoordinationDecisionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCoordinationDecisionsNestedInput
+  }
+
+  export type OsCoordinationDecisionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionCreateManyInput = {
+    id: string
+    organizationId: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type OsCoordinationDecisionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -123599,10 +131476,40 @@ export namespace Prisma {
     none?: OsOrderAllocationWhereInput
   }
 
+  export type OsFinishedGoodsReceiptListRelationFilter = {
+    every?: OsFinishedGoodsReceiptWhereInput
+    some?: OsFinishedGoodsReceiptWhereInput
+    none?: OsFinishedGoodsReceiptWhereInput
+  }
+
   export type OsPurchaseRequestListRelationFilter = {
     every?: OsPurchaseRequestWhereInput
     some?: OsPurchaseRequestWhereInput
     none?: OsPurchaseRequestWhereInput
+  }
+
+  export type OsPriceListListRelationFilter = {
+    every?: OsPriceListWhereInput
+    some?: OsPriceListWhereInput
+    none?: OsPriceListWhereInput
+  }
+
+  export type OsPriceEntryListRelationFilter = {
+    every?: OsPriceEntryWhereInput
+    some?: OsPriceEntryWhereInput
+    none?: OsPriceEntryWhereInput
+  }
+
+  export type OsSpecialOrderClassificationListRelationFilter = {
+    every?: OsSpecialOrderClassificationWhereInput
+    some?: OsSpecialOrderClassificationWhereInput
+    none?: OsSpecialOrderClassificationWhereInput
+  }
+
+  export type OsCoordinationDecisionListRelationFilter = {
+    every?: OsCoordinationDecisionWhereInput
+    some?: OsCoordinationDecisionWhereInput
+    none?: OsCoordinationDecisionWhereInput
   }
 
   export type OsOrganizationMemberOrderByRelationAggregateInput = {
@@ -123861,7 +131768,27 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type OsFinishedGoodsReceiptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type OsPurchaseRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsPriceListOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsPriceEntryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsSpecialOrderClassificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsCoordinationDecisionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -128137,6 +136064,60 @@ export namespace Prisma {
     idempotencyKey?: SortOrder
   }
 
+  export type OsFinishedGoodsReceiptCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    productId?: SortOrder
+    quantity?: SortOrder
+    warehouseLabel?: SortOrder
+    receivedAt?: SortOrder
+    recordedAt?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    productionTraceEntryId?: SortOrder
+    quemaId?: SortOrder
+    correctsReceiptId?: SortOrder
+    correctionReason?: SortOrder
+    idempotencyKey?: SortOrder
+  }
+
+  export type OsFinishedGoodsReceiptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    productId?: SortOrder
+    quantity?: SortOrder
+    warehouseLabel?: SortOrder
+    receivedAt?: SortOrder
+    recordedAt?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    productionTraceEntryId?: SortOrder
+    quemaId?: SortOrder
+    correctsReceiptId?: SortOrder
+    correctionReason?: SortOrder
+    idempotencyKey?: SortOrder
+  }
+
+  export type OsFinishedGoodsReceiptMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    productId?: SortOrder
+    quantity?: SortOrder
+    warehouseLabel?: SortOrder
+    receivedAt?: SortOrder
+    recordedAt?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    productionTraceEntryId?: SortOrder
+    quemaId?: SortOrder
+    correctsReceiptId?: SortOrder
+    correctionReason?: SortOrder
+    idempotencyKey?: SortOrder
+  }
+
   export type OsPurchaseRequestStatusHistoryListRelationFilter = {
     every?: OsPurchaseRequestStatusHistoryWhereInput
     some?: OsPurchaseRequestStatusHistoryWhereInput
@@ -128318,6 +136299,256 @@ export namespace Prisma {
     actorMemberId?: SortOrder
     source?: SortOrder
     evidenceReference?: SortOrder
+  }
+
+  export type OsPriceListOrganizationIdVersionCompoundUniqueInput = {
+    organizationId: string
+    version: string
+  }
+
+  export type OsPriceListOrganizationIdIdCompoundUniqueInput = {
+    organizationId: string
+    id: string
+  }
+
+  export type OsPriceListCountOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    version?: SortOrder
+    currency?: SortOrder
+    effectiveFrom?: SortOrder
+    effectiveTo?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceListAvgOrderByAggregateInput = {
+    sourcePage?: SortOrder
+  }
+
+  export type OsPriceListMaxOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    version?: SortOrder
+    currency?: SortOrder
+    effectiveFrom?: SortOrder
+    effectiveTo?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceListMinOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    version?: SortOrder
+    currency?: SortOrder
+    effectiveFrom?: SortOrder
+    effectiveTo?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceListSumOrderByAggregateInput = {
+    sourcePage?: SortOrder
+  }
+
+  export type OsPriceListScalarRelationFilter = {
+    is?: OsPriceListWhereInput
+    isNot?: OsPriceListWhereInput
+  }
+
+  export type OsPriceEntryOrganizationIdPriceListIdProductIdContextCompoundUniqueInput = {
+    organizationId: string
+    priceListId: string
+    productId: string
+    context: string
+  }
+
+  export type OsPriceEntryOrganizationIdIdCompoundUniqueInput = {
+    organizationId: string
+    id: string
+  }
+
+  export type OsPriceEntryCountOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    priceListId?: SortOrder
+    productId?: SortOrder
+    context?: SortOrder
+    currency?: SortOrder
+    amountCentavos?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceEntryAvgOrderByAggregateInput = {
+    amountCentavos?: SortOrder
+    sourcePage?: SortOrder
+  }
+
+  export type OsPriceEntryMaxOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    priceListId?: SortOrder
+    productId?: SortOrder
+    context?: SortOrder
+    currency?: SortOrder
+    amountCentavos?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceEntryMinOrderByAggregateInput = {
+    organizationId?: SortOrder
+    id?: SortOrder
+    priceListId?: SortOrder
+    productId?: SortOrder
+    context?: SortOrder
+    currency?: SortOrder
+    amountCentavos?: SortOrder
+    sourceFilename?: SortOrder
+    sourceSha256?: SortOrder
+    sourcePage?: SortOrder
+    sourceExcerpt?: SortOrder
+    printedContext?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsPriceEntrySumOrderByAggregateInput = {
+    amountCentavos?: SortOrder
+    sourcePage?: SortOrder
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type OsSpecialOrderClassificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    orderId?: SortOrder
+    classification?: SortOrder
+    requiresProductionPlanning?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    recordedAt?: SortOrder
+    previousClassification?: SortOrder
+    previousRequiresProductionPlanning?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsSpecialOrderClassificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    orderId?: SortOrder
+    classification?: SortOrder
+    requiresProductionPlanning?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    recordedAt?: SortOrder
+    previousClassification?: SortOrder
+    previousRequiresProductionPlanning?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsSpecialOrderClassificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    orderId?: SortOrder
+    classification?: SortOrder
+    requiresProductionPlanning?: SortOrder
+    actorMemberId?: SortOrder
+    actorLabel?: SortOrder
+    source?: SortOrder
+    recordedAt?: SortOrder
+    previousClassification?: SortOrder
+    previousRequiresProductionPlanning?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type OsCoordinationDecisionCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    kind?: SortOrder
+    decision?: SortOrder
+    ownerLabel?: SortOrder
+    ownerMemberId?: SortOrder
+    dueAt?: SortOrder
+    actorLabel?: SortOrder
+    actorMemberId?: SortOrder
+    occurredAt?: SortOrder
+    linkedCaseId?: SortOrder
+    notes?: SortOrder
+    resolvesDecisionId?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCoordinationDecisionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    kind?: SortOrder
+    decision?: SortOrder
+    ownerLabel?: SortOrder
+    ownerMemberId?: SortOrder
+    dueAt?: SortOrder
+    actorLabel?: SortOrder
+    actorMemberId?: SortOrder
+    occurredAt?: SortOrder
+    linkedCaseId?: SortOrder
+    notes?: SortOrder
+    resolvesDecisionId?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCoordinationDecisionMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    kind?: SortOrder
+    decision?: SortOrder
+    ownerLabel?: SortOrder
+    ownerMemberId?: SortOrder
+    dueAt?: SortOrder
+    actorLabel?: SortOrder
+    actorMemberId?: SortOrder
+    occurredAt?: SortOrder
+    linkedCaseId?: SortOrder
+    notes?: SortOrder
+    resolvesDecisionId?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutOrganizationInput = {
@@ -128768,11 +136999,46 @@ export namespace Prisma {
     connect?: OsOrderAllocationWhereUniqueInput | OsOrderAllocationWhereUniqueInput[]
   }
 
+  export type OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput> | OsFinishedGoodsReceiptCreateWithoutOrganizationInput[] | OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput | OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsFinishedGoodsReceiptCreateManyOrganizationInputEnvelope
+    connect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+  }
+
   export type OsPurchaseRequestCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsPurchaseRequestCreateWithoutOrganizationInput, OsPurchaseRequestUncheckedCreateWithoutOrganizationInput> | OsPurchaseRequestCreateWithoutOrganizationInput[] | OsPurchaseRequestUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsPurchaseRequestCreateOrConnectWithoutOrganizationInput | OsPurchaseRequestCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsPurchaseRequestCreateManyOrganizationInputEnvelope
     connect?: OsPurchaseRequestWhereUniqueInput | OsPurchaseRequestWhereUniqueInput[]
+  }
+
+  export type OsPriceListCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput> | OsPriceListCreateWithoutOrganizationInput[] | OsPriceListUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutOrganizationInput | OsPriceListCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsPriceListCreateManyOrganizationInputEnvelope
+    connect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+  }
+
+  export type OsPriceEntryCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput> | OsPriceEntryCreateWithoutOrganizationInput[] | OsPriceEntryUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutOrganizationInput | OsPriceEntryCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsPriceEntryCreateManyOrganizationInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+  }
+
+  export type OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput> | OsSpecialOrderClassificationCreateWithoutOrganizationInput[] | OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput | OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsSpecialOrderClassificationCreateManyOrganizationInputEnvelope
+    connect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+  }
+
+  export type OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput> | OsCoordinationDecisionCreateWithoutOrganizationInput[] | OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput | OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCoordinationDecisionCreateManyOrganizationInputEnvelope
+    connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
   }
 
   export type OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
@@ -129223,11 +137489,46 @@ export namespace Prisma {
     connect?: OsOrderAllocationWhereUniqueInput | OsOrderAllocationWhereUniqueInput[]
   }
 
+  export type OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput> | OsFinishedGoodsReceiptCreateWithoutOrganizationInput[] | OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput | OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsFinishedGoodsReceiptCreateManyOrganizationInputEnvelope
+    connect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+  }
+
   export type OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsPurchaseRequestCreateWithoutOrganizationInput, OsPurchaseRequestUncheckedCreateWithoutOrganizationInput> | OsPurchaseRequestCreateWithoutOrganizationInput[] | OsPurchaseRequestUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsPurchaseRequestCreateOrConnectWithoutOrganizationInput | OsPurchaseRequestCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsPurchaseRequestCreateManyOrganizationInputEnvelope
     connect?: OsPurchaseRequestWhereUniqueInput | OsPurchaseRequestWhereUniqueInput[]
+  }
+
+  export type OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput> | OsPriceListCreateWithoutOrganizationInput[] | OsPriceListUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutOrganizationInput | OsPriceListCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsPriceListCreateManyOrganizationInputEnvelope
+    connect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+  }
+
+  export type OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput> | OsPriceEntryCreateWithoutOrganizationInput[] | OsPriceEntryUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutOrganizationInput | OsPriceEntryCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsPriceEntryCreateManyOrganizationInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+  }
+
+  export type OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput> | OsSpecialOrderClassificationCreateWithoutOrganizationInput[] | OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput | OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsSpecialOrderClassificationCreateManyOrganizationInputEnvelope
+    connect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+  }
+
+  export type OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput> | OsCoordinationDecisionCreateWithoutOrganizationInput[] | OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput | OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCoordinationDecisionCreateManyOrganizationInputEnvelope
+    connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -130134,6 +138435,20 @@ export namespace Prisma {
     deleteMany?: OsOrderAllocationScalarWhereInput | OsOrderAllocationScalarWhereInput[]
   }
 
+  export type OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput> | OsFinishedGoodsReceiptCreateWithoutOrganizationInput[] | OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput | OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsFinishedGoodsReceiptUpsertWithWhereUniqueWithoutOrganizationInput | OsFinishedGoodsReceiptUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsFinishedGoodsReceiptCreateManyOrganizationInputEnvelope
+    set?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    disconnect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    delete?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    connect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    update?: OsFinishedGoodsReceiptUpdateWithWhereUniqueWithoutOrganizationInput | OsFinishedGoodsReceiptUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsFinishedGoodsReceiptUpdateManyWithWhereWithoutOrganizationInput | OsFinishedGoodsReceiptUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsFinishedGoodsReceiptScalarWhereInput | OsFinishedGoodsReceiptScalarWhereInput[]
+  }
+
   export type OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsPurchaseRequestCreateWithoutOrganizationInput, OsPurchaseRequestUncheckedCreateWithoutOrganizationInput> | OsPurchaseRequestCreateWithoutOrganizationInput[] | OsPurchaseRequestUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsPurchaseRequestCreateOrConnectWithoutOrganizationInput | OsPurchaseRequestCreateOrConnectWithoutOrganizationInput[]
@@ -130146,6 +138461,62 @@ export namespace Prisma {
     update?: OsPurchaseRequestUpdateWithWhereUniqueWithoutOrganizationInput | OsPurchaseRequestUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsPurchaseRequestUpdateManyWithWhereWithoutOrganizationInput | OsPurchaseRequestUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsPurchaseRequestScalarWhereInput | OsPurchaseRequestScalarWhereInput[]
+  }
+
+  export type OsPriceListUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput> | OsPriceListCreateWithoutOrganizationInput[] | OsPriceListUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutOrganizationInput | OsPriceListCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsPriceListUpsertWithWhereUniqueWithoutOrganizationInput | OsPriceListUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsPriceListCreateManyOrganizationInputEnvelope
+    set?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    disconnect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    delete?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    connect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    update?: OsPriceListUpdateWithWhereUniqueWithoutOrganizationInput | OsPriceListUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsPriceListUpdateManyWithWhereWithoutOrganizationInput | OsPriceListUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsPriceListScalarWhereInput | OsPriceListScalarWhereInput[]
+  }
+
+  export type OsPriceEntryUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput> | OsPriceEntryCreateWithoutOrganizationInput[] | OsPriceEntryUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutOrganizationInput | OsPriceEntryCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutOrganizationInput | OsPriceEntryUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsPriceEntryCreateManyOrganizationInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutOrganizationInput | OsPriceEntryUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutOrganizationInput | OsPriceEntryUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+  }
+
+  export type OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput> | OsSpecialOrderClassificationCreateWithoutOrganizationInput[] | OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput | OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsSpecialOrderClassificationUpsertWithWhereUniqueWithoutOrganizationInput | OsSpecialOrderClassificationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsSpecialOrderClassificationCreateManyOrganizationInputEnvelope
+    set?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    disconnect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    delete?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    connect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    update?: OsSpecialOrderClassificationUpdateWithWhereUniqueWithoutOrganizationInput | OsSpecialOrderClassificationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsSpecialOrderClassificationUpdateManyWithWhereWithoutOrganizationInput | OsSpecialOrderClassificationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsSpecialOrderClassificationScalarWhereInput | OsSpecialOrderClassificationScalarWhereInput[]
+  }
+
+  export type OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput> | OsCoordinationDecisionCreateWithoutOrganizationInput[] | OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput | OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCoordinationDecisionUpsertWithWhereUniqueWithoutOrganizationInput | OsCoordinationDecisionUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCoordinationDecisionCreateManyOrganizationInputEnvelope
+    set?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    disconnect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    delete?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    update?: OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput | OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput | OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
   }
 
   export type OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -131044,6 +139415,20 @@ export namespace Prisma {
     deleteMany?: OsOrderAllocationScalarWhereInput | OsOrderAllocationScalarWhereInput[]
   }
 
+  export type OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput> | OsFinishedGoodsReceiptCreateWithoutOrganizationInput[] | OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput | OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsFinishedGoodsReceiptUpsertWithWhereUniqueWithoutOrganizationInput | OsFinishedGoodsReceiptUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsFinishedGoodsReceiptCreateManyOrganizationInputEnvelope
+    set?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    disconnect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    delete?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    connect?: OsFinishedGoodsReceiptWhereUniqueInput | OsFinishedGoodsReceiptWhereUniqueInput[]
+    update?: OsFinishedGoodsReceiptUpdateWithWhereUniqueWithoutOrganizationInput | OsFinishedGoodsReceiptUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsFinishedGoodsReceiptUpdateManyWithWhereWithoutOrganizationInput | OsFinishedGoodsReceiptUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsFinishedGoodsReceiptScalarWhereInput | OsFinishedGoodsReceiptScalarWhereInput[]
+  }
+
   export type OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsPurchaseRequestCreateWithoutOrganizationInput, OsPurchaseRequestUncheckedCreateWithoutOrganizationInput> | OsPurchaseRequestCreateWithoutOrganizationInput[] | OsPurchaseRequestUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsPurchaseRequestCreateOrConnectWithoutOrganizationInput | OsPurchaseRequestCreateOrConnectWithoutOrganizationInput[]
@@ -131056,6 +139441,62 @@ export namespace Prisma {
     update?: OsPurchaseRequestUpdateWithWhereUniqueWithoutOrganizationInput | OsPurchaseRequestUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsPurchaseRequestUpdateManyWithWhereWithoutOrganizationInput | OsPurchaseRequestUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsPurchaseRequestScalarWhereInput | OsPurchaseRequestScalarWhereInput[]
+  }
+
+  export type OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput> | OsPriceListCreateWithoutOrganizationInput[] | OsPriceListUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutOrganizationInput | OsPriceListCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsPriceListUpsertWithWhereUniqueWithoutOrganizationInput | OsPriceListUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsPriceListCreateManyOrganizationInputEnvelope
+    set?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    disconnect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    delete?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    connect?: OsPriceListWhereUniqueInput | OsPriceListWhereUniqueInput[]
+    update?: OsPriceListUpdateWithWhereUniqueWithoutOrganizationInput | OsPriceListUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsPriceListUpdateManyWithWhereWithoutOrganizationInput | OsPriceListUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsPriceListScalarWhereInput | OsPriceListScalarWhereInput[]
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput> | OsPriceEntryCreateWithoutOrganizationInput[] | OsPriceEntryUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutOrganizationInput | OsPriceEntryCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutOrganizationInput | OsPriceEntryUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsPriceEntryCreateManyOrganizationInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutOrganizationInput | OsPriceEntryUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutOrganizationInput | OsPriceEntryUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+  }
+
+  export type OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput> | OsSpecialOrderClassificationCreateWithoutOrganizationInput[] | OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput | OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsSpecialOrderClassificationUpsertWithWhereUniqueWithoutOrganizationInput | OsSpecialOrderClassificationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsSpecialOrderClassificationCreateManyOrganizationInputEnvelope
+    set?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    disconnect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    delete?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    connect?: OsSpecialOrderClassificationWhereUniqueInput | OsSpecialOrderClassificationWhereUniqueInput[]
+    update?: OsSpecialOrderClassificationUpdateWithWhereUniqueWithoutOrganizationInput | OsSpecialOrderClassificationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsSpecialOrderClassificationUpdateManyWithWhereWithoutOrganizationInput | OsSpecialOrderClassificationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsSpecialOrderClassificationScalarWhereInput | OsSpecialOrderClassificationScalarWhereInput[]
+  }
+
+  export type OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput> | OsCoordinationDecisionCreateWithoutOrganizationInput[] | OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput | OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCoordinationDecisionUpsertWithWhereUniqueWithoutOrganizationInput | OsCoordinationDecisionUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCoordinationDecisionCreateManyOrganizationInputEnvelope
+    set?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    disconnect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    delete?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+    update?: OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput | OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput | OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutPersonInput = {
@@ -133768,6 +142209,13 @@ export namespace Prisma {
     connect?: OsCatalogProductStatusEventWhereUniqueInput | OsCatalogProductStatusEventWhereUniqueInput[]
   }
 
+  export type OsPriceEntryCreateNestedManyWithoutProductInput = {
+    create?: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput> | OsPriceEntryCreateWithoutProductInput[] | OsPriceEntryUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutProductInput | OsPriceEntryCreateOrConnectWithoutProductInput[]
+    createMany?: OsPriceEntryCreateManyProductInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+  }
+
   export type OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput = {
     create?: XOR<OsCatalogProductProvenanceCreateWithoutProductInput, OsCatalogProductProvenanceUncheckedCreateWithoutProductInput> | OsCatalogProductProvenanceCreateWithoutProductInput[] | OsCatalogProductProvenanceUncheckedCreateWithoutProductInput[]
     connectOrCreate?: OsCatalogProductProvenanceCreateOrConnectWithoutProductInput | OsCatalogProductProvenanceCreateOrConnectWithoutProductInput[]
@@ -133787,6 +142235,13 @@ export namespace Prisma {
     connectOrCreate?: OsCatalogProductStatusEventCreateOrConnectWithoutProductInput | OsCatalogProductStatusEventCreateOrConnectWithoutProductInput[]
     createMany?: OsCatalogProductStatusEventCreateManyProductInputEnvelope
     connect?: OsCatalogProductStatusEventWhereUniqueInput | OsCatalogProductStatusEventWhereUniqueInput[]
+  }
+
+  export type OsPriceEntryUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput> | OsPriceEntryCreateWithoutProductInput[] | OsPriceEntryUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutProductInput | OsPriceEntryCreateOrConnectWithoutProductInput[]
+    createMany?: OsPriceEntryCreateManyProductInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
   }
 
   export type OsCatalogProductUpdatereviewNotesInput = {
@@ -133844,6 +142299,20 @@ export namespace Prisma {
     deleteMany?: OsCatalogProductStatusEventScalarWhereInput | OsCatalogProductStatusEventScalarWhereInput[]
   }
 
+  export type OsPriceEntryUpdateManyWithoutProductNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput> | OsPriceEntryCreateWithoutProductInput[] | OsPriceEntryUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutProductInput | OsPriceEntryCreateOrConnectWithoutProductInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutProductInput | OsPriceEntryUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: OsPriceEntryCreateManyProductInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutProductInput | OsPriceEntryUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutProductInput | OsPriceEntryUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+  }
+
   export type OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput = {
     create?: XOR<OsCatalogProductProvenanceCreateWithoutProductInput, OsCatalogProductProvenanceUncheckedCreateWithoutProductInput> | OsCatalogProductProvenanceCreateWithoutProductInput[] | OsCatalogProductProvenanceUncheckedCreateWithoutProductInput[]
     connectOrCreate?: OsCatalogProductProvenanceCreateOrConnectWithoutProductInput | OsCatalogProductProvenanceCreateOrConnectWithoutProductInput[]
@@ -133884,6 +142353,20 @@ export namespace Prisma {
     update?: OsCatalogProductStatusEventUpdateWithWhereUniqueWithoutProductInput | OsCatalogProductStatusEventUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: OsCatalogProductStatusEventUpdateManyWithWhereWithoutProductInput | OsCatalogProductStatusEventUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: OsCatalogProductStatusEventScalarWhereInput | OsCatalogProductStatusEventScalarWhereInput[]
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput> | OsPriceEntryCreateWithoutProductInput[] | OsPriceEntryUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutProductInput | OsPriceEntryCreateOrConnectWithoutProductInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutProductInput | OsPriceEntryUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: OsPriceEntryCreateManyProductInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutProductInput | OsPriceEntryUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutProductInput | OsPriceEntryUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
   }
 
   export type OsCatalogProductCreateNestedOneWithoutProvenanceInput = {
@@ -135082,6 +143565,20 @@ export namespace Prisma {
     update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutOrderAllocationsInput, OsOrganizationUpdateWithoutOrderAllocationsInput>, OsOrganizationUncheckedUpdateWithoutOrderAllocationsInput>
   }
 
+  export type OsOrganizationCreateNestedOneWithoutFinishedGoodsReceiptsInput = {
+    create?: XOR<OsOrganizationCreateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutFinishedGoodsReceiptsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutFinishedGoodsReceiptsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutFinishedGoodsReceiptsInput
+    upsert?: OsOrganizationUpsertWithoutFinishedGoodsReceiptsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutFinishedGoodsReceiptsInput, OsOrganizationUpdateWithoutFinishedGoodsReceiptsInput>, OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput>
+  }
+
   export type OsOrganizationCreateNestedOneWithoutPurchaseRequestsInput = {
     create?: XOR<OsOrganizationCreateWithoutPurchaseRequestsInput, OsOrganizationUncheckedCreateWithoutPurchaseRequestsInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutPurchaseRequestsInput
@@ -135206,6 +143703,136 @@ export namespace Prisma {
     upsert?: OsPurchaseRequestUpsertWithoutNotesInput
     connect?: OsPurchaseRequestWhereUniqueInput
     update?: XOR<XOR<OsPurchaseRequestUpdateToOneWithWhereWithoutNotesInput, OsPurchaseRequestUpdateWithoutNotesInput>, OsPurchaseRequestUncheckedUpdateWithoutNotesInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutPriceListsInput = {
+    create?: XOR<OsOrganizationCreateWithoutPriceListsInput, OsOrganizationUncheckedCreateWithoutPriceListsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutPriceListsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsPriceEntryCreateNestedManyWithoutPriceListInput = {
+    create?: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput> | OsPriceEntryCreateWithoutPriceListInput[] | OsPriceEntryUncheckedCreateWithoutPriceListInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutPriceListInput | OsPriceEntryCreateOrConnectWithoutPriceListInput[]
+    createMany?: OsPriceEntryCreateManyPriceListInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+  }
+
+  export type OsPriceEntryUncheckedCreateNestedManyWithoutPriceListInput = {
+    create?: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput> | OsPriceEntryCreateWithoutPriceListInput[] | OsPriceEntryUncheckedCreateWithoutPriceListInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutPriceListInput | OsPriceEntryCreateOrConnectWithoutPriceListInput[]
+    createMany?: OsPriceEntryCreateManyPriceListInputEnvelope
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutPriceListsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutPriceListsInput, OsOrganizationUncheckedCreateWithoutPriceListsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutPriceListsInput
+    upsert?: OsOrganizationUpsertWithoutPriceListsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutPriceListsInput, OsOrganizationUpdateWithoutPriceListsInput>, OsOrganizationUncheckedUpdateWithoutPriceListsInput>
+  }
+
+  export type OsPriceEntryUpdateManyWithoutPriceListNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput> | OsPriceEntryCreateWithoutPriceListInput[] | OsPriceEntryUncheckedCreateWithoutPriceListInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutPriceListInput | OsPriceEntryCreateOrConnectWithoutPriceListInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput | OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput[]
+    createMany?: OsPriceEntryCreateManyPriceListInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutPriceListInput | OsPriceEntryUpdateWithWhereUniqueWithoutPriceListInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutPriceListInput | OsPriceEntryUpdateManyWithWhereWithoutPriceListInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutPriceListNestedInput = {
+    create?: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput> | OsPriceEntryCreateWithoutPriceListInput[] | OsPriceEntryUncheckedCreateWithoutPriceListInput[]
+    connectOrCreate?: OsPriceEntryCreateOrConnectWithoutPriceListInput | OsPriceEntryCreateOrConnectWithoutPriceListInput[]
+    upsert?: OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput | OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput[]
+    createMany?: OsPriceEntryCreateManyPriceListInputEnvelope
+    set?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    disconnect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    delete?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    connect?: OsPriceEntryWhereUniqueInput | OsPriceEntryWhereUniqueInput[]
+    update?: OsPriceEntryUpdateWithWhereUniqueWithoutPriceListInput | OsPriceEntryUpdateWithWhereUniqueWithoutPriceListInput[]
+    updateMany?: OsPriceEntryUpdateManyWithWhereWithoutPriceListInput | OsPriceEntryUpdateManyWithWhereWithoutPriceListInput[]
+    deleteMany?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutPriceEntriesInput = {
+    create?: XOR<OsOrganizationCreateWithoutPriceEntriesInput, OsOrganizationUncheckedCreateWithoutPriceEntriesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutPriceEntriesInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsPriceListCreateNestedOneWithoutEntriesInput = {
+    create?: XOR<OsPriceListCreateWithoutEntriesInput, OsPriceListUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutEntriesInput
+    connect?: OsPriceListWhereUniqueInput
+  }
+
+  export type OsCatalogProductCreateNestedOneWithoutPriceEntriesInput = {
+    create?: XOR<OsCatalogProductCreateWithoutPriceEntriesInput, OsCatalogProductUncheckedCreateWithoutPriceEntriesInput>
+    connectOrCreate?: OsCatalogProductCreateOrConnectWithoutPriceEntriesInput
+    connect?: OsCatalogProductWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutPriceEntriesNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutPriceEntriesInput, OsOrganizationUncheckedCreateWithoutPriceEntriesInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutPriceEntriesInput
+    upsert?: OsOrganizationUpsertWithoutPriceEntriesInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutPriceEntriesInput, OsOrganizationUpdateWithoutPriceEntriesInput>, OsOrganizationUncheckedUpdateWithoutPriceEntriesInput>
+  }
+
+  export type OsPriceListUpdateOneRequiredWithoutEntriesNestedInput = {
+    create?: XOR<OsPriceListCreateWithoutEntriesInput, OsPriceListUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: OsPriceListCreateOrConnectWithoutEntriesInput
+    upsert?: OsPriceListUpsertWithoutEntriesInput
+    connect?: OsPriceListWhereUniqueInput
+    update?: XOR<XOR<OsPriceListUpdateToOneWithWhereWithoutEntriesInput, OsPriceListUpdateWithoutEntriesInput>, OsPriceListUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type OsCatalogProductUpdateOneRequiredWithoutPriceEntriesNestedInput = {
+    create?: XOR<OsCatalogProductCreateWithoutPriceEntriesInput, OsCatalogProductUncheckedCreateWithoutPriceEntriesInput>
+    connectOrCreate?: OsCatalogProductCreateOrConnectWithoutPriceEntriesInput
+    upsert?: OsCatalogProductUpsertWithoutPriceEntriesInput
+    connect?: OsCatalogProductWhereUniqueInput
+    update?: XOR<XOR<OsCatalogProductUpdateToOneWithWhereWithoutPriceEntriesInput, OsCatalogProductUpdateWithoutPriceEntriesInput>, OsCatalogProductUncheckedUpdateWithoutPriceEntriesInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutSpecialOrderClassificationsInput = {
+    create?: XOR<OsOrganizationCreateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutSpecialOrderClassificationsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutSpecialOrderClassificationsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutSpecialOrderClassificationsInput
+    upsert?: OsOrganizationUpsertWithoutSpecialOrderClassificationsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutSpecialOrderClassificationsInput, OsOrganizationUpdateWithoutSpecialOrderClassificationsInput>, OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput>
+  }
+
+  export type OsOrganizationCreateNestedOneWithoutCoordinationDecisionsInput = {
+    create?: XOR<OsOrganizationCreateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutCoordinationDecisionsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput
+    upsert?: OsOrganizationUpsertWithoutCoordinationDecisionsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCoordinationDecisionsInput, OsOrganizationUpdateWithoutCoordinationDecisionsInput>, OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -135539,6 +144166,19 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type OsOrganizationMemberCreateWithoutOrganizationInput = {
@@ -137279,6 +145919,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUncheckedCreateWithoutOrganizationInput = {
@@ -137297,6 +145938,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeUncheckedCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventUncheckedCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductCreateOrConnectWithoutOrganizationInput = {
@@ -138059,6 +146701,50 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsFinishedGoodsReceiptCreateWithoutOrganizationInput = {
+    id: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+  }
+
+  export type OsFinishedGoodsReceiptCreateOrConnectWithoutOrganizationInput = {
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+    create: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsFinishedGoodsReceiptCreateManyOrganizationInputEnvelope = {
+    data: OsFinishedGoodsReceiptCreateManyOrganizationInput | OsFinishedGoodsReceiptCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OsPurchaseRequestCreateWithoutOrganizationInput = {
     id: string
     requestingArea: string
@@ -138120,6 +146806,168 @@ export namespace Prisma {
 
   export type OsPurchaseRequestCreateManyOrganizationInputEnvelope = {
     data: OsPurchaseRequestCreateManyOrganizationInput | OsPurchaseRequestCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsPriceListCreateWithoutOrganizationInput = {
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    entries?: OsPriceEntryCreateNestedManyWithoutPriceListInput
+  }
+
+  export type OsPriceListUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    entries?: OsPriceEntryUncheckedCreateNestedManyWithoutPriceListInput
+  }
+
+  export type OsPriceListCreateOrConnectWithoutOrganizationInput = {
+    where: OsPriceListWhereUniqueInput
+    create: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsPriceListCreateManyOrganizationInputEnvelope = {
+    data: OsPriceListCreateManyOrganizationInput | OsPriceListCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsPriceEntryCreateWithoutOrganizationInput = {
+    id: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    priceList: OsPriceListCreateNestedOneWithoutEntriesInput
+    product: OsCatalogProductCreateNestedOneWithoutPriceEntriesInput
+  }
+
+  export type OsPriceEntryUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    priceListId: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryCreateOrConnectWithoutOrganizationInput = {
+    where: OsPriceEntryWhereUniqueInput
+    create: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsPriceEntryCreateManyOrganizationInputEnvelope = {
+    data: OsPriceEntryCreateManyOrganizationInput | OsPriceEntryCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsSpecialOrderClassificationCreateWithoutOrganizationInput = {
+    id: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+  }
+
+  export type OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+  }
+
+  export type OsSpecialOrderClassificationCreateOrConnectWithoutOrganizationInput = {
+    where: OsSpecialOrderClassificationWhereUniqueInput
+    create: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsSpecialOrderClassificationCreateManyOrganizationInputEnvelope = {
+    data: OsSpecialOrderClassificationCreateManyOrganizationInput | OsSpecialOrderClassificationCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsCoordinationDecisionCreateWithoutOrganizationInput = {
+    id: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput = {
+    where: OsCoordinationDecisionWhereUniqueInput
+    create: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCoordinationDecisionCreateManyOrganizationInputEnvelope = {
+    data: OsCoordinationDecisionCreateManyOrganizationInput | OsCoordinationDecisionCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -140291,6 +149139,43 @@ export namespace Prisma {
     idempotencyKey?: StringNullableFilter<"OsOrderAllocation"> | string | null
   }
 
+  export type OsFinishedGoodsReceiptUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+    update: XOR<OsFinishedGoodsReceiptUpdateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsFinishedGoodsReceiptCreateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsFinishedGoodsReceiptUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsFinishedGoodsReceiptWhereUniqueInput
+    data: XOR<OsFinishedGoodsReceiptUpdateWithoutOrganizationInput, OsFinishedGoodsReceiptUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsFinishedGoodsReceiptUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsFinishedGoodsReceiptScalarWhereInput
+    data: XOR<OsFinishedGoodsReceiptUpdateManyMutationInput, OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsFinishedGoodsReceiptScalarWhereInput = {
+    AND?: OsFinishedGoodsReceiptScalarWhereInput | OsFinishedGoodsReceiptScalarWhereInput[]
+    OR?: OsFinishedGoodsReceiptScalarWhereInput[]
+    NOT?: OsFinishedGoodsReceiptScalarWhereInput | OsFinishedGoodsReceiptScalarWhereInput[]
+    id?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    organizationId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productId?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    quantity?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    warehouseLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    receivedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    recordedAt?: DateTimeFilter<"OsFinishedGoodsReceipt"> | Date | string
+    actorMemberId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    actorLabel?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    source?: StringFilter<"OsFinishedGoodsReceipt"> | string
+    productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+  }
+
   export type OsPurchaseRequestUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OsPurchaseRequestWhereUniqueInput
     update: XOR<OsPurchaseRequestUpdateWithoutOrganizationInput, OsPurchaseRequestUncheckedUpdateWithoutOrganizationInput>
@@ -140334,6 +149219,146 @@ export namespace Prisma {
     idempotencyKey?: StringNullableFilter<"OsPurchaseRequest"> | string | null
     createdAt?: DateTimeFilter<"OsPurchaseRequest"> | Date | string
     updatedAt?: DateTimeFilter<"OsPurchaseRequest"> | Date | string
+  }
+
+  export type OsPriceListUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsPriceListWhereUniqueInput
+    update: XOR<OsPriceListUpdateWithoutOrganizationInput, OsPriceListUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsPriceListCreateWithoutOrganizationInput, OsPriceListUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsPriceListUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsPriceListWhereUniqueInput
+    data: XOR<OsPriceListUpdateWithoutOrganizationInput, OsPriceListUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsPriceListUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsPriceListScalarWhereInput
+    data: XOR<OsPriceListUpdateManyMutationInput, OsPriceListUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsPriceListScalarWhereInput = {
+    AND?: OsPriceListScalarWhereInput | OsPriceListScalarWhereInput[]
+    OR?: OsPriceListScalarWhereInput[]
+    NOT?: OsPriceListScalarWhereInput | OsPriceListScalarWhereInput[]
+    organizationId?: StringFilter<"OsPriceList"> | string
+    id?: StringFilter<"OsPriceList"> | string
+    version?: StringFilter<"OsPriceList"> | string
+    currency?: StringFilter<"OsPriceList"> | string
+    effectiveFrom?: DateTimeFilter<"OsPriceList"> | Date | string
+    effectiveTo?: DateTimeNullableFilter<"OsPriceList"> | Date | string | null
+    sourceFilename?: StringFilter<"OsPriceList"> | string
+    sourceSha256?: StringFilter<"OsPriceList"> | string
+    sourcePage?: IntNullableFilter<"OsPriceList"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceList"> | string
+    printedContext?: StringFilter<"OsPriceList"> | string
+    createdAt?: DateTimeFilter<"OsPriceList"> | Date | string
+  }
+
+  export type OsPriceEntryUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsPriceEntryWhereUniqueInput
+    update: XOR<OsPriceEntryUpdateWithoutOrganizationInput, OsPriceEntryUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsPriceEntryCreateWithoutOrganizationInput, OsPriceEntryUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsPriceEntryUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsPriceEntryWhereUniqueInput
+    data: XOR<OsPriceEntryUpdateWithoutOrganizationInput, OsPriceEntryUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsPriceEntryUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsPriceEntryScalarWhereInput
+    data: XOR<OsPriceEntryUpdateManyMutationInput, OsPriceEntryUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsPriceEntryScalarWhereInput = {
+    AND?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+    OR?: OsPriceEntryScalarWhereInput[]
+    NOT?: OsPriceEntryScalarWhereInput | OsPriceEntryScalarWhereInput[]
+    organizationId?: StringFilter<"OsPriceEntry"> | string
+    id?: StringFilter<"OsPriceEntry"> | string
+    priceListId?: StringFilter<"OsPriceEntry"> | string
+    productId?: StringFilter<"OsPriceEntry"> | string
+    context?: StringFilter<"OsPriceEntry"> | string
+    currency?: StringFilter<"OsPriceEntry"> | string
+    amountCentavos?: BigIntFilter<"OsPriceEntry"> | bigint | number
+    sourceFilename?: StringFilter<"OsPriceEntry"> | string
+    sourceSha256?: StringFilter<"OsPriceEntry"> | string
+    sourcePage?: IntNullableFilter<"OsPriceEntry"> | number | null
+    sourceExcerpt?: StringFilter<"OsPriceEntry"> | string
+    printedContext?: StringFilter<"OsPriceEntry"> | string
+    createdAt?: DateTimeFilter<"OsPriceEntry"> | Date | string
+  }
+
+  export type OsSpecialOrderClassificationUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsSpecialOrderClassificationWhereUniqueInput
+    update: XOR<OsSpecialOrderClassificationUpdateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsSpecialOrderClassificationCreateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsSpecialOrderClassificationUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsSpecialOrderClassificationWhereUniqueInput
+    data: XOR<OsSpecialOrderClassificationUpdateWithoutOrganizationInput, OsSpecialOrderClassificationUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsSpecialOrderClassificationUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsSpecialOrderClassificationScalarWhereInput
+    data: XOR<OsSpecialOrderClassificationUpdateManyMutationInput, OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsSpecialOrderClassificationScalarWhereInput = {
+    AND?: OsSpecialOrderClassificationScalarWhereInput | OsSpecialOrderClassificationScalarWhereInput[]
+    OR?: OsSpecialOrderClassificationScalarWhereInput[]
+    NOT?: OsSpecialOrderClassificationScalarWhereInput | OsSpecialOrderClassificationScalarWhereInput[]
+    id?: StringFilter<"OsSpecialOrderClassification"> | string
+    organizationId?: StringFilter<"OsSpecialOrderClassification"> | string
+    orderId?: StringFilter<"OsSpecialOrderClassification"> | string
+    classification?: StringFilter<"OsSpecialOrderClassification"> | string
+    requiresProductionPlanning?: BoolFilter<"OsSpecialOrderClassification"> | boolean
+    actorMemberId?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    actorLabel?: StringFilter<"OsSpecialOrderClassification"> | string
+    source?: StringFilter<"OsSpecialOrderClassification"> | string
+    recordedAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+    previousClassification?: StringNullableFilter<"OsSpecialOrderClassification"> | string | null
+    previousRequiresProductionPlanning?: BoolNullableFilter<"OsSpecialOrderClassification"> | boolean | null
+    createdAt?: DateTimeFilter<"OsSpecialOrderClassification"> | Date | string
+  }
+
+  export type OsCoordinationDecisionUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCoordinationDecisionWhereUniqueInput
+    update: XOR<OsCoordinationDecisionUpdateWithoutOrganizationInput, OsCoordinationDecisionUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsCoordinationDecisionCreateWithoutOrganizationInput, OsCoordinationDecisionUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCoordinationDecisionWhereUniqueInput
+    data: XOR<OsCoordinationDecisionUpdateWithoutOrganizationInput, OsCoordinationDecisionUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsCoordinationDecisionScalarWhereInput
+    data: XOR<OsCoordinationDecisionUpdateManyMutationInput, OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsCoordinationDecisionScalarWhereInput = {
+    AND?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
+    OR?: OsCoordinationDecisionScalarWhereInput[]
+    NOT?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
+    id?: StringFilter<"OsCoordinationDecision"> | string
+    organizationId?: StringFilter<"OsCoordinationDecision"> | string
+    kind?: StringFilter<"OsCoordinationDecision"> | string
+    decision?: StringFilter<"OsCoordinationDecision"> | string
+    ownerLabel?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    ownerMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    dueAt?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    actorLabel?: StringFilter<"OsCoordinationDecision"> | string
+    actorMemberId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    occurredAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    linkedCaseId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    notes?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    resolvesDecisionId?: StringNullableFilter<"OsCoordinationDecision"> | string | null
+    recordedAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
+    createdAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
   }
 
   export type OsOrganizationMemberCreateWithoutPersonInput = {
@@ -140541,7 +149566,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutMembersInput = {
@@ -140616,7 +149646,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutMembersInput = {
@@ -140958,7 +149993,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutMembersInput = {
@@ -141033,7 +150073,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPersonUpsertWithoutMembersInput = {
@@ -141307,7 +150352,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -141382,7 +150432,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -141556,7 +150611,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -141631,7 +150691,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsDepartmentUpsertWithoutChildrenInput = {
@@ -141769,7 +150834,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutTerritoriesInput = {
@@ -141844,7 +150914,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutTerritoriesInput = {
@@ -141986,7 +151061,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutTerritoriesInput = {
@@ -142061,7 +151141,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsTerritoryUpsertWithoutChildrenInput = {
@@ -142181,7 +151266,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -142256,7 +151346,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -142390,7 +151485,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -142465,7 +151565,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutRoleAssignmentsInput = {
@@ -142589,7 +151694,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentAssignmentsInput = {
@@ -142664,7 +151774,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentAssignmentsInput = {
@@ -142823,7 +151938,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentAssignmentsInput = {
@@ -142898,7 +152018,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDepartmentAssignmentsInput = {
@@ -143053,7 +152178,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutManagerAssignmentsInput = {
@@ -143128,7 +152258,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutManagerAssignmentsInput = {
@@ -143305,7 +152440,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutManagerAssignmentsInput = {
@@ -143380,7 +152520,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutManagedByInput = {
@@ -143553,7 +152698,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDelegationsInput = {
@@ -143628,7 +152778,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDelegationsInput = {
@@ -143805,7 +152960,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDelegationsInput = {
@@ -143880,7 +153040,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDelegationsGrantedInput = {
@@ -144053,7 +153218,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkItemsInput = {
@@ -144128,7 +153298,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkItemsInput = {
@@ -144332,7 +153507,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkItemsInput = {
@@ -144407,7 +153587,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutOwnedWorkItemsInput = {
@@ -144563,7 +153748,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkOwnershipHistoryInput = {
@@ -144638,7 +153828,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkOwnershipHistoryInput = {
@@ -144774,7 +153969,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkOwnershipHistoryInput = {
@@ -144849,7 +154049,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutOwnershipHistoryInput = {
@@ -144975,7 +154180,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalRequestsInput = {
@@ -145050,7 +154260,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalRequestsInput = {
@@ -145186,7 +154401,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -145261,7 +154481,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutApprovalRequestsInput = {
@@ -145387,7 +154612,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutBusinessEventsInput = {
@@ -145462,7 +154692,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutBusinessEventsInput = {
@@ -145553,7 +154788,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutBusinessEventsInput = {
@@ -145628,7 +154868,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAuditLogsInput = {
@@ -145703,7 +154948,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -145778,7 +155028,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -145869,7 +155124,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -145944,7 +155204,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxMessagesInput = {
@@ -146019,7 +155284,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxMessagesInput = {
@@ -146094,7 +155364,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxMessagesInput = {
@@ -146185,7 +155460,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxMessagesInput = {
@@ -146260,7 +155540,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxConsumerDedupInput = {
@@ -146335,7 +155620,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxConsumerDedupInput = {
@@ -146410,7 +155700,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxConsumerDedupInput = {
@@ -146501,7 +155796,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxConsumerDedupInput = {
@@ -146576,7 +155876,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIdempotencyKeysInput = {
@@ -146651,7 +155956,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIdempotencyKeysInput = {
@@ -146726,7 +156036,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIdempotencyKeysInput = {
@@ -146817,7 +156132,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIdempotencyKeysInput = {
@@ -146892,7 +156212,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCapabilityStatesInput = {
@@ -146967,7 +156292,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCapabilityStatesInput = {
@@ -147042,7 +156372,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCapabilityStatesInput = {
@@ -147133,7 +156468,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCapabilityStatesInput = {
@@ -147208,7 +156548,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartiesInput = {
@@ -147283,7 +156628,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartiesInput = {
@@ -147358,7 +156708,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartiesInput = {
@@ -148050,7 +157405,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartiesInput = {
@@ -148125,7 +157485,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergedFromInput = {
@@ -148487,7 +157852,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLocationsInput = {
@@ -148562,7 +157932,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLocationsInput = {
@@ -148710,7 +158085,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLocationsInput = {
@@ -148785,7 +158165,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutLocationsInput = {
@@ -148923,7 +158308,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportBatchesInput = {
@@ -148998,7 +158388,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportBatchesInput = {
@@ -149121,7 +158516,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportBatchesInput = {
@@ -149196,7 +158596,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsImportRowUpsertWithWhereUniqueWithoutBatchInput = {
@@ -149322,7 +158727,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportRowsInput = {
@@ -149397,7 +158807,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportRowsInput = {
@@ -149529,7 +158944,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportRowsInput = {
@@ -149604,7 +159024,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunitiesInput = {
@@ -149679,7 +159104,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunitiesInput = {
@@ -149754,7 +159184,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunitiesInput = {
@@ -149960,7 +159395,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunitiesInput = {
@@ -150035,7 +159475,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOpportunitiesInput = {
@@ -150189,7 +159634,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuotesInput = {
@@ -150264,7 +159714,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuotesInput = {
@@ -150587,7 +160042,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuotesInput = {
@@ -150662,7 +160122,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutQuotesInput = {
@@ -150893,7 +160358,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLinesInput = {
@@ -150968,7 +160438,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLinesInput = {
@@ -151158,7 +160633,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLinesInput = {
@@ -151233,7 +160713,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsQuoteUpsertWithoutLinesInput = {
@@ -151383,7 +160868,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrdersInput = {
@@ -151458,7 +160948,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrdersInput = {
@@ -151705,7 +161200,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrdersInput = {
@@ -151780,7 +161280,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOrdersInput = {
@@ -151993,7 +161498,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyRoleAssignmentsInput = {
@@ -152068,7 +161578,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyRoleAssignmentsInput = {
@@ -152216,7 +161731,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyRoleAssignmentsInput = {
@@ -152291,7 +161811,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutRoleAssignmentsInput = {
@@ -152429,7 +161954,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutContactsInput = {
@@ -152504,7 +162034,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutContactsInput = {
@@ -152652,7 +162187,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutContactsInput = {
@@ -152727,7 +162267,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutContactsInput = {
@@ -152865,7 +162410,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFiscalIdentitiesInput = {
@@ -152940,7 +162490,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFiscalIdentitiesInput = {
@@ -153088,7 +162643,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFiscalIdentitiesInput = {
@@ -153163,7 +162723,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutFiscalIdentitiesInput = {
@@ -153301,7 +162866,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommercialAccountsInput = {
@@ -153376,7 +162946,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommercialAccountsInput = {
@@ -153524,7 +163099,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommercialAccountsInput = {
@@ -153599,7 +163179,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutCommercialAccountsInput = {
@@ -153737,7 +163322,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLeadsInput = {
@@ -153812,7 +163402,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLeadsInput = {
@@ -153960,7 +163555,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLeadsInput = {
@@ -154035,7 +163635,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutResolvedLeadsInput = {
@@ -154173,7 +163778,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyDuplicateCandidatesInput = {
@@ -154248,7 +163858,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyDuplicateCandidatesInput = {
@@ -154453,7 +164068,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyDuplicateCandidatesInput = {
@@ -154528,7 +164148,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutDuplicateCandidatesAInput = {
@@ -154729,7 +164354,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyMergeRequestsInput = {
@@ -154804,7 +164434,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyMergeRequestsInput = {
@@ -155009,7 +164644,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyMergeRequestsInput = {
@@ -155084,7 +164724,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergeRequestsSourceInput = {
@@ -155285,7 +164930,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionCheckpointsInput = {
@@ -155360,7 +165010,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionCheckpointsInput = {
@@ -155451,7 +165106,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionCheckpointsInput = {
@@ -155526,7 +165186,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProjectionFreshnessInput = {
@@ -155601,7 +165266,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionFreshnessInput = {
@@ -155676,7 +165346,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionFreshnessInput = {
@@ -155767,7 +165442,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionFreshnessInput = {
@@ -155842,7 +165522,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyReadModelsInput = {
@@ -155917,7 +165602,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyReadModelsInput = {
@@ -155992,7 +165682,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyReadModelsInput = {
@@ -156083,7 +165778,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyReadModelsInput = {
@@ -156158,7 +165858,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutWorkReadModelsInput = {
@@ -156233,7 +165938,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkReadModelsInput = {
@@ -156308,7 +166018,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkReadModelsInput = {
@@ -156399,7 +166114,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkReadModelsInput = {
@@ -156474,7 +166194,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutApprovalReadModelsInput = {
@@ -156549,7 +166274,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalReadModelsInput = {
@@ -156624,7 +166354,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalReadModelsInput = {
@@ -156715,7 +166450,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalReadModelsInput = {
@@ -156790,7 +166530,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAttentionReadModelsInput = {
@@ -156865,7 +166610,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAttentionReadModelsInput = {
@@ -156940,7 +166690,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAttentionReadModelsInput = {
@@ -157031,7 +166786,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAttentionReadModelsInput = {
@@ -157106,7 +166866,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunityReadModelsInput = {
@@ -157181,7 +166946,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunityReadModelsInput = {
@@ -157256,7 +167026,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunityReadModelsInput = {
@@ -157347,7 +167122,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunityReadModelsInput = {
@@ -157422,7 +167202,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteReadModelsInput = {
@@ -157497,7 +167282,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteReadModelsInput = {
@@ -157572,7 +167362,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteReadModelsInput = {
@@ -157663,7 +167458,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteReadModelsInput = {
@@ -157738,7 +167538,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteLineReadModelsInput = {
@@ -157813,7 +167618,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLineReadModelsInput = {
@@ -157888,7 +167698,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLineReadModelsInput = {
@@ -157979,7 +167794,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLineReadModelsInput = {
@@ -158054,7 +167874,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderReadModelsInput = {
@@ -158129,7 +167954,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderReadModelsInput = {
@@ -158204,7 +168034,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderReadModelsInput = {
@@ -158295,7 +168130,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderReadModelsInput = {
@@ -158370,7 +168210,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyTimelineEntriesInput = {
@@ -158445,7 +168290,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyTimelineEntriesInput = {
@@ -158520,7 +168370,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyTimelineEntriesInput = {
@@ -158611,7 +168466,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyTimelineEntriesInput = {
@@ -158686,7 +168546,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutReportedOperationalFactsInput = {
@@ -158761,7 +168626,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutReportedOperationalFactsInput = {
@@ -158836,7 +168706,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutReportedOperationalFactsInput = {
@@ -159026,7 +168901,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutReportedOperationalFactsInput = {
@@ -159101,7 +168981,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsReportedOperationalFactUpsertWithoutCorrectionsInput = {
@@ -159245,7 +169130,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommitmentsInput = {
@@ -159320,7 +169210,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommitmentsInput = {
@@ -159411,7 +169306,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommitmentsInput = {
@@ -159486,7 +169386,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutInternalNotificationsInput = {
@@ -159561,7 +169466,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutInternalNotificationsInput = {
@@ -159636,7 +169546,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutInternalNotificationsInput = {
@@ -159727,7 +169642,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutInternalNotificationsInput = {
@@ -159802,7 +169722,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCatalogProductsInput = {
@@ -159877,7 +169802,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCatalogProductsInput = {
@@ -159952,7 +169882,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCatalogProductsInput = {
@@ -160042,6 +169977,45 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsPriceEntryCreateWithoutProductInput = {
+    id: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPriceEntriesInput
+    priceList: OsPriceListCreateNestedOneWithoutEntriesInput
+  }
+
+  export type OsPriceEntryUncheckedCreateWithoutProductInput = {
+    id: string
+    priceListId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryCreateOrConnectWithoutProductInput = {
+    where: OsPriceEntryWhereUniqueInput
+    create: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput>
+  }
+
+  export type OsPriceEntryCreateManyProductInputEnvelope = {
+    data: OsPriceEntryCreateManyProductInput | OsPriceEntryCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OsOrganizationUpsertWithoutCatalogProductsInput = {
     update: XOR<OsOrganizationUpdateWithoutCatalogProductsInput, OsOrganizationUncheckedUpdateWithoutCatalogProductsInput>
     create: XOR<OsOrganizationCreateWithoutCatalogProductsInput, OsOrganizationUncheckedCreateWithoutCatalogProductsInput>
@@ -160125,7 +170099,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCatalogProductsInput = {
@@ -160200,7 +170179,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsCatalogProductProvenanceUpsertWithWhereUniqueWithoutProductInput = {
@@ -160292,6 +170276,22 @@ export namespace Prisma {
     recordedAt?: DateTimeFilter<"OsCatalogProductStatusEvent"> | Date | string
   }
 
+  export type OsPriceEntryUpsertWithWhereUniqueWithoutProductInput = {
+    where: OsPriceEntryWhereUniqueInput
+    update: XOR<OsPriceEntryUpdateWithoutProductInput, OsPriceEntryUncheckedUpdateWithoutProductInput>
+    create: XOR<OsPriceEntryCreateWithoutProductInput, OsPriceEntryUncheckedCreateWithoutProductInput>
+  }
+
+  export type OsPriceEntryUpdateWithWhereUniqueWithoutProductInput = {
+    where: OsPriceEntryWhereUniqueInput
+    data: XOR<OsPriceEntryUpdateWithoutProductInput, OsPriceEntryUncheckedUpdateWithoutProductInput>
+  }
+
+  export type OsPriceEntryUpdateManyWithWhereWithoutProductInput = {
+    where: OsPriceEntryScalarWhereInput
+    data: XOR<OsPriceEntryUpdateManyMutationInput, OsPriceEntryUncheckedUpdateManyWithoutProductInput>
+  }
+
   export type OsCatalogProductCreateWithoutProvenanceInput = {
     id: string
     businessCode?: string | null
@@ -160308,6 +170308,7 @@ export namespace Prisma {
     organization: OsOrganizationCreateNestedOneWithoutCatalogProductsInput
     attributes?: OsCatalogProductAttributeCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUncheckedCreateWithoutProvenanceInput = {
@@ -160326,6 +170327,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     attributes?: OsCatalogProductAttributeUncheckedCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventUncheckedCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductCreateOrConnectWithoutProvenanceInput = {
@@ -160360,6 +170362,7 @@ export namespace Prisma {
     organization?: OsOrganizationUpdateOneRequiredWithoutCatalogProductsNestedInput
     attributes?: OsCatalogProductAttributeUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateWithoutProvenanceInput = {
@@ -160378,6 +170381,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attributes?: OsCatalogProductAttributeUncheckedUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUncheckedUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductCreateWithoutAttributesInput = {
@@ -160396,6 +170400,7 @@ export namespace Prisma {
     organization: OsOrganizationCreateNestedOneWithoutCatalogProductsInput
     provenance?: OsCatalogProductProvenanceCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUncheckedCreateWithoutAttributesInput = {
@@ -160414,6 +170419,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     provenance?: OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput
     statusEvents?: OsCatalogProductStatusEventUncheckedCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductCreateOrConnectWithoutAttributesInput = {
@@ -160448,6 +170454,7 @@ export namespace Prisma {
     organization?: OsOrganizationUpdateOneRequiredWithoutCatalogProductsNestedInput
     provenance?: OsCatalogProductProvenanceUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateWithoutAttributesInput = {
@@ -160466,6 +170473,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     provenance?: OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUncheckedUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductCreateWithoutStatusEventsInput = {
@@ -160484,6 +170492,7 @@ export namespace Prisma {
     organization: OsOrganizationCreateNestedOneWithoutCatalogProductsInput
     provenance?: OsCatalogProductProvenanceCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductUncheckedCreateWithoutStatusEventsInput = {
@@ -160502,6 +170511,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     provenance?: OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput
     attributes?: OsCatalogProductAttributeUncheckedCreateNestedManyWithoutProductInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type OsCatalogProductCreateOrConnectWithoutStatusEventsInput = {
@@ -160536,6 +170546,7 @@ export namespace Prisma {
     organization?: OsOrganizationUpdateOneRequiredWithoutCatalogProductsNestedInput
     provenance?: OsCatalogProductProvenanceUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateWithoutStatusEventsInput = {
@@ -160554,6 +170565,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     provenance?: OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderLinesInput = {
@@ -160628,7 +170640,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderLinesInput = {
@@ -160703,7 +170720,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderLinesInput = {
@@ -160927,7 +170949,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderLinesInput = {
@@ -161002,7 +171029,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrderUpsertWithoutLinesInput = {
@@ -161228,7 +171260,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCasesInput = {
@@ -161303,7 +171340,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCasesInput = {
@@ -161494,7 +171536,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCasesInput = {
@@ -161569,7 +171616,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithWhereUniqueWithoutOperationalCaseInput = {
@@ -161676,7 +171728,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactsInput = {
@@ -161751,7 +171808,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactsInput = {
@@ -161998,7 +172060,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactsInput = {
@@ -162073,7 +172140,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutFactsInput = {
@@ -162267,7 +172339,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactReversalsInput = {
@@ -162342,7 +172419,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactReversalsInput = {
@@ -162481,7 +172563,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactReversalsInput = {
@@ -162556,7 +172643,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithoutReversalsInput = {
@@ -162685,7 +172777,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionsInput = {
@@ -162760,7 +172857,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionsInput = {
@@ -163003,7 +173105,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionsInput = {
@@ -163078,7 +173185,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutReleaseDecisionsInput = {
@@ -163270,7 +173382,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -163345,7 +173462,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionReversalsInput = {
@@ -163482,7 +173604,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -163557,7 +173684,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalReleaseDecisionUpsertWithoutReversalsInput = {
@@ -163684,7 +173816,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemasInput = {
@@ -163759,7 +173896,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemasInput = {
@@ -164008,7 +174150,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemasInput = {
@@ -164083,7 +174230,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaTimeUpsertWithWhereUniqueWithoutQuemaInput = {
@@ -164206,7 +174358,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaTimesInput = {
@@ -164281,7 +174438,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaTimesInput = {
@@ -164482,7 +174644,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaTimesInput = {
@@ -164557,7 +174724,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutTimesInput = {
@@ -164728,7 +174900,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaProductsInput = {
@@ -164803,7 +174980,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaProductsInput = {
@@ -165008,7 +175190,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaProductsInput = {
@@ -165083,7 +175270,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProductsInput = {
@@ -165256,7 +175448,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionTraceEntriesInput = {
@@ -165331,7 +175528,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionTraceEntriesInput = {
@@ -165592,7 +175794,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionTraceEntriesInput = {
@@ -165667,7 +175874,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProcessRowsInput = {
@@ -165868,7 +176080,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerConversationsInput = {
@@ -165943,7 +176160,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerConversationsInput = {
@@ -166034,7 +176256,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerConversationsInput = {
@@ -166109,7 +176336,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCustomerCommittedDatesInput = {
@@ -166184,7 +176416,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDatesInput = {
@@ -166259,7 +176496,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDatesInput = {
@@ -166382,7 +176624,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDatesInput = {
@@ -166457,7 +176704,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerCommittedDateRevisionUpsertWithWhereUniqueWithoutCommittedDateInput = {
@@ -166585,7 +176837,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDateRevisionsInput = {
@@ -166660,7 +176917,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDateRevisionsInput = {
@@ -166794,7 +177056,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDateRevisionsInput = {
@@ -166869,7 +177136,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionInternalTargetDatesInput = {
@@ -166944,7 +177216,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetDatesInput = {
@@ -167019,7 +177296,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetDatesInput = {
@@ -167142,7 +177424,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetDatesInput = {
@@ -167217,7 +177504,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type ProductionInternalTargetRevisionUpsertWithWhereUniqueWithoutTargetDateInput = {
@@ -167343,7 +177635,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetRevisionsInput = {
@@ -167418,7 +177715,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetRevisionsInput = {
@@ -167550,7 +177852,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetRevisionsInput = {
@@ -167625,7 +177932,12 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionDateIssuesInput = {
@@ -167700,7 +178012,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionDateIssuesInput = {
@@ -167775,7 +178092,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionDateIssuesInput = {
@@ -167898,7 +178220,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionDateIssuesInput = {
@@ -167973,7 +178300,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerDateInformedRecordUpsertWithWhereUniqueWithoutIssueInput = {
@@ -168097,7 +178429,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerDateInformedRecordsInput = {
@@ -168172,7 +178509,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerDateInformedRecordsInput = {
@@ -168302,7 +178644,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerDateInformedRecordsInput = {
@@ -168377,7 +178724,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderAllocationsInput = {
@@ -168452,7 +178804,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderAllocationsInput = {
@@ -168527,7 +178884,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
     purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderAllocationsInput = {
@@ -168618,7 +178980,12 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderAllocationsInput = {
@@ -168693,7 +179060,348 @@ export namespace Prisma {
     productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutFinishedGoodsReceiptsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutFinishedGoodsReceiptsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutFinishedGoodsReceiptsInput = {
+    update: XOR<OsOrganizationUpdateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput>
+    create: XOR<OsOrganizationCreateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutFinishedGoodsReceiptsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutFinishedGoodsReceiptsInput, OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutFinishedGoodsReceiptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPurchaseRequestsInput = {
@@ -168769,6 +179477,11 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPurchaseRequestsInput = {
@@ -168844,6 +179557,11 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
     orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPurchaseRequestsInput = {
@@ -169001,6 +179719,11 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPurchaseRequestsInput = {
@@ -169076,6 +179799,11 @@ export namespace Prisma {
     productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
     customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
     orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPurchaseRequestStatusHistoryUpsertWithWhereUniqueWithoutPurchaseRequestInput = {
@@ -169387,6 +180115,1573 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     statusHistory?: OsPurchaseRequestStatusHistoryUncheckedUpdateManyWithoutPurchaseRequestNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutPriceListsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutPriceListsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutPriceListsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutPriceListsInput, OsOrganizationUncheckedCreateWithoutPriceListsInput>
+  }
+
+  export type OsPriceEntryCreateWithoutPriceListInput = {
+    id: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPriceEntriesInput
+    product: OsCatalogProductCreateNestedOneWithoutPriceEntriesInput
+  }
+
+  export type OsPriceEntryUncheckedCreateWithoutPriceListInput = {
+    id: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryCreateOrConnectWithoutPriceListInput = {
+    where: OsPriceEntryWhereUniqueInput
+    create: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput>
+  }
+
+  export type OsPriceEntryCreateManyPriceListInputEnvelope = {
+    data: OsPriceEntryCreateManyPriceListInput | OsPriceEntryCreateManyPriceListInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OsOrganizationUpsertWithoutPriceListsInput = {
+    update: XOR<OsOrganizationUpdateWithoutPriceListsInput, OsOrganizationUncheckedUpdateWithoutPriceListsInput>
+    create: XOR<OsOrganizationCreateWithoutPriceListsInput, OsOrganizationUncheckedCreateWithoutPriceListsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutPriceListsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutPriceListsInput, OsOrganizationUncheckedUpdateWithoutPriceListsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutPriceListsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutPriceListsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput = {
+    where: OsPriceEntryWhereUniqueInput
+    update: XOR<OsPriceEntryUpdateWithoutPriceListInput, OsPriceEntryUncheckedUpdateWithoutPriceListInput>
+    create: XOR<OsPriceEntryCreateWithoutPriceListInput, OsPriceEntryUncheckedCreateWithoutPriceListInput>
+  }
+
+  export type OsPriceEntryUpdateWithWhereUniqueWithoutPriceListInput = {
+    where: OsPriceEntryWhereUniqueInput
+    data: XOR<OsPriceEntryUpdateWithoutPriceListInput, OsPriceEntryUncheckedUpdateWithoutPriceListInput>
+  }
+
+  export type OsPriceEntryUpdateManyWithWhereWithoutPriceListInput = {
+    where: OsPriceEntryScalarWhereInput
+    data: XOR<OsPriceEntryUpdateManyMutationInput, OsPriceEntryUncheckedUpdateManyWithoutPriceListInput>
+  }
+
+  export type OsOrganizationCreateWithoutPriceEntriesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutPriceEntriesInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutPriceEntriesInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutPriceEntriesInput, OsOrganizationUncheckedCreateWithoutPriceEntriesInput>
+  }
+
+  export type OsPriceListCreateWithoutEntriesInput = {
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutPriceListsInput
+  }
+
+  export type OsPriceListUncheckedCreateWithoutEntriesInput = {
+    organizationId: string
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceListCreateOrConnectWithoutEntriesInput = {
+    where: OsPriceListWhereUniqueInput
+    create: XOR<OsPriceListCreateWithoutEntriesInput, OsPriceListUncheckedCreateWithoutEntriesInput>
+  }
+
+  export type OsCatalogProductCreateWithoutPriceEntriesInput = {
+    id: string
+    businessCode?: string | null
+    name: string
+    category: string
+    description?: string | null
+    active?: boolean
+    canonicalKey: string
+    reviewStatus: string
+    reviewNotes?: OsCatalogProductCreatereviewNotesInput | string[]
+    deactivatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCatalogProductsInput
+    provenance?: OsCatalogProductProvenanceCreateNestedManyWithoutProductInput
+    attributes?: OsCatalogProductAttributeCreateNestedManyWithoutProductInput
+    statusEvents?: OsCatalogProductStatusEventCreateNestedManyWithoutProductInput
+  }
+
+  export type OsCatalogProductUncheckedCreateWithoutPriceEntriesInput = {
+    organizationId: string
+    id: string
+    businessCode?: string | null
+    name: string
+    category: string
+    description?: string | null
+    active?: boolean
+    canonicalKey: string
+    reviewStatus: string
+    reviewNotes?: OsCatalogProductCreatereviewNotesInput | string[]
+    deactivatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    provenance?: OsCatalogProductProvenanceUncheckedCreateNestedManyWithoutProductInput
+    attributes?: OsCatalogProductAttributeUncheckedCreateNestedManyWithoutProductInput
+    statusEvents?: OsCatalogProductStatusEventUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type OsCatalogProductCreateOrConnectWithoutPriceEntriesInput = {
+    where: OsCatalogProductWhereUniqueInput
+    create: XOR<OsCatalogProductCreateWithoutPriceEntriesInput, OsCatalogProductUncheckedCreateWithoutPriceEntriesInput>
+  }
+
+  export type OsOrganizationUpsertWithoutPriceEntriesInput = {
+    update: XOR<OsOrganizationUpdateWithoutPriceEntriesInput, OsOrganizationUncheckedUpdateWithoutPriceEntriesInput>
+    create: XOR<OsOrganizationCreateWithoutPriceEntriesInput, OsOrganizationUncheckedCreateWithoutPriceEntriesInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutPriceEntriesInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutPriceEntriesInput, OsOrganizationUncheckedUpdateWithoutPriceEntriesInput>
+  }
+
+  export type OsOrganizationUpdateWithoutPriceEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutPriceEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsPriceListUpsertWithoutEntriesInput = {
+    update: XOR<OsPriceListUpdateWithoutEntriesInput, OsPriceListUncheckedUpdateWithoutEntriesInput>
+    create: XOR<OsPriceListCreateWithoutEntriesInput, OsPriceListUncheckedCreateWithoutEntriesInput>
+    where?: OsPriceListWhereInput
+  }
+
+  export type OsPriceListUpdateToOneWithWhereWithoutEntriesInput = {
+    where?: OsPriceListWhereInput
+    data: XOR<OsPriceListUpdateWithoutEntriesInput, OsPriceListUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type OsPriceListUpdateWithoutEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPriceListsNestedInput
+  }
+
+  export type OsPriceListUncheckedUpdateWithoutEntriesInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCatalogProductUpsertWithoutPriceEntriesInput = {
+    update: XOR<OsCatalogProductUpdateWithoutPriceEntriesInput, OsCatalogProductUncheckedUpdateWithoutPriceEntriesInput>
+    create: XOR<OsCatalogProductCreateWithoutPriceEntriesInput, OsCatalogProductUncheckedCreateWithoutPriceEntriesInput>
+    where?: OsCatalogProductWhereInput
+  }
+
+  export type OsCatalogProductUpdateToOneWithWhereWithoutPriceEntriesInput = {
+    where?: OsCatalogProductWhereInput
+    data: XOR<OsCatalogProductUpdateWithoutPriceEntriesInput, OsCatalogProductUncheckedUpdateWithoutPriceEntriesInput>
+  }
+
+  export type OsCatalogProductUpdateWithoutPriceEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    businessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    canonicalKey?: StringFieldUpdateOperationsInput | string
+    reviewStatus?: StringFieldUpdateOperationsInput | string
+    reviewNotes?: OsCatalogProductUpdatereviewNotesInput | string[]
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCatalogProductsNestedInput
+    provenance?: OsCatalogProductProvenanceUpdateManyWithoutProductNestedInput
+    attributes?: OsCatalogProductAttributeUpdateManyWithoutProductNestedInput
+    statusEvents?: OsCatalogProductStatusEventUpdateManyWithoutProductNestedInput
+  }
+
+  export type OsCatalogProductUncheckedUpdateWithoutPriceEntriesInput = {
+    organizationId?: StringFieldUpdateOperationsInput | string
+    id?: StringFieldUpdateOperationsInput | string
+    businessCode?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    canonicalKey?: StringFieldUpdateOperationsInput | string
+    reviewStatus?: StringFieldUpdateOperationsInput | string
+    reviewNotes?: OsCatalogProductUpdatereviewNotesInput | string[]
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    provenance?: OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput
+    attributes?: OsCatalogProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+    statusEvents?: OsCatalogProductStatusEventUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutSpecialOrderClassificationsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutSpecialOrderClassificationsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutSpecialOrderClassificationsInput = {
+    update: XOR<OsOrganizationUpdateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput>
+    create: XOR<OsOrganizationCreateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutSpecialOrderClassificationsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutSpecialOrderClassificationsInput, OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutSpecialOrderClassificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutCoordinationDecisionsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutCoordinationDecisionsInput = {
+    update: XOR<OsOrganizationUpdateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput>
+    create: XOR<OsOrganizationCreateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutCoordinationDecisionsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutCoordinationDecisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberCreateManyOrganizationInput = {
@@ -170277,6 +182572,23 @@ export namespace Prisma {
     idempotencyKey?: string | null
   }
 
+  export type OsFinishedGoodsReceiptCreateManyOrganizationInput = {
+    id: string
+    productId: string
+    quantity: string
+    warehouseLabel?: string
+    receivedAt: Date | string
+    recordedAt: Date | string
+    actorMemberId?: string | null
+    actorLabel: string
+    source?: string
+    productionTraceEntryId?: string | null
+    quemaId?: string | null
+    correctsReceiptId?: string | null
+    correctionReason?: string | null
+    idempotencyKey?: string | null
+  }
+
   export type OsPurchaseRequestCreateManyOrganizationInput = {
     id: string
     requestingArea: string
@@ -170300,6 +182612,66 @@ export namespace Prisma {
     idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt: Date | string
+  }
+
+  export type OsPriceListCreateManyOrganizationInput = {
+    id: string
+    version: string
+    currency: string
+    effectiveFrom: Date | string
+    effectiveTo?: Date | string | null
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryCreateManyOrganizationInput = {
+    id: string
+    priceListId: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsSpecialOrderClassificationCreateManyOrganizationInput = {
+    id: string
+    orderId: string
+    classification: string
+    requiresProductionPlanning: boolean
+    actorMemberId?: string | null
+    actorLabel: string
+    source: string
+    recordedAt: Date | string
+    previousClassification?: string | null
+    previousRequiresProductionPlanning?: boolean | null
+    createdAt?: Date | string
+  }
+
+  export type OsCoordinationDecisionCreateManyOrganizationInput = {
+    id: string
+    kind?: string
+    decision: string
+    ownerLabel?: string | null
+    ownerMemberId?: string | null
+    dueAt?: string | null
+    actorLabel: string
+    actorMemberId?: string | null
+    occurredAt: Date | string
+    linkedCaseId?: string | null
+    notes?: string | null
+    resolvesDecisionId?: string | null
+    recordedAt: Date | string
+    createdAt?: Date | string
   }
 
   export type OsOrganizationMemberUpdateWithoutOrganizationInput = {
@@ -172192,6 +184564,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateWithoutOrganizationInput = {
@@ -172210,6 +184583,7 @@ export namespace Prisma {
     provenance?: OsCatalogProductProvenanceUncheckedUpdateManyWithoutProductNestedInput
     attributes?: OsCatalogProductAttributeUncheckedUpdateManyWithoutProductNestedInput
     statusEvents?: OsCatalogProductStatusEventUncheckedUpdateManyWithoutProductNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type OsCatalogProductUncheckedUpdateManyWithoutOrganizationInput = {
@@ -173068,6 +185442,57 @@ export namespace Prisma {
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OsFinishedGoodsReceiptUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    quantity?: StringFieldUpdateOperationsInput | string
+    warehouseLabel?: StringFieldUpdateOperationsInput | string
+    receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
+    quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type OsPurchaseRequestUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     requestingArea?: StringFieldUpdateOperationsInput | string
@@ -173145,6 +185570,188 @@ export namespace Prisma {
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceListUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entries?: OsPriceEntryUpdateManyWithoutPriceListNestedInput
+  }
+
+  export type OsPriceListUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entries?: OsPriceEntryUncheckedUpdateManyWithoutPriceListNestedInput
+  }
+
+  export type OsPriceListUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    effectiveFrom?: DateTimeFieldUpdateOperationsInput | Date | string
+    effectiveTo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    priceList?: OsPriceListUpdateOneRequiredWithoutEntriesNestedInput
+    product?: OsCatalogProductUpdateOneRequiredWithoutPriceEntriesNestedInput
+  }
+
+  export type OsPriceEntryUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    classification?: StringFieldUpdateOperationsInput | string
+    requiresProductionPlanning?: BoolFieldUpdateOperationsInput | boolean
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousClassification?: NullableStringFieldUpdateOperationsInput | string | null
+    previousRequiresProductionPlanning?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    decision?: StringFieldUpdateOperationsInput | string
+    ownerLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueAt?: NullableStringFieldUpdateOperationsInput | string | null
+    actorLabel?: StringFieldUpdateOperationsInput | string
+    actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linkedCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OsOrganizationMemberCreateManyPersonInput = {
@@ -175139,6 +187746,20 @@ export namespace Prisma {
     recordedAt: Date | string
   }
 
+  export type OsPriceEntryCreateManyProductInput = {
+    id: string
+    priceListId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
   export type OsCatalogProductProvenanceUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     sourceFilename?: StringFieldUpdateOperationsInput | string
@@ -175215,6 +187836,49 @@ export namespace Prisma {
     active?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPriceEntriesNestedInput
+    priceList?: OsPriceListUpdateOneRequiredWithoutEntriesNestedInput
+  }
+
+  export type OsPriceEntryUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    priceListId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OsOperationalCaseFactCreateManyOperationalCaseInput = {
@@ -176319,6 +188983,63 @@ export namespace Prisma {
     actorMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: StringFieldUpdateOperationsInput | string
     evidenceReference?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OsPriceEntryCreateManyPriceListInput = {
+    id: string
+    productId: string
+    context: string
+    currency: string
+    amountCentavos: bigint | number
+    sourceFilename: string
+    sourceSha256: string
+    sourcePage?: number | null
+    sourceExcerpt: string
+    printedContext: string
+    createdAt?: Date | string
+  }
+
+  export type OsPriceEntryUpdateWithoutPriceListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutPriceEntriesNestedInput
+    product?: OsCatalogProductUpdateOneRequiredWithoutPriceEntriesNestedInput
+  }
+
+  export type OsPriceEntryUncheckedUpdateWithoutPriceListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsPriceEntryUncheckedUpdateManyWithoutPriceListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    context?: StringFieldUpdateOperationsInput | string
+    currency?: StringFieldUpdateOperationsInput | string
+    amountCentavos?: BigIntFieldUpdateOperationsInput | bigint | number
+    sourceFilename?: StringFieldUpdateOperationsInput | string
+    sourceSha256?: StringFieldUpdateOperationsInput | string
+    sourcePage?: NullableIntFieldUpdateOperationsInput | number | null
+    sourceExcerpt?: StringFieldUpdateOperationsInput | string
+    printedContext?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

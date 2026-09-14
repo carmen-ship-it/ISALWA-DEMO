@@ -1,9 +1,10 @@
 /**
  * Prisma adapter. Every query includes organizationId from the port argument.
- * There is no FinishedGoodsReceipt delegate and no production-by-order query.
+ * Receipt queries do not filter by order. Production is not queried by order id.
  */
 
 import type {
+  FinishedGoodsReceiptRow,
   OperatingReadDb,
   OrderAllocationRow,
   ProductionQuemaProductRow,
@@ -49,6 +50,9 @@ export type OperatingReadPrisma = {
   osOrderAllocation: {
     findMany: FindMany<OrderAllocationRow>;
     findFirst: FindFirst<OrderAllocationRow>;
+  };
+  osFinishedGoodsReceipt: {
+    findMany: FindMany<FinishedGoodsReceiptRow>;
   };
 };
 
@@ -162,6 +166,17 @@ export function createPrismaOperatingReadDb(prisma: OperatingReadPrisma): Operat
       if (!id) return null;
       return prisma.osOrderAllocation.findFirst({
         where: { organizationId, id },
+      });
+    },
+    async listFinishedGoodsReceipts(query) {
+      const organizationId = org(query);
+      const productId = query.productId?.trim();
+      return prisma.osFinishedGoodsReceipt.findMany({
+        where: {
+          organizationId,
+          ...(productId ? { productId } : {}),
+        },
+        orderBy: { receivedAt: 'desc' },
       });
     },
   };

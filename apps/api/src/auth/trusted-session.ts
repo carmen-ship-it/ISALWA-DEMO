@@ -93,7 +93,10 @@ export function attachTrustedTenantSession(
     req.authenticatedSession = undefined;
     return null;
   }
-  const attached = writeAttachedSession(req, { organizationId, grantedScopes: source.grantedScopes });
+  const attached = writeAttachedSession(
+    req as AuthenticatedTenantRequest & { header(name: string): string | undefined },
+    { organizationId, grantedScopes: source.grantedScopes },
+  );
   return attached;
 }
 

@@ -109,6 +109,23 @@ export type OrderAllocationRow = {
   finishedGoodsReceiptId: string | null;
 };
 
+export type FinishedGoodsReceiptRow = {
+  id: string;
+  organizationId: string;
+  productId: string;
+  quantity: string;
+  warehouseLabel: string;
+  receivedAt: Date | string;
+  recordedAt: Date | string;
+  actorMemberId: string | null;
+  actorLabel: string;
+  source: string;
+  productionTraceEntryId: string | null;
+  quemaId: string | null;
+  correctsReceiptId: string | null;
+  correctionReason: string | null;
+};
+
 export type OperatingReadDb = {
   listPurchaseRequests(query: TenantScopedQuery): Promise<PurchaseRequestRow[]>;
   getPurchaseRequest(query: TenantScopedQuery & { id: string }): Promise<PurchaseRequestRow | null>;
@@ -137,4 +154,11 @@ export type OperatingReadDb = {
     query: TenantScopedQuery & { productId?: string; orderLineId?: string },
   ): Promise<OrderAllocationRow[]>;
   getOrderAllocation(query: TenantScopedQuery & { id: string }): Promise<OrderAllocationRow | null>;
+  /**
+   * Present only when the receipt table is on the port.
+   * Absence is missing coverage, not an empty store.
+   */
+  listFinishedGoodsReceipts?(
+    query: TenantScopedQuery & { productId?: string },
+  ): Promise<FinishedGoodsReceiptRow[]>;
 };

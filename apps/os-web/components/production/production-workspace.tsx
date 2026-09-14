@@ -142,7 +142,7 @@ export function ProductionWorkspace({
     setDirty(false);
   }
 
-  function useProductId(id: string) {
+  function selectProductId(id: string) {
     setProductId(id.trim());
     setProductQuery(id.trim());
   }
@@ -322,14 +322,14 @@ export function ProductionWorkspace({
             value={productQuery}
             onChange={(event) => setProductQuery(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') useProductId(productQuery);
+              if (event.key === 'Enter') selectProductId(productQuery);
             }}
           />
           {catalogSearch.namesAvailable ? (
             <ul className="mt-1">
               {catalogSearch.hits.map((hit) => (
                 <li key={hit.productId}>
-                  <button type="button" className="text-sm text-[var(--isalwa-kiln)]" onClick={() => useProductId(hit.productId)}>
+                  <button type="button" className="text-sm text-[var(--isalwa-kiln)]" onClick={() => selectProductId(hit.productId)}>
                     {hit.productId}
                     {hit.name ? ` · ${hit.name}` : ''}
                   </button>

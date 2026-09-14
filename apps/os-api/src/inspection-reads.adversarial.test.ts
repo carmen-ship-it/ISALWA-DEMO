@@ -302,19 +302,11 @@ const NEWLY_VERIFIED = [
 ] as const;
 
 /**
- * HTTP handlers whose only path is resolveSession. Not function-verified.
- * locations is also TENANT-SCOPED and AUTHORIZATION_UNPROVEN.
+ * These routes now have a local HTTP proof in route-auth-path.http.test.ts.
+ * Location detail remains AUTHORIZATION_UNPROVEN. Party detail has no
+ * dedicated read capability beyond the session tenant predicate.
  */
-const UNPROVEN_AUTH_PATH = [
-  'GET /locations/:locationId',
-  'GET /parties/:partyId',
-  'GET /parties/:partyId/locations',
-  'GET /operations/outbox',
-  'GET /operations/outbox/dead-letters',
-  'GET /operations/outbox/dead-letters/:outboxId',
-  'GET /quotes/:quoteId/pdf',
-  'GET /session/me',
-] as const;
+const UNPROVEN_AUTH_PATH = [] as const;
 
 const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /parties': 'LOCAL_FUNCTION_VERIFIED',
@@ -339,14 +331,16 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /session/authorization': 'ALREADY_VERIFIED_ELSEWHERE',
   'GET /health': 'NON_TENANT',
   'GET /dev/status': 'NON_TENANT',
-  'GET /locations/:locationId': 'UNPROVEN_AUTH_PATH|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
-  'GET /parties/:partyId': 'UNPROVEN_AUTH_PATH',
-  'GET /parties/:partyId/locations': 'UNPROVEN_AUTH_PATH',
-  'GET /operations/outbox': 'UNPROVEN_AUTH_PATH',
-  'GET /operations/outbox/dead-letters': 'UNPROVEN_AUTH_PATH',
-  'GET /operations/outbox/dead-letters/:outboxId': 'UNPROVEN_AUTH_PATH',
-  'GET /quotes/:quoteId/pdf': 'UNPROVEN_AUTH_PATH',
-  'GET /session/me': 'UNPROVEN_AUTH_PATH',
+  'GET /locations/:locationId':
+    'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
+  'GET /parties/:partyId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|AUTHORIZATION_UNPROVEN',
+  'GET /parties/:partyId/locations':
+    'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|AUTHORIZATION_UNPROVEN',
+  'GET /operations/outbox': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /operations/outbox/dead-letters': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /operations/outbox/dead-letters/:outboxId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /quotes/:quoteId/pdf': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /session/me': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
 };
 
 function getRoutes(source: string): string[] {
@@ -372,10 +366,10 @@ describe('os-api inspection read inventory', () => {
     const classified = Object.keys(HTTP_CLASSIFICATION).sort();
     assert.deepEqual(found, classified);
     assert.equal(NEWLY_VERIFIED.length, 18);
-    assert.equal(UNPROVEN_AUTH_PATH.length, 8);
+    assert.equal(UNPROVEN_AUTH_PATH.length, 0);
     assert.equal(
       HTTP_CLASSIFICATION['GET /locations/:locationId'],
-      'UNPROVEN_AUTH_PATH|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
+      'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED|TENANT-SCOPED|AUTHORIZATION_UNPROVEN',
     );
     assert.equal(HTTP_CLASSIFICATION['GET /health/ready'], 'ALREADY_VERIFIED_ELSEWHERE');
     assert.equal(

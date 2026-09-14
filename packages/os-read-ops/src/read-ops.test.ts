@@ -509,7 +509,7 @@ describe('company operating readers', () => {
     assert.equal(serialized.includes('purchasing.department.read'), false);
   });
 
-  it('puts organizationId on every Prisma query and does not query a receipt table', async () => {
+  it('puts organizationId on every Prisma query, including receipts, and never filters receipts by order', async () => {
     const calls: Array<{ model: string; where: Record<string, unknown> }> = [];
     function many(model: string) {
       return async (args: { where: Record<string, unknown> }) => {
@@ -534,20 +534,19 @@ describe('company operating readers', () => {
       osProductionQuemaProduct: { findMany: many('osProductionQuemaProduct') },
       osProductionTraceEntry: { findMany: many('osProductionTraceEntry') },
       osOrderAllocation: { findMany: many('osOrderAllocation'), findFirst: async () => null },
+      osFinishedGoodsReceipt: { findMany: many('osFinishedGoodsReceipt') },
     };
     const db = createPrismaOperatingReadDb(prisma);
-    assert.equal('listFinishedGoodsReceipts' in db, false);
+    assert.equal(typeof db.listFinishedGoodsReceipts, 'function');
     await db.listPurchaseRequests({ organizationId: ORG });
     await db.listProductionTraceEntries({ organizationId: ORG, productId: 'prod-1' });
     await db.listProductionQuemas({ organizationId: ORG });
     await db.listOrderAllocations({ organizationId: ORG, orderLineId: 'line-1' });
+    await db.listFinishedGoodsReceipts?.({ organizationId: ORG, productId: 'prod-1' });
     assert.equal(calls.every((call) => call.where.organizationId === ORG), true);
     assert.equal(calls.some((call) => call.model === 'osProductionTraceEntry'), true);
+    assert.equal(calls.some((call) => call.model === 'osFinishedGoodsReceipt'), true);
     assert.equal(calls.some((call) => 'orderId' in call.where), false);
-    assert.equal(
-      calls.some((call) => call.model.toLowerCase().includes('finishedgoodsreceipt')),
-      false,
-    );
     await assert.rejects(() => db.listPurchaseRequests({ organizationId: '  ' }));
   });
 });

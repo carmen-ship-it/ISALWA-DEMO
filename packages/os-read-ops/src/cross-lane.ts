@@ -48,8 +48,8 @@ export const CROSS_LANE_CHANGE_REQUESTS = [
           'warehouse.finished_goods.allocate',
           'commercial.team.read',
         ] as const,
-        finishedGoodsReceiptStillUnproven:
-          'Even after a read capability exists, finished-goods handoff stays UNPROVEN until a FinishedGoodsReceipt model exists. This package does not add that model or a migration.',
+        finishedGoodsReceiptModel:
+          'OsFinishedGoodsReceipt exists as an additive unapplied migration. The company reader uses management.org.read. warehouse.finished_goods.receive does not unlock that read. A department-specific Almacén read capability still does not exist and is not invented here.',
       },
     ],
   },

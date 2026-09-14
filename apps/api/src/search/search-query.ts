@@ -6,6 +6,12 @@
  * Scope strings match TENANT_SURFACE_REQUIRED_SCOPE: global_search and product.
  */
 
+import {
+  holdsExactScope,
+  sessionFromAuthenticatedRequest,
+  trustedOrganizationId,
+} from '../auth/trusted-session';
+
 export const ACCOUNT_SEARCH_SCOPE = 'commercial.team.read';
 export const PRODUCT_SEARCH_SCOPE = 'master_data.admin';
 
@@ -18,7 +24,7 @@ export {
   holdsExactScope,
   sessionFromAuthenticatedRequest,
   trustedOrganizationId,
-} from '../auth/trusted-session';
+};
 
 export type SearchDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
 

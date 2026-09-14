@@ -44,3 +44,4 @@ export * from './special-order';
 export * from './warehouse-task';
 export * from './coordination-decision';
 export * from './v1-planned-assignments';
+export * from './governance-proposals';

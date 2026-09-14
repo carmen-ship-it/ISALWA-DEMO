@@ -43,6 +43,6 @@ import { VisitsModule } from './visits/visits.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    applyCanonicalSessionMiddleware(consumer);
+    applyCanonicalSessionMiddleware(consumer as never);
   }
 }

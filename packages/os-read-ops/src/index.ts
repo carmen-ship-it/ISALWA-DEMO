@@ -50,11 +50,14 @@ export { readProductionFacts } from './production-reader';
 export type { ProductionFacts, ProductionReadResult } from './production-reader';
 
 export {
+  FINISHED_GOODS_LISTO_IS_ALLOCATION,
+  FINISHED_GOODS_RECEIPT_MIGRATION_APPLIED,
   FINISHED_GOODS_RECEIPT_MODEL,
-  FINISHED_GOODS_RECEIPT_UNPROVEN,
+  FINISHED_GOODS_RECEIPT_TABLE,
   FINISHED_GOODS_WAREHOUSE_LABEL,
   readFinishedGoodsReceipts,
 } from './finished-goods-reader';
+export type { FinishedGoodsReceiptFact } from './finished-goods-reader';
 
 export { readOrderAllocationById, readOrderAllocations } from './allocation-reader';
 export type { OrderAllocationFact } from './allocation-reader';

@@ -54,6 +54,8 @@ export const OS_FOUNDATION_EVENT_TYPES = [
   'order.created',
   'order.cancelled',
   'commercial_account.owner_reassigned',
+  'finished_goods.received',
+  'finished_goods.corrected',
 ] as const;
 
 export type OsFoundationEventType = (typeof OS_FOUNDATION_EVENT_TYPES)[number];

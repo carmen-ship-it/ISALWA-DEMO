@@ -86,7 +86,13 @@ model OsOrganization {
   productionDateIssues                ProductionDateIssue[]
   customerDateInformedRecords         CustomerDateInformedRecord[]
   orderAllocations                    OsOrderAllocation[]
+  finishedGoodsReceipts               OsFinishedGoodsReceipt[]
   purchaseRequests                    OsPurchaseRequest[]
+
+  priceLists                  OsPriceList[]
+  priceEntries                OsPriceEntry[]
+  specialOrderClassifications OsSpecialOrderClassification[]
+  coordinationDecisions       OsCoordinationDecision[]
 
   @@map("os_organizations")
 }
@@ -1130,6 +1136,7 @@ model OsCatalogProduct {
   provenance   OsCatalogProductProvenance[]
   attributes   OsCatalogProductAttribute[]
   statusEvents OsCatalogProductStatusEvent[]
+  priceEntries OsPriceEntry[]
 
   @@id([organizationId, id])
   @@unique([organizationId, canonicalKey])
@@ -1774,6 +1781,35 @@ model OsOrderAllocation {
   @@map("os_order_allocations")
 }
 
+// Listo is a receipt into Almacén de Productos Terminados.
+// It is not an allocation, a Pedido assignment, a delivery, a payment, or a stock ledger.
+// product_id is opaque. No SKU, valuation, cost, tax, or order relationship.
+// production_trace_entry_id and quema_id are optional citations of existing production facts.
+// They do not create Order → ProductionRun.
+model OsFinishedGoodsReceipt {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  productId              String   @map("product_id")
+  quantity               String
+  warehouseLabel         String   @default("Almacén de Productos Terminados") @map("warehouse_label")
+  receivedAt             DateTime @map("received_at")
+  recordedAt             DateTime @map("recorded_at")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("explicit_command")
+  productionTraceEntryId String?  @map("production_trace_entry_id")
+  quemaId                String?  @map("quema_id")
+  correctsReceiptId      String?  @map("corrects_receipt_id")
+  correctionReason       String?  @map("correction_reason")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, productId, receivedAt])
+  @@index([organizationId, receivedAt])
+  @@map("os_finished_goods_receipts")
+}
+
 // fragment: purchase-request.prisma
 model OsPurchaseRequest {
   id                  String   @id
@@ -1788,7 +1824,7 @@ model OsPurchaseRequest {
   orderId             String?  @map("order_id")
   reason              String
   requestedAt         DateTime @map("requested_at")
-  status              String   @default("requested")
+  status              String   @default("solicitado")
   buyerLabel          String?  @map("buyer_label")
   buyerMemberId       String?  @map("buyer_member_id")
   actorLabel          String   @map("actor_label")
@@ -1847,4 +1883,101 @@ model OsPurchaseRequestNote {
 
   @@index([organizationId, purchaseRequestId, recordedAt])
   @@map("os_purchase_request_notes")
+}
+
+// fragment: price-list.prisma
+model OsPriceList {
+  organizationId String    @map("organization_id")
+  id             String
+  version        String
+  currency       String
+  effectiveFrom  DateTime  @map("effective_from")
+  effectiveTo    DateTime? @map("effective_to")
+  sourceFilename String    @map("source_filename")
+  sourceSha256   String    @map("source_sha256")
+  sourcePage     Int?      @map("source_page")
+  sourceExcerpt  String    @map("source_excerpt")
+  printedContext String    @map("printed_context")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  entries      OsPriceEntry[]
+
+  @@id([organizationId, id])
+  @@unique([organizationId, version])
+  @@index([organizationId, effectiveFrom])
+  @@map("os_price_lists")
+}
+
+/// One sourced amount in one context. Not the advisor quoted price.
+model OsPriceEntry {
+  organizationId String   @map("organization_id")
+  id             String
+  priceListId    String   @map("price_list_id")
+  productId      String   @map("product_id")
+  context        String
+  currency       String
+  amountCentavos BigInt   @map("amount_centavos")
+  sourceFilename String   @map("source_filename")
+  sourceSha256   String   @map("source_sha256")
+  sourcePage     Int?     @map("source_page")
+  sourceExcerpt  String   @map("source_excerpt")
+  printedContext String   @map("printed_context")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization   @relation(fields: [organizationId], references: [id])
+  priceList    OsPriceList      @relation(fields: [organizationId, priceListId], references: [organizationId, id])
+  product      OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@id([organizationId, id])
+  @@unique([organizationId, priceListId, productId, context])
+  @@index([organizationId, productId])
+  @@map("os_price_entries")
+}
+
+// fragment: special-order.prisma
+model OsSpecialOrderClassification {
+  id                                 String   @id
+  organizationId                     String   @map("organization_id")
+  orderId                            String   @map("order_id")
+  classification                     String
+  requiresProductionPlanning         Boolean  @map("requires_production_planning")
+  actorMemberId                      String?  @map("actor_member_id")
+  actorLabel                         String   @map("actor_label")
+  source                             String
+  recordedAt                         DateTime @map("recorded_at")
+  previousClassification             String?  @map("previous_classification")
+  previousRequiresProductionPlanning Boolean? @map("previous_requires_production_planning")
+  createdAt                          DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, orderId, recordedAt])
+  @@map("os_special_order_classifications")
+}
+
+// fragment: coordination-decision.prisma
+model OsCoordinationDecision {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  kind               String   @default("recorded")
+  decision           String
+  ownerLabel         String?  @map("owner_label")
+  ownerMemberId      String?  @map("owner_member_id")
+  /// Caller-provided date or instant. Not a meeting slot. Stored as text so a date is not rewritten.
+  dueAt              String?  @map("due_at")
+  actorLabel         String   @map("actor_label")
+  actorMemberId      String?  @map("actor_member_id")
+  occurredAt         DateTime @map("occurred_at")
+  linkedCaseId       String?  @map("linked_case_id")
+  notes              String?
+  resolvesDecisionId String?  @map("resolves_decision_id")
+  recordedAt         DateTime @map("recorded_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, occurredAt])
+  @@index([organizationId, kind])
+  @@map("os_coordination_decisions")
 }

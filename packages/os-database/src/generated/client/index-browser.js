@@ -1229,6 +1229,24 @@ exports.Prisma.OsOrderAllocationScalarFieldEnum = {
   idempotencyKey: 'idempotencyKey'
 };
 
+exports.Prisma.OsFinishedGoodsReceiptScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  quantity: 'quantity',
+  warehouseLabel: 'warehouseLabel',
+  receivedAt: 'receivedAt',
+  recordedAt: 'recordedAt',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  productionTraceEntryId: 'productionTraceEntryId',
+  quemaId: 'quemaId',
+  correctsReceiptId: 'correctsReceiptId',
+  correctionReason: 'correctionReason',
+  idempotencyKey: 'idempotencyKey'
+};
+
 exports.Prisma.OsPurchaseRequestScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -1278,6 +1296,70 @@ exports.Prisma.OsPurchaseRequestNoteScalarFieldEnum = {
   actorMemberId: 'actorMemberId',
   source: 'source',
   evidenceReference: 'evidenceReference'
+};
+
+exports.Prisma.OsPriceListScalarFieldEnum = {
+  organizationId: 'organizationId',
+  id: 'id',
+  version: 'version',
+  currency: 'currency',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  sourceFilename: 'sourceFilename',
+  sourceSha256: 'sourceSha256',
+  sourcePage: 'sourcePage',
+  sourceExcerpt: 'sourceExcerpt',
+  printedContext: 'printedContext',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsPriceEntryScalarFieldEnum = {
+  organizationId: 'organizationId',
+  id: 'id',
+  priceListId: 'priceListId',
+  productId: 'productId',
+  context: 'context',
+  currency: 'currency',
+  amountCentavos: 'amountCentavos',
+  sourceFilename: 'sourceFilename',
+  sourceSha256: 'sourceSha256',
+  sourcePage: 'sourcePage',
+  sourceExcerpt: 'sourceExcerpt',
+  printedContext: 'printedContext',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsSpecialOrderClassificationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  classification: 'classification',
+  requiresProductionPlanning: 'requiresProductionPlanning',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  recordedAt: 'recordedAt',
+  previousClassification: 'previousClassification',
+  previousRequiresProductionPlanning: 'previousRequiresProductionPlanning',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsCoordinationDecisionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  kind: 'kind',
+  decision: 'decision',
+  ownerLabel: 'ownerLabel',
+  ownerMemberId: 'ownerMemberId',
+  dueAt: 'dueAt',
+  actorLabel: 'actorLabel',
+  actorMemberId: 'actorMemberId',
+  occurredAt: 'occurredAt',
+  linkedCaseId: 'linkedCaseId',
+  notes: 'notes',
+  resolvesDecisionId: 'resolvesDecisionId',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -1389,9 +1471,14 @@ exports.Prisma.ModelName = {
   ProductionDateIssue: 'ProductionDateIssue',
   CustomerDateInformedRecord: 'CustomerDateInformedRecord',
   OsOrderAllocation: 'OsOrderAllocation',
+  OsFinishedGoodsReceipt: 'OsFinishedGoodsReceipt',
   OsPurchaseRequest: 'OsPurchaseRequest',
   OsPurchaseRequestStatusHistory: 'OsPurchaseRequestStatusHistory',
-  OsPurchaseRequestNote: 'OsPurchaseRequestNote'
+  OsPurchaseRequestNote: 'OsPurchaseRequestNote',
+  OsPriceList: 'OsPriceList',
+  OsPriceEntry: 'OsPriceEntry',
+  OsSpecialOrderClassification: 'OsSpecialOrderClassification',
+  OsCoordinationDecision: 'OsCoordinationDecision'
 };
 
 /**

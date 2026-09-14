@@ -211,7 +211,7 @@ async function defaultDb(): Promise<AccountsReadDb | null> {
 
 async function defaultTimelineReader(): Promise<TimelineReader> {
   const database = await import('@isalwa/database');
-  return database.listAccountTimeline as TimelineReader;
+  return database.listAccountTimeline as unknown as TimelineReader;
 }
 
 async function resolveDb(db: AccountsReadDb | null | undefined): Promise<AccountsReadDb | null> {
