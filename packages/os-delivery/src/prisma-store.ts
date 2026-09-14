@@ -1,8 +1,7 @@
 /**
- * Prisma DeliveryStore. Customer delivery (delivery.record) is prisma_port.
- * Warehouse exit insert helpers may target existing tables, but live write for
- * warehouse.outbound.record stays AUTHORITY_BLOCKED — that scope is not in
- * OPERATIONS_ACCESS_SCOPE_KEYS and is not registered here.
+ * Prisma DeliveryStore. Customer delivery (delivery.record) and warehouse exit
+ * (warehouse.outbound.record) are prisma_port against existing tables.
+ * Migration apply remains separate (DELIVERY_MIGRATION_APPLIED = false).
  */
 
 import type { DeliverySubjectType } from '../../os-contracts/src/delivery';
@@ -23,11 +22,11 @@ import type {
 export const CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE = 'prisma_port' as const;
 
 /**
- * warehouse.outbound.record is CROSS_LANE — not in OPERATIONS_ACCESS_SCOPE_KEYS.
- * Do not invent or register the scope. Exit tables may exist; live write stays blocked.
+ * warehouse.outbound.record is registered on OPERATIONS_ACCESS_SCOPE_KEYS.
+ * Prisma exit inserts are prisma_port; migration apply is still unapplied.
  */
-export const WAREHOUSE_EXIT_WRITE_AUTHORITY = 'CROSS_LANE_CHANGE_REQUEST' as const;
-export const WAREHOUSE_EXIT_LIVE_WRITE = 'AUTHORITY_BLOCKED' as const;
+export const WAREHOUSE_EXIT_WRITE_AUTHORITY = 'REGISTERED' as const;
+export const WAREHOUSE_EXIT_LIVE_WRITE = 'prisma_port' as const;
 
 export const DELIVERY_MIGRATION_APPLIED = false as const;
 
@@ -155,7 +154,7 @@ type EvidenceRow = {
 
 /**
  * Structural Prisma delegates. Does not import the generated client.
- * Warehouse exit delegates are optional helpers — live write remains AUTHORITY_BLOCKED.
+ * Warehouse exit and customer delivery delegates support prisma_port writers.
  */
 export type DeliveryPrismaPort = {
   osOrder: {
@@ -344,9 +343,8 @@ async function insertLines(
 }
 
 /**
- * Prisma-backed DeliveryStore. Customer delivery paths are REAL_PERSISTENT
- * (prisma_port). Warehouse exit liveWrite remains AUTHORITY_BLOCKED until
- * warehouse.outbound.record is registered through a cross-lane change.
+ * Prisma-backed DeliveryStore. Customer delivery and warehouse exit paths are
+ * prisma_port. Factory delivery note remains BUSINESS_ROLE_REQUIRES_MAPPING.
  */
 export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryStore & {
   liveWrite: {
@@ -424,8 +422,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
     },
 
     async insertWarehouseExit(row) {
-      // Helper only. liveWrite.warehouseExit stays AUTHORITY_BLOCKED.
-      if (!prisma.osWarehouseExit) throw new Error('WAREHOUSE_EXIT_AUTHORITY_BLOCKED');
+      if (!prisma.osWarehouseExit) throw new Error('WAREHOUSE_EXIT_STORE_UNAVAILABLE');
       await prisma.osWarehouseExit.create({
         data: {
           id: row.id,
@@ -441,7 +438,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
     },
 
     async insertOutboundNote(row) {
-      if (!prisma.osWarehouseOutboundNote) throw new Error('WAREHOUSE_EXIT_AUTHORITY_BLOCKED');
+      if (!prisma.osWarehouseOutboundNote) throw new Error('WAREHOUSE_EXIT_STORE_UNAVAILABLE');
       await prisma.osWarehouseOutboundNote.create({
         data: {
           id: row.id,

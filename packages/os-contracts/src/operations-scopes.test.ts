@@ -22,6 +22,7 @@ import {
   SYSTEM_ADMIN_SCOPE,
   TECHNICAL_ADMIN_SCOPE_KEYS,
   WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+  WAREHOUSE_OUTBOUND_RECORD_SCOPE,
   canActAsSystemAdmin,
   canApproveCommercialPrice,
   canAuthorizePaymentException,
@@ -31,6 +32,7 @@ import {
   canPostFinanceLedger,
   canReadTeamCommercialWork,
   canReceiveFinishedGoods,
+  canRecordWarehouseOutbound,
   canRecordPurchasing,
   canRecordCoordinatorWork,
   canRecordDelivery,
@@ -80,6 +82,7 @@ describe('operational access scopes', () => {
       'finance.operational.record',
       'production.operational.record',
       'warehouse.finished_goods.receive',
+      'warehouse.outbound.record',
       'purchasing.operational.record',
       'operations.coordinator.record',
       'delivery.record',
@@ -281,6 +284,7 @@ describe('operational access scopes', () => {
 
   it('keeps record scopes from confirming finance or standing in for each other', () => {
     assert.equal(canReceiveFinishedGoods([WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE]), true);
+    assert.equal(canRecordWarehouseOutbound([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), true);
     assert.equal(canRecordPurchasing([PURCHASING_OPERATIONAL_RECORD_SCOPE]), true);
     assert.equal(canRecordDelivery([DELIVERY_RECORD_SCOPE]), true);
     assert.equal(canRecordProduction([WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE]), false);
@@ -290,6 +294,25 @@ describe('operational access scopes', () => {
     );
     assert.equal(canReadTeamCommercialWork([MANAGEMENT_ORG_READ_SCOPE]), false);
     assert.equal(canReadTeamCommercialWork([COMMERCIAL_TEAM_READ_SCOPE]), true);
+  });
+
+  it('does not let receive, allocate, delivery, commercial read, or people.admin imply warehouse outbound', () => {
+    const siblings = [
+      WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+      'warehouse.finished_goods.allocate',
+      DELIVERY_RECORD_SCOPE,
+      COMMERCIAL_TEAM_READ_SCOPE,
+      PEOPLE_ADMIN_SCOPE,
+      SYSTEM_ADMIN_SCOPE,
+    ] as const;
+    for (const held of siblings) {
+      assert.equal(scopeImplies(held, WAREHOUSE_OUTBOUND_RECORD_SCOPE), false);
+      assert.equal(canRecordWarehouseOutbound([held]), false);
+    }
+    assert.equal(canRecordWarehouseOutbound([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), true);
+    assert.equal(canReceiveFinishedGoods([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), false);
+    assert.equal(canRecordDelivery([WAREHOUSE_OUTBOUND_RECORD_SCOPE]), false);
+    assert.deepEqual(scopesGrantedByCargoOrTitle('encargado de almacén', 'Encargado de Almacén'), []);
   });
 
   it('covers one customer for one acting advisor without shared ownership', () => {

@@ -31,6 +31,7 @@ export const SESSION_CAPABILITY_SCOPES = [
   'production.operational.record',
   'warehouse.finished_goods.receive',
   'warehouse.finished_goods.allocate',
+  'warehouse.outbound.record',
   'operations.coordinator.record',
   'purchasing.operational.record',
   'delivery.record',

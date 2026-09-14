@@ -1,13 +1,12 @@
 /**
- * Existing catalog strings only. This package does not register a new capability.
+ * Existing catalog strings only. This package does not invent a new capability.
  *
  * Company fulfillment stores (warehouse exit, delivery, operational release)
  * use management.org.read. Write scopes do not authorize those reads.
  * commercial.team.read does not unlock those company stores.
  *
- * warehouse.outbound.record is a CROSS_LANE string in delivery.ts. It is not
- * a granted read in the shared scope catalog. Do not infer it, and do not
- * invent a second string.
+ * warehouse.outbound.record is the registered warehouse-exit write scope.
+ * It is not a granted company fulfillment read.
  *
  * Coordination has no dedicated read capability. coordination.decision.record
  * is write. operations.coordinator.record does not imply it and does not
@@ -51,8 +50,7 @@ export const COORDINATION_DECISION_READ_CHANGE_REQUEST = {
  * Held strings that must not unlock warehouse exit, delivery, or release.
  * commercial.team.read is included here because it does not unlock those
  * company stores. It may still read commercial work via a subjectType
- * predicate. warehouse.outbound.record is the existing CROSS_LANE write
- * string, not a second invented key.
+ * predicate. warehouse.outbound.record is the registered write scope, not a read.
  */
 export const NON_READ_SCOPES = [
   'delivery.record',

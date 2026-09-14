@@ -2,9 +2,9 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** `0ccbe9d39534358bbfc20dffe1a982da33386965`  
-Parent lineage: `2388a96` → coverage CreateOrder + prisma_port writers.  
-Code beneath prior tip: `a41e494`.  
+**Exact candidate SHA:** see branch tip after `feat(os): register warehouse.outbound.record` on `wave2/candidate-unified`  
+Parent lineage: `423901f` → warehouse.outbound.record registered + exit prisma_port.  
+Feature beneath prior tip: `0ccbe9d`.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
 
 Prior build proofs are **not** silently inherited — re-prove on ending tip.
@@ -29,8 +29,9 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 | Production | entry/quema/loss/consumption prisma_port | Producción | os-production | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
 | Allocation | allocate prisma_port | Almacén | os-allocation | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
 | Delivery | customer delivery prisma_port | Entrega | os-delivery | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
-| Warehouse exit | outbound write | Almacén | WAREHOUSE_EXIT_WRITE_AUTHORITY | Y | — | Y | — | — | — | — | — | — | X authority not registered |
-| Coordination write | decision.record prisma_port | Auxiliar | os-coordination-read | Y | Y | Y | Y | — | — | — | — | — | read still X |
+| Warehouse exit | outbound prisma_port | Almacén | warehouse.outbound.record | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
+| Coordination write | decision.record prisma_port | Auxiliar | os-coordination-read | Y | Y | Y | Y | — | — | — | — | — | read P1 visible limit |
+| Warehouse selectors | SearchableSelect on allocate | Almacén | warehouse-desk | Y | Y | Y | Y | — | — | — | — | — | server search when live load grows |
 | Payment evidence | reported fact prisma_port | Caja | reported-operational-fact-writer | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Purchase transition | status workflow | Compras | Gate C | Y | — | — | — | — | — | — | — | — | BLOCKED_BY_GATE_C |
 | Member picker | ServerMemberTypeahead + searchActiveMembers | Admin/Comercial | P0_MEMBER_SELECTOR_INVENTORY | Y | Y | Y | Y | — | — | — | — | — | HOSTED/BROWSER unproven |

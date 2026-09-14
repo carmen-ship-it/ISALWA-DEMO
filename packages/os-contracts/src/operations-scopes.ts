@@ -34,6 +34,12 @@ export const COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE = 'commercial.exception.author
 export const FINANCE_OPERATIONAL_RECORD_SCOPE = 'finance.operational.record' as const;
 export const PRODUCTION_OPERATIONAL_RECORD_SCOPE = 'production.operational.record' as const;
 export const WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE = 'warehouse.finished_goods.receive' as const;
+/**
+ * Record Nota de Salida de Almacén. Existing string warehouse.outbound.record.
+ * Carmen-approved mutation authority. Cargo/title never grant it.
+ * Does not imply receive, allocate, or delivery.record.
+ */
+export const WAREHOUSE_OUTBOUND_RECORD_SCOPE = 'warehouse.outbound.record' as const;
 export const PURCHASING_OPERATIONAL_RECORD_SCOPE = 'purchasing.operational.record' as const;
 export const OPERATIONS_COORDINATOR_RECORD_SCOPE = 'operations.coordinator.record' as const;
 export const DELIVERY_RECORD_SCOPE = 'delivery.record' as const;
@@ -74,6 +80,7 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   FINANCE_OPERATIONAL_RECORD_SCOPE,
   PRODUCTION_OPERATIONAL_RECORD_SCOPE,
   WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+  WAREHOUSE_OUTBOUND_RECORD_SCOPE,
   PURCHASING_OPERATIONAL_RECORD_SCOPE,
   OPERATIONS_COORDINATOR_RECORD_SCOPE,
   DELIVERY_RECORD_SCOPE,
@@ -170,6 +177,11 @@ export function canImpersonateProduction(_grantedScopes: readonly string[]): fal
 
 export function canReceiveFinishedGoods(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE);
+}
+
+/** Nota de Salida. Not implied by receive, allocate, or delivery.record. */
+export function canRecordWarehouseOutbound(grantedScopes: readonly string[]): boolean {
+  return hasAssignedOperationsScope(grantedScopes, WAREHOUSE_OUTBOUND_RECORD_SCOPE);
 }
 
 export function canRecordPurchasing(grantedScopes: readonly string[]): boolean {

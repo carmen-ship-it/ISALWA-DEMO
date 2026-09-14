@@ -223,6 +223,7 @@ export const V1_PLANNED_ASSIGNMENTS: readonly V1PlannedAssignment[] = [
   row('encargado-almacen', 'Encargado de Almacén', 'almacen', 'business', [
     WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
     WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
+    WAREHOUSE_EXIT_RECORD_SCOPE,
   ]),
   row('encargada-compras', 'Encargada de Compras', 'compras', 'business', [
     PURCHASING_OPERATIONAL_RECORD_SCOPE,
@@ -245,7 +246,6 @@ export const V1_PLANNED_ASSIGNMENTS: readonly V1PlannedAssignment[] = [
  */
 export const V1_UNASSIGNED_CAPABILITIES = [
   DELIVERY_RECORD_SCOPE,
-  WAREHOUSE_EXIT_RECORD_SCOPE,
   COMMERCIAL_PRICE_APPROVE_SCOPE,
   PRODUCTION_REVIEW_MEMBER_SCOPE,
   PEOPLE_ADMIN_SCOPE,
@@ -260,13 +260,7 @@ export const V1_UNASSIGNED_NOTES: readonly UnassignedCapabilityNote[] = [
     capability: DELIVERY_RECORD_SCOPE,
     assignedToFunctionId: null,
     reason:
-      'No confirmed person or function. Not assigned to Encargado de Almacén. Receive and allocate do not cover delivery.',
-  },
-  {
-    capability: WAREHOUSE_EXIT_RECORD_SCOPE,
-    assignedToFunctionId: null,
-    reason:
-      'No confirmed person or function. Not assigned to Encargado de Almacén. Distinct from finished-goods receive, allocate, and delivery.record.',
+      'No confirmed person or function. Not assigned to Encargado de Almacén. Receive, allocate, and outbound do not cover delivery.',
   },
   {
     capability: COMMERCIAL_PRICE_APPROVE_SCOPE,
@@ -338,6 +332,7 @@ export const V1_CROSS_LANE_CHANGE_REQUESTS: readonly V1CrossLaneChangeRequest[] 
     existingWriteCapabilities: [
       WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
       WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
+      WAREHOUSE_EXIT_RECORD_SCOPE,
     ],
     requestedCapabilityString: null,
     reason: READ_GAP,

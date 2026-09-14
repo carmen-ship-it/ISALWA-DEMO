@@ -79,14 +79,14 @@ export const LIVE_WRITER_MATRIX = [
   },
   {
     domain: 'warehouse_exit',
-    model: 'OsWarehouseExit + outbound note tables',
-    capability: 'warehouse.outbound.record (NOT registered in OPERATIONS_ACCESS_SCOPE_KEYS)',
-    tenantPredicate: 'fulfillment read is tenant-scoped; write authority is blocked',
-    audit: 'insert helpers may exist; liveWrite AUTHORITY_BLOCKED — not REAL_PERSISTENT',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'CROSS_LANE_CHANGE_REQUEST',
+    model: 'OsWarehouseExit + OsWarehouseOutboundNote*',
+    capability: 'warehouse.outbound.record',
+    tenantPredicate: 'session organization owns the order; member scopes from stored assignments',
+    audit: 'prisma_port warehouse exit + outbound note; externalDocumentNumber preserved; no automatic numbering',
+    state: 'IMPLEMENTED',
+    blocker: null,
     detail:
-      'WAREHOUSE_EXIT_WRITE_AUTHORITY = CROSS_LANE_CHANGE_REQUEST. Do not invent or register warehouse.outbound.record. Warehouse exit is not customer delivery.',
+      'warehouse.outbound.record is registered on OPERATIONS_ACCESS_SCOPE_KEYS. Receive, allocate, and delivery.record do not authorize exit. Nota de Salida ≠ Nota de Entrega ≠ Fábrica. Migration 20260915150000 exists and is not applied.',
   },
   {
     domain: 'delivery',
@@ -165,20 +165,22 @@ export const CUSTOMER_INFORMED_FOUNDATION_GAP = {
 export const COORDINATION_READ_AUTHORITY = {
   kind: 'CROSS_LANE_CHANGE_REQUEST' as const,
   id: 'COORDINATION_READ_AUTHORITY',
+  priority: 'P1' as const,
   doNotUse: ['coordination.decision.record', 'operations.coordinator.record'] as const,
   detail:
-    'OsCoordinationDecision is persisted. No canonical read capability exists. The reader stays behind a closed gate.',
+    'OsCoordinationDecision write is prisma_port. No canonical read capability exists. First-pilot: visible limitation — prior-decision history stays closed; do not treat empty board as no history. Not inventing a read scope.',
 } as const;
 
 /**
- * warehouse.outbound.record is not in OPERATIONS_ACCESS_SCOPE_KEYS.
- * Do not invent or register it here. Exit insert helpers are not REAL_PERSISTENT.
+ * warehouse.outbound.record is registered on OPERATIONS_ACCESS_SCOPE_KEYS.
+ * Prisma exit liveWrite is prisma_port (migration unapplied).
+ * Factory delivery note remains BUSINESS_ROLE_REQUIRES_MAPPING.
  */
 export const WAREHOUSE_EXIT_WRITE_AUTHORITY = {
-  kind: 'CROSS_LANE_CHANGE_REQUEST' as const,
+  kind: 'REGISTERED' as const,
   id: 'WAREHOUSE_EXIT_WRITE_AUTHORITY',
-  scopeNotRegistered: 'warehouse.outbound.record' as const,
-  liveWrite: 'AUTHORITY_BLOCKED' as const,
+  scope: 'warehouse.outbound.record' as const,
+  liveWrite: 'prisma_port' as const,
   detail:
-    'Customer delivery with delivery.record can be prisma_port. Warehouse exit live write stays AUTHORITY_BLOCKED until the outbound scope is registered through a cross-lane change.',
+    'Customer delivery and warehouse exit both use prisma_port. Receive, allocate, and delivery.record do not imply warehouse.outbound.record. Cargo and title grant nothing.',
 } as const;

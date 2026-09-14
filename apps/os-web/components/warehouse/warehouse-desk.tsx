@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   SectionHeader,
   StatusPill,
 } from '@isalwa/ui';
+import { SearchableSelect } from '@/components/experience/searchable-select';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import {
   WAREHOUSE_EXIT_HREF,
@@ -165,6 +166,22 @@ function AllocateSection({
   }
 
   const pedidos = view.pedidos.filter((pedido) => !productId || pedido.productId === productId);
+  const productOptions = useMemo(
+    () =>
+      choosable.map((row) => ({
+        id: row.productId,
+        label: row.productName.text,
+      })),
+    [choosable],
+  );
+  const pedidoOptions = useMemo(
+    () =>
+      pedidos.map((pedido) => ({
+        id: pedido.orderLineId,
+        label: pedido.optionLabel,
+      })),
+    [pedidos],
+  );
 
   return (
     <PageSection card className="bg-white p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
@@ -199,26 +216,28 @@ function AllocateSection({
       )}
       {canAllocate && onAllocate && choosable.length > 0 && pedidos.length > 0 ? (
         <form className="mt-8 space-y-4" onSubmit={submit}>
-          <label className="block text-sm text-[var(--isalwa-slate)]">
-            Producto
-            <select className={fieldClass} value={productId} onChange={(event) => setProductId(event.target.value)}>
-              {choosable.map((row) => (
-                <option key={row.productId} value={row.productId}>
-                  {row.productName.text}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm text-[var(--isalwa-slate)]">
-            {WAREHOUSE_TASK_COPY.pedido}
-            <select className={fieldClass} value={orderLineId} onChange={(event) => setOrderLineId(event.target.value)}>
-              {pedidos.map((pedido) => (
-                <option key={pedido.orderLineId} value={pedido.orderLineId}>
-                  {pedido.optionLabel}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SearchableSelect
+            id="warehouse-product"
+            label="Producto"
+            options={productOptions}
+            value={productId || null}
+            onChange={(id) => {
+              const next = id ?? '';
+              setProductId(next);
+              const nextLine =
+                view.pedidos.find((pedido) => !next || pedido.productId === next)?.orderLineId ?? '';
+              setOrderLineId(nextLine);
+            }}
+            placeholder="Buscar producto"
+          />
+          <SearchableSelect
+            id="warehouse-pedido"
+            label={WAREHOUSE_TASK_COPY.pedido}
+            options={pedidoOptions}
+            value={orderLineId || null}
+            onChange={(id) => setOrderLineId(id ?? '')}
+            placeholder="Buscar pedido"
+          />
           <label className="block text-sm text-[var(--isalwa-slate)]">
             {WAREHOUSE_TASK_COPY.quantity}
             <input

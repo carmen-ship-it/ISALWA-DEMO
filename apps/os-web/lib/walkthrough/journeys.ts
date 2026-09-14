@@ -139,14 +139,15 @@ export const JOURNEYS: readonly Journey[] = [
     id: 'almacen',
     order: 4,
     title: 'Cumplir pedido',
-    summary: 'Abre almacén. Asignar no es recibir. Continuar no afirma Listo ni asignación publicada.',
+    summary:
+      'Abre almacén. Asignar no es recibir. Salida de almacén es distinta. Continuar no afirma escritura publicada.',
     roleKeys: FLOOR,
     requiresHref: '/almacen',
     stops: [
       routeStop(
         'almacen',
         'Almacén',
-        'Abre almacén. No inventa existencias ni asigna un pedido. Sin permiso, no ofrece Asignar.',
+        'Abre almacén. No inventa existencias ni asigna un pedido. Sin permiso, no ofrece Asignar. Compras sigue bloqueada por Gate C.',
         '/almacen',
       ),
     ],
@@ -163,7 +164,7 @@ export const JOURNEYS: readonly Journey[] = [
       routeStop(
         'entregar',
         'Entrega',
-        'Abre entregas. No inventa un número de nota ni una salida de almacén.',
+        'Abre entregas. No inventa un número de nota. Una salida de almacén no es una entrega al cliente.',
         '/entregas',
       ),
     ],

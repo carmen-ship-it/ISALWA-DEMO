@@ -73,6 +73,7 @@ const EXPECTED_INTENDED: Record<V1PlannedFunctionId, readonly string[]> = {
   'encargado-almacen': [
     WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
     WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
+    WAREHOUSE_EXIT_RECORD_SCOPE,
   ],
   'encargada-compras': [PURCHASING_OPERATIONAL_RECORD_SCOPE],
   contabilidad: [FINANCE_OPERATIONAL_RECORD_SCOPE],
@@ -210,7 +211,9 @@ describe('V1 planned function map', () => {
     const warehouse = plannedAssignmentByFunction('encargado-almacen');
     assert.ok(warehouse);
     assert.equal(warehouse.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
-    assert.equal(warehouse.intendedCapabilities.includes(WAREHOUSE_EXIT_RECORD_SCOPE), false);
+    assert.equal(warehouse.intendedCapabilities.includes(WAREHOUSE_EXIT_RECORD_SCOPE), true);
+    assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(WAREHOUSE_EXIT_RECORD_SCOPE), false);
+    assert.equal(capabilityAssignedToFunction(WAREHOUSE_EXIT_RECORD_SCOPE), 'encargado-almacen');
     const receipt = v1FunctionMapReceipt();
     assert.equal(receipt.unassignedCapabilities.includes(DELIVERY_RECORD_SCOPE), true);
     const note = receipt.unassignedNotes.find((item) => item.capability === DELIVERY_RECORD_SCOPE);
@@ -325,6 +328,7 @@ describe('V1 planned function map', () => {
     assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(COMMERCIAL_PRICE_APPROVE_SCOPE), true);
     assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(PRODUCTION_REVIEW_MEMBER_SCOPE), true);
     assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(INTEGRATION_ADMIN_SCOPE), true);
-    assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(WAREHOUSE_EXIT_RECORD_SCOPE), true);
+    assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(WAREHOUSE_EXIT_RECORD_SCOPE), false);
+    assert.equal(capabilityAssignedToFunction(WAREHOUSE_EXIT_RECORD_SCOPE), 'encargado-almacen');
   });
 });

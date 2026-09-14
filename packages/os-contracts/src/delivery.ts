@@ -51,9 +51,10 @@ export const PAYMENT_REQUIRED_BEFORE_DELIVERY = false as const;
 /**
  * Explicit assignment only. Cargo, title, and a sibling scope never grant these.
  * delivery.record is the existing delivery scope. warehouse.outbound.record is
- * this lane's warehouse-exit gate. It is not finished-goods receipt.
- * CROSS_LANE: register warehouse.outbound.record on the shared scope catalog
- * if another package must assign it. Do not infer it here.
+ * the registered warehouse-exit mutation authority (OPERATIONS_ACCESS_SCOPE_KEYS).
+ * It is not finished-goods receive, allocate, or customer delivery.
+ * Receive, allocate, delivery.record, commercial.team.read, and people.admin
+ * do not imply it.
  */
 export const WAREHOUSE_EXIT_RECORD_SCOPE = 'warehouse.outbound.record' as const;
 export const CUSTOMER_DELIVERY_RECORD_SCOPE = 'delivery.record' as const;

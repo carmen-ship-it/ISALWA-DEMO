@@ -53,6 +53,30 @@ function fakePrisma(seed?: {
   notes: DeliveryNoteRecord[];
   lines: NoteLineRecord[];
   evidence: EvidenceRecord[];
+  exits: Array<{
+    id: string;
+    organizationId: string;
+    orderId: string;
+    exitedAt: Date | string;
+    recordedByMemberId: string;
+    source: string;
+    notes: string | null;
+    createdAt: Date | string;
+  }>;
+  outboundNotes: Array<{
+    id: string;
+    organizationId: string;
+    warehouseExitId: string;
+    orderId: string;
+    documentKind: string;
+    numberingPolicy: string;
+    externalDocumentNumber: string | null;
+    exitedAt: Date | string;
+    bornAt: Date | string;
+    createdAt: Date | string;
+    noteNumber?: null;
+  }>;
+  outboundLines: NoteLineRecord[];
   exitCreates: number;
 } {
   const orders = seed?.orders ?? [
@@ -95,6 +119,30 @@ function fakePrisma(seed?: {
   const notes: DeliveryNoteRecord[] = [];
   const lines: NoteLineRecord[] = [];
   const evidence: EvidenceRecord[] = [];
+  const exits: Array<{
+    id: string;
+    organizationId: string;
+    orderId: string;
+    exitedAt: Date | string;
+    recordedByMemberId: string;
+    source: string;
+    notes: string | null;
+    createdAt: Date | string;
+  }> = [];
+  const outboundNotes: Array<{
+    id: string;
+    organizationId: string;
+    warehouseExitId: string;
+    orderId: string;
+    documentKind: string;
+    numberingPolicy: string;
+    externalDocumentNumber: string | null;
+    exitedAt: Date | string;
+    bornAt: Date | string;
+    createdAt: Date | string;
+    noteNumber?: null;
+  }> = [];
+  const outboundLines: NoteLineRecord[] = [];
   let exitCreates = 0;
 
   return {
@@ -102,6 +150,9 @@ function fakePrisma(seed?: {
     notes,
     lines,
     evidence,
+    exits,
+    outboundNotes,
+    outboundLines,
     get exitCreates() {
       return exitCreates;
     },
@@ -300,15 +351,91 @@ function fakePrisma(seed?: {
       },
     },
     osWarehouseExit: {
-      async findFirst() {
-        return null;
+      async findFirst(args) {
+        const where = args.where as Record<string, string>;
+        return (
+          exits.find((item) =>
+            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          ) ?? null
+        );
       },
-      async findMany() {
-        return [];
+      async findMany(args) {
+        const where = args.where as Record<string, string>;
+        return exits.filter((item) =>
+          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+        );
       },
-      async create() {
+      async create(args) {
         exitCreates += 1;
-        throw new Error('should not claim REAL_PERSISTENT for exit');
+        const data = args.data as Record<string, unknown>;
+        const row = {
+          id: String(data.id),
+          organizationId: String(data.organizationId),
+          orderId: String(data.orderId),
+          exitedAt: data.exitedAt as Date | string,
+          recordedByMemberId: String(data.recordedByMemberId),
+          source: String(data.source),
+          notes: (data.notes as string | null) ?? null,
+          createdAt: data.createdAt as Date | string,
+        };
+        exits.push(row);
+        return row;
+      },
+    },
+    osWarehouseOutboundNote: {
+      async findFirst(args) {
+        const where = args.where as Record<string, string>;
+        return (
+          outboundNotes.find((item) =>
+            Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+          ) ?? null
+        );
+      },
+      async findMany(args) {
+        const where = args.where as Record<string, string>;
+        return outboundNotes.filter((item) =>
+          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+        );
+      },
+      async create(args) {
+        const data = args.data as Record<string, unknown>;
+        const row = {
+          id: String(data.id),
+          organizationId: String(data.organizationId),
+          warehouseExitId: String(data.warehouseExitId),
+          orderId: String(data.orderId),
+          documentKind: String(data.documentKind),
+          numberingPolicy: String(data.numberingPolicy),
+          externalDocumentNumber: (data.externalDocumentNumber as string | null) ?? null,
+          exitedAt: data.exitedAt as Date | string,
+          bornAt: data.bornAt as Date | string,
+          createdAt: data.createdAt as Date | string,
+          noteNumber: null as null,
+        };
+        outboundNotes.push(row);
+        return row;
+      },
+    },
+    osWarehouseOutboundNoteLine: {
+      async findMany(args) {
+        const where = args.where as Record<string, string>;
+        return outboundLines.filter((item) =>
+          Object.entries(where).every(([key, value]) => (item as Record<string, unknown>)[key] === value),
+        );
+      },
+      async createMany(args) {
+        for (const data of args.data) {
+          outboundLines.push({
+            id: String(data.id),
+            organizationId: String(data.organizationId),
+            noteId: String(data.outboundNoteId),
+            orderLineId: String(data.orderLineId),
+            productRef: (data.productRef as string | null) ?? null,
+            description: String(data.description),
+            quantity: Number(data.quantity),
+            unitLabel: (data.unitLabel as string | null) ?? null,
+          });
+        }
       },
     },
   };
@@ -325,19 +452,19 @@ function ctx() {
 }
 
 describe('createPrismaDeliveryStore', () => {
-  it('marks customer delivery prisma_port and keeps warehouse exit AUTHORITY_BLOCKED', () => {
+  it('marks customer delivery and warehouse exit as prisma_port with outbound registered', () => {
     assert.equal(DELIVERY_LIVE_WRITE, 'UNPROVEN');
     assert.equal(CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE, 'prisma_port');
-    assert.equal(WAREHOUSE_EXIT_LIVE_WRITE, 'AUTHORITY_BLOCKED');
-    assert.equal(WAREHOUSE_EXIT_WRITE_AUTHORITY, 'CROSS_LANE_CHANGE_REQUEST');
+    assert.equal(WAREHOUSE_EXIT_LIVE_WRITE, 'prisma_port');
+    assert.equal(WAREHOUSE_EXIT_WRITE_AUTHORITY, 'REGISTERED');
     assert.equal(DELIVERY_MIGRATION_APPLIED, false);
-    assert.equal((OPERATIONS_ACCESS_SCOPE_KEYS as readonly string[]).includes(WAREHOUSE_EXIT_RECORD_SCOPE), false);
+    assert.equal((OPERATIONS_ACCESS_SCOPE_KEYS as readonly string[]).includes(WAREHOUSE_EXIT_RECORD_SCOPE), true);
     assert.equal((OPERATIONS_ACCESS_SCOPE_KEYS as readonly string[]).includes(CUSTOMER_DELIVERY_RECORD_SCOPE), true);
 
     const store = createPrismaDeliveryStore(fakePrisma());
     assert.equal(store.liveWrite.customerDelivery, 'prisma_port');
-    assert.equal(store.liveWrite.warehouseExit, 'AUTHORITY_BLOCKED');
-    assert.equal(store.warehouseExitWriteAuthority, 'CROSS_LANE_CHANGE_REQUEST');
+    assert.equal(store.liveWrite.warehouseExit, 'prisma_port');
+    assert.equal(store.warehouseExitWriteAuthority, 'REGISTERED');
     assert.equal(store.migrationApplied, false);
   });
 
@@ -439,16 +566,102 @@ describe('createPrismaDeliveryStore', () => {
       /PERMISSION_DENIED/,
     );
     assert.equal(prisma.deliveries.length, 0);
-    assert.equal(store.liveWrite.warehouseExit, 'AUTHORITY_BLOCKED');
+    assert.equal(store.liveWrite.warehouseExit, 'prisma_port');
   });
 
-  it('does not claim REAL_PERSISTENT for warehouse exit even when insert helpers exist', async () => {
-    const prisma = fakePrisma();
+  it('persists partial and multiple warehouse exits as nota_de_salida without inventing a number', async () => {
+    const prisma = fakePrisma({
+      roles: [{ organizationId: 'org-a', memberId: 'member-a', roleKey: WAREHOUSE_EXIT_RECORD_SCOPE }],
+    });
     const store = createPrismaDeliveryStore(prisma);
-    assert.notEqual(store.liveWrite.warehouseExit, 'prisma_port');
-    assert.notEqual(store.liveWrite.warehouseExit, 'REAL_PERSISTENT');
-    assert.equal(store.liveWrite.warehouseExit, 'AUTHORITY_BLOCKED');
-    assert.equal(JSON.stringify(store.liveWrite).includes('REAL_PERSISTENT'), false);
+    const service = new DeliveryCommandService(store);
+    const exitedAt = '2026-09-14T13:00:00.000Z';
+
+    const first = await service.recordWarehouseExit(ctx(), {
+      orderId: 'order-a',
+      exitedAt,
+      recordedBy: 'member-a',
+      source: 'employee_recorded',
+      externalDocumentNumber: 'SAL-009',
+      quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+    });
+    assert.equal(first.documentKind, 'nota_de_salida');
+    assert.equal(first.noteNumber, null);
+    assert.equal(first.externalDocumentNumber, 'SAL-009');
+    assert.equal(first.deliveryNoteId, null);
+    assert.equal(first.customerDeliveryId, null);
+    assert.equal(prisma.exits.length, 1);
+    assert.equal(prisma.outboundNotes.length, 1);
+    assert.equal(prisma.outboundLines.length, 1);
+    assert.equal(prisma.outboundNotes[0]?.externalDocumentNumber, 'SAL-009');
+    assert.equal(prisma.outboundNotes[0]?.noteNumber, null);
+
+    const second = await service.recordWarehouseExit(ctx(), {
+      orderId: 'order-a',
+      exitedAt: '2026-09-14T13:30:00.000Z',
+      recordedBy: 'member-a',
+      source: 'employee_recorded',
+      quantities: [{ orderLineId: 'line-1', quantity: 2 }],
+    });
+    assert.equal(second.lineCount, 1);
+    assert.equal(prisma.exits.length, 2);
+    assert.equal(prisma.outboundNotes.length, 2);
+    assert.equal(prisma.outboundLines.length, 2);
+    assert.equal(store.liveWrite.warehouseExit, 'prisma_port');
+  });
+
+  it('denies warehouse exit without outbound scope and does not mutate or invent delivery', async () => {
+    const prisma = fakePrisma({
+      roles: [
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: CUSTOMER_DELIVERY_RECORD_SCOPE },
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: 'warehouse.finished_goods.receive' },
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: 'warehouse.finished_goods.allocate' },
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: 'commercial.team.read' },
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: 'people.admin' },
+      ],
+    });
+    const store = createPrismaDeliveryStore(prisma);
+    const service = new DeliveryCommandService(store);
+    await assert.rejects(
+      () =>
+        service.recordWarehouseExit(ctx(), {
+          orderId: 'order-a',
+          exitedAt: '2026-09-14T13:00:00.000Z',
+          recordedBy: 'member-a',
+          source: 'employee_recorded',
+          quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+        }),
+      /PERMISSION_DENIED/,
+    );
     assert.equal(prisma.exitCreates, 0);
+    assert.equal(prisma.exits.length, 0);
+    assert.equal(prisma.outboundNotes.length, 0);
+    assert.equal(prisma.deliveries.length, 0);
+  });
+
+  it('treats a foreign order warehouse exit as not_found without leaking org-b', async () => {
+    const prisma = fakePrisma({
+      roles: [{ organizationId: 'org-a', memberId: 'member-a', roleKey: WAREHOUSE_EXIT_RECORD_SCOPE }],
+    });
+    const store = createPrismaDeliveryStore(prisma);
+    const service = new DeliveryCommandService(store);
+    await assert.rejects(
+      () =>
+        service.recordWarehouseExit(ctx(), {
+          orderId: 'order-b',
+          exitedAt: '2026-09-14T13:00:00.000Z',
+          recordedBy: 'member-a',
+          source: 'employee_recorded',
+        }),
+      (err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        assert.equal(message, 'NOT_FOUND');
+        assert.equal(message.includes(FOREIGN_SECRET), false);
+        assert.equal(message.includes('org-b'), false);
+        return true;
+      },
+    );
+    assert.equal(prisma.exitCreates, 0);
+    assert.equal(prisma.exits.length, 0);
   });
 });

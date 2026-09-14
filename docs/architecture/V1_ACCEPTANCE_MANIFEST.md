@@ -86,7 +86,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Receive must not allocate; foreign tenant id fails closed; Fábrica ≠ Listo/Salida/Entrega/Delivery/Allocation |
 | SOURCE OF TRUTH | OsFinishedGoodsReceipt + delivery outbound + capabilities |
 | PROOF REQUIRED | LOCAL tests done; HOSTED + BROWSER required |
-| CURRENT STATE | Receive + allocate prisma_port TESTED; warehouse exit write CROSS_LANE (authority not registered); migrations unapplied; HOSTED UNPROVEN |
+| CURRENT STATE | Receive + allocate + warehouse exit prisma_port TESTED; outbound registered; factory note still BUSINESS_ROLE_REQUIRES_MAPPING; migrations unapplied; HOSTED UNPROVEN |
 
 ### A6. COMPRAS
 
@@ -128,7 +128,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Empty board must not mean “no history” when read authority blocked |
 | SOURCE OF TRUTH | Coordination adapters + CROSS_LANE read authority |
 | PROOF REQUIRED | HOSTED |
-| CURRENT STATE | Decision write prisma_port TESTED (`coordination.decision.record`); read still CROSS_LANE — COORDINATION_READ_AUTHORITY; HOSTED UNPROVEN |
+| CURRENT STATE | Decision write prisma_port TESTED (`coordination.decision.record`); read P1 CROSS_LANE — COORDINATION_READ_AUTHORITY (visible limitation); HOSTED UNPROVEN |
 
 ### A9. OWNER / ISALWA MANAGER
 

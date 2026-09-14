@@ -20,6 +20,7 @@ describe('live writer classification', () => {
         'consumption',
         'finished_goods_receive',
         'allocation',
+        'warehouse_exit',
         'delivery',
         'coordination_decision',
         'payment_evidence',
@@ -35,11 +36,12 @@ describe('live writer classification', () => {
     assert.match(purchase?.detail ?? '', /20260916140000_os_purchase_status_workflow/);
 
     const exit = LIVE_WRITER_MATRIX.find((row) => row.domain === 'warehouse_exit');
-    assert.equal(exit?.blocker, 'CROSS_LANE_CHANGE_REQUEST');
-    assert.equal(WAREHOUSE_EXIT_WRITE_AUTHORITY.liveWrite, 'AUTHORITY_BLOCKED');
+    assert.equal(exit?.state, 'IMPLEMENTED');
+    assert.equal(WAREHOUSE_EXIT_WRITE_AUTHORITY.liveWrite, 'prisma_port');
+    assert.equal(WAREHOUSE_EXIT_WRITE_AUTHORITY.kind, 'REGISTERED');
     assert.equal(
       (OPERATIONS_ACCESS_SCOPE_KEYS as readonly string[]).includes('warehouse.outbound.record'),
-      false,
+      true,
     );
 
     const special = LIVE_WRITER_MATRIX.find((row) => row.domain === 'special_order_classification');
@@ -62,6 +64,7 @@ describe('live writer classification', () => {
     assert.match(CUSTOMER_INFORMED_FOUNDATION_GAP.missingFact, /ProductionDateIssue/);
     assert.equal(COORDINATION_READ_AUTHORITY.id, 'COORDINATION_READ_AUTHORITY');
     assert.equal(COORDINATION_READ_AUTHORITY.kind, 'CROSS_LANE_CHANGE_REQUEST');
+    assert.equal(COORDINATION_READ_AUTHORITY.priority, 'P1');
     assert.equal(COORDINATION_READ_AUTHORITY.doNotUse.includes('coordination.decision.record'), true);
     assert.equal(JSON.stringify(COORDINATION_READ_AUTHORITY).includes('coordination.read'), false);
   });
