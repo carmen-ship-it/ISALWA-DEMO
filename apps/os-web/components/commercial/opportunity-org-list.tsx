@@ -39,7 +39,7 @@ export function OpportunityOrgList({
               <OperatingRow
                 href={opportunityHref(item.partyId, item.opportunityId)}
                 subject={item.title}
-                meta={metaLine([customer, stage, owner]) || undefined}
+                meta={metaLine([customer, stage, owner ? `Responsable: ${owner}` : null]) || undefined}
                 status={
                   <StatusPill tone={statusTone(item.status)}>
                     {formatOpportunityStatus(item.status)}

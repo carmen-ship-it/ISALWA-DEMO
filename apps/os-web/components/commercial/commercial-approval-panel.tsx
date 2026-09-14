@@ -206,6 +206,9 @@ function ApprovalDecisionFields({
       <input type="hidden" name="subjectType" value={subjectType} />
       <input type="hidden" name="subjectId" value={subjectId} />
       <input type="hidden" name="approvalRequestId" value={approvalRequestId} />
+      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Aprobar registra la decisión. No crea un pedido. Rechazar cierra esta solicitud. No cambia el responsable.
+      </p>
       <label className="block text-sm text-[var(--isalwa-slate)]">
         Motivo
         <input className={fieldClass} name="reason" maxLength={500} />

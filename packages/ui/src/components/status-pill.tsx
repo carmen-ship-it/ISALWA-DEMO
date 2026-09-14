@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
 export type StatusPillProps = HTMLAttributes<HTMLSpanElement> & {
-  tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info';
+  tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'manual' | 'demo';
   children: ReactNode;
 };
 
@@ -12,6 +12,11 @@ const tones = {
   warning: 'bg-[color-mix(in_srgb,var(--isalwa-warning)_12%,white)] text-[var(--isalwa-warning)]',
   danger: 'bg-[color-mix(in_srgb,var(--isalwa-danger)_10%,white)] text-[var(--isalwa-danger)]',
   info: 'bg-[color-mix(in_srgb,var(--isalwa-info)_10%,white)] text-[var(--isalwa-info)]',
+  /** User-reported fact. Beige, not a system confirmation. */
+  manual:
+    'bg-[color-mix(in_srgb,var(--isalwa-copper)_16%,white)] text-[color-mix(in_srgb,var(--isalwa-copper)_55%,var(--isalwa-kiln))]',
+  /** Not connected. Muted and dashed so it cannot be read as live truth. */
+  demo: 'border border-dashed border-[var(--isalwa-slate)] bg-transparent text-[var(--isalwa-slate)]',
 } as const;
 
 export function StatusPill({ tone = 'neutral', className, children, ...rest }: StatusPillProps) {

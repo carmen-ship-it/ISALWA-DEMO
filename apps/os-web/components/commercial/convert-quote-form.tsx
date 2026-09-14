@@ -31,7 +31,7 @@ export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="quoteId" value={quoteId} />
       <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        La conversión crea el pedido y conserva el vínculo con esta cotización. No emite factura ni nota de entrega.
+        Crea un pedido desde esta cotización. Conserva el vínculo. No emite factura ni nota de entrega.
       </p>
       <FormFeedback error={state?.error} />
       <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />

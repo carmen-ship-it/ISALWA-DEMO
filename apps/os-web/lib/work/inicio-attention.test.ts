@@ -10,7 +10,7 @@ import {
   reassignedAttention,
   sampleAttention,
 } from '@/lib/work/fixtures';
-import { attentionDueLabel, formatAttentionType } from '@/lib/work/labels';
+import { attentionDueLabel, elapsedSinceStoredDue, formatAttentionType } from '@/lib/work/labels';
 import {
   groupInicioAttention,
   INICIO_ATTENTION_GROUP_ORDER,
@@ -95,6 +95,9 @@ describe('CC-1 inicio attention grouping', () => {
     assert.equal(attentionDueLabel(openWithPastDue), null);
     const overdueLabel = attentionDueLabel(overdueAttention);
     assert.match(overdueLabel ?? '', /^Venció: /);
+    const asOf = new Date('2026-09-14T12:00:00.000Z');
+    assert.equal(elapsedSinceStoredDue('2026-09-14T10:00:00.000Z', asOf), '2 h');
+    assert.equal(elapsedSinceStoredDue('2026-09-14T12:00:30.000Z', asOf), null);
     assert.match(overdueLabel ?? '', /2026/);
     assert.doesNotMatch(overdueLabel ?? '', /pronto|vence en/i);
   });

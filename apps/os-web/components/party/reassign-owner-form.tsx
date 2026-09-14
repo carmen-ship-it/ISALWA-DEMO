@@ -38,6 +38,9 @@ export function ReassignOwnerForm({
     <form action={action} className="mt-4 space-y-3">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="commercialAccountId" value={commercialAccountId} />
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Cambia el responsable comercial. No cambia el aprobador ni otorga permisos.
+      </p>
       <p className="text-sm text-[var(--isalwa-slate)]">Responsable actual: {currentOwnerLabel}</p>
       <div>
         <label htmlFor="reassign-owner" className="block text-sm text-[var(--isalwa-slate)]">

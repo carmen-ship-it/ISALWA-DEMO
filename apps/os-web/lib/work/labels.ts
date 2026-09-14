@@ -147,12 +147,29 @@ export function formatAttentionReason(item: AttentionItemReadModel): string {
   }
 }
 
+/**
+ * Elapsed time after a stored due instant. Does not classify overdue and does
+ * not invent a reminder threshold.
+ */
+export function elapsedSinceStoredDue(iso: string, asOf = new Date()): string | null {
+  const due = new Date(iso);
+  if (Number.isNaN(due.getTime())) return null;
+  const elapsedMs = asOf.getTime() - due.getTime();
+  if (elapsedMs < 60_000) return null;
+  const hours = Math.floor(elapsedMs / 3_600_000);
+  if (hours < 1) return `${Math.floor(elapsedMs / 60_000)} min`;
+  if (hours < 48) return `${hours} h`;
+  return `${Math.floor(hours / 24)} d`;
+}
+
 /** Shows the due date already stored on an overdue item. Does not classify overdue. */
-export function attentionDueLabel(item: AttentionItemReadModel): string | null {
+export function attentionDueLabel(item: AttentionItemReadModel, asOf = new Date()): string | null {
   if (item.attentionType !== 'overdue_work') return null;
   const dueAt = item.reasonDetail.dueAt;
   if (typeof dueAt !== 'string') return null;
-  return `Venció: ${formatDueDate(dueAt)}`;
+  const stored = `Venció: ${formatDueDate(dueAt)}`;
+  const elapsed = elapsedSinceStoredDue(dueAt, asOf);
+  return elapsed ? `${stored} · ${elapsed}` : stored;
 }
 
 /**

@@ -62,7 +62,7 @@ export function QuoteOrgList({
           const meta = metaLine([
             customer,
             showAmount ? formatCentavos(item.totalCentavos, item.currency) : null,
-            owner,
+            owner ? `Responsable: ${owner}` : null,
             dateLabel,
           ]);
 

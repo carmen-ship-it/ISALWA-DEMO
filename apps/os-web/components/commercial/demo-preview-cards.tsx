@@ -1,3 +1,5 @@
+import { StatusPill } from '@isalwa/ui';
+
 const PREVIEWS = [
   {
     id: 'cobranza',
@@ -46,9 +48,7 @@ export function DemoPreviewCards() {
             key={item.id}
             className="rounded-[var(--isalwa-radius-panel)] border border-dashed border-[var(--isalwa-slate)] bg-[var(--isalwa-porcelain)] px-4 py-3"
           >
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[var(--isalwa-slate)] uppercase">
-              Vista demo
-            </p>
+            <StatusPill tone="demo">Vista demo</StatusPill>
             <h2 className="mt-1 text-sm font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
               {item.title}
             </h2>

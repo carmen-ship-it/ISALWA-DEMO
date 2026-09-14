@@ -17,7 +17,12 @@ import { safeInternalPath } from './safe-next';
 describe('command palette authorization', () => {
   it('hides customer create and invite unless those scopes are already held', () => {
     const plain = paletteActions({ canCreateCustomer: false, canInvite: false }).map((item) => item.label);
-    assert.deepEqual(plain, ['Nueva oportunidad', 'Crear cotización', 'Registrar seguimiento']);
+    assert.deepEqual(plain, [
+      'Nueva oportunidad',
+      'Crear cotización',
+      'Registrar seguimiento',
+      'Cómo trabajamos',
+    ]);
     assert.equal(plain.includes('Agregar cliente'), false);
     assert.equal(plain.includes('Invitar empleado'), false);
 
