@@ -21,7 +21,9 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | WAVE2_P0_FIRST_PILOT_BLOCKER_PASS | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
+| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | ef7eeab local pilot | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
+| Gate C evidence | read-only SQL package | Platform | GATE_C_READ_ONLY_EVIDENCE | Y | Y | — | Y | — | — | — | — | — | H BLOCKED_DB_STATE_UNKNOWN |
+| Staging apply plan | controlled phases 0–7 | Platform | WAVE2_CONTROLLED_STAGING_APPLY_PLAN | Y | Y | — | Y | — | — | — | — | — | blocked until Gate C live |
 | Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
 | Quote convert | owner OR coverage OR order.convert | Comercial | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | Y | Y | Y | — | — | — | — | — | coverage migration unapplied |
