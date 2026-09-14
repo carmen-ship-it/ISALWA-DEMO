@@ -128,10 +128,34 @@ async function convert(actorMemberId: string, options: Parameters<typeof storeFo
 }
 
 describe('CreateOrder provisional authority', () => {
-  it('lets the quote owner convert a submitted quote', async () => {
-    const result = await convert(OWNER);
+  it('lets the quote owner convert a submitted quote once and marks it accepted', async () => {
+    const row = quote();
+    const orders: string[] = [];
+    const store = storeFor({ quote: row });
+    const mutable = store as unknown as {
+      insertOrder: (order: { id: string }) => Promise<void>;
+      updateQuote: (quoteId: string, patch: { status?: string }) => Promise<void>;
+      getOrderForQuote: () => Promise<{ id: string } | null>;
+    };
+    mutable.insertOrder = async (order) => {
+      orders.push(order.id);
+    };
+    mutable.updateQuote = async (_quoteId, patch) => {
+      if (patch.status) row.status = patch.status as QuoteRecord['status'];
+    };
+    mutable.getOrderForQuote = async () => (orders[0] ? { id: orders[0] } : null);
+    const service = new CommercialCommandService(store);
+    assert.equal(row.status, 'submitted');
+    const result = await service.execute('CreateOrder', ctx(OWNER), { quoteId: QUOTE_ID });
     assert.equal(result.data.quoteId, QUOTE_ID);
-    assert.equal(typeof result.data.orderId, 'string');
+    assert.equal(orders.length, 1);
+    assert.equal(row.status, 'accepted');
+    assert.deepEqual((store as unknown as { events: string[] }).events, ['order.created']);
+    await assert.rejects(
+      () => service.execute('CreateOrder', ctx(OWNER), { quoteId: QUOTE_ID }),
+      /VALIDATION_FAILED/,
+    );
+    assert.equal(orders.length, 1);
   });
 
   it('denies an unrelated active member', async () => {

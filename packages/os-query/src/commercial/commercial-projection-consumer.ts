@@ -149,6 +149,17 @@ export class CommercialProjectionConsumer implements OsOutboxConsumerPort {
     return false;
   }
 
+  private async persistQuoteReadModel(
+    organizationId: string,
+    quoteId: string,
+    patch: { lastEventId: string; lastOccurredAt: Date },
+  ): Promise<void> {
+    const model = await hydrateQuoteReadModel(this.deps, organizationId, quoteId, patch);
+    await this.deps.projectionStore.upsertQuoteReadModel(model);
+    const lines = await hydrateQuoteLines(this.deps, organizationId, quoteId);
+    await this.deps.projectionStore.replaceQuoteLineReadModels(organizationId, quoteId, lines);
+  }
+
   private resolveQuoteId(envelope: BusinessEventEnvelope): string | null {
     if (envelope.primaryEntityType === 'quote') return envelope.primaryEntityId;
     const payload = envelope.payload as { quoteId?: string } | undefined;
@@ -197,6 +208,12 @@ export class CommercialProjectionConsumer implements OsOutboxConsumerPort {
         patch,
       );
       await this.deps.projectionStore.upsertOrderReadModel(model);
+      // CreateOrder writes quote status before emitting order.created.
+      // There is no separate quote.accepted event; refresh the quote from
+      // the canonical store so the read model does not stay submitted.
+      if (model.quoteId) {
+        await this.persistQuoteReadModel(envelope.organizationId, model.quoteId, patch);
+      }
     } else if (envelope.eventType.startsWith('quote.')) {
       const quoteId = this.resolveQuoteId(envelope);
       if (!quoteId) return;
@@ -207,20 +224,7 @@ export class CommercialProjectionConsumer implements OsOutboxConsumerPort {
       );
       if (existing && !this.shouldApply(existing, envelope)) return;
 
-      const model = await hydrateQuoteReadModel(
-        this.deps,
-        envelope.organizationId,
-        quoteId,
-        patch,
-      );
-      await this.deps.projectionStore.upsertQuoteReadModel(model);
-
-      const lines = await hydrateQuoteLines(this.deps, envelope.organizationId, quoteId);
-      await this.deps.projectionStore.replaceQuoteLineReadModels(
-        envelope.organizationId,
-        quoteId,
-        lines,
-      );
+      await this.persistQuoteReadModel(envelope.organizationId, quoteId, patch);
     }
 
     await this.deps.projectionStore.upsertCheckpoint({
