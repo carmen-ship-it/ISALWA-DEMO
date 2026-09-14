@@ -86,15 +86,24 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
       return record;
     case 'DISMISS': {
       const chapterId = event.chapterId ?? record.scopeChapterId ?? record.chapterId ?? 'global';
+      const activeChapterId = record.scopeChapterId ?? record.chapterId;
+      const dismissingActive = !activeChapterId || activeChapterId === chapterId;
+      const chapterStates = withChapterState(record, chapterId, 'DISMISSED');
+      if (!dismissingActive) {
+        return {
+          ...record,
+          welcomeClosed: true,
+          chapterStates,
+        };
+      }
       return {
         ...record,
         runState: 'DISMISSED',
         chapterId: null,
         scopeChapterId: null,
         stepId: null,
-        learningMode: false,
         welcomeClosed: true,
-        chapterStates: withChapterState(record, chapterId, 'DISMISSED'),
+        chapterStates,
       };
     }
     case 'COMPLETE':
