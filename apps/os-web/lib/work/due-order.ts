@@ -1,5 +1,7 @@
 import type { AttentionItemReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
-import { formatDueDate, isWorkOverdue } from '@/lib/work/labels';
+import { isDueToday } from '@/lib/work/aging/clock';
+import { DUE_TODAY_LABEL } from '@/lib/work/aging/labels';
+import { elapsedSinceStoredDue, formatDueDate, isWorkOverdue } from '@/lib/work/labels';
 
 /**
  * Presentation order for already-loaded open work.
@@ -27,11 +29,20 @@ export function formatWorkDueLine(
   options?: { caption?: 'Vence' | 'Fecha'; asOf?: Date },
 ): { text: string; overdue: boolean } {
   const caption = options?.caption ?? 'Vence';
-  if (isWorkOverdue(work, options?.asOf)) {
-    return { text: `Vencido · ${formatDueDate(work.dueAt)}`, overdue: true };
+  const asOf = options?.asOf ?? new Date();
+  if (isWorkOverdue(work, asOf)) {
+    const dated = formatDueDate(work.dueAt);
+    const elapsed = work.dueAt ? elapsedSinceStoredDue(work.dueAt, asOf) : null;
+    return {
+      text: elapsed ? `Vencido · ${dated} · ${elapsed}` : `Vencido · ${dated}`,
+      overdue: true,
+    };
   }
   if (storedDueMillis(work.dueAt) === null) {
     return { text: 'Sin fecha', overdue: false };
+  }
+  if (work.status === 'open' && caption === 'Vence' && isDueToday(work.dueAt, asOf)) {
+    return { text: DUE_TODAY_LABEL, overdue: false };
   }
   return { text: `${caption}: ${formatDueDate(work.dueAt)}`, overdue: false };
 }

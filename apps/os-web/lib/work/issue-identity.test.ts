@@ -58,6 +58,38 @@ describe('issue identity from an existing attention key', () => {
     assert.equal(sameAttentionIssue('work:owner:work-1', '2020-01-01T00:00:00.000Z'), false);
   });
 
+  it('treats due-today and elapsed keys as the same work issue, not a new type', () => {
+    const owner = issueIdentityFromAttentionKey('work:owner:work-1');
+    const dueToday = issueIdentityFromAttentionKey('work:due-today:work-1');
+    const elapsed = issueIdentityFromAttentionKey('work:elapsed:work-1');
+    assert.equal(dueToday?.issueId, owner?.issueId);
+    assert.equal(elapsed?.issueId, owner?.issueId);
+    assert.equal(dueToday?.kind, 'work');
+    assert.equal(sameAttentionIssue('work:due-today:work-1', 'work:elapsed:work-1'), true);
+    assert.equal(sameAttentionIssue('work:elapsed:work-1', 'work:overdue:work-1'), true);
+    assert.notEqual(elapsed?.issueId, 'work:overdue:work-1');
+  });
+
+  it('treats a submitted quote and a commitment as their own issues', () => {
+    assert.deepEqual(issueIdentityFromAttentionKey('quote:submitted:quote-1'), {
+      issueId: 'quote:quote-1',
+      kind: 'quote',
+      resourceId: 'quote-1',
+    });
+    assert.deepEqual(issueIdentityFromAttentionKey('commitment:due-today:c-1'), {
+      issueId: 'commitment:c-1',
+      kind: 'commitment',
+      resourceId: 'c-1',
+    });
+    assert.equal(
+      issueIdentityFromAttentionKey('commitment:elapsed:c-1')?.issueId,
+      'commitment:c-1',
+    );
+    assert.equal(sameAttentionIssue('commitment:due-today:c-1', 'commitment:elapsed:c-1'), true);
+    assert.equal(sameAttentionIssue('quote:submitted:quote-1', 'work:owner:work-1'), false);
+    assert.equal(issueIdentityFromAttentionKey('quote:draft:quote-1'), null);
+  });
+
   it('does not invent an issue for an unknown key', () => {
     assert.equal(issueIdentityFromAttentionKey(''), null);
     assert.equal(issueIdentityFromAttentionKey('work:owner:'), null);

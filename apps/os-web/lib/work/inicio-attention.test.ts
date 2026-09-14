@@ -14,6 +14,7 @@ import { attentionDueLabel, elapsedSinceStoredDue, formatAttentionType } from '@
 import {
   groupInicioAttention,
   INICIO_ATTENTION_GROUP_ORDER,
+  inicioAttentionDueTodayLabel,
   inicioAttentionEmptyCtas,
   inicioAttentionEmptyMessage,
 } from '@/lib/work/inicio-attention';
@@ -102,6 +103,29 @@ describe('CC-1 inicio attention grouping', () => {
     assert.doesNotMatch(overdueLabel ?? '', /pronto|vence en/i);
   });
 
+  it('labels a stored due instant as today without moving open work into another group', () => {
+    const asOf = new Date('2026-09-14T15:00:00.000Z');
+    const dueToday: AttentionItemReadModel = {
+      ...sampleAttention,
+      reasonDetail: {
+        ...sampleAttention.reasonDetail,
+        dueAt: '2026-09-14T20:00:00.000Z',
+      },
+    };
+    assert.equal(inicioAttentionDueTodayLabel(dueToday, asOf), 'Vence hoy');
+    assert.equal(groupInicioAttention([dueToday])[0]?.id, 'open_work_assigned');
+    assert.equal(inicioAttentionDueTodayLabel(overdueAttention, asOf), null);
+    const openPastDue: AttentionItemReadModel = {
+      ...sampleAttention,
+      reasonDetail: {
+        ...sampleAttention.reasonDetail,
+        dueAt: '2026-09-14T10:00:00.000Z',
+      },
+    };
+    assert.equal(inicioAttentionDueTodayLabel(openPastDue, asOf), null);
+    assert.equal(groupInicioAttention([openPastDue])[0]?.id, 'open_work_assigned');
+  });
+
   it('uses employee wording and omits a score', () => {
     assert.deepEqual([...INICIO_ATTENTION_GROUP_ORDER], [
       'overdue_work',
@@ -167,6 +191,9 @@ describe('CC-1 inicio page wiring', () => {
     assert.doesNotMatch(panel, FORBIDDEN_AGING);
     assert.doesNotMatch(grouping, FORBIDDEN_AGING);
     assert.doesNotMatch(grouping, /dueAt\s*</);
+    assert.match(panel, /quotes\?:/);
+    assert.match(panel, /commitments\?:/);
+    assert.doesNotMatch(panel, /attentionType:\s*'overdue_work'/);
 
     const employeeCopy = [
       t('pages.inicio.attention'),
