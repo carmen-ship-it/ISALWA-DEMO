@@ -132,10 +132,8 @@ export function createPrismaFulfillmentReadDb(db: FulfillmentPrismaDb): Fulfillm
         where: orgWhere(predicate.organizationId, { decisionId: ids }),
       });
     },
-    async listCoordinationDecisions(predicate) {
-      return db.osCoordinationDecision.findMany({
-        where: orgWhere(predicate.organizationId, predicate.id ? { id: predicate.id } : {}),
-      });
+    async listCoordinationDecisions(_predicate) {
+      throw new Error('CROSS_LANE_CHANGE_REQUEST');
     },
     async listWorkItems(predicate) {
       return db.osWorkItem.findMany({

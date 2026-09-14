@@ -131,8 +131,8 @@ export class MemoryFulfillmentReadDb implements FulfillmentReadDbPort {
   }
 
   async listCoordinationDecisions(predicate: TenantPredicate & { id?: string }) {
-    const organizationId = this.record('listCoordinationDecisions', predicate);
-    return sameOrg(organizationId, this.coordinationDecisions).filter((row) => !predicate.id || row.id === predicate.id);
+    this.record('listCoordinationDecisions', predicate);
+    throw new Error('CROSS_LANE_CHANGE_REQUEST');
   }
 
   async listWorkItems(predicate: TenantPredicate & { status?: string; subjectTypes?: readonly string[] }) {

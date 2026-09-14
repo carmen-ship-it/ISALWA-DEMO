@@ -48,8 +48,10 @@ export type EvidenceRead = {
   authorizedByMemberId: string | null;
   recipient: string | null;
   signatureReference: string | null;
-  confirmedLedgerPayment: boolean;
-  ledgerPosting: string;
+  /** Stored confirmation flags are not copied. Evidence is not ledger truth. */
+  confirmedLedgerPayment: false;
+  ledgerPosting: null;
+  ledgerTruth: false;
 };
 
 export type OutboundNoteRead = {
@@ -191,7 +193,15 @@ export type WorkNextActionValue = {
   tenantPredicate: { organizationId: string; subjectTypes?: readonly string[] };
   openWork: WorkItemRead[];
   attention: AttentionRead[];
-  nextAction: { sourceState: 'AVAILABLE'; workItemId: string } | { sourceState: 'NO_FACT' };
+  nextAction:
+    | { sourceState: 'AVAILABLE'; workItemId: string }
+    | { sourceState: 'NO_FACT' }
+    | { sourceState: 'UNPROVEN'; code: 'COMMERCIAL_SUBJECT_COVERAGE_INCOMPLETE' };
+  /**
+   * Company read covers the open queue. commercial.team.read only proves
+   * commercial_account rows, so an empty result is not "no next action."
+   */
+  queueCoverage: 'COMPLETE' | 'UNPROVEN';
 };
 
 export type CoordinationDenied = {
@@ -233,8 +243,9 @@ function toEvidence(row: EvidenceRow): EvidenceRead {
     authorizedByMemberId: row.authorizedByMemberId,
     recipient: row.recipient,
     signatureReference: row.signatureReference,
-    confirmedLedgerPayment: row.confirmedLedgerPayment,
-    ledgerPosting: row.ledgerPosting,
+    confirmedLedgerPayment: false,
+    ledgerPosting: null,
+    ledgerTruth: false,
   };
 }
 
@@ -410,7 +421,8 @@ export class FulfillmentReadService {
           tenantPredicate: predicate,
           openWork,
           attention: attention.map(toAttention),
-          nextAction: nextStoredAction(openWork),
+          nextAction: company ? nextStoredAction(openWork) : commercialNextAction(openWork),
+          queueCoverage: company ? 'COMPLETE' : 'UNPROVEN',
         },
       ]);
     } catch (err) {
@@ -626,6 +638,12 @@ function toAttention(row: AttentionRow): AttentionRead {
     subjectType: row.subjectType,
     subjectId: row.subjectId,
   };
+}
+
+function commercialNextAction(work: readonly WorkItemRead[]): WorkNextActionValue['nextAction'] {
+  const dated = nextStoredAction(work);
+  if (dated.sourceState === 'AVAILABLE') return dated;
+  return { sourceState: 'UNPROVEN', code: 'COMMERCIAL_SUBJECT_COVERAGE_INCOMPLETE' };
 }
 
 function nextStoredAction(work: readonly WorkItemRead[]): WorkNextActionValue['nextAction'] {

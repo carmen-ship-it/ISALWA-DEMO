@@ -476,13 +476,10 @@ describe('coordination decision reader', () => {
     assert.equal(db.calls.length, 0);
   });
 
-  it('keeps the tenant-scoped query function denying other organizations when called directly', async () => {
+  it('does not return coordination rows when the port is called directly', async () => {
     const db = new MemoryFulfillmentReadDb();
     seed(db);
-    const rows = await db.listCoordinationDecisions({ organizationId: ORG });
-    assert.equal(rows.length, 1);
-    assert.equal(rows[0]?.id, 'dec-a');
-    assert.equal(db.calls[0]?.predicate.organizationId, ORG);
+    await assert.rejects(() => db.listCoordinationDecisions({ organizationId: ORG }), /CROSS_LANE_CHANGE_REQUEST/);
   });
 });
 
@@ -517,6 +514,8 @@ describe('work and next action reader', () => {
     assert.deepEqual(db.calls[0]?.predicate.subjectTypes, ['commercial_account']);
     assert.deepEqual(db.calls[1]?.predicate.subjectTypes, ['commercial_account']);
     assert.equal(db.calls[0]?.predicate.organizationId, ORG);
+    assert.equal(result.rows[0]?.queueCoverage, 'UNPROVEN');
+    assert.notEqual(result.rows[0]?.nextAction.sourceState, 'NO_FACT');
   });
 
   it('does not let people.admin or delivery.record unlock the work queue', async () => {
@@ -548,7 +547,25 @@ describe('work and next action reader', () => {
     assert.equal(result.sourceState, 'AVAILABLE');
     if (result.sourceState !== 'AVAILABLE') return;
     assert.equal(result.rows[0]?.nextAction.sourceState, 'NO_FACT');
+    assert.equal(result.rows[0]?.queueCoverage, 'COMPLETE');
     assert.equal(result.count, 1);
+  });
+
+  it('does not treat a stored ledger-confirmation flag as ledger truth', async () => {
+    const db = new MemoryFulfillmentReadDb();
+    seed(db);
+    const evidence = db.evidence.find((row) => row.id === 'ev-del');
+    assert.ok(evidence);
+    evidence.confirmedLedgerPayment = true;
+    evidence.ledgerPosting = 'posted-ledger-id';
+    const readers = new FulfillmentReadService(db);
+    const result = await readers.readDeliveries(company(), { id: 'del-a' });
+    assert.equal(result.sourceState, 'AVAILABLE');
+    if (result.sourceState !== 'AVAILABLE') return;
+    const read = result.rows[0]?.evidence[0];
+    assert.equal(read?.confirmedLedgerPayment, false);
+    assert.equal(read?.ledgerPosting, null);
+    assert.equal(read?.ledgerTruth, false);
   });
 });
 
@@ -589,11 +606,12 @@ describe('prisma db port', () => {
     await port.listOutboundNoteLines({ organizationId: ORG, outboundNoteIds: [] });
     await port.listDeliveries({ organizationId: ORG, id: 'del-a' });
     await port.listReleaseDecisions({ organizationId: ORG, orderId: 'order-1' });
-    await port.listCoordinationDecisions({ organizationId: ORG });
+    await assert.rejects(() => port.listCoordinationDecisions({ organizationId: ORG }), /CROSS_LANE_CHANGE_REQUEST/);
     await port.listWorkItems({ organizationId: ORG, status: 'open', subjectTypes: ['commercial_account'] });
     await port.listAttention({ organizationId: ORG, isActive: true, subjectTypes: ['commercial_account'] });
 
     assert.equal(calls.every((call) => call.where.organizationId === ORG), true);
+    assert.equal(calls.some((call) => call.model === 'osCoordinationDecision'), false);
     assert.equal(calls.some((call) => call.model === 'osWarehouseOutboundNoteLine'), false);
     const work = calls.find((call) => call.model === 'osWorkItem');
     assert.deepEqual(work?.where.subjectType, { in: ['commercial_account'] });
