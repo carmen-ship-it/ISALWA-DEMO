@@ -72,3 +72,8 @@ Do **not** auto-create from DATOS CLIENTES staff rows. Use synthetic fixtures; r
 ## SAFE FOR ISA / ÁLVARO
 
 **NO** until hosted Acceptance Gauntlet + explicit user acceptance.
+
+## Current blocker (2026-09-14)
+
+**BLOCKED_DEPLOY_RUNS_MIGRATIONS** — see `WAVE2_DEPLOY_BLOCKED_PREDEPLOY_MIGRATE.md`. `os-api-staging` `preDeployCommand` runs `migrate:deploy`. No deploy executed.
+
