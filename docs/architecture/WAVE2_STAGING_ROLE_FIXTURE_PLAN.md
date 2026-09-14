@@ -6,7 +6,16 @@
 Source of intended scopes: `packages/os-contracts/src/v1-planned-assignments.ts`  
 Authority rule: cargo/title grant **nothing**. Explicit assignment only.
 
-## Planned synthetic fixtures (future staging seed — not executed now)
+## Execution status
+
+**HOSTED_APP_SHA:** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc` (unchanged; not this tooling)  
+**Script:** `packages/os-database/src/staging-wave2-role-fixtures.ts`  
+**Guards:** fail-closed confirm + staging DB name/host + Supabase ref + migration count 29 — see `WAVE2_FIXTURE_TOOL_PIN.md`  
+**Hosted execution:** **NOT RUN** in the tooling pin pass. Operator run is a separate authorize step.
+
+Emails (exact): `w2.asesor|jefe|gerente|produccion|almacen|compras|contabilidad|coordinacion|owner@isalwa.demo`
+
+## Planned synthetic fixtures
 
 Use a **synthetic tenant** distinct from the seven real imported customers.
 

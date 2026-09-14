@@ -2,12 +2,11 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** see branch tip after `feat(os): register warehouse.outbound.record` on `wave2/candidate-unified`  
-Parent lineage: `423901f` → warehouse.outbound.record registered + exit prisma_port.  
-Feature beneath prior tip: `0ccbe9d`.  
+**Exact candidate SHA (deployed):** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
+Worktree tip may be docs-ahead of deploy; **hosted proof bound to `ef7eeab` only**.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
 
-Prior build proofs are **not** silently inherited — re-prove on ending tip.
+Prior build proofs are **not** silently inherited — re-prove on ending tip / live SHA.
 
 Legend cells: Y = yes for that state · — = no · P = partial · U = UNPROVEN · G = FOUNDATION_GAP · D = BUSINESS_DECISION_REQUIRED · X = CROSS_LANE · H = HOLD
 
@@ -21,9 +20,11 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | ef7eeab local pilot | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
-| Gate C migrate | staging `_prisma_migrations`=29 | Platform | WAVE2_GATE_C_EVIDENCE_RESULT | Y | Y | Y | Y | — | — | — | — | — | MIGRATED_AND_VERIFIED; app not deployed |
-| Staging deploy pass | exact SHA ef7eeab | Platform | WAVE2_NEXT_STAGING_DEPLOY_PASS | Y | — | — | Y | — | — | — | — | — | PLANNED — await authorize |
+| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | ef7eeab local pilot | Y | Y | Y | Y | — | Y | Y | — | — | Bound to ef7eeab deploy |
+| Gate C migrate | staging `_prisma_migrations`=29 | Platform | WAVE2_GATE_C_EVIDENCE_RESULT | Y | Y | Y | Y | — | Y | Y | — | — | MIGRATED_AND_VERIFIED; count not re-queried this pass |
+| Staging deploy pass | exact SHA ef7eeab | Platform | WAVE2_STAGING_DEPLOY_SMOKE_EF7EEAB | Y | Y | Y | Y | — | Y | Y | — | — | API+web live; Auto-Deploy expected OFF |
+| Synthetic role fixtures | 9 V1 roles + synthetic tenant | Platform | staging-wave2-role-fixtures.ts | Y | Y | — | — | — | — | — | — | — | CREDENTIAL_BLOCKED / DB IP allowlist |
+| Hosted acceptance gauntlet | role homes + journeys A–I | Platform | WAVE2_HOSTED_ACCEPTANCE_RESUME_EF7EEAB | Y | — | — | — | — | Y | Y | — | — | Blocked on fixtures; Carmen browser PARTIAL |
 | Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
 | Quote convert | owner OR coverage OR order.convert | Comercial | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | Y | Y | Y | — | — | — | — | — | coverage migration unapplied |
@@ -112,13 +113,14 @@ LOCAL_HTTP: prior route proof on candidate (session/party/location/outbox/quote 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Shell | Production shell | All | UI_0 evidence | Y | Y | Y | Y | — | — | P | P | — | prior |
-| Guided | Honesty + 8 journeys | All | V1_ACCEPTANCE_MANIFEST | Y | — | — | — | — | — | — | — | — | Gate B/C + decisions |
+| Guided | Honesty + 8 journeys | All | WAVE2_HOSTED_ACCEPTANCE_RESUME_EF7EEAB | Y | Y | — | Y | — | Y | Y | P | — | Replay/dismiss/Continuar PASS; 9-role + full journeys BLOCKED |
 
 ---
 
 ## Roll-up
 
-- PUSHED: no (this candidate local)  
-- DEPLOYED / HOSTED / BROWSER-VERIFIED / USER-ACCEPTED for Isa document work: no  
-- SAFE FOR ISA / ÁLVARO: NO  
-- Do not say “feature passed” — score subfeatures only
+- PUSHED: deploy candidate `ef7eeab` is live on staging (API+web)  
+- MIGRATED: YES (29) · DEPLOYED: YES · HOSTED: YES · BROWSER-VERIFIED: **NO** · USER-ACCEPTED: **NO**  
+- SAFE FOR ISA / ÁLVARO: **NO** — synthetic fixtures + 9-role gauntlet incomplete  
+- Do not say “feature passed” — score subfeatures only  
+- Evidence: `docs/architecture/WAVE2_HOSTED_ACCEPTANCE_RESUME_EF7EEAB.md`
