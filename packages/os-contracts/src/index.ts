@@ -26,3 +26,5 @@ export * from './queries';
 export * from './projection';
 export * from './capabilities';
 export * from './operations-commands';
+export * from './commitments';
+export * from './notifications';
