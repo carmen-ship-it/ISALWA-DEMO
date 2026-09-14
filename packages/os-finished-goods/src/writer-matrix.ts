@@ -1,7 +1,7 @@
 /**
- * Classification only. A writer is implemented here only for finished-goods receive,
- * where the model, mutation capability, tenant rule, and business-event contract
- * already exist. Missing pieces stay named. No capability string is invented.
+ * Classification of live writers. Production and finished-goods receive use prisma_port
+ * where the model, mutation capability, and tenant rule already exist. Missing pieces
+ * stay named. No capability string is invented. Migrations may exist unapplied.
  */
 
 export const LIVE_WRITER_MATRIX = [
@@ -12,48 +12,49 @@ export const LIVE_WRITER_MATRIX = [
     tenantPredicate: 'authorizePurchaseRequestTransition',
     audit: 'in-memory event object; no canonical Prisma/outbox writer',
     state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'The transition command exists in memory. A Prisma writer and outbox persistence contract are not both already canonical.',
+    blocker: 'BLOCKED_BY_GATE_C',
+    detail:
+      'Blocked migration 20260916140000_os_purchase_status_workflow remaps English base statuses to Spanish ids (solicitado/cotizandose/entregado). A Prisma transition writer that requires that REWRITE must not be implemented until Gate C DB state is known. Memory transition stays; this migration file is not touched.',
   },
   {
     domain: 'production_entry',
     model: 'OsProductionTraceEntry',
     capability: 'production.entry.member',
-    tenantPredicate: 'session organization on the in-memory store',
-    audit: 'append-only trace; no canonical outbox writer',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'production.review.member does not authorize entry. The live writer is still the in-memory trace store.',
+    tenantPredicate: 'session organization on the Prisma port',
+    audit: 'append-only trace; prisma_port; migration exists unapplied',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail: 'production.review.member does not authorize entry. Prisma port exists; migration 20260915130000 exists and is not applied.',
   },
   {
     domain: 'quema_start_end',
-    model: 'OsProductionQuema + OsProductionQuemaTime',
+    model: 'OsProductionQuema + OsProductionQuemaTime + OsProductionQuemaProduct',
     capability: 'production.entry.member',
-    tenantPredicate: 'session organization on the in-memory store',
-    audit: 'in-memory quema facts; no canonical outbox writer',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'Quema remains multi-product. Start and end are not a Prisma command yet.',
+    tenantPredicate: 'session organization on the Prisma port',
+    audit: 'append-only quema facts; prisma_port; migration exists unapplied',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail: 'Quema remains multi-product with startedAt/endedAt. Prisma port exists; migration 20260915130000 exists and is not applied.',
   },
   {
     domain: 'loss',
     model: 'OsProductionTraceEntry kind loss',
     capability: 'production.entry.member',
-    tenantPredicate: 'session organization on the in-memory store',
-    audit: 'append-only trace; no canonical outbox writer',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'Loss facts already have a contract. The persistent command writer is not canonical.',
+    tenantPredicate: 'session organization on the Prisma port',
+    audit: 'append-only corrections; prisma_port; migration exists unapplied',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail: 'Loss facts persist through the Prisma port. Corrections append. Migration 20260915130000 exists and is not applied.',
   },
   {
     domain: 'consumption',
     model: 'OsProductionTraceEntry kind consumption',
     capability: 'production.entry.member',
-    tenantPredicate: 'session organization on the in-memory store',
-    audit: 'append-only trace; no stock decrement; no canonical outbox writer',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'Reported consumption does not decrement authoritative stock. No Prisma writer is added.',
+    tenantPredicate: 'session organization on the Prisma port',
+    audit: 'append-only trace; inventoryEffect none; prisma_port; migration exists unapplied',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail: 'Reported consumption does not decrement authoritative stock. Prisma port exists; migration 20260915130000 exists and is not applied.',
   },
   {
     domain: 'finished_goods_receive',
@@ -70,30 +71,33 @@ export const LIVE_WRITER_MATRIX = [
     model: 'OsOrderAllocation',
     capability: 'warehouse.finished_goods.allocate',
     tenantPredicate: 'AllocationTenantTargets keyed by session organization',
-    audit: 'in-memory insert; live write marked UNPROVEN',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'Allocation remains a later warehouse operation. The existing command is not a database writer.',
+    audit: 'os_order_allocations + os_business_events finished_goods.allocated; prisma_port',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail:
+      'Prisma port exists; migration 20260915170000 exists and is not applied. Receive, delivery.record, commercial.team.read, and people.admin do not authorize allocate. Partial and multiple allocations allowed; remaining quantity is a projection.',
   },
   {
     domain: 'warehouse_exit',
-    model: 'warehouse exit persistence used by the fulfillment reader',
-    capability: 'not a receive or allocate scope',
-    tenantPredicate: 'fulfillment read is tenant-scoped; write command is not canonical here',
-    audit: 'no confirmed outbox writer in this pass',
+    model: 'OsWarehouseExit + outbound note tables',
+    capability: 'warehouse.outbound.record (NOT registered in OPERATIONS_ACCESS_SCOPE_KEYS)',
+    tenantPredicate: 'fulfillment read is tenant-scoped; write authority is blocked',
+    audit: 'insert helpers may exist; liveWrite AUTHORITY_BLOCKED — not REAL_PERSISTENT',
     state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'Warehouse exit is not delivery. No new writer is added.',
+    blocker: 'CROSS_LANE_CHANGE_REQUEST',
+    detail:
+      'WAREHOUSE_EXIT_WRITE_AUTHORITY = CROSS_LANE_CHANGE_REQUEST. Do not invent or register warehouse.outbound.record. Warehouse exit is not customer delivery.',
   },
   {
     domain: 'delivery',
-    model: 'delivery persistence used by the fulfillment reader',
+    model: 'OsDelivery + OsDeliveryNote + lines + evidence',
     capability: 'delivery.record',
-    tenantPredicate: 'not proven as a write command in this pass',
-    audit: 'no confirmed outbox writer in this pass',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'FOUNDATION_GAP',
-    detail: 'delivery.record does not imply allocate. Nota de Entrega is not invented.',
+    tenantPredicate: 'session organization owns the order; member scopes from stored assignments',
+    audit: 'prisma_port customer delivery; externalDocumentNumber preserved; no automatic numbering',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail:
+      'createPrismaDeliveryStore persists customer delivery. Note is born at delivery. Partial and multiple deliveries allowed. delivery.record does not authorize warehouse exit or allocate.',
   },
   {
     domain: 'customer_communication',
@@ -109,11 +113,23 @@ export const LIVE_WRITER_MATRIX = [
     domain: 'coordination_decision',
     model: 'OsCoordinationDecision',
     capability: 'coordination.decision.record',
-    tenantPredicate: 'existing decision command is organization-scoped',
+    tenantPredicate: 'recordCoordinationDecision session organization; foreign org denied',
     audit: 'decision row is the record; record is not a read capability',
-    state: 'NOT_IMPLEMENTED',
-    blocker: 'CROSS_LANE_CHANGE_REQUEST',
-    detail: 'The write command already exists. This pass does not add a second writer and does not use the record scope as a read.',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail:
+      'prisma_port writer inserts after the pure builder authorizes. Migration 20260916160000 is unapplied. Write scope does not unlock prior-decision reads; COORDINATION_READ_AUTHORITY stays CROSS_LANE.',
+  },
+  {
+    domain: 'payment_evidence',
+    model: 'OsReportedOperationalFact',
+    capability: 'finance.operational.record',
+    tenantPredicate: 'session organization must match fact organizationId',
+    audit: 'reported row is operational evidence; confirmation stays pending; no ledger confirm',
+    state: 'IMPLEMENTED',
+    blocker: null,
+    detail:
+      'createPrismaReportedOperationalFactWriter inserts/reverses via builders. Mixed tenders preserved. Never ledger-confirms. Hosted write remains UNPROVEN until migration apply and API wire.',
   },
   {
     domain: 'commercial_exception_authorization',
@@ -137,9 +153,11 @@ export const LIVE_WRITER_MATRIX = [
   },
 ] as const;
 
+/** P1 FOUNDATION_GAP: date-issue informed exists; general informed-of-order does not. */
 export const CUSTOMER_INFORMED_FOUNDATION_GAP = {
   kind: 'FOUNDATION_GAP' as const,
   id: 'CUSTOMER_INFORMED_OF_ORDER',
+  priority: 'P1' as const,
   missingFact:
     'An explicit record that the customer was informed about an operating fact other than a ProductionDateIssue, with occurredAt, actor/source, and the related order or customer. CustomerDateInformedRecord covers date-issue notice only. OsCustomerConversation is not that fact.',
 } as const;
@@ -150,4 +168,17 @@ export const COORDINATION_READ_AUTHORITY = {
   doNotUse: ['coordination.decision.record', 'operations.coordinator.record'] as const,
   detail:
     'OsCoordinationDecision is persisted. No canonical read capability exists. The reader stays behind a closed gate.',
+} as const;
+
+/**
+ * warehouse.outbound.record is not in OPERATIONS_ACCESS_SCOPE_KEYS.
+ * Do not invent or register it here. Exit insert helpers are not REAL_PERSISTENT.
+ */
+export const WAREHOUSE_EXIT_WRITE_AUTHORITY = {
+  kind: 'CROSS_LANE_CHANGE_REQUEST' as const,
+  id: 'WAREHOUSE_EXIT_WRITE_AUTHORITY',
+  scopeNotRegistered: 'warehouse.outbound.record' as const,
+  liveWrite: 'AUTHORITY_BLOCKED' as const,
+  detail:
+    'Customer delivery with delivery.record can be prisma_port. Warehouse exit live write stays AUTHORITY_BLOCKED until the outbound scope is registered through a cross-lane change.',
 } as const;

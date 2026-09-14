@@ -123,14 +123,14 @@ export const JOURNEYS: readonly Journey[] = [
     id: 'produccion',
     order: 3,
     title: 'Producción',
-    summary: 'Abre producción. Una quema no es un pedido.',
+    summary: 'Abre producción. Una quema no es un pedido. Continuar no afirma escritura publicada.',
     roleKeys: FLOOR,
     requiresHref: '/produccion',
     stops: [
       routeStop(
         'produccion',
         'Producción',
-        'Abre producción. No inventa un pedido ni un producto.',
+        'Abre producción. No inventa un pedido ni un producto. No afirma persistencia publicada.',
         '/produccion',
       ),
     ],
@@ -139,14 +139,14 @@ export const JOURNEYS: readonly Journey[] = [
     id: 'almacen',
     order: 4,
     title: 'Cumplir pedido',
-    summary: 'Abre almacén. Asignar no es recibir.',
+    summary: 'Abre almacén. Asignar no es recibir. Continuar no afirma Listo ni asignación publicada.',
     roleKeys: FLOOR,
     requiresHref: '/almacen',
     stops: [
       routeStop(
         'almacen',
         'Almacén',
-        'Abre almacén. No inventa existencias ni asigna un pedido.',
+        'Abre almacén. No inventa existencias ni asigna un pedido. Sin permiso, no ofrece Asignar.',
         '/almacen',
       ),
     ],
@@ -155,14 +155,15 @@ export const JOURNEYS: readonly Journey[] = [
     id: 'entregar',
     order: 5,
     title: 'Entregar',
-    summary: 'Abre entregas. Este recorrido no confirma un número.',
+    summary:
+      'Abre entregas. Salida de almacén no es Entrega. Continuar no inventa salida ni un número de nota.',
     roleKeys: FLOOR,
     requiresHref: '/entregas',
     stops: [
       routeStop(
         'entregar',
         'Entrega',
-        'Abre entregas. No inventa un número de nota.',
+        'Abre entregas. No inventa un número de nota ni una salida de almacén.',
         '/entregas',
       ),
     ],
@@ -189,14 +190,15 @@ export const JOURNEYS: readonly Journey[] = [
     id: 'coordinar',
     order: 7,
     title: 'Coordinar',
-    summary: 'Abre coordinación. No es un calendario.',
+    summary:
+      'Abre coordinación. Registrar una decisión no abre la lectura del tablero histórico.',
     roleKeys: FLOOR,
     requiresHref: '/coordinacion',
     stops: [
       routeStop(
         'coordinar',
         'Coordinación',
-        'Abre coordinación. No inventa una decisión ni una reunión.',
+        'Abre coordinación. No inventa una decisión ni una reunión. No afirma lectura de decisiones previas.',
         '/coordinacion',
       ),
     ],

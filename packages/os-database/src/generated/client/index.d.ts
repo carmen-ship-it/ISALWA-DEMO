@@ -447,6 +447,11 @@ export type OsPriceEntry = $Result.DefaultSelection<Prisma.$OsPriceEntryPayload>
  */
 export type OsSpecialOrderClassification = $Result.DefaultSelection<Prisma.$OsSpecialOrderClassificationPayload>
 /**
+ * Model OsCustomerCoverageGrant
+ * 
+ */
+export type OsCustomerCoverageGrant = $Result.DefaultSelection<Prisma.$OsCustomerCoverageGrantPayload>
+/**
  * Model OsCoordinationDecision
  * 
  */
@@ -1411,6 +1416,16 @@ export class PrismaClient<
   get osSpecialOrderClassification(): Prisma.OsSpecialOrderClassificationDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.osCustomerCoverageGrant`: Exposes CRUD operations for the **OsCustomerCoverageGrant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OsCustomerCoverageGrants
+    * const osCustomerCoverageGrants = await prisma.osCustomerCoverageGrant.findMany()
+    * ```
+    */
+  get osCustomerCoverageGrant(): Prisma.OsCustomerCoverageGrantDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.osCoordinationDecision`: Exposes CRUD operations for the **OsCoordinationDecision** model.
     * Example usage:
     * ```ts
@@ -1944,6 +1959,7 @@ export namespace Prisma {
     OsPriceList: 'OsPriceList',
     OsPriceEntry: 'OsPriceEntry',
     OsSpecialOrderClassification: 'OsSpecialOrderClassification',
+    OsCustomerCoverageGrant: 'OsCustomerCoverageGrant',
     OsCoordinationDecision: 'OsCoordinationDecision'
   };
 
@@ -1963,7 +1979,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCoordinationDecision"
+      modelProps: "osOrganization" | "osPerson" | "osOrganizationMember" | "osAuthIdentity" | "osDepartment" | "osTerritory" | "osRoleAssignment" | "osDepartmentAssignment" | "osManagerAssignment" | "osDelegation" | "osWorkItem" | "osWorkItemOwnershipHistory" | "osApprovalRequest" | "osBusinessEvent" | "osAuditLog" | "osOutboxMessage" | "osOutboxConsumerDedup" | "osIdempotencyKey" | "osCapabilityState" | "osParty" | "osLocation" | "osImportBatch" | "osImportRow" | "osOpportunity" | "osQuote" | "osQuoteLine" | "osOrder" | "osPartyRoleAssignment" | "osContact" | "osFiscalIdentity" | "osCommercialAccount" | "osLead" | "osPartyDuplicateCandidate" | "osPartyMergeRequest" | "osProjectionCheckpoint" | "osProjectionFreshness" | "osPartyReadModel" | "osWorkReadModel" | "osApprovalReadModel" | "osAttentionReadModel" | "osOpportunityReadModel" | "osQuoteReadModel" | "osQuoteLineReadModel" | "osOrderReadModel" | "osPartyTimelineEntry" | "osReportedOperationalFact" | "osCommitment" | "osInternalNotification" | "osCatalogProduct" | "osCatalogProductProvenance" | "osCatalogProductAttribute" | "osCatalogProductStatusEvent" | "osOrderLine" | "osOperationalCase" | "osOperationalCaseFact" | "osOperationalCaseFactReversal" | "osOperationalReleaseDecision" | "osOperationalReleaseDecisionReversal" | "osProductionQuema" | "osProductionQuemaTime" | "osProductionQuemaProduct" | "osProductionTraceEntry" | "osCustomerConversation" | "osWarehouseExit" | "osWarehouseOutboundNote" | "osWarehouseOutboundNoteLine" | "osDelivery" | "osDeliveryNote" | "osDeliveryNoteLine" | "osDeliveryEvidence" | "customerCommittedDate" | "customerCommittedDateRevision" | "productionInternalTargetDate" | "productionInternalTargetRevision" | "productionDateIssue" | "customerDateInformedRecord" | "osOrderAllocation" | "osFinishedGoodsReceipt" | "osPurchaseRequest" | "osPurchaseRequestStatusHistory" | "osPurchaseRequestNote" | "osPriceList" | "osPriceEntry" | "osSpecialOrderClassification" | "osCustomerCoverageGrant" | "osCoordinationDecision"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -8183,6 +8199,80 @@ export namespace Prisma {
           }
         }
       }
+      OsCustomerCoverageGrant: {
+        payload: Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>
+        fields: Prisma.OsCustomerCoverageGrantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OsCustomerCoverageGrantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OsCustomerCoverageGrantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          findFirst: {
+            args: Prisma.OsCustomerCoverageGrantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OsCustomerCoverageGrantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          findMany: {
+            args: Prisma.OsCustomerCoverageGrantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>[]
+          }
+          create: {
+            args: Prisma.OsCustomerCoverageGrantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          createMany: {
+            args: Prisma.OsCustomerCoverageGrantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OsCustomerCoverageGrantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>[]
+          }
+          delete: {
+            args: Prisma.OsCustomerCoverageGrantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          update: {
+            args: Prisma.OsCustomerCoverageGrantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          deleteMany: {
+            args: Prisma.OsCustomerCoverageGrantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OsCustomerCoverageGrantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OsCustomerCoverageGrantUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>[]
+          }
+          upsert: {
+            args: Prisma.OsCustomerCoverageGrantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OsCustomerCoverageGrantPayload>
+          }
+          aggregate: {
+            args: Prisma.OsCustomerCoverageGrantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOsCustomerCoverageGrant>
+          }
+          groupBy: {
+            args: Prisma.OsCustomerCoverageGrantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerCoverageGrantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OsCustomerCoverageGrantCountArgs<ExtArgs>
+            result: $Utils.Optional<OsCustomerCoverageGrantCountAggregateOutputType> | number
+          }
+        }
+      }
       OsCoordinationDecision: {
         payload: Prisma.$OsCoordinationDecisionPayload<ExtArgs>
         fields: Prisma.OsCoordinationDecisionFieldRefs
@@ -8437,6 +8527,7 @@ export namespace Prisma {
     osPriceList?: OsPriceListOmit
     osPriceEntry?: OsPriceEntryOmit
     osSpecialOrderClassification?: OsSpecialOrderClassificationOmit
+    osCustomerCoverageGrant?: OsCustomerCoverageGrantOmit
     osCoordinationDecision?: OsCoordinationDecisionOmit
   }
 
@@ -8588,6 +8679,7 @@ export namespace Prisma {
     priceEntries: number
     specialOrderClassifications: number
     coordinationDecisions: number
+    customerCoverageGrants: number
   }
 
   export type OsOrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8661,6 +8753,7 @@ export namespace Prisma {
     priceEntries?: boolean | OsOrganizationCountOutputTypeCountPriceEntriesArgs
     specialOrderClassifications?: boolean | OsOrganizationCountOutputTypeCountSpecialOrderClassificationsArgs
     coordinationDecisions?: boolean | OsOrganizationCountOutputTypeCountCoordinationDecisionsArgs
+    customerCoverageGrants?: boolean | OsOrganizationCountOutputTypeCountCustomerCoverageGrantsArgs
   }
 
   // Custom InputTypes
@@ -9162,6 +9255,13 @@ export namespace Prisma {
    */
   export type OsOrganizationCountOutputTypeCountCoordinationDecisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OsCoordinationDecisionWhereInput
+  }
+
+  /**
+   * OsOrganizationCountOutputType without action
+   */
+  export type OsOrganizationCountOutputTypeCountCustomerCoverageGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerCoverageGrantWhereInput
   }
 
 
@@ -10499,6 +10599,7 @@ export namespace Prisma {
     priceEntries?: boolean | OsOrganization$priceEntriesArgs<ExtArgs>
     specialOrderClassifications?: boolean | OsOrganization$specialOrderClassificationsArgs<ExtArgs>
     coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
+    customerCoverageGrants?: boolean | OsOrganization$customerCoverageGrantsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["osOrganization"]>
 
@@ -10607,6 +10708,7 @@ export namespace Prisma {
     priceEntries?: boolean | OsOrganization$priceEntriesArgs<ExtArgs>
     specialOrderClassifications?: boolean | OsOrganization$specialOrderClassificationsArgs<ExtArgs>
     coordinationDecisions?: boolean | OsOrganization$coordinationDecisionsArgs<ExtArgs>
+    customerCoverageGrants?: boolean | OsOrganization$customerCoverageGrantsArgs<ExtArgs>
     _count?: boolean | OsOrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OsOrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -10685,6 +10787,7 @@ export namespace Prisma {
       priceEntries: Prisma.$OsPriceEntryPayload<ExtArgs>[]
       specialOrderClassifications: Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>[]
       coordinationDecisions: Prisma.$OsCoordinationDecisionPayload<ExtArgs>[]
+      customerCoverageGrants: Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11159,6 +11262,7 @@ export namespace Prisma {
     priceEntries<T extends OsOrganization$priceEntriesArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$priceEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsPriceEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     specialOrderClassifications<T extends OsOrganization$specialOrderClassificationsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$specialOrderClassificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsSpecialOrderClassificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     coordinationDecisions<T extends OsOrganization$coordinationDecisionsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$coordinationDecisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCoordinationDecisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customerCoverageGrants<T extends OsOrganization$customerCoverageGrantsArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganization$customerCoverageGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13261,6 +13365,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OsCoordinationDecisionScalarFieldEnum | OsCoordinationDecisionScalarFieldEnum[]
+  }
+
+  /**
+   * OsOrganization.customerCoverageGrants
+   */
+  export type OsOrganization$customerCoverageGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    where?: OsCustomerCoverageGrantWhereInput
+    orderBy?: OsCustomerCoverageGrantOrderByWithRelationInput | OsCustomerCoverageGrantOrderByWithRelationInput[]
+    cursor?: OsCustomerCoverageGrantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OsCustomerCoverageGrantScalarFieldEnum | OsCustomerCoverageGrantScalarFieldEnum[]
   }
 
   /**
@@ -111109,6 +111237,1155 @@ export namespace Prisma {
 
 
   /**
+   * Model OsCustomerCoverageGrant
+   */
+
+  export type AggregateOsCustomerCoverageGrant = {
+    _count: OsCustomerCoverageGrantCountAggregateOutputType | null
+    _min: OsCustomerCoverageGrantMinAggregateOutputType | null
+    _max: OsCustomerCoverageGrantMaxAggregateOutputType | null
+  }
+
+  export type OsCustomerCoverageGrantMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    customerPartyId: string | null
+    primaryOwnerMemberId: string | null
+    actingAdvisorMemberId: string | null
+    grantType: string | null
+    startsAt: Date | null
+    endsAt: Date | null
+    revokedAt: Date | null
+    recordedAt: Date | null
+    recordedByMemberId: string | null
+    createdAt: Date | null
+  }
+
+  export type OsCustomerCoverageGrantMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    customerPartyId: string | null
+    primaryOwnerMemberId: string | null
+    actingAdvisorMemberId: string | null
+    grantType: string | null
+    startsAt: Date | null
+    endsAt: Date | null
+    revokedAt: Date | null
+    recordedAt: Date | null
+    recordedByMemberId: string | null
+    createdAt: Date | null
+  }
+
+  export type OsCustomerCoverageGrantCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    customerPartyId: number
+    primaryOwnerMemberId: number
+    actingAdvisorMemberId: number
+    grantType: number
+    startsAt: number
+    endsAt: number
+    revokedAt: number
+    recordedAt: number
+    recordedByMemberId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OsCustomerCoverageGrantMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    customerPartyId?: true
+    primaryOwnerMemberId?: true
+    actingAdvisorMemberId?: true
+    grantType?: true
+    startsAt?: true
+    endsAt?: true
+    revokedAt?: true
+    recordedAt?: true
+    recordedByMemberId?: true
+    createdAt?: true
+  }
+
+  export type OsCustomerCoverageGrantMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    customerPartyId?: true
+    primaryOwnerMemberId?: true
+    actingAdvisorMemberId?: true
+    grantType?: true
+    startsAt?: true
+    endsAt?: true
+    revokedAt?: true
+    recordedAt?: true
+    recordedByMemberId?: true
+    createdAt?: true
+  }
+
+  export type OsCustomerCoverageGrantCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    customerPartyId?: true
+    primaryOwnerMemberId?: true
+    actingAdvisorMemberId?: true
+    grantType?: true
+    startsAt?: true
+    endsAt?: true
+    revokedAt?: true
+    recordedAt?: true
+    recordedByMemberId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OsCustomerCoverageGrantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerCoverageGrant to aggregate.
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerCoverageGrants to fetch.
+     */
+    orderBy?: OsCustomerCoverageGrantOrderByWithRelationInput | OsCustomerCoverageGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OsCustomerCoverageGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerCoverageGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerCoverageGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OsCustomerCoverageGrants
+    **/
+    _count?: true | OsCustomerCoverageGrantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OsCustomerCoverageGrantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OsCustomerCoverageGrantMaxAggregateInputType
+  }
+
+  export type GetOsCustomerCoverageGrantAggregateType<T extends OsCustomerCoverageGrantAggregateArgs> = {
+        [P in keyof T & keyof AggregateOsCustomerCoverageGrant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOsCustomerCoverageGrant[P]>
+      : GetScalarType<T[P], AggregateOsCustomerCoverageGrant[P]>
+  }
+
+
+
+
+  export type OsCustomerCoverageGrantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OsCustomerCoverageGrantWhereInput
+    orderBy?: OsCustomerCoverageGrantOrderByWithAggregationInput | OsCustomerCoverageGrantOrderByWithAggregationInput[]
+    by: OsCustomerCoverageGrantScalarFieldEnum[] | OsCustomerCoverageGrantScalarFieldEnum
+    having?: OsCustomerCoverageGrantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OsCustomerCoverageGrantCountAggregateInputType | true
+    _min?: OsCustomerCoverageGrantMinAggregateInputType
+    _max?: OsCustomerCoverageGrantMaxAggregateInputType
+  }
+
+  export type OsCustomerCoverageGrantGroupByOutputType = {
+    id: string
+    organizationId: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType: string
+    startsAt: Date
+    endsAt: Date | null
+    revokedAt: Date | null
+    recordedAt: Date
+    recordedByMemberId: string | null
+    createdAt: Date
+    _count: OsCustomerCoverageGrantCountAggregateOutputType | null
+    _min: OsCustomerCoverageGrantMinAggregateOutputType | null
+    _max: OsCustomerCoverageGrantMaxAggregateOutputType | null
+  }
+
+  type GetOsCustomerCoverageGrantGroupByPayload<T extends OsCustomerCoverageGrantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OsCustomerCoverageGrantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OsCustomerCoverageGrantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OsCustomerCoverageGrantGroupByOutputType[P]>
+            : GetScalarType<T[P], OsCustomerCoverageGrantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OsCustomerCoverageGrantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    customerPartyId?: boolean
+    primaryOwnerMemberId?: boolean
+    actingAdvisorMemberId?: boolean
+    grantType?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    revokedAt?: boolean
+    recordedAt?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerCoverageGrant"]>
+
+  export type OsCustomerCoverageGrantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    customerPartyId?: boolean
+    primaryOwnerMemberId?: boolean
+    actingAdvisorMemberId?: boolean
+    grantType?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    revokedAt?: boolean
+    recordedAt?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerCoverageGrant"]>
+
+  export type OsCustomerCoverageGrantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    customerPartyId?: boolean
+    primaryOwnerMemberId?: boolean
+    actingAdvisorMemberId?: boolean
+    grantType?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    revokedAt?: boolean
+    recordedAt?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["osCustomerCoverageGrant"]>
+
+  export type OsCustomerCoverageGrantSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    customerPartyId?: boolean
+    primaryOwnerMemberId?: boolean
+    actingAdvisorMemberId?: boolean
+    grantType?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    revokedAt?: boolean
+    recordedAt?: boolean
+    recordedByMemberId?: boolean
+    createdAt?: boolean
+  }
+
+  export type OsCustomerCoverageGrantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "customerPartyId" | "primaryOwnerMemberId" | "actingAdvisorMemberId" | "grantType" | "startsAt" | "endsAt" | "revokedAt" | "recordedAt" | "recordedByMemberId" | "createdAt", ExtArgs["result"]["osCustomerCoverageGrant"]>
+  export type OsCustomerCoverageGrantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerCoverageGrantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+  export type OsCustomerCoverageGrantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OsCustomerCoverageGrantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OsCustomerCoverageGrant"
+    objects: {
+      organization: Prisma.$OsOrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      customerPartyId: string
+      primaryOwnerMemberId: string
+      actingAdvisorMemberId: string
+      grantType: string
+      startsAt: Date
+      endsAt: Date | null
+      revokedAt: Date | null
+      recordedAt: Date
+      recordedByMemberId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["osCustomerCoverageGrant"]>
+    composites: {}
+  }
+
+  type OsCustomerCoverageGrantGetPayload<S extends boolean | null | undefined | OsCustomerCoverageGrantDefaultArgs> = $Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload, S>
+
+  type OsCustomerCoverageGrantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OsCustomerCoverageGrantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OsCustomerCoverageGrantCountAggregateInputType | true
+    }
+
+  export interface OsCustomerCoverageGrantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OsCustomerCoverageGrant'], meta: { name: 'OsCustomerCoverageGrant' } }
+    /**
+     * Find zero or one OsCustomerCoverageGrant that matches the filter.
+     * @param {OsCustomerCoverageGrantFindUniqueArgs} args - Arguments to find a OsCustomerCoverageGrant
+     * @example
+     * // Get one OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OsCustomerCoverageGrantFindUniqueArgs>(args: SelectSubset<T, OsCustomerCoverageGrantFindUniqueArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OsCustomerCoverageGrant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OsCustomerCoverageGrantFindUniqueOrThrowArgs} args - Arguments to find a OsCustomerCoverageGrant
+     * @example
+     * // Get one OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OsCustomerCoverageGrantFindUniqueOrThrowArgs>(args: SelectSubset<T, OsCustomerCoverageGrantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerCoverageGrant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantFindFirstArgs} args - Arguments to find a OsCustomerCoverageGrant
+     * @example
+     * // Get one OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OsCustomerCoverageGrantFindFirstArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantFindFirstArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OsCustomerCoverageGrant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantFindFirstOrThrowArgs} args - Arguments to find a OsCustomerCoverageGrant
+     * @example
+     * // Get one OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OsCustomerCoverageGrantFindFirstOrThrowArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantFindFirstOrThrowArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OsCustomerCoverageGrants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OsCustomerCoverageGrants
+     * const osCustomerCoverageGrants = await prisma.osCustomerCoverageGrant.findMany()
+     * 
+     * // Get first 10 OsCustomerCoverageGrants
+     * const osCustomerCoverageGrants = await prisma.osCustomerCoverageGrant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const osCustomerCoverageGrantWithIdOnly = await prisma.osCustomerCoverageGrant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OsCustomerCoverageGrantFindManyArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OsCustomerCoverageGrant.
+     * @param {OsCustomerCoverageGrantCreateArgs} args - Arguments to create a OsCustomerCoverageGrant.
+     * @example
+     * // Create one OsCustomerCoverageGrant
+     * const OsCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.create({
+     *   data: {
+     *     // ... data to create a OsCustomerCoverageGrant
+     *   }
+     * })
+     * 
+     */
+    create<T extends OsCustomerCoverageGrantCreateArgs>(args: SelectSubset<T, OsCustomerCoverageGrantCreateArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OsCustomerCoverageGrants.
+     * @param {OsCustomerCoverageGrantCreateManyArgs} args - Arguments to create many OsCustomerCoverageGrants.
+     * @example
+     * // Create many OsCustomerCoverageGrants
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OsCustomerCoverageGrantCreateManyArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OsCustomerCoverageGrants and returns the data saved in the database.
+     * @param {OsCustomerCoverageGrantCreateManyAndReturnArgs} args - Arguments to create many OsCustomerCoverageGrants.
+     * @example
+     * // Create many OsCustomerCoverageGrants
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OsCustomerCoverageGrants and only return the `id`
+     * const osCustomerCoverageGrantWithIdOnly = await prisma.osCustomerCoverageGrant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OsCustomerCoverageGrantCreateManyAndReturnArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OsCustomerCoverageGrant.
+     * @param {OsCustomerCoverageGrantDeleteArgs} args - Arguments to delete one OsCustomerCoverageGrant.
+     * @example
+     * // Delete one OsCustomerCoverageGrant
+     * const OsCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.delete({
+     *   where: {
+     *     // ... filter to delete one OsCustomerCoverageGrant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OsCustomerCoverageGrantDeleteArgs>(args: SelectSubset<T, OsCustomerCoverageGrantDeleteArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OsCustomerCoverageGrant.
+     * @param {OsCustomerCoverageGrantUpdateArgs} args - Arguments to update one OsCustomerCoverageGrant.
+     * @example
+     * // Update one OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OsCustomerCoverageGrantUpdateArgs>(args: SelectSubset<T, OsCustomerCoverageGrantUpdateArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OsCustomerCoverageGrants.
+     * @param {OsCustomerCoverageGrantDeleteManyArgs} args - Arguments to filter OsCustomerCoverageGrants to delete.
+     * @example
+     * // Delete a few OsCustomerCoverageGrants
+     * const { count } = await prisma.osCustomerCoverageGrant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OsCustomerCoverageGrantDeleteManyArgs>(args?: SelectSubset<T, OsCustomerCoverageGrantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerCoverageGrants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OsCustomerCoverageGrants
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OsCustomerCoverageGrantUpdateManyArgs>(args: SelectSubset<T, OsCustomerCoverageGrantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OsCustomerCoverageGrants and returns the data updated in the database.
+     * @param {OsCustomerCoverageGrantUpdateManyAndReturnArgs} args - Arguments to update many OsCustomerCoverageGrants.
+     * @example
+     * // Update many OsCustomerCoverageGrants
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OsCustomerCoverageGrants and only return the `id`
+     * const osCustomerCoverageGrantWithIdOnly = await prisma.osCustomerCoverageGrant.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OsCustomerCoverageGrantUpdateManyAndReturnArgs>(args: SelectSubset<T, OsCustomerCoverageGrantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OsCustomerCoverageGrant.
+     * @param {OsCustomerCoverageGrantUpsertArgs} args - Arguments to update or create a OsCustomerCoverageGrant.
+     * @example
+     * // Update or create a OsCustomerCoverageGrant
+     * const osCustomerCoverageGrant = await prisma.osCustomerCoverageGrant.upsert({
+     *   create: {
+     *     // ... data to create a OsCustomerCoverageGrant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OsCustomerCoverageGrant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OsCustomerCoverageGrantUpsertArgs>(args: SelectSubset<T, OsCustomerCoverageGrantUpsertArgs<ExtArgs>>): Prisma__OsCustomerCoverageGrantClient<$Result.GetResult<Prisma.$OsCustomerCoverageGrantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OsCustomerCoverageGrants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantCountArgs} args - Arguments to filter OsCustomerCoverageGrants to count.
+     * @example
+     * // Count the number of OsCustomerCoverageGrants
+     * const count = await prisma.osCustomerCoverageGrant.count({
+     *   where: {
+     *     // ... the filter for the OsCustomerCoverageGrants we want to count
+     *   }
+     * })
+    **/
+    count<T extends OsCustomerCoverageGrantCountArgs>(
+      args?: Subset<T, OsCustomerCoverageGrantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OsCustomerCoverageGrantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OsCustomerCoverageGrant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OsCustomerCoverageGrantAggregateArgs>(args: Subset<T, OsCustomerCoverageGrantAggregateArgs>): Prisma.PrismaPromise<GetOsCustomerCoverageGrantAggregateType<T>>
+
+    /**
+     * Group by OsCustomerCoverageGrant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OsCustomerCoverageGrantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OsCustomerCoverageGrantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OsCustomerCoverageGrantGroupByArgs['orderBy'] }
+        : { orderBy?: OsCustomerCoverageGrantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OsCustomerCoverageGrantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOsCustomerCoverageGrantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OsCustomerCoverageGrant model
+   */
+  readonly fields: OsCustomerCoverageGrantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OsCustomerCoverageGrant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OsCustomerCoverageGrantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OsOrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OsOrganizationDefaultArgs<ExtArgs>>): Prisma__OsOrganizationClient<$Result.GetResult<Prisma.$OsOrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OsCustomerCoverageGrant model
+   */
+  interface OsCustomerCoverageGrantFieldRefs {
+    readonly id: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly organizationId: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly customerPartyId: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly primaryOwnerMemberId: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly actingAdvisorMemberId: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly grantType: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly startsAt: FieldRef<"OsCustomerCoverageGrant", 'DateTime'>
+    readonly endsAt: FieldRef<"OsCustomerCoverageGrant", 'DateTime'>
+    readonly revokedAt: FieldRef<"OsCustomerCoverageGrant", 'DateTime'>
+    readonly recordedAt: FieldRef<"OsCustomerCoverageGrant", 'DateTime'>
+    readonly recordedByMemberId: FieldRef<"OsCustomerCoverageGrant", 'String'>
+    readonly createdAt: FieldRef<"OsCustomerCoverageGrant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OsCustomerCoverageGrant findUnique
+   */
+  export type OsCustomerCoverageGrantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerCoverageGrant to fetch.
+     */
+    where: OsCustomerCoverageGrantWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerCoverageGrant findUniqueOrThrow
+   */
+  export type OsCustomerCoverageGrantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerCoverageGrant to fetch.
+     */
+    where: OsCustomerCoverageGrantWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerCoverageGrant findFirst
+   */
+  export type OsCustomerCoverageGrantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerCoverageGrant to fetch.
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerCoverageGrants to fetch.
+     */
+    orderBy?: OsCustomerCoverageGrantOrderByWithRelationInput | OsCustomerCoverageGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerCoverageGrants.
+     */
+    cursor?: OsCustomerCoverageGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerCoverageGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerCoverageGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerCoverageGrants.
+     */
+    distinct?: OsCustomerCoverageGrantScalarFieldEnum | OsCustomerCoverageGrantScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerCoverageGrant findFirstOrThrow
+   */
+  export type OsCustomerCoverageGrantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerCoverageGrant to fetch.
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerCoverageGrants to fetch.
+     */
+    orderBy?: OsCustomerCoverageGrantOrderByWithRelationInput | OsCustomerCoverageGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OsCustomerCoverageGrants.
+     */
+    cursor?: OsCustomerCoverageGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerCoverageGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerCoverageGrants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OsCustomerCoverageGrants.
+     */
+    distinct?: OsCustomerCoverageGrantScalarFieldEnum | OsCustomerCoverageGrantScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerCoverageGrant findMany
+   */
+  export type OsCustomerCoverageGrantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter, which OsCustomerCoverageGrants to fetch.
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OsCustomerCoverageGrants to fetch.
+     */
+    orderBy?: OsCustomerCoverageGrantOrderByWithRelationInput | OsCustomerCoverageGrantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OsCustomerCoverageGrants.
+     */
+    cursor?: OsCustomerCoverageGrantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OsCustomerCoverageGrants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OsCustomerCoverageGrants.
+     */
+    skip?: number
+    distinct?: OsCustomerCoverageGrantScalarFieldEnum | OsCustomerCoverageGrantScalarFieldEnum[]
+  }
+
+  /**
+   * OsCustomerCoverageGrant create
+   */
+  export type OsCustomerCoverageGrantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OsCustomerCoverageGrant.
+     */
+    data: XOR<OsCustomerCoverageGrantCreateInput, OsCustomerCoverageGrantUncheckedCreateInput>
+  }
+
+  /**
+   * OsCustomerCoverageGrant createMany
+   */
+  export type OsCustomerCoverageGrantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OsCustomerCoverageGrants.
+     */
+    data: OsCustomerCoverageGrantCreateManyInput | OsCustomerCoverageGrantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OsCustomerCoverageGrant createManyAndReturn
+   */
+  export type OsCustomerCoverageGrantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * The data used to create many OsCustomerCoverageGrants.
+     */
+    data: OsCustomerCoverageGrantCreateManyInput | OsCustomerCoverageGrantCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerCoverageGrant update
+   */
+  export type OsCustomerCoverageGrantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OsCustomerCoverageGrant.
+     */
+    data: XOR<OsCustomerCoverageGrantUpdateInput, OsCustomerCoverageGrantUncheckedUpdateInput>
+    /**
+     * Choose, which OsCustomerCoverageGrant to update.
+     */
+    where: OsCustomerCoverageGrantWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerCoverageGrant updateMany
+   */
+  export type OsCustomerCoverageGrantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OsCustomerCoverageGrants.
+     */
+    data: XOR<OsCustomerCoverageGrantUpdateManyMutationInput, OsCustomerCoverageGrantUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerCoverageGrants to update
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * Limit how many OsCustomerCoverageGrants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerCoverageGrant updateManyAndReturn
+   */
+  export type OsCustomerCoverageGrantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * The data used to update OsCustomerCoverageGrants.
+     */
+    data: XOR<OsCustomerCoverageGrantUpdateManyMutationInput, OsCustomerCoverageGrantUncheckedUpdateManyInput>
+    /**
+     * Filter which OsCustomerCoverageGrants to update
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * Limit how many OsCustomerCoverageGrants to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OsCustomerCoverageGrant upsert
+   */
+  export type OsCustomerCoverageGrantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OsCustomerCoverageGrant to update in case it exists.
+     */
+    where: OsCustomerCoverageGrantWhereUniqueInput
+    /**
+     * In case the OsCustomerCoverageGrant found by the `where` argument doesn't exist, create a new OsCustomerCoverageGrant with this data.
+     */
+    create: XOR<OsCustomerCoverageGrantCreateInput, OsCustomerCoverageGrantUncheckedCreateInput>
+    /**
+     * In case the OsCustomerCoverageGrant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OsCustomerCoverageGrantUpdateInput, OsCustomerCoverageGrantUncheckedUpdateInput>
+  }
+
+  /**
+   * OsCustomerCoverageGrant delete
+   */
+  export type OsCustomerCoverageGrantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+    /**
+     * Filter which OsCustomerCoverageGrant to delete.
+     */
+    where: OsCustomerCoverageGrantWhereUniqueInput
+  }
+
+  /**
+   * OsCustomerCoverageGrant deleteMany
+   */
+  export type OsCustomerCoverageGrantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OsCustomerCoverageGrants to delete
+     */
+    where?: OsCustomerCoverageGrantWhereInput
+    /**
+     * Limit how many OsCustomerCoverageGrants to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OsCustomerCoverageGrant without action
+   */
+  export type OsCustomerCoverageGrantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OsCustomerCoverageGrant
+     */
+    select?: OsCustomerCoverageGrantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OsCustomerCoverageGrant
+     */
+    omit?: OsCustomerCoverageGrantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OsCustomerCoverageGrantInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model OsCoordinationDecision
    */
 
@@ -113790,6 +115067,24 @@ export namespace Prisma {
   export type OsSpecialOrderClassificationScalarFieldEnum = (typeof OsSpecialOrderClassificationScalarFieldEnum)[keyof typeof OsSpecialOrderClassificationScalarFieldEnum]
 
 
+  export const OsCustomerCoverageGrantScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    customerPartyId: 'customerPartyId',
+    primaryOwnerMemberId: 'primaryOwnerMemberId',
+    actingAdvisorMemberId: 'actingAdvisorMemberId',
+    grantType: 'grantType',
+    startsAt: 'startsAt',
+    endsAt: 'endsAt',
+    revokedAt: 'revokedAt',
+    recordedAt: 'recordedAt',
+    recordedByMemberId: 'recordedByMemberId',
+    createdAt: 'createdAt'
+  };
+
+  export type OsCustomerCoverageGrantScalarFieldEnum = (typeof OsCustomerCoverageGrantScalarFieldEnum)[keyof typeof OsCustomerCoverageGrantScalarFieldEnum]
+
+
   export const OsCoordinationDecisionScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
@@ -114040,6 +115335,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryListRelationFilter
     specialOrderClassifications?: OsSpecialOrderClassificationListRelationFilter
     coordinationDecisions?: OsCoordinationDecisionListRelationFilter
+    customerCoverageGrants?: OsCustomerCoverageGrantListRelationFilter
   }
 
   export type OsOrganizationOrderByWithRelationInput = {
@@ -114121,6 +115417,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryOrderByRelationAggregateInput
     specialOrderClassifications?: OsSpecialOrderClassificationOrderByRelationAggregateInput
     coordinationDecisions?: OsCoordinationDecisionOrderByRelationAggregateInput
+    customerCoverageGrants?: OsCustomerCoverageGrantOrderByRelationAggregateInput
   }
 
   export type OsOrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -114205,6 +115502,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryListRelationFilter
     specialOrderClassifications?: OsSpecialOrderClassificationListRelationFilter
     coordinationDecisions?: OsCoordinationDecisionListRelationFilter
+    customerCoverageGrants?: OsCustomerCoverageGrantListRelationFilter
   }, "id" | "slug">
 
   export type OsOrganizationOrderByWithAggregationInput = {
@@ -121949,6 +123247,96 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"OsSpecialOrderClassification"> | Date | string
   }
 
+  export type OsCustomerCoverageGrantWhereInput = {
+    AND?: OsCustomerCoverageGrantWhereInput | OsCustomerCoverageGrantWhereInput[]
+    OR?: OsCustomerCoverageGrantWhereInput[]
+    NOT?: OsCustomerCoverageGrantWhereInput | OsCustomerCoverageGrantWhereInput[]
+    id?: StringFilter<"OsCustomerCoverageGrant"> | string
+    organizationId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    customerPartyId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    primaryOwnerMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    actingAdvisorMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    grantType?: StringFilter<"OsCustomerCoverageGrant"> | string
+    startsAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    endsAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    recordedAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    recordedByMemberId?: StringNullableFilter<"OsCustomerCoverageGrant"> | string | null
+    createdAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }
+
+  export type OsCustomerCoverageGrantOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    customerPartyId?: SortOrder
+    primaryOwnerMemberId?: SortOrder
+    actingAdvisorMemberId?: SortOrder
+    grantType?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    recordedByMemberId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    organization?: OsOrganizationOrderByWithRelationInput
+  }
+
+  export type OsCustomerCoverageGrantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OsCustomerCoverageGrantWhereInput | OsCustomerCoverageGrantWhereInput[]
+    OR?: OsCustomerCoverageGrantWhereInput[]
+    NOT?: OsCustomerCoverageGrantWhereInput | OsCustomerCoverageGrantWhereInput[]
+    organizationId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    customerPartyId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    primaryOwnerMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    actingAdvisorMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    grantType?: StringFilter<"OsCustomerCoverageGrant"> | string
+    startsAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    endsAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    recordedAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    recordedByMemberId?: StringNullableFilter<"OsCustomerCoverageGrant"> | string | null
+    createdAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    organization?: XOR<OsOrganizationScalarRelationFilter, OsOrganizationWhereInput>
+  }, "id">
+
+  export type OsCustomerCoverageGrantOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    customerPartyId?: SortOrder
+    primaryOwnerMemberId?: SortOrder
+    actingAdvisorMemberId?: SortOrder
+    grantType?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    recordedByMemberId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: OsCustomerCoverageGrantCountOrderByAggregateInput
+    _max?: OsCustomerCoverageGrantMaxOrderByAggregateInput
+    _min?: OsCustomerCoverageGrantMinOrderByAggregateInput
+  }
+
+  export type OsCustomerCoverageGrantScalarWhereWithAggregatesInput = {
+    AND?: OsCustomerCoverageGrantScalarWhereWithAggregatesInput | OsCustomerCoverageGrantScalarWhereWithAggregatesInput[]
+    OR?: OsCustomerCoverageGrantScalarWhereWithAggregatesInput[]
+    NOT?: OsCustomerCoverageGrantScalarWhereWithAggregatesInput | OsCustomerCoverageGrantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    organizationId?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    customerPartyId?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    primaryOwnerMemberId?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    actingAdvisorMemberId?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    grantType?: StringWithAggregatesFilter<"OsCustomerCoverageGrant"> | string
+    startsAt?: DateTimeWithAggregatesFilter<"OsCustomerCoverageGrant"> | Date | string
+    endsAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    recordedAt?: DateTimeWithAggregatesFilter<"OsCustomerCoverageGrant"> | Date | string
+    recordedByMemberId?: StringNullableWithAggregatesFilter<"OsCustomerCoverageGrant"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OsCustomerCoverageGrant"> | Date | string
+  }
+
   export type OsCoordinationDecisionWhereInput = {
     AND?: OsCoordinationDecisionWhereInput | OsCoordinationDecisionWhereInput[]
     OR?: OsCoordinationDecisionWhereInput[]
@@ -122133,6 +123521,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateInput = {
@@ -122214,6 +123603,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUpdateInput = {
@@ -122295,6 +123685,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateInput = {
@@ -122376,6 +123767,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateManyInput = {
@@ -130999,6 +132391,110 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OsCustomerCoverageGrantCreateInput = {
+    id: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+    organization: OsOrganizationCreateNestedOneWithoutCustomerCoverageGrantsInput
+  }
+
+  export type OsCustomerCoverageGrantUncheckedCreateInput = {
+    id: string
+    organizationId: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerCoverageGrantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OsOrganizationUpdateOneRequiredWithoutCustomerCoverageGrantsNestedInput
+  }
+
+  export type OsCustomerCoverageGrantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerCoverageGrantCreateManyInput = {
+    id: string
+    organizationId: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerCoverageGrantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerCoverageGrantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OsCoordinationDecisionCreateInput = {
     id: string
     kind?: string
@@ -131570,6 +133066,12 @@ export namespace Prisma {
     none?: OsCoordinationDecisionWhereInput
   }
 
+  export type OsCustomerCoverageGrantListRelationFilter = {
+    every?: OsCustomerCoverageGrantWhereInput
+    some?: OsCustomerCoverageGrantWhereInput
+    none?: OsCustomerCoverageGrantWhereInput
+  }
+
   export type OsOrganizationMemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -131847,6 +133349,10 @@ export namespace Prisma {
   }
 
   export type OsCoordinationDecisionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OsCustomerCoverageGrantOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -136561,6 +138067,51 @@ export namespace Prisma {
     _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
+  export type OsCustomerCoverageGrantCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    customerPartyId?: SortOrder
+    primaryOwnerMemberId?: SortOrder
+    actingAdvisorMemberId?: SortOrder
+    grantType?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    revokedAt?: SortOrder
+    recordedAt?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCustomerCoverageGrantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    customerPartyId?: SortOrder
+    primaryOwnerMemberId?: SortOrder
+    actingAdvisorMemberId?: SortOrder
+    grantType?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    revokedAt?: SortOrder
+    recordedAt?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OsCustomerCoverageGrantMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    customerPartyId?: SortOrder
+    primaryOwnerMemberId?: SortOrder
+    actingAdvisorMemberId?: SortOrder
+    grantType?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    revokedAt?: SortOrder
+    recordedAt?: SortOrder
+    recordedByMemberId?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type OsCoordinationDecisionCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
@@ -137105,6 +138656,13 @@ export namespace Prisma {
     connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
   }
 
+  export type OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput> | OsCustomerCoverageGrantCreateWithoutOrganizationInput[] | OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput | OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerCoverageGrantCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+  }
+
   export type OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OsOrganizationMemberCreateWithoutOrganizationInput, OsOrganizationMemberUncheckedCreateWithoutOrganizationInput> | OsOrganizationMemberCreateWithoutOrganizationInput[] | OsOrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsOrganizationMemberCreateOrConnectWithoutOrganizationInput | OsOrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -137593,6 +139151,13 @@ export namespace Prisma {
     connectOrCreate?: OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput | OsCoordinationDecisionCreateOrConnectWithoutOrganizationInput[]
     createMany?: OsCoordinationDecisionCreateManyOrganizationInputEnvelope
     connect?: OsCoordinationDecisionWhereUniqueInput | OsCoordinationDecisionWhereUniqueInput[]
+  }
+
+  export type OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput> | OsCustomerCoverageGrantCreateWithoutOrganizationInput[] | OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput | OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OsCustomerCoverageGrantCreateManyOrganizationInputEnvelope
+    connect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -138583,6 +140148,20 @@ export namespace Prisma {
     deleteMany?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
   }
 
+  export type OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput> | OsCustomerCoverageGrantCreateWithoutOrganizationInput[] | OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput | OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerCoverageGrantUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerCoverageGrantUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerCoverageGrantCreateManyOrganizationInputEnvelope
+    set?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    disconnect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    delete?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    connect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    update?: OsCustomerCoverageGrantUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerCoverageGrantUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerCoverageGrantUpdateManyWithWhereWithoutOrganizationInput | OsCustomerCoverageGrantUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerCoverageGrantScalarWhereInput | OsCustomerCoverageGrantScalarWhereInput[]
+  }
+
   export type OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OsOrganizationMemberCreateWithoutOrganizationInput, OsOrganizationMemberUncheckedCreateWithoutOrganizationInput> | OsOrganizationMemberCreateWithoutOrganizationInput[] | OsOrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OsOrganizationMemberCreateOrConnectWithoutOrganizationInput | OsOrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -139561,6 +141140,20 @@ export namespace Prisma {
     update?: OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput | OsCoordinationDecisionUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput | OsCoordinationDecisionUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OsCoordinationDecisionScalarWhereInput | OsCoordinationDecisionScalarWhereInput[]
+  }
+
+  export type OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput> | OsCustomerCoverageGrantCreateWithoutOrganizationInput[] | OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput | OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OsCustomerCoverageGrantUpsertWithWhereUniqueWithoutOrganizationInput | OsCustomerCoverageGrantUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OsCustomerCoverageGrantCreateManyOrganizationInputEnvelope
+    set?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    disconnect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    delete?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    connect?: OsCustomerCoverageGrantWhereUniqueInput | OsCustomerCoverageGrantWhereUniqueInput[]
+    update?: OsCustomerCoverageGrantUpdateWithWhereUniqueWithoutOrganizationInput | OsCustomerCoverageGrantUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OsCustomerCoverageGrantUpdateManyWithWhereWithoutOrganizationInput | OsCustomerCoverageGrantUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OsCustomerCoverageGrantScalarWhereInput | OsCustomerCoverageGrantScalarWhereInput[]
   }
 
   export type OsOrganizationMemberCreateNestedManyWithoutPersonInput = {
@@ -143885,6 +145478,20 @@ export namespace Prisma {
     update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutSpecialOrderClassificationsInput, OsOrganizationUpdateWithoutSpecialOrderClassificationsInput>, OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput>
   }
 
+  export type OsOrganizationCreateNestedOneWithoutCustomerCoverageGrantsInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerCoverageGrantsInput
+    connect?: OsOrganizationWhereUniqueInput
+  }
+
+  export type OsOrganizationUpdateOneRequiredWithoutCustomerCoverageGrantsNestedInput = {
+    create?: XOR<OsOrganizationCreateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput>
+    connectOrCreate?: OsOrganizationCreateOrConnectWithoutCustomerCoverageGrantsInput
+    upsert?: OsOrganizationUpsertWithoutCustomerCoverageGrantsInput
+    connect?: OsOrganizationWhereUniqueInput
+    update?: XOR<XOR<OsOrganizationUpdateToOneWithWhereWithoutCustomerCoverageGrantsInput, OsOrganizationUpdateWithoutCustomerCoverageGrantsInput>, OsOrganizationUncheckedUpdateWithoutCustomerCoverageGrantsInput>
+  }
+
   export type OsOrganizationCreateNestedOneWithoutCoordinationDecisionsInput = {
     create?: XOR<OsOrganizationCreateWithoutCoordinationDecisionsInput, OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput>
     connectOrCreate?: OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput
@@ -147035,6 +148642,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OsCustomerCoverageGrantCreateWithoutOrganizationInput = {
+    id: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput = {
+    id: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerCoverageGrantCreateOrConnectWithoutOrganizationInput = {
+    where: OsCustomerCoverageGrantWhereUniqueInput
+    create: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerCoverageGrantCreateManyOrganizationInputEnvelope = {
+    data: OsCustomerCoverageGrantCreateManyOrganizationInput | OsCustomerCoverageGrantCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OsOrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OsOrganizationMemberWhereUniqueInput
     update: XOR<OsOrganizationMemberUpdateWithoutOrganizationInput, OsOrganizationMemberUncheckedUpdateWithoutOrganizationInput>
@@ -149425,6 +151070,40 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"OsCoordinationDecision"> | Date | string
   }
 
+  export type OsCustomerCoverageGrantUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerCoverageGrantWhereUniqueInput
+    update: XOR<OsCustomerCoverageGrantUpdateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OsCustomerCoverageGrantCreateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerCoverageGrantUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OsCustomerCoverageGrantWhereUniqueInput
+    data: XOR<OsCustomerCoverageGrantUpdateWithoutOrganizationInput, OsCustomerCoverageGrantUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OsCustomerCoverageGrantUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OsCustomerCoverageGrantScalarWhereInput
+    data: XOR<OsCustomerCoverageGrantUpdateManyMutationInput, OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OsCustomerCoverageGrantScalarWhereInput = {
+    AND?: OsCustomerCoverageGrantScalarWhereInput | OsCustomerCoverageGrantScalarWhereInput[]
+    OR?: OsCustomerCoverageGrantScalarWhereInput[]
+    NOT?: OsCustomerCoverageGrantScalarWhereInput | OsCustomerCoverageGrantScalarWhereInput[]
+    id?: StringFilter<"OsCustomerCoverageGrant"> | string
+    organizationId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    customerPartyId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    primaryOwnerMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    actingAdvisorMemberId?: StringFilter<"OsCustomerCoverageGrant"> | string
+    grantType?: StringFilter<"OsCustomerCoverageGrant"> | string
+    startsAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    endsAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"OsCustomerCoverageGrant"> | Date | string | null
+    recordedAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+    recordedByMemberId?: StringNullableFilter<"OsCustomerCoverageGrant"> | string | null
+    createdAt?: DateTimeFilter<"OsCustomerCoverageGrant"> | Date | string
+  }
+
   export type OsOrganizationMemberCreateWithoutPersonInput = {
     id: string
     employmentStatus: string
@@ -149636,6 +151315,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutMembersInput = {
@@ -149716,6 +151396,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutMembersInput = {
@@ -150063,6 +151744,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutMembersInput = {
@@ -150143,6 +151825,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPersonUpsertWithoutMembersInput = {
@@ -150422,6 +152105,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -150502,6 +152186,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -150681,6 +152366,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -150761,6 +152447,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsDepartmentUpsertWithoutChildrenInput = {
@@ -150904,6 +152591,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutTerritoriesInput = {
@@ -150984,6 +152672,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutTerritoriesInput = {
@@ -151131,6 +152820,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutTerritoriesInput = {
@@ -151211,6 +152901,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsTerritoryUpsertWithoutChildrenInput = {
@@ -151336,6 +153027,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -151416,6 +153108,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -151555,6 +153248,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -151635,6 +153329,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutRoleAssignmentsInput = {
@@ -151764,6 +153459,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDepartmentAssignmentsInput = {
@@ -151844,6 +153540,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDepartmentAssignmentsInput = {
@@ -152008,6 +153705,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDepartmentAssignmentsInput = {
@@ -152088,6 +153786,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDepartmentAssignmentsInput = {
@@ -152248,6 +153947,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutManagerAssignmentsInput = {
@@ -152328,6 +154028,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutManagerAssignmentsInput = {
@@ -152510,6 +154211,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutManagerAssignmentsInput = {
@@ -152590,6 +154292,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutManagedByInput = {
@@ -152768,6 +154471,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutDelegationsInput = {
@@ -152848,6 +154552,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutDelegationsInput = {
@@ -153030,6 +154735,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutDelegationsInput = {
@@ -153110,6 +154816,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutDelegationsGrantedInput = {
@@ -153288,6 +154995,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkItemsInput = {
@@ -153368,6 +155076,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkItemsInput = {
@@ -153577,6 +155286,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkItemsInput = {
@@ -153657,6 +155367,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberUpsertWithoutOwnedWorkItemsInput = {
@@ -153818,6 +155529,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkOwnershipHistoryInput = {
@@ -153898,6 +155610,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkOwnershipHistoryInput = {
@@ -154039,6 +155752,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkOwnershipHistoryInput = {
@@ -154119,6 +155833,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutOwnershipHistoryInput = {
@@ -154250,6 +155965,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalRequestsInput = {
@@ -154330,6 +156046,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalRequestsInput = {
@@ -154471,6 +156188,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -154551,6 +156269,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsWorkItemUpsertWithoutApprovalRequestsInput = {
@@ -154682,6 +156401,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutBusinessEventsInput = {
@@ -154762,6 +156482,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutBusinessEventsInput = {
@@ -154858,6 +156579,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutBusinessEventsInput = {
@@ -154938,6 +156660,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAuditLogsInput = {
@@ -155018,6 +156741,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -155098,6 +156822,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -155194,6 +156919,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -155274,6 +157000,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxMessagesInput = {
@@ -155354,6 +157081,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxMessagesInput = {
@@ -155434,6 +157162,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxMessagesInput = {
@@ -155530,6 +157259,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxMessagesInput = {
@@ -155610,6 +157340,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOutboxConsumerDedupInput = {
@@ -155690,6 +157421,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOutboxConsumerDedupInput = {
@@ -155770,6 +157502,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOutboxConsumerDedupInput = {
@@ -155866,6 +157599,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOutboxConsumerDedupInput = {
@@ -155946,6 +157680,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutIdempotencyKeysInput = {
@@ -156026,6 +157761,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutIdempotencyKeysInput = {
@@ -156106,6 +157842,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutIdempotencyKeysInput = {
@@ -156202,6 +157939,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutIdempotencyKeysInput = {
@@ -156282,6 +158020,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCapabilityStatesInput = {
@@ -156362,6 +158101,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCapabilityStatesInput = {
@@ -156442,6 +158182,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCapabilityStatesInput = {
@@ -156538,6 +158279,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCapabilityStatesInput = {
@@ -156618,6 +158360,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartiesInput = {
@@ -156698,6 +158441,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartiesInput = {
@@ -156778,6 +158522,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartiesInput = {
@@ -157475,6 +159220,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartiesInput = {
@@ -157555,6 +159301,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergedFromInput = {
@@ -157922,6 +159669,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLocationsInput = {
@@ -158002,6 +159750,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLocationsInput = {
@@ -158155,6 +159904,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLocationsInput = {
@@ -158235,6 +159985,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutLocationsInput = {
@@ -158378,6 +160129,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportBatchesInput = {
@@ -158458,6 +160210,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportBatchesInput = {
@@ -158586,6 +160339,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportBatchesInput = {
@@ -158666,6 +160420,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsImportRowUpsertWithWhereUniqueWithoutBatchInput = {
@@ -158797,6 +160552,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutImportRowsInput = {
@@ -158877,6 +160633,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutImportRowsInput = {
@@ -159014,6 +160771,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutImportRowsInput = {
@@ -159094,6 +160852,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunitiesInput = {
@@ -159174,6 +160933,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunitiesInput = {
@@ -159254,6 +161014,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunitiesInput = {
@@ -159465,6 +161226,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunitiesInput = {
@@ -159545,6 +161307,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOpportunitiesInput = {
@@ -159704,6 +161467,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuotesInput = {
@@ -159784,6 +161548,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuotesInput = {
@@ -160112,6 +161877,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuotesInput = {
@@ -160192,6 +161958,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutQuotesInput = {
@@ -160428,6 +162195,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLinesInput = {
@@ -160508,6 +162276,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLinesInput = {
@@ -160703,6 +162472,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLinesInput = {
@@ -160783,6 +162553,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsQuoteUpsertWithoutLinesInput = {
@@ -160938,6 +162709,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrdersInput = {
@@ -161018,6 +162790,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrdersInput = {
@@ -161270,6 +163043,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrdersInput = {
@@ -161350,6 +163124,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutOrdersInput = {
@@ -161568,6 +163343,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyRoleAssignmentsInput = {
@@ -161648,6 +163424,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyRoleAssignmentsInput = {
@@ -161801,6 +163578,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyRoleAssignmentsInput = {
@@ -161881,6 +163659,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutRoleAssignmentsInput = {
@@ -162024,6 +163803,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutContactsInput = {
@@ -162104,6 +163884,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutContactsInput = {
@@ -162257,6 +164038,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutContactsInput = {
@@ -162337,6 +164119,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutContactsInput = {
@@ -162480,6 +164263,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFiscalIdentitiesInput = {
@@ -162560,6 +164344,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFiscalIdentitiesInput = {
@@ -162713,6 +164498,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFiscalIdentitiesInput = {
@@ -162793,6 +164579,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutFiscalIdentitiesInput = {
@@ -162936,6 +164723,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommercialAccountsInput = {
@@ -163016,6 +164804,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommercialAccountsInput = {
@@ -163169,6 +164958,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommercialAccountsInput = {
@@ -163249,6 +165039,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutCommercialAccountsInput = {
@@ -163392,6 +165183,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutLeadsInput = {
@@ -163472,6 +165264,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutLeadsInput = {
@@ -163625,6 +165418,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutLeadsInput = {
@@ -163705,6 +165499,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutResolvedLeadsInput = {
@@ -163848,6 +165643,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyDuplicateCandidatesInput = {
@@ -163928,6 +165724,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyDuplicateCandidatesInput = {
@@ -164138,6 +165935,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyDuplicateCandidatesInput = {
@@ -164218,6 +166016,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutDuplicateCandidatesAInput = {
@@ -164424,6 +166223,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyMergeRequestsInput = {
@@ -164504,6 +166304,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyMergeRequestsInput = {
@@ -164714,6 +166515,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyMergeRequestsInput = {
@@ -164794,6 +166596,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPartyUpsertWithoutMergeRequestsSourceInput = {
@@ -165000,6 +166803,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionCheckpointsInput = {
@@ -165080,6 +166884,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionCheckpointsInput = {
@@ -165176,6 +166981,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionCheckpointsInput = {
@@ -165256,6 +167062,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProjectionFreshnessInput = {
@@ -165336,6 +167143,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProjectionFreshnessInput = {
@@ -165416,6 +167224,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProjectionFreshnessInput = {
@@ -165512,6 +167321,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProjectionFreshnessInput = {
@@ -165592,6 +167402,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyReadModelsInput = {
@@ -165672,6 +167483,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyReadModelsInput = {
@@ -165752,6 +167564,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyReadModelsInput = {
@@ -165848,6 +167661,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyReadModelsInput = {
@@ -165928,6 +167742,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutWorkReadModelsInput = {
@@ -166008,6 +167823,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutWorkReadModelsInput = {
@@ -166088,6 +167904,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutWorkReadModelsInput = {
@@ -166184,6 +168001,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutWorkReadModelsInput = {
@@ -166264,6 +168082,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutApprovalReadModelsInput = {
@@ -166344,6 +168163,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutApprovalReadModelsInput = {
@@ -166424,6 +168244,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutApprovalReadModelsInput = {
@@ -166520,6 +168341,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutApprovalReadModelsInput = {
@@ -166600,6 +168422,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutAttentionReadModelsInput = {
@@ -166680,6 +168503,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutAttentionReadModelsInput = {
@@ -166760,6 +168584,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutAttentionReadModelsInput = {
@@ -166856,6 +168681,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutAttentionReadModelsInput = {
@@ -166936,6 +168762,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOpportunityReadModelsInput = {
@@ -167016,6 +168843,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOpportunityReadModelsInput = {
@@ -167096,6 +168924,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOpportunityReadModelsInput = {
@@ -167192,6 +169021,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOpportunityReadModelsInput = {
@@ -167272,6 +169102,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteReadModelsInput = {
@@ -167352,6 +169183,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteReadModelsInput = {
@@ -167432,6 +169264,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteReadModelsInput = {
@@ -167528,6 +169361,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteReadModelsInput = {
@@ -167608,6 +169442,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutQuoteLineReadModelsInput = {
@@ -167688,6 +169523,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutQuoteLineReadModelsInput = {
@@ -167768,6 +169604,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutQuoteLineReadModelsInput = {
@@ -167864,6 +169701,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutQuoteLineReadModelsInput = {
@@ -167944,6 +169782,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderReadModelsInput = {
@@ -168024,6 +169863,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderReadModelsInput = {
@@ -168104,6 +169944,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderReadModelsInput = {
@@ -168200,6 +170041,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderReadModelsInput = {
@@ -168280,6 +170122,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPartyTimelineEntriesInput = {
@@ -168360,6 +170203,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPartyTimelineEntriesInput = {
@@ -168440,6 +170284,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPartyTimelineEntriesInput = {
@@ -168536,6 +170381,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPartyTimelineEntriesInput = {
@@ -168616,6 +170462,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutReportedOperationalFactsInput = {
@@ -168696,6 +170543,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutReportedOperationalFactsInput = {
@@ -168776,6 +170624,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutReportedOperationalFactsInput = {
@@ -168971,6 +170820,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutReportedOperationalFactsInput = {
@@ -169051,6 +170901,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsReportedOperationalFactUpsertWithoutCorrectionsInput = {
@@ -169200,6 +171051,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCommitmentsInput = {
@@ -169280,6 +171132,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCommitmentsInput = {
@@ -169376,6 +171229,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCommitmentsInput = {
@@ -169456,6 +171310,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutInternalNotificationsInput = {
@@ -169536,6 +171391,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutInternalNotificationsInput = {
@@ -169616,6 +171472,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutInternalNotificationsInput = {
@@ -169712,6 +171569,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutInternalNotificationsInput = {
@@ -169792,6 +171650,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCatalogProductsInput = {
@@ -169872,6 +171731,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCatalogProductsInput = {
@@ -169952,6 +171812,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCatalogProductsInput = {
@@ -170169,6 +172030,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCatalogProductsInput = {
@@ -170249,6 +172111,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsCatalogProductProvenanceUpsertWithWhereUniqueWithoutProductInput = {
@@ -170710,6 +172573,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderLinesInput = {
@@ -170790,6 +172654,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderLinesInput = {
@@ -171019,6 +172884,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderLinesInput = {
@@ -171099,6 +172965,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrderUpsertWithoutLinesInput = {
@@ -171330,6 +173197,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCasesInput = {
@@ -171410,6 +173278,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCasesInput = {
@@ -171606,6 +173475,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCasesInput = {
@@ -171686,6 +173556,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithWhereUniqueWithoutOperationalCaseInput = {
@@ -171798,6 +173669,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactsInput = {
@@ -171878,6 +173750,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactsInput = {
@@ -172130,6 +174003,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactsInput = {
@@ -172210,6 +174084,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutFactsInput = {
@@ -172409,6 +174284,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalCaseFactReversalsInput = {
@@ -172489,6 +174365,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalCaseFactReversalsInput = {
@@ -172633,6 +174510,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalCaseFactReversalsInput = {
@@ -172713,6 +174591,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseFactUpsertWithoutReversalsInput = {
@@ -172847,6 +174726,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionsInput = {
@@ -172927,6 +174807,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionsInput = {
@@ -173175,6 +175056,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionsInput = {
@@ -173255,6 +175137,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalCaseUpsertWithoutReleaseDecisionsInput = {
@@ -173452,6 +175335,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -173532,6 +175416,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOperationalReleaseDecisionReversalsInput = {
@@ -173674,6 +175559,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOperationalReleaseDecisionReversalsInput = {
@@ -173754,6 +175640,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOperationalReleaseDecisionUpsertWithoutReversalsInput = {
@@ -173886,6 +175773,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemasInput = {
@@ -173966,6 +175854,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemasInput = {
@@ -174220,6 +176109,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemasInput = {
@@ -174300,6 +176190,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaTimeUpsertWithWhereUniqueWithoutQuemaInput = {
@@ -174428,6 +176319,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaTimesInput = {
@@ -174508,6 +176400,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaTimesInput = {
@@ -174714,6 +176607,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaTimesInput = {
@@ -174794,6 +176688,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutTimesInput = {
@@ -174970,6 +176865,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionQuemaProductsInput = {
@@ -175050,6 +176946,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionQuemaProductsInput = {
@@ -175260,6 +177157,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionQuemaProductsInput = {
@@ -175340,6 +177238,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProductsInput = {
@@ -175518,6 +177417,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionTraceEntriesInput = {
@@ -175598,6 +177498,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionTraceEntriesInput = {
@@ -175864,6 +177765,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionTraceEntriesInput = {
@@ -175944,6 +177846,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsProductionQuemaUpsertWithoutProcessRowsInput = {
@@ -176150,6 +178053,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerConversationsInput = {
@@ -176230,6 +178134,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerConversationsInput = {
@@ -176326,6 +178231,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerConversationsInput = {
@@ -176406,6 +178312,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutCustomerCommittedDatesInput = {
@@ -176486,6 +178393,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDatesInput = {
@@ -176566,6 +178474,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDatesInput = {
@@ -176694,6 +178603,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDatesInput = {
@@ -176774,6 +178684,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerCommittedDateRevisionUpsertWithWhereUniqueWithoutCommittedDateInput = {
@@ -176907,6 +178818,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerCommittedDateRevisionsInput = {
@@ -176987,6 +178899,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerCommittedDateRevisionsInput = {
@@ -177126,6 +179039,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerCommittedDateRevisionsInput = {
@@ -177206,6 +179120,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionInternalTargetDatesInput = {
@@ -177286,6 +179201,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetDatesInput = {
@@ -177366,6 +179282,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetDatesInput = {
@@ -177494,6 +179411,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetDatesInput = {
@@ -177574,6 +179492,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type ProductionInternalTargetRevisionUpsertWithWhereUniqueWithoutTargetDateInput = {
@@ -177705,6 +179624,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionInternalTargetRevisionsInput = {
@@ -177785,6 +179705,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionInternalTargetRevisionsInput = {
@@ -177922,6 +179843,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionInternalTargetRevisionsInput = {
@@ -178002,6 +179924,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutProductionDateIssuesInput = {
@@ -178082,6 +180005,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutProductionDateIssuesInput = {
@@ -178162,6 +180086,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutProductionDateIssuesInput = {
@@ -178290,6 +180215,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutProductionDateIssuesInput = {
@@ -178370,6 +180296,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type CustomerDateInformedRecordUpsertWithWhereUniqueWithoutIssueInput = {
@@ -178499,6 +180426,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCustomerDateInformedRecordsInput = {
@@ -178579,6 +180507,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCustomerDateInformedRecordsInput = {
@@ -178714,6 +180643,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCustomerDateInformedRecordsInput = {
@@ -178794,6 +180724,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutOrderAllocationsInput = {
@@ -178874,6 +180805,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutOrderAllocationsInput = {
@@ -178954,6 +180886,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutOrderAllocationsInput = {
@@ -179050,6 +180983,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutOrderAllocationsInput = {
@@ -179130,6 +181064,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutFinishedGoodsReceiptsInput = {
@@ -179210,6 +181145,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutFinishedGoodsReceiptsInput = {
@@ -179290,6 +181226,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutFinishedGoodsReceiptsInput = {
@@ -179386,6 +181323,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutFinishedGoodsReceiptsInput = {
@@ -179466,6 +181404,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationCreateWithoutPurchaseRequestsInput = {
@@ -179546,6 +181485,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPurchaseRequestsInput = {
@@ -179626,6 +181566,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPurchaseRequestsInput = {
@@ -179788,6 +181729,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPurchaseRequestsInput = {
@@ -179868,6 +181810,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPurchaseRequestStatusHistoryUpsertWithWhereUniqueWithoutPurchaseRequestInput = {
@@ -180259,6 +182202,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPriceListsInput = {
@@ -180339,6 +182283,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPriceListsInput = {
@@ -180474,6 +182419,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPriceListsInput = {
@@ -180554,6 +182500,7 @@ export namespace Prisma {
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPriceEntryUpsertWithWhereUniqueWithoutPriceListInput = {
@@ -180650,6 +182597,7 @@ export namespace Prisma {
     priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutPriceEntriesInput = {
@@ -180730,6 +182678,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutPriceEntriesInput = {
@@ -180904,6 +182853,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutPriceEntriesInput = {
@@ -180984,6 +182934,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsPriceListUpsertWithoutEntriesInput = {
@@ -181154,6 +183105,7 @@ export namespace Prisma {
     priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutSpecialOrderClassificationsInput = {
@@ -181234,6 +183186,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutSpecialOrderClassificationsInput = {
@@ -181330,6 +183283,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutSpecialOrderClassificationsInput = {
@@ -181409,6 +183363,347 @@ export namespace Prisma {
     purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
     priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationCreateWithoutCustomerCoverageGrantsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput = {
+    id: string
+    legalName: string
+    slug: string
+    status?: string
+    timezone?: string
+    locale?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OsOrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    departments?: OsDepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+    territories?: OsTerritoryUncheckedCreateNestedManyWithoutOrganizationInput
+    roleAssignments?: OsRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    managerAssignments?: OsManagerAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    delegations?: OsDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+    businessEvents?: OsBusinessEventUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: OsAuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxMessages?: OsOutboxMessageUncheckedCreateNestedManyWithoutOrganizationInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedCreateNestedManyWithoutOrganizationInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedCreateNestedManyWithoutOrganizationInput
+    capabilityStates?: OsCapabilityStateUncheckedCreateNestedManyWithoutOrganizationInput
+    workItems?: OsWorkItemUncheckedCreateNestedManyWithoutOrganizationInput
+    parties?: OsPartyUncheckedCreateNestedManyWithoutOrganizationInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+    contacts?: OsContactUncheckedCreateNestedManyWithoutOrganizationInput
+    locations?: OsLocationUncheckedCreateNestedManyWithoutOrganizationInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedCreateNestedManyWithoutOrganizationInput
+    commercialAccounts?: OsCommercialAccountUncheckedCreateNestedManyWithoutOrganizationInput
+    leads?: OsLeadUncheckedCreateNestedManyWithoutOrganizationInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedCreateNestedManyWithoutOrganizationInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalRequests?: OsApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedCreateNestedManyWithoutOrganizationInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedCreateNestedManyWithoutOrganizationInput
+    partyReadModels?: OsPartyReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    workReadModels?: OsWorkReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    approvalReadModels?: OsApprovalReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    attentionReadModels?: OsAttentionReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteReadModels?: OsQuoteReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    orderReadModels?: OsOrderReadModelUncheckedCreateNestedManyWithoutOrganizationInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    opportunities?: OsOpportunityUncheckedCreateNestedManyWithoutOrganizationInput
+    quotes?: OsQuoteUncheckedCreateNestedManyWithoutOrganizationInput
+    quoteLines?: OsQuoteLineUncheckedCreateNestedManyWithoutOrganizationInput
+    orders?: OsOrderUncheckedCreateNestedManyWithoutOrganizationInput
+    importBatches?: OsImportBatchUncheckedCreateNestedManyWithoutOrganizationInput
+    importRows?: OsImportRowUncheckedCreateNestedManyWithoutOrganizationInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedCreateNestedManyWithoutOrganizationInput
+    commitments?: OsCommitmentUncheckedCreateNestedManyWithoutOrganizationInput
+    internalNotifications?: OsInternalNotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    catalogProducts?: OsCatalogProductUncheckedCreateNestedManyWithoutOrganizationInput
+    orderLines?: OsOrderLineUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCases?: OsOperationalCaseUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemas?: OsProductionQuemaUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedCreateNestedManyWithoutOrganizationInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedCreateNestedManyWithoutOrganizationInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    customerConversations?: OsCustomerConversationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedCreateNestedManyWithoutOrganizationInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedCreateNestedManyWithoutOrganizationInput
+    productionDateIssues?: ProductionDateIssueUncheckedCreateNestedManyWithoutOrganizationInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    orderAllocations?: OsOrderAllocationUncheckedCreateNestedManyWithoutOrganizationInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedCreateNestedManyWithoutOrganizationInput
+    purchaseRequests?: OsPurchaseRequestUncheckedCreateNestedManyWithoutOrganizationInput
+    priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
+    priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    coordinationDecisions?: OsCoordinationDecisionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OsOrganizationCreateOrConnectWithoutCustomerCoverageGrantsInput = {
+    where: OsOrganizationWhereUniqueInput
+    create: XOR<OsOrganizationCreateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput>
+  }
+
+  export type OsOrganizationUpsertWithoutCustomerCoverageGrantsInput = {
+    update: XOR<OsOrganizationUpdateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedUpdateWithoutCustomerCoverageGrantsInput>
+    create: XOR<OsOrganizationCreateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedCreateWithoutCustomerCoverageGrantsInput>
+    where?: OsOrganizationWhereInput
+  }
+
+  export type OsOrganizationUpdateToOneWithWhereWithoutCustomerCoverageGrantsInput = {
+    where?: OsOrganizationWhereInput
+    data: XOR<OsOrganizationUpdateWithoutCustomerCoverageGrantsInput, OsOrganizationUncheckedUpdateWithoutCustomerCoverageGrantsInput>
+  }
+
+  export type OsOrganizationUpdateWithoutCustomerCoverageGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    coordinationDecisions?: OsCoordinationDecisionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OsOrganizationUncheckedUpdateWithoutCustomerCoverageGrantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    locale?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OsOrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    departments?: OsDepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    territories?: OsTerritoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    roleAssignments?: OsRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    departmentAssignments?: OsDepartmentAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    managerAssignments?: OsManagerAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    delegations?: OsDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+    businessEvents?: OsBusinessEventUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: OsAuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxMessages?: OsOutboxMessageUncheckedUpdateManyWithoutOrganizationNestedInput
+    outboxConsumerDedup?: OsOutboxConsumerDedupUncheckedUpdateManyWithoutOrganizationNestedInput
+    idempotencyKeys?: OsIdempotencyKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+    capabilityStates?: OsCapabilityStateUncheckedUpdateManyWithoutOrganizationNestedInput
+    workItems?: OsWorkItemUncheckedUpdateManyWithoutOrganizationNestedInput
+    parties?: OsPartyUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyRoleAssignments?: OsPartyRoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    contacts?: OsContactUncheckedUpdateManyWithoutOrganizationNestedInput
+    locations?: OsLocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    fiscalIdentities?: OsFiscalIdentityUncheckedUpdateManyWithoutOrganizationNestedInput
+    commercialAccounts?: OsCommercialAccountUncheckedUpdateManyWithoutOrganizationNestedInput
+    leads?: OsLeadUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyDuplicateCandidates?: OsPartyDuplicateCandidateUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyMergeRequests?: OsPartyMergeRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    workOwnershipHistory?: OsWorkItemOwnershipHistoryUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalRequests?: OsApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionCheckpoints?: OsProjectionCheckpointUncheckedUpdateManyWithoutOrganizationNestedInput
+    projectionFreshness?: OsProjectionFreshnessUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyReadModels?: OsPartyReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    workReadModels?: OsWorkReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    approvalReadModels?: OsApprovalReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    attentionReadModels?: OsAttentionReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunityReadModels?: OsOpportunityReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteReadModels?: OsQuoteReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLineReadModels?: OsQuoteLineReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderReadModels?: OsOrderReadModelUncheckedUpdateManyWithoutOrganizationNestedInput
+    partyTimelineEntries?: OsPartyTimelineEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    opportunities?: OsOpportunityUncheckedUpdateManyWithoutOrganizationNestedInput
+    quotes?: OsQuoteUncheckedUpdateManyWithoutOrganizationNestedInput
+    quoteLines?: OsQuoteLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    orders?: OsOrderUncheckedUpdateManyWithoutOrganizationNestedInput
+    importBatches?: OsImportBatchUncheckedUpdateManyWithoutOrganizationNestedInput
+    importRows?: OsImportRowUncheckedUpdateManyWithoutOrganizationNestedInput
+    reportedOperationalFacts?: OsReportedOperationalFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    commitments?: OsCommitmentUncheckedUpdateManyWithoutOrganizationNestedInput
+    internalNotifications?: OsInternalNotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    catalogProducts?: OsCatalogProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderLines?: OsOrderLineUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCases?: OsOperationalCaseUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFacts?: OsOperationalCaseFactUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalCaseFactReversals?: OsOperationalCaseFactReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisions?: OsOperationalReleaseDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    operationalReleaseDecisionReversals?: OsOperationalReleaseDecisionReversalUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemas?: OsProductionQuemaUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaTimes?: OsProductionQuemaTimeUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionQuemaProducts?: OsProductionQuemaProductUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionTraceEntries?: OsProductionTraceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerConversations?: OsCustomerConversationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDates?: CustomerCommittedDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCommittedDateRevisions?: CustomerCommittedDateRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetDates?: ProductionInternalTargetDateUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionInternalTargetRevisions?: ProductionInternalTargetRevisionUncheckedUpdateManyWithoutOrganizationNestedInput
+    productionDateIssues?: ProductionDateIssueUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerDateInformedRecords?: CustomerDateInformedRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    orderAllocations?: OsOrderAllocationUncheckedUpdateManyWithoutOrganizationNestedInput
+    finishedGoodsReceipts?: OsFinishedGoodsReceiptUncheckedUpdateManyWithoutOrganizationNestedInput
+    purchaseRequests?: OsPurchaseRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
+    priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
+    specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
     coordinationDecisions?: OsCoordinationDecisionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
@@ -181490,6 +183785,7 @@ export namespace Prisma {
     priceLists?: OsPriceListCreateNestedManyWithoutOrganizationInput
     priceEntries?: OsPriceEntryCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationUncheckedCreateWithoutCoordinationDecisionsInput = {
@@ -181570,6 +183866,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUncheckedCreateNestedManyWithoutOrganizationInput
     priceEntries?: OsPriceEntryUncheckedCreateNestedManyWithoutOrganizationInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedCreateNestedManyWithoutOrganizationInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OsOrganizationCreateOrConnectWithoutCoordinationDecisionsInput = {
@@ -181666,6 +183963,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUpdateManyWithoutOrganizationNestedInput
     priceEntries?: OsPriceEntryUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationUncheckedUpdateWithoutCoordinationDecisionsInput = {
@@ -181746,6 +184044,7 @@ export namespace Prisma {
     priceLists?: OsPriceListUncheckedUpdateManyWithoutOrganizationNestedInput
     priceEntries?: OsPriceEntryUncheckedUpdateManyWithoutOrganizationNestedInput
     specialOrderClassifications?: OsSpecialOrderClassificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    customerCoverageGrants?: OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OsOrganizationMemberCreateManyOrganizationInput = {
@@ -182735,6 +185034,20 @@ export namespace Prisma {
     notes?: string | null
     resolvesDecisionId?: string | null
     recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type OsCustomerCoverageGrantCreateManyOrganizationInput = {
+    id: string
+    customerPartyId: string
+    primaryOwnerMemberId: string
+    actingAdvisorMemberId: string
+    grantType?: string
+    startsAt: Date | string
+    endsAt?: Date | string | null
+    revokedAt?: Date | string | null
+    recordedAt: Date | string
+    recordedByMemberId?: string | null
     createdAt?: Date | string
   }
 
@@ -185815,6 +188128,48 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     resolvesDecisionId?: NullableStringFieldUpdateOperationsInput | string | null
     recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerCoverageGrantUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerCoverageGrantUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OsCustomerCoverageGrantUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPartyId?: StringFieldUpdateOperationsInput | string
+    primaryOwnerMemberId?: StringFieldUpdateOperationsInput | string
+    actingAdvisorMemberId?: StringFieldUpdateOperationsInput | string
+    grantType?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedByMemberId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

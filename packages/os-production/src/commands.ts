@@ -18,13 +18,18 @@ import type {
   QuemaProductLink,
   QuemaView,
 } from '../../os-contracts/src/production-trace';
-import { InMemoryProductionTraceStore, ProductionTraceError } from './store';
+import { PRODUCTION_MIGRATION_APPLIED } from './prisma-store';
+import { ProductionTraceError, type ProductionTraceWriteStore } from './store';
 
 /**
- * Live database writes are not in this package. The store is in-memory.
- * Do not treat a passing test here as a hosted or Prisma write.
+ * Memory and Prisma port both exist in this package.
+ * Hosted DB writes remain unproven until the migration is applied.
  */
-export const PRODUCTION_LIVE_DB_WRITES = 'UNPROVEN' as const;
+export const PRODUCTION_LIVE_DB_WRITES = {
+  memory: true,
+  prisma_port: true,
+  migrationApplied: PRODUCTION_MIGRATION_APPLIED,
+} as const;
 
 /** No review mutation exists. Review is not an entry grant. */
 export const PRODUCTION_REVIEW_MUTATION = 'not_implemented' as const;
@@ -151,38 +156,51 @@ function mapStoreError(error: unknown): ProductionWriteFailure {
 }
 
 /**
- * Session-bound writes over the in-memory trace.
+ * Session-bound writes over a ProductionTraceWriteStore (memory or prisma_port).
  * organizationId always comes from the trusted session, never the payload.
  */
 export class ProductionWriteService {
   readonly successEvents: ProductionSuccessEvent[] = [];
 
-  constructor(private readonly store: InMemoryProductionTraceStore) {}
+  constructor(private readonly store: ProductionTraceWriteStore) {}
 
-  recordProcess(session: ProductionWriteSession | null | undefined, input: unknown): ProductionWriteResult<ProcessRecord> {
-    return this.write(session, input, 'production.entry.recorded', (organizationId) => {
+  recordProcess(
+    session: ProductionWriteSession | null | undefined,
+    input: unknown,
+  ): Promise<ProductionWriteResult<ProcessRecord>> {
+    return this.write(session, input, 'production.entry.recorded', async (organizationId) => {
       const quemaId = textField(input, 'quemaId');
-      if (quemaId && !this.quemaInSession(organizationId, quemaId)) return fail('not_found', NOT_FOUND);
-      if (!this.priorInSession(organizationId, textField(input, 'correctsEntryId'))) return fail('not_found', NOT_FOUND);
-      const value = this.store.recordProcess(organizationId, input);
+      if (quemaId && !(await this.quemaInSession(organizationId, quemaId))) return fail('not_found', NOT_FOUND);
+      if (!(await this.priorInSession(organizationId, textField(input, 'correctsEntryId')))) {
+        return fail('not_found', NOT_FOUND);
+      }
+      const value = await this.store.recordProcess(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
 
-  recordLoss(session: ProductionWriteSession | null | undefined, input: unknown): ProductionWriteResult<LossRecord> {
-    return this.write(session, input, 'production.loss.recorded', (organizationId) => {
-      if (!this.priorInSession(organizationId, textField(input, 'correctsEntryId'))) return fail('not_found', NOT_FOUND);
-      const value = this.store.recordLoss(organizationId, input);
+  recordLoss(
+    session: ProductionWriteSession | null | undefined,
+    input: unknown,
+  ): Promise<ProductionWriteResult<LossRecord>> {
+    return this.write(session, input, 'production.loss.recorded', async (organizationId) => {
+      if (!(await this.priorInSession(organizationId, textField(input, 'correctsEntryId')))) {
+        return fail('not_found', NOT_FOUND);
+      }
+      const value = await this.store.recordLoss(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
 
-  correctLoss(session: ProductionWriteSession | null | undefined, input: unknown): ProductionWriteResult<LossRecord> {
-    return this.write(session, input, 'production.loss.corrected', (organizationId) => {
+  correctLoss(
+    session: ProductionWriteSession | null | undefined,
+    input: unknown,
+  ): Promise<ProductionWriteResult<LossRecord>> {
+    return this.write(session, input, 'production.loss.corrected', async (organizationId) => {
       const priorId = textField(input, 'correctsEntryId');
-      const prior = priorId ? this.store.get(organizationId, priorId) : null;
+      const prior = priorId ? await this.store.get(organizationId, priorId) : null;
       if (!prior || prior.kind !== 'loss') return fail('not_found', NOT_FOUND);
-      const value = this.store.correctLoss(organizationId, input);
+      const value = await this.store.correctLoss(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
@@ -190,10 +208,12 @@ export class ProductionWriteService {
   recordConsumption(
     session: ProductionWriteSession | null | undefined,
     input: unknown,
-  ): ProductionWriteResult<ConsumptionRecord> {
-    return this.write(session, input, 'production.consumption.recorded', (organizationId) => {
-      if (!this.priorInSession(organizationId, textField(input, 'correctsEntryId'))) return fail('not_found', NOT_FOUND);
-      const value = this.store.recordConsumption(organizationId, input);
+  ): Promise<ProductionWriteResult<ConsumptionRecord>> {
+    return this.write(session, input, 'production.consumption.recorded', async (organizationId) => {
+      if (!(await this.priorInSession(organizationId, textField(input, 'correctsEntryId')))) {
+        return fail('not_found', NOT_FOUND);
+      }
+      const value = await this.store.recordConsumption(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
@@ -201,10 +221,12 @@ export class ProductionWriteService {
   recordClassification(
     session: ProductionWriteSession | null | undefined,
     input: unknown,
-  ): ProductionWriteResult<ClassificationRecord> {
-    return this.write(session, input, 'production.classification.recorded', (organizationId) => {
-      if (!this.priorInSession(organizationId, textField(input, 'correctsEntryId'))) return fail('not_found', NOT_FOUND);
-      const value = this.store.recordClassification(organizationId, input);
+  ): Promise<ProductionWriteResult<ClassificationRecord>> {
+    return this.write(session, input, 'production.classification.recorded', async (organizationId) => {
+      if (!(await this.priorInSession(organizationId, textField(input, 'correctsEntryId')))) {
+        return fail('not_found', NOT_FOUND);
+      }
+      const value = await this.store.recordClassification(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
@@ -212,26 +234,34 @@ export class ProductionWriteService {
   recordFinishedGoodsReceipt(
     session: ProductionWriteSession | null | undefined,
     input: unknown,
-  ): ProductionWriteResult<FinishedGoodsReceipt> {
-    return this.write(session, input, 'production.receipt.recorded', (organizationId) => {
-      if (!this.priorInSession(organizationId, textField(input, 'correctsEntryId'))) return fail('not_found', NOT_FOUND);
-      const value = this.store.recordFinishedGoodsReceipt(organizationId, input);
+  ): Promise<ProductionWriteResult<FinishedGoodsReceipt>> {
+    return this.write(session, input, 'production.receipt.recorded', async (organizationId) => {
+      if (!(await this.priorInSession(organizationId, textField(input, 'correctsEntryId')))) {
+        return fail('not_found', NOT_FOUND);
+      }
+      const value = await this.store.recordFinishedGoodsReceipt(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
 
-  openQuema(session: ProductionWriteSession | null | undefined, input: unknown): ProductionWriteResult<QuemaView> {
-    return this.write(session, input, 'production.quema.started', (organizationId) => {
-      const value = this.store.openQuema(organizationId, input);
+  openQuema(
+    session: ProductionWriteSession | null | undefined,
+    input: unknown,
+  ): Promise<ProductionWriteResult<QuemaView>> {
+    return this.write(session, input, 'production.quema.started', async (organizationId) => {
+      const value = await this.store.openQuema(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
 
-  endQuema(session: ProductionWriteSession | null | undefined, input: unknown): ProductionWriteResult<QuemaView> {
-    return this.write(session, input, 'production.quema.ended', (organizationId) => {
+  endQuema(
+    session: ProductionWriteSession | null | undefined,
+    input: unknown,
+  ): Promise<ProductionWriteResult<QuemaView>> {
+    return this.write(session, input, 'production.quema.ended', async (organizationId) => {
       const quemaId = textField(input, 'quemaId');
-      if (!this.quemaInSession(organizationId, quemaId)) return fail('not_found', NOT_FOUND);
-      const value = this.store.endQuema(organizationId, input);
+      if (!(await this.quemaInSession(organizationId, quemaId))) return fail('not_found', NOT_FOUND);
+      const value = await this.store.endQuema(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
@@ -239,24 +269,24 @@ export class ProductionWriteService {
   attachQuemaProduct(
     session: ProductionWriteSession | null | undefined,
     input: unknown,
-  ): ProductionWriteResult<QuemaProductLink> {
-    return this.write(session, input, 'production.quema.product_attached', (organizationId) => {
+  ): Promise<ProductionWriteResult<QuemaProductLink>> {
+    return this.write(session, input, 'production.quema.product_attached', async (organizationId) => {
       const quemaId = textField(input, 'quemaId');
-      if (!this.quemaInSession(organizationId, quemaId)) return fail('not_found', NOT_FOUND);
-      const value = this.store.attachQuemaProduct(organizationId, input);
+      if (!(await this.quemaInSession(organizationId, quemaId))) return fail('not_found', NOT_FOUND);
+      const value = await this.store.attachQuemaProduct(organizationId, input);
       return { ok: true, value, id: value.id };
     });
   }
 
-  private priorInSession(organizationId: string, entryId: string): boolean {
+  private async priorInSession(organizationId: string, entryId: string): Promise<boolean> {
     if (!entryId) return true;
-    return this.store.get(organizationId, entryId) !== null;
+    return (await this.store.get(organizationId, entryId)) !== null;
   }
 
-  private quemaInSession(organizationId: string, quemaId: string): boolean {
+  private async quemaInSession(organizationId: string, quemaId: string): Promise<boolean> {
     if (!quemaId) return false;
     try {
-      this.store.getQuema(organizationId, quemaId);
+      await this.store.getQuema(organizationId, quemaId);
       return true;
     } catch (error) {
       if (error instanceof ProductionTraceError && error.code === 'not_found') return false;
@@ -264,19 +294,21 @@ export class ProductionWriteService {
     }
   }
 
-  private write<T>(
+  private async write<T>(
     session: ProductionWriteSession | null | undefined,
     input: unknown,
     kind: ProductionSuccessEvent['kind'],
-    run: (organizationId: string) => ProductionWriteResult<T> & { id?: string } | ProductionWriteFailure,
-  ): ProductionWriteResult<T> {
+    run: (
+      organizationId: string,
+    ) => Promise<(ProductionWriteResult<T> & { id?: string }) | ProductionWriteFailure>,
+  ): Promise<ProductionWriteResult<T>> {
     const organizationId = session?.organizationId?.trim() ?? '';
     if (!organizationId || !productionWriteGranted(session)) {
       return fail('unauthorized', UNAUTHORIZED);
     }
     void input;
     try {
-      const result = run(organizationId);
+      const result = await run(organizationId);
       if (!result.ok) return result;
       this.successEvents.push({ kind, organizationId, id: result.id ?? '' });
       return { ok: true, value: result.value };

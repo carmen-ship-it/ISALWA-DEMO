@@ -1346,6 +1346,21 @@ exports.Prisma.OsSpecialOrderClassificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.OsCustomerCoverageGrantScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerPartyId: 'customerPartyId',
+  primaryOwnerMemberId: 'primaryOwnerMemberId',
+  actingAdvisorMemberId: 'actingAdvisorMemberId',
+  grantType: 'grantType',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  revokedAt: 'revokedAt',
+  recordedAt: 'recordedAt',
+  recordedByMemberId: 'recordedByMemberId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.OsCoordinationDecisionScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -1480,6 +1495,7 @@ exports.Prisma.ModelName = {
   OsPriceList: 'OsPriceList',
   OsPriceEntry: 'OsPriceEntry',
   OsSpecialOrderClassification: 'OsSpecialOrderClassification',
+  OsCustomerCoverageGrant: 'OsCustomerCoverageGrant',
   OsCoordinationDecision: 'OsCoordinationDecision'
 };
 

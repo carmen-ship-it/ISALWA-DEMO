@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { COMMERCIAL_TEAM_READ_SCOPE } from '../../os-contracts/src/scopes';
-import { DELIVERY_RECORD_SCOPE, WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE } from '../../os-contracts/src/operations-scopes';
+import {
+  DELIVERY_RECORD_SCOPE,
+  PEOPLE_ADMIN_SCOPE,
+  WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+} from '../../os-contracts/src/operations-scopes';
 import { WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE } from '../../os-contracts/src/warehouse-task';
 import {
   ALLOCATION_LIVE_WRITE,
@@ -79,7 +83,8 @@ describe('allocate finished goods for the trusted session', () => {
     assert.equal(helper.get('org-a', 'alloc-helper'), null);
     const source = readFileSync(join(__dirname, 'allocate-command.ts'), 'utf8');
     assert.equal(source.includes('findUnique'), false);
-    assert.equal(source.includes('prisma'), false);
+    assert.equal(/PrismaClient|@prisma\/client/.test(source), false);
+    assert.match(source, /prisma-store|ALLOCATION_PRISMA_LIVE_WRITE/);
   });
 
   it('allocates only after the session organization owns the order line, and still does not claim a live write', async () => {
@@ -90,13 +95,19 @@ describe('allocate finished goods for the trusted session', () => {
     if (!result.ok) return;
     assert.equal(result.liveWrite, 'UNPROVEN');
     assert.equal(result.tenantProof, 'in_memory_not_live');
+    assert.equal(result.migrationApplied, false);
     assert.equal(result.allocation.organizationId, 'org-a');
     assert.deepEqual(found.calls, ['line:org-a:line-1']);
     assert.equal(store.get('org-b', result.allocation.id), null);
   });
 
-  it('refuses receive, delivery.record, and commercial.team.read without inserting', async () => {
-    for (const scope of [WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE, DELIVERY_RECORD_SCOPE, COMMERCIAL_TEAM_READ_SCOPE]) {
+  it('refuses receive, delivery.record, commercial.team.read, and people.admin without inserting', async () => {
+    for (const scope of [
+      WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
+      DELIVERY_RECORD_SCOPE,
+      COMMERCIAL_TEAM_READ_SCOPE,
+      PEOPLE_ADMIN_SCOPE,
+    ]) {
       const store = new InMemoryOrderAllocationStore();
       const found = targets();
       const result = await allocateFinishedGoodsForSession(store, session([scope]), body(), found);

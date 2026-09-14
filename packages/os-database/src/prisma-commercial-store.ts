@@ -502,6 +502,35 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     return this.db().osOrder.count({ where: { organizationId } });
   }
 
+  async listActiveCustomerCoverageGrants(input: {
+    organizationId: string;
+    customerPartyId: string;
+    actingAdvisorMemberId: string;
+    asOf: Date;
+  }) {
+    const rows = await this.db().osCustomerCoverageGrant.findMany({
+      where: {
+        organizationId: input.organizationId,
+        customerPartyId: input.customerPartyId,
+        actingAdvisorMemberId: input.actingAdvisorMemberId,
+        grantType: 'commercial.customer.coverage',
+        revokedAt: null,
+        startsAt: { lte: input.asOf },
+        OR: [{ endsAt: null }, { endsAt: { gt: input.asOf } }],
+      },
+    });
+    return rows.map((row) => ({
+      grantType: 'commercial.customer.coverage' as const,
+      organizationId: row.organizationId,
+      customerPartyId: row.customerPartyId,
+      primaryOwnerMemberId: row.primaryOwnerMemberId,
+      actingAdvisorMemberId: row.actingAdvisorMemberId,
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      revokedAt: row.revokedAt,
+    }));
+  }
+
   private async runBatch(ops: Array<Prisma.PrismaPromise<unknown>>): Promise<void> {
     if (this.tx) {
       for (const op of ops) await op;

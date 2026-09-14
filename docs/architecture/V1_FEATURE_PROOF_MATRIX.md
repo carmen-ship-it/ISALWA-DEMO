@@ -2,12 +2,12 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** `a41e4941f4c3c68617e99b081fe0c123f6bc8841` (P0 code + full `pnpm -r build` proof)  
-Parent lineage: `fea519369eca49f19485d569a4e786d3df101840` → P0 member selector + quote-authority decision lock.  
+**Exact candidate SHA:** _(set to ending tip after commit)_  
+Parent lineage: `2388a96` → coverage CreateOrder + prisma_port writers.  
+Code beneath prior tip: `a41e494`.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
-Evidence-doc tip may sit one or two commits ahead of the code SHA; do not treat doc-tip-only commits as a substitute for re-running build on `a41e494`.
 
-Prior `96c797b` / `fea5193` build proofs are **not** silently inherited — re-prove on ending code SHA.
+Prior build proofs are **not** silently inherited — re-prove on ending tip.
 
 Legend cells: Y = yes for that state · — = no · P = partial · U = UNPROVEN · G = FOUNDATION_GAP · D = BUSINESS_DECISION_REQUIRED · X = CROSS_LANE · H = HOLD
 
@@ -24,7 +24,15 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 | Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | WAVE2_P0_FIRST_PILOT_BLOCKER_PASS | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
 | Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
 | Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
-| Quote convert | commercial.quote.convert.own vs CreateOrder | Carmen | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | — | Y | — | — | — | — | — | — | D CROSS_LANE — unwired |
+| Quote convert | owner OR coverage OR order.convert | Comercial | QUOTE_CONVERSION_AUTHORITY_DECISION | Y | Y | Y | Y | — | — | — | — | — | coverage migration unapplied |
+| convert.own | DEPRECATE_LATER unwired | Carmen | commercial-authority | Y | Y | Y | Y | — | — | — | — | — | own-quote only |
+| Production | entry/quema/loss/consumption prisma_port | Producción | os-production | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
+| Allocation | allocate prisma_port | Almacén | os-allocation | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
+| Delivery | customer delivery prisma_port | Entrega | os-delivery | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
+| Warehouse exit | outbound write | Almacén | WAREHOUSE_EXIT_WRITE_AUTHORITY | Y | — | Y | — | — | — | — | — | — | X authority not registered |
+| Coordination write | decision.record prisma_port | Auxiliar | os-coordination-read | Y | Y | Y | Y | — | — | — | — | — | read still X |
+| Payment evidence | reported fact prisma_port | Caja | reported-operational-fact-writer | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
+| Purchase transition | status workflow | Compras | Gate C | Y | — | — | — | — | — | — | — | — | BLOCKED_BY_GATE_C |
 | Member picker | ServerMemberTypeahead + searchActiveMembers | Admin/Comercial | P0_MEMBER_SELECTOR_INVENTORY | Y | Y | Y | Y | — | — | — | — | — | HOSTED/BROWSER unproven |
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
@@ -54,7 +62,7 @@ LOCAL_HTTP: prior route proof on candidate (session/party/location/outbox/quote 
 | Listo | FinishedGoodsReceipt model | Almacén | OsFinishedGoodsReceipt | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
 | Listo | Receive writer | Almacén | warehouse.finished_goods.receive | Y | Y | Y | Y | — | — | U | — | — | hosted |
 | Listo | Org-read reader | Gerencia | management.org.read | Y | Y | Y | Y | — | — | U | — | — | hosted |
-| Listo | Allocate to Pedido | Almacén | allocation | Y | P | P | — | — | — | — | — | — | live writer gap / auth |
+| Listo | Allocate to Pedido | Almacén | warehouse.finished_goods.allocate | Y | Y | Y | Y | — | — | — | — | — | migration unapplied |
 | Semantics | Receive ≠ allocate | Almacén | contracts/tests | Y | Y | Y | Y | — | — | U | — | — | none |
 | Semantics | Missing port ≠ zero | Gerencia | reader | Y | Y | Y | Y | — | — | U | — | — | none |
 

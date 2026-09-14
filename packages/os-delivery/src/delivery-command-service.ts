@@ -95,7 +95,9 @@ function asError(err: unknown): Error {
 }
 
 /**
- * Memory inserts are not a database writer. Live persistence is unproven.
+ * Memory inserts are not a database writer. Live persistence for the memory path
+ * stays UNPROVEN. Warehouse exit stays AUTHORITY_BLOCKED
+ * (WAREHOUSE_EXIT_WRITE_AUTHORITY = CROSS_LANE_CHANGE_REQUEST).
  */
 export const DELIVERY_LIVE_WRITE = 'UNPROVEN' as const;
 

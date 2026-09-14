@@ -32,12 +32,33 @@ export class ProductionTraceError extends Error {
   }
 }
 
+export type MaybePromise<T> = T | Promise<T>;
+
+/**
+ * Public write/read surface used by ProductionWriteService.
+ * Memory stays sync; the Prisma port returns Promises. Callers must await.
+ */
+export type ProductionTraceWriteStore = {
+  recordProcess(trustedOrganizationId: string, input: unknown): MaybePromise<ProcessRecord>;
+  recordLoss(trustedOrganizationId: string, input: unknown): MaybePromise<LossRecord>;
+  correctLoss(trustedOrganizationId: string, input: unknown): MaybePromise<LossRecord>;
+  recordConsumption(trustedOrganizationId: string, input: unknown): MaybePromise<ConsumptionRecord>;
+  recordClassification(trustedOrganizationId: string, input: unknown): MaybePromise<ClassificationRecord>;
+  recordFinishedGoodsReceipt(trustedOrganizationId: string, input: unknown): MaybePromise<FinishedGoodsReceipt>;
+  openQuema(trustedOrganizationId: string, input: unknown): MaybePromise<QuemaView>;
+  endQuema(trustedOrganizationId: string, input: unknown): MaybePromise<QuemaView>;
+  attachQuemaProduct(trustedOrganizationId: string, input: unknown): MaybePromise<QuemaProductLink>;
+  get(organizationId: string, id: string): MaybePromise<ProductionTraceEntry | null>;
+  getQuema(organizationId: string, quemaId: string): MaybePromise<QuemaView>;
+  inputStockBalance(organizationId: string, reference: string): null;
+};
+
 /**
  * In-memory manufacturing trace.
  * Product id is the join key. There is no order key and no stock ledger.
  * Corrections append. They do not overwrite.
  */
-export class InMemoryProductionTraceStore {
+export class InMemoryProductionTraceStore implements ProductionTraceWriteStore {
   private readonly entries: ProductionTraceEntry[] = [];
   private readonly quemas: Quema[] = [];
   private readonly quemaTimes: QuemaTimeFact[] = [];

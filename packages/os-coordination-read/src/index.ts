@@ -14,6 +14,18 @@ export {
 export { getCoordinationExceptions } from './project';
 export { getCoordinationExceptionsFromReaders } from './reader-adapter';
 export type { CoordinationCanonicalReaders, CoordinationDateReader } from './reader-adapter';
+export {
+  COORDINATION_DECISION_MIGRATION_APPLIED,
+  COORDINATION_DECISION_PRISMA_LIVE_WRITE,
+  authorizeCoordinationDecisionWriteOnly,
+  coordinationDecisionWriteUnlocksRead,
+  createPrismaCoordinationDecisionWriter,
+} from './prisma-decision-writer';
+export type {
+  CoordinationDecisionPrismaPort,
+  CoordinationDecisionWriteResult,
+  PrismaCoordinationDecisionWriter,
+} from './prisma-decision-writer';
 export type {
   AllocationAwaitingExitFact,
   AllocationSourceFact,

@@ -85,6 +85,26 @@ describe('provisional commercial authority', () => {
     );
   });
 
+  it('lets active coverage authorize convert without shared ownership', () => {
+    const coverage = {
+      allowed: true as const,
+      customerPartyId: 'party-1',
+      primaryOwnerMemberId: OWNER,
+      actingAdvisorMemberId: OTHER,
+      auditActorMemberId: OTHER,
+      sharedOwnership: false as const,
+    };
+    assert.equal(
+      canConvertQuoteToOrder({
+        actorMemberId: OTHER,
+        grantedScopes: [],
+        quoteOwnerMemberId: OWNER,
+        coverage,
+      }),
+      true,
+    );
+  });
+
   it('does not treat read-only leadership, ownership, or people.admin as reassignment authority', () => {
     assert.equal(canReassignCommercialAccountOwner(['people.admin']), false);
     assert.equal(canReassignCommercialAccountOwner(['commercial.team.read']), false);

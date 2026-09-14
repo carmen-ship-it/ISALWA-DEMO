@@ -72,6 +72,17 @@ function storeFor(input: {
   actorScopes?: string[];
   quote?: QuoteRecord | null;
   existingOrder?: boolean;
+  coverageGrants?: Array<{
+    grantType: 'commercial.customer.coverage';
+    organizationId: string;
+    customerPartyId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+    startsAt: Date;
+    endsAt: Date | null;
+    revokedAt: Date | null;
+  }>;
+  accountOwnerMemberId?: string | null;
 }): OsCommercialStore {
   const actorScopes = input.actorScopes ?? [];
   const row = input.quote === undefined ? quote() : input.quote;
@@ -95,6 +106,18 @@ function storeFor(input: {
     async listDelegationsForDelegate() {
       return [];
     },
+    async getCommercialAccountInOrg(organizationId, commercialAccountId) {
+      if (!row || organizationId !== row.organizationId) return null;
+      if (commercialAccountId !== row.commercialAccountId) return null;
+      return {
+        id: row.commercialAccountId,
+        organizationId: ORG,
+        partyId: row.partyId,
+        ownerMemberId: input.accountOwnerMemberId === undefined ? OWNER : input.accountOwnerMemberId,
+        status: 'active',
+        version: 1,
+      } satisfies CommercialAccountRecord;
+    },
     async getQuoteInOrg(organizationId, quoteId) {
       if (!row || organizationId !== row.organizationId || quoteId !== row.id) return null;
       return row;
@@ -107,6 +130,17 @@ function storeFor(input: {
     },
     async countOrdersForOrg() {
       return 0;
+    },
+    async listActiveCustomerCoverageGrants(query) {
+      return (input.coverageGrants ?? []).filter(
+        (grant) =>
+          grant.organizationId === query.organizationId &&
+          grant.customerPartyId === query.customerPartyId &&
+          grant.actingAdvisorMemberId === query.actingAdvisorMemberId &&
+          !grant.revokedAt &&
+          grant.startsAt <= query.asOf &&
+          (grant.endsAt === null || grant.endsAt > query.asOf),
+      );
     },
     async insertOrder() {},
     async insertOrderLines() {},
@@ -187,6 +221,72 @@ describe('CreateOrder provisional authority', () => {
   it('lets the explicit conversion capability succeed', async () => {
     const result = await convert(OTHER, { actorScopes: ['commercial.order.convert'] });
     assert.equal(result.data.quoteId, QUOTE_ID);
+  });
+
+  it('lets an active covering advisor convert without becoming owner or using convert.own', async () => {
+    const store = storeFor({
+      coverageGrants: [
+        {
+          grantType: 'commercial.customer.coverage',
+          organizationId: ORG,
+          customerPartyId: 'party-1',
+          primaryOwnerMemberId: OWNER,
+          actingAdvisorMemberId: OTHER,
+          startsAt: new Date('2026-01-01T00:00:00.000Z'),
+          endsAt: null,
+          revokedAt: null,
+        },
+      ],
+    });
+    const events = (store as unknown as { events: string[] }).events;
+    const service = new CommercialCommandService(store);
+    const result = await service.execute('CreateOrder', ctx(OTHER), { quoteId: QUOTE_ID });
+    assert.equal(result.data.quoteId, QUOTE_ID);
+    assert.equal(result.data.sharedOwnership, false);
+    assert.equal(result.data.primaryOwnerMemberId, OWNER);
+    assert.equal(result.data.actingAdvisorMemberId, OTHER);
+    assert.equal(result.data.convertingActorMemberId, OTHER);
+    assert.equal(result.data.coverageSource, 'commercial.customer.coverage');
+    assert.deepEqual(events, ['order.created']);
+  });
+
+  it('denies expired or revoked coverage and emits no success event', async () => {
+    for (const grant of [
+      {
+        grantType: 'commercial.customer.coverage' as const,
+        organizationId: ORG,
+        customerPartyId: 'party-1',
+        primaryOwnerMemberId: OWNER,
+        actingAdvisorMemberId: OTHER,
+        startsAt: new Date('2026-01-01T00:00:00.000Z'),
+        endsAt: new Date('2026-09-01T00:00:00.000Z'),
+        revokedAt: null,
+      },
+      {
+        grantType: 'commercial.customer.coverage' as const,
+        organizationId: ORG,
+        customerPartyId: 'party-1',
+        primaryOwnerMemberId: OWNER,
+        actingAdvisorMemberId: OTHER,
+        startsAt: new Date('2026-01-01T00:00:00.000Z'),
+        endsAt: null,
+        revokedAt: new Date('2026-09-01T00:00:00.000Z'),
+      },
+    ]) {
+      const store = storeFor({ coverageGrants: [grant] });
+      await assert.rejects(
+        () => new CommercialCommandService(store).execute('CreateOrder', ctx(OTHER), { quoteId: QUOTE_ID }),
+        /PERMISSION_DENIED/,
+      );
+      assert.deepEqual((store as unknown as { events: string[] }).events, []);
+    }
+  });
+
+  it('does not treat commercial.quote.convert.own as covering-advisor convert', async () => {
+    await assert.rejects(
+      () => convert(OTHER, { actorScopes: ['commercial.quote.convert.own'] }),
+      /PERMISSION_DENIED/,
+    );
   });
 
   it('denies a cross-tenant quote', async () => {

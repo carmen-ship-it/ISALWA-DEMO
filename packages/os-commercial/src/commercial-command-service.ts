@@ -3,6 +3,7 @@ import {
   COMMAND_REQUIRED_SCOPES,
   canConvertQuoteToOrder,
   canReassignCommercialAccountOwner,
+  coverageAuditForConvert,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -939,11 +940,39 @@ export class CommercialCommandService {
       ctx.organizationId,
     );
     if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
+    const scopes = [...snap.roleKeys, ...snap.delegatedScopes];
+    const account = quote.commercialAccountId
+      ? await store.getCommercialAccountInOrg(
+          ctx.organizationId,
+          quote.commercialAccountId,
+        )
+      : null;
+    const primaryOwnerMemberId =
+      account &&
+      account.organizationId === ctx.organizationId &&
+      account.ownerMemberId
+        ? account.ownerMemberId
+        : quote.ownerMemberId;
+    const grants = await store.listActiveCustomerCoverageGrants({
+      organizationId: ctx.organizationId,
+      customerPartyId: quote.partyId,
+      actingAdvisorMemberId: snap.memberId,
+      asOf: ctx.effectiveAt,
+    });
+    const coverage = coverageAuditForConvert({
+      actorMemberId: snap.memberId,
+      organizationId: ctx.organizationId,
+      customerPartyId: quote.partyId,
+      primaryOwnerMemberId,
+      grants,
+      asOf: ctx.effectiveAt,
+    });
     if (
       !canConvertQuoteToOrder({
         actorMemberId: snap.memberId,
-        grantedScopes: [...snap.roleKeys, ...snap.delegatedScopes],
+        grantedScopes: scopes,
         quoteOwnerMemberId: quote.ownerMemberId,
+        coverage,
       })
     ) {
       throw new Error('PERMISSION_DENIED');
@@ -1009,6 +1038,11 @@ export class CommercialCommandService {
         totalCentavos: centavosToString(order.totalCentavos),
         lineCount: orderLines.length,
         quoteLineIds: orderLines.map((line) => line.quoteLineId),
+        primaryOwnerMemberId,
+        actingAdvisorMemberId: coverage.allowed ? coverage.actingAdvisorMemberId : null,
+        coverageSource: coverage.allowed ? 'commercial.customer.coverage' : null,
+        convertingActorMemberId: snap.memberId,
+        sharedOwnership: false,
       },
     );
   }

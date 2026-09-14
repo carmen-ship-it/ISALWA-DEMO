@@ -114,6 +114,28 @@ export interface OsCommercialStore {
   ): Promise<void>;
   countOrdersForOrg(organizationId: string): Promise<number>;
 
+  /**
+   * Active customer coverage grants for CreateOrder condition #2.
+   * Organization is applied before filter. Never trust client-only grants.
+   */
+  listActiveCustomerCoverageGrants(input: {
+    organizationId: string;
+    customerPartyId: string;
+    actingAdvisorMemberId: string;
+    asOf: Date;
+  }): Promise<
+    Array<{
+      grantType: 'commercial.customer.coverage';
+      organizationId: string;
+      customerPartyId: string;
+      primaryOwnerMemberId: string;
+      actingAdvisorMemberId: string;
+      startsAt: Date;
+      endsAt: Date | null;
+      revokedAt: Date | null;
+    }>
+  >;
+
   appendEventAndAudit(
     event: StoredBusinessEvent,
     outbox: StoredOutboxMessage,

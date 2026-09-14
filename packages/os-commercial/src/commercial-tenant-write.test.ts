@@ -297,6 +297,9 @@ function harness(input: {
     async countOrdersForOrg() {
       return 0;
     },
+    async listActiveCustomerCoverageGrants() {
+      return [];
+    },
     async appendEventAndAudit() {
       record('appendEventAndAudit');
     },

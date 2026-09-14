@@ -231,6 +231,19 @@ function conversionStore(input: {
     async countOrdersForOrg() {
       return orders.length;
     },
+    async listActiveCustomerCoverageGrants() {
+      return [];
+    },
+    async getCommercialAccountInOrg() {
+      return {
+        id: row.commercialAccountId,
+        organizationId: row.organizationId,
+        partyId: row.partyId,
+        ownerMemberId: row.ownerMemberId,
+        status: 'active',
+        version: 1,
+      };
+    },
     async insertOrder(order: OrderRecord) {
       orders.push(order);
     },

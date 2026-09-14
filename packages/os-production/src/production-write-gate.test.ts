@@ -169,10 +169,12 @@ describe('production write scope boundaries', () => {
     assert.equal(canEnterProduction([PRODUCTION_OPERATIONAL_RECORD_SCOPE]), false);
     assert.equal(canEnterProduction([COMMERCIAL_TEAM_READ_SCOPE]), false);
     assert.equal(PRODUCTION_REVIEW_MUTATION, 'not_implemented');
-    assert.equal(PRODUCTION_LIVE_DB_WRITES, 'UNPROVEN');
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.memory, true);
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.prisma_port, true);
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.migrationApplied, false);
   });
 
-  it('denies review, operational record, commercial read, and cargo before any write', () => {
+  it('denies review, operational record, commercial read, and cargo before any write', async () => {
     const store = seed();
     const service = new ProductionWriteService(store);
     const payload = {
@@ -191,7 +193,7 @@ describe('production write scope boundaries', () => {
       { organizationId: SESSION, cargo: 'encargado de producción', title: 'El encargado de producción', grantedScopes: [] },
       { organizationId: '', grantedScopes: [PRODUCTION_ENTRY_MEMBER_SCOPE] },
     ];
-    const denied = sessions.map((session) => service.recordProcess(session, payload));
+    const denied = await Promise.all(sessions.map((session) => service.recordProcess(session, payload)));
     for (const result of denied) {
       assert.deepEqual(denial(result), denial(denied[0]!));
       assertNoForeignLeak(result);
@@ -204,17 +206,17 @@ describe('production write scope boundaries', () => {
 });
 
 describe('production id mutations stay in the session organization', () => {
-  it('ends, attaches, and corrects only a quema or record loaded in the session organization', () => {
+  it('ends, attaches, and corrects only a quema or record loaded in the session organization', async () => {
     const store = seed();
     const service = new ProductionWriteService(store);
     const foreignQuemaBefore = store.getQuema(OTHER, 'quema-foreign');
-    const missingEnd = service.endQuema(entrySession, {
+    const missingEnd = await service.endQuema(entrySession, {
       ...provenance(OTHER),
       id: 'end-missing',
       quemaId: 'quema-missing',
       endedAt: recordedAt,
     });
-    const foreignEnd = service.endQuema(entrySession, {
+    const foreignEnd = await service.endQuema(entrySession, {
       ...provenance(OTHER),
       id: 'end-foreign',
       quemaId: 'quema-foreign',
@@ -227,7 +229,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.getQuema(SESSION, 'quema-own').endedAt, null);
     assert.equal(service.successEvents.length, 0);
 
-    const ended = service.endQuema(entrySession, {
+    const ended = await service.endQuema(entrySession, {
       ...provenance(OTHER),
       id: 'end-own',
       quemaId: 'quema-own',
@@ -241,7 +243,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(service.successEvents[0]?.organizationId, SESSION);
     assert.equal(store.getQuema(OTHER, 'quema-foreign').endedAt, null);
 
-    const foreignAttach = service.attachQuemaProduct(entrySession, {
+    const foreignAttach = await service.attachQuemaProduct(entrySession, {
       ...provenance(OTHER),
       id: 'link-attack',
       quemaId: 'quema-foreign',
@@ -249,7 +251,7 @@ describe('production id mutations stay in the session organization', () => {
       quantity: '1',
       unit: 'piezas',
     });
-    const missingAttach = service.attachQuemaProduct(entrySession, {
+    const missingAttach = await service.attachQuemaProduct(entrySession, {
       ...provenance(SESSION),
       id: 'link-missing',
       quemaId: 'quema-missing',
@@ -262,7 +264,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.getQuema(OTHER, 'quema-foreign').products.length, 1);
     assert.equal(service.successEvents.length, 1);
 
-    const attached = service.attachQuemaProduct(entrySession, {
+    const attached = await service.attachQuemaProduct(entrySession, {
       ...provenance(OTHER),
       id: 'link-own',
       quemaId: 'quema-own',
@@ -275,7 +277,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.getQuema(OTHER, 'quema-foreign').products[0]?.productId, FOREIGN_PRODUCT);
 
     const foreignLoss = store.get(OTHER, 'loss-foreign');
-    const missingCorrection = service.correctLoss(entrySession, {
+    const missingCorrection = await service.correctLoss(entrySession, {
       ...provenance(OTHER),
       id: 'loss-missing-correction',
       productId: 'prod-own',
@@ -286,7 +288,7 @@ describe('production id mutations stay in the session organization', () => {
       correctsEntryId: 'loss-missing',
       correctionReason: 'no existe',
     });
-    const foreignCorrection = service.correctLoss(entrySession, {
+    const foreignCorrection = await service.correctLoss(entrySession, {
       ...provenance(OTHER),
       id: 'loss-foreign-correction',
       productId: 'prod-own',
@@ -304,7 +306,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.get(SESSION, 'loss-foreign-correction'), null);
     assert.equal(store.get(OTHER, 'loss-foreign-correction'), null);
 
-    const corrected = service.correctLoss(entrySession, {
+    const corrected = await service.correctLoss(entrySession, {
       ...provenance(OTHER),
       id: 'loss-own-correction',
       productId: 'prod-own',
@@ -325,11 +327,11 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(stillForeign && stillForeign.kind === 'loss' && stillForeign.reason, FOREIGN_REASON);
   });
 
-  it('does not correct a foreign consumption or attach a process to a foreign quema', () => {
+  it('does not correct a foreign consumption or attach a process to a foreign quema', async () => {
     const store = seed();
     const service = new ProductionWriteService(store);
     const foreignConsumption = store.get(OTHER, 'cons-foreign');
-    const missing = service.recordConsumption(entrySession, {
+    const missing = await service.recordConsumption(entrySession, {
       ...provenance(SESSION),
       id: 'cons-missing-correction',
       stepKey: 'horno',
@@ -341,7 +343,7 @@ describe('production id mutations stay in the session organization', () => {
       correctsEntryId: 'cons-missing',
       correctionReason: 'no existe',
     });
-    const foreign = service.recordConsumption(entrySession, {
+    const foreign = await service.recordConsumption(entrySession, {
       ...provenance(OTHER),
       id: 'cons-foreign-correction',
       stepKey: 'horno',
@@ -359,7 +361,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.get(SESSION, 'cons-foreign-correction'), null);
     assert.equal(service.successEvents.length, 0);
 
-    const recorded = service.recordConsumption(entrySession, {
+    const recorded = await service.recordConsumption(entrySession, {
       ...provenance(OTHER),
       id: 'cons-new',
       stepKey: 'horno',
@@ -373,7 +375,7 @@ describe('production id mutations stay in the session organization', () => {
     if (recorded.ok) assert.equal(recorded.value.organizationId, SESSION);
     assert.equal(store.get(OTHER, 'cons-new'), null);
 
-    const foreignProcess = service.recordProcess(entrySession, {
+    const foreignProcess = await service.recordProcess(entrySession, {
       ...provenance(OTHER),
       id: 'proc-linked-foreign',
       productId: 'prod-own',
@@ -381,7 +383,7 @@ describe('production id mutations stay in the session organization', () => {
       quemaId: 'quema-foreign',
       note: null,
     });
-    const missingProcess = service.recordProcess(entrySession, {
+    const missingProcess = await service.recordProcess(entrySession, {
       ...provenance(SESSION),
       id: 'proc-linked-missing',
       productId: 'prod-own',
@@ -394,7 +396,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(store.get(OTHER, 'proc-linked-foreign'), null);
     assertNoForeignLeak(foreignProcess);
 
-    const linked = service.recordProcess(entrySession, {
+    const linked = await service.recordProcess(entrySession, {
       ...provenance(OTHER),
       id: 'proc-linked-own',
       productId: 'prod-own',
@@ -409,11 +411,11 @@ describe('production id mutations stay in the session organization', () => {
     }
   });
 
-  it('starts a quema in the session even if another organization already uses that id', () => {
+  it('starts a quema in the session even if another organization already uses that id', async () => {
     const store = seed();
     const service = new ProductionWriteService(store);
     const foreignBefore = store.getQuema(OTHER, 'quema-foreign');
-    const started = service.openQuema(entrySession, {
+    const started = await service.openQuema(entrySession, {
       ...quemaProvenance(OTHER),
       id: 'quema-foreign',
       startedAt: occurredAt,
@@ -428,11 +430,11 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(JSON.stringify(service.successEvents).includes(FOREIGN_PRODUCT), false);
   });
 
-  it('does not correct a foreign quema time or product link', () => {
+  it('does not correct a foreign quema time or product link', async () => {
     const store = seed();
     const service = new ProductionWriteService(store);
     const foreignBefore = store.getQuema(OTHER, 'quema-foreign');
-    const correctedEnd = service.endQuema(entrySession, {
+    const correctedEnd = await service.endQuema(entrySession, {
       ...provenance(SESSION),
       id: 'end-correct-foreign-time',
       quemaId: 'quema-own',
@@ -447,7 +449,7 @@ describe('production id mutations stay in the session organization', () => {
     assert.equal(service.successEvents.length, 0);
     assertNoForeignLeak(correctedEnd);
 
-    const correctedLink = service.attachQuemaProduct(entrySession, {
+    const correctedLink = await service.attachQuemaProduct(entrySession, {
       ...provenance(SESSION),
       id: 'link-correct-foreign',
       quemaId: 'quema-own',
@@ -467,15 +469,25 @@ describe('production id mutations stay in the session organization', () => {
 });
 
 describe('production live database writes', () => {
-  it('does not invent a Prisma writer', () => {
+  it('keeps a structural prisma_port without importing PrismaClient in commands or store', () => {
     const src = join(__dirname);
-    const files = ['store.ts', 'commands.ts', 'index.ts'];
-    const source = files.map((name) => readFileSync(join(src, name), 'utf8')).join('\n');
-    assert.equal(files.every((name) => readdirSync(src).includes(name)), true);
-    assert.equal(/from ['"].*prisma/i.test(source), false);
-    assert.equal(source.includes('PrismaClient'), false);
-    assert.equal(/\.prisma\b/.test(source), false);
-    assert.equal(PRODUCTION_LIVE_DB_WRITES, 'UNPROVEN');
+    assert.equal(readdirSync(src).includes('prisma-store.ts'), true);
+    assert.equal(readdirSync(src).includes('store.ts'), true);
+    assert.equal(readdirSync(src).includes('commands.ts'), true);
+
+    const commands = readFileSync(join(src, 'commands.ts'), 'utf8');
+    const store = readFileSync(join(src, 'store.ts'), 'utf8');
+    const prismaStore = readFileSync(join(src, 'prisma-store.ts'), 'utf8');
+
+    assert.equal(commands.includes('PrismaClient'), false);
+    assert.equal(store.includes('PrismaClient'), false);
+    assert.equal(/from ['"]@prisma\/client['"]/.test(prismaStore), false);
+    assert.equal(/from ['"]@isalwa\/os-database/.test(commands + store), false);
+    assert.match(prismaStore, /createPrismaProductionTraceStore/);
+
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.memory, true);
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.prisma_port, true);
+    assert.equal(PRODUCTION_LIVE_DB_WRITES.migrationApplied, false);
     assert.equal(PRODUCTION_REVIEW_MUTATION, 'not_implemented');
   });
 });

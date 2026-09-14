@@ -47,6 +47,14 @@ export type {
   QuemaView,
 } from '../../os-contracts/src/production-trace';
 export { InMemoryProductionTraceStore, ProductionTraceError } from './store';
+export type { MaybePromise, ProductionTraceWriteStore } from './store';
+
+export {
+  MemoryProductionTracePrismaPort,
+  PRODUCTION_MIGRATION_APPLIED,
+  createPrismaProductionTraceStore,
+} from './prisma-store';
+export type { ProductionTracePrismaPort } from './prisma-store';
 
 export {
   PRODUCTION_LIVE_DB_WRITES,

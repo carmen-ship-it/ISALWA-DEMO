@@ -30,7 +30,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | No manager/warehouse/production mutations; no cross-tenant customer; no PriceList write from historical entrega prices |
 | SOURCE OF TRUTH | Party + commercial projection + capability registry |
 | PROOF REQUIRED | TESTED → HOSTED → BROWSER-VERIFIED → USER-ACCEPTED |
-| CURRENT STATE | Commercial core INTEGRATED prior; HOSTED/BROWSER UNPROVEN this pass; informed-of-order FOUNDATION_GAP |
+| CURRENT STATE | Convert: owner / active coverage / commercial.order.convert TESTED; convert.own DEPRECATE_LATER; HOSTED UNPROVEN; informed-of-order P1 FOUNDATION_GAP |
 
 ### A2. JEFE COMERCIAL
 
@@ -72,7 +72,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Cannot invent Order→ProductionRun; consumption does not decrement authoritative stock |
 | SOURCE OF TRUTH | Production packages + FinishedGoodsReceipt |
 | PROOF REQUIRED | TESTED → HOSTED |
-| CURRENT STATE | Prior production foundation; Listo receive TESTED on candidate; HOSTED UNPROVEN |
+| CURRENT STATE | Production entry/quema/loss/consumption prisma_port TESTED; migration unapplied; HOSTED UNPROVEN |
 
 ### A5. ALMACÉN
 
@@ -86,7 +86,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Receive must not allocate; foreign tenant id fails closed; Fábrica ≠ Listo/Salida/Entrega/Delivery/Allocation |
 | SOURCE OF TRUTH | OsFinishedGoodsReceipt + delivery outbound + capabilities |
 | PROOF REQUIRED | LOCAL tests done; HOSTED + BROWSER required |
-| CURRENT STATE | Receive/reader TESTED; allocate live writer may remain gap; HOSTED UNPROVEN |
+| CURRENT STATE | Receive + allocate prisma_port TESTED; warehouse exit write CROSS_LANE (authority not registered); migrations unapplied; HOSTED UNPROVEN |
 
 ### A6. COMPRAS
 
@@ -114,7 +114,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Tender sum mismatch rejected; UI must not show “pagado contable” |
 | SOURCE OF TRUTH | `reported-operational-fact` |
 | PROOF REQUIRED | Contract TESTED; HOSTED UI later |
-| CURRENT STATE | Mixed tenders TESTED contracts; HOSTED UNPROVEN |
+| CURRENT STATE | Mixed tenders + reported-operational-fact prisma_port TESTED; non-ledger; HOSTED UNPROVEN |
 
 ### A8. AUXILIAR / COORDINACIÓN
 
@@ -128,7 +128,7 @@ ROLE · PROMISE · SETUP · ACTION · EXPECTED · NEGATIVE · SOURCE OF TRUTH ·
 | NEGATIVE | Empty board must not mean “no history” when read authority blocked |
 | SOURCE OF TRUTH | Coordination adapters + CROSS_LANE read authority |
 | PROOF REQUIRED | HOSTED |
-| CURRENT STATE | Prior decisions model exists; read CROSS_LANE — COORDINATION_READ_AUTHORITY |
+| CURRENT STATE | Decision write prisma_port TESTED (`coordination.decision.record`); read still CROSS_LANE — COORDINATION_READ_AUTHORITY; HOSTED UNPROVEN |
 
 ### A9. OWNER / ISALWA MANAGER
 

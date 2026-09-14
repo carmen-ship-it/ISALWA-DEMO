@@ -19,7 +19,11 @@ import {
  */
 export const IN_MEMORY_ALLOCATION_IS_TENANT_PROOF = false;
 
+/** Memory inserts stay UNPROVEN. Prisma uses prisma_port via createPrismaOrderAllocationStore. */
+export const IN_MEMORY_ALLOCATION_LIVE_WRITE = 'UNPROVEN' as const;
+
 export class InMemoryOrderAllocationStore {
+  readonly liveWrite = IN_MEMORY_ALLOCATION_LIVE_WRITE;
   private readonly allocations: OrderAllocation[] = [];
 
   observeFinishedGoodsReceipt(input: unknown): {

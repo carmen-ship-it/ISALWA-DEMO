@@ -93,6 +93,7 @@ model OsOrganization {
   priceEntries                OsPriceEntry[]
   specialOrderClassifications OsSpecialOrderClassification[]
   coordinationDecisions       OsCoordinationDecision[]
+  customerCoverageGrants      OsCustomerCoverageGrant[]
 
   @@map("os_organizations")
 }
@@ -1958,6 +1959,29 @@ model OsSpecialOrderClassification {
 
   @@index([organizationId, orderId, recordedAt])
   @@map("os_special_order_classifications")
+}
+
+// Customer coverage: one primary owner, one acting advisor, resource-specific.
+// Not shared ownership. Not GrantDelegation. Not convert.own.
+model OsCustomerCoverageGrant {
+  id                    String    @id
+  organizationId        String    @map("organization_id")
+  customerPartyId       String    @map("customer_party_id")
+  primaryOwnerMemberId  String    @map("primary_owner_member_id")
+  actingAdvisorMemberId String    @map("acting_advisor_member_id")
+  grantType             String    @default("commercial.customer.coverage") @map("grant_type")
+  startsAt              DateTime  @map("starts_at")
+  endsAt                DateTime? @map("ends_at")
+  revokedAt             DateTime? @map("revoked_at")
+  recordedAt            DateTime  @map("recorded_at")
+  recordedByMemberId    String?   @map("recorded_by_member_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, customerPartyId, actingAdvisorMemberId, startsAt], map: "os_customer_coverage_grants_lookup_idx")
+  @@index([organizationId, customerPartyId, primaryOwnerMemberId], map: "os_customer_coverage_grants_owner_idx")
+  @@map("os_customer_coverage_grants")
 }
 
 // fragment: coordination-decision.prisma

@@ -12,12 +12,17 @@ import type {
   OrderAllocation,
 } from '../../os-contracts/src/order-allocation';
 import { InMemoryOrderAllocationStore } from './store';
+import {
+  ALLOCATION_PRISMA_LIVE_WRITE,
+  type PrismaOrderAllocationStore,
+} from './prisma-store';
 
-/**
- * There is no database writer for AllocateFinishedGoods. An in-memory insert is
- * not live tenant proof.
- */
+/** Memory path remains UNPROVEN for live tenant proof. */
 export const ALLOCATION_LIVE_WRITE = 'UNPROVEN' as const;
+
+export type AllocationLiveWrite =
+  | typeof ALLOCATION_LIVE_WRITE
+  | typeof ALLOCATION_PRISMA_LIVE_WRITE;
 
 export type AllocationSession = {
   organizationId?: string | null;
@@ -32,20 +37,24 @@ export type TenantOwnedId = {
   id: string;
 };
 
-/**
- * Lookups must be keyed by the trusted session organization and the id.
- * An id-only finder is not accepted.
- */
 export type AllocationTenantTargets = {
   orderLineInOrg(organizationId: string, orderLineId: string): TenantOwnedId | null | Promise<TenantOwnedId | null>;
   receiptInOrg(organizationId: string, receiptId: string): TenantOwnedId | null | Promise<TenantOwnedId | null>;
 };
 
+export type OrderAllocationWriteStore = {
+  get(organizationId: string, id: string): OrderAllocation | null | Promise<OrderAllocation | null>;
+  allocate(input: unknown): AllocateFinishedGoodsResult | Promise<AllocateFinishedGoodsResult>;
+  liveWrite?: AllocationLiveWrite;
+};
+
+export type OrderAllocationStoreLike = OrderAllocationWriteStore;
+
 export type AllocateSessionDenial = {
   ok: false;
   reason: WarehouseDenialReason | 'not_found' | 'invalid';
   officialStock: false;
-  liveWrite: typeof ALLOCATION_LIVE_WRITE;
+  liveWrite: AllocationLiveWrite;
 };
 
 export type AllocateSessionStoreDenial = (
@@ -53,20 +62,28 @@ export type AllocateSessionStoreDenial = (
   | ExceedsAvailable
   | CrossTenantAllocation
   | AllocationConflict
-) & { liveWrite: typeof ALLOCATION_LIVE_WRITE };
+) & { liveWrite: AllocationLiveWrite };
 
 export type AllocateSessionResult =
   | {
       ok: true;
       allocation: OrderAllocation;
-      liveWrite: typeof ALLOCATION_LIVE_WRITE;
-      tenantProof: 'in_memory_not_live';
+      liveWrite: AllocationLiveWrite;
+      tenantProof: 'in_memory_not_live' | 'prisma_port';
+      migrationApplied: false;
     }
   | AllocateSessionDenial
   | AllocateSessionStoreDenial;
 
-function denied(reason: AllocateSessionDenial['reason']): AllocateSessionDenial {
-  return { ok: false, reason, officialStock: false, liveWrite: ALLOCATION_LIVE_WRITE };
+function liveOf(store: OrderAllocationWriteStore): AllocationLiveWrite {
+  return store.liveWrite ?? ALLOCATION_LIVE_WRITE;
+}
+
+function denied(
+  reason: AllocateSessionDenial['reason'],
+  liveWrite: AllocationLiveWrite = ALLOCATION_LIVE_WRITE,
+): AllocateSessionDenial {
+  return { ok: false, reason, officialStock: false, liveWrite };
 }
 
 function asRecord(input: unknown): Record<string, unknown> | null {
@@ -88,48 +105,52 @@ function ownedBySession(sessionOrgId: string, row: TenantOwnedId | null, id: str
  * commercial.team.read do not authorize this write.
  */
 export async function allocateFinishedGoodsForSession(
-  store: InMemoryOrderAllocationStore,
+  store: InMemoryOrderAllocationStore | PrismaOrderAllocationStore | OrderAllocationWriteStore,
   session: AllocationSession | null | undefined,
   body: unknown,
   targets: AllocationTenantTargets,
 ): Promise<AllocateSessionResult> {
+  const liveWrite = liveOf(store as OrderAllocationWriteStore);
   const organizationId = sessionOrganizationId(session);
-  if (!organizationId || session?.accessStatus !== 'active') return denied('no_session_org');
+  if (!organizationId || session?.accessStatus !== 'active') return denied('no_session_org', liveWrite);
   const memberId = session?.actorMemberId?.trim() ?? '';
-  if (!memberId) return denied('no_session_org');
-  if (session?.grantedScopes == null) return denied('permission_unconfirmed');
-  if (!canAllocateFinishedGoods(session)) return denied('unauthorized_role');
+  if (!memberId) return denied('no_session_org', liveWrite);
+  if (session?.grantedScopes == null) return denied('permission_unconfirmed', liveWrite);
+  if (!canAllocateFinishedGoods(session)) return denied('unauthorized_role', liveWrite);
 
   const draft = asRecord(body);
-  if (!draft) return denied('invalid');
+  if (!draft) return denied('invalid', liveWrite);
   const bodyOrg = text(draft.organizationId);
   const lineOrg = text(draft.orderLineOrganizationId);
   const receiptOrg = text(draft.finishedGoodsReceiptOrganizationId);
   if ((bodyOrg && bodyOrg !== organizationId) || (lineOrg && lineOrg !== organizationId) || (receiptOrg && receiptOrg !== organizationId)) {
-    return denied('cross_tenant');
+    return denied('cross_tenant', liveWrite);
   }
   const bodyActor = text(draft.actorMemberId);
-  if (bodyActor && bodyActor !== memberId) return denied('unauthorized_role');
+  if (bodyActor && bodyActor !== memberId) return denied('unauthorized_role', liveWrite);
 
   const orderLineId = text(draft.orderLineId);
-  if (!orderLineId) return denied('not_found');
+  if (!orderLineId) return denied('not_found', liveWrite);
   const line = await targets.orderLineInOrg(organizationId, orderLineId);
-  if (!ownedBySession(organizationId, line, orderLineId)) return denied('not_found');
+  if (!ownedBySession(organizationId, line, orderLineId)) return denied('not_found', liveWrite);
 
   const receiptId = text(draft.finishedGoodsReceiptId);
   if (receiptId) {
     const receipt = await targets.receiptInOrg(organizationId, receiptId);
-    if (!ownedBySession(organizationId, receipt, receiptId)) return denied('not_found');
+    if (!ownedBySession(organizationId, receipt, receiptId)) return denied('not_found', liveWrite);
   }
 
   const priorId = text(draft.id);
-  if (priorId && store.get(organizationId, priorId)) {
-    return { ok: false, reason: 'conflict', conflict: 'id_exists', officialStock: false, liveWrite: ALLOCATION_LIVE_WRITE };
+  if (priorId) {
+    const prior = await store.get(organizationId, priorId);
+    if (prior) {
+      return { ok: false, reason: 'conflict', conflict: 'id_exists', officialStock: false, liveWrite };
+    }
   }
 
   let saved: AllocateFinishedGoodsResult;
   try {
-    saved = store.allocate({
+    saved = await store.allocate({
       ...draft,
       organizationId,
       orderLineOrganizationId: organizationId,
@@ -138,15 +159,15 @@ export async function allocateFinishedGoodsForSession(
       actorLabel: text(draft.actorLabel) || session?.actorLabel?.trim() || 'El nombre no fue registrado',
     });
   } catch {
-    return denied('invalid');
+    return denied('invalid', liveWrite);
   }
-  if (!saved.ok) return { ...saved, liveWrite: ALLOCATION_LIVE_WRITE };
-  if (saved.allocation.organizationId !== organizationId) return denied('not_found');
+  if (!saved.ok) return { ...saved, liveWrite };
+  if (saved.allocation.organizationId !== organizationId) return denied('not_found', liveWrite);
   return {
     ok: true,
     allocation: saved.allocation,
-    liveWrite: ALLOCATION_LIVE_WRITE,
-    tenantProof: 'in_memory_not_live',
+    liveWrite,
+    tenantProof: liveWrite === ALLOCATION_PRISMA_LIVE_WRITE ? 'prisma_port' : 'in_memory_not_live',
+    migrationApplied: false,
   };
 }
-
