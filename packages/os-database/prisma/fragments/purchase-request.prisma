@@ -1,0 +1,80 @@
+// Purchase request fragment. Not included by schema.prisma.
+// Integration later: add `purchaseRequests OsPurchaseRequest[]` on OsOrganization.
+// Do not add that line in this lane. Do not add an accounting party or a stock ledger.
+// productionContextId and orderId are opaque. They are not foreign keys.
+// History and notes keep organizationId without a second OsOrganization relation.
+
+/// A request from an area to the buyer. Not official stock and not an ERP purchase order.
+model OsPurchaseRequest {
+  id                   String   @id
+  organizationId       String   @map("organization_id")
+  requestingArea       String   @map("requesting_area")
+  requestedByLabel     String   @map("requested_by_label")
+  requestedByMemberId  String?  @map("requested_by_member_id")
+  description          String
+  quantity             String?
+  unit                 String?
+  productionContextId  String?  @map("production_context_id")
+  orderId              String?  @map("order_id")
+  reason               String
+  requestedAt          DateTime @map("requested_at")
+  status               String   @default("requested")
+  buyerLabel           String?  @map("buyer_label")
+  buyerMemberId        String?  @map("buyer_member_id")
+  actorLabel           String   @map("actor_label")
+  actorMemberId        String?  @map("actor_member_id")
+  source               String   @default("manual")
+  /// not_official means this row is not a stock authority. It does not mean stock is zero.
+  stockAuthority       String   @default("not_official") @map("stock_authority")
+  /// none means this row never creates another purchase.
+  reorderPolicy        String   @default("none") @map("reorder_policy")
+  idempotencyKey       String?  @map("idempotency_key")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  statusHistory OsPurchaseRequestStatusHistory[]
+  notes         OsPurchaseRequestNote[]
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status, requestedAt])
+  @@index([organizationId, requestingArea])
+  @@map("os_purchase_requests")
+}
+
+/// Append-only status history. Spanish labels are display-only.
+model OsPurchaseRequestStatusHistory {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  purchaseRequestId String   @map("purchase_request_id")
+  fromStatus        String?  @map("from_status")
+  toStatus          String   @map("to_status")
+  changedAt         DateTime @map("changed_at")
+  actorLabel        String   @map("actor_label")
+  actorMemberId     String?  @map("actor_member_id")
+  source            String   @default("manual")
+  note              String?
+
+  purchaseRequest OsPurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+
+  @@index([organizationId, purchaseRequestId, changedAt])
+  @@map("os_purchase_request_status_history")
+}
+
+/// Notes and evidence references. A reference is not a stock reading.
+model OsPurchaseRequestNote {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  purchaseRequestId  String   @map("purchase_request_id")
+  body               String
+  recordedAt         DateTime @map("recorded_at")
+  actorLabel         String   @map("actor_label")
+  actorMemberId      String?  @map("actor_member_id")
+  source             String   @default("manual")
+  evidenceReference  String?  @map("evidence_reference")
+
+  purchaseRequest OsPurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+
+  @@index([organizationId, purchaseRequestId, recordedAt])
+  @@map("os_purchase_request_notes")
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "../config-ts/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "rootDir": "../.."
+  },
+  "include": ["src", "../os-contracts/src/purchase-request.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}
