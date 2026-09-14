@@ -8,7 +8,7 @@ export default function ProductosPage() {
       <PageHeader
         kicker="Catálogo"
         title="Productos"
-        description="Candidatos leídos de los catálogos. No es una lista de precios mientras no exista un precio de origen."
+        description="Los catálogos Vitri son el material de origen. La extracción de texto no probó un monto, así que ningún precio queda verificado."
       />
       <ProductCatalogPreview />
     </PageContainer>

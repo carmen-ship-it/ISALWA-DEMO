@@ -5,8 +5,10 @@ import {
   PRICE_CONTEXTS,
   PRICE_CURRENCY,
   PRICE_MATCH_REVIEW,
+  PRICE_MATCH_VERIFIED,
   PriceEntrySchema,
   TenantCommercialCatalog,
+  extractCurrencyCentavos,
   governQuotedPrice,
   matchPriceObservation,
   type IsolatedProduct,
@@ -161,6 +163,55 @@ describe('price list contract', () => {
     );
     assert.equal(amountWithoutContext.entries.length, 0);
     assert.equal(amountWithoutContext.reviews[0]?.status, PRICE_MATCH_REVIEW);
+    assert.equal(extractCurrencyCentavos('Peso aproximado 20,35'), null);
+    assert.equal(extractCurrencyCentavos('Bs. 10,5'), null);
+    assert.equal(extractCurrencyCentavos('Bs. 12,50 y Bs. 10,00'), null);
+
+    const verified = matchPriceObservation(
+      {
+        sourceFilename: 'isolation-fixture.txt',
+        sourceSha256: FIXTURE_SHA,
+        page: 1,
+        excerpt: 'Showroom Bs. 12,50 — not a Vitri price',
+        printedContext: 'Showroom',
+        amountCentavos: '1250',
+        productId: 'prd_fixture',
+      },
+      { id: 'pl', organizationId: 'org-a', currency: 'BOB' },
+      'pe-fixture',
+    );
+    assert.equal(verified.verification, PRICE_MATCH_VERIFIED);
+    assert.equal(verified.entries[0]?.amountCentavos, '1250');
+    assert.equal(verified.reviews.length, 0);
+
+    const catalog = new TenantCommercialCatalog();
+    catalog.registerProduct({
+      id: 'prd_fixture',
+      organizationId: 'org-a',
+      businessCode: null,
+      name: 'Fijacion Alfa',
+      category: 'sanitarios',
+      description: null,
+      aliases: [],
+      attributeValues: [],
+    });
+    catalog.registerPriceList(list('org-a', 'pl-close', 'fixture-close'));
+    const entry = verified.entries[0];
+    assert.ok(entry);
+    catalog.registerPriceEntry({
+      ...entry,
+      id: 'pe-close',
+      organizationId: 'org-a',
+      priceListId: 'pl-close',
+      productId: 'prd_fixture',
+      source: list('org-a', 'pl-close', 'fixture-close').source,
+    });
+    const closed = catalog.closePriceList('org-a', 'pl-close', '2026-09-15T12:00:00.000Z');
+    assert.equal(closed.effectiveTo, '2026-09-15T12:00:00.000Z');
+    const again = catalog.closePriceList('org-a', 'pl-close', '2026-09-16T12:00:00.000Z');
+    assert.equal(again.effectiveTo, '2026-09-15T12:00:00.000Z');
+    assert.equal(catalog.openPriceEntries('org-a').length, 0);
+    assert.equal(catalog.dashboard(advisor).ok, true);
   });
 
   it('keeps the quoted price distinct and does not invent a governed amount', () => {

@@ -11,7 +11,9 @@ import {
   type PriceList,
 } from '../../os-contracts/src/price-list';
 import { catalogSurface } from './browse';
+import { CatalogPricePipeline, classifyPrintedObservation, resolveUniqueProductId } from './pipeline';
 import { reviewCatalogPrices, MISSING_AUGUST_2026_PRICE_MATRIX } from './price-source';
+import { SOURCE_EXISTS } from './source-material';
 import { buildReviewedPreview } from './preview';
 import { stableProductId } from './stable-id';
 
@@ -107,10 +109,23 @@ describe('vitri price source', () => {
     const preview = buildReviewedPreview();
     const review = reviewCatalogPrices(preview);
     assert.equal(MISSING_AUGUST_2026_PRICE_MATRIX.located, false);
+    assert.equal(review.sourceStatus, SOURCE_EXISTS);
+    assert.equal(review.structuredExtractionSucceeded, false);
     assert.equal(review.importExecuted, false);
     assert.equal(review.isPriceList, false);
     assert.equal(review.entries.length, 0);
+    assert.equal(review.sourcedEntryCount, 0);
     assert.equal(preview.products.length, 25);
+    assert.equal(review.reviewedCandidateCount, 25);
+    assert.equal(review.additionalArtifactCount, 1);
+    assert.equal(review.printedLabelWithoutAmountCount, 2);
+    assert.equal(review.reviewRequiredCount, 28);
+    assert.equal(
+      review.additionalArtifactCount +
+        review.printedLabelWithoutAmountCount +
+        review.reviewedCandidateCount,
+      review.reviewRequiredCount,
+    );
     assert.equal(
       review.reviews.length,
       1 + preview.printedLabelsWithoutAmount.length + preview.products.length,
@@ -127,6 +142,121 @@ describe('vitri price source', () => {
     for (const sha of VITRI_SHAS) {
       assert.equal(review.entries.some((entry) => entry.source.sha256 === sha), false);
     }
+    assert.equal(review.reviews.filter((item) => item.kind === 'additional_artifact_not_on_disk').length, 1);
+    assert.equal(review.reviews.filter((item) => item.kind === 'printed_label_without_amount').length, 2);
+    assert.equal(review.reviews.filter((item) => item.kind === 'candidate_without_proven_amount').length, 25);
+  });
+
+  it('does not turn a repeated marketing name or a weight into a sourced price', () => {
+    const preview = buildReviewedPreview();
+    const capri = resolveUniqueProductId('CAPRI', preview.products);
+    assert.equal(capri, null);
+    const unique = preview.products.find((product) => product.name === 'Urinario Acqua');
+    assert.ok(unique);
+    assert.equal(resolveUniqueProductId('Urinario Acqua', preview.products), unique.id);
+
+    const weight = classifyPrintedObservation(
+      {
+        sourceFilename: 'CatalogoVitriCompleto2026.pdf',
+        sourceSha256: VITRI_SHAS[0] ?? '',
+        page: 5,
+        excerpt: 'Peso aproximado 20,35 Showroom',
+        productId: unique.id,
+      },
+      { id: 'pl', organizationId: 'org-a', currency: 'BOB' },
+      'must-not-exist',
+    );
+    assert.equal(weight.verification, 'REVIEW_REQUIRED');
+    assert.equal(weight.entries.length, 0);
+
+    const verified = classifyPrintedObservation(
+      {
+        sourceFilename: 'isolation-fixture.txt',
+        sourceSha256: FIXTURE_SHA,
+        page: 1,
+        excerpt: 'Urinario Acqua Showroom Bs. 12,50 — not a Vitri price',
+        productId: unique.id,
+      },
+      { id: 'pl', organizationId: 'org-a', currency: 'BOB' },
+      'pe-fixture',
+    );
+    assert.equal(verified.verification, 'SOURCE_VERIFIED');
+    assert.equal(verified.entries[0]?.amountCentavos, '1250');
+    assert.equal(verified.entries[0]?.source.sha256, FIXTURE_SHA);
+  });
+
+  it('imports once, keeps audit, and deactivates without deleting the candidate', () => {
+    const preview = buildReviewedPreview();
+    const pipeline = new CatalogPricePipeline();
+    const importedAt = '2026-09-14T15:00:00.000Z';
+    const first = pipeline.importPreview('org-a', preview, importedAt);
+    const again = pipeline.importPreview('org-a', preview, '2026-09-14T16:00:00.000Z');
+    assert.equal(again.id, first.id);
+    assert.equal(again.events.at(-1)?.action, 'replayed');
+    assert.equal(pipeline.productCount('org-a'), 25);
+    assert.equal(first.sourcedEntryCount, 0);
+    assert.equal(first.reviewRequiredCount, 28);
+    assert.equal(first.reviewedCandidateCount, 25);
+    assert.equal(first.priceListId, null);
+    assert.equal(first.businessCodesAssigned, 0);
+    assert.equal(first.sourceStatus, SOURCE_EXISTS);
+    assert.equal(first.structuredExtractionStatus, 'NOT_SUCCEEDED');
+    assert.equal(new Set(first.productIds).size, 25);
+
+    const other = pipeline.importPreview('org-b', preview, importedAt);
+    const closed = pipeline.deactivate('org-a', first.id, '2026-09-15T12:00:00.000Z');
+    assert.equal(closed.active, false);
+    assert.equal(closed.deactivatedAt, '2026-09-15T12:00:00.000Z');
+    assert.equal(closed.events.some((event) => event.action === 'deactivated'), true);
+    assert.equal(pipeline.productCount('org-a'), 25);
+    assert.equal(pipeline.get('org-b', other.id)?.active, true);
+    assert.equal(pipeline.get('org-b', first.id), null);
+    const replay = pipeline.importPreview('org-a', preview, '2026-09-15T13:00:00.000Z');
+    assert.equal(replay.active, false);
+    assert.equal(pipeline.productCount('org-a'), 25);
+  });
+
+  it('closes a verified fixture price without rewriting the Vitri extraction result', () => {
+    const preview = buildReviewedPreview();
+    const unique = preview.products.find((product) => product.name === 'Urinario Acqua');
+    assert.ok(unique);
+    const pipeline = new CatalogPricePipeline();
+    const imported = pipeline.importPreview('org-a', preview, '2026-09-14T15:00:00.000Z');
+    const verified = classifyPrintedObservation(
+      {
+        sourceFilename: 'isolation-fixture.txt',
+        sourceSha256: FIXTURE_SHA,
+        page: 1,
+        excerpt: 'Urinario Acqua Showroom Bs. 12,50 — not a Vitri price',
+        productId: unique.id,
+      },
+      { id: 'pl', organizationId: 'org-a', currency: 'BOB' },
+      'pe-fixture',
+    );
+    const entry = verified.entries[0];
+    assert.ok(entry);
+    const attached = pipeline.attachVerifiedEntries('org-a', imported.id, [entry]);
+    assert.equal(attached.structuredExtractionStatus, 'NOT_SUCCEEDED');
+    assert.equal(attached.sourcedEntryCount, 1);
+    assert.equal(pipeline.openEntryCount('org-a'), 1);
+    const closed = pipeline.deactivate('org-a', imported.id, '2026-09-15T12:00:00.000Z');
+    assert.equal(closed.active, false);
+    assert.equal(pipeline.openEntryCount('org-a'), 0);
+    assert.equal(pipeline.productCount('org-a'), 25);
+  });
+
+  it('does not tell the product page that the official source is missing', () => {
+    const page = readFileSync(join(repoRoot, 'apps/os-web/app/(app)/productos/page.tsx'), 'utf8');
+    const preview = readFileSync(
+      join(repoRoot, 'apps/os-web/components/catalog/product-catalog-preview.tsx'),
+      'utf8',
+    );
+    const browser = readFileSync(join(repoRoot, 'apps/os-web/components/catalog/catalog-browser.tsx'), 'utf8');
+    const copy = [page, preview, browser].join('\n');
+    assert.match(copy, /material de origen|Origen existe/);
+    assert.match(copy, /no probó un monto|no tiene un monto extraído/);
+    assert.doesNotMatch(copy, /no exista un precio de origen|no official price source/i);
+    assert.match(preview, /No es el conteo de productos/);
   });
 
   it('does not add a price column to the product master', () => {
@@ -208,9 +338,11 @@ describe('fixture organizations do not leak prices', () => {
     assert.equal(denied.state, 'denied');
     assert.deepEqual(denied.items, []);
     assertNoForeignLeak(denied);
+    const sample = products[0];
+    assert.ok(sample);
     const unmatched = catalogSurface({
       status: 'ready',
-      products: [{ ...products[0], id: 'fix-a', name: 'Fijacion Alfa' }],
+      products: [{ ...sample, id: 'fix-a', name: 'Fijacion Alfa' }],
       query: 'no-existe',
       category: null,
     });

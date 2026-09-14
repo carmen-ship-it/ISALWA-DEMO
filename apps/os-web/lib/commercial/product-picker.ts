@@ -5,7 +5,9 @@
  * invents a price: the advisor types the quoted price, and it is not a list price.
  * A commercial code is optional and is not the search key.
  *
- * PRICE_SOURCE_MISSING: there is no governed price list to read.
+ * PRICE_SOURCE_EXISTS: the Vitri catalogs are the governed V1 source.
+ * STRUCTURED_PRICE_EXTRACTION_SUCCEEDED is false until text proves an amount.
+ * A missing proven amount is not a missing source.
  */
 
 import {
@@ -14,7 +16,8 @@ import {
   type QuotedPriceGovernance,
 } from '@isalwa/os-contracts';
 
-export const PRICE_SOURCE_MISSING = true as const;
+export const PRICE_SOURCE_EXISTS = true as const;
+export const STRUCTURED_PRICE_EXTRACTION_SUCCEEDED = false as const;
 
 /** Reserved productRef prefix. Not a Product Master id. */
 export const OFF_CATALOG_REF_PREFIX = 'off-catalog:';
@@ -141,7 +144,7 @@ export function quoteLinesAreEditable(status: string): boolean {
 export type QuotedPriceEntry = {
   label: typeof QUOTED_PRICE_LABEL;
   hint: typeof QUOTED_PRICE_HINT;
-  /** Always empty. A missing price source must not become a suggested amount. */
+  /** Always empty. An unproven extraction must not become a suggested amount. */
   suggestedCentavos: null;
 };
 
@@ -169,7 +172,7 @@ export type PriceReferencePort = {
   referenceFor(query: PriceReferenceQuery): Promise<GovernedPriceReference | null>;
 };
 
-/** No governed source is not invented and does not become a suggested quote. */
+/** No proven amount is not invented and does not become a suggested quote. */
 export const emptyPriceReferencePort: PriceReferencePort = {
   async referenceFor() {
     return null;
@@ -190,7 +193,7 @@ export function governAdvisorQuote(input: {
 export const PENDING_APPROVAL_COPY =
   'El precio cotizado está por debajo del precio de referencia. Queda pendiente de aprobación.';
 export const NO_GOVERNED_PRICE_COPY =
-  'Sin precio de origen. La cotización no se bloquea.';
+  'Los catálogos son el origen, pero no hay un monto extraído. La cotización no se bloquea.';
 export const REFERENCE_PRICE_LABEL = 'Precio de referencia';
 
 export function formatDescriptionSnapshot(name: string, detail: string): string {

@@ -5,7 +5,8 @@ import { describe, it } from 'node:test';
 import { QUOTE_STATUSES } from '@isalwa/os-contracts';
 import {
   CATALOG_LINK_CAPTION,
-  PRICE_SOURCE_MISSING,
+  PRICE_SOURCE_EXISTS,
+  STRUCTURED_PRICE_EXTRACTION_SUCCEEDED,
   QUOTED_PRICE_HINT,
   QUOTED_PRICE_LABEL,
   QUOTED_PRICE_READ_LABEL,
@@ -52,8 +53,9 @@ function catalogHit(overrides: Partial<CatalogProductHit> = {}): CatalogProductH
 }
 
 describe('quote product picker', () => {
-  it('records that the price source is missing and never suggests an amount', () => {
-    assert.equal(PRICE_SOURCE_MISSING, true);
+  it('records that the source exists and still never suggests an unproven amount', () => {
+    assert.equal(PRICE_SOURCE_EXISTS, true);
+    assert.equal(STRUCTURED_PRICE_EXTRACTION_SUCCEEDED, false);
     const entry = quotedPriceEntry('99900');
     assert.equal(entry.suggestedCentavos, null);
     assert.equal(entry.label, QUOTED_PRICE_LABEL);

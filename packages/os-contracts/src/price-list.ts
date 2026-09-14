@@ -91,6 +91,14 @@ export const PriceMatchReviewSchema = z
     sourceFilename: z.string().min(1).nullable(),
     page: z.number().int().positive().nullable(),
     excerpt: z.string().min(1).nullable(),
+    kind: z
+      .enum([
+        'additional_artifact_not_on_disk',
+        'printed_label_without_amount',
+        'candidate_without_proven_amount',
+        'amount_not_deterministic',
+      ])
+      .optional(),
   })
   .strict();
 
@@ -106,7 +114,45 @@ export type PrintedPriceObservation = {
   productId: string | null;
 };
 
-const AMOUNT_IN_TEXT = /(?:bs\.?|bob)\s*\d|\d[\d.]*,\d{2}/i;
+/**
+ * A comma decimal without a currency marker is not an amount.
+ * Catalog weights such as 20,35 sit next to kilograms and must not become a price.
+ */
+const AMOUNT_IN_TEXT = /(?:bs\.?|bob)\s*\d/i;
+const CURRENCY_AMOUNT =
+  /(?:bs\.?|bob)\s*(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{2}))?(?!\d)/gi;
+
+export const PRICE_MATCH_VERIFIED = 'SOURCE_VERIFIED' as const;
+
+export type PriceVerification = typeof PRICE_MATCH_VERIFIED | typeof PRICE_MATCH_REVIEW;
+
+/**
+ * Parses one currency-marked amount into centavos.
+ * Bolivian grouping uses a dot for thousands and a comma for two decimals.
+ * Missing decimals mean whole bolivianos. One decimal digit is not deterministic.
+ * More than one currency amount in the same text is not deterministic.
+ * A number without Bs or BOB returns null. It is not guessed.
+ */
+export function extractCurrencyCentavos(text: string): string | null {
+  const flags = CURRENCY_AMOUNT.flags.includes('g')
+    ? CURRENCY_AMOUNT.flags
+    : `${CURRENCY_AMOUNT.flags}g`;
+  const pattern = new RegExp(CURRENCY_AMOUNT.source, flags);
+  const found: string[] = [];
+  for (const match of text.matchAll(pattern)) {
+    const end = (match.index ?? 0) + match[0].length;
+    const next = text[end];
+    if (next === '.' || next === ',') continue;
+    const whole = (match[1] ?? '').replaceAll('.', '');
+    const fraction = match[2] ?? '00';
+    if (!/^\d+$/.test(whole) || fraction.length !== 2) continue;
+    const centavos = `${whole}${fraction}`.replace(/^0+(?=\d)/, '');
+    if (!/^[1-9]\d*$/.test(centavos)) continue;
+    found.push(centavos);
+  }
+  if (found.length !== 1) return null;
+  return found[0] ?? null;
+}
 
 export function observationHasExplicitAmount(observation: PrintedPriceObservation): boolean {
   if (!observation.amountCentavos || !/^[1-9]\d*$/.test(observation.amountCentavos)) return false;
@@ -182,6 +228,7 @@ export function governQuotedPrice(input: {
 export type PriceMatchResult = {
   entries: PriceEntry[];
   reviews: PriceMatchReview[];
+  verification: PriceVerification;
 };
 
 /**
@@ -202,7 +249,12 @@ export function matchPriceObservation(
     excerpt: observation.excerpt || null,
   };
 
-  if (!observationHasExplicitAmount(observation) || !observationHasExplicitContext(observation)) {
+  const provenCentavos = extractCurrencyCentavos(observation.excerpt);
+  const amountAgrees =
+    provenCentavos != null &&
+    observation.amountCentavos === provenCentavos &&
+    observationHasExplicitAmount(observation);
+  if (!amountAgrees || !observationHasExplicitContext(observation)) {
     return {
       entries: [],
       reviews: [
@@ -210,8 +262,10 @@ export function matchPriceObservation(
           ...reviewBase,
           reason: 'No printed amount with an explicit price context. No price entry was created.',
           context: observationHasExplicitContext(observation) ? observation.printedContext : null,
+          kind: 'amount_not_deterministic',
         }),
       ],
+      verification: PRICE_MATCH_REVIEW,
     };
   }
   if (!observation.productId) {
@@ -222,8 +276,10 @@ export function matchPriceObservation(
           ...reviewBase,
           reason: 'Amount and context were printed, but no reviewed product matched. No price entry was created.',
           context: observation.printedContext,
+          kind: 'amount_not_deterministic',
         }),
       ],
+      verification: PRICE_MATCH_REVIEW,
     };
   }
 
@@ -243,7 +299,7 @@ export function matchPriceObservation(
       excerpt: observation.excerpt,
     },
   });
-  return { entries: [entry], reviews: [] };
+  return { entries: [entry], reviews: [], verification: PRICE_MATCH_VERIFIED };
 }
 
 export type AccessDenied = {
@@ -342,6 +398,30 @@ export class TenantCommercialCatalog {
     const parsed = PriceListSchema.parse(list);
     this.lists.push(parsed);
     this.remember('price_list', parsed.organizationId, parsed.id);
+  }
+
+  /**
+   * Closes a version by setting effectiveTo. Rows stay.
+   * A second close of the same version does not move the first close time.
+   */
+  closePriceList(organizationId: string, priceListId: string, effectiveTo: string): PriceList {
+    const list = this.lists.find(
+      (item) => item.organizationId === organizationId && item.id === priceListId,
+    );
+    if (!list) throw new Error('price_list_not_in_organization');
+    if (!list.effectiveTo) list.effectiveTo = effectiveTo;
+    return list;
+  }
+
+  openPriceEntries(organizationId: string): PriceEntry[] {
+    const closed = new Set(
+      this.lists
+        .filter((list) => list.organizationId === organizationId && list.effectiveTo)
+        .map((list) => list.id),
+    );
+    return this.entries.filter(
+      (entry) => entry.organizationId === organizationId && !closed.has(entry.priceListId),
+    );
   }
 
   registerPriceEntry(entry: PriceEntry): void {

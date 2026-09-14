@@ -168,7 +168,7 @@ function PriceContextNote({
   if (!sourced) {
     return (
       <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-        Sin precio de origen. Esto no es una lista de precios.
+        Revisión requerida. El catálogo de origen existe; esta ficha no tiene un monto extraído.
       </p>
     );
   }
@@ -219,7 +219,7 @@ function ProductQuickView({
         ) : (
           <div className="mt-2 space-y-2">
             <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-              Sin precio de origen. Los contextos existen, pero no hay un monto con origen.
+              Revisión requerida. Los contextos existen, pero la extracción no probó un monto.
             </p>
             <ul className="m-0 list-none space-y-2 p-0">
               {contexts.map((item) => (

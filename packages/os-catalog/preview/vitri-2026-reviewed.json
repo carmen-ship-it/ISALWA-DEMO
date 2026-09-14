@@ -56,8 +56,10 @@
     }
   ],
   "documentNotes": [
-    "Esto no es una lista de precios. No hay captura de lista de precios.",
-    "No se inventaron códigos comerciales, precios, costos, márgenes, impuestos, plazos, stock ni una lista de materiales.",
+    "Los catálogos Vitri son el material de origen gobernado. El origen existe y está identificado por huella.",
+    "La extracción de texto no probó un monto con contexto. La extracción estructurada no tuvo éxito. No se inventó un monto.",
+    "La matriz de agosto de 2026 no está en disco. Es un artefacto adicional ausente, no la ausencia del origen.",
+    "No se inventaron códigos comerciales, costos, márgenes, impuestos, plazos, stock ni una lista de materiales.",
     "La palabra PRICE aparece sin monto en Vitri2026.2027.pdf páginas 8 y 9. No se guardó un precio.",
     "La columna capacidad de descarga imprime 6 y 4,5 sin unidad. No se asumió litros.",
     "La portada de Vitri2026.2027.pdf imprime VITRI 2025-2026. El nombre de archivo no se corrigió.",
