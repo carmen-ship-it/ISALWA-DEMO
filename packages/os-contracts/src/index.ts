@@ -20,6 +20,7 @@ export * from './party-timeline-events';
 export * from './command-registry';
 export * from './lifecycle';
 export * from './event-envelope';
+export * from './evidence';
 export * from './queries';
 export * from './projection';
 export * from './capabilities';
