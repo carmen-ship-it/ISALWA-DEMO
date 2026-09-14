@@ -28,3 +28,4 @@ export * from './capabilities';
 export * from './operations-commands';
 export * from './commitments';
 export * from './notifications';
+export * from './reported-operational-fact';
