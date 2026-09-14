@@ -1,0 +1,117 @@
+// Not merged into schema.prisma. The SQL migration is the persistence boundary.
+// CROSS_LANE: splice these models into schema.prisma and attach opposite
+// relations on OsOrganization, OsOrder, and OsOrganizationMember.
+// Warehouse exit and customer delivery stay different models.
+// Do not add a note number, invoice, tax, NIT, ledger payment, or signature method.
+// orderLineId is an opaque copy. Do not point it at an order-line model this lane does not own.
+
+model OsWarehouseExit {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  orderId            String   @map("order_id")
+  exitedAt           DateTime @map("exited_at")
+  recordedByMemberId String   @map("recorded_by_member_id")
+  source             String
+  notes              String?
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_warehouse_exits")
+}
+
+model OsWarehouseOutboundNote {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  warehouseExitId String   @unique @map("warehouse_exit_id")
+  orderId         String   @map("order_id")
+  documentKind    String   @map("document_kind")
+  numberingPolicy String   @map("numbering_policy")
+  exitedAt        DateTime @map("exited_at")
+  bornAt          DateTime @map("born_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_warehouse_outbound_notes")
+}
+
+model OsWarehouseOutboundNoteLine {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  outboundNoteId String   @map("outbound_note_id")
+  orderLineId    String   @map("order_line_id")
+  productRef     String?  @map("product_ref")
+  description    String
+  quantity       Int
+  unitLabel      String?  @map("unit_label")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, outboundNoteId])
+  @@map("os_warehouse_outbound_note_lines")
+}
+
+model OsDelivery {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  orderId            String   @map("order_id")
+  deliveredAt        DateTime @map("delivered_at")
+  deliveredTo        String?  @map("delivered_to")
+  recordedByMemberId String   @map("recorded_by_member_id")
+  source             String
+  notes              String?
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_deliveries")
+}
+
+model OsDeliveryNote {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  deliveryId      String   @unique @map("delivery_id")
+  orderId         String   @map("order_id")
+  documentKind    String   @map("document_kind")
+  numberingPolicy String   @map("numbering_policy")
+  deliveredAt     DateTime @map("delivered_at")
+  bornAt          DateTime @map("born_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_delivery_notes")
+}
+
+model OsDeliveryNoteLine {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  deliveryNoteId String   @map("delivery_note_id")
+  orderLineId    String   @map("order_line_id")
+  productRef     String?  @map("product_ref")
+  description    String
+  quantity       Int
+  unitLabel      String?  @map("unit_label")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, deliveryNoteId])
+  @@map("os_delivery_note_lines")
+}
+
+model OsDeliveryEvidence {
+  id                      String   @id
+  organizationId          String   @map("organization_id")
+  subjectType             String   @map("subject_type")
+  subjectId               String   @map("subject_id")
+  role                    String
+  recordedByMemberId      String   @map("recorded_by_member_id")
+  reference               String?
+  note                    String?
+  paymentState            String?  @map("payment_state")
+  exceptionReason         String?  @map("exception_reason")
+  authorizedByMemberId    String?  @map("authorized_by_member_id")
+  recipient               String?
+  signatureReference      String?  @map("signature_reference")
+  confirmedLedgerPayment  Boolean  @map("confirmed_ledger_payment")
+  ledgerPosting           String   @map("ledger_posting")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, subjectType, subjectId, role])
+  @@map("os_delivery_evidence")
+}
