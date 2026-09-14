@@ -1,64 +1,59 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req } from '@nestjs/common';
 import { getPrisma } from '@isalwa/database';
+import {
+  sessionFromAuthenticatedRequest,
+  type AuthenticatedTenantRequest,
+} from '../auth/trusted-session';
+import {
+  listConversations,
+  readConversation,
+  type ConversationListResult,
+  type ConversationOneResult,
+  type ConversationReadDb,
+} from './conversations-query';
+
+export type { ConversationListResult, ConversationOneResult, ConversationReadDb };
+export { CONVERSATION_READ_CAPABILITY } from './conversations-query';
+
+export type ConversationHttpRequest = AuthenticatedTenantRequest & {
+  headers?: Record<string, string | undefined>;
+  readDb?: ConversationReadDb | null;
+};
+
+function resolveDb(req: ConversationHttpRequest | undefined): ConversationReadDb | null {
+  if (req && Object.prototype.hasOwnProperty.call(req, 'readDb')) return req.readDb ?? null;
+  return getPrisma() as unknown as ConversationReadDb | null;
+}
 
 @Controller('conversations')
 export class ConversationsController {
+  /**
+   * Client organizationId, q, email, and name are not inputs.
+   * The session is taken only from an already-authenticated request.
+   */
   @Get()
-  async list(@Query('take') take?: string) {
-    const prisma = getPrisma();
-    if (!prisma) return { items: [] };
-    const rows = await prisma.conversation.findMany({
-      orderBy: { lastMessageAt: 'desc' },
-      take: take ? Number(take) : 40,
-      include: {
-        account: true,
-        channel: true,
-        messages: { orderBy: { sentAt: 'desc' }, take: 1 },
-      },
+  async list(
+    @Query('take') take?: string,
+    @Req() req?: ConversationHttpRequest,
+  ): Promise<ConversationListResult> {
+    const session = sessionFromAuthenticatedRequest(req);
+    return listConversations({
+      take,
+      session,
+      db: () => resolveDb(req),
     });
-    return {
-      items: rows.map((c) => ({
-        id: c.id,
-        accountId: c.accountId,
-        accountName: c.account?.tradeName ?? c.account?.legalName ?? c.contactPhoneE164,
-        channel: c.channel.displayName,
-        purpose: c.channel.purpose,
-        status: c.status,
-        slaStatus: c.slaStatus,
-        lastMessageAt: c.lastMessageAt,
-        preview: c.messages[0]?.body ?? '',
-        href: c.accountId ? `/personas/${c.accountId}` : `/senal?c=${c.id}`,
-      })),
-    };
   }
 
   @Get(':id')
-  async one(@Param('id') id: string) {
-    const prisma = getPrisma();
-    if (!prisma) return null;
-    const c = await prisma.conversation.findUnique({
-      where: { id },
-      include: {
-        account: true,
-        channel: true,
-        messages: { orderBy: { sentAt: 'asc' } },
-      },
+  async one(
+    @Param('id') id: string,
+    @Req() req?: ConversationHttpRequest,
+  ): Promise<ConversationOneResult> {
+    const session = sessionFromAuthenticatedRequest(req);
+    return readConversation({
+      id,
+      session,
+      db: () => resolveDb(req),
     });
-    if (!c) return null;
-    return {
-      id: c.id,
-      accountId: c.accountId,
-      accountName: c.account?.tradeName ?? c.account?.legalName,
-      channel: c.channel.displayName,
-      purpose: c.channel.purpose,
-      slaStatus: c.slaStatus,
-      messages: c.messages.map((m) => ({
-        id: m.id,
-        direction: m.direction,
-        body: m.body,
-        sentAt: m.sentAt,
-        senderType: m.senderType,
-      })),
-    };
   }
 }

@@ -218,6 +218,66 @@ describe('OrderAllocation tenant and role gates', () => {
     assert.equal(desk.listAllocations(session()).length, 0);
   });
 
+  it('does not reveal whether a foreign order line or allocation id exists', () => {
+    const desk = new WarehouseAllocationDesk();
+    const seeded = desk.allocate(
+      session({ organizationId: 'org-b', memberId: 'member-b' }),
+      allocateBody({
+        id: 'alloc-foreign',
+        organizationId: 'org-b',
+        orderLineId: FOREIGN_LINE,
+        orderLineOrganizationId: 'org-b',
+        productId: 'prod-foreign',
+        finishedGoodsReceiptId: 'receipt-b',
+        finishedGoodsReceiptOrganizationId: 'org-b',
+        knownAvailableQuantity: '10',
+      }),
+      facts({
+        receipts: [
+          {
+            organizationId: 'org-b',
+            productId: 'prod-foreign',
+            productLabel: FOREIGN_PRODUCT,
+            quantity: '10',
+            receiptId: 'receipt-b',
+          },
+        ],
+        pedidos: [foreignPedido()],
+      }),
+    );
+    assert.equal(seeded.ok, true);
+    const missingLine = desk.allocate(session(), allocateBody({ id: 'alloc-missing', orderLineId: 'line-absent' }), facts());
+    const foreignLine = desk.allocate(session(), allocateBody({ id: 'alloc-probe', orderLineId: FOREIGN_LINE }), facts({ pedidos: [foreignPedido()] }));
+    assert.equal(missingLine.ok, false);
+    assert.equal(foreignLine.ok, false);
+    if (missingLine.ok || foreignLine.ok) return;
+    assert.equal(foreignLine.reason, missingLine.reason);
+    assert.equal(foreignLine.reason, 'not_found');
+    const missingCorrection = desk.correct(session(), {
+      id: 'corr-missing',
+      allocationId: 'alloc-absent',
+      quantity: '1',
+      reason: 'No está',
+      correctedAt,
+      recordedAt,
+    });
+    const foreignCorrection = desk.correct(session(), {
+      id: 'corr-probe',
+      allocationId: 'alloc-foreign',
+      quantity: '1',
+      reason: 'No está',
+      correctedAt,
+      recordedAt,
+    });
+    assert.equal(missingCorrection.ok, false);
+    assert.equal(foreignCorrection.ok, false);
+    if (missingCorrection.ok || foreignCorrection.ok) return;
+    assert.equal(foreignCorrection.reason, missingCorrection.reason);
+    assert.equal(foreignCorrection.reason, 'not_found');
+    const reuseForeignId = desk.allocate(session(), allocateBody({ id: 'alloc-foreign' }), facts());
+    assert.equal(reuseForeignId.ok, true);
+  });
+
   it('denies a direct call that has no session organization', () => {
     const desk = new WarehouseAllocationDesk();
     const missing = desk.allocate(null, allocateBody({ organizationId: 'org-a' }), facts());
@@ -396,7 +456,7 @@ describe('a governed correction does not delete the original allocation', () => 
     });
     assert.equal(blocked.ok, false);
     if (blocked.ok) return;
-    assert.equal(blocked.reason, 'cross_tenant');
+    assert.equal(blocked.reason, 'not_found');
     assert.equal(desk.getAllocation(session(), 'alloc-1')?.quantity, '2');
 
     const corrected = desk.correct(session(), {

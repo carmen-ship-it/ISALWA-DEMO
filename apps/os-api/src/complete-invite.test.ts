@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { decideInviteCompletionHttp, inviteCompletionHttpStatus } from './complete-invite';
+import { CROSS_LANE_CHANGE_REQUEST } from '@isalwa/os-workforce';
+import { decideInviteCompletionHttp, inviteCompletionHttpBody, inviteCompletionHttpStatus } from './complete-invite';
 
 const verified = {
   id: 'provider-user-1',
@@ -46,5 +47,14 @@ describe('complete-invite HTTP authority', () => {
     assert.equal(inviteCompletionHttpStatus('not_invited'), 403);
     assert.equal(inviteCompletionHttpStatus('activated'), 200);
     assert.equal(inviteCompletionHttpStatus('already_completed'), 200);
+  });
+
+  it('returns CROSS_LANE_CHANGE_REQUEST without member rows when the invite is unbound', () => {
+    assert.equal(CROSS_LANE_CHANGE_REQUEST, 'CROSS_LANE_CHANGE_REQUEST');
+    assert.equal(inviteCompletionHttpStatus(CROSS_LANE_CHANGE_REQUEST), 403);
+    const body = inviteCompletionHttpBody(CROSS_LANE_CHANGE_REQUEST);
+    assert.deepEqual(body, { code: 'CROSS_LANE_CHANGE_REQUEST' });
+    assert.equal('memberId' in body, false);
+    assert.equal('organizationId' in body, false);
   });
 });

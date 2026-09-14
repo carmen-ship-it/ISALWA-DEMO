@@ -14,6 +14,10 @@ import { z } from 'zod';
  * Resolution is a new row. Previous rows stay. Tenant reads, search, and
  * aggregates use the session organization only. A missing session organization
  * is a denial, not a fallback to the resource organization.
+ * Record and resolve prove the target organization equals the trusted session
+ * organization before append. A foreign id is not mutated and is not a
+ * success event. Live writes are UNPROVEN: this file is not a Prisma writer.
+ * There is no coordination read scope.
  *
  * CROSS_LANE: export this file from packages/os-contracts/src/index.ts.
  * Do not register the capability on invite, GrantAdditionalRole, or cargo.
@@ -21,6 +25,12 @@ import { z } from 'zod';
  */
 
 export const COORDINATION_DECISION_CAPABILITY = 'coordination.decision.record' as const;
+
+/**
+ * In-memory command only. There is no Prisma writer in this module.
+ * A hosted insert of os_coordination_decisions is UNPROVEN.
+ */
+export const COORDINATION_DECISION_LIVE_WRITE_PROOF = 'UNPROVEN' as const;
 
 export const COORDINATION_DECISION_KINDS = ['recorded', 'resolved'] as const;
 export type CoordinationDecisionKind = (typeof COORDINATION_DECISION_KINDS)[number];
@@ -361,18 +371,34 @@ export function deriveCoordinationCommittee(
   };
 }
 
+/**
+ * Mutation target must equal the trusted session organization.
+ * A missing session is not a fallback to the target organization.
+ * An omitted target means the mutation target is the session organization.
+ * This is not a read scope. Cargo, title, and operations.coordinator.record
+ * do not grant coordination.decision.record.
+ */
+export function coordinationDecisionTargetMatchesSession(
+  session: CoordinationSession | null | undefined,
+  targetOrganizationId?: string | null,
+): CoordinationResult<{ organizationId: string }> {
+  const organizationId = sessionOrganizationId(session);
+  if (!organizationId) return fail('missing_session_org');
+  const target = blankToNull(targetOrganizationId);
+  if (target && target !== organizationId) return fail('cross_tenant');
+  return { ok: true, value: { organizationId } };
+}
+
 function authorize(
   session: CoordinationSession | null | undefined,
   resourceOrganizationId?: string | null,
 ): CoordinationResult<{ organizationId: string }> {
-  const organizationId = sessionOrganizationId(session);
-  if (!organizationId) return fail('missing_session_org');
-  const resource = blankToNull(resourceOrganizationId);
-  if (resource && resource !== organizationId) return fail('cross_tenant');
+  const target = coordinationDecisionTargetMatchesSession(session, resourceOrganizationId);
+  if (!target.ok) return target;
   const fromCargo = coordinationCapabilityFromCargoOrTitle(session?.cargo, session?.title);
   const granted = [...(session?.grantedCapabilities ?? []), ...fromCargo];
   if (!hasCoordinationDecisionCapability(granted)) return fail('unauthorized_role');
-  return { ok: true, value: { organizationId } };
+  return { ok: true, value: { organizationId: target.value.organizationId } };
 }
 
 export function coordinationCommitteeForSession(input: {
@@ -463,7 +489,15 @@ export function recordCoordinationDecision(
   if (dueAt === 'invalid') return fail('invalid_time');
   const recordedAt = input.recordedAt == null ? occurredAt : requiredDateTime(input.recordedAt);
   if (!recordedAt) return fail('invalid_time');
-  if (input.ledger.decisions.some((row) => row.id === id)) return fail('already_exists');
+  if (
+    input.ledger.decisions.some(
+      (row) => row.id === id && row.organizationId === access.value.organizationId,
+    )
+  ) {
+    return fail('already_exists');
+  }
+  const proven = coordinationDecisionTargetMatchesSession(input.session, access.value.organizationId);
+  if (!proven.ok) return proven;
 
   const row: CoordinationDecisionRecord = {
     id,
@@ -520,14 +554,16 @@ export function resolveCoordinationDecision(
 ): CoordinationResult<RecordedCoordinationDecision> {
   const deniedMutation = forbiddenMutation(input);
   if (deniedMutation) return fail(deniedMutation);
-  const access = authorize(input.session, input.organizationId);
+  const target = coordinationDecisionTargetMatchesSession(input.session, input.organizationId);
+  if (!target.ok) return target;
+  const access = authorize(input.session, target.value.organizationId);
   if (!access.ok) return access;
-  const prior = input.ledger.decisions.find((row) => row.id === input.resolvesDecisionId);
-  if (!prior || prior.organizationId !== access.value.organizationId) {
-    const foreign = input.ledger.decisions.find((row) => row.id === input.resolvesDecisionId);
-    if (foreign && foreign.organizationId !== access.value.organizationId) return fail('cross_tenant');
-    return fail('not_found');
-  }
+  const prior = input.ledger.decisions.find(
+    (row) => row.id === input.resolvesDecisionId && row.organizationId === access.value.organizationId,
+  );
+  if (!prior) return fail('not_found');
+  const proven = coordinationDecisionTargetMatchesSession(input.session, prior.organizationId);
+  if (!proven.ok || proven.value.organizationId !== prior.organizationId) return fail('not_found');
   if (prior.kind !== 'recorded') return fail('not_found');
   const already = input.ledger.decisions.some(
     (row) =>
@@ -578,7 +614,11 @@ export function readCoordinationDecision(input: {
 }): CoordinationResult<CoordinationDecisionRecord> {
   const id = blankToNull(input.decisionId);
   if (!id) return fail('id_required');
-  const row = input.ledger.decisions.find((item) => item.id === id);
+  const sessionOrg = sessionOrganizationId(input.session);
+  const own = sessionOrg
+    ? input.ledger.decisions.find((item) => item.id === id && item.organizationId === sessionOrg)
+    : undefined;
+  const row = own ?? input.ledger.decisions.find((item) => item.id === id);
   const access = authorize(input.session, row?.organizationId);
   if (!access.ok) return access;
   if (!row || row.organizationId !== access.value.organizationId) return fail('not_found');

@@ -44,8 +44,13 @@ export class PrismaOsPartyStore implements OsPartyStore {
     return row ? { id: row.id, organizationId: row.organizationId, accessStatus: row.accessStatus } : null;
   }
 
-  async listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]> {
-    const rows = await this.db().osRoleAssignment.findMany({ where: { memberId } });
+  async listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]> {
+    const rows = await this.db().osRoleAssignment.findMany({
+      where: organizationId ? { memberId, organizationId } : { memberId },
+    });
     return rows.map((r) => ({
       memberId: r.memberId,
       roleKey: r.roleKey,
@@ -54,8 +59,15 @@ export class PrismaOsPartyStore implements OsPartyStore {
     }));
   }
 
-  async listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]> {
-    const rows = await this.db().osDelegation.findMany({ where: { delegateMemberId: memberId } });
+  async listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: organizationId
+        ? { delegateMemberId: memberId, organizationId }
+        : { delegateMemberId: memberId },
+    });
     return rows.map((d) => ({
       scopes: d.scopesJson as string[],
       startsAt: d.startsAt,

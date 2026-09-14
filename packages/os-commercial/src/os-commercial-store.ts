@@ -17,8 +17,8 @@ export interface OsCommercialStore {
   runInTransaction<T>(fn: (store: OsCommercialStore) => Promise<T>): Promise<T>;
 
   getMemberInOrg(organizationId: string, memberId: string): Promise<MemberRecord | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]>;
-  listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]>;
+  listRoleAssignmentsForMember(memberId: string, organizationId?: string): Promise<RoleAssignmentRecord[]>;
+  listDelegationsForDelegate(memberId: string, organizationId?: string): Promise<DelegationRecord[]>;
 
   getPartyInOrg(organizationId: string, partyId: string): Promise<PartyRecord | null>;
   getCommercialAccountForParty(
@@ -30,6 +30,7 @@ export interface OsCommercialStore {
     commercialAccountId: string,
   ): Promise<CommercialAccountRecord | null>;
   updateCommercialAccount(
+    organizationId: string,
     commercialAccountId: string,
     patch: Partial<Pick<CommercialAccountRecord, 'ownerMemberId' | 'version'>>,
     expectedVersion: number,
@@ -38,6 +39,7 @@ export interface OsCommercialStore {
   insertOpportunity(record: OpportunityRecord): Promise<void>;
   getOpportunityInOrg(organizationId: string, opportunityId: string): Promise<OpportunityRecord | null>;
   updateOpportunity(
+    organizationId: string,
     opportunityId: string,
     patch: Partial<
       Pick<
@@ -58,6 +60,7 @@ export interface OsCommercialStore {
   insertQuote(record: QuoteRecord): Promise<void>;
   getQuoteInOrg(organizationId: string, quoteId: string): Promise<QuoteRecord | null>;
   updateQuote(
+    organizationId: string,
     quoteId: string,
     patch: Partial<
       Pick<
@@ -80,6 +83,7 @@ export interface OsCommercialStore {
   getQuoteLineInOrg(organizationId: string, quoteLineId: string): Promise<QuoteLineRecord | null>;
   listQuoteLines(organizationId: string, quoteId: string): Promise<QuoteLineRecord[]>;
   updateQuoteLine(
+    organizationId: string,
     quoteLineId: string,
     patch: Partial<
       Pick<
@@ -94,8 +98,8 @@ export interface OsCommercialStore {
       >
     >,
   ): Promise<void>;
-  deleteQuoteLine(quoteLineId: string): Promise<void>;
-  nextQuoteLineNumber(quoteId: string): Promise<number>;
+  deleteQuoteLine(organizationId: string, quoteLineId: string): Promise<void>;
+  nextQuoteLineNumber(organizationId: string, quoteId: string): Promise<number>;
 
   insertOrder(record: OrderRecord): Promise<void>;
   insertOrderLines(records: OrderLineRecord[]): Promise<void>;
@@ -103,6 +107,7 @@ export interface OsCommercialStore {
   getOrderInOrg(organizationId: string, orderId: string): Promise<OrderRecord | null>;
   getOrderForQuote(organizationId: string, quoteId: string): Promise<OrderRecord | null>;
   updateOrder(
+    organizationId: string,
     orderId: string,
     patch: Partial<Pick<OrderRecord, 'status' | 'cancelledAt' | 'version'>>,
     expectedVersion: number,

@@ -15,6 +15,11 @@ function key(organizationId: string, id: string): string {
   return `${organizationId}:${id}`;
 }
 
+/**
+ * Process-local rows. Inserting here does not prove the caller checked a trusted session.
+ */
+export const MEMORY_DELIVERY_STORE_IS_TENANT_PROOF = false;
+
 export class MemoryDeliveryStore implements DeliveryStore {
   private readonly orders = new Map<string, OrderSnapshot>();
   private readonly members = new Map<string, MemberSnapshot>();

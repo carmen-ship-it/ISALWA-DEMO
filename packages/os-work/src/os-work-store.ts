@@ -14,8 +14,14 @@ export interface OsWorkStore {
   runInTransaction<T>(fn: (store: OsWorkStore) => Promise<T>): Promise<T>;
 
   getMemberInOrg(organizationId: string, memberId: string): Promise<MemberRecord | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]>;
-  listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]>;
+  listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]>;
+  listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]>;
 
   partyExistsInOrg(organizationId: string, partyId: string): Promise<boolean>;
   getQuoteApprovalSubject(

@@ -42,8 +42,8 @@ export class WorkCommandService {
   ): Promise<MemberAccessSnapshot | null> {
     const member = await this.store.getMemberInOrg(organizationId, memberId);
     if (!member) return null;
-    const roles = await this.store.listRoleAssignmentsForMember(memberId);
-    const delegations = await this.store.listDelegationsForDelegate(memberId);
+    const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);
+    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);
     return {
       memberId: member.id,
       organizationId: member.organizationId,
@@ -434,7 +434,7 @@ export class WorkCommandService {
     approverMemberId: string,
   ): Promise<boolean> {
     if (ctx.actorMemberId === approverMemberId) return true;
-    const delegations = await store.listDelegationsForDelegate(ctx.actorMemberId);
+    const delegations = await store.listDelegationsForDelegate(ctx.actorMemberId, ctx.organizationId);
     for (const d of delegations) {
       if (d.revokedAt) continue;
       if (d.startsAt > ctx.effectiveAt || d.expiresAt <= ctx.effectiveAt) continue;

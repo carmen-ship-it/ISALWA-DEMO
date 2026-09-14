@@ -92,6 +92,11 @@ function asError(err: unknown): Error {
   return new Error('VALIDATION_FAILED');
 }
 
+/**
+ * Memory inserts are not a database writer. Live persistence is unproven.
+ */
+export const DELIVERY_LIVE_WRITE = 'UNPROVEN' as const;
+
 export class DeliveryCommandService {
   constructor(private readonly store: DeliveryStore) {}
 
@@ -218,7 +223,8 @@ export class DeliveryCommandService {
   async recordEvidence(ctx: DeliveryContext, payload: unknown): Promise<EvidenceRecord> {
     try {
       const parsed = parseRecordDeliveryEvidence(payload);
-      const organizationId = await this.authorize(ctx, parsed.recordedBy);
+      const resource: DeliveryResource = parsed.subjectType === 'delivery' ? 'delivery' : 'warehouse_exit';
+      const organizationId = await this.authorize(ctx, parsed.recordedBy, resource);
       if (parsed.subjectType === 'delivery') {
         const delivery = visibleInSession(organizationId, await this.store.getDelivery(organizationId, parsed.subjectId));
         if (!delivery) throw new Error('NOT_FOUND');
@@ -389,8 +395,8 @@ export class DeliveryCommandService {
 
   private async requireOpenOrder(organizationId: string, orderId: string) {
     const order = await this.store.getOrderInOrg(organizationId, orderId);
-    if (!order) throw new Error('NOT_FOUND');
-    if (order.organizationId !== organizationId) throw new Error('TENANT_FORBIDDEN');
+    // Missing and foreign are the same not-found. A mismatched row is not a mutation and is not described.
+    if (!order || order.organizationId !== organizationId) throw new Error('NOT_FOUND');
     if (order.status === 'cancelled') throw new Error('VALIDATION_FAILED');
     return order;
   }

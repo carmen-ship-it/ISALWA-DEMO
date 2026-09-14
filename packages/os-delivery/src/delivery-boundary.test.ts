@@ -27,7 +27,7 @@ function storeWithOrder(lines: readonly unknown[] | null = null) {
   const store = new MemoryDeliveryStore();
   const both = [WAREHOUSE_EXIT_RECORD_SCOPE, CUSTOMER_DELIVERY_RECORD_SCOPE];
   store.putMember({ id: 'member-a', organizationId: 'org-a', accessStatus: 'active', grantedScopes: both });
-  store.putMember({ id: 'member-b', organizationId: 'org-a', accessStatus: 'active', grantedScopes: [] });
+  store.putMember({ id: 'member-b', organizationId: 'org-a', accessStatus: 'active', grantedScopes: [CUSTOMER_DELIVERY_RECORD_SCOPE] });
   store.putMember({ id: 'member-c', organizationId: 'org-b', accessStatus: 'active', grantedScopes: both });
   store.putOrder({ id: 'order-1', organizationId: 'org-a', status: 'open', lines });
   store.putOrder({ id: 'order-b', organizationId: 'org-b', status: 'open', lines: null });

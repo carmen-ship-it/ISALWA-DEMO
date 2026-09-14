@@ -20,8 +20,14 @@ export interface OsPartyStore {
   runInTransaction<T>(fn: (store: OsPartyStore) => Promise<T>): Promise<T>;
 
   getMemberInOrg(organizationId: string, memberId: string): Promise<MemberRecord | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]>;
-  listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]>;
+  listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]>;
+  listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]>;
 
   getPartyInOrg(organizationId: string, partyId: string): Promise<PartyRecord | null>;
   insertParty(party: PartyRecord): Promise<void>;

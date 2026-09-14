@@ -14,6 +14,12 @@ export type TrustedSearchSession = {
   readonly grantedScopes: readonly string[];
 };
 
+export {
+  holdsExactScope,
+  sessionFromAuthenticatedRequest,
+  trustedOrganizationId,
+} from '../auth/trusted-session';
+
 export type SearchDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
 
 export type SearchHit = {
@@ -93,46 +99,6 @@ function denied(code: SearchDenialCode): SearchReadResult {
   return { ...EMPTY, code };
 }
 
-export function trustedOrganizationId(
-  session: { organizationId?: string | null } | null | undefined,
-): string | null {
-  if (!session || typeof session.organizationId !== 'string') return null;
-  const trimmed = session.organizationId.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-export function holdsExactScope(
-  granted: readonly string[] | undefined,
-  required: string,
-): boolean {
-  return (granted ?? []).some((scope) => scope.trim() === required);
-}
-
-/**
- * Only a session already marked authenticated is trusted.
- * query.organizationId is intentionally unread.
- */
-export function sessionFromAuthenticatedRequest(
-  req: AuthenticatedSearchRequest | undefined,
-): TrustedSearchSession | null {
-  const raw = req?.authenticatedSession;
-  if (!raw || typeof raw !== 'object') return null;
-  const candidate = raw as {
-    authenticated?: unknown;
-    organizationId?: unknown;
-    grantedScopes?: unknown;
-  };
-  if (candidate.authenticated !== true) return null;
-  if (typeof candidate.organizationId !== 'string') return null;
-  const organizationId = candidate.organizationId.trim();
-  if (!organizationId) return null;
-  if (!Array.isArray(candidate.grantedScopes)) return null;
-  if (!candidate.grantedScopes.every((scope) => typeof scope === 'string')) return null;
-  return {
-    organizationId,
-    grantedScopes: candidate.grantedScopes,
-  };
-}
 
 function contains(field: string, needle: string): Record<string, { contains: string; mode: 'insensitive' }> {
   return { [field]: { contains: needle, mode: 'insensitive' } };

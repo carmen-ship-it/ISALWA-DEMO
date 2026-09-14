@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createId } from '@isalwa/ts-utils';
 import type { RequestContext } from '@isalwa/os-contracts';
 import { LocalAuthProviderPort } from './auth-provider';
-import { completeInvitedAccess } from './invite-completion';
+import { completeInvitedAccess, CROSS_LANE_CHANGE_REQUEST } from './invite-completion';
 import { MemoryOsStore } from './memory-store';
 import { resolveInviteRedirectUrl } from './supabase-auth-provider';
 import { WorkforceCommandService } from './workforce-command-service';
@@ -228,6 +228,92 @@ describe('invite completion', () => {
           providerSubject: 'shared-subject',
         }),
       /VALIDATION_FAILED/,
+    );
+  });
+});
+
+describe('invite organization binding', () => {
+  it('fails closed when the same person has invited memberships in two organizations', async () => {
+    const { store, commands, memberId, personId } = await invitedFixture();
+    const foreignOrg = await store.seedOrganization('Synthetic Foreign', 'synthetic-foreign');
+    const foreignMemberId = 'member-foreign-synthetic';
+    store.members.push({
+      id: foreignMemberId,
+      organizationId: foreignOrg.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'invited',
+      employmentStartedAt: null,
+      employmentEndedAt: null,
+      version: 0,
+    });
+
+    const calls: Array<{ personId: string; organizationId?: string }> = [];
+    const listMembers = store.listMembersForPerson.bind(store);
+    store.listMembersForPerson = async (id, organizationId) => {
+      calls.push({ personId: id, organizationId });
+      return listMembers(id, organizationId);
+    };
+
+    const result = await completeInvitedAccess(
+      store,
+      commands,
+      { provider: 'local-dev', providerSubject: 'prov-ana', verifiedEmail: 'ana@isalwa.bo' },
+      new Date(),
+    );
+
+    assert.equal(result.code, CROSS_LANE_CHANGE_REQUEST);
+    assert.deepEqual(Object.keys(result), ['code']);
+    assert.equal(JSON.stringify(result).includes(foreignOrg.id), false);
+    assert.equal(JSON.stringify(result).includes(foreignMemberId), false);
+    assert.equal((await store.getMember(memberId))?.accessStatus, 'invited');
+    assert.equal((await store.getMember(foreignMemberId))?.accessStatus, 'invited');
+    assert.equal(
+      calls.some((call) => call.organizationId === foreignOrg.id),
+      false,
+    );
+  });
+
+  it('does not return another organization member when the invite is bound to one organization', async () => {
+    const { store, commands, memberId, personId, org } = await invitedFixture();
+    const foreignOrg = await store.seedOrganization('Synthetic Other', 'synthetic-other');
+    const foreignMemberId = 'member-other-org';
+    store.members.push({
+      id: foreignMemberId,
+      organizationId: foreignOrg.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'suspended',
+      employmentStartedAt: null,
+      employmentEndedAt: null,
+      version: 0,
+    });
+
+    const calls: Array<{ personId: string; organizationId?: string }> = [];
+    const listMembers = store.listMembersForPerson.bind(store);
+    store.listMembersForPerson = async (id, organizationId) => {
+      calls.push({ personId: id, organizationId });
+      return listMembers(id, organizationId);
+    };
+
+    const result = await completeInvitedAccess(
+      store,
+      commands,
+      { provider: 'local-dev', providerSubject: 'prov-ana', verifiedEmail: 'ana@isalwa.bo' },
+      new Date(),
+    );
+
+    assert.equal(result.code, 'activated');
+    assert.deepEqual(Object.keys(result), ['code']);
+    assert.equal(JSON.stringify(result).includes(foreignOrg.id), false);
+    assert.equal(JSON.stringify(result).includes(foreignMemberId), false);
+    assert.equal((await store.getMember(memberId))?.accessStatus, 'active');
+    assert.equal((await store.getMember(foreignMemberId))?.accessStatus, 'suspended');
+    assert.equal((await store.getMember(memberId))?.organizationId, org.id);
+    assert.ok(calls.some((call) => call.organizationId === org.id));
+    assert.equal(
+      calls.some((call) => call.organizationId === foreignOrg.id),
+      false,
     );
   });
 });

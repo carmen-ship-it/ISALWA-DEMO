@@ -1,5 +1,161 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { getPrisma, listAccountTimeline } from '@isalwa/database';
+import {
+  holdsExactScope,
+  trustedOrganizationId,
+  type TrustedTenantSession,
+} from '../auth/trusted-session';
+
+/** Matches TENANT_SURFACE_REQUIRED_SCOPE for account reads. Not a caller-supplied tenant. */
+export const ACCOUNT_READ_SCOPE = 'commercial.team.read';
+
+export type AccountDenialCode = 'AUTH_REQUIRED' | 'ROLE_FORBIDDEN';
+
+export type AccountListParams = {
+  q?: string;
+  segment?: string;
+  persona?: string;
+  take?: number;
+};
+
+export type AccountDenied = {
+  items: [];
+  code: AccountDenialCode;
+  count: 0;
+};
+
+type AccountListRow = {
+  id: string;
+  code: string;
+  legalName: string;
+  tradeName: string | null;
+  segment: string;
+  personaKey: string | null;
+  creditStatus: string;
+  relationshipScore: number;
+  lastVisitAt: Date | null;
+  lastPurchaseAt: Date | null;
+  aiSummary: string | null;
+  owner: { name: string };
+  territory: { code: string };
+  locations: Array<{ lat: unknown; lng: unknown }>;
+};
+
+type AccountDossierRow = Omit<AccountListRow, 'locations'> & {
+  nit: string | null;
+  accountType: string;
+  locations: Array<{ id: string; label: string; lat: unknown; lng: unknown; isPrimary: boolean }>;
+  creditLimitCentavos: bigint | number | null;
+  relationshipScoreComponents: unknown;
+  aiSummaryEvidenceJson: unknown;
+  favoriteProductsJson: unknown;
+  predictedNextOrderStart: Date | null;
+  predictedNextOrderEnd: Date | null;
+  predictionConfidence: string | null;
+  lastWhatsappAt: Date | null;
+  contacts: unknown[];
+  creditTerms: { netDays: number } | null;
+  quotes: Array<{
+    id: string;
+    number: string;
+    status: string;
+    totalCentavos: bigint | number | null;
+    createdAt: Date;
+  }>;
+  orders: Array<{
+    id: string;
+    number: string;
+    status: string;
+    totalCentavos: bigint | number | null;
+    orderedAt: Date;
+  }>;
+  invoices: Array<{
+    id: string;
+    number: string;
+    status: string;
+    totalCentavos: bigint | number | null;
+    balanceCentavos: bigint;
+    dueAt: Date | null;
+  }>;
+  visits: Array<{
+    id: string;
+    status: string;
+    plannedAt: Date | null;
+    completedAt: Date | null;
+    result: string | null;
+    notes: string | null;
+  }>;
+  conversations: Array<{
+    id: string;
+    slaStatus: string;
+    lastMessageAt: Date | null;
+    channel: { displayName: string; purpose: string };
+    messages: Array<{
+      id: string;
+      direction: string;
+      body: string;
+      sentAt: Date;
+      senderType: string;
+    }>;
+  }>;
+  priceObservations: Array<{
+    productId: string;
+    unitPriceCentavos: bigint | number | null;
+    observedAt: Date;
+    source: string;
+    product: { name: string; sku: string };
+  }>;
+};
+
+type AccountFindManyArgs = {
+  where: {
+    organizationId: string;
+    AND: unknown[];
+  };
+  orderBy: Array<{ segment: 'asc' } | { relationshipScore: 'desc' }>;
+  take: number;
+  include: {
+    owner: true;
+    territory: true;
+    locations: { where: { isPrimary: true }; take: 1 };
+  };
+};
+
+type AccountMatchArgs = {
+  where: { id: string; organizationId: string };
+  select: { id: true };
+};
+
+type AccountDossierArgs = {
+  where: { id: string; organizationId: string };
+  include: Record<string, unknown>;
+};
+
+export type AccountsReadDb = {
+  account: {
+    findMany: (args: AccountFindManyArgs) => Promise<AccountListRow[]>;
+    findFirst: (
+      args: AccountMatchArgs | AccountDossierArgs,
+    ) => Promise<{ id: string } | AccountDossierRow | null>;
+  };
+};
+
+const DOSSIER_INCLUDE = {
+  owner: true,
+  territory: true,
+  contacts: true,
+  locations: true,
+  creditTerms: true,
+  quotes: { orderBy: { createdAt: 'desc' }, take: 8, include: { items: true } },
+  orders: { orderBy: { orderedAt: 'desc' }, take: 8 },
+  invoices: { orderBy: { issuedAt: 'desc' }, take: 8 },
+  visits: { orderBy: { plannedAt: 'desc' }, take: 10 },
+  conversations: {
+    orderBy: { lastMessageAt: 'desc' },
+    take: 3,
+    include: { messages: { orderBy: { sentAt: 'asc' }, take: 12 }, channel: true },
+  },
+  priceObservations: { orderBy: { observedAt: 'desc' }, take: 12, include: { product: true } },
+} as const;
 
 function money(centavos: bigint | number | null | undefined) {
   const n = Number(centavos ?? 0);
@@ -11,14 +167,75 @@ function money(centavos: bigint | number | null | undefined) {
   };
 }
 
+function denied(code: AccountDenialCode): AccountDenied {
+  return { items: [], code, count: 0 };
+}
+
+function gate(session: TrustedTenantSession | null | undefined) {
+  const organizationId = trustedOrganizationId(session);
+  if (!session || !organizationId) return { ok: false as const, code: 'AUTH_REQUIRED' as const };
+  if (!holdsExactScope(session.grantedScopes, ACCOUNT_READ_SCOPE)) {
+    return { ok: false as const, code: 'ROLE_FORBIDDEN' as const };
+  }
+  return { ok: true as const, organizationId, session };
+}
+
+type TimelineReadItem = {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  occurredAt: string;
+  payload: unknown;
+  canonicalType: string | null;
+  family: string;
+};
+
+type TimelineReader = (
+  db: AccountsReadDb,
+  accountId: string,
+  opts: {
+    take?: number;
+    session: { organizationId: string; grantedScopes: readonly string[] };
+  },
+) => Promise<{
+  items: TimelineReadItem[];
+  code: AccountDenialCode | null;
+  count: number;
+}>;
+
+async function defaultDb(): Promise<AccountsReadDb | null> {
+  const database = await import('@isalwa/database');
+  return database.getPrisma() as AccountsReadDb | null;
+}
+
+async function defaultTimelineReader(): Promise<TimelineReader> {
+  const database = await import('@isalwa/database');
+  return database.listAccountTimeline as TimelineReader;
+}
+
+async function resolveDb(db: AccountsReadDb | null | undefined): Promise<AccountsReadDb | null> {
+  if (db !== undefined) return db;
+  return defaultDb();
+}
+
 @Injectable()
 export class AccountsService {
-  async list(params: { q?: string; segment?: string; persona?: string; take?: number }) {
-    const prisma = getPrisma();
-    if (!prisma) return { items: [] };
+  async list(
+    session: TrustedTenantSession | null | undefined,
+    params: AccountListParams = {},
+    db?: AccountsReadDb | null,
+  ) {
+    const access = gate(session);
+    if (!access.ok) return denied(access.code);
+
+    const prisma = await resolveDb(db);
+    if (!prisma) return { items: [], code: null, count: 0 };
+
     const take = params.take ?? 50;
     const items = await prisma.account.findMany({
       where: {
+        organizationId: access.organizationId,
         AND: [
           params.segment ? { segment: params.segment } : {},
           params.persona ? { personaKey: params.persona } : {},
@@ -41,51 +258,49 @@ export class AccountsService {
         locations: { where: { isPrimary: true }, take: 1 },
       },
     });
-    return {
-      items: items.map((a) => ({
-        id: a.id,
-        code: a.code,
-        name: a.tradeName ?? a.legalName,
-        legalName: a.legalName,
-        segment: a.segment,
-        personaKey: a.personaKey,
-        creditStatus: a.creditStatus,
-        relationshipScore: a.relationshipScore,
-        ownerName: a.owner.name,
-        territoryCode: a.territory.code,
-        lastVisitAt: a.lastVisitAt,
-        lastPurchaseAt: a.lastPurchaseAt,
-        aiSummary: a.aiSummary,
-        lat: a.locations[0] ? Number(a.locations[0].lat) : null,
-        lng: a.locations[0] ? Number(a.locations[0].lng) : null,
-      })),
-    };
+    const mapped = items.map((a) => ({
+      id: a.id,
+      code: a.code,
+      name: a.tradeName ?? a.legalName,
+      legalName: a.legalName,
+      segment: a.segment,
+      personaKey: a.personaKey,
+      creditStatus: a.creditStatus,
+      relationshipScore: a.relationshipScore,
+      ownerName: a.owner.name,
+      territoryCode: a.territory.code,
+      lastVisitAt: a.lastVisitAt,
+      lastPurchaseAt: a.lastPurchaseAt,
+      aiSummary: a.aiSummary,
+      lat: a.locations[0] ? Number(a.locations[0].lat) : null,
+      lng: a.locations[0] ? Number(a.locations[0].lng) : null,
+    }));
+    return { items: mapped, code: null, count: mapped.length };
   }
 
-  async dossier(id: string) {
-    const prisma = getPrisma();
+  async dossier(
+    session: TrustedTenantSession | null | undefined,
+    id: string,
+    db?: AccountsReadDb | null,
+  ) {
+    const access = gate(session);
+    if (!access.ok) return denied(access.code);
+
+    const prisma = await resolveDb(db);
     if (!prisma) throw new NotFoundException();
-    const a = await prisma.account.findUnique({
-      where: { id },
-      include: {
-        owner: true,
-        territory: true,
-        contacts: true,
-        locations: true,
-        creditTerms: true,
-        quotes: { orderBy: { createdAt: 'desc' }, take: 8, include: { items: true } },
-        orders: { orderBy: { orderedAt: 'desc' }, take: 8 },
-        invoices: { orderBy: { issuedAt: 'desc' }, take: 8 },
-        visits: { orderBy: { plannedAt: 'desc' }, take: 10 },
-        conversations: {
-          orderBy: { lastMessageAt: 'desc' },
-          take: 3,
-          include: { messages: { orderBy: { sentAt: 'asc' }, take: 12 }, channel: true },
-        },
-        priceObservations: { orderBy: { observedAt: 'desc' }, take: 12, include: { product: true } },
-      },
+
+    const matched = await prisma.account.findFirst({
+      where: { id, organizationId: access.organizationId },
+      select: { id: true },
     });
-    if (!a) throw new NotFoundException('Cuenta no encontrada');
+    if (!matched) throw new NotFoundException('Cuenta no encontrada');
+
+    const loaded = await prisma.account.findFirst({
+      where: { id: matched.id, organizationId: access.organizationId },
+      include: DOSSIER_INCLUDE,
+    });
+    if (!loaded || !('legalName' in loaded)) throw new NotFoundException('Cuenta no encontrada');
+    const a = loaded;
 
     const openBalance = a.invoices.reduce((s, i) => s + i.balanceCentavos, 0n);
 
@@ -180,7 +395,12 @@ export class AccountsService {
     };
   }
 
-  async timeline(id: string): Promise<{
+  async timeline(
+    session: TrustedTenantSession | null | undefined,
+    id: string,
+    db?: AccountsReadDb | null,
+    readTimeline?: TimelineReader,
+  ): Promise<{
     items: Array<{
       id: string;
       type: string;
@@ -191,10 +411,23 @@ export class AccountsService {
       canonicalType: string | null;
       family: string;
     }>;
+    code: AccountDenialCode | null;
+    count: number;
   }> {
-    const prisma = getPrisma();
-    if (!prisma) return { items: [] };
-    const { items } = await listAccountTimeline(prisma, id, { take: 40 });
+    const access = gate(session);
+    if (!access.ok) return denied(access.code);
+
+    const prisma = await resolveDb(db);
+    if (!prisma) return { items: [], code: null, count: 0 };
+
+    const read = readTimeline ?? (await defaultTimelineReader());
+    const { items, code, count } = await read(prisma, id, {
+      take: 40,
+      session: {
+        organizationId: access.organizationId,
+        grantedScopes: access.session.grantedScopes,
+      },
+    });
     return {
       items: items.map((e) => ({
         id: e.id,
@@ -206,6 +439,8 @@ export class AccountsService {
         canonicalType: e.canonicalType,
         family: e.family,
       })),
+      code,
+      count,
     };
   }
 }

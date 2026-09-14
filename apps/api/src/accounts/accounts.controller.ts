@@ -1,4 +1,8 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import {
+  sessionFromAuthenticatedRequest,
+  type AuthenticatedTenantRequest,
+} from '../auth/trusted-session';
 import { AccountsService } from './accounts.service';
 
 @Controller('accounts')
@@ -7,12 +11,13 @@ export class AccountsController {
 
   @Get()
   list(
+    @Req() req: AuthenticatedTenantRequest,
     @Query('q') q?: string,
     @Query('segment') segment?: string,
     @Query('persona') persona?: string,
     @Query('take') take?: string,
   ) {
-    return this.accounts.list({
+    return this.accounts.list(sessionFromAuthenticatedRequest(req), {
       q,
       segment,
       persona,
@@ -21,12 +26,12 @@ export class AccountsController {
   }
 
   @Get(':id')
-  dossier(@Param('id') id: string) {
-    return this.accounts.dossier(id);
+  dossier(@Req() req: AuthenticatedTenantRequest, @Param('id') id: string) {
+    return this.accounts.dossier(sessionFromAuthenticatedRequest(req), id);
   }
 
   @Get(':id/timeline')
-  timeline(@Param('id') id: string) {
-    return this.accounts.timeline(id);
+  timeline(@Req() req: AuthenticatedTenantRequest, @Param('id') id: string) {
+    return this.accounts.timeline(sessionFromAuthenticatedRequest(req), id);
   }
 }

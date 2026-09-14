@@ -50,8 +50,10 @@ export class MemoryOsStore implements OsWorkforceStore {
   }
 
   async getMemberInOrg(organizationId: string, memberId: string): Promise<MemberRecord | null> {
-    const m = await this.getMember(memberId);
-    return m?.organizationId === organizationId ? m : null;
+    return (
+      this.members.find((member) => member.id === memberId && member.organizationId === organizationId) ??
+      null
+    );
   }
 
   async getPerson(personId: string): Promise<PersonRecord | null> {
@@ -90,8 +92,12 @@ export class MemoryOsStore implements OsWorkforceStore {
     );
   }
 
-  async listMembersForPerson(personId: string): Promise<MemberRecord[]> {
-    return this.members.filter((member) => member.personId === personId);
+  async listMembersForPerson(personId: string, organizationId?: string): Promise<MemberRecord[]> {
+    return this.members.filter(
+      (member) =>
+        member.personId === personId &&
+        (organizationId ? member.organizationId === organizationId : true),
+    );
   }
 
   async findActiveMemberForPerson(
@@ -107,12 +113,26 @@ export class MemoryOsStore implements OsWorkforceStore {
     return active.length === 1 ? active[0]! : active[0] ?? null;
   }
 
-  async listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]> {
-    return this.roleAssignments.filter((r) => r.memberId === memberId);
+  async listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]> {
+    return this.roleAssignments.filter(
+      (r) =>
+        r.memberId === memberId &&
+        (organizationId === undefined || r.organizationId === organizationId),
+    );
   }
 
-  async listDelegationsForDelegate(delegateMemberId: string): Promise<DelegationRecord[]> {
-    return this.delegations.filter((d) => d.delegateMemberId === delegateMemberId);
+  async listDelegationsForDelegate(
+    delegateMemberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]> {
+    return this.delegations.filter(
+      (d) =>
+        d.delegateMemberId === delegateMemberId &&
+        (organizationId === undefined || d.organizationId === organizationId),
+    );
   }
 
   async listOpenWorkItemsForMember(

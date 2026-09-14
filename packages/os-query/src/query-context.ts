@@ -24,10 +24,19 @@ export type WorkforceAuthReader = {
     personId: string;
     accessStatus: string;
   } | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<
-    Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null }>
-  >;
-  listDelegationsForDelegate(memberId: string): Promise<
+  /**
+   * organizationId, when passed, is the authenticated session organization.
+   * It must be applied in the query predicate. Callers that only have a member
+   * id may omit it; the session path must not.
+   */
+  listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null }>>;
+  listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<
     Array<{
       scopes: string[];
       startsAt: Date;
@@ -46,8 +55,8 @@ export async function buildQueryContext(
   if (!member) throw new Error('AUTH_REQUIRED');
   assertTenantMatch(session.organizationId, member.organizationId);
 
-  const roles = await workforce.listRoleAssignmentsForMember(member.id);
-  const delegations = await workforce.listDelegationsForDelegate(member.id);
+  const roles = await workforce.listRoleAssignmentsForMember(member.id, session.organizationId);
+  const delegations = await workforce.listDelegationsForDelegate(member.id, session.organizationId);
   const roleKeys = computeEffectiveScopes(
     roles.map((r) => ({
       roleKey: r.roleKey,

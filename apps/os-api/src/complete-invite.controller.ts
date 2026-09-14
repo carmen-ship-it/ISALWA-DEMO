@@ -2,7 +2,7 @@ import { Controller, HttpException, Inject, Post, Req } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
 import type { Request } from 'express';
 import { completeInvitedAccess, type OsWorkforceStore, type WorkforceCommandService } from '@isalwa/os-workforce';
-import { decideInviteCompletionHttp, inviteCompletionHttpStatus } from './complete-invite';
+import { decideInviteCompletionHttp, inviteCompletionHttpBody, inviteCompletionHttpStatus } from './complete-invite';
 import { OS_COMMAND_SERVICE, OS_STORE } from './os-store.module';
 
 /**
@@ -36,10 +36,11 @@ export class CompleteInviteController {
         new Date(),
       );
       const status = inviteCompletionHttpStatus(result.code);
+      const body = inviteCompletionHttpBody(result.code);
       if (status !== 200) {
-        throw new HttpException({ code: result.code }, status);
+        throw new HttpException(body, status);
       }
-      return { code: result.code };
+      return body;
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException({ code: 'INTERNAL_ERROR' }, 500);

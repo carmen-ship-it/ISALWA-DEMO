@@ -31,13 +31,21 @@ export interface OsWorkforceStore {
     provider: string,
     email: string,
   ): Promise<AuthIdentityRecord[]>;
-  listMembersForPerson(personId: string): Promise<MemberRecord[]>;
+  /** organizationId, when present, is a proven tenant predicate — not a client argument. */
+  listMembersForPerson(personId: string, organizationId?: string): Promise<MemberRecord[]>;
   findActiveMemberForPerson(
     personId: string,
     organizationId?: string,
   ): Promise<MemberRecord | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]>;
-  listDelegationsForDelegate(delegateMemberId: string): Promise<DelegationRecord[]>;
+  /** organizationId, when present, is a proven tenant predicate — not a post-filter. */
+  listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]>;
+  listDelegationsForDelegate(
+    delegateMemberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]>;
   listOpenWorkItemsForMember(organizationId: string, memberId: string): Promise<WorkItemRecord[]>;
   findWorkItem(organizationId: string, workItemId: string): Promise<WorkItemRecord | null>;
   findDelegation(organizationId: string, delegationId: string): Promise<DelegationRecord | null>;

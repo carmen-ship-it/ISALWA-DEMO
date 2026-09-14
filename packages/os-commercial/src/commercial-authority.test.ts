@@ -144,7 +144,7 @@ describe('CreateOrder provisional authority', () => {
     mutable.insertOrder = async (order) => {
       orders.push(order.id);
     };
-    mutable.updateQuote = async (_quoteId, patch) => {
+    mutable.updateQuote = async (_organizationId, _quoteId, patch) => {
       if (patch.status) row.status = patch.status as QuoteRecord['status'];
     };
     mutable.getOrderForQuote = async () => (orders[0] ? { id: orders[0] } : null);
@@ -262,8 +262,15 @@ function reassignStore(input: {
       if (!row || organizationId !== row.organizationId || commercialAccountId !== row.id) return null;
       return row;
     },
-    async updateCommercialAccount(_id: string, patch: { ownerMemberId?: string }) {
-      if (row && patch.ownerMemberId) row.ownerMemberId = patch.ownerMemberId;
+    async updateCommercialAccount(
+      organizationId: string,
+      commercialAccountId: string,
+      patch: { ownerMemberId?: string },
+    ) {
+      if (!row || organizationId !== row.organizationId || commercialAccountId !== row.id) {
+        throw new Error('NOT_FOUND');
+      }
+      if (patch.ownerMemberId) row.ownerMemberId = patch.ownerMemberId;
     },
     async appendEventAndAudit(event: { eventType: string }) {
       events.push(event.eventType);

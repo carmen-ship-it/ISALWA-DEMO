@@ -39,11 +39,15 @@ export class WorkforceCommandService {
     private readonly authProvider: AuthProviderPort,
   ) {}
 
-  private async snapshot(memberId: string, asOf: Date): Promise<MemberAccessSnapshot | null> {
-    const member = await this.store.getMember(memberId);
+  private async snapshot(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<MemberAccessSnapshot | null> {
+    const member = await this.store.getMemberInOrg(organizationId, memberId);
     if (!member) return null;
-    const roles = await this.store.listRoleAssignmentsForMember(memberId);
-    const delegations = await this.store.listDelegationsForDelegate(memberId);
+    const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);
+    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);
     const effectiveScopes = computeEffectiveScopes(
       roles.map((r) => ({
         roleKey: r.roleKey,
@@ -75,7 +79,7 @@ export class WorkforceCommandService {
     store: OsWorkforceStore = this.store,
   ): Promise<void> {
     assertTenantMatch(ctx.organizationId, targetOrgId);
-    const snap = await this.snapshot(ctx.actorMemberId, ctx.effectiveAt);
+    const snap = await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt);
     if (!snap) throw new Error('AUTH_REQUIRED');
     assertMemberActive(snap);
     const required = COMMAND_REQUIRED_SCOPES[command];
@@ -90,8 +94,8 @@ export class WorkforceCommandService {
     payload: Record<string, unknown>,
     idempotencyKey?: string,
   ): Promise<CommandResult> {
-    const actor = await this.store.getMember(ctx.actorMemberId);
-    if (!actor || actor.organizationId !== ctx.organizationId) {
+    const actor = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
+    if (!actor) {
       throw new Error('TENANT_FORBIDDEN');
     }
 
@@ -336,6 +340,10 @@ export class WorkforceCommandService {
     const familyName = String(payload.familyName);
     const roleKey = String(payload.roleKey);
     const departmentId = payload.departmentId ? String(payload.departmentId) : undefined;
+    if (departmentId) {
+      const department = await store.getDepartmentInOrg(ctx.organizationId, departmentId);
+      if (!department) throw new Error('VALIDATION_FAILED');
+    }
 
     const invite = await this.authProvider.createInvite(email);
 
@@ -478,7 +486,7 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
     if (!member) throw new Error('NOT_FOUND');
     assertTenantMatch(ctx.organizationId, member.organizationId);
-    assertMemberActive((await this.snapshot(ctx.actorMemberId, ctx.effectiveAt))!);
+    assertMemberActive((await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt))!);
 
     return this.emit(ctx, 'member.email.change_requested', 'organization_member', member.id, store, {
       memberId: member.id,
@@ -501,7 +509,7 @@ export class WorkforceCommandService {
       await this.authorize(ctx, 'ChangeRole', ctx.organizationId, store);
     } else {
       assertTenantMatch(ctx.organizationId, member.organizationId);
-      assertMemberActive((await this.snapshot(ctx.actorMemberId, ctx.effectiveAt))!);
+      assertMemberActive((await this.snapshot(ctx.organizationId, ctx.actorMemberId, ctx.effectiveAt))!);
     }
 
     const auth = await store.findAuthIdentityByPersonAndStatus(member.personId, 'active');
@@ -609,12 +617,9 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
-    const existing = (await store.listRoleAssignmentsForMember(memberId)).find(
-      (assignment) =>
-        assignment.organizationId === ctx.organizationId &&
-        assignment.roleKey === roleKey &&
-        assignment.endedAt === null,
-    );
+    const existing = (
+      await store.listRoleAssignmentsForMember(memberId, ctx.organizationId)
+    ).find((assignment) => assignment.roleKey === roleKey && assignment.endedAt === null);
     if (existing) {
       return {
         commandId: existing.id,
@@ -695,6 +700,8 @@ export class WorkforceCommandService {
     const effectiveAt = payload.effectiveAt ? new Date(String(payload.effectiveAt)) : ctx.effectiveAt;
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
+    const manager = await store.getMemberInOrg(ctx.organizationId, managerMemberId);
+    if (!manager) throw new Error('NOT_FOUND');
 
     await store.endActiveManagerAssignments(memberId, effectiveAt);
     await store.insertManagerAssignment({
@@ -724,6 +731,8 @@ export class WorkforceCommandService {
     const expiresAt = new Date(String(payload.expiresAt));
     if (expiresAt <= ctx.effectiveAt) throw new Error('VALIDATION_FAILED');
     const startsAt = payload.startsAt ? new Date(String(payload.startsAt)) : ctx.effectiveAt;
+    const delegate = await store.getMemberInOrg(ctx.organizationId, delegateMemberId);
+    if (!delegate) throw new Error('NOT_FOUND');
 
     const delegationId = createId();
     await store.insertDelegation({
@@ -825,8 +834,11 @@ export class WorkforceCommandService {
     const personId = String(payload.personId);
     const email = String(payload.email);
     const roleKey = String(payload.roleKey);
-    const person = await store.getPerson(personId);
-    if (!person) throw new Error('NOT_FOUND');
+    // OsPerson has no organization column. Prior membership in the session
+    // organization is the tenant proof. Missing and foreign person ids both
+    // have zero memberships here, so both are NOT_FOUND. Do not call getPerson.
+    const priorMembers = await store.listMembersForPerson(personId, ctx.organizationId);
+    if (priorMembers.length === 0) throw new Error('NOT_FOUND');
 
     const invite = await this.authProvider.createInvite(email);
 

@@ -115,7 +115,7 @@ export class WarehouseAllocationDesk {
     session: WarehouseActorSession | null,
     body: AllocateBody,
     facts: WarehouseFacts,
-  ): AllocateFinishedGoodsResult | WarehouseDenial {
+  ): AllocateFinishedGoodsResult | WarehouseDenial | { ok: false; reason: 'not_found'; officialStock: false } {
     const gate = requireAllocator(session, body.organizationId);
     if (!gate.ok) return gate;
     const lineTenant = body.orderLineOrganizationId?.trim() || gate.organizationId;
@@ -129,9 +129,7 @@ export class WarehouseAllocationDesk {
     const line = facts.pedidos.find(
       (pedido) => pedido.orderLineId === body.orderLineId && pedido.organizationId === gate.organizationId,
     );
-    if (facts.pedidos.some((pedido) => pedido.orderLineId === body.orderLineId && pedido.organizationId !== gate.organizationId) && !line) {
-      return denied('cross_tenant');
-    }
+    if (!line) return { ok: false, reason: 'not_found', officialStock: false };
 
     const availability = projectSameTenantAvailability({
       organizationId: gate.organizationId,
@@ -140,7 +138,7 @@ export class WarehouseAllocationDesk {
       allocations: this.allocations,
       corrections: this.corrections,
     });
-    if (this.allocations.some((item) => item.id === body.id)) {
+    if (this.allocations.some((item) => item.id === body.id && item.organizationId === gate.organizationId)) {
       return { ok: false, reason: 'conflict', conflict: 'id_exists', officialStock: false };
     }
 
@@ -179,11 +177,7 @@ export class WarehouseAllocationDesk {
     const allocation = this.allocations.find(
       (item) => item.id === body.allocationId && item.organizationId === gate.organizationId,
     );
-    if (!allocation) {
-      const foreign = this.allocations.find((item) => item.id === body.allocationId);
-      if (foreign) return denied('cross_tenant');
-      return { ok: false, reason: 'not_found', officialStock: false };
-    }
+    if (!allocation) return { ok: false, reason: 'not_found', officialStock: false };
     const reason = body.reason.trim();
     if (!reason) return { ok: false, reason: 'invalid', officialStock: false };
     const already = netAllocatedQuantity(

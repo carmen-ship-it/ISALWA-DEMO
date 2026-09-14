@@ -1,5 +1,19 @@
 export { InMemoryPurchaseRequestStore } from './in-memory-store';
 export type { PurchaseRequestStoreFailure, PurchaseRequestStoreResult } from './in-memory-store';
+export {
+  PURCHASE_REQUEST_LIVE_WRITE_PROOF,
+  PURCHASE_REQUEST_STATUS_CHANGED,
+  PURCHASE_REQUEST_TRANSITION_CAPABILITY,
+  authorizePurchaseRequestTransition,
+  purchaseRequestTargetMatchesSession,
+  purchasingOperationalRecordAuthorizesUniversalRead,
+  transitionPurchaseRequest,
+} from './transition';
+export type {
+  PurchaseRequestTransitionEvent,
+  PurchaseRequestTransitionFailure,
+  PurchaseRequestTransitionResult,
+} from './transition';
 
 export {
   LEGACY_PURCHASE_REQUEST_STATUS_MAP,

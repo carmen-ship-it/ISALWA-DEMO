@@ -1,4 +1,9 @@
-import { INVITE_COMPLETION_CODES, type InviteCompletionCode } from '@isalwa/os-workforce';
+import {
+  CROSS_LANE_CHANGE_REQUEST,
+  INVITE_COMPLETION_CODES,
+  type InviteCompletionCode,
+  type InviteCompletionResultCode,
+} from '@isalwa/os-workforce';
 
 export type VerifiedProviderUser = {
   id: string;
@@ -49,11 +54,17 @@ export function decideInviteCompletionHttp(
   return { ok: true, providerSubject, verifiedEmail };
 }
 
-export function inviteCompletionHttpStatus(code: InviteCompletionCode): number {
+export function inviteCompletionHttpStatus(code: InviteCompletionResultCode): number {
+  if (code === CROSS_LANE_CHANGE_REQUEST) return 403;
   if (code === 'activated' || code === 'already_completed') return 200;
   if (code === 'unauthenticated') return 401;
   if (DENIAL_CODES.has(code)) return 403;
   return 403;
+}
+
+/** HTTP body is the outcome code only. Never include member or organization rows. */
+export function inviteCompletionHttpBody(code: InviteCompletionResultCode): { code: InviteCompletionResultCode } {
+  return { code };
 }
 
 export function isInviteCompletionCode(value: string): value is InviteCompletionCode {

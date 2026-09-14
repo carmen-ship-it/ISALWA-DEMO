@@ -25,4 +25,14 @@ export type {
   MissingAvailability,
   OrderAllocation,
 } from '../../os-contracts/src/order-allocation';
-export { InMemoryOrderAllocationStore } from './store';
+
+export { InMemoryOrderAllocationStore, IN_MEMORY_ALLOCATION_IS_TENANT_PROOF } from './store';
+export {
+  ALLOCATION_LIVE_WRITE,
+  allocateFinishedGoodsForSession,
+} from './allocate-command';
+export type {
+  AllocateSessionResult,
+  AllocationSession,
+  AllocationTenantTargets,
+} from './allocate-command';

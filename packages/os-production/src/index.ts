@@ -47,3 +47,17 @@ export type {
   QuemaView,
 } from '../../os-contracts/src/production-trace';
 export { InMemoryProductionTraceStore, ProductionTraceError } from './store';
+
+export {
+  PRODUCTION_LIVE_DB_WRITES,
+  PRODUCTION_REVIEW_MUTATION,
+  PRODUCTION_WRITE_SCOPE,
+  ProductionWriteService,
+  commercialTeamReadAuthorizesProductionWrite,
+  operationalRecordAuthorizesProductionEntry,
+  operationalRecordDistinctFromEntry,
+  productionWriteGranted,
+  reviewAuthorizesProductionEntry,
+  reviewScopeDistinctFromEntry,
+} from './commands';
+export type { ProductionSuccessEvent, ProductionWriteFailure, ProductionWriteResult, ProductionWriteSession } from './commands';

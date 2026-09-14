@@ -21,10 +21,14 @@ type WorkforceAuthReader = {
     organizationId: string;
     accessStatus: string;
   } | null>;
-  listRoleAssignmentsForMember(memberId: string): Promise<
-    Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null }>
-  >;
-  listDelegationsForDelegate(memberId: string): Promise<
+  listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null }>>;
+  listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<
     Array<{
       scopes: string[];
       startsAt: Date;
@@ -44,8 +48,8 @@ export class OutboxRecoveryService {
   private async snapshot(memberId: string, orgId: string, asOf: Date): Promise<MemberAccessSnapshot> {
     const member = await this.workforce.getMemberInOrg(orgId, memberId);
     if (!member) throw new Error('AUTH_REQUIRED');
-    const roles = await this.workforce.listRoleAssignmentsForMember(memberId);
-    const delegations = await this.workforce.listDelegationsForDelegate(memberId);
+    const roles = await this.workforce.listRoleAssignmentsForMember(memberId, orgId);
+    const delegations = await this.workforce.listDelegationsForDelegate(memberId, orgId);
     const roleKeys = computeEffectiveScopes(
       roles.map((r) => ({
         roleKey: r.roleKey,

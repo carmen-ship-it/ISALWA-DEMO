@@ -43,63 +43,67 @@ export class InMemoryProductionTraceStore {
   private readonly quemaTimes: QuemaTimeFact[] = [];
   private readonly quemaProducts: QuemaProductLink[] = [];
 
-  recordProcess(input: unknown): ProcessRecord {
-    const record = buildProcessRecord(input);
+  recordProcess(trustedOrganizationId: string, input: unknown): ProcessRecord {
+    const record = buildProcessRecord(this.bindOrganization(trustedOrganizationId, input));
+    this.assertReferencedQuema(record.organizationId, record.quemaId);
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  recordLoss(input: unknown): LossRecord {
-    const record = buildLossRecord(input);
+  recordLoss(trustedOrganizationId: string, input: unknown): LossRecord {
+    const record = buildLossRecord(this.bindOrganization(trustedOrganizationId, input));
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  correctLoss(input: unknown): LossRecord {
-    const record = buildLossRecord(input);
+  correctLoss(trustedOrganizationId: string, input: unknown): LossRecord {
+    const organizationId = this.resolveOrganization(trustedOrganizationId);
+    const priorId = textField(input, 'correctsEntryId');
+    this.assertVisibleEntry(organizationId, priorId, 'loss');
+    const record = buildLossRecord(this.bindOrganization(organizationId, input));
     this.assertCorrection(record, 'loss');
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  recordConsumption(input: unknown): ConsumptionRecord {
-    const record = buildConsumptionRecord(input);
+  recordConsumption(trustedOrganizationId: string, input: unknown): ConsumptionRecord {
+    const record = buildConsumptionRecord(this.bindOrganization(trustedOrganizationId, input));
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  recordClassification(input: unknown): ClassificationRecord {
-    const record = buildClassificationRecord(input);
+  recordClassification(trustedOrganizationId: string, input: unknown): ClassificationRecord {
+    const record = buildClassificationRecord(this.bindOrganization(trustedOrganizationId, input));
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  recordFinishedGoodsReceipt(input: unknown): FinishedGoodsReceipt {
-    const record = buildFinishedGoodsReceipt(input);
+  recordFinishedGoodsReceipt(trustedOrganizationId: string, input: unknown): FinishedGoodsReceipt {
+    const record = buildFinishedGoodsReceipt(this.bindOrganization(trustedOrganizationId, input));
     this.insertEntry(record);
     return this.publish(record);
   }
 
-  openQuema(input: unknown): QuemaView {
-    const { quema, start } = buildQuema(input);
-    if (this.quemas.some((item) => item.id === quema.id)) {
+  openQuema(trustedOrganizationId: string, input: unknown): QuemaView {
+    const { quema, start } = buildQuema(this.bindOrganization(trustedOrganizationId, input));
+    if (this.quemas.some((item) => item.id === quema.id && item.organizationId === quema.organizationId)) {
       throw new ProductionTraceError('conflict', 'Production record id already exists');
     }
-    this.assertIdFree(start.id);
+    this.assertIdFree(quema.organizationId, start.id);
+    this.assertIdFree(quema.organizationId, quema.id);
     this.quemas.push(structuredClone(quema));
     this.quemaTimes.push(structuredClone(start));
     return this.getQuema(quema.organizationId, quema.id);
   }
 
-  endQuema(input: unknown): QuemaView {
-    const fact = buildQuemaEnd(input);
-    const quema = this.quemas.find(
-      (item) => item.id === fact.quemaId && item.organizationId === fact.organizationId,
-    );
-    if (!quema) {
+  endQuema(trustedOrganizationId: string, input: unknown): QuemaView {
+    const organizationId = this.resolveOrganization(trustedOrganizationId);
+    const quemaId = textField(input, 'quemaId');
+    if (!this.findQuema(organizationId, quemaId)) {
       throw new ProductionTraceError('not_found', 'Quema was not found in this organization');
     }
-    this.assertIdFree(fact.id);
+    const fact = buildQuemaEnd(this.bindOrganization(organizationId, input));
+    this.assertIdFree(fact.organizationId, fact.id);
     if (fact.correctsTimeId) {
       this.assertTimeCorrection(fact);
     } else if (this.currentTimes(fact.organizationId, fact.quemaId).some((item) => item.phase === 'end')) {
@@ -109,15 +113,18 @@ export class InMemoryProductionTraceStore {
     return this.getQuema(fact.organizationId, fact.quemaId);
   }
 
-  attachQuemaProduct(input: unknown): QuemaProductLink {
-    const link = buildQuemaProductLink(input);
-    const quema = this.quemas.find(
-      (item) => item.id === link.quemaId && item.organizationId === link.organizationId,
-    );
-    if (!quema) {
+  attachQuemaProduct(trustedOrganizationId: string, input: unknown): QuemaProductLink {
+    const organizationId = this.resolveOrganization(trustedOrganizationId);
+    const quemaId = textField(input, 'quemaId');
+    if (!this.findQuema(organizationId, quemaId)) {
       throw new ProductionTraceError('not_found', 'Quema was not found in this organization');
     }
-    this.assertIdFree(link.id);
+    const correctsLinkId = textField(input, 'correctsLinkId');
+    if (correctsLinkId && !this.findQuemaProduct(organizationId, quemaId, correctsLinkId)) {
+      throw new ProductionTraceError('not_found', 'Production record was not found in this organization');
+    }
+    const link = buildQuemaProductLink(this.bindOrganization(organizationId, input));
+    this.assertIdFree(link.organizationId, link.id);
     this.quemaProducts.push(structuredClone(link));
     return this.publish(link);
   }
@@ -196,8 +203,55 @@ export class InMemoryProductionTraceStore {
     return inputStockIsReliable() ? null : null;
   }
 
+  private bindOrganization(trustedOrganizationId: string, input: unknown): unknown {
+    const organizationId = this.resolveOrganization(trustedOrganizationId);
+    const body = input && typeof input === 'object' ? { ...(input as Record<string, unknown>) } : {};
+    return { ...body, organizationId };
+  }
+
+  /** Payload organizationId is ignored. The caller must pass the trusted session organization. */
+  private resolveOrganization(trustedOrganizationId: string): string {
+    const trusted = trustedOrganizationId.trim();
+    if (!trusted) {
+      throw new ProductionTraceError('not_found', 'Production record was not found in this organization');
+    }
+    return trusted;
+  }
+
+  private findQuema(organizationId: string, quemaId: string): Quema | null {
+    if (!organizationId || !quemaId) return null;
+    return this.quemas.find((item) => item.id === quemaId && item.organizationId === organizationId) ?? null;
+  }
+
+  private findQuemaProduct(organizationId: string, quemaId: string, linkId: string): QuemaProductLink | null {
+    if (!organizationId || !quemaId || !linkId) return null;
+    return (
+      this.quemaProducts.find(
+        (item) => item.id === linkId && item.organizationId === organizationId && item.quemaId === quemaId,
+      ) ?? null
+    );
+  }
+
+  private assertReferencedQuema(organizationId: string, quemaId: string | null): void {
+    if (!quemaId) return;
+    if (!this.findQuema(organizationId, quemaId)) {
+      throw new ProductionTraceError('not_found', 'Quema was not found in this organization');
+    }
+  }
+
+  private assertVisibleEntry(
+    organizationId: string,
+    entryId: string,
+    kind: ProductionTraceEntry['kind'],
+  ): void {
+    const prior = this.entries.find((item) => item.id === entryId && item.organizationId === organizationId);
+    if (!prior || prior.kind !== kind) {
+      throw new ProductionTraceError('not_found', 'Production record was not found in this organization');
+    }
+  }
+
   private insertEntry(entry: ProductionTraceEntry): void {
-    this.assertIdFree(entry.id);
+    this.assertIdFree(entry.organizationId, entry.id);
     if (entry.correctsEntryId && entry.kind !== 'loss') {
       this.assertCorrection(entry, entry.kind);
     }
@@ -246,16 +300,22 @@ export class InMemoryProductionTraceStore {
     return facts.filter((item) => !superseded.has(item.id));
   }
 
-  private assertIdFree(id: string): void {
+  private assertIdFree(organizationId: string, id: string): void {
     const taken =
-      this.entries.some((item) => item.id === id) ||
-      this.quemas.some((item) => item.id === id) ||
-      this.quemaTimes.some((item) => item.id === id) ||
-      this.quemaProducts.some((item) => item.id === id);
+      this.entries.some((item) => item.id === id && item.organizationId === organizationId) ||
+      this.quemas.some((item) => item.id === id && item.organizationId === organizationId) ||
+      this.quemaTimes.some((item) => item.id === id && item.organizationId === organizationId) ||
+      this.quemaProducts.some((item) => item.id === id && item.organizationId === organizationId);
     if (taken) throw new ProductionTraceError('conflict', 'Production record id already exists');
   }
 
   private publish<T>(value: T): T {
     return structuredClone(value);
   }
+}
+
+function textField(input: unknown, key: string): string {
+  if (!input || typeof input !== 'object') return '';
+  const value = (input as Record<string, unknown>)[key];
+  return typeof value === 'string' ? value.trim() : '';
 }

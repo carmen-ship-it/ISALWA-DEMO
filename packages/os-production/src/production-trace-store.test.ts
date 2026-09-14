@@ -32,7 +32,7 @@ function store() {
 describe('production is not keyed to a Pedido', () => {
   it('stores a process record with a product id and no order', () => {
     const trace = store();
-    const record = trace.recordProcess({
+    const record = trace.recordProcess('org-synthetic', {
       ...provenance,
       id: 'proc-1',
       productId: 'prod-colaje-1',
@@ -55,7 +55,7 @@ describe('production is not keyed to a Pedido', () => {
     const trace = store();
     assert.throws(
       () =>
-        trace.recordProcess({
+        trace.recordProcess('org-synthetic', {
           ...provenance,
           id: 'proc-order',
           productId: 'prod-1',
@@ -93,7 +93,7 @@ describe('production is not keyed to a Pedido', () => {
 describe('quema', () => {
   it('can contain multiple product ids and does not require an order', () => {
     const trace = store();
-    const opened = trace.openQuema({
+    const opened = trace.openQuema('org-synthetic', {
       id: 'quema-1',
       organizationId: 'org-synthetic',
       actorLabel: 'Operador de prueba',
@@ -108,14 +108,14 @@ describe('quema', () => {
     assert.equal(Object.hasOwn(opened, 'orderId'), false);
     assert.deepEqual(opened.products, []);
 
-    trace.attachQuemaProduct({
+    trace.attachQuemaProduct('org-synthetic', {
       ...provenance,
       id: 'quema-1-p1',
       quemaId: 'quema-1',
       productId: 'prod-a',
       quantity: null,
     });
-    trace.attachQuemaProduct({
+    trace.attachQuemaProduct('org-synthetic', {
       ...provenance,
       id: 'quema-1-p2',
       quemaId: 'quema-1',
@@ -131,7 +131,7 @@ describe('quema', () => {
     );
     assert.equal(mixed.products.find((item) => item.productId === 'prod-a')?.quantity, null);
 
-    trace.attachQuemaProduct({
+    trace.attachQuemaProduct('org-synthetic', {
       ...provenance,
       id: 'quema-1-p1-qty',
       quemaId: 'quema-1',
@@ -144,7 +144,7 @@ describe('quema', () => {
     assert.equal(withQuantity.products.find((item) => item.productId === 'prod-a')?.quantity, '4');
     assert.equal(Object.hasOwn(withQuantity, 'orderId'), false);
 
-    const ended = trace.endQuema({
+    const ended = trace.endQuema('org-synthetic', {
       id: 'quema-1-end',
       organizationId: 'org-synthetic',
       quemaId: 'quema-1',
@@ -164,7 +164,7 @@ describe('quema', () => {
 describe('finished goods receipt', () => {
   it('is warehouse Listo and does not allocate to an order', () => {
     const trace = store();
-    const receipt = trace.recordFinishedGoodsReceipt({
+    const receipt = trace.recordFinishedGoodsReceipt('org-synthetic', {
       ...provenance,
       id: 'receipt-1',
       productId: 'prod-finished',
@@ -187,7 +187,7 @@ describe('finished goods receipt', () => {
 
   it('does not treat a process step or a quema end as Listo', () => {
     const trace = store();
-    trace.recordProcess({
+    trace.recordProcess('org-synthetic', {
       ...provenance,
       id: 'proc-warehouse-step',
       productId: 'prod-not-ready',
@@ -195,7 +195,7 @@ describe('finished goods receipt', () => {
       quemaId: null,
       note: null,
     });
-    trace.openQuema({
+    trace.openQuema('org-synthetic', {
       id: 'quema-not-ready',
       organizationId: 'org-synthetic',
       actorLabel: 'Operador de prueba',
@@ -204,7 +204,7 @@ describe('finished goods receipt', () => {
       evidence: { reference: null, note: null },
       startedAt: occurredAt,
     });
-    trace.endQuema({
+    trace.endQuema('org-synthetic', {
       id: 'quema-not-ready-end',
       organizationId: 'org-synthetic',
       quemaId: 'quema-not-ready',
@@ -222,7 +222,7 @@ describe('finished goods receipt', () => {
 describe('loss', () => {
   it('stores quantity, percentage, and reason, and appends a correction', () => {
     const trace = store();
-    const loss = trace.recordLoss({
+    const loss = trace.recordLoss('org-synthetic', {
       ...provenance,
       id: 'loss-1',
       productId: 'prod-a',
@@ -241,7 +241,7 @@ describe('loss', () => {
     assert.equal(loss.source, 'manual');
     assert.equal(loss.occurredAt, occurredAt);
 
-    const correction = trace.correctLoss({
+    const correction = trace.correctLoss('org-synthetic', {
       ...provenance,
       id: 'loss-1-correction',
       productId: 'prod-a',
@@ -263,7 +263,7 @@ describe('loss', () => {
     );
     assert.throws(
       () =>
-        trace.correctLoss({
+        trace.correctLoss('org-other', {
           ...provenance,
           id: 'loss-other-org',
           organizationId: 'org-other',
@@ -281,7 +281,7 @@ describe('loss', () => {
 
   it('allows a loss without a product id and still stores the three facts', () => {
     const trace = store();
-    const loss = trace.recordLoss({
+    const loss = trace.recordLoss('org-synthetic', {
       ...provenance,
       id: 'loss-step',
       productId: null,
@@ -308,7 +308,7 @@ describe('quality ratios', () => {
     assert.equal(deriveQualityRatios(0, 0), null);
 
     const trace = store();
-    const classification = trace.recordClassification({
+    const classification = trace.recordClassification('org-synthetic', {
       ...provenance,
       id: 'class-1',
       productId: 'prod-a',
@@ -331,7 +331,7 @@ describe('consumption', () => {
     assert.equal(trace.inputStockBalance('org-synthetic', 'pasta'), null);
     const before = trace.inputStockBalance('org-synthetic', 'pasta');
 
-    const consumption = trace.recordConsumption({
+    const consumption = trace.recordConsumption('org-synthetic', {
       ...provenance,
       id: 'cons-1',
       stepKey: 'horno',
@@ -351,12 +351,12 @@ describe('consumption', () => {
     assert.equal(trace.inputStockBalance('org-synthetic', 'medidor 4'), null);
     assert.equal('decrementStock' in trace, false);
     assert.equal('applyInventory' in trace, false);
-    assert.throws(() => trace.recordConsumption({ ...provenance, id: 'cons-stock', stepKey: 'horno', category: 'fuel', description: 'gas', quantity: '1', unit: 'm3', inventoryMovementId: 'mov-1' }), /inventoryMovementId/);
+    assert.throws(() => trace.recordConsumption('org-synthetic', { ...provenance, id: 'cons-stock', stepKey: 'horno', category: 'fuel', description: 'gas', quantity: '1', unit: 'm3', inventoryMovementId: 'mov-1' }), /inventoryMovementId/);
   });
 
   it('keeps the Spanish category labels', () => {
     const trace = store();
-    const raw = trace.recordConsumption({
+    const raw = trace.recordConsumption('org-synthetic', {
       ...provenance,
       id: 'cons-raw',
       stepKey: 'laboratorio',
@@ -366,7 +366,7 @@ describe('consumption', () => {
       quantity: '20',
       unit: 'kg',
     });
-    const supply = trace.recordConsumption({
+    const supply = trace.recordConsumption('org-synthetic', {
       ...provenance,
       id: 'cons-supply',
       stepKey: 'esmaltado',
@@ -401,7 +401,7 @@ describe('governed steps', () => {
     );
     assert.throws(
       () =>
-        store().recordProcess({
+        store().recordProcess('org-synthetic', {
           ...provenance,
           id: 'proc-bad-step',
           productId: 'prod-1',
@@ -423,7 +423,7 @@ describe('governed steps', () => {
 describe('provenance', () => {
   it('keeps actor, source, occurredAt, recordedAt, and evidence', () => {
     const trace = store();
-    const record = trace.recordProcess({
+    const record = trace.recordProcess('org-synthetic', {
       ...provenance,
       id: 'proc-prov',
       productId: 'prod-1',
@@ -439,7 +439,7 @@ describe('provenance', () => {
     assert.deepEqual(record.evidence, { reference: 'cuaderno de planta', note: 'anotado en planta' });
     assert.throws(
       () =>
-        trace.recordProcess({
+        trace.recordProcess('org-synthetic', {
           ...provenance,
           id: 'proc-channel',
           productId: 'prod-1',

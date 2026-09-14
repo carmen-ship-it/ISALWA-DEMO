@@ -20,6 +20,11 @@ import {
   type PurchaseRequestSearchResult,
   type PurchaseRequestSession,
 } from '../../os-contracts/src/purchase-request';
+import {
+  authorizePurchaseRequestTransition,
+  transitionPurchaseRequest,
+  type PurchaseRequestTransitionResult,
+} from './transition';
 
 export type PurchaseRequestStoreFailure = 'not_found' | 'already_exists';
 
@@ -31,6 +36,8 @@ export type PurchaseRequestStoreResult =
  * In-memory purchase requests. Not an inventory ledger and not an ERP.
  * Every read and write is scoped to one organization. Cross-tenant ids look missing.
  * Status history is appended. Nothing here reorders or posts stock.
+ * changeStatus is an org-keyed fixture helper. Trusted mutation is transition().
+ * Live persistence is UNPROVEN. This class is not a Prisma writer.
  */
 export class InMemoryPurchaseRequestStore {
   private readonly records = new Map<string, PurchaseRequest>();
@@ -64,6 +71,10 @@ export class InMemoryPurchaseRequestStore {
       .map(cloneRequest);
   }
 
+  /**
+   * Org-keyed fixture helper. It does not prove a trusted session.
+   * Live writes stay UNPROVEN. Use transition() before a mutation.
+   */
   changeStatus(
     organizationId: string,
     id: string,
@@ -78,6 +89,35 @@ export class InMemoryPurchaseRequestStore {
       this.rememberPerson(organizationId, changed.request.buyerLabel, 'buyer');
     }
     return { ok: true, request: cloneRequest(changed.request) };
+  }
+
+  /**
+   * Proves the target organization equals the trusted session organization
+   * before mutation. A foreign id is the same as missing.
+   */
+  transition(
+    session: PurchaseRequestSession | null | undefined,
+    id: string,
+    input: ChangePurchaseRequestStatusInput,
+    targetOrganizationId?: string | null,
+  ): PurchaseRequestTransitionResult {
+    const gate = authorizePurchaseRequestTransition(session, targetOrganizationId);
+    if (!gate.ok) {
+      return { ok: false, reason: gate.reason, event: null, liveWrite: 'UNPROVEN' };
+    }
+    const current = this.records.get(recordKey(gate.organizationId, id));
+    const changed = transitionPurchaseRequest({
+      session,
+      request: current && current.organizationId === gate.organizationId ? current : null,
+      targetOrganizationId: gate.organizationId,
+      change: input,
+    });
+    if (!changed.ok) return changed;
+    this.records.set(recordKey(gate.organizationId, id), changed.request);
+    if (changed.request.buyerLabel) {
+      this.rememberPerson(gate.organizationId, changed.request.buyerLabel, 'buyer');
+    }
+    return { ...changed, request: cloneRequest(changed.request) };
   }
 
   addNote(

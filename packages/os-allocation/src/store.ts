@@ -13,6 +13,12 @@ import {
  * In-memory finished-goods allocation.
  * Receipts are not stored and do not allocate. There is no inventory ledger.
  */
+/**
+ * Process-local helper. Filtering this array is not tenant proof and is not a
+ * live write. Callers must not treat a successful allocate() as hosted isolation.
+ */
+export const IN_MEMORY_ALLOCATION_IS_TENANT_PROOF = false;
+
 export class InMemoryOrderAllocationStore {
   private readonly allocations: OrderAllocation[] = [];
 
@@ -30,7 +36,12 @@ export class InMemoryOrderAllocationStore {
     const id = typeof draft?.id === 'string' ? draft.id : '';
     const idempotencyKey = typeof draft?.idempotencyKey === 'string' ? draft.idempotencyKey : null;
 
-    if (id && this.allocations.some((item) => item.id === id)) {
+    // Same-tenant id only. A foreign allocation id is not a conflict and is not returned.
+    if (
+      id &&
+      organizationId &&
+      this.allocations.some((item) => item.id === id && item.organizationId === organizationId)
+    ) {
       return { ok: false, reason: 'conflict', conflict: 'id_exists', officialStock: false };
     }
     if (idempotencyKey && organizationId) {

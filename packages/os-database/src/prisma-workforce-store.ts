@@ -108,6 +108,10 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return row ? this.mapAuth(row) : null;
   }
 
+  /**
+   * Matches a verified provider email. OsAuthIdentity has no organizationId;
+   * do not invent a tenant predicate on this table.
+   */
   async listAuthIdentitiesByProviderEmail(
     provider: string,
     email: string,
@@ -121,8 +125,10 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return rows.map((row) => this.mapAuth(row));
   }
 
-  async listMembersForPerson(personId: string): Promise<MemberRecord[]> {
-    const rows = await this.db().osOrganizationMember.findMany({ where: { personId } });
+  async listMembersForPerson(personId: string, organizationId?: string): Promise<MemberRecord[]> {
+    const rows = await this.db().osOrganizationMember.findMany({
+      where: organizationId ? { personId, organizationId } : { personId },
+    });
     return rows.map((row) => mapMember(row));
   }
 
@@ -140,8 +146,13 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return rows[0] ? mapMember(rows[0]) : null;
   }
 
-  async listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]> {
-    const rows = await this.db().osRoleAssignment.findMany({ where: { memberId } });
+  async listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]> {
+    const rows = await this.db().osRoleAssignment.findMany({
+      where: organizationId ? { memberId, organizationId } : { memberId },
+    });
     return rows.map((r) => ({
       id: r.id,
       organizationId: r.organizationId,
@@ -152,8 +163,13 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     }));
   }
 
-  async listDelegationsForDelegate(delegateMemberId: string): Promise<DelegationRecord[]> {
-    const rows = await this.db().osDelegation.findMany({ where: { delegateMemberId } });
+  async listDelegationsForDelegate(
+    delegateMemberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: organizationId ? { delegateMemberId, organizationId } : { delegateMemberId },
+    });
     return rows.map((d) => ({
       id: d.id,
       organizationId: d.organizationId,

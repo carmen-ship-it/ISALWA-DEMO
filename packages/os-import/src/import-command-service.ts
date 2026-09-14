@@ -64,8 +64,8 @@ export class ImportCommandService {
   ): Promise<MemberAccessSnapshot | null> {
     const member = await this.partyAccess.getMemberInOrg(organizationId, memberId);
     if (!member) return null;
-    const roles = await this.partyAccess.listRoleAssignmentsForMember(memberId);
-    const delegations = await this.partyAccess.listDelegationsForDelegate(memberId);
+    const roles = await this.partyAccess.listRoleAssignmentsForMember(memberId, organizationId);
+    const delegations = await this.partyAccess.listDelegationsForDelegate(memberId, organizationId);
     const effectiveScopes = computeEffectiveScopes(
       roles.map((r) => ({
         roleKey: r.roleKey,

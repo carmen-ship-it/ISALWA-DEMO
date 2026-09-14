@@ -52,8 +52,13 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       : null;
   }
 
-  async listRoleAssignmentsForMember(memberId: string): Promise<RoleAssignmentRecord[]> {
-    const rows = await this.db().osRoleAssignment.findMany({ where: { memberId } });
+  async listRoleAssignmentsForMember(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<RoleAssignmentRecord[]> {
+    const rows = await this.db().osRoleAssignment.findMany({
+      where: organizationId ? { memberId, organizationId } : { memberId },
+    });
     return rows.map((r) => ({
       roleKey: r.roleKey,
       effectiveAt: r.effectiveAt,
@@ -61,8 +66,13 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     }));
   }
 
-  async listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]> {
-    const rows = await this.db().osDelegation.findMany({ where: { delegateMemberId: memberId } });
+  async listDelegationsForDelegate(
+    memberId: string,
+    organizationId?: string,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: organizationId ? { delegateMemberId: memberId, organizationId } : { delegateMemberId: memberId },
+    });
     return rows.map((d) => ({
       delegatorMemberId: d.delegatorMemberId,
       scopes: d.scopesJson as string[],
@@ -107,12 +117,13 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async updateCommercialAccount(
+    organizationId: string,
     commercialAccountId: string,
     patch: Partial<Pick<CommercialAccountRecord, 'ownerMemberId' | 'version'>>,
     expectedVersion: number,
   ): Promise<void> {
     const result = await this.db().osCommercialAccount.updateMany({
-      where: { id: commercialAccountId, version: expectedVersion },
+      where: { id: commercialAccountId, organizationId, version: expectedVersion },
       data: patch,
     });
     if (result.count === 0) throw new Error('CONFLICT');
@@ -150,6 +161,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async updateOpportunity(
+    organizationId: string,
     opportunityId: string,
     patch: Partial<
       Pick<
@@ -167,7 +179,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     expectedVersion: number,
   ): Promise<void> {
     const result = await this.db().osOpportunity.updateMany({
-      where: { id: opportunityId, version: expectedVersion },
+      where: { id: opportunityId, organizationId, version: expectedVersion },
       data: {
         ...patch,
         sourceMetadataJson: patch.sourceMetadataJson as Prisma.InputJsonValue | undefined,
@@ -210,6 +222,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async updateQuote(
+    organizationId: string,
     quoteId: string,
     patch: Partial<
       Pick<
@@ -227,7 +240,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     expectedVersion: number,
   ): Promise<void> {
     const result = await this.db().osQuote.updateMany({
-      where: { id: quoteId, version: expectedVersion },
+      where: { id: quoteId, organizationId, version: expectedVersion },
       data: patch,
     });
     if (result.count === 0) throw new Error('CONFLICT');
@@ -238,6 +251,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async insertQuoteLine(record: QuoteLineRecord): Promise<void> {
+    await this.requireQuoteInOrg(record.organizationId, record.quoteId);
     await this.db().osQuoteLine.create({
       data: {
         id: record.id,
@@ -276,6 +290,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async updateQuoteLine(
+    organizationId: string,
     quoteLineId: string,
     patch: Partial<
       Pick<
@@ -290,19 +305,36 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
       >
     >,
   ): Promise<void> {
-    await this.db().osQuoteLine.update({
-      where: { id: quoteLineId },
+    const line = await this.db().osQuoteLine.findFirst({
+      where: { id: quoteLineId, organizationId },
+      select: { id: true, quoteId: true },
+    });
+    if (!line) throw new Error('NOT_FOUND');
+    await this.requireQuoteInOrg(organizationId, line.quoteId);
+    const result = await this.db().osQuoteLine.updateMany({
+      where: { id: line.id, organizationId, quoteId: line.quoteId },
       data: patch,
     });
+    if (result.count === 0) throw new Error('NOT_FOUND');
   }
 
-  async deleteQuoteLine(quoteLineId: string): Promise<void> {
-    await this.db().osQuoteLine.delete({ where: { id: quoteLineId } });
+  async deleteQuoteLine(organizationId: string, quoteLineId: string): Promise<void> {
+    const line = await this.db().osQuoteLine.findFirst({
+      where: { id: quoteLineId, organizationId },
+      select: { id: true, quoteId: true },
+    });
+    if (!line) throw new Error('NOT_FOUND');
+    await this.requireQuoteInOrg(organizationId, line.quoteId);
+    const result = await this.db().osQuoteLine.deleteMany({
+      where: { id: line.id, organizationId, quoteId: line.quoteId },
+    });
+    if (result.count === 0) throw new Error('NOT_FOUND');
   }
 
-  async nextQuoteLineNumber(quoteId: string): Promise<number> {
+  async nextQuoteLineNumber(organizationId: string, quoteId: string): Promise<number> {
+    const quote = await this.requireQuoteInOrg(organizationId, quoteId);
     const last = await this.db().osQuoteLine.findFirst({
-      where: { quoteId },
+      where: { organizationId, quoteId: quote.id },
       orderBy: { lineNumber: 'desc' },
     });
     return (last?.lineNumber ?? 0) + 1;
@@ -416,6 +448,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async insertOrder(record: OrderRecord): Promise<void> {
+    await this.requireQuoteInOrg(record.organizationId, record.quoteId);
     await this.db().osOrder.create({
       data: {
         id: record.id,
@@ -453,12 +486,13 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   }
 
   async updateOrder(
+    organizationId: string,
     orderId: string,
     patch: Partial<Pick<OrderRecord, 'status' | 'cancelledAt' | 'version'>>,
     expectedVersion: number,
   ): Promise<void> {
     const result = await this.db().osOrder.updateMany({
-      where: { id: orderId, version: expectedVersion },
+      where: { id: orderId, organizationId, version: expectedVersion },
       data: patch,
     });
     if (result.count === 0) throw new Error('CONFLICT');
@@ -574,6 +608,18 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
 
   async countOutbox(organizationId: string): Promise<number> {
     return this.db().osOutboxMessage.count({ where: { organizationId } });
+  }
+
+  private async requireQuoteInOrg(
+    organizationId: string,
+    quoteId: string,
+  ): Promise<{ id: string }> {
+    const quote = await this.db().osQuote.findFirst({
+      where: { id: quoteId, organizationId },
+      select: { id: true },
+    });
+    if (!quote) throw new Error('NOT_FOUND');
+    return quote;
   }
 }
 

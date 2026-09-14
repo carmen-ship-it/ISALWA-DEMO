@@ -242,7 +242,10 @@ function conversionStore(input: {
         (line) => line.organizationId === organizationId && line.orderId === orderId,
       );
     },
-    async updateQuote(_quoteId: string, patch: { status?: string }) {
+    async updateQuote(organizationId: string, quoteId: string, patch: { status?: string }) {
+      if (organizationId !== row.organizationId || quoteId !== row.id) {
+        throw new Error('NOT_FOUND');
+      }
       if (patch.status) row.status = patch.status as QuoteRecord['status'];
     },
     async appendEventAndAudit() {},

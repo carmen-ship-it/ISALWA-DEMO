@@ -45,8 +45,8 @@ export class CommercialCommandService {
   ): Promise<MemberAccessSnapshot | null> {
     const member = await this.store.getMemberInOrg(organizationId, memberId);
     if (!member) return null;
-    const roles = await this.store.listRoleAssignmentsForMember(memberId);
-    const delegations = await this.store.listDelegationsForDelegate(memberId);
+    const roles = await this.store.listRoleAssignmentsForMember(memberId, organizationId);
+    const delegations = await this.store.listDelegationsForDelegate(memberId, organizationId);
     return {
       memberId: member.id,
       organizationId: member.organizationId,
@@ -219,8 +219,7 @@ export class CommercialCommandService {
     orgId: string,
     partyId: string,
   ) {
-    const party = await store.getPartyInOrg(orgId, partyId);
-    if (!party) throw new Error('NOT_FOUND');
+    const party = this.refuseForeign(await store.getPartyInOrg(orgId, partyId), orgId);
     if (party.status !== 'active' || party.mergedIntoPartyId) {
       throw new Error('VALIDATION_FAILED');
     }
@@ -233,7 +232,8 @@ export class CommercialCommandService {
     partyId: string,
   ): Promise<string | null> {
     const account = await store.getCommercialAccountForParty(orgId, partyId);
-    return account?.status === 'active' ? account.id : null;
+    if (!account || account.organizationId !== orgId || account.status !== 'active') return null;
+    return account.id;
   }
 
   private assertCanEditOpportunity(
@@ -249,13 +249,34 @@ export class CommercialCommandService {
     if (quote.ownerMemberId !== snap.memberId) throw new Error('PERMISSION_DENIED');
   }
 
+  private refuseForeign<T extends { organizationId: string }>(
+    record: T | null,
+    organizationId: string,
+  ): T {
+    if (!record || record.organizationId !== organizationId) {
+      throw new Error('NOT_FOUND');
+    }
+    return record;
+  }
+
+  private isSessionRecord(
+    record: { organizationId?: string } | null,
+    organizationId: string,
+  ): boolean {
+    if (!record) return false;
+    return record.organizationId == null || record.organizationId === organizationId;
+  }
+
   private async recalculateQuoteTotals(
     store: OsCommercialStore,
+    organizationId: string,
     quote: QuoteRecord,
   ): Promise<QuoteRecord> {
-    const lines = await store.listQuoteLines(quote.organizationId, quote.id);
+    this.refuseForeign(quote, organizationId);
+    const lines = await store.listQuoteLines(organizationId, quote.id);
     const totals = computeQuoteTotals(lines, quote.headerDiscountCentavos);
     await store.updateQuote(
+      organizationId,
       quote.id,
       {
         subtotalCentavos: totals.subtotalCentavos,
@@ -316,7 +337,7 @@ export class CommercialCommandService {
       : ctx.actorMemberId;
     if (payload.ownerMemberId) {
       const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (!owner) throw new Error('VALIDATION_FAILED');
+      if (!owner || owner.organizationId !== ctx.organizationId) throw new Error('VALIDATION_FAILED');
     }
 
     const commercialAccountId = await this.resolveCommercialAccountId(
@@ -369,8 +390,10 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'UpdateOpportunity', ctx.organizationId);
     const opportunityId = String(payload.opportunityId);
-    const existing = await store.getOpportunityInOrg(ctx.organizationId, opportunityId);
-    if (!existing) throw new Error('NOT_FOUND');
+    const existing = this.refuseForeign(
+      await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
+      ctx.organizationId,
+    );
     if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
     this.assertCanEditOpportunity(snap, existing);
 
@@ -392,7 +415,7 @@ export class CommercialCommandService {
           : (payload.sourceMetadata as Record<string, unknown>);
     }
 
-    await store.updateOpportunity(opportunityId, patch, existing.version);
+    await store.updateOpportunity(ctx.organizationId, existing.id, patch, existing.version);
     const after = { ...existing, ...patch };
     return this.emit(
       ctx,
@@ -415,13 +438,16 @@ export class CommercialCommandService {
     const snap = await this.authorize(ctx, 'ChangeOpportunityStage', ctx.organizationId);
     const opportunityId = String(payload.opportunityId);
     const stage = String(payload.stage);
-    const existing = await store.getOpportunityInOrg(ctx.organizationId, opportunityId);
-    if (!existing) throw new Error('NOT_FOUND');
+    const existing = this.refuseForeign(
+      await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
+      ctx.organizationId,
+    );
     if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
     this.assertCanEditOpportunity(snap, existing);
 
     await store.updateOpportunity(
-      opportunityId,
+      ctx.organizationId,
+      existing.id,
       { stage, version: existing.version + 1 },
       existing.version,
     );
@@ -447,14 +473,17 @@ export class CommercialCommandService {
     const snap = await this.authorize(ctx, 'CloseOpportunity', ctx.organizationId);
     const opportunityId = String(payload.opportunityId);
     const outcome = String(payload.outcome) as 'won' | 'lost';
-    const existing = await store.getOpportunityInOrg(ctx.organizationId, opportunityId);
-    if (!existing) throw new Error('NOT_FOUND');
+    const existing = this.refuseForeign(
+      await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
+      ctx.organizationId,
+    );
     if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
     this.assertCanEditOpportunity(snap, existing);
 
     const status = outcome;
     await store.updateOpportunity(
-      opportunityId,
+      ctx.organizationId,
+      existing.id,
       {
         status,
         closedAt: ctx.effectiveAt,
@@ -481,16 +510,21 @@ export class CommercialCommandService {
     const snap = await this.authorize(ctx, 'AssignOpportunityOwner', ctx.organizationId);
     const opportunityId = String(payload.opportunityId);
     const ownerMemberId = String(payload.ownerMemberId);
-    const existing = await store.getOpportunityInOrg(ctx.organizationId, opportunityId);
-    if (!existing) throw new Error('NOT_FOUND');
+    const existing = this.refuseForeign(
+      await store.getOpportunityInOrg(ctx.organizationId, opportunityId),
+      ctx.organizationId,
+    );
     if (existing.status !== 'open') throw new Error('VALIDATION_FAILED');
     this.assertCanEditOpportunity(snap, existing);
 
     const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-    if (!owner || owner.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
+    if (!owner || owner.organizationId !== ctx.organizationId || owner.accessStatus !== 'active') {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     await store.updateOpportunity(
-      opportunityId,
+      ctx.organizationId,
+      existing.id,
       { ownerMemberId, version: existing.version + 1 },
       existing.version,
     );
@@ -523,14 +557,21 @@ export class CommercialCommandService {
       : ctx.actorMemberId;
     if (payload.ownerMemberId) {
       const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-      if (!owner) throw new Error('VALIDATION_FAILED');
+      if (!owner || owner.organizationId !== ctx.organizationId) throw new Error('VALIDATION_FAILED');
     }
 
     let opportunityId: string | null = null;
     if (payload.opportunityId) {
       opportunityId = String(payload.opportunityId);
       const opportunity = await store.getOpportunityInOrg(ctx.organizationId, opportunityId);
-      if (!opportunity || opportunity.partyId !== partyId) throw new Error('VALIDATION_FAILED');
+      if (
+        !opportunity ||
+        opportunity.organizationId !== ctx.organizationId ||
+        opportunity.partyId !== partyId
+      ) {
+        throw new Error('VALIDATION_FAILED');
+      }
+      opportunityId = opportunity.id;
     }
 
     const commercialAccountId = await this.resolveCommercialAccountId(
@@ -580,8 +621,7 @@ export class CommercialCommandService {
     orgId: string,
     quoteId: string,
   ): Promise<QuoteRecord> {
-    const quote = await store.getQuoteInOrg(orgId, quoteId);
-    if (!quote) throw new Error('NOT_FOUND');
+    const quote = this.refuseForeign(await store.getQuoteInOrg(orgId, quoteId), orgId);
     if (quote.status !== 'draft') throw new Error('VALIDATION_FAILED');
     return quote;
   }
@@ -607,13 +647,13 @@ export class CommercialCommandService {
       discountCentavos,
     );
 
-    const lineNumber = await store.nextQuoteLineNumber(quoteId);
+    const lineNumber = await store.nextQuoteLineNumber(ctx.organizationId, quote.id);
     const quoteLineId = createId();
     const now = ctx.effectiveAt;
     const line: QuoteLineRecord = {
       id: quoteLineId,
       organizationId: ctx.organizationId,
-      quoteId,
+      quoteId: quote.id,
       lineNumber,
       description: String(payload.description),
       quantity,
@@ -626,7 +666,7 @@ export class CommercialCommandService {
       updatedAt: now,
     };
     await store.insertQuoteLine(line);
-    const updatedQuote = await this.recalculateQuoteTotals(store, quote);
+    const updatedQuote = await this.recalculateQuoteTotals(store, ctx.organizationId, quote);
 
     return this.emit(
       ctx,
@@ -651,8 +691,10 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'UpdateQuoteLine', ctx.organizationId);
     const quoteLineId = String(payload.quoteLineId);
-    const line = await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId);
-    if (!line) throw new Error('NOT_FOUND');
+    const line = this.refuseForeign(
+      await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId),
+      ctx.organizationId,
+    );
     const quote = await this.requireDraftQuote(store, ctx.organizationId, line.quoteId);
     this.assertCanEditQuote(snap, quote);
 
@@ -671,7 +713,7 @@ export class CommercialCommandService {
       discountCentavos,
     );
 
-    await store.updateQuoteLine(quoteLineId, {
+    await store.updateQuoteLine(ctx.organizationId, line.id, {
       description: payload.description != null ? String(payload.description) : line.description,
       quantity,
       unitLabel:
@@ -690,7 +732,7 @@ export class CommercialCommandService {
             : String(payload.productRef)
           : line.productRef,
     });
-    const updatedQuote = await this.recalculateQuoteTotals(store, quote);
+    const updatedQuote = await this.recalculateQuoteTotals(store, ctx.organizationId, quote);
 
     return this.emit(
       ctx,
@@ -714,13 +756,15 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'RemoveQuoteLine', ctx.organizationId);
     const quoteLineId = String(payload.quoteLineId);
-    const line = await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId);
-    if (!line) throw new Error('NOT_FOUND');
+    const line = this.refuseForeign(
+      await store.getQuoteLineInOrg(ctx.organizationId, quoteLineId),
+      ctx.organizationId,
+    );
     const quote = await this.requireDraftQuote(store, ctx.organizationId, line.quoteId);
     this.assertCanEditQuote(snap, quote);
 
-    await store.deleteQuoteLine(quoteLineId);
-    const updatedQuote = await this.recalculateQuoteTotals(store, quote);
+    await store.deleteQuoteLine(ctx.organizationId, line.id);
+    const updatedQuote = await this.recalculateQuoteTotals(store, ctx.organizationId, quote);
 
     return this.emit(
       ctx,
@@ -752,11 +796,12 @@ export class CommercialCommandService {
         : quote.headerDiscountCentavos;
     if (headerDiscountCentavos < 0n) throw new Error('VALIDATION_FAILED');
 
-    const lines = await store.listQuoteLines(ctx.organizationId, quoteId);
+    const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     const totals = computeQuoteTotals(lines, headerDiscountCentavos);
 
     await store.updateQuote(
-      quoteId,
+      ctx.organizationId,
+      quote.id,
       {
         notes:
           payload.notes !== undefined
@@ -806,11 +851,12 @@ export class CommercialCommandService {
     const quote = await this.requireDraftQuote(store, ctx.organizationId, quoteId);
     this.assertCanEditQuote(snap, quote);
 
-    const lines = await store.listQuoteLines(ctx.organizationId, quoteId);
+    const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     if (lines.length === 0) throw new Error('VALIDATION_FAILED');
 
     await store.updateQuote(
-      quoteId,
+      ctx.organizationId,
+      quote.id,
       {
         status: 'submitted',
         submittedAt: ctx.effectiveAt,
@@ -840,20 +886,26 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'CancelQuote', ctx.organizationId);
     const quoteId = String(payload.quoteId);
-    const quote = await store.getQuoteInOrg(ctx.organizationId, quoteId);
-    if (!quote) throw new Error('NOT_FOUND');
+    const quote = this.refuseForeign(
+      await store.getQuoteInOrg(ctx.organizationId, quoteId),
+      ctx.organizationId,
+    );
     if (quote.status === 'cancelled' || quote.status === 'accepted') {
       throw new Error('VALIDATION_FAILED');
     }
     this.assertCanEditQuote(snap, quote);
 
-    const existingOrder = await store.getOrderForQuote(ctx.organizationId, quoteId);
-    if (existingOrder && existingOrder.status === 'open') {
+    const existingOrder = await store.getOrderForQuote(ctx.organizationId, quote.id);
+    if (
+      this.isSessionRecord(existingOrder, ctx.organizationId) &&
+      existingOrder?.status === 'open'
+    ) {
       throw new Error('VALIDATION_FAILED');
     }
 
     await store.updateQuote(
-      quoteId,
+      ctx.organizationId,
+      quote.id,
       {
         status: 'cancelled',
         cancelledAt: ctx.effectiveAt,
@@ -882,8 +934,10 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'CreateOrder', ctx.organizationId);
     const quoteId = String(payload.quoteId);
-    const quote = await store.getQuoteInOrg(ctx.organizationId, quoteId);
-    if (!quote) throw new Error('NOT_FOUND');
+    const quote = this.refuseForeign(
+      await store.getQuoteInOrg(ctx.organizationId, quoteId),
+      ctx.organizationId,
+    );
     if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
     if (
       !canConvertQuoteToOrder({
@@ -895,10 +949,12 @@ export class CommercialCommandService {
       throw new Error('PERMISSION_DENIED');
     }
 
-    const existingOrder = await store.getOrderForQuote(ctx.organizationId, quoteId);
-    if (existingOrder) throw new Error('CONFLICT');
+    const existingOrder = await store.getOrderForQuote(ctx.organizationId, quote.id);
+    if (this.isSessionRecord(existingOrder, ctx.organizationId)) {
+      throw new Error('CONFLICT');
+    }
 
-    const lines = await store.listQuoteLines(ctx.organizationId, quoteId);
+    const lines = await store.listQuoteLines(ctx.organizationId, quote.id);
     if (lines.length === 0) throw new Error('VALIDATION_FAILED');
 
     const orderId = createId();
@@ -908,7 +964,7 @@ export class CommercialCommandService {
     const orderLines = copyQuoteLinesToOrderLines({
       organizationId: ctx.organizationId,
       orderId,
-      quoteId,
+      quoteId: quote.id,
       lines,
       copiedAt: now,
     });
@@ -917,7 +973,7 @@ export class CommercialCommandService {
       organizationId: ctx.organizationId,
       partyId: quote.partyId,
       commercialAccountId: quote.commercialAccountId,
-      quoteId,
+      quoteId: quote.id,
       ownerMemberId: quote.ownerMemberId,
       orderNumber,
       status: 'open',
@@ -933,7 +989,8 @@ export class CommercialCommandService {
     await store.insertOrder(order);
     await store.insertOrderLines(orderLines);
     await store.updateQuote(
-      quoteId,
+      ctx.organizationId,
+      quote.id,
       { status: 'accepted', version: quote.version + 1 },
       quote.version,
     );
@@ -963,15 +1020,18 @@ export class CommercialCommandService {
   ): Promise<CommandResult> {
     const snap = await this.authorize(ctx, 'CancelOrder', ctx.organizationId);
     const orderId = String(payload.orderId);
-    const order = await store.getOrderInOrg(ctx.organizationId, orderId);
-    if (!order) throw new Error('NOT_FOUND');
+    const order = this.refuseForeign(
+      await store.getOrderInOrg(ctx.organizationId, orderId),
+      ctx.organizationId,
+    );
     if (order.status !== 'open') throw new Error('VALIDATION_FAILED');
     if (!this.memberHasAdminScope(snap) && order.ownerMemberId !== snap.memberId) {
       throw new Error('PERMISSION_DENIED');
     }
 
     await store.updateOrder(
-      orderId,
+      ctx.organizationId,
+      order.id,
       {
         status: 'cancelled',
         cancelledAt: ctx.effectiveAt,
@@ -1005,12 +1065,16 @@ export class CommercialCommandService {
 
     const commercialAccountId = String(payload.commercialAccountId);
     const ownerMemberId = String(payload.ownerMemberId);
-    const account = await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId);
-    if (!account) throw new Error('NOT_FOUND');
+    const account = this.refuseForeign(
+      await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId),
+      ctx.organizationId,
+    );
     if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
 
-    const target = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
-    if (!target) throw new Error('NOT_FOUND');
+    const target = this.refuseForeign(
+      await store.getMemberInOrg(ctx.organizationId, ownerMemberId),
+      ctx.organizationId,
+    );
     if (target.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
 
     const previousOwnerMemberId = account.ownerMemberId;
@@ -1029,7 +1093,8 @@ export class CommercialCommandService {
     }
 
     await store.updateCommercialAccount(
-      commercialAccountId,
+      ctx.organizationId,
+      account.id,
       { ownerMemberId, version: account.version + 1 },
       account.version,
     );
