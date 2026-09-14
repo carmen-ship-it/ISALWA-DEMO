@@ -118,6 +118,42 @@ describe('CC-3 open work due order', () => {
 });
 
 describe('CC-3 due facts in Spanish', () => {
+  it('labels open work due later today as Vence hoy without calling it overdue', () => {
+    const today = work({
+      workItemId: 'work-today',
+      dueAt: '2026-09-14T18:00:00.000Z',
+    });
+    const line = formatWorkDueLine(today, { asOf: new Date('2026-09-14T15:00:00.000Z') });
+    assert.equal(line.text, 'Vence hoy');
+    assert.equal(line.overdue, false);
+
+    const exact = formatWorkDueLine(
+      work({ workItemId: 'work-exact', dueAt: '2026-09-14T15:00:00.000Z' }),
+      { asOf: new Date('2026-09-14T15:00:00.000Z') },
+    );
+    assert.equal(exact.text, 'Vence hoy');
+    assert.equal(exact.overdue, false);
+
+    const completed = formatWorkDueLine(
+      work({
+        workItemId: 'work-done-today',
+        status: 'completed',
+        dueAt: '2026-09-14T18:00:00.000Z',
+      }),
+      { asOf: new Date('2026-09-14T15:00:00.000Z') },
+    );
+    assert.notEqual(completed.text, 'Vence hoy');
+    assert.equal(completed.overdue, false);
+  });
+
+  it('adds elapsed time to an already-overdue line without a new state word', () => {
+    const line = formatWorkDueLine(overdueWork, { asOf: AS_OF });
+    assert.match(line.text, /^Vencido · /);
+    assert.match(line.text, / \d+ d$/);
+    assert.equal(line.overdue, true);
+    assert.doesNotMatch(line.text, /SLA|vence en|pronto/i);
+  });
+
   it('shows Vencido, Fecha / vence, and Sin fecha without implementation words', () => {
     const overdue = formatWorkDueLine(overdueWork, { asOf: AS_OF });
     const future = formatWorkDueLine(sampleWork, { asOf: new Date('2026-08-24T12:00:00.000Z'), caption: 'Fecha' });

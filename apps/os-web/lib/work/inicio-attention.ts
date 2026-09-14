@@ -1,11 +1,15 @@
 import type { AttentionItemReadModel, AttentionType } from '@isalwa/os-contracts';
 import { t } from '@/lib/i18n/es';
+import {
+  approvalAgeLabelForAttention,
+  dueTodayLabelForAttention,
+} from '@/lib/work/aging/attention';
 import { sortAttentionByDue } from '@/lib/work/due-order';
 
 /**
- * Display order of existing attention types only. No score, rank, or aging rule.
+ * Display order of existing attention types only. No score or rank.
  * Within a group, a stored due date orders items when present. Missing dates
- * keep attentionKey order. This does not classify overdue or add a type.
+ * keep attentionKey order. This does not classify a past date as another type.
  */
 export const INICIO_ATTENTION_GROUP_ORDER = [
   'overdue_work',
@@ -76,6 +80,22 @@ export function groupInicioAttention(items: AttentionItemReadModel[]): InicioAtt
   }
 
   return groups;
+}
+
+/** "Vence hoy" from a stored due instant. Does not move the item into another group. */
+export function inicioAttentionDueTodayLabel(
+  item: AttentionItemReadModel,
+  asOf = new Date(),
+): string | null {
+  return dueTodayLabelForAttention(item, asOf);
+}
+
+/** Elapsed fact for a pending approval when the request instant is already stored. */
+export function inicioAttentionApprovalAgeLabel(
+  item: AttentionItemReadModel,
+  asOf = new Date(),
+): string | null {
+  return approvalAgeLabelForAttention(item, asOf);
 }
 
 export function inicioAttentionEmptyMessage(): string {

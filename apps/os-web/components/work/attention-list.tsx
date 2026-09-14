@@ -1,5 +1,10 @@
 import { OperatingRow, StatusPill } from '@isalwa/ui';
 import type { AttentionItemReadModel } from '@isalwa/os-contracts';
+import type { AgingFact } from '@/lib/work/aging/types';
+import {
+  approvalAgeLabelForAttention,
+  dueTodayLabelForAttention,
+} from '@/lib/work/aging/attention';
 import {
   attentionStatusTone,
   attentionStoredDueLabel,
@@ -13,19 +18,38 @@ type AttentionListProps = {
   items: AttentionItemReadModel[];
   subjects?: Map<string, string>;
   compact?: boolean;
+  asOf?: Date;
+  dueTodayByWorkId?: ReadonlyMap<string, string>;
+  approvalAges?: ReadonlyMap<string, string>;
 };
 
-export function AttentionList({ items, subjects, compact = false }: AttentionListProps) {
+export function AttentionList({
+  items,
+  subjects,
+  compact = false,
+  asOf,
+  dueTodayByWorkId,
+  approvalAges,
+}: AttentionListProps) {
+  const clock = asOf ?? new Date();
   return (
     <ul className="min-w-0" aria-label="Elementos que requieren atención">
       {items.map((item) => {
         const href = attentionTargetHref(item);
         const mapped = usableStaffTitle(subjects?.get(item.attentionKey));
         const subject = mapped ?? attentionStaffSubject(item);
-        const dueLabel = attentionStoredDueLabel(item);
+        const dueToday =
+          dueTodayLabelForAttention(item, clock) ??
+          (item.workItemId ? dueTodayByWorkId?.get(item.workItemId) : null) ??
+          null;
+        const dueLabel = dueToday ?? attentionStoredDueLabel(item);
+        const approvalAge =
+          approvalAgeLabelForAttention(item, clock) ??
+          (item.approvalRequestId ? approvalAges?.get(item.approvalRequestId) : null) ??
+          null;
         const reason = formatAttentionReason(item);
         const statusLabel = formatAttentionType(item.attentionType);
-        const meta = [dueLabel, !compact && reason !== statusLabel ? reason : null]
+        const meta = [dueLabel, approvalAge, !compact && reason !== statusLabel ? reason : null]
           .filter((part): part is string => Boolean(part))
           .join(' · ');
 
@@ -50,6 +74,25 @@ export function AttentionList({ items, subjects, compact = false }: AttentionLis
           </li>
         );
       })}
+    </ul>
+  );
+}
+
+/** Extra factual rows. No status pill, so a label is not shown as a new work state. */
+export function FactualDueList({ facts, label }: { facts: readonly AgingFact[]; label: string }) {
+  if (facts.length === 0) return null;
+  return (
+    <ul className="min-w-0" aria-label={label}>
+      {facts.map((fact) => (
+        <li key={fact.key}>
+          <OperatingRow
+            className="py-tight !py-1"
+            href={fact.href ?? undefined}
+            subject={fact.subject}
+            meta={fact.label}
+          />
+        </li>
+      ))}
     </ul>
   );
 }

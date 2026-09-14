@@ -1,15 +1,27 @@
 import Link from 'next/link';
 import { PageSection, SectionHeader } from '@isalwa/ui';
-import type { AttentionItemReadModel } from '@isalwa/os-contracts';
+import type {
+  AttentionItemReadModel,
+  QuoteSummaryReadModel,
+  WorkSummaryReadModel,
+} from '@isalwa/os-contracts';
 import { t } from '@/lib/i18n/es';
+import { deriveAgingFacts, workAgingInput } from '@/lib/work/aging/derive';
+import type { ApprovalAgingSource, CommitmentAgingAdapter } from '@/lib/work/aging/types';
+import { supplementalAgingGroups } from '@/lib/work/aging/present';
 import { groupInicioAttention } from '@/lib/work/inicio-attention';
-import { AttentionList } from '@/components/work/attention-list';
+import { AttentionList, FactualDueList } from '@/components/work/attention-list';
 
 type InicioAttentionPanelProps = {
   items: AttentionItemReadModel[];
   subjects?: Map<string, string>;
   unavailable?: boolean;
   hasMore?: boolean;
+  work?: readonly WorkSummaryReadModel[];
+  approvals?: readonly ApprovalAgingSource[];
+  quotes?: readonly QuoteSummaryReadModel[];
+  commitments?: CommitmentAgingAdapter | null;
+  asOf?: Date;
 };
 
 export function InicioAttentionPanel({
@@ -17,7 +29,13 @@ export function InicioAttentionPanel({
   subjects,
   unavailable = false,
   hasMore = false,
+  work,
+  approvals,
+  quotes,
+  commitments,
+  asOf,
 }: InicioAttentionPanelProps) {
+  const clock = asOf ?? new Date();
   const groups = groupInicioAttention(items);
 
   if (unavailable) {
@@ -31,7 +49,26 @@ export function InicioAttentionPanel({
     );
   }
 
-  if (groups.length === 0) return null;
+  const facts = deriveAgingFacts({
+    work: work?.map(workAgingInput),
+    approvals,
+    quotes,
+    commitments,
+    asOf: clock,
+  });
+  const dueTodayByWorkId = new Map<string, string>();
+  const approvalAges = new Map<string, string>();
+  for (const fact of facts) {
+    if (fact.kind === 'due_today' && fact.issueId?.startsWith('work:')) {
+      dueTodayByWorkId.set(fact.issueId.slice('work:'.length), fact.label);
+    }
+    if (fact.kind === 'approval_pending' && fact.issueId?.startsWith('approval:')) {
+      approvalAges.set(fact.issueId.slice('approval:'.length), fact.label);
+    }
+  }
+  const extraGroups = supplementalAgingGroups(facts, items);
+
+  if (groups.length === 0 && extraGroups.length === 0) return null;
 
   return (
     <PageSection card className="p-3 md:p-4" aria-label={t('pages.inicio.attention')}>
@@ -45,7 +82,29 @@ export function InicioAttentionPanel({
             <h3 className="mb-1 text-xs font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
               {group.title}
             </h3>
-            <AttentionList items={group.items} subjects={subjects} compact />
+            <AttentionList
+              items={group.items}
+              subjects={subjects}
+              compact
+              asOf={clock}
+              dueTodayByWorkId={dueTodayByWorkId}
+              approvalAges={approvalAges}
+            />
+          </div>
+        ))}
+        {extraGroups.map((group, index) => (
+          <div
+            key={group.id}
+            className={
+              groups.length === 0 && index === 0
+                ? undefined
+                : 'mt-4 border-t border-[var(--isalwa-mist)] pt-4'
+            }
+          >
+            <h3 className="mb-1 text-xs font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
+              {group.title}
+            </h3>
+            <FactualDueList facts={group.facts} label={group.title} />
           </div>
         ))}
       </div>

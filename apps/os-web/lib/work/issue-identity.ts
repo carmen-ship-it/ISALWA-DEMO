@@ -1,14 +1,22 @@
 /**
- * One issue for an existing attention row, even if that row is shown in more
- * than one place. Derived only from the attention key already stored.
+ * One issue for an existing attention row or derived fact key, even if that
+ * row is shown in more than one place. Derived only from the key already stored.
  * Does not create work, send a notice, or define a deadline, and does not
  * decide that open work is late from a date.
  */
 
-const WORK_PLACES = ['work:owner:', 'work:overdue:', 'work:reassigned:'] as const;
+const WORK_PLACES = [
+  'work:owner:',
+  'work:overdue:',
+  'work:reassigned:',
+  'work:due-today:',
+  'work:elapsed:',
+] as const;
 const APPROVAL_PLACES = ['approval:approver:'] as const;
+const QUOTE_PLACES = ['quote:submitted:'] as const;
+const COMMITMENT_PLACES = ['commitment:due-today:', 'commitment:elapsed:'] as const;
 
-export type IssueKind = 'work' | 'approval';
+export type IssueKind = 'work' | 'approval' | 'quote' | 'commitment';
 
 export type IssueIdentity = {
   /** Stable across places. Not a stored work id and not an attention key. */
@@ -26,8 +34,8 @@ function resourceAfter(attentionKey: string, prefixes: readonly string[]): strin
 }
 
 /**
- * Place (owner, overdue, reassigned, approver) is dropped so the same work or
- * approval is one issue. Unknown keys stay unmatched. A past date is not an input.
+ * Place is dropped so the same work, approval, quote, or commitment is one issue.
+ * Unknown keys stay unmatched. A past date is not an input and does not create a type.
  */
 export function issueIdentityFromAttentionKey(attentionKey: string): IssueIdentity | null {
   const workId = resourceAfter(attentionKey, WORK_PLACES);
@@ -38,6 +46,16 @@ export function issueIdentityFromAttentionKey(attentionKey: string): IssueIdenti
   const approvalId = resourceAfter(attentionKey, APPROVAL_PLACES);
   if (approvalId) {
     return { issueId: `approval:${approvalId}`, kind: 'approval', resourceId: approvalId };
+  }
+
+  const quoteId = resourceAfter(attentionKey, QUOTE_PLACES);
+  if (quoteId) {
+    return { issueId: `quote:${quoteId}`, kind: 'quote', resourceId: quoteId };
+  }
+
+  const commitmentId = resourceAfter(attentionKey, COMMITMENT_PLACES);
+  if (commitmentId) {
+    return { issueId: `commitment:${commitmentId}`, kind: 'commitment', resourceId: commitmentId };
   }
 
   return null;
