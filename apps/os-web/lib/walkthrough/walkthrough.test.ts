@@ -56,12 +56,23 @@ function memoryStore(initial: Record<string, string> = {}) {
 }
 
 describe('walkthrough state machine', () => {
-  it('starts at NOT_STARTED and does not reopen a full tour from saved progress', () => {
+  it('starts at NOT_STARTED and resumes only a saved in-progress step', () => {
     const initial = initialWalkthroughRecord();
     assert.equal(initial.runState, 'NOT_STARTED');
-    for (const runState of ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'DISMISSED'] as const) {
-      assert.equal(shouldOpenTourOnLoad({ ...initial, runState }), false);
-    }
+    assert.equal(shouldOpenTourOnLoad(initial), false);
+    assert.equal(shouldOpenTourOnLoad({ ...initial, runState: 'IN_PROGRESS' }), false);
+    assert.equal(shouldOpenTourOnLoad({ ...initial, runState: 'COMPLETED' }), false);
+    assert.equal(shouldOpenTourOnLoad({ ...initial, runState: 'DISMISSED' }), false);
+    assert.equal(
+      shouldOpenTourOnLoad({
+        ...initial,
+        runState: 'IN_PROGRESS',
+        chapterId: 'clientes',
+        scopeChapterId: 'clientes',
+        stepId: 'customer-filters',
+      }),
+      true,
+    );
   });
 
   it('moves through start, pause, complete, dismiss, and replay without losing the contract', () => {
@@ -88,7 +99,7 @@ describe('walkthrough state machine', () => {
 
     const dismissed = reduceWalkthrough(initialWalkthroughRecord(), { type: 'DISMISS' });
     assert.equal(dismissed.runState, 'DISMISSED');
-    assert.equal(dismissed.learningMode, false);
+    assert.equal(dismissed.learningMode, true);
 
     const replayed = reduceWalkthrough(completed, {
       type: 'REPLAY',
@@ -100,7 +111,7 @@ describe('walkthrough state machine', () => {
     assert.equal(replayed.scopeChapterId, 'customer');
   });
 
-  it('persists progress for this browser so a refresh keeps state and stays closed', () => {
+  it('persists progress for this browser so a refresh keeps the step and can resume', () => {
     const store = memoryStore();
     const inProgress = reduceWalkthrough(initialWalkthroughRecord(), {
       type: 'START',
@@ -112,7 +123,7 @@ describe('walkthrough state machine', () => {
     const reloaded = loadWalkthrough(store);
     assert.equal(reloaded.runState, 'IN_PROGRESS');
     assert.equal(reloaded.stepId, 'home');
-    assert.equal(shouldOpenTourOnLoad(reloaded), false);
+    assert.equal(shouldOpenTourOnLoad(reloaded), true);
     assert.deepEqual(parseWalkthroughRecord('not-json'), initialWalkthroughRecord());
     assert.equal(parseWalkthroughRecord('{"version":1,"runState":"COMPLETED"}').runState, 'COMPLETED');
   });
