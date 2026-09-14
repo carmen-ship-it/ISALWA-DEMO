@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Button, EmptyState, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import type { AttentionItemReadModel } from '@isalwa/os-contracts';
 import type { LeadershipBundle } from '@/lib/leadership/load-inicio-leadership';
+import { ExecutiveCommandCenter } from '@/components/executive/command-center-panel';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { WorkList } from '@/components/work/work-list';
+import { composeExecutiveCommand } from '@/lib/executive/command-center';
 import { t } from '@/lib/i18n/es';
 import type { PartyLabelMap } from '@/lib/commercial/party-resolver';
 import type { MemberLabelMap } from '@/lib/work/member-resolver';
@@ -89,12 +92,15 @@ export function InicioLeadershipSection({
   unavailable,
   memberLabels,
   partyLabels,
+  attentionItems,
 }: {
   variant: LeadershipVariant;
   data?: LeadershipBundle;
   unavailable?: boolean;
   memberLabels: MemberLabelMap;
   partyLabels: PartyLabelMap;
+  /** Optional. The Inicio page does not pass this yet. */
+  attentionItems?: AttentionItemReadModel[];
 }) {
   const copy = COPY[variant];
   const scope = variant === 'team' ? 'del equipo' : 'de la empresa';
@@ -133,6 +139,21 @@ export function InicioLeadershipSection({
         />
       ) : (
         <PageSection card className="min-w-0 p-5 md:p-6">
+          <ExecutiveCommandCenter
+            model={composeExecutiveCommand({
+              opportunities: data.opportunities,
+              quotesDraft: data.quotesDraft,
+              quotesSubmitted: data.quotesSubmitted,
+              openWork: data.openWork,
+              overdueWork: data.overdueWork,
+              followUps: data.followUps,
+              attentionItems,
+              memberLabels,
+              partyLabels,
+              partial: data.hasMore,
+              identity: 'labeled',
+            })}
+          />
           <div>
             <FactList
               title={t(copy.opportunities)}
