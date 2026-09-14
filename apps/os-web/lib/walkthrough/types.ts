@@ -31,8 +31,8 @@ export type TourChapter = {
   routePrefix?: string;
   routePrefixes?: readonly string[];
   /**
-   * Optional access keys. Absent means visible. Hide from replay only when a
-   * caller passes an access set that includes none of these keys.
+   * Optional access keys. Absent means visible. Hide from replay and first-visit
+   * offers only when a caller passes an access set that includes none of these keys.
    */
   roleVisibility?: readonly string[];
   steps: readonly TourStep[];

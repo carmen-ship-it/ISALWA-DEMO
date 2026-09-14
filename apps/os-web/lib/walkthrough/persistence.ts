@@ -26,8 +26,8 @@ function chapterStateMap(value: unknown): Record<string, TourRunState> {
 
 /**
  * A v1 record had one runState for the whole catalog. DISMISSED/COMPLETED on
- * that record applies only to global, and a v1 dismiss must not leave learning
- * mode off forever. Other chapters start fresh.
+ * that record applies only to global. A v1 terminal flag must not leave
+ * learning mode forced off for every page. Other chapters start fresh.
  */
 function migrateV1(data: Partial<WalkthroughRecord>): WalkthroughRecord {
   const runState = isTourRunState(data.runState) ? data.runState : 'NOT_STARTED';
@@ -63,7 +63,7 @@ function migrateV1(data: Partial<WalkthroughRecord>): WalkthroughRecord {
     chapterId: typeof data.chapterId === 'string' ? data.chapterId : null,
     scopeChapterId,
     stepId: typeof data.stepId === 'string' ? data.stepId : null,
-    learningMode: runState === 'DISMISSED' ? true : data.learningMode !== false,
+    learningMode: runState === 'DISMISSED' || runState === 'COMPLETED' ? true : data.learningMode !== false,
     dismissedPageKeys: stringList(data.dismissedPageKeys),
     offeredPageKeys: stringList(data.offeredPageKeys),
     completedChapterIds,
@@ -75,9 +75,10 @@ function migrateV1(data: Partial<WalkthroughRecord>): WalkthroughRecord {
 export function parseWalkthroughRecord(raw: string | null): WalkthroughRecord {
   if (!raw) return initialWalkthroughRecord();
   try {
-    const data = JSON.parse(raw) as Partial<WalkthroughRecord> | null;
+    const data = JSON.parse(raw) as (Partial<WalkthroughRecord> & { version?: number }) | null;
     if (!data || !isTourRunState(data.runState)) return initialWalkthroughRecord();
-    if (data.version === 1) return migrateV1(data);
+    const version = (data as { version?: number }).version;
+    if (version === 1) return migrateV1(data);
     if (data.version !== WALKTHROUGH_RECORD_VERSION) return initialWalkthroughRecord();
     return {
       version: WALKTHROUGH_RECORD_VERSION,

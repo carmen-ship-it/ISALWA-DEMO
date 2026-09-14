@@ -368,6 +368,7 @@ export function WalkthroughProvider({
         chapters: getChapters(),
         surfaceOpen: false,
         blockingDialog: false,
+        access,
       })
     ) {
       return;
@@ -377,7 +378,7 @@ export function WalkthroughProvider({
       reduceWalkthrough(current, { type: 'MARK_PAGE_OFFERED', pageKey: pageKeyFromPathname(pathname) }),
     );
     openSurface('page-offer');
-  }, [hydrated, pathname, record, surface, openSurface]);
+  }, [access, hydrated, pathname, record, surface, openSurface]);
 
   useEffect(() => {
     if (surface !== 'step' || !step) {

@@ -208,6 +208,7 @@ export function shouldOfferFirstVisit(input: {
   chapters: readonly TourChapter[];
   surfaceOpen: boolean;
   blockingDialog: boolean;
+  access?: ReadonlySet<string> | readonly string[] | null;
 }): boolean {
   if (input.surfaceOpen || input.blockingDialog) return false;
   const path = normalizePathname(input.pathname);
@@ -218,6 +219,7 @@ export function shouldOfferFirstVisit(input: {
   const chapter = chapterForPathname(input.chapters, path);
   if (chapter) {
     if (chapter.chapterId === 'ayuda') return false;
+    if (!chapterVisible(chapter, input.access)) return false;
     const state = chapterRunState(input.record, chapter.chapterId);
     return state === 'NOT_STARTED';
   }
@@ -225,7 +227,8 @@ export function shouldOfferFirstVisit(input: {
 }
 
 function accessHas(access: ReadonlySet<string> | readonly string[], role: string): boolean {
-  return access instanceof Set ? access.has(role) : access.includes(role);
+  if (access instanceof Set) return access.has(role);
+  return (access as readonly string[]).includes(role);
 }
 
 function chapterVisible(
