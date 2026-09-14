@@ -1,9 +1,14 @@
 /**
  * Trusted tenant session for apps/api reads and writes.
  *
- * The organization comes from an already-authenticated session. A client
- * query or body organizationId is not an input and must not be read.
+ * The organization and grantedScopes come from attachTrustedTenantSession,
+ * which production middleware calls with a trusted-resolver result. A client
+ * query, body organizationId, or body grantedScopes is not an input.
  * Cargo, title, hidden navigation, and page-local labels are not authority.
+ *
+ * sessionFromAuthenticatedRequest still reads the attached object so existing
+ * controllers do not need a rewrite. Nest bootstrap (AppModule / main.ts) is
+ * outside this file and does not yet register the middleware.
  */
 
 export type TrustedTenantSession = {
@@ -57,5 +62,79 @@ export function sessionFromAuthenticatedRequest(
   return {
     organizationId,
     grantedScopes: candidate.grantedScopes,
+  };
+}
+
+export type TrustedSessionSource = {
+  organizationId: string;
+  grantedScopes: readonly string[];
+};
+
+/**
+ * Writes the trusted-resolver result onto the request.
+ * Does not read req.body, req.query, cargo, title, or any pre-set session.
+ * A denial must pass null so a stronger test-injected object cannot remain.
+ */
+export function attachTrustedTenantSession(
+  req: AuthenticatedTenantRequest,
+  source: TrustedSessionSource | null,
+): TrustedTenantSession | null {
+  if (!source || typeof source.organizationId !== 'string') {
+    req.authenticatedSession = undefined;
+    return null;
+  }
+  const organizationId = source.organizationId.trim();
+  if (!organizationId) {
+    req.authenticatedSession = undefined;
+    return null;
+  }
+  if (!Array.isArray(source.grantedScopes)) {
+    req.authenticatedSession = undefined;
+    return null;
+  }
+  if (!source.grantedScopes.every((scope) => typeof scope === 'string')) {
+    req.authenticatedSession = undefined;
+    return null;
+  }
+  const grantedScopes = [...source.grantedScopes];
+  req.authenticatedSession = {
+    authenticated: true,
+    organizationId,
+    grantedScopes,
+  };
+  return { organizationId, grantedScopes };
+}
+
+/**
+ * One controller-style request path. Production middleware calls this after
+ * the trusted resolver. Scopes come only from `resolve`, never from
+ * the request body or a session already sitting on the request.
+ */
+export async function readControllerTrustedSession(
+  req: AuthenticatedTenantRequest,
+  resolve: (req: AuthenticatedTenantRequest) => Promise<TrustedSessionSource | null>,
+): Promise<TrustedTenantSession | null> {
+  const resolved = await resolve(req);
+  attachTrustedTenantSession(req, resolved);
+  return sessionFromAuthenticatedRequest(req);
+}
+
+export type TrustedSessionMiddleware = (
+  req: AuthenticatedTenantRequest,
+  res: unknown,
+  next: (err?: unknown) => void,
+) => Promise<void>;
+
+/** Express/Nest middleware production bootstrap can register. */
+export function trustedSessionMiddleware(
+  resolve: (req: AuthenticatedTenantRequest) => Promise<TrustedSessionSource | null>,
+): TrustedSessionMiddleware {
+  return async function attachResolvedTrustedSession(req, _res, next) {
+    try {
+      await readControllerTrustedSession(req, resolve);
+      next();
+    } catch (err) {
+      next(err);
+    }
   };
 }
