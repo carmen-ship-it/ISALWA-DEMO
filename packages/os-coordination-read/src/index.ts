@@ -12,6 +12,8 @@ export {
   type CoordinationSourceCategory,
 } from './copy';
 export { getCoordinationExceptions } from './project';
+export { getCoordinationExceptionsFromReaders } from './reader-adapter';
+export type { CoordinationCanonicalReaders, CoordinationDateReader } from './reader-adapter';
 export type {
   AllocationAwaitingExitFact,
   AllocationSourceFact,
