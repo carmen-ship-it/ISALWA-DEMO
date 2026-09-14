@@ -24,7 +24,12 @@ let pendingOpenerKey: string | null = null;
 export function panelReturnKey(href: string | undefined | null): string | null {
   if (!href || !href.includes('panel=')) return null;
   const query = href.slice(href.indexOf('?') + 1).split('#')[0];
-  const panel = new URLSearchParams(query).get('panel');
+  return openerKeyFromSearch(query);
+}
+
+export function openerKeyFromSearch(search: string | undefined | null): string | null {
+  if (!search) return null;
+  const panel = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search).get('panel');
   return panel && PANEL_KEY.test(panel) ? panel : null;
 }
 

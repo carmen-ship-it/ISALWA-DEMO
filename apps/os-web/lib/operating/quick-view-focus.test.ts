@@ -8,6 +8,7 @@ import {
   clearQuickViewOpener,
   findQuickViewFallback,
   findQuickViewOpener,
+  openerKeyFromSearch,
   panelReturnKey,
   peekQuickViewOpener,
   rememberQuickViewOpener,
@@ -105,6 +106,8 @@ describe('quick view focus return', () => {
     assert.equal(peekQuickViewOpener(), PARTY);
     assert.equal(panelReturnKey('/clientes/01M2EAG2N21FF7B7C0Z9QKB8Q1'), null);
     clearQuickViewOpener();
+    assert.equal(openerKeyFromSearch(`?panel=${encodeURIComponent(PARTY)}`), PARTY);
+    assert.equal(openerKeyFromSearch(''), null);
   });
 
   it('returns focus to the opener on close and keeps the list query out of the focus path', () => {
@@ -189,6 +192,7 @@ describe('quick view shared wiring', () => {
     const customer = read('../../components/operating/customer-quick-view.tsx');
     const quote = read('../../components/operating/quote-quick-view.tsx');
 
+    assert.match(drawer, /openerKeyFromSearch/);
     assert.match(drawer, /rememberQuickViewOpener/);
     assert.match(drawer, /restoreQuickViewFocus/);
     assert.match(drawer, /bindDrawerKeys/);

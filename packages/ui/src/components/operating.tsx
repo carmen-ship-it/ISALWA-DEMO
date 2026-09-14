@@ -12,6 +12,7 @@ import {
   QUICK_VIEW_OPENER_ATTR,
   bindDrawerKeys,
   findQuickViewOpener,
+  openerKeyFromSearch,
   panelReturnKey,
   peekQuickViewOpener,
   rememberQuickViewOpener,
@@ -200,7 +201,7 @@ export function ContextDrawer({ open, title, onClose, children }: ContextDrawerP
     if (!open) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
-    openerKeyRef.current = peekQuickViewOpener();
+    openerKeyRef.current = openerKeyFromSearch(window.location.search) ?? peekQuickViewOpener();
     capturedRef.current = findQuickViewOpener(document, openerKeyRef.current);
     closeRef.current?.focus();
     const releaseKeys = bindDrawerKeys(document, dialog, () => onCloseRef.current());
@@ -212,6 +213,7 @@ export function ContextDrawer({ open, title, onClose, children }: ContextDrawerP
       capturedRef.current = null;
       restoreQuickViewFocus(document, key, captured, (callback) => {
         window.setTimeout(callback, 0);
+        window.setTimeout(callback, 50);
       });
     };
   }, [open]);
