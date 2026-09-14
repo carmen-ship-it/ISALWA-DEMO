@@ -44,6 +44,7 @@ export function ExecutiveLens({
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Solo lectura de registros comerciales ya cargados. No es un tablero aparte.
       </p>
+      <ExceptionList quotes={quoted} quotesPartial={quotesPartial} />
       <dl className="mt-5 divide-y divide-[var(--isalwa-mist)] border-y border-[var(--isalwa-mist)]">
         <LensRow
           label="Oportunidades activas"
@@ -65,6 +66,33 @@ export function ExecutiveLens({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function ExceptionList({
+  quotes,
+  quotesPartial,
+}: {
+  quotes: QuoteSummaryReadModel[];
+  quotesPartial: boolean;
+}) {
+  const submitted = quotes.filter((item) => item.status === 'submitted' && item.submittedAt);
+  const oldest = submitted
+    .map((item) => item.submittedAt)
+    .filter((value): value is string => Boolean(value))
+    .sort()[0];
+  const age = null;
+  if (submitted.length === 0 && !quotesPartial) return null;
+
+  return (
+    <div className="mt-5 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-info)_8%,white)] px-4 py-3">
+      <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Necesita atención</p>
+      <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {submitted.length > 0
+          ? `${submitted.length} cotización${submitted.length === 1 ? '' : 'es'} enviada${submitted.length === 1 ? '' : 's'}${age ? `. La más antigua, ${age.phrase}` : ''}. No es un plazo incumplido.`
+          : 'Hay más cotizaciones de las que esta lectura muestra.'}
+      </p>
+    </div>
   );
 }
 
