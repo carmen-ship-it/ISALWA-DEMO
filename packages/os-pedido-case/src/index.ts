@@ -18,6 +18,13 @@ export {
 } from './identity';
 export { getPedidoOperatingCase, type PedidoOperatingCase, type PedidoOperatingCaseDeps, type PedidoSections } from './project';
 export {
+  adaptPedidoSectionReaders,
+  adaptProductionRead,
+  mapPedidoDateReads,
+  type AdaptPedidoReadersInput,
+  type PedidoLiveReaders,
+} from './reader-adapter';
+export {
   type CoveringAdvisorFact,
   type DateFact,
   type InjectedSection,

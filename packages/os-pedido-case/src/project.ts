@@ -12,6 +12,7 @@ import {
   type ProductionFact,
   type SpecialOrderFact,
 } from './readers';
+import { adaptPedidoSectionReaders, type PedidoLiveReaders } from './reader-adapter';
 import {
   PEDIDO_LABELS,
   availableSection,
@@ -64,6 +65,16 @@ export type PedidoOperatingCaseDeps = {
    * Never derived from the order id. Omitted means production is not queried.
    */
   productIds?: readonly string[];
+  /**
+   * Explicit order-line links for allocation. Never derived from the order id.
+   * Omitted means allocation is not queried as if the order owned the rows.
+   */
+  orderLineIds?: readonly string[];
+  /**
+   * Real date, ops, and fulfillment readers. Omitted leaves those sections UNPROVEN.
+   * An injected reader for the same section wins, so uninjected copy stays intact.
+   */
+  live?: PedidoLiveReaders;
 };
 
 export type PedidoOperatingCase =
@@ -310,6 +321,20 @@ function identitySections(
   };
 }
 
+function mergeSectionReaders(
+  live: PedidoSectionReaders | undefined,
+  injected: PedidoSectionReaders | undefined,
+): PedidoSectionReaders | undefined {
+  if (!live) return injected;
+  if (!injected) return live;
+  const merged: PedidoSectionReaders = { ...live };
+  for (const key of Object.keys(injected) as (keyof PedidoSectionReaders)[]) {
+    const reader = injected[key];
+    if (reader) merged[key] = reader as never;
+  }
+  return merged;
+}
+
 /**
  * Composed Pedido operating case.
  * Tenant comes only from trustedContext.organizationId.
@@ -379,7 +404,15 @@ export async function getPedidoOperatingCase(
   }
 
   const organizationId = access.organizationId;
-  const readers = deps.readers;
+  const liveReaders = deps.live
+    ? adaptPedidoSectionReaders({
+        trustedContext,
+        orderId: requestedId,
+        orderLineIds: deps.orderLineIds,
+        live: deps.live,
+      })
+    : undefined;
+  const readers = mergeSectionReaders(liveReaders, deps.readers);
   const core = identitySections(identity);
   if (!core) {
     return {
