@@ -25,6 +25,8 @@ Existing catalog proposals remain in `packages/os-contracts/src/governance-propo
 
 **Recommendation:** replace `member_active` as the long-term Create/Update/Submit gate with the split above after Carmen approval. Until then, product copy must not claim capability-shaped quote authority.
 
+**Wiring note (exact code):** `canConvertQuoteToOrder` uses owner **or** `commercial.order.convert`. A separate predicate around `commercial.quote.convert.own` exists but is **not** wired into `CreateOrder`. Do not treat those two convert strings as interchangeable. Do not register a third convert capability.
+
 ---
 
 ## B. Visit write

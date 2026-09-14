@@ -155,18 +155,18 @@ See:
 | Quote PDF | PDF route | session | n/a | session | generated | n/a | PDF | LOCAL_HTTP prior | P1 |
 | Pedido/Order | Order | Pedido adapter | CreateOrder convert | convert/own rules | Prisma | yes | Pedidos | TESTED reads | P1 |
 | Customer communication | Conversation | scoped | manual record | varies | model exists | evidence | Mensajes | partial | P1 |
-| Payment evidence | Reported fact | org | record payment | operational | migration exists | pending confirm | Finanzas | TESTED contracts | P1 hosted UI |
+| Payment evidence | Reported fact | org | record payment | operational | OS path: row builders; live Prisma OS writer not proven here. Legacy CRM payment may exist separately | pending confirm | Finanzas | TESTED contracts | P1 hosted OS UI; do not conflate with ledger |
 | Customer informed | date-issue only | readers | date informed | exists for date-issue | partial | — | Pedido | FOUNDATION_GAP general | P1 gap label |
-| Purchase Request | OsPurchaseRequest | ops read | transition | purchasing.* | **memory writer gap** | FOUNDATION_GAP | Compras | NOT live Prisma writer | **P0 if Compras promised** |
+| Purchase Request | OsPurchaseRequest | ops read | transition | purchasing.* | **memory writer** | FOUNDATION_GAP | Compras | NOT live Prisma writer | **P0 if Compras promised** |
 | Production entry | Trace | production UI | entry | production.entry | **memory** | FOUNDATION_GAP | Producción | NOT live | **P0 if Producción promised** |
 | Quema / Loss / Consumption | Trace | — | — | production.entry | **memory** | FOUNDATION_GAP | Producción | NOT live | **P0 / P1** by journey |
-| Finished Goods receive | OsFinishedGoodsReceipt | org read | receive | warehouse.finished_goods.receive | migration unapplied | events designed | Almacén | TESTED local | **P0 migrate+host** for Listo |
-| Allocation | OsOrderAllocation | readers | allocate cmd | allocate scope | **memory / UNPROVEN live** | FOUNDATION_GAP | Almacén | NOT live DB writer | **P0 for Cumplir Pedido** |
-| Warehouse Exit | delivery models | fulfillment | command | warehouse.outbound.record | **live write UNPROVEN** | — | Entregas | memory | **P0 for Entregar** |
-| Delivery / Nota Entrega | delivery models | panel | delivery.record | delivery.record | **live write UNPROVEN** | — | Entregas | TESTED memory | **P0 for Entregar** |
+| Finished Goods receive | OsFinishedGoodsReceipt | org read | receive | warehouse.finished_goods.receive | Prisma writer exists; **migration unapplied** | events designed | Almacén | TESTED local | **P0 migrate+host** for Listo |
+| Allocation | OsOrderAllocation | readers | allocate cmd | allocate scope | **memory** | FOUNDATION_GAP | Almacén | NOT live DB writer | **P0 for Cumplir Pedido** |
+| Warehouse Exit | delivery models | fulfillment | command | warehouse.outbound.record | **memory; DELIVERY_LIVE_WRITE UNPROVEN** | — | Entregas | memory | **P0 for Entregar** |
+| Delivery / Nota Entrega | delivery models | panel | delivery.record | delivery.record | **memory; live write UNPROVEN** | — | Entregas | TESTED memory | **P0 for Entregar** |
 | Commercial exception | capability only | — | authorize | commercial.exception.authorize | FOUNDATION_GAP writer | — | — | — | P1 |
 | Special Order | classification model | — | — | no write cap | CROSS_LANE | — | — | — | P1 |
-| Coordination decision | OsCoordinationDecision | **read CLOSED** | record | coordination.decision.record | model exists | write≠read | Coordinación | read CROSS_LANE | **P0 for prior-decision history** |
+| Coordination decision | OsCoordinationDecision | **read CLOSED** | record helper | coordination.decision.record | schema exists; **live write UNPROVEN** in module | write≠read | Coordinación | read CROSS_LANE | **P0 for prior-decision history** |
 | Work / next action | work/attention | work scopes | work cmds | work scopes | Prisma work | yes | Trabajo | prior | P1 |
 
 ### I. Gap classification (conservative)
@@ -174,12 +174,13 @@ See:
 **P0 — before Isa/Álvaro see V1**
 
 1. Gate C DB apply-state known + approved migration plan (incl. REWRITE purchase workflow).  
-2. Quote write authority decision (stop relying on `member_active` as product promise).  
+2. Quote write authority decision (stop relying on `member_active` as product promise); clarify `commercial.order.convert` vs unwired `commercial.quote.convert.own`.  
 3. Party/location detail read decision or routes remain clearly non-pilot / blocked.  
 4. Persistent writers for any Guided journey shown as complete: Listo receive (after migrate), allocation, delivery/salida, production entry/quema if those journeys are offered.  
 5. Coordination prior-decision read authority if Coordinar promises history.  
 6. No fake zeros / UNPROVEN labeled in Pedido/Gerencia.  
-7. Hosted browser proof of security negatives for tenant isolation.
+7. Hosted browser proof of security negatives for tenant isolation.  
+8. Replace giant member `<select>` / fetch-capped directory pickers on admin + commercial forms (humiliation H1.1) if those screens are in the pilot path.
 
 **P1 — visibly closed/unavailable OK**
 
@@ -233,7 +234,9 @@ See:
 - **Local-testable now:** copy/contracts presence, Entrega boundary copy, reader UNPROVEN≠zero unit semantics, permission deny unit tests.  
 - **Require hosted browser:** typeahead/fetch-all, pagination, drawers/Escape/focus, narrow viewport, refresh/back, Guided fake-complete, autocomplete leakage, dead buttons on live pages.
 
-**Obvious P0 UI defect from inspection (no redesign):** none newly proven as a code defect this pass beyond already-known honesty risks (fake zeros if a surface invents stock — guarded in readers; must be browser-verified). Role homes must not claim one dashboard for all roles without capability filtering — verify hosted.
+**Obvious P0 UI defect from inspection (no redesign):** Admin/commercial member pickers use unbounded-ish `<select>` fed by `listMembers({ limit: 100 })` / limit 50 (`admin-options`, `member-options`, opportunity/approval panels). Typeahead is explicitly not implemented (`member-directory-typeahead` / “select amplio”). This fails humiliation case H1.1 for large teams and is a **P0 usability/security surface** before Isa/Álvaro if those screens are in the pilot path. Warehouse allocate desk also dumps full in-memory product/pedido lists into `<select>` (memory-backed; risk if lists grow).
+
+No new dead-button / fake-KPI code defect was proven beyond honesty risks already gated in readers.
 
 ---
 
