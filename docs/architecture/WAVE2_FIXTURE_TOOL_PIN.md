@@ -1,7 +1,9 @@
 # Wave 2 fixture tool pin (not the hosted app)
 
 **HOSTED_APP_SHA** (live staging API+web): `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**FIXTURE_TOOL_SHA**: see git commit that adds `staging-wave2-role-fixtures*.ts` (tooling-only; not deployed as app SHA)
+**FIXTURE_TOOL_SHA**: `972ef7765b34a31daf970f4f81858de2ee3a7a97`
+
+These are different. Do not treat the fixture tool commit as a redeploy of the hosted app.
 
 ## Guards (fail closed before writes)
 
