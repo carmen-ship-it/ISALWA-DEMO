@@ -277,6 +277,7 @@ export default async function InicioPage() {
             subjects={attentionSubjects}
             unavailable={attentionResult === 'unavailable'}
             hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
+            quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
           />
 
           {upcomingRows.length > 0 ? (

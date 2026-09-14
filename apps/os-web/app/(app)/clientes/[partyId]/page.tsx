@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
+import { ManualOperationsPanel } from '@/components/operations/manual-operations-panel';
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
@@ -18,7 +19,7 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
-import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
@@ -288,6 +289,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     });
     const primaryContact =
       contacts.find((item) => item.id === composition.primaryContact.id) ?? null;
+    const reportedByLabel = (await getServerWebSession())?.displayLabel?.trim() ?? '';
+    const manualSubjectId = party.id.trim();
+    const manualOrganizationId = party.organizationId.trim();
 
     return (
       <PageContainer label={displayName} className="min-w-0">
@@ -331,6 +335,18 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
           canEditParty={canEditParty}
           composition={composition}
         />
+
+        {reportedByLabel && manualOrganizationId && manualSubjectId ? (
+          <PageSection card className="mt-10 max-w-xl p-8">
+            <ManualOperationsPanel
+              organizationId={manualOrganizationId}
+              subjectType="party"
+              subjectId={manualSubjectId}
+              subjectLabel={displayName}
+              reportedByLabel={reportedByLabel}
+            />
+          </PageSection>
+        ) : null}
 
         <Cliente360Nav partyId={partyId} />
 
