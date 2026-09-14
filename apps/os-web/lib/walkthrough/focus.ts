@@ -81,7 +81,7 @@ function queryAll(doc: DocLike, selector: string): Focusable[] {
   try {
     if (typeof doc.querySelectorAll === 'function') {
       return Array.from(doc.querySelectorAll(selector) ?? []).filter(
-        (node): node is Focusable => Boolean(node) && typeof node.focus === 'function',
+        (node): node is Focusable => node != null && typeof node.focus === 'function',
       );
     }
     if (typeof doc.querySelector === 'function') {

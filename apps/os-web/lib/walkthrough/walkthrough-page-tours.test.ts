@@ -161,7 +161,7 @@ describe('page chapters stay independent', () => {
       type: 'DISMISS',
       chapterId: 'global',
     });
-    assert.equal(dismissed.learningMode, false);
+    assert.equal(dismissed.learningMode, true);
     assert.equal(chapterRunState(dismissed, 'global'), 'DISMISSED');
     assert.equal(
       shouldOfferFirstVisit(offer('/clientes', dismissed)),

@@ -92,13 +92,13 @@ function installDocument(parts: {
       if (selector === 'h1') return nodes.filter((item) => item.tagName === 'H1');
       if (selector === '[data-tour]') return nodes.filter((item) => item.attrs['data-tour'] != null);
       if (selector.includes('aria-modal')) {
-        return nodes.filter((item) => item.attrs['aria-modal'] != null && item.closest('[data-walkthrough-root]'));
+        return nodes.filter((item) => item.attrs['aria-modal'] != null && item.closest?.('[data-walkthrough-root]'));
       }
       return nodes.filter((item) => matches(item, selector));
     },
   };
   docs[0] = doc;
-  (globalThis as { document?: FakeDoc }).document = doc;
+  (globalThis as unknown as { document?: FakeDoc }).document = doc;
   return doc;
 }
 
