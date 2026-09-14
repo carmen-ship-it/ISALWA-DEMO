@@ -3,7 +3,9 @@ import { FeedbackNote } from '@isalwa/ui';
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
+import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { QuickViewHost } from '@/components/operating/quick-view-host';
+import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { PartyStatusBadge } from '@/components/party/party-role-badges';
 import type { ListQueryState } from '@/lib/lists/url-state';
 import {
@@ -12,11 +14,12 @@ import {
   provenanceLinkLabel,
   sortLocationsForDisplay,
 } from '@/lib/party/customer-self-service';
-import { contactDisplayName, formatPartyKind, formatPartyRoles } from '@/lib/party/labels';
+import { formatPartyKind } from '@/lib/party/labels';
+import { composeCliente360FromLoaded, type Cliente360Composition } from '@/lib/party/next-action';
 import { partyHref } from '@/lib/party/navigation';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
-import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { memberLabel } from '@/lib/work/member-resolver';
 
 const MAPS_ACTION_LABEL = 'Abrir origen en Maps';
 
@@ -76,11 +79,6 @@ export function existingMapsAction(
   return null;
 }
 
-function relationshipLabel(roleKeys: string[]): string | null {
-  const labels = formatPartyRoles(roleKeys);
-  return labels.length > 0 ? labels.join(', ') : null;
-}
-
 function quickViewErrorCopy(err: unknown): { title: string; detail: string } {
   if (err instanceof OsApiError && err.kind === 'not_found') {
     return {
@@ -107,25 +105,32 @@ export async function CustomerQuickView({
   listQuery,
 }: CustomerQuickViewProps) {
   try {
-    const detail = await client.getParty(partyId);
+    const data = await loadCliente360(client, partyId);
+    const { detail } = data;
     const ownerMemberId = detail.commercialAccount?.ownerMemberId?.trim() || null;
-    const [memberLabels, locations] = await Promise.all([
-      ownerMemberId ? resolveMemberLabels(client, [ownerMemberId]) : Promise.resolve(null),
-      client.listPartyLocations(partyId).catch(() => null),
-    ]);
-    const ownerLabel =
-      ownerMemberId && memberLabels ? memberLabel(memberLabels, ownerMemberId) : null;
-    const locationFacts = locations ? panelLocationFacts(locations.locations) : null;
+    const ownerLabel = ownerMemberId ? memberLabel(data.memberLabels, ownerMemberId) : null;
     const displayName = detail.party.displayName || detail.party.legalName || 'Sin nombre';
+    const composition = composeCliente360FromLoaded({
+      partyId,
+      detail,
+      displayName,
+      ownerLabel,
+      canReassignOwner: detail.commercialAuthority?.canReassignOwner === true,
+      locations: data.locations,
+      relatedWork: data.relatedWork,
+      timeline: data.timeline,
+      opportunities: data.opportunities,
+      quotes: data.quotes,
+      orders: data.orders,
+      staleProjection: data.staleFreshness,
+    });
 
     return (
       <QuickViewHost open title={displayName} listPath={listPath} listQuery={listQuery}>
         <CustomerQuickViewBody
           detail={detail}
           displayName={displayName}
-          ownerLabel={ownerLabel}
-          coordinates={locationFacts?.coordinates ?? null}
-          provenance={locationFacts?.provenance ?? null}
+          composition={composition}
           partyId={partyId}
         />
       </QuickViewHost>
@@ -143,26 +148,16 @@ export async function CustomerQuickView({
 function CustomerQuickViewBody({
   detail,
   displayName,
-  ownerLabel,
-  coordinates,
-  provenance,
+  composition,
   partyId,
 }: {
   detail: PartyDetailResponse;
   displayName: string;
-  ownerLabel: string | null;
-  coordinates: string | null;
-  provenance: { href: string; label: string } | null;
+  composition: Cliente360Composition;
   partyId: string;
 }) {
-  const { party, contacts } = detail;
-  const contact = contacts[0] ?? null;
-  const contactName = contact ? contactDisplayName(contact.givenName, contact.familyName) : null;
-  const phone = contact?.phone?.trim() || null;
+  const { party } = detail;
   const legalName = party.legalName && party.legalName !== displayName ? party.legalName : null;
-  const relationship = relationshipLabel(
-    detail.roles.filter((role) => !role.endedAt).map((role) => role.roleKey),
-  );
   const followUpHref = `${partyHref(partyId)}#trabajo`;
 
   return (
@@ -178,58 +173,15 @@ function CustomerQuickViewBody({
           <dt className="text-xs text-[var(--isalwa-slate)]">Tipo</dt>
           <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{formatPartyKind(party.partyKind)}</dd>
         </div>
-        {relationship ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Relación</dt>
-            <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{relationship}</dd>
-          </div>
-        ) : null}
         <div>
           <dt className="text-xs text-[var(--isalwa-slate)]">Estado</dt>
           <dd className="mt-1">
             <PartyStatusBadge status={party.status} />
           </dd>
         </div>
-        {ownerLabel ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Responsable comercial</dt>
-            <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
-          </div>
-        ) : null}
-        {contactName ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Contacto</dt>
-            <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{contactName}</dd>
-          </div>
-        ) : null}
-        {phone ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Teléfono</dt>
-            <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{phone}</dd>
-          </div>
-        ) : null}
-        {coordinates ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Coordenadas</dt>
-            <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{coordinates}</dd>
-          </div>
-        ) : null}
-        {provenance ? (
-          <div>
-            <dt className="text-xs text-[var(--isalwa-slate)]">Procedencia</dt>
-            <dd className="mt-0.5">
-              <a
-                href={provenance.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={actionClass}
-              >
-                {provenance.label}
-              </a>
-            </dd>
-          </div>
-        ) : null}
       </dl>
+
+      <Cliente360Now composition={composition} compact />
 
       <nav aria-label="Acciones del cliente" className="flex flex-col items-start gap-2 border-t border-[var(--isalwa-mist)] pt-4">
         <a href={partyHref(partyId)} className={actionClass}>

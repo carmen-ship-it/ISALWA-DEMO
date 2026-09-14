@@ -7,6 +7,8 @@ type CommercialOwnerLineProps = {
   partyId?: string;
   commercialAccountId?: string | null;
   members?: ActiveMemberOption[];
+  /** Stored-owner note from the Cliente 360 composition. Not a guessed name. */
+  note?: string | null;
 };
 
 export function CommercialOwnerLine({
@@ -14,11 +16,15 @@ export function CommercialOwnerLine({
   partyId,
   commercialAccountId,
   members = [],
+  note = null,
 }: CommercialOwnerLineProps) {
   return (
     <div className="mt-4">
       <p className="isalwa-section-label">Responsable comercial</p>
       <p className="mt-1 text-[var(--isalwa-kiln)]">{owner.label}</p>
+      {note && note !== owner.label ? (
+        <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{note}</p>
+      ) : null}
       {owner.canReassign && partyId && commercialAccountId ? (
         <ReassignOwnerForm
           partyId={partyId}

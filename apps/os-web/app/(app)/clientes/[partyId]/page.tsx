@@ -6,7 +6,7 @@ import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { QuoteList } from '@/components/commercial/quote-list';
-import { existingMapsAction } from '@/components/operating/customer-quick-view';
+import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { CommercialOwnerLine } from '@/components/party/commercial-owner-line';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
@@ -28,6 +28,7 @@ import {
   canMutateActiveParty,
   commercialOwnerView,
 } from '@/lib/party/customer-self-service';
+import { composeCliente360FromLoaded } from '@/lib/party/next-action';
 import { memberLabel } from '@/lib/work/member-resolver';
 import {
   contactDisplayName,
@@ -38,11 +39,8 @@ import {
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
-import { formatWorkDueLine, sortOpenWorkByDue } from '@/lib/work/due-order';
-import { workItemHref } from '@/lib/work/navigation';
-import { staffFacingSubject } from '@/lib/work/staff-subject';
-import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { ActiveMemberOption } from '@/lib/commercial/types';
+import type { Cliente360Composition } from '@/lib/party/next-action';
 import type { PartyDetailResponse } from '@/lib/party/types';
 
 type PartyDetailPageProps = {
@@ -54,12 +52,6 @@ const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underlin
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
   return detail.roles.map((role) => role.roleKey);
-}
-
-function nextDueWork(items: readonly WorkSummaryReadModel[]): WorkSummaryReadModel | null {
-  const datedOpen = items.filter((item) => item.status === 'open' && Boolean(item.dueAt));
-  if (datedOpen.length === 0) return null;
-  return sortOpenWorkByDue(datedOpen)[0] ?? null;
 }
 
 function CustomerCompactHeader({
@@ -81,7 +73,7 @@ function CustomerCompactHeader({
   phone: string | null;
   maps: { href: string; label: string } | null;
   partyId: string;
-  nextAction: WorkSummaryReadModel | null;
+  nextAction: Cliente360Composition['nextAction'] | null;
 }) {
   const facts = [
     ownerLabel ? `Responsable comercial: ${ownerLabel}` : null,
@@ -89,7 +81,6 @@ function CustomerCompactHeader({
     contactName,
     phone,
   ].filter((fact): fact is string => Boolean(fact));
-  const due = nextAction ? formatWorkDueLine(nextAction) : null;
 
   return (
     <div className="mb-6 flex flex-col gap-2 border-b border-[var(--isalwa-mist)] pb-4">
@@ -117,19 +108,16 @@ function CustomerCompactHeader({
           </Link>
         </div>
       </div>
-      {nextAction && due ? (
+      {nextAction?.kind === 'recorded_follow_up' && nextAction.href ? (
         <p className="text-sm text-[var(--isalwa-kiln)]">
           <span className="font-medium">{FOLLOW_UP_COPY.nextAction}</span>
           {' · '}
-          <Link href={workItemHref(nextAction.workItemId)} className={linkClass}>
-            {staffFacingSubject({
-              title: nextAction.title,
-              description: nextAction.description,
-              subjectType: nextAction.subjectType,
-              customerName: displayName,
-            })}
+          <Link href={nextAction.href} className={linkClass}>
+            {nextAction.statement}
           </Link>
-          <span className="text-[var(--isalwa-slate)]"> · {due.text}</span>
+          {nextAction.dueText ? (
+            <span className="text-[var(--isalwa-slate)]"> · {nextAction.dueText}</span>
+          ) : null}
         </p>
       ) : null}
     </div>
@@ -164,6 +152,7 @@ function IdentityLetterhead({
   commercialAccount,
   members,
   canEditParty,
+  composition,
 }: {
   party: PartyDetailResponse['party'];
   contacts: PartyDetailResponse['contacts'];
@@ -173,6 +162,7 @@ function IdentityLetterhead({
   commercialAccount: PartyDetailResponse['commercialAccount'];
   members: ActiveMemberOption[];
   canEditParty: boolean;
+  composition: Cliente360Composition;
 }) {
   const contactName = contact ? contactDisplayName(contact.givenName, contact.familyName) : null;
   const accountLabel = commercialAccount
@@ -181,6 +171,7 @@ function IdentityLetterhead({
 
   return (
     <div id="resumen" className="scroll-mt-32 space-y-8 bg-white">
+      <Cliente360Now composition={composition} />
       <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
         {party.legalName ? (
           <div className="min-w-0 sm:col-span-2">
@@ -227,9 +218,10 @@ function IdentityLetterhead({
           partyId={partyId}
           commercialAccountId={commercialAccount.id}
           members={members}
+          note={composition.owner.note}
         />
       ) : (
-        <CommercialOwnerLine owner={owner} />
+        <CommercialOwnerLine owner={owner} note={composition.owner.note} />
       )}
 
       {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
@@ -262,7 +254,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
     const displayName = party.displayName || party.legalName || 'Sin nombre';
-    const contact = contacts[0] ?? null;
     const actorIsMasterDataAdmin = await actorCanMutateMasterData(client);
     const canEditParty = canMutateActiveParty(party.status, actorIsMasterDataAdmin ? ['master_data.admin'] : []);
     const canEditContacts = canManageContacts(
@@ -281,9 +272,22 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
         : null,
       canReassignOwner,
     );
-    const maps = locations.status === 'ok' ? existingMapsAction(locations.data.locations) : null;
-    const nextAction = relatedWork.status === 'ok' ? nextDueWork(relatedWork.data.items) : null;
-    const headerContact = contact ? contactDisplayName(contact.givenName, contact.familyName) : null;
+    const composition = composeCliente360FromLoaded({
+      partyId,
+      detail,
+      displayName,
+      ownerLabel: commercialAccount?.ownerMemberId ? owner.label : null,
+      canReassignOwner,
+      locations,
+      relatedWork,
+      timeline,
+      opportunities,
+      quotes,
+      orders,
+      staleProjection: data.staleFreshness,
+    });
+    const primaryContact =
+      contacts.find((item) => item.id === composition.primaryContact.id) ?? null;
 
     return (
       <PageContainer label={displayName} className="min-w-0">
@@ -307,32 +311,25 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
         <CustomerCompactHeader
           displayName={displayName}
           status={party.status}
-          ownerLabel={commercialAccount?.ownerMemberId ? owner.label : null}
-          hasCoordinates={
-            locations.status === 'ok' &&
-            locations.data.locations.some(
-              (location) =>
-                location.status === 'active' &&
-                Number.isFinite(location.latitude) &&
-                Number.isFinite(location.longitude),
-            )
-          }
-          contactName={headerContact}
-          phone={contact?.phone?.trim() || null}
-          maps={maps}
+          ownerLabel={composition.owner.assigned ? composition.owner.label : null}
+          hasCoordinates={composition.location.state === 'coordinates'}
+          contactName={composition.primaryContact.name}
+          phone={composition.primaryContact.phone}
+          maps={composition.location.provenance}
           partyId={partyId}
-          nextAction={nextAction}
+          nextAction={composition.nextAction}
         />
 
         <IdentityLetterhead
           party={party}
           contacts={contacts}
-          contact={contact}
+          contact={primaryContact}
           owner={owner}
           partyId={partyId}
           commercialAccount={commercialAccount}
           members={ownerMembers}
           canEditParty={canEditParty}
+          composition={composition}
         />
 
         <Cliente360Nav partyId={partyId} />
