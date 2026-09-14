@@ -32,13 +32,14 @@ export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="quoteId" value={quoteId} />
       <GuidanceNote
-        kind="regla"
+        kind="consejo"
         title="Antes de convertir a pedido"
-        items={[
-          'Confirme que esta es la cotización correcta.',
-          'Solo una cotización enviada se convierte.',
-          'Esto crea un pedido. No emite factura ni nota de entrega.',
-        ]}
+        items={['Confirme que esta es la cotización correcta.']}
+      />
+      <GuidanceNote
+        kind="regla"
+        title="Convertir crea un pedido"
+        items={['Convertir crea un pedido desde una cotización enviada. No emite factura ni nota de entrega.']}
       />
       <FormFeedback error={state?.error} />
       <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />

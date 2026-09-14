@@ -22,7 +22,6 @@ describe('command palette authorization', () => {
       'Crear cotización',
       'Registrar seguimiento',
       'Cómo trabajamos',
-      'Mapa',
     ]);
     assert.equal(plain.includes('Agregar cliente'), false);
     assert.equal(plain.includes('Invitar empleado'), false);
