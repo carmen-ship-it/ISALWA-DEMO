@@ -11,7 +11,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { listHref, parseListQuery } from '@/lib/lists/url-state';
-import { approvalRowSubject } from '@/lib/work/approval-row-subject';
+import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -100,56 +100,57 @@ async function approvalSubjectsForPage(
   const quotes = new Map<string, { quoteNumber: string; partyId: string }>();
   const orders = new Map<string, { orderNumber: string; partyId: string }>();
 
-  const quoteIds = [
-    ...new Set(items.flatMap((item) => (item.subjectType === 'quote' && item.subjectId ? [item.subjectId] : []))),
-  ];
-  const orderIds = [
-    ...new Set(items.flatMap((item) => (item.subjectType === 'order' && item.subjectId ? [item.subjectId] : []))),
-  ];
+  return approvalSubjectsForItems(items, async (item) => {
+    if (item.subjectType === 'quote') {
+      const quote = await readQuoteSubject(client, item.subjectId, quotes);
+      if (!quote) return null;
+      const customer = partyLabel(await resolvePartyLabels(client, [quote.partyId]), quote.partyId);
+      return { quoteNumber: quote.quoteNumber, customerName: customer };
+    }
+    if (item.subjectType === 'order') {
+      const order = await readOrderSubject(client, item.subjectId, orders);
+      if (!order) return null;
+      const customer = partyLabel(await resolvePartyLabels(client, [order.partyId]), order.partyId);
+      return { orderNumber: order.orderNumber, customerName: customer };
+    }
+    return null;
+  });
+}
 
-  await Promise.all([
-    ...quoteIds.map(async (subjectId) => {
-      try {
-        const { quote } = await client.getQuote(subjectId);
-        quotes.set(subjectId, { quoteNumber: quote.quoteNumber, partyId: quote.partyId });
-      } catch (err) {
-        if (isClosedSubjectRead(err)) return;
-        throw err;
-      }
-    }),
-    ...orderIds.map(async (subjectId) => {
-      try {
-        const { order } = await client.getOrder(subjectId);
-        orders.set(subjectId, { orderNumber: order.orderNumber, partyId: order.partyId });
-      } catch (err) {
-        if (isClosedSubjectRead(err)) return;
-        throw err;
-      }
-    }),
-  ]);
-
-  const partyLabels = await resolvePartyLabels(client, [
-    ...[...quotes.values()].map((quote) => quote.partyId),
-    ...[...orders.values()].map((order) => order.partyId),
-  ]);
-
-  const labels = new Map<string, string>();
-  for (const item of items) {
-    const quote = item.subjectType === 'quote' ? quotes.get(item.subjectId) : undefined;
-    const order = item.subjectType === 'order' ? orders.get(item.subjectId) : undefined;
-    const partyId = quote?.partyId ?? order?.partyId ?? null;
-    const customer = partyId ? partyLabel(partyLabels, partyId) : null;
-    labels.set(
-      item.approvalRequestId,
-      approvalRowSubject({
-        subjectType: item.subjectType,
-        quoteNumber: quote?.quoteNumber,
-        orderNumber: order?.orderNumber,
-        customerName: customer,
-      }),
-    );
+async function readQuoteSubject(
+  client: OsApiClient,
+  subjectId: string,
+  cache: Map<string, { quoteNumber: string; partyId: string }>,
+) {
+  const cached = cache.get(subjectId);
+  if (cached) return cached;
+  try {
+    const { quote } = await client.getQuote(subjectId);
+    const row = { quoteNumber: quote.quoteNumber, partyId: quote.partyId };
+    cache.set(subjectId, row);
+    return row;
+  } catch (err) {
+    if (isClosedSubjectRead(err)) return null;
+    throw err;
   }
-  return labels;
+}
+
+async function readOrderSubject(
+  client: OsApiClient,
+  subjectId: string,
+  cache: Map<string, { orderNumber: string; partyId: string }>,
+) {
+  const cached = cache.get(subjectId);
+  if (cached) return cached;
+  try {
+    const { order } = await client.getOrder(subjectId);
+    const row = { orderNumber: order.orderNumber, partyId: order.partyId };
+    cache.set(subjectId, row);
+    return row;
+  } catch (err) {
+    if (isClosedSubjectRead(err)) return null;
+    throw err;
+  }
 }
 
 function isClosedSubjectRead(err: unknown): boolean {
