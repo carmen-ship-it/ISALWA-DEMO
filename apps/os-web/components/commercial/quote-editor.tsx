@@ -16,12 +16,22 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { QuoteProductPicker } from '@/components/commercial/quote-product-picker';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
 import { guidanceForSendQuote } from '@/lib/guidance/select';
+import {
+  QUOTED_PRICE_HINT,
+  QUOTED_PRICE_LABEL,
+  emptyProductSearchPort,
+  lineProvenanceView,
+  quoteLinesAreEditable,
+  type ProductSearchPort,
+} from '@/lib/commercial/product-picker';
 
 type QuoteEditorProps = {
   partyId: string;
   quote: QuoteDetailReadModel;
+  productSearch?: ProductSearchPort;
 };
 
 const feedbackInitial = { error: null as string | null, success: null as string | null };
@@ -60,9 +70,17 @@ function LineEditForm({
       : { error: result.error, success: null };
   }, feedbackInitial);
 
+  const provenance = lineProvenanceView(line.productRef);
+
   return (
     <ListRow as="li" className="px-1 py-6">
       <FormFeedback error={state.error ?? removeState.error} success={state.success ?? removeState.success} />
+      {provenance.caption ? (
+        <p className="mt-3 text-sm text-[var(--isalwa-slate)]">{provenance.caption}</p>
+      ) : null}
+      {provenance.note ? (
+        <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{provenance.note}</p>
+      ) : null}
       <form action={action} className="mt-3 space-y-4">
         <input type="hidden" name="partyId" value={partyId} />
         <input type="hidden" name="quoteId" value={quoteId} />
@@ -72,10 +90,11 @@ function LineEditForm({
             <label className="isalwa-section-label" htmlFor={`desc-${line.quoteLineId}`}>
               Descripción
             </label>
-            <input
+            <textarea
               id={`desc-${line.quoteLineId}`}
               name="description"
               required
+              rows={3}
               defaultValue={line.description}
               className={fieldClass}
             />
@@ -105,7 +124,7 @@ function LineEditForm({
           </div>
           <div>
             <label className="isalwa-section-label" htmlFor={`price-${line.quoteLineId}`}>
-              Precio unitario (Bs.)
+              {QUOTED_PRICE_LABEL}
             </label>
             <input
               id={`price-${line.quoteLineId}`}
@@ -114,6 +133,7 @@ function LineEditForm({
               defaultValue={centavosToBobDisplay(line.unitPriceCentavos)}
               className={fieldClass}
             />
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
           </div>
           <div>
             <label className="isalwa-section-label" htmlFor={`disc-${line.quoteLineId}`}>
@@ -144,14 +164,24 @@ function LineEditForm({
   );
 }
 
-export function QuoteEditor({ partyId, quote }: QuoteEditorProps) {
+export function QuoteEditor({
+  partyId,
+  quote,
+  productSearch = emptyProductSearchPort,
+}: QuoteEditorProps) {
   const router = useRouter();
-  const isDraft = quote.status === 'draft';
+  const isDraft = quoteLinesAreEditable(quote.status);
   const [sent, setSent] = useState(false);
+  const [addReady, setAddReady] = useState(false);
+  const [addEpoch, setAddEpoch] = useState(0);
 
   const [addState, addAction] = useActionState(async (_prev: typeof feedbackInitial, formData: FormData) => {
     const result = await addQuoteLineAction(formData);
-    if (result.ok) router.refresh();
+    if (result.ok) {
+      setAddEpoch((epoch) => epoch + 1);
+      setAddReady(false);
+      router.refresh();
+    }
     return result.ok
       ? { error: null, success: 'Línea agregada.' }
       : { error: result.error, success: null };
@@ -201,42 +231,19 @@ export function QuoteEditor({ partyId, quote }: QuoteEditorProps) {
       <PageSection card className="bg-white p-8 md:p-10">
         <h2 className={documentTitleClass}>Agregar línea</h2>
         <FormFeedback error={addState.error} success={addState.success} />
-        <form action={addAction} className="mt-8 grid gap-5 sm:grid-cols-2">
+        <form key={addEpoch} action={addAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="quoteId" value={quote.quoteId} />
-          <div className="sm:col-span-2">
-            <label htmlFor="new-desc" className="isalwa-section-label">
-              Descripción
-            </label>
-            <input id="new-desc" name="description" required className={fieldClass} />
-          </div>
-          <div>
-            <label htmlFor="new-qty" className="isalwa-section-label">
-              Cantidad
-            </label>
-            <input id="new-qty" name="quantity" required defaultValue="1" className={fieldClass} />
-          </div>
-          <div>
-            <label htmlFor="new-unit" className="isalwa-section-label">
-              Unidad
-            </label>
-            <input id="new-unit" name="unitLabel" className={fieldClass} />
-          </div>
-          <div>
-            <label htmlFor="new-price" className="isalwa-section-label">
-              Precio unitario (Bs.)
-            </label>
-            <input id="new-price" name="unitPrice" required className={fieldClass} />
-          </div>
-          <div>
-            <label htmlFor="new-disc" className="isalwa-section-label">
-              Descuento (Bs.)
-            </label>
-            <input id="new-disc" name="discount" className={fieldClass} />
-          </div>
-          <div className="sm:col-span-2 pt-2">
-            <CommandSubmitButton label="Agregar línea" pendingLabel="Agregando…" />
-          </div>
+          <QuoteProductPicker
+            organizationId={quote.organizationId}
+            searchPort={productSearch}
+            onReadyChange={setAddReady}
+          />
+          <CommandSubmitButton
+            label="Agregar a la cotización"
+            pendingLabel="Agregando…"
+            disabled={!addReady}
+          />
         </form>
       </PageSection>
 

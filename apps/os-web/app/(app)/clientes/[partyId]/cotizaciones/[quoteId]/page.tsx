@@ -19,6 +19,7 @@ import {
 } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { formatCentavos } from '@/lib/commercial/money';
+import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { opportunityHref, orderHref } from '@/lib/commercial/navigation';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
@@ -168,9 +169,17 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           {lines.length > 0 ? (
             <>
               <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas de cotización">
-                {lines.map((line) => (
-                  <li key={line.quoteLineId} className="py-6 first:pt-2">
-                    <p className="font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
+                {lines.map((line) => {
+                  const provenance = lineProvenanceView(line.productRef);
+                  return (
+                    <li key={line.quoteLineId} className="py-6 first:pt-2">
+                    <p className="whitespace-pre-wrap font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
+                    {provenance.caption ? (
+                      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{provenance.caption}</p>
+                    ) : null}
+                    {provenance.note ? (
+                      <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{provenance.note}</p>
+                    ) : null}
                     <dl className="mt-4 grid gap-4 text-sm text-[var(--isalwa-slate)] sm:grid-cols-3">
                       <div>
                         <dt className="isalwa-section-label">Cantidad</dt>
@@ -180,7 +189,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                         </dd>
                       </div>
                       <div>
-                        <dt className="isalwa-section-label">Precio unitario</dt>
+                        <dt className="isalwa-section-label">{provenance.priceLabel}</dt>
                         <dd className="mt-1 text-[var(--isalwa-kiln)]">
                           {formatCentavos(line.unitPriceCentavos, quote.currency)}
                         </dd>
@@ -200,8 +209,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                         </div>
                       ) : null}
                     </dl>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
               <dl className="mt-8 grid gap-6 border-t border-[var(--isalwa-mist)] pt-8 text-sm sm:grid-cols-3">
                 <div>
