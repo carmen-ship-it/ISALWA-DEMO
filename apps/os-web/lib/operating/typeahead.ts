@@ -23,3 +23,18 @@ export function filterTypeaheadOptions(
   if (!needle) return [...options];
   return options.filter((option) => normalize(option.label).includes(needle));
 }
+
+/** Remote lookups stay empty until the query is long enough, then cap the result. */
+export const TYPEAHEAD_MIN_QUERY = 2;
+export const TYPEAHEAD_RESULT_LIMIT = 8;
+
+export function boundedTypeaheadOptions(
+  options: readonly TypeaheadOption[],
+  query: string,
+  limit = TYPEAHEAD_RESULT_LIMIT,
+): TypeaheadOption[] {
+  const needle = normalize(query);
+  if (needle.length < TYPEAHEAD_MIN_QUERY) return [];
+  const cap = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : TYPEAHEAD_RESULT_LIMIT;
+  return filterTypeaheadOptions(options, query).slice(0, cap);
+}
