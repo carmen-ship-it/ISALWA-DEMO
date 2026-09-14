@@ -28,6 +28,10 @@ import {
   systemAdminMayActInOrganization,
 } from '@isalwa/os-contracts';
 import {
+  COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
+  canAuthorizePaymentException,
+} from '../../os-contracts/src/operations-scopes.ts';
+import {
   assertTenantMatch,
   memberHasGrantedScope,
   memberHasScope,
@@ -185,6 +189,23 @@ describe('operational scopes through the existing authorization engine', () => {
     assert.equal(canConfirmFinance([PRODUCTION_REVIEW_MEMBER_SCOPE]), false);
     assert.equal(canImpersonateProduction([PRODUCTION_REVIEW_MEMBER_SCOPE]), false);
     assert.equal(canRecordProduction(coordinator.roleKeys), false);
+  });
+
+  it('does not grant payment-exception authorization from cargo, title, or a sibling scope', () => {
+    const titled = snap(['Jefe', 'JEFE COMERCIAL', 'Gerente', 'Gerencia', 'asesor']);
+    assert.equal(memberHasGrantedScope(titled, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE), false);
+    assert.equal(memberHasScope(titled, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE), false);
+    assert.equal(canAuthorizePaymentException(titled.roleKeys), false);
+    assert.equal(canAuthorizePaymentException([COMMERCIAL_TEAM_READ_SCOPE]), false);
+    assert.equal(
+      memberHasGrantedScope(snap([COMMERCIAL_TEAM_READ_SCOPE]), COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE),
+      false,
+    );
+    const granted = snap([COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE]);
+    assert.equal(memberHasGrantedScope(granted, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE), true);
+    assert.equal(canAuthorizePaymentException(granted.roleKeys), true);
+    assert.equal(memberHasScope(granted, SYSTEM_ADMIN_SCOPE), false);
+    assert.equal(memberHasScope(granted, PEOPLE_ADMIN_SCOPE), false);
   });
 
   it('does not require payment confirmation before production entry', () => {

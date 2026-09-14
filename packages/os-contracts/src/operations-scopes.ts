@@ -24,6 +24,13 @@ export const COMMERCIAL_CUSTOMER_CREATE_SCOPE = 'commercial.customer.create' as 
 export const MANAGEMENT_ORG_READ_SCOPE = 'management.org.read' as const;
 export const COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE = 'commercial.quote.convert.own' as const;
 export const COMMERCIAL_PRICE_APPROVE_SCOPE = 'commercial.price.approve' as const;
+
+/**
+ * Authorize a payment exception. Jefe or Gerencia may do this only when this
+ * scope is explicitly granted. Cargo and title never grant it. It is not a
+ * production gate and it does not imply any other scope.
+ */
+export const COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE = 'commercial.exception.authorize' as const;
 export const FINANCE_OPERATIONAL_RECORD_SCOPE = 'finance.operational.record' as const;
 export const PRODUCTION_OPERATIONAL_RECORD_SCOPE = 'production.operational.record' as const;
 export const WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE = 'warehouse.finished_goods.receive' as const;
@@ -63,6 +70,7 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   MANAGEMENT_ORG_READ_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
   COMMERCIAL_PRICE_APPROVE_SCOPE,
+  COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
   FINANCE_OPERATIONAL_RECORD_SCOPE,
   PRODUCTION_OPERATIONAL_RECORD_SCOPE,
   WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
@@ -131,6 +139,11 @@ export function canConvertOwnEligibleQuote(input: {
 
 export function canApproveCommercialPrice(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, COMMERCIAL_PRICE_APPROVE_SCOPE);
+}
+
+/** Explicit grant only. A job title, including Jefe or Gerencia, is not enough. */
+export function canAuthorizePaymentException(grantedScopes: readonly string[]): boolean {
+  return hasAssignedOperationsScope(grantedScopes, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE);
 }
 
 /** Operational finance record. Not a ledger posting and not a confirmation. */

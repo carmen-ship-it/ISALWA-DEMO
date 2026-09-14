@@ -1,18 +1,12 @@
 import Link from 'next/link';
 import { OperatingRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
-import type {
-  OpportunitySummaryReadModel,
-  OrderSummaryReadModel,
-  QuoteSummaryReadModel,
-  WorkSummaryReadModel,
-} from '@isalwa/os-contracts';
+import type { QuoteSummaryReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
-import { DemoPreviewCards } from '@/components/commercial/demo-preview-cards';
-import { ExecutiveLens } from '@/components/commercial/executive-lens';
 import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioManagementLens } from '@/components/management/inicio-management-lens';
+import { OperatingHomes } from '@/components/management/operating-homes';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -23,6 +17,7 @@ import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
 import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { loadInicioManagement } from '@/lib/management/load-inicio-management';
+import { loadOperatingHomes } from '@/lib/roles/load-operating-homes';
 import { t } from '@/lib/i18n/es';
 import { greetingLine } from '@/lib/shell/greeting';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
@@ -38,27 +33,12 @@ import { isProjectionStale } from '@/lib/query/projection-freshness';
 
 /** Contract max. A page with more is not the complete upcoming set. */
 const PERSONAL_OPEN_WORK_LIMIT = 100;
-const EXECUTIVE_PAGE_LIMIT = 100;
 
 async function safeFetch<T>(fn: () => Promise<T>): Promise<T | 'unavailable'> {
   try {
     return await fn();
   } catch (err) {
     if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
-    throw err;
-  }
-}
-
-async function optionalPage<T>(fn: () => Promise<T>): Promise<T | null> {
-  try {
-    return await fn();
-  } catch (err) {
-    if (
-      err instanceof OsApiError &&
-      (err.kind === 'unavailable' || err.kind === 'forbidden' || err.kind === 'unauthorized')
-    ) {
-      return null;
-    }
     throw err;
   }
 }
@@ -98,15 +78,6 @@ function upcomingPersonalWork(items: WorkSummaryReadModel[], asOf: Date): WorkSu
       return delta || left.workItemId.localeCompare(right.workItemId);
     });
 }
-
-type ExecutivePages = {
-  opportunities: OpportunitySummaryReadModel[];
-  quotes: QuoteSummaryReadModel[];
-  orders: OrderSummaryReadModel[] | null;
-  opportunitiesPartial: boolean;
-  quotesPartial: boolean;
-  ordersPartial: boolean;
-};
 
 export default async function InicioPage() {
   const auth = await getServerOsAuthContext();
@@ -170,7 +141,6 @@ export default async function InicioPage() {
     const leadership = await loadInicioLeadership(client);
     const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
     const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
-    const executivePages = orgData ? await loadExecutivePages(client, orgData.opportunities, orgData.quotesSubmitted) : null;
 
     const memberLabels = await resolveMemberLabels(client, [
       ...opportunities.map((item) => item.ownerMemberId),
@@ -245,6 +215,13 @@ export default async function InicioPage() {
 
     const showLenses = leadership.team.kind === 'ready' || leadership.org.kind === 'ready';
     const greeting = greetingLine(shellContext?.givenName);
+    const operatingHomes = await loadOperatingHomes(client, {
+      ownQuotes: [...quotesDraft, ...quotesSubmitted],
+      teamQuotes: [...(teamData?.quotesDraft ?? []), ...(teamData?.quotesSubmitted ?? [])],
+      ownWork: upcomingRows,
+      teamWork: teamData?.followUps ?? [],
+      attention: visibleAttention,
+    });
 
     return (
       <PageContainer label={t('pages.inicio.title')}>
@@ -276,6 +253,8 @@ export default async function InicioPage() {
         ) : null}
 
         <div className="min-w-0 space-y-10">
+          <OperatingHomes model={operatingHomes} />
+
           <InicioAttentionPanel
             items={visibleAttention}
             subjects={attentionSubjects}
@@ -401,20 +380,8 @@ export default async function InicioPage() {
                   partyLabels={partyLabels}
                 />
               ) : null}
-              {executivePages ? (
-                <ExecutiveLens
-                  opportunities={executivePages.opportunities}
-                  quotes={executivePages.quotes}
-                  orders={executivePages.orders}
-                  opportunitiesPartial={executivePages.opportunitiesPartial}
-                  quotesPartial={executivePages.quotesPartial}
-                  ordersPartial={executivePages.ordersPartial}
-                />
-              ) : null}
             </section>
           ) : null}
-
-          <DemoPreviewCards />
         </div>
       </PageContainer>
     );
@@ -425,48 +392,4 @@ export default async function InicioPage() {
       </PageContainer>
     );
   }
-}
-
-async function loadExecutivePages(
-  client: ReturnType<typeof createOsApiClient>,
-  fallbackOpportunities: OpportunitySummaryReadModel[],
-  fallbackSubmitted: QuoteSummaryReadModel[],
-): Promise<ExecutivePages> {
-  const [opportunities, submitted, accepted, orders] = await Promise.all([
-    optionalPage(() =>
-      client.listOpportunities({ visibility: 'org', status: 'open', limit: EXECUTIVE_PAGE_LIMIT }),
-    ),
-    optionalPage(() =>
-      client.listQuotes({ visibility: 'org', status: 'submitted', limit: EXECUTIVE_PAGE_LIMIT }),
-    ),
-    optionalPage(() =>
-      client.listQuotes({ visibility: 'org', status: 'accepted', limit: EXECUTIVE_PAGE_LIMIT }),
-    ),
-    optionalPage(() => client.listOrders({ status: 'open', limit: EXECUTIVE_PAGE_LIMIT })),
-  ]);
-
-  const opportunityPage = pageOrFallback(opportunities, fallbackOpportunities);
-  const submittedPage = pageOrFallback(submitted, fallbackSubmitted);
-  const quotes = [
-    ...submittedPage.items,
-    ...(accepted?.items ?? []),
-  ];
-  const quotesPartial = submittedPage.partial || accepted === null || accepted.meta.hasMore;
-
-  return {
-    opportunities: opportunityPage.items,
-    quotes,
-    orders: orders ? orders.items : null,
-    opportunitiesPartial: opportunityPage.partial,
-    quotesPartial,
-    ordersPartial: orders !== null && orders.meta.hasMore,
-  };
-}
-
-function pageOrFallback<T>(
-  page: { items: T[]; meta: { hasMore: boolean } } | null,
-  fallback: T[],
-): { items: T[]; partial: boolean } {
-  if (!page) return { items: fallback, partial: true };
-  return { items: page.items, partial: page.meta.hasMore };
 }
