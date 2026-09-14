@@ -1,0 +1,2447 @@
+{
+  "dedupeDecisions": [
+    {
+      "canonicalKey": "set-capri",
+      "collapsed": [
+        "CatalogoVitriCompleto2026.pdf p.5 CAPRI",
+        "CatalogoVitriCompleto2026.pdf p.6 texto de diseño",
+        "Vitri2026.2027.pdf p.3 SET CAPRI"
+      ],
+      "distinctFrom": [
+        "inodoro-capri",
+        "tanque-capri"
+      ],
+      "keptAs": "Set Capri",
+      "reason": "El set, el sanitario y el tanque imprimen nombres y medidas distintos. El texto de diseño no es un cuarto producto."
+    },
+    {
+      "canonicalKey": "set-cadiz",
+      "collapsed": [
+        "CatalogoVitriCompleto2026.pdf p.5 CADIZ",
+        "CatalogoVitriCompleto2026.pdf p.6 texto de diseño",
+        "Vitri2026.2027.pdf p.2 SET CADIZ"
+      ],
+      "distinctFrom": [
+        "sanitario-cadiz",
+        "tanque-cadiz",
+        "tanque-milan",
+        "inodoro-capri"
+      ],
+      "keptAs": "Set Cadiz",
+      "reason": "La página del set imprime una composición y medidas de conjunto. El sanitario Cadiz de la tabla no trae medidas y no se fundió con el set."
+    },
+    {
+      "canonicalKey": "urinario-acqua",
+      "collapsed": [
+        "CatalogoVitriCompleto2026.pdf p.19 URINARIO",
+        "Vitri2026.2027.pdf p.7 URINARIO ACQUA"
+      ],
+      "distinctFrom": [],
+      "keptAs": "Urinario Acqua",
+      "reason": "Las dos páginas imprimen las mismas medidas. Una no trae nombre de línea; la otra imprime Acqua."
+    },
+    {
+      "canonicalKey": "lavamanos-pedestal-capri",
+      "collapsed": [
+        "CatalogoVitriCompleto2026.pdf p.9 Lavamanos + pedestal Capri",
+        "CatalogoVitriCompleto2026.pdf p.10 Completo",
+        "Vitri2026.2027.pdf p.5 Lavamanos con pedestal"
+      ],
+      "distinctFrom": [
+        "inodoro-capri",
+        "set-capri"
+      ],
+      "keptAs": "Lavamanos con pedestal Capri",
+      "reason": "Completo ocupa el mismo lugar de la serie que la ficha del lavamanos con pedestal. No es otro Capri."
+    }
+  ],
+  "documentNotes": [
+    "Esto no es una lista de precios. No hay captura de lista de precios.",
+    "No se inventaron códigos comerciales, precios, costos, márgenes, impuestos, plazos, stock ni una lista de materiales.",
+    "La palabra PRICE aparece sin monto en Vitri2026.2027.pdf páginas 8 y 9. No se guardó un precio.",
+    "La columna capacidad de descarga imprime 6 y 4,5 sin unidad. No se asumió litros.",
+    "La portada de Vitri2026.2027.pdf imprime VITRI 2025-2026. El nombre de archivo no se corrigió.",
+    "La presentación de la empresa, el índice como texto y los encabezados de sección no son productos.",
+    "La vista previa no se importó a una base."
+  ],
+  "importExecuted": false,
+  "isPriceList": false,
+  "kind": "reviewed_extraction_preview",
+  "printedLabelsWithoutAmount": [
+    {
+      "amount": null,
+      "excerpt": "Gama CromáticaPRICE",
+      "page": 8,
+      "sourceFilename": "Vitri2026.2027.pdf"
+    },
+    {
+      "amount": null,
+      "excerpt": "PRICE",
+      "page": 9,
+      "sourceFilename": "Vitri2026.2027.pdf"
+    }
+  ],
+  "productCount": 25,
+  "products": [
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "12 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "6,75 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "agatha",
+      "category": "lavamanos",
+      "description": "Líneas contemporáneas y sofisticadas para espacios modernos y refinados.",
+      "id": "prd_7a7df82c03e344bf17a8353c",
+      "name": "Agatha",
+      "provenance": [
+        {
+          "excerpt": "AGATHA. Líneas contemporáneas y sofisticadas para espacios modernos y refinados.",
+          "page": 10,
+          "printedLabel": "Lavamanos | 10",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Agatha",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "AGATHA. Alto 12 cm. Ancho 38 cm. Profundidad 38 cm. Peso 6,75 Kg/aprox.",
+          "page": 9,
+          "printedLabel": "Lavamanos | 9",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Sanitario Alti (tanque alto)"
+      ],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "36,5"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConTanques",
+          "label": "Compatibilidad con tanques",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "NA"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H x L x W (cm)",
+          "page": 4,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "52,5x36,5x39"
+        },
+        {
+          "key": "distanciaDesaguePared",
+          "label": "Distancia de desagüe a la pared (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "305"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "120x130"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 4,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "120 x 130"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 4,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "52,5"
+        },
+        {
+          "key": "metodoDescarga",
+          "label": "Método de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sifónico"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso Aproximado (Kg)",
+          "page": 4,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "11,45"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 4,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Sifonico"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "alti",
+      "category": "sanitarios",
+      "description": "Inodoro Tanque Suspendido",
+      "id": "prd_2f9df2b1284cc48e1015a26d",
+      "name": "Alti",
+      "provenance": [
+        {
+          "excerpt": "Alti",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Sanitario Alti",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Sanitario Alti (tanque alto). Largo 52,5. Ancho 36,5. Profundidad 39. Desagüe 305. Espejo 120x130. Sifónico. Blanco Gris. Tanques NA.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "ALTI. Inodoro Tanque Suspendido. Dimensiones 52,5x36,5x39. Sifonico. Peso 11,45. Espejo 120 x 130.",
+          "page": 4,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "Sanitario Alti (tanque alto) y Alti / Inodoro Tanque Suspendido imprimen 52,5 × 36,5 × 39. Un producto.",
+        "Tanque Alto aparece solo en el índice y no se unió aquí: no hay ficha que pruebe que es el mismo."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "23 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "50 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "10,95 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "34,5 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "bari",
+      "category": "lavamanos",
+      "description": "Formas suaves y elegantes que crean un ambiente cálido y sofisticado.",
+      "id": "prd_a8c8626db1cd3e6d7ba1a63c",
+      "name": "Bari",
+      "provenance": [
+        {
+          "excerpt": "BARI. Alto 23 cm. Ancho 50 cm. Profundidad 34,5 cm. Peso 10,95 Kg/aprox.",
+          "page": 11,
+          "printedLabel": "Lavamanos | 11",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "BARI. Formas suaves y elegantes que crean un ambiente cálido y sofisticado.",
+          "page": 12,
+          "printedLabel": "Lavamanos | 12",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bari",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "15 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "12,5 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "bordda",
+      "category": "lavamanos",
+      "description": "Diseño limpio y versátil que combina funcionalidad con una estética contemporánea.",
+      "id": "prd_acc0ded4dc128f9b12b91bda",
+      "name": "Bordda",
+      "provenance": [
+        {
+          "excerpt": "BORDDA. Diseño limpio y versátil que combina funcionalidad con una estética contemporánea.",
+          "page": 10,
+          "printedLabel": "Lavamanos | 10",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bordda",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "BORDDA. Alto 15 cm. Ancho 39 cm. Profundidad 39 cm. Peso 12,5 Kg/aprox.",
+          "page": 9,
+          "printedLabel": "Lavamanos | 9",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "El PDF imprime Bordda. No se cambió la grafía."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [],
+      "businessCode": null,
+      "canonicalKey": "bowl-domino-embutir",
+      "category": "lavamanos",
+      "description": null,
+      "id": "prd_5b08810e48ea47d374daeb88",
+      "name": "Bowl Domino de embutir",
+      "provenance": [
+        {
+          "excerpt": "Bowl Domino de embutir",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla lo lista aparte de Domino de sobreponer. Sin ficha propia. Las cifras de esa fila no se copiaron porque las columnas no quedan alineadas en la extracción."
+      ],
+      "reviewStatus": "comparison_row_only"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "BOWL DE SOBREPONER"
+      ],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "34"
+        },
+        {
+          "key": "calidad",
+          "label": null,
+          "page": 6,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "grado A"
+        },
+        {
+          "key": "color",
+          "label": null,
+          "page": 6,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "blanco"
+        },
+        {
+          "key": "espesor",
+          "label": null,
+          "page": 6,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "10 a 12 mm"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "34"
+        },
+        {
+          "key": "material",
+          "label": "Material",
+          "page": 6,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Loza con recubrimiento vitrificado"
+        },
+        {
+          "key": "metodoInstalacion",
+          "label": "Método de instalación",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sobreponer"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 6,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "7,3 kg"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "11"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "bowl-luma",
+      "category": "lavamanos",
+      "description": "El bowl LUMA de sobreponer en color blanco combina diseño moderno con gran resistencia.",
+      "id": "prd_36b2654ccebcf387b1a55fc6",
+      "name": "Bowl Luma",
+      "provenance": [
+        {
+          "excerpt": "Bowl Luma. 34. 34. 11. Sobreponer.",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Tendencia y atemporalidad se unen en Vitri con el Bowl Luma",
+          "page": 10,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "BOWL LUMA. BOWL DE SOBREPONER. Peso 7,3 kg. Material loza con recubrimiento vitrificado. Color blanco. Espesor 10 a 12 mm. Grado A.",
+          "page": 6,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "el bowl Luma agregan un toque contemporáneo y minimalista",
+          "page": 8,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "el bowl Luma transforma tu baño en un espacio moderno y elegante",
+          "page": 9,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "Las páginas de ambiente repiten Bowl Luma. No crean otro producto."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Bowl Cuadrado"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "13 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "37,5 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "7,15 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "28 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "bowl-new-cuadrado",
+      "category": "lavamanos",
+      "description": "Geometría definida y diseño moderno para baños de estilo contemporáneo.",
+      "id": "prd_a5ee785d87c4a44e7c2b2b37",
+      "name": "Bowl New Cuadrado",
+      "provenance": [
+        {
+          "excerpt": "BOWL NEW CUADRADO. Alto 13 cm. Ancho 37,5 cm. Profundidad 28 cm. Peso 7,15 Kg/aprox.",
+          "page": 11,
+          "printedLabel": "Lavamanos | 11",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "BOWL NEW CUADRADO. Geometría definida y diseño moderno para baños de estilo contemporáneo.",
+          "page": 12,
+          "printedLabel": "Lavamanos | 12",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bowl Cuadrado",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bowl New Cuadrado",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla imprime Bowl Cuadrado. No se creó un segundo producto. Las cifras de esa fila no se copiaron: en la extracción de texto las columnas posteriores a las tres primeras no quedan alineadas."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "19 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "49 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "9,10 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 11,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "35,5 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "bowl-ovale",
+      "category": "lavamanos",
+      "description": "Curvas suaves y proporciones equilibradas que aportan elegancia y amplitud visual.",
+      "id": "prd_6ad01d906609f47c5a630b6e",
+      "name": "Bowl Ovale",
+      "provenance": [
+        {
+          "excerpt": "BOWL OVALE. Alto 19 cm. Ancho 49 cm. Profundidad 35,5 cm. Peso 9,10 Kg/aprox.",
+          "page": 11,
+          "printedLabel": "Lavamanos | 11",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "BOWL OVALE. Curvas suaves y proporciones equilibradas que aportan elegancia y amplitud visual.",
+          "page": 12,
+          "printedLabel": "Lavamanos | 12",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bowl Ovale",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Dowl Domino de sobreponer"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "9,5 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "60,5 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "60,5"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "31,5"
+        },
+        {
+          "key": "metodoInstalacion",
+          "label": "Método de instalación",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sobreponer"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "9,55 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "31 cm"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "10"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "domino",
+      "category": "lavamanos",
+      "description": "Diseño minimalista y atemporal que se adapta perfectamente a espacios modernos.",
+      "id": "prd_095580a6fe12bf65cb01dfe5",
+      "name": "Domino",
+      "provenance": [
+        {
+          "excerpt": "DOMINO. Alto 9,5 cm. Ancho 60,5 cm. Profundidad 31 cm. Peso 9,55 Kg/aprox.",
+          "page": 13,
+          "printedLabel": "Lavamanos | 13",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "DOMINO. Diseño minimalista y atemporal que se adapta perfectamente a espacios modernos.",
+          "page": 14,
+          "printedLabel": "Lavamanos | 14",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Dowl Domino de sobreponer. 31,5. 60,5. 10. Sobreponer.",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Domino",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla imprime Dowl Domino de sobreponer. La ficha imprime DOMINO. No se creó un tercer producto y no se corrigió la tabla.",
+        "La ficha imprime alto 9,5, ancho 60,5 y profundidad 31. La tabla imprime 31,5 × 60,5 × 10. Las dos citas se conservan."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "15 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "37 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "6,60 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "37 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "gris-black",
+      "category": "lavamanos",
+      "description": "Diseño audaz y contemporáneo que aporta carácter y sofisticación al baño.",
+      "id": "prd_594fa15b627a87fa7f4c0cd7",
+      "name": "Gris Black",
+      "provenance": [
+        {
+          "excerpt": "GRIS BLACK. Alto 15 cm. Ancho 37 cm. Profundidad 37 cm. Peso 6,60 Kg/aprox.",
+          "page": 15,
+          "printedLabel": "Lavamanos | 15",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "GRIS BLACK. Diseño audaz y contemporáneo que aporta carácter y sofisticación al baño.",
+          "page": 16,
+          "printedLabel": "Lavamanos | 16",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Gris Black",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Inodoro Capri"
+      ],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "36,5"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConTanques",
+          "label": "Compatibilidad con tanques",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Capri, Cadiz"
+        },
+        {
+          "key": "distanciaDesaguePared",
+          "label": "Distancia de desagüe a la pared (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "305"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "120x130"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "67"
+        },
+        {
+          "key": "metodoDescarga",
+          "label": "Método de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sifónico"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "37"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "inodoro-capri",
+      "category": "sanitarios",
+      "description": null,
+      "id": "prd_e17388cd59ee592d6ec5b87c",
+      "name": "Sanitario Capri",
+      "provenance": [
+        {
+          "excerpt": "Sanitario Capri",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Sanitario Capri. Largo 67. Ancho 36,5. Profundidad 37. Desagüe 305. Espejo 120x130. Sifónico. Blanco Gris. Tanques Capri, Cadiz.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "el inodoro Capri aporta armonía gracias a su diseño limpio y funcional",
+          "page": 8,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "LAVAMANOS CON PEDESTAL + INODORO CAPRI",
+          "page": 9,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla lo nombra Sanitario Capri. Las páginas de ambiente lo nombran inodoro Capri. No es el Set Capri: la tabla imprime 67 × 36,5 × 37 y el set imprime 69,50 × 41 × 36,50."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Bowl Kayak"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "13 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "94,5 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "93,5"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "42"
+        },
+        {
+          "key": "metodoInstalacion",
+          "label": "Método de instalación",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sobreponer"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "20,95 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "41,5 cm"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 17,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "14"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "kayak",
+      "category": "lavamanos",
+      "description": "Diseño orgánico y contemporáneo que combina comodidad, estilo y personalidad.",
+      "id": "prd_c671b45ce840e934f058826a",
+      "name": "Kayak",
+      "provenance": [
+        {
+          "excerpt": "KAYAK. Alto 13 cm. Ancho 94,5 cm. Profundidad 41,5 cm. Peso 20,95 Kg/aprox.",
+          "page": 13,
+          "printedLabel": "Lavamanos | 13",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "KAYAK. Diseño orgánico y contemporáneo que combina comodidad, estilo y personalidad.",
+          "page": 14,
+          "printedLabel": "Lavamanos | 14",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Bowl Kayak. 42. 93,5. 14. Sobreponer.",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Kayak",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La ficha imprime alto 13, ancho 94,5 y profundidad 41,5. La tabla imprime largo 42, ancho 93,5 y profundidad 14. No se reconciliaron."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Completo",
+        "Lavamanos + pedestal Capri"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "82 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "43 cm"
+        },
+        {
+          "key": "calidad",
+          "label": null,
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "grado A"
+        },
+        {
+          "key": "color",
+          "label": null,
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "blanco"
+        },
+        {
+          "key": "espesor",
+          "label": null,
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "10–12 mm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "material",
+          "label": "Material",
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Loza con recubrimiento vitrificado"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "13 Kg/aprox"
+        },
+        {
+          "key": "pesoLavamanos",
+          "label": "Peso lavamanos",
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "9.2 kg"
+        },
+        {
+          "key": "pesoPedestal",
+          "label": "Peso pedestal",
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "5.8 kg"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 9,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39 cm"
+        },
+        {
+          "key": "rebalse",
+          "label": null,
+          "page": 5,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "con rebalse"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "lavamanos-pedestal-capri",
+      "category": "lavamanos",
+      "description": "Diseño clásico y funcional que aporta elegancia y armonía a cualquier baño.",
+      "id": "prd_047c1abf5507df4e2632bbf9",
+      "name": "Lavamanos con pedestal Capri",
+      "provenance": [
+        {
+          "excerpt": "COMPLETO. Diseño clásico y funcional que aporta elegancia y armonía a cualquier baño.",
+          "page": 10,
+          "printedLabel": "Lavamanos | 10",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Lavamanos con pedestal Capri",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Completo",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "LAVAMANOS + PEDESTAL CAPRI. Alto 82 cm. Ancho 43 cm. Profundidad 39 cm. Peso 13 Kg/aprox.",
+          "page": 9,
+          "printedLabel": "Lavamanos | 9",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "LAVAMANOS CON PEDESTALCAPRI. Material loza con recubrimiento vitrificado. Peso lavamanos 9.2 kg. Peso pedestal 5.8 kg. Color blanco. Rebalse. Espesor 10–12 mm.",
+          "page": 5,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "El inodoro Capri y el lavamanos con pedestal",
+          "page": 9,
+          "printedLabel": null,
+          "role": "lifestyle",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "El índice y la página de diseño lo llaman Completo, en la misma posición que Agatha y Bordda. La ficha lo llama Lavamanos + pedestal Capri. Un producto.",
+        "El catálogo 2026 imprime peso 13 Kg/aprox. El otro PDF imprime peso lavamanos 9.2 kg y peso pedestal 5.8 kg. No se sumó ni se descartó ninguno."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Blanco Satinado"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "21 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "7,90 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38,5 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "quaza-blanco-satinado",
+      "category": "lavamanos",
+      "description": "Elegancia sutil y acabado sofisticado para ambientes modernos y luminosos.",
+      "id": "prd_b7ce3a53bed71964eb785b3b",
+      "name": "Quaza Blanco Satinado",
+      "provenance": [
+        {
+          "excerpt": "QUAZA BLANCO SATINADO. Alto 21 cm. Ancho 38 cm. Profundidad 38,5 cm. Peso 7,90 Kg/aprox.",
+          "page": 15,
+          "printedLabel": "Lavamanos | 15",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "BLANCO SATINADO. Elegancia sutil y acabado sofisticado para ambientes modernos y luminosos.",
+          "page": 16,
+          "printedLabel": "Lavamanos | 16",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Quaza Blanco Satinado",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La página de diseño imprime BLANCO SATINADO en el mismo lugar que la ficha llama QUAZA BLANCO SATINADO. Un producto, no uno llamado solo Blanco Satinado."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "sanitario-cadiz",
+      "category": "sanitarios",
+      "description": null,
+      "id": "prd_464f6af2cfa9f1d6e84fd989",
+      "name": "Sanitario Cadiz",
+      "provenance": [
+        {
+          "excerpt": "Sanitario Cadiz",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Sanitario Cadiz. Medidas xx. Blanco Gris. Compatibilidad xx.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla imprime xx en las medidas. No se copiaron las medidas del Set Cadiz."
+      ],
+      "reviewStatus": "dimensions_unspecified"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "VERSO"
+      ],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "36"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConTanques",
+          "label": "Compatibilidad con tanques",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Verso"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H × L × W (cm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "70 36 x 39"
+        },
+        {
+          "key": "distanciaDesaguePared",
+          "label": "Distancia de desagüe a la pared (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "305 + complemento"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "90 x 120 mm"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (cm)",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "90x120"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Instalación tradicional de 305 mm - 12 pulgadas de la pared terminada."
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "70"
+        },
+        {
+          "key": "metodoDescarga",
+          "label": "Método de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Sifónico"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso aproximado (Kg)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "23.9 kg"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Por arrastre - anillo abierto."
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "sanitario-verso",
+      "category": "sanitarios",
+      "description": "Diseño minimalista y elegante para espacios sofisticados.",
+      "id": "prd_ad07915e9916cce0b04c490f",
+      "name": "Sanitario Verso (faldón)",
+      "provenance": [
+        {
+          "excerpt": "Sanitario Verso",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Verso",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "VERSO. Dimensiones 70 36 x 39. Por arrastre - anillo abierto. Peso 23.9 kg. Espejo 90 x 120 mm.",
+          "page": 5,
+          "printedLabel": "Sanitarios | 5",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "VERSO. Diseño minimalista y elegante para espacios sofisticados.",
+          "page": 6,
+          "printedLabel": "Sanitarios | 6",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Sanitario Verso (faldón). Largo 70. Ancho 36. Profundidad 39. 305 + complemento. Espejo 90x120. Sifónico. Blanco Gris. Tanque Verso.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La ficha VERSO imprime 70 36 x 39 y la tabla imprime 70 × 36 × 39. Es el mismo sanitario, no un set aparte.",
+        "La ficha imprime Por arrastre - anillo abierto. La tabla imprime Sifónico. Las dos citas se conservan.",
+        "La fila repetida en la tabla de tanques no crea otro producto."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "CADIZ"
+      ],
+      "attributes": [
+        {
+          "key": "composicionImpresa",
+          "label": null,
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "INODORO CAPRI + TANQUE MILAN"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H × L × W (cm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "76,50 × 41 × 36,50"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H x L x W (cm)",
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "76,50 x 41 x 36,50"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "No especificado"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "120 x 130"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso aproximado (Kg)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "20,35"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso Aproximado (Kg)",
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "20,35"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Por gravedad – anillo abierto"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 2,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Por gravedad - anillo abierto"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "set-cadiz",
+      "category": "sanitarios",
+      "description": "INODORO CAPRI + TANQUE MILAN. Líneas modernas y funcionales para baños contemporáneos.",
+      "id": "prd_a6d99f780d6e9ba5fd741131",
+      "name": "Set Cadiz",
+      "provenance": [
+        {
+          "excerpt": "Cadiz",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "CADIZ. Dimensiones 76,50 × 41 × 36,50. Por gravedad – anillo abierto. Peso 20,35. Espejo No especificado.",
+          "page": 5,
+          "printedLabel": "Sanitarios | 5",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "CADIZ. Líneas modernas y funcionales para baños contemporáneos.",
+          "page": 6,
+          "printedLabel": "Sanitarios | 6",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "INODORO CAPRI + TANQUE MILAN",
+          "page": 2,
+          "printedLabel": null,
+          "role": "composition",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "CADIZ. SET CADIZ. INODORO CAPRI + TANQUE MILAN. Dimensiones 76,50 x 41 x 36,50. Espejo 120 x 130.",
+          "page": 2,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "La página del set imprime INODORO CAPRI + TANQUE MILAN. No se reescribió como inodoro Cadiz.",
+        "El catálogo 2026 imprime espejo No especificado. El otro PDF imprime 120 x 130. No se eligió un valor."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "CAPRI"
+      ],
+      "attributes": [
+        {
+          "key": "composicionImpresa",
+          "label": null,
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "INODORO CAPRI + TANQUE CAPRI"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H × L × W (cm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "69,50 × 41 × 36,50"
+        },
+        {
+          "key": "dimensiones",
+          "label": "Dimensiones H x L x W (cm)",
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "69,50 x 41 x 36,50"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "120 × 130"
+        },
+        {
+          "key": "espejoDeAgua",
+          "label": "Espejo de agua (mm)",
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "120 x 130"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso aproximado (Kg)",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "20,40"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso Aproximado (Kg)",
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "20,40"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 5,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Por gravedad – anillo abierto"
+        },
+        {
+          "key": "sistemaDescarga",
+          "label": "Sistema de descarga",
+          "page": 3,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Por gravedad - anillo abierto"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "set-capri",
+      "category": "sanitarios",
+      "description": "INODORO CAPRI + TANQUE CAPRI. Diseño clásico que se adapta a cualquier espacio.",
+      "id": "prd_cf24a9bf500729fa6f9f7e68",
+      "name": "Set Capri",
+      "provenance": [
+        {
+          "excerpt": "Capri",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "CAPRI. Dimensiones 69,50 × 41 × 36,50. Por gravedad – anillo abierto. Peso 20,40. Espejo 120 × 130.",
+          "page": 5,
+          "printedLabel": "Sanitarios | 5",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "CAPRI. Diseño clásico que se adapta a cualquier espacio.",
+          "page": 6,
+          "printedLabel": "Sanitarios | 6",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "INODORO CAPRI + TANQUE CAPRI",
+          "page": 3,
+          "printedLabel": null,
+          "role": "composition",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        },
+        {
+          "excerpt": "CAPRI. SET CAPRI. INODORO CAPRI + TANQUE CAPRI. Dimensiones 69,50 x 41 x 36,50.",
+          "page": 3,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "La ficha CAPRI del catálogo 2026 y la ficha SET CAPRI imprimen las mismas medidas de conjunto. El texto de diseño no crea otro producto.",
+        "No se unió con Sanitario Capri ni con Tanque Capri: esas páginas imprimen medidas distintas."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "17,5 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "6,30 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 13,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "38 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "solare-blanco",
+      "category": "lavamanos",
+      "description": "Pureza de líneas y acabado elegante para espacios luminosos y sofisticados.",
+      "id": "prd_783a9e61ef96e9153979c21a",
+      "name": "Solare Blanco",
+      "provenance": [
+        {
+          "excerpt": "SOLARE BLANCO. Alto 17,5 cm. Ancho 38 cm. Profundidad 38 cm. Peso 6,30 Kg/aprox.",
+          "page": 13,
+          "printedLabel": "Lavamanos | 13",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "SOLARE BLANCO. Pureza de líneas y acabado elegante para espacios luminosos y sofisticados.",
+          "page": 14,
+          "printedLabel": "Lavamanos | 14",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Solare Blanco",
+          "page": 17,
+          "printedLabel": "Lavamanos | 17",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Solare Blanco",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla nombra Solare Blanco. Las cifras de esa fila no se copiaron porque las columnas no quedan alineadas en la extracción."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Tanque Cadiz"
+      ],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "36"
+        },
+        {
+          "key": "capacidadDescarga",
+          "label": "Capacidad de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "4,5"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConSanitarios",
+          "label": "Compatibilidad con sanitarios",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Capri"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "16,5"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "37"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "tanque-cadiz",
+      "category": "tanques",
+      "description": null,
+      "id": "prd_d3eb3420a06f27359d1a8da8",
+      "name": "Tanque Cádiz",
+      "provenance": [
+        {
+          "excerpt": "Tanque Cadiz",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Tanque Cádiz. Largo 16,5. Ancho 36. Profundidad 37. Blanco, Gris. Capacidad 4,5. Sanitario Capri.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [
+        "La tabla imprime compatibilidad con Capri, no con Cadiz. Se dejó como está impreso."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "42"
+        },
+        {
+          "key": "capacidadDescarga",
+          "label": "Capacidad de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "4,5"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConSanitarios",
+          "label": "Compatibilidad con sanitarios",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Capri"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "20"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "23"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "tanque-capri",
+      "category": "tanques",
+      "description": null,
+      "id": "prd_cd03698002dad18b5418261c",
+      "name": "Tanque Capri",
+      "provenance": [
+        {
+          "excerpt": "Tanque Capri",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Tanque Capri. Largo 20. Ancho 42. Profundidad 23. Blanco, Gris. Capacidad 4,5. Sanitario Capri.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "INODORO CAPRI + TANQUE CAPRI",
+          "page": 3,
+          "printedLabel": null,
+          "role": "composition",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "Nombrado también en la composición del Set Capri. La ficha del tanque es esta fila, no el set."
+      ],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [],
+      "businessCode": null,
+      "canonicalKey": "tanque-milan",
+      "category": "tanques",
+      "description": null,
+      "id": "prd_4c053929ccb3f8baf122f4a5",
+      "name": "Tanque Milan",
+      "provenance": [
+        {
+          "excerpt": "INODORO CAPRI + TANQUE MILAN",
+          "page": 2,
+          "printedLabel": null,
+          "role": "composition",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "Nombrado solo en la composición del Set Cadiz. Sin ficha y sin medidas."
+      ],
+      "reviewStatus": "named_only"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39"
+        },
+        {
+          "key": "capacidadDescarga",
+          "label": "Capacidad de descarga",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "6"
+        },
+        {
+          "key": "colores",
+          "label": "Colores",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Blanco, Gris"
+        },
+        {
+          "key": "compatibilidadConSanitarios",
+          "label": "Compatibilidad con sanitarios",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Verso"
+        },
+        {
+          "key": "largo",
+          "label": "Largo",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "18,5"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "41,5"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "tanque-verso",
+      "category": "tanques",
+      "description": null,
+      "id": "prd_560af0cdf785ec3a1accc9fa",
+      "name": "Tanque Verso",
+      "provenance": [
+        {
+          "excerpt": "Tanque Verso",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Tanque Verso. Largo 18,5. Ancho 39. Profundidad 41,5. Blanco, Gris. Capacidad 6. Sanitario Verso.",
+          "page": 7,
+          "printedLabel": "Sanitarios | 7",
+          "role": "comparison_table",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "8 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "73,5 cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "9,75 Kg/aprox"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 15,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "36,5 cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "turin",
+      "category": "lavamanos",
+      "description": "Líneas delicadas y proporciones armoniosas que aportan un toque de elegancia contemporánea.",
+      "id": "prd_59b5e3fb25b22279b35c2dd5",
+      "name": "Turin",
+      "provenance": [
+        {
+          "excerpt": "TURIN. Alto 8 cm. Ancho 73,5 cm. Profundidad 36,5 cm. Peso 9,75 Kg/aprox.",
+          "page": 15,
+          "printedLabel": "Lavamanos | 15",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "TURIN. Líneas delicadas y proporciones armoniosas que aportan un toque de elegancia contemporánea.",
+          "page": 16,
+          "printedLabel": "Lavamanos | 16",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "Turin",
+          "page": 3,
+          "printedLabel": "índice general",
+          "role": "index",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        }
+      ],
+      "reviewNotes": [],
+      "reviewStatus": "spec_page"
+    },
+    {
+      "active": true,
+      "aliases": [
+        "Urinario"
+      ],
+      "attributes": [
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 19,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "39,5 cm"
+        },
+        {
+          "key": "alto",
+          "label": "Alto",
+          "page": 7,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "39,5cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 19,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "24,5 cm"
+        },
+        {
+          "key": "ancho",
+          "label": "Ancho",
+          "page": 7,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "24,5cm"
+        },
+        {
+          "key": "instalacion",
+          "label": "Instalación",
+          "page": 19,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "Tradicional de 305 mm – 12 pulgadas de la pared terminada"
+        },
+        {
+          "key": "material",
+          "label": "Material",
+          "page": 7,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "Loza con recubrimiento vitrificado"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 19,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "5,85 Kg/aprox"
+        },
+        {
+          "key": "pesoAproximado",
+          "label": "Peso",
+          "page": 7,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "5,85"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 19,
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "value": "24 cm"
+        },
+        {
+          "key": "profundidad",
+          "label": "Profundidad",
+          "page": 7,
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "value": "24cm"
+        }
+      ],
+      "businessCode": null,
+      "canonicalKey": "urinario-acqua",
+      "category": "urinarios",
+      "description": "Diseño moderno y funcional, con líneas suaves y una forma compacta que aporta elegancia y practicidad a espacios contemporáneos.",
+      "id": "prd_9ac8b3b3b80b7335ba9c23a2",
+      "name": "Urinario Acqua",
+      "provenance": [
+        {
+          "excerpt": "Diseño moderno y funcional, con líneas suaves y una forma compacta que aporta elegancia y practicidad a espacios contemporáneos.",
+          "page": 19,
+          "printedLabel": "Lavamanos | 19",
+          "role": "marketing",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "URINARIO. Alto 39,5 cm. Ancho 24,5 cm. Profundidad 24 cm. Peso 5,85 Kg/aprox.",
+          "page": 19,
+          "printedLabel": "Lavamanos | 19",
+          "role": "specification",
+          "sourceFilename": "CatalogoVitriCompleto2026.pdf",
+          "sourceSha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+        },
+        {
+          "excerpt": "URINARIO. URINARIO ACQUA. Peso 5,85. Alto 39,5cm. Ancho 24,5cm. Profundidad 24cm.",
+          "page": 7,
+          "printedLabel": null,
+          "role": "specification",
+          "sourceFilename": "Vitri2026.2027.pdf",
+          "sourceSha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+        }
+      ],
+      "reviewNotes": [
+        "El catálogo 2026 imprime URINARIO sin nombre de línea, con alto 39,5 cm, ancho 24,5 cm, profundidad 24 cm y peso 5,85 Kg/aprox. El otro PDF imprime URINARIO ACQUA con esas mismas medidas. Un producto."
+      ],
+      "reviewStatus": "spec_page"
+    }
+  ],
+  "reviewedOn": "2026-09-14",
+  "schemaVersion": "1",
+  "sources": [
+    {
+      "byteSize": 7414832,
+      "coverLabel": "catálogo 2026",
+      "filename": "CatalogoVitriCompleto2026.pdf",
+      "pageCount": 21,
+      "sha256": "4de2f923f96942fa0f2612d857b11e8aa20bf42e5129e931e9ee834de16c25b0"
+    },
+    {
+      "byteSize": 34760770,
+      "coverLabel": "VITRI 2025-2026",
+      "filename": "Vitri2026.2027.pdf",
+      "pageCount": 10,
+      "sha256": "3adf82c24ce25120ee6a33f00becc1fbdbc1a7908a55e0b58c4312de7ed87ceb"
+    }
+  ],
+  "unresolved": [
+    {
+      "excerpt": "Tanque Alto",
+      "name": "Tanque Alto",
+      "page": 3,
+      "reason": "Aparece en el índice, sección tanques. No se extrajo una ficha con atributos propios. No se creó un producto para no duplicar Alti ni inventar medidas.",
+      "sourceFilename": "CatalogoVitriCompleto2026.pdf"
+    }
+  ]
+}
