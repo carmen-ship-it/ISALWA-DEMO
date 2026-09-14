@@ -143,7 +143,7 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
         ...(organizationId ? { organizationId } : {}),
       },
     });
-    return rows[0] ? mapMember(rows[0]) : null;
+    return rows.length === 1 ? mapMember(rows[0]!) : null;
   }
 
   async listRoleAssignmentsForMember(

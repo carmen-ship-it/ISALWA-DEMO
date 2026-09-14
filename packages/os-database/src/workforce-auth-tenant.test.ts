@@ -85,6 +85,29 @@ function fakeDb() {
   return { db, calls };
 }
 
+function activeMember(organizationId: string, id: string) {
+  return { ...memberRow(organizationId, id), accessStatus: 'active' };
+}
+
+describe('Prisma active membership selection', () => {
+  it('does not pick the first active membership when several exist', async () => {
+    const members = [activeMember(SESSION_ORG, 'member-a'), activeMember(FOREIGN_ORG, 'member-b')];
+    const store = new PrismaOsWorkforceStore({
+      osOrganizationMember: {
+        async findMany(args: { where: Where }) {
+          return members.filter((row) =>
+            Object.entries(args.where).every(([key, value]) => row[key as keyof typeof row] === value),
+          );
+        },
+      },
+    } as never);
+
+    assert.equal(await store.findActiveMemberForPerson(PERSON_ID), null);
+    assert.equal((await store.findActiveMemberForPerson(PERSON_ID, SESSION_ORG))?.id, 'member-a');
+    assert.equal(await store.findActiveMemberForPerson(PERSON_ID, 'org-missing'), null);
+  });
+});
+
 describe('workforce auth SQL tenant predicates', () => {
   it('includes session organizationId in role and delegation where, and does not return the foreign role', async () => {
     const { db, calls } = fakeDb();
