@@ -232,7 +232,9 @@ export const V1_PLANNED_ASSIGNMENTS: readonly V1PlannedAssignment[] = [
     OPERATIONS_COORDINATOR_RECORD_SCOPE,
     COORDINATION_DECISION_CAPABILITY,
   ]),
+  // Business view and technical panel are both explicit. system.admin does not imply the read.
   row('isalwa-manager', 'ISALWA Manager / Owner / Super Admin', 'system-controls', 'technical', [
+    MANAGEMENT_ORG_READ_SCOPE,
     SYSTEM_ADMIN_SCOPE,
   ]),
 ] as const;

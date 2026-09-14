@@ -77,7 +77,7 @@ const EXPECTED_INTENDED: Record<V1PlannedFunctionId, readonly string[]> = {
   'encargada-compras': [PURCHASING_OPERATIONAL_RECORD_SCOPE],
   contabilidad: [FINANCE_OPERATIONAL_RECORD_SCOPE],
   'auxiliar-coordinacion': [OPERATIONS_COORDINATOR_RECORD_SCOPE, COORDINATION_DECISION_CAPABILITY],
-  'isalwa-manager': [SYSTEM_ADMIN_SCOPE],
+  'isalwa-manager': [MANAGEMENT_ORG_READ_SCOPE, SYSTEM_ADMIN_SCOPE],
 };
 
 describe('V1 planned function map', () => {
@@ -230,9 +230,12 @@ describe('V1 planned function map', () => {
     assert.equal(gerente.layer, 'business');
     assert.deepEqual(gerente.intendedCapabilities, [MANAGEMENT_ORG_READ_SCOPE]);
     assert.equal(manager.intendedCapabilities.includes(PEOPLE_ADMIN_SCOPE), false);
-    assert.equal(manager.intendedCapabilities.includes(MANAGEMENT_ORG_READ_SCOPE), false);
+    assert.equal(manager.intendedCapabilities.includes(MANAGEMENT_ORG_READ_SCOPE), true);
+    assert.equal(manager.intendedCapabilities.includes(SYSTEM_ADMIN_SCOPE), true);
+    assert.equal(scopeImpliedBySibling(SYSTEM_ADMIN_SCOPE, MANAGEMENT_ORG_READ_SCOPE), false);
+    assert.equal(scopeImpliedBySibling(MANAGEMENT_ORG_READ_SCOPE, SYSTEM_ADMIN_SCOPE), false);
     assert.equal(manager.layer, 'technical');
-    assert.deepEqual(manager.intendedCapabilities, [SYSTEM_ADMIN_SCOPE]);
+    assert.deepEqual(manager.intendedCapabilities, [MANAGEMENT_ORG_READ_SCOPE, SYSTEM_ADMIN_SCOPE]);
     for (const row of V1_PLANNED_ASSIGNMENTS) {
       const hasBusinessData = row.intendedCapabilities.some(
         (scope) =>
