@@ -4,6 +4,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } f
 import { createPortal } from 'react-dom';
 import { Button, Panel, StatusPill } from '@isalwa/ui';
 import { SHELL_CONTROLS, STATE_LABEL_TEXT } from '@/lib/walkthrough/copy';
+import { cardStaysMounted } from '@/lib/walkthrough/step-lifecycle';
 import { placeTourCard, prefersReducedMotion } from '@/lib/walkthrough/targeting';
 import type { TourStateLabel } from '@/lib/walkthrough/types';
 import { useWalkthrough } from './walkthrough-provider';
@@ -124,13 +125,12 @@ export function WalkthroughPopover() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (api.surface === 'closed' || api.anchor === 'pending') return;
+    if (api.surface === 'closed') return;
     const button = rootRef.current?.querySelector<HTMLButtonElement>('button:not([disabled])');
     button?.focus();
   }, [api.anchor, api.step?.stepId, api.surface]);
 
-  if (!mounted || api.surface === 'closed') return null;
-  if (api.surface === 'step' && api.anchor === 'pending') return null;
+  if (!cardStaysMounted({ mounted, surface: api.surface, anchor: api.anchor })) return null;
 
   const progress =
     api.surface === 'step' && api.stepCount > 0 ? `${api.stepIndex + 1} / ${api.stepCount}` : null;

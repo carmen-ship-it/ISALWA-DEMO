@@ -19,6 +19,11 @@ import type { TourChapter, TourStep } from './types';
  * There is no /pedidos page. The commercial orders step stays on Cliente 360,
  * where the order list already renders. nextRoute is cleared so that page
  * tour does not jump to /clientes.
+ *
+ * Cotizaciones teaching steps stay on /cotizaciones. Status is per row and
+ * the PDF lives on a quote document; neither route may leave the list page.
+ * Trabajo vencido stays on /trabajo. A query nextRoute remounts the page
+ * and drops the card, so that nextRoute is cleared.
  */
 
 type SourceStep = {
@@ -84,9 +89,9 @@ export function loadWalkthroughContent(): void {
   );
   registerChapter(
     pageChapter('cotizaciones', commercialChapter.title, [
-      place(byId(commercial, 'quotes'), '/cotizaciones'),
-      place(byId(commercial, 'quote-status'), '/cotizaciones'),
-      place(byId(commercial, 'quote-pdf'), '/cotizaciones'),
+      place(byId(commercial, 'quotes')),
+      place(byId(commercial, 'quote-status')),
+      place(byId(commercial, 'quote-pdf')),
     ]),
   );
   registerChapter(
@@ -98,7 +103,7 @@ export function loadWalkthroughContent(): void {
     pageChapter('trabajo', workforceChapter.title, [
       place(byId(workforce, 'trabajo-mios'), '/trabajo'),
       place(byId(workforce, 'trabajo-equipo-empresa')),
-      place(byId(workforce, 'trabajo-vencido'), '/trabajo?view=overdue'),
+      place(byId(workforce, 'trabajo-vencido')),
     ]),
   );
   registerChapter(

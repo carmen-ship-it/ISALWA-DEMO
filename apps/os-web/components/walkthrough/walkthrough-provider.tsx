@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { loadWalkthroughContent } from '@/lib/walkthrough/content';
-import { captureFocus, handleTourEscape, isTypingTarget, type Focusable, type TourSurface } from '@/lib/walkthrough/focus';
+import { captureFocus, handleTourEscape, isTypingTarget, restoreFocus, type Focusable, type TourSurface } from '@/lib/walkthrough/focus';
 import {
   advanceRun,
   chapterForPathname,
@@ -27,9 +27,17 @@ import {
   type PlannedStep,
   type ReplayableChapter,
 } from '@/lib/walkthrough/plan';
-import { loadWalkthrough, saveWalkthrough } from '@/lib/walkthrough/persistence';
+import { loadWalkthrough, saveWalkthrough, shouldOpenTourOnLoad } from '@/lib/walkthrough/persistence';
 import { getChapters, getWelcome } from '@/lib/walkthrough/registry';
 import { initialWalkthroughRecord, reduceWalkthrough } from '@/lib/walkthrough/state';
+import {
+  decideNext,
+  missingTargetDecision,
+  replayChapter,
+  resumeSurface,
+  shouldKeepExternalOpener,
+  shouldPushNextRoute,
+} from '@/lib/walkthrough/step-lifecycle';
 import { hasBlockingDialog, prefersReducedMotion, routeMatches, scrollBehavior } from '@/lib/walkthrough/targeting';
 import type { TourChapter, TourRunState, TourWelcome, WalkthroughRecord } from '@/lib/walkthrough/types';
 
@@ -139,14 +147,9 @@ export function WalkthroughProvider({
   const recordRef = useRef(record);
   const offeredRef = useRef(new Set<string>());
   const navRef = useRef<string | null>(null);
+  const hydratedOnce = useRef(false);
   recordRef.current = record;
   surfaceRef.current = surface;
-
-  useEffect(() => {
-    ensureContent();
-    setRecord(loadWalkthrough(window.localStorage));
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -179,27 +182,33 @@ export function WalkthroughProvider({
 
   const closeSurface = useCallback(() => {
     const opener = openerRef.current;
-    openerRef.current = null;
     surfaceRef.current = 'closed';
     setSurface('closed');
     setAnchor('idle');
     setForceHome(false);
-    queueMicrotask(() => {
-      try {
-        opener?.focus();
-      } catch {
-        // Detached opener. Closing still succeeds.
-      }
-    });
+    restoreFocus(opener);
+    openerRef.current = null;
   }, []);
 
   const openSurface = useCallback((next: TourSurface) => {
-    if (surfaceRef.current === 'closed') {
+    if (surfaceRef.current === 'closed' && !shouldKeepExternalOpener(document.activeElement)) {
       openerRef.current = captureFocus(document.activeElement);
     }
     surfaceRef.current = next;
     setSurface(next);
   }, []);
+
+  useEffect(() => {
+    if (hydratedOnce.current) return;
+    hydratedOnce.current = true;
+    ensureContent();
+    const loaded = loadWalkthrough(window.localStorage);
+    setRecord(loaded);
+    setHydrated(true);
+    if (resumeSurface(loaded, shouldOpenTourOnLoad(loaded)) === 'step') {
+      openSurface('step');
+    }
+  }, [openSurface]);
 
   const finish = useCallback(
     (chapterId: string | null) => {
@@ -220,11 +229,15 @@ export function WalkthroughProvider({
         openWelcome();
         return;
       }
-      const started = startRun(recordRef.current, steps, scopeChapterId ?? steps[0]?.chapterId ?? null);
-      setRecord(started);
+      const started = replayChapter(
+        recordRef.current,
+        steps,
+        scopeChapterId ?? steps[0]?.chapterId ?? null,
+      );
+      setRecord(started.record);
       setForceHome(false);
       navRef.current = null;
-      if (started.runState === 'COMPLETED' || !started.stepId) {
+      if (started.surface === 'closed') {
         closeSurface();
         return;
       }
@@ -310,13 +323,18 @@ export function WalkthroughProvider({
     setForceHome(false);
     const currentRecord = recordRef.current;
     const steps = stepsForRecord(currentRecord);
-    const index = steps.findIndex((item) => item.stepId === currentRecord.stepId);
-    const following = index < 0 ? 0 : index + 1;
-    if (following >= steps.length) {
-      finish(currentRecord.scopeChapterId ?? currentRecord.chapterId);
+    const decision = decideNext({
+      steps,
+      stepId: currentRecord.stepId,
+      scopeChapterId: currentRecord.scopeChapterId,
+      chapterId: currentRecord.chapterId,
+    });
+    if (decision.type === 'complete') {
+      finish(decision.chapterId);
       return;
     }
-    setRecord(advanceRun(currentRecord, steps, following));
+    if (decision.type !== 'advance') return;
+    setRecord(advanceRun(currentRecord, steps, decision.index));
     if (surfaceRef.current === 'closed') openSurface('step');
   }, [finish, openSurface]);
 
@@ -395,7 +413,8 @@ export function WalkthroughProvider({
       const steps = stepsForRecord(recordRef.current);
       const index = steps.findIndex((item) => item.stepId === step.stepId);
       const following = nextIndexSkippingMissing(steps, index + 1, (target) => Boolean(findVisibleTarget(target)));
-      if (following === null) {
+      const decision = missingTargetDecision(steps[index]);
+      if (decision.show || following === null) {
         setAnchor('untargeted');
         return;
       }
@@ -426,7 +445,12 @@ export function WalkthroughProvider({
       tick();
     };
 
-    if (step.nextRoute && !stayHome && !locationReady(step.nextRoute)) {
+    if (
+      step.nextRoute &&
+      !stayHome &&
+      shouldPushNextRoute(pathname, step.nextRoute) &&
+      !locationReady(step.nextRoute)
+    ) {
       if (navRef.current !== step.stepId) {
         navRef.current = step.stepId;
         router.push(step.nextRoute);
@@ -457,9 +481,10 @@ export function WalkthroughProvider({
       if (hasBlockingDialog(document) && surfaceRef.current === 'closed') return;
       if (event.key === 'Escape') {
         if (hasBlockingDialog(document)) return;
+        const opener = openerRef.current;
         const result = handleTourEscape({ key: event.key }, {
           surface: surfaceRef.current,
-          opener: openerRef.current,
+          opener,
         });
         if (!result.handled) return;
         event.preventDefault();
@@ -473,6 +498,7 @@ export function WalkthroughProvider({
         } else {
           setRecord((current) => reduceWalkthrough(current, { type: 'CLOSE' }));
         }
+        restoreFocus(opener);
         openerRef.current = null;
         surfaceRef.current = 'closed';
         setSurface('closed');
