@@ -4,6 +4,21 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
+import { CoverageSummaryPanel } from '@/components/productivity/coverage-summary';
+import { WhatChangedList } from '@/components/productivity/what-changed-list';
+import { extendPaletteSearch, loadWhatChanged, lookupCustomers } from '@/lib/productivity/actions';
+import { parseUsefulRecents, rememberUsefulRecent } from '@/lib/productivity/recents';
+import { mergePaletteSearch } from '@/lib/productivity/search-extensions';
+import {
+  canonicalViewHref,
+  labelForViewHref,
+  listSavedViews,
+  parsePinnedViews,
+  pinCurrentView,
+  savedViewsStorageKey,
+  type SavedView,
+} from '@/lib/productivity/saved-views';
+import type { WhatChangedItem } from '@/lib/productivity/what-changed';
 import { searchPalette } from '@/lib/shell/command-search';
 import {
   applyPick,
@@ -14,9 +29,7 @@ import {
   paletteNav,
   palettePathContext,
   PALETTE_MIN_QUERY,
-  parseRecents,
   recentsStorageKey,
-  rememberRecent,
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
@@ -28,6 +41,14 @@ type CommandPaletteProps = {
   canCreateCustomer: boolean;
   actorKey: string | null;
   returnFocusRef: React.RefObject<HTMLElement | null>;
+};
+
+type PaletteMode = 'search' | 'coverage' | 'changed';
+
+type ChangedView = {
+  customer: string;
+  items: WhatChangedItem[];
+  partial: boolean;
 };
 
 const PICK_HINT: Record<PalettePick, string> = {
@@ -54,16 +75,27 @@ export function CommandPalette({
   const [remote, setRemote] = useState<PaletteItem[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'partial' | 'empty' | 'error' | 'session'>('idle');
   const [recents, setRecents] = useState<PaletteItem[]>([]);
+  const [mode, setMode] = useState<PaletteMode>('search');
+  const [changed, setChanged] = useState<ChangedView | null>(null);
+  const [changedStatus, setChangedStatus] = useState<'idle' | 'loading' | 'error' | 'session'>('idle');
+  const [pinned, setPinned] = useState<SavedView[]>([]);
+  const [currentHref, setCurrentHref] = useState('');
+  const [savedNote, setSavedNote] = useState<string | null>(null);
 
   const storageKey = actorKey ? recentsStorageKey(actorKey) : null;
+  const viewsKey = actorKey ? savedViewsStorageKey(actorKey) : null;
 
   const close = useCallback(() => {
     onOpenChange(false);
     setQuery('');
     setPick(null);
+    setMode('search');
+    setChanged(null);
+    setChangedStatus('idle');
     setRemote([]);
     setStatus('idle');
     setActive(0);
+    setSavedNote(null);
     returnFocusRef.current?.focus();
   }, [onOpenChange, returnFocusRef]);
 
@@ -72,35 +104,65 @@ export function CommandPalette({
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      if (storageKey) setRecents(parseRecents(window.localStorage.getItem(storageKey)));
+      if (storageKey) setRecents(parseUsefulRecents(window.localStorage.getItem(storageKey)));
+      if (viewsKey) setPinned(parsePinnedViews(window.localStorage.getItem(viewsKey)));
+      setCurrentHref(`${window.location.pathname}${window.location.search}`);
       queueMicrotask(() => document.getElementById('command-palette-input')?.focus());
     }
     if (!open && dialog.open) dialog.close();
-  }, [open, storageKey]);
+  }, [open, storageKey, viewsKey]);
 
   useEffect(() => {
     if (!open) return;
     const q = query.trim();
+    if (mode === 'coverage' || (mode === 'changed' && changed)) return;
     if (q.length < PALETTE_MIN_QUERY) {
       setRemote([]);
       setStatus('idle');
       return;
     }
+    let cancelled = false;
     const handle = window.setTimeout(() => {
+      if (cancelled) return;
       setStatus('loading');
-      void searchPalette(q).then((result) => {
-        if (!open) return;
+      if (mode === 'changed') {
+        void lookupCustomers(q).then((result) => {
+          if (!open || cancelled) return;
+          if (!result.ok) {
+            setRemote([]);
+            setStatus(result.reason === 'session' ? 'session' : 'error');
+            return;
+          }
+          setRemote(result.items.map(changedCustomerItem));
+          setStatus(result.items.length === 0 ? 'empty' : 'idle');
+        });
+        return;
+      }
+      void searchPalette(q).then(async (result) => {
+        if (!open || cancelled) return;
         if (!result.ok) {
           setRemote([]);
           setStatus(result.reason === 'session' ? 'session' : 'error');
           return;
         }
-        setRemote(result.items);
-        setStatus(result.items.length === 0 ? 'empty' : result.partial ? 'partial' : 'idle');
+        const extra = await extendPaletteSearch(q);
+        if (!open || cancelled) return;
+        if (!extra.ok) {
+          setRemote(result.items);
+          setStatus(extra.reason === 'session' ? 'session' : result.partial || result.items.length > 0 ? 'partial' : 'error');
+          return;
+        }
+        const merged = mergePaletteSearch(result.items, extra.items);
+        setRemote(merged);
+        const incomplete = result.partial || extra.partial;
+        setStatus(merged.length === 0 ? 'empty' : incomplete ? 'partial' : 'idle');
       });
     }, 180);
-    return () => window.clearTimeout(handle);
-  }, [open, query]);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [changed, mode, open, query]);
 
   const items = useMemo(() => {
     const q = query.trim();
@@ -116,21 +178,112 @@ export function CommandPalette({
         .map((item) => applyPick(item, pick))
         .filter((item): item is PaletteItem => item !== null);
     }
+    if (mode === 'changed' && !changed) return remote;
+    if (mode === 'coverage' || changed) return [];
     if (q.length < PALETTE_MIN_QUERY) {
       return [...actions, ...recents, ...nav];
     }
     return [...actions, ...remote, ...nav.filter((item) => matchesPaletteQuery(item, q))];
-  }, [canCreateCustomer, pathname, pick, query, recents, remote, showAdmin]);
+  }, [canCreateCustomer, changed, mode, pathname, pick, query, recents, remote, showAdmin]);
 
-  const groups = useMemo(() => groupPaletteItems(items), [items]);
+  const extraGroups = useMemo(() => {
+    if (pick || mode !== 'search') return [];
+    const q = query.trim();
+    const savable = canonicalViewHref(currentHref);
+    const productivity: PaletteItem[] = [
+      {
+        key: 'productivity:coverage',
+        kind: 'action',
+        label: 'Cobertura de ausencia',
+        detail: 'Resumen autorizado, sin reasignar',
+        href: '/trabajo',
+      },
+      {
+        key: 'productivity:changed',
+        kind: 'action',
+        label: 'Qué cambió',
+        detail: 'Historial de un cliente',
+        href: '/clientes',
+      },
+    ];
+    if (savable) {
+      productivity.push({
+        key: 'productivity:save-view',
+        kind: 'action',
+        label: 'Guardar esta vista',
+        detail: labelForViewHref(savable) ?? 'En este navegador',
+        href: savable,
+      });
+    }
+    const views: PaletteItem[] = listSavedViews(pinned).map((view) => ({
+      key: `view:${view.id}`,
+      kind: 'nav',
+      label: view.label,
+      detail: view.detail,
+      href: view.href,
+    }));
+    return [
+      { id: 'productivity', label: 'Productividad', items: productivity.filter((item) => matchesPaletteQuery(item, q)) },
+      { id: 'views', label: 'Vistas', items: views.filter((item) => matchesPaletteQuery(item, q)) },
+    ].filter((group) => group.items.length > 0);
+  }, [currentHref, mode, pick, pinned, query]);
+
+  const groups = useMemo(() => [...extraGroups, ...groupPaletteItems(items)], [extraGroups, items]);
   const flat = useMemo(() => groups.flatMap((group) => group.items), [groups]);
 
   useEffect(() => {
     setActive(0);
-  }, [query, pick, flat.length]);
+  }, [query, pick, mode, flat.length]);
+
+  async function openChanged(partyId: string) {
+    setChangedStatus('loading');
+    setChanged(null);
+    const result = await loadWhatChanged(partyId);
+    if (!result.ok) {
+      setChangedStatus(result.reason === 'session' ? 'session' : 'error');
+      return;
+    }
+    setChanged({ customer: result.customer, items: result.items, partial: result.partial });
+    setChangedStatus('idle');
+  }
+
+  function pinView() {
+    if (!viewsKey) return;
+    const next = pinCurrentView(pinned, currentHref);
+    if (!next) {
+      setSavedNote('Esta página no se puede guardar como vista.');
+      return;
+    }
+    window.localStorage.setItem(viewsKey, JSON.stringify(next));
+    setPinned(next);
+    setSavedNote('Vista guardada en este navegador.');
+  }
 
   function activate(item: PaletteItem | undefined) {
     if (!item) return;
+    if (item.key === 'productivity:coverage') {
+      setMode('coverage');
+      setQuery('');
+      setStatus('idle');
+      return;
+    }
+    if (item.key === 'productivity:changed') {
+      setMode('changed');
+      setChanged(null);
+      setChangedStatus('idle');
+      setQuery('');
+      setRemote([]);
+      document.getElementById('command-palette-input')?.focus();
+      return;
+    }
+    if (item.key === 'productivity:save-view') {
+      pinView();
+      return;
+    }
+    if (mode === 'changed' && !changed && item.partyId) {
+      void openChanged(item.partyId);
+      return;
+    }
     if (item.pick) {
       setPick(item.pick);
       setQuery('');
@@ -139,7 +292,7 @@ export function CommandPalette({
       return;
     }
     if (storageKey && item.kind !== 'action' && item.kind !== 'nav') {
-      const stored = rememberRecent(recents, item);
+      const stored = rememberUsefulRecent(recents, item);
       window.localStorage.setItem(storageKey, JSON.stringify(stored));
     }
     close();
@@ -159,6 +312,16 @@ export function CommandPalette({
     } else if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
+      if (changed) {
+        setChanged(null);
+        setChangedStatus('idle');
+        return;
+      }
+      if (mode !== 'search') {
+        setMode('search');
+        setQuery('');
+        return;
+      }
       if (pick) {
         setPick(null);
         return;
@@ -176,6 +339,16 @@ export function CommandPalette({
       className="m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none border-0 bg-transparent p-0 backdrop:bg-[color-mix(in_srgb,var(--isalwa-kiln)_28%,transparent)] open:flex sm:m-auto sm:h-auto sm:max-h-[min(32rem,80dvh)] sm:w-[min(40rem,calc(100vw-2rem))]"
       onCancel={(event) => {
         event.preventDefault();
+        if (changed) {
+          setChanged(null);
+          setChangedStatus('idle');
+          return;
+        }
+        if (mode !== 'search') {
+          setMode('search');
+          setQuery('');
+          return;
+        }
         if (pick) {
           setPick(null);
           return;
@@ -200,12 +373,20 @@ export function CommandPalette({
             aria-activedescendant={flat[active] ? optionId(flat[active].key) : undefined}
             aria-autocomplete="list"
             value={query}
-            placeholder={pick ? PICK_HINT[pick] : 'Cliente, teléfono, cotización…'}
+            placeholder={
+              mode === 'changed'
+                ? 'Cliente para ver qué cambió'
+                : pick
+                  ? PICK_HINT[pick]
+                  : 'Cliente, teléfono, cotización…'
+            }
             type="text"
             autoComplete="off"
             onChange={(event) => setQuery(event.target.value)}
           />
-          {pick ? (
+          {mode === 'changed' ? (
+            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Elija un cliente. Esc vuelve a la búsqueda.</p>
+          ) : pick ? (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{PICK_HINT[pick]} Esc cancela la acción.</p>
           ) : (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
@@ -229,7 +410,38 @@ export function CommandPalette({
               No se pudo completar la búsqueda. Intente de nuevo.
             </p>
           ) : null}
-          {status === 'empty' && flat.length === 0 ? (
+          {status === 'partial' && mode === 'search' ? (
+            <p className="px-3 py-2 text-sm text-[var(--isalwa-slate)]" role="status">
+              La búsqueda puede estar incompleta. No se agregaron coincidencias inventadas.
+            </p>
+          ) : null}
+          {savedNote ? (
+            <p className="px-3 py-2 text-sm text-[var(--isalwa-slate)]" role="status">
+              {savedNote}
+            </p>
+          ) : null}
+          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(href); }} /> : null}
+          {mode === 'changed' && changedStatus === 'loading' ? (
+            <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">Consultando el historial…</p>
+          ) : null}
+          {mode === 'changed' && changedStatus === 'session' ? (
+            <p className="px-3 py-4 text-sm text-[var(--isalwa-kiln)]" role="alert">Su sesión venció. Vuelva a iniciar sesión.</p>
+          ) : null}
+          {mode === 'changed' && changedStatus === 'error' ? (
+            <p className="px-3 py-4 text-sm text-[var(--isalwa-kiln)]" role="alert">No se pudo leer el historial de ese cliente.</p>
+          ) : null}
+          {mode === 'changed' && changed ? (
+            <WhatChangedList
+              customer={changed.customer}
+              items={changed.items}
+              partial={changed.partial}
+              onNavigate={(href) => {
+                close();
+                router.push(href);
+              }}
+            />
+          ) : null}
+          {status === 'empty' && flat.length === 0 && mode !== 'coverage' && !changed ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">
               No hay coincidencias. Pruebe el nombre comercial, un teléfono o el número de cotización.
             </p>
@@ -274,6 +486,17 @@ export function CommandPalette({
 
 function optionId(key: string): string {
   return `palette-option-${key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+}
+
+function changedCustomerItem(option: { value: string; label: string }): PaletteItem {
+  return {
+    key: `changed:${option.value}`,
+    kind: 'customer',
+    label: option.label,
+    detail: 'Qué cambió',
+    href: `/clientes/${encodeURIComponent(option.value)}`,
+    partyId: option.value,
+  };
 }
 
 export function CommandPaletteTrigger({
