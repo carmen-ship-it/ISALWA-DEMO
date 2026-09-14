@@ -1,4 +1,5 @@
 import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { GuidanceNote } from '@/components/guidance/guidance-note';
 import { PageHeader } from '@/components/shell/page-header';
 
 const RULES = [
@@ -36,6 +37,22 @@ export default function AyudaPage() {
         title="Cómo trabajamos"
         description="Reglas ya vigentes en ISALWA. No sustituyen una autorización ni un dato que aún no existe."
       />
+      <div className="mb-8 space-y-3">
+        <GuidanceNote
+          kind="consejo"
+          title="Antes de crear cliente"
+          items={['Busque por nombre y teléfono.', 'Si ya existe, no cree otro.']}
+        />
+        <GuidanceNote
+          kind="regla"
+          title="Un mensaje no confirma un pago"
+          items={[
+            'La fuente dice de dónde salió. La confianza dice si entendimos el mensaje. La confirmación dice si la empresa lo acepta.',
+            'Dicho por el cliente no es un cobro confirmado.',
+            'Una interpretación no cambia el pedido, la cotización ni la ubicación.',
+          ]}
+        />
+      </div>
       <PageSection>
         <SectionHeader title="Reglas" />
         <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]">

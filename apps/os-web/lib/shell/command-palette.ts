@@ -107,13 +107,22 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
       href: '/administracion/equipo/invitar',
     });
   }
-  items.push({
-    key: 'action:how-we-work',
-    kind: 'action',
-    label: 'Cómo trabajamos',
-    detail: 'Ayuda',
-    href: '/ayuda',
-  });
+  items.push(
+    {
+      key: 'action:how-we-work',
+      kind: 'action',
+      label: 'Cómo trabajamos',
+      detail: 'Ayuda',
+      href: '/ayuda',
+    },
+    {
+      key: 'action:map',
+      kind: 'action',
+      label: 'Mapa',
+      detail: 'Ubicación disponible',
+      href: '/mapa',
+    },
+  );
   return items;
 }
 
