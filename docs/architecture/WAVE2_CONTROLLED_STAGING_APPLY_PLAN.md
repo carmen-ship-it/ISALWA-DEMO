@@ -3,159 +3,142 @@
 **Exact candidate:** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
 **Branch:** `wave2/candidate-unified`  
 **Integration pin:** `316426f272bce29924ffd4991da88ffe7d421bbd` (must not move)  
-**Gate C this pass:** **BLOCKED_DB_STATE_UNKNOWN** (live read not obtained)  
-**Execute apply/deploy:** **NO** until Carmen authorizes after Gate C evidence
+**Live Gate C DB evidence:** **ACCEPTED**  
+**SQL chain:** **MIGRATION_SQL_SAFE** (full pending sequence including purchase rewrite)  
+**Recovery:** **NOT CURRENTLY PROVEN** → do **not** execute until Carmen confirms current PITR/snapshot  
+**Execute apply/deploy this pass:** **NO**
 
-Staging DB labels: `isalwa-os-staging` · `dpg-dajd3kh5efls738falcg-a` · `isalwa_os_staging`  
-Previously observed PITR availability label: `2026-09-13T18:20:13Z` — **not** permission to migrate.
-
----
-
-## PHASE 0 — Recovery / PITR verification
-
-1. Confirm Render Postgres service id `dpg-dajd3kh5efls738falcg-a` and database name `isalwa_os_staging`.
-2. Confirm PITR / snapshot window still covers pre-apply time.
-3. Record restore method: Render PITR to **new** instance (preferred) or snapshot restore.
-4. Confirm off-host dump option if available (optional for staging).
-5. **Rollback trigger later:** unexpected data loss, failed migrate mid-way, app incompatible with schema, seven-customer count drift.
-
-**Status this pass:** PITR label known historically; **live verification NOT re-proven** from this environment.
+Staging: `isalwa-os-staging` · `dpg-dajd3kh5efls738falcg-a` · `isalwa_os_staging` · PG 16.15  
+Applied today: **11** migrations (ends `20260913150000_os_client_import`)
 
 ---
 
-## PHASE 1 — Pre-migration read-only baseline
+## PRE (required before APPLY)
 
-1. From allow-listed operator host, run `docs/operations/GATE_C_READ_ONLY_EVIDENCE.sql`.
-2. Capture outputs (no PII):
-   - DB identity + PG version
-   - full `_prisma_migrations`
-   - table presence/counts
-   - purchase status/history distributions + unmapped values
-   - seven-customer integrity counts
-3. Fill baseline worksheet:
+### Recovery verification (blocking)
 
-| Fact | Pre value |
+1. Confirm **current** Render PITR / snapshot availability for `dpg-dajd3kh5efls738falcg-a`.
+2. Record restore procedure to a **new** instance + re-point `OS_DATABASE_URL`.
+3. Do **not** treat historical label `2026-09-13T18:20:13Z` as sufficient alone.
+
+### Candidate / baseline
+
+1. Clean worktree at **`ef7eeabdea5f8f4449ba706caa1a323435d96fcc`** (release candidate).
+2. Re-confirm `_prisma_migrations` count = **11**.
+3. Capture baseline counts (Carmen’s Gate C set) — must remain unchanged post-migrate:
+
+| Fact | Pre |
 |---|---|
-| organizations | |
-| parties (seven customers) | |
-| contacts | |
-| locations | |
-| opportunities | |
-| quotes | |
-| orders | |
-| order lines | |
-| purchase requests | |
-| production trace entries | |
-| finished goods receipts | |
-| allocations | |
-| warehouse exits | |
-| deliveries | |
-| coordination decisions | |
-| payment evidence | |
-| coverage grants | |
+| organizations | 2 |
+| persons | 4 |
+| organization_members | 4 |
+| parties | 19 |
+| party_role_assignments | 19 |
+| commercial_accounts | 19 |
+| contacts | 12 |
+| locations | 12 |
+| opportunities | 2 |
+| quotes | 27 |
+| quote_lines | 21 |
+| orders | 9 |
+| work_items | 29 |
+| approval_requests | 10 |
+| business_events | 345 |
+| outbox_messages | 345 |
+| import_batches | 4 |
+| import_rows | 37 |
+| purchase / Wave2 ops tables | NOT_PRESENT |
 
-Where table missing: `NOT_PRESENT_PRE_MIGRATION`.
-
-**Do not** write synthetic adversarial rows into the real seven-customer tenant.
+Do **not** fabricate Wave 2 rows into the seven-customer tenant during migrate.
 
 ---
 
-## PHASE 2 — Apply approved additive migrations (exact order)
+## APPLY (authorized next pass only — DO NOT EXECUTE NOW)
 
-Only after Phase 1 evidence reviewed and Carmen authorizes.
+Preferred mechanism: **normal Prisma history** (no skip, no `migrate resolve`, no manual `_prisma_migrations` insert).
 
 ```bash
-# From clean worktree at ef7eeab
-export OS_DATABASE_URL='<staging internal URL — never commit>'
-pnpm --filter @isalwa/os-database migrate:deploy
+# Exact candidate checkout
+git checkout --detach ef7eeabdea5f8f4449ba706caa1a323435d96fcc
+# From packages/os-database with staging OS_DATABASE_URL (secret — never commit)
+pnpm --filter @isalwa/os-database exec prisma migrate deploy
+# or repo-documented equivalent: pnpm --filter @isalwa/os-database migrate:deploy
 ```
 
-**Apply set:** see `GATE_C_MIGRATION_INVENTORY.md` §C  
-**Excluded:** `20260916140000_os_purchase_status_workflow`
+**Expected sequence (18):**
 
-If Prisma tries to apply the blocked migration because it is next in folder order: **stop**. Resolve by either (a) Carmen clearing purchase REWRITE after evidence, or (b) temporarily parking that migration under an explicit change request — do **not** improvise status strings in app code.
+1. `20260914120000_os_reported_operational_fact`
+2. `20260914133000_os_commitments_internal_notifications`
+3. `20260915100000_os_product_catalog`
+4. `20260915110000_os_order_line`
+5. `20260915120000_os_operational_case`
+6. `20260915130000_os_production_trace`
+7. `20260915140000_os_customer_conversation`
+8. `20260915150000_os_delivery`
+9. `20260915160000_os_customer_committed_date`
+10. `20260915170000_os_order_allocation`
+11. `20260915180000_os_purchase_request`
+12. `20260916100000_os_price_list`
+13. `20260916120000_os_special_order`
+14. `20260916140000_os_purchase_status_workflow`
+15. `20260916160000_os_coordination_decision`
+16. `20260917120000_os_finished_goods_receipt`
+17. `20260917140000_os_external_document_number`
+18. `20260918120000_os_customer_coverage_grant`
 
-Practical control: confirm `_prisma_migrations` and decide whether purchase base `#11` is applied while `#14` remains unapplied; Prisma migrate deploy applies **all** pending in order — so if `#11` is pending, `#14` will follow unless removed/hold strategy is explicit.
-
-### Critical operational note
-
-`prisma migrate deploy` applies **every** unapplied migration in timestamp order, including the purchase REWRITE if it is pending after `#11`.
-
-Therefore, until Gate C clears `#14`, Carmen must authorize one of:
-
-1. **HOLD all applies** that would reach `#14` (if `#11` not yet applied and `#14` sits after it), **or**
-2. Apply only migrations **after** confirming `#11` and `#14` are both already handled (e.g. `#11` present, `#14` intentionally not), using a controlled mechanism that does **not** silently run `#14`, **or**
-3. Clear `#14` with a separate REWRITE decision.
-
-**Safest path while `#14` is HOLD:** apply additive migrations whose timestamps are **before** `#14` only if `#11` is already applied OR apply migrations **after** `#14` only when earlier pending set does not include `#14`. If both `#11` and `#14` are unapplied, **do not run `migrate deploy` until purchase REWRITE is resolved or an explicit engineering hold procedure is approved.**
-
-Recommended first apply windows (examples — Gate C must choose based on live `_prisma_migrations`):
-
-- Window A (if foundation…`20260915170000` pending and `20260915180000`+ not pending): apply through allocation/FG/delivery as present without crossing `#14`.
-- Window B (if everything through `#13` applied, `#14` unapplied, `#15+` pending): apply `#15`–`#18` only via an approved selective procedure — **default Prisma deploy cannot skip `#14`**.
-
-**Engineering follow-up if skip required:** `MIGRATION_CHANGE_REQUEST` — selective apply tooling or purchase REWRITE resolution. Do not invent status remaps in application code.
+**Expected final migration count:** **29**
 
 ---
 
-## PHASE 3 — Prisma / application compatibility
+## POST
 
-1. `OS_DATABASE_URL=… pnpm --filter @isalwa/os-database exec prisma validate`
-2. Boot `os-api` against staging DB (staging profile) — health only.
-3. Confirm schema client matches applied migrations (no drift).
+1. `_prisma_migrations` = 29; last = `20260918120000_os_customer_coverage_grant`
+2. Tables present: purchase (+ history/notes), production trace, FG receipts, allocations, warehouse exits, deliveries, coordination decisions, coverage grants, reported facts, catalog, order lines, etc.
+3. Purchase constraints allow Isa ids; default `solicitado`
+4. Baseline counts unchanged (section PRE)
+5. Empty Wave 2 counts (before synthetic fixtures):
 
----
+| Table / domain | Expected |
+|---|---|
+| os_purchase_requests | **0** |
+| os_purchase_request_status_history | **0** |
+| os_production_trace_entries (+ related) | **0** |
+| os_finished_goods_receipts | **0** |
+| os_order_allocations | **0** |
+| os_warehouse_exits | **0** |
+| os_deliveries | **0** |
+| os_coordination_decisions | **0** |
+| os_customer_coverage_grants | **0** |
+| os_order_lines | **0** (new; existing 9 orders not backfilled) |
 
-## PHASE 4 — Post-migration row / integrity validation
-
-Re-run evidence SQL counts. Expect:
-
-- New tables: presence PRESENT, counts `0` unless intentionally seeded
-- Existing commercial/party counts: **unchanged**
-- Seven-customer party count: **unchanged**
-- Purchase statuses: **unchanged** if `#14` excluded
-- No fabricated coverage/payment/production rows for real customers
-
----
-
-## PHASE 5 — Deploy exact application SHA
-
-Deploy **only** `ef7eeabdea5f8f4449ba706caa1a323435d96fcc` (or a newer tip that still pins this candidate after Gate C fix commits).
-
-Targets:
-
-- web: `https://os-web-staging.onrender.com`
-- api: `https://os-api-staging.onrender.com`
-
-No auto-deploy from dirty main. Pin `wave2/integrate` remains unmoved until intentional integration.
+6. App/Prisma validate against schema; then (separate authorization) deploy `ef7eeab` web/api
+7. Health + auth smoke only after deploy authorization
 
 ---
 
-## PHASE 6 — Hosted health / auth / data smoke
+## ROLLBACK TRIGGER
 
-1. `GET /v1/health` on os-api
-2. Auth session resolve (Supabase) — trusted member context
-3. Tenant smoke on synthetic fixture org (not seven-customer mutation)
-4. Read-only seven-customer integrity counts
+Stop and restore if any of:
+
+- migrate deploy fails mid-sequence
+- baseline count drift on listed foundation/commercial tables
+- purchase constraints do not match Isa ids after apply
+- unexpected rows appear in Wave 2 tables from migrate itself
+- seven-customer integrity drift
+
+**Rollback procedure:** Render PITR/snapshot → new instance → re-point staging `OS_DATABASE_URL` → do not hand-edit schema undo.
 
 ---
 
-## PHASE 7 — Adversarial hosted acceptance
+## PHASE map (unchanged intent)
 
-Execute `docs/architecture/WAVE2_HOSTED_ACCEPTANCE_PLAN.md` (prepared; not run this pass).
-
----
-
-## Decision gate for “READY_TO_EXECUTE_CONTROLLED_STAGING_APPLY”
-
-Requires **all**:
-
-- [ ] Gate C live DB evidence obtained
-- [ ] Recovery/PITR verified live
-- [ ] Additive migrations classified from SQL (done in inventory)
-- [ ] Exact apply sequence known **and** compatible with Prisma deploy vs `#14` HOLD
-- [ ] Purchase REWRITE excluded or separately resolved
-- [ ] No destructive unknown migration in planned window
-- [ ] Exact candidate clean/build proven (`ef7eeab`)
-
-**This pass:** Gate C evidence **not** obtained → **BLOCKED_BEFORE_STAGING_APPLY**
+| Phase | Action | Now |
+|---|---|---|
+| 0 | Recovery/PITR verification | **BLOCKING** |
+| 1 | Pre baseline | captured by Carmen; reconfirm |
+| 2 | `prisma migrate deploy` full pending | SQL-ready; wait recovery |
+| 3 | Prisma/app compatibility | after migrate |
+| 4 | Post counts/integrity | after migrate |
+| 5 | Deploy exact SHA `ef7eeab` | separate auth |
+| 6 | Hosted health/auth/data smoke | after deploy |
+| 7 | Adversarial hosted acceptance | after smoke |
