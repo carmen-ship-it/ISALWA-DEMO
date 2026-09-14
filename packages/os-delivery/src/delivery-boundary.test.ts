@@ -94,6 +94,7 @@ describe('delivery and nota de entrega boundary', () => {
     assert.equal(result.documentKind, 'nota_de_entrega');
     assert.equal(result.noteNumber, null);
     assert.equal(result.numberingPolicy, 'unknown');
+    assert.equal(result.externalDocumentNumber, null);
     assert.equal(result.claimsInvoice, false);
     assert.equal(result.claimsTax, false);
     assert.equal(result.warehouseExitId, null);
@@ -145,6 +146,21 @@ describe('delivery and nota de entrega boundary', () => {
     assert.equal((await store.listDeliveryNotes('org-a', 'order-1')).length, 0);
   });
 
+  it('preserves an external printed document number without inventing generation', async () => {
+    const store = storeWithOrder();
+    const service = new DeliveryCommandService(store);
+    const result = await service.recordCustomerDelivery(
+      ctx(),
+      deliveryPayload({ externalDocumentNumber: '007189' }),
+    );
+    assert.equal(result.noteNumber, null);
+    assert.equal(result.numberingPolicy, 'unknown');
+    assert.equal(result.externalDocumentNumber, '007189');
+    const note = await store.getDeliveryNote('org-a', result.deliveryId);
+    assert.equal(note?.externalDocumentNumber, '007189');
+    assert.equal(note?.noteNumber, null);
+  });
+
   it('keeps warehouse exit distinct from customer delivery', async () => {
     assert.equal(warehouseExitIsCustomerDelivery(), false);
     assert.equal(outboundNoteIsDeliveryNote(), false);
@@ -154,6 +170,7 @@ describe('delivery and nota de entrega boundary', () => {
     assert.equal(exit.documentKind, 'nota_de_salida');
     assert.equal(exit.noteNumber, null);
     assert.equal(exit.numberingPolicy, 'unknown');
+    assert.equal(exit.externalDocumentNumber, null);
     assert.equal(exit.deliveryNoteId, null);
     assert.equal(exit.customerDeliveryId, null);
     assert.equal(exit.claimsInvoice, false);

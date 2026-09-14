@@ -1532,15 +1532,17 @@ model OsWarehouseExit {
 }
 
 model OsWarehouseOutboundNote {
-  id              String   @id
-  organizationId  String   @map("organization_id")
-  warehouseExitId String   @unique @map("warehouse_exit_id")
-  orderId         String   @map("order_id")
-  documentKind    String   @map("document_kind")
-  numberingPolicy String   @map("numbering_policy")
-  exitedAt        DateTime @map("exited_at")
-  bornAt          DateTime @map("born_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id                       String   @id
+  organizationId           String   @map("organization_id")
+  warehouseExitId          String   @unique @map("warehouse_exit_id")
+  orderId                  String   @map("order_id")
+  documentKind             String   @map("document_kind")
+  numberingPolicy          String   @map("numbering_policy")
+  /// Source-preserved printed number only. Not an OS-generated sequence.
+  externalDocumentNumber   String?  @map("external_document_number")
+  exitedAt                 DateTime @map("exited_at")
+  bornAt                   DateTime @map("born_at")
+  createdAt                DateTime @default(now()) @map("created_at")
 
   @@index([organizationId, orderId])
   @@map("os_warehouse_outbound_notes")
@@ -1577,15 +1579,17 @@ model OsDelivery {
 }
 
 model OsDeliveryNote {
-  id              String   @id
-  organizationId  String   @map("organization_id")
-  deliveryId      String   @unique @map("delivery_id")
-  orderId         String   @map("order_id")
-  documentKind    String   @map("document_kind")
-  numberingPolicy String   @map("numbering_policy")
-  deliveredAt     DateTime @map("delivered_at")
-  bornAt          DateTime @map("born_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id                       String   @id
+  organizationId           String   @map("organization_id")
+  deliveryId               String   @unique @map("delivery_id")
+  orderId                  String   @map("order_id")
+  documentKind             String   @map("document_kind")
+  numberingPolicy          String   @map("numbering_policy")
+  /// Source-preserved printed number only. Not an OS-generated sequence.
+  externalDocumentNumber   String?  @map("external_document_number")
+  deliveredAt              DateTime @map("delivered_at")
+  bornAt                   DateTime @map("born_at")
+  createdAt                DateTime @default(now()) @map("created_at")
 
   @@index([organizationId, orderId])
   @@map("os_delivery_notes")

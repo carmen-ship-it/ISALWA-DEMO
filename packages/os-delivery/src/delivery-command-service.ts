@@ -50,6 +50,7 @@ export type WarehouseExitResult = {
   documentKind: typeof WAREHOUSE_OUTBOUND_KIND;
   numberingPolicy: typeof DELIVERY_NUMBERING_POLICY;
   noteNumber: null;
+  externalDocumentNumber: string | null;
   deliveryNoteId: null;
   customerDeliveryId: null;
   claimsInvoice: false;
@@ -64,6 +65,7 @@ export type CustomerDeliveryResult = {
   documentKind: typeof CUSTOMER_DELIVERY_NOTE_KIND;
   numberingPolicy: typeof DELIVERY_NUMBERING_POLICY;
   noteNumber: null;
+  externalDocumentNumber: string | null;
   warehouseExitId: null;
   outboundNoteId: null;
   claimsInvoice: false;
@@ -134,6 +136,7 @@ export class DeliveryCommandService {
         documentKind: WAREHOUSE_OUTBOUND_KIND,
         numberingPolicy: DELIVERY_NUMBERING_POLICY,
         noteNumber: DELIVERY_NOTE_NUMBER,
+        externalDocumentNumber: parsed.externalDocumentNumber,
         exitedAt: parsed.exitedAt,
         bornAt,
         createdAt: now,
@@ -148,6 +151,7 @@ export class DeliveryCommandService {
         documentKind: WAREHOUSE_OUTBOUND_KIND,
         numberingPolicy: DELIVERY_NUMBERING_POLICY,
         noteNumber: null,
+        externalDocumentNumber: parsed.externalDocumentNumber,
         deliveryNoteId: null,
         customerDeliveryId: null,
         claimsInvoice: false,
@@ -189,6 +193,7 @@ export class DeliveryCommandService {
         documentKind: CUSTOMER_DELIVERY_NOTE_KIND,
         numberingPolicy: DELIVERY_NUMBERING_POLICY,
         noteNumber: DELIVERY_NOTE_NUMBER,
+        externalDocumentNumber: parsed.externalDocumentNumber,
         deliveredAt: parsed.deliveredAt,
         bornAt,
         claimsInvoice: DELIVERY_CLAIMS_INVOICE,
@@ -205,6 +210,7 @@ export class DeliveryCommandService {
         documentKind: CUSTOMER_DELIVERY_NOTE_KIND,
         numberingPolicy: DELIVERY_NUMBERING_POLICY,
         noteNumber: null,
+        externalDocumentNumber: parsed.externalDocumentNumber,
         warehouseExitId: null,
         outboundNoteId: null,
         claimsInvoice: false,

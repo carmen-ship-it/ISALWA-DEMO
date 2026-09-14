@@ -7,8 +7,9 @@ import { z } from 'zod';
  * are allocated. It does not create a nota de entrega.
  *
  * Nota de entrega: born only when goods are delivered to the final customer.
- * It cannot predate that delivery. Numbering policy is unknown. It is not an
- * invoice and it does not claim tax.
+ * It cannot predate that delivery. Generated numbering policy is unknown.
+ * An externally printed document number may be preserved as source evidence.
+ * It is not an invoice and it does not claim tax.
  *
  * Evidence roles stay separate. They are not one actor.
  * Payment is not required. An authorized exception is not a confirmed ledger payment.
@@ -23,10 +24,23 @@ import { z } from 'zod';
  */
 
 export const DELIVERY_NUMBERING_POLICY = 'unknown' as const;
+/** Generated OS note number. Not assigned. Distinct from a source-preserved external print. */
+export const DELIVERY_NOTE_NUMBER: null = null;
+/**
+ * Source-preserved printed document number (for example Nota de Entrega 007189).
+ * Preserving it does not invent a generation algorithm.
+ */
+export const EXTERNAL_DOCUMENT_NUMBER_FIELD = 'externalDocumentNumber' as const;
+export const DOCUMENT_NUMBERING_DECISION = 'BUSINESS_DECISION_REQUIRED — DOCUMENT_NUMBERING' as const;
 export const WAREHOUSE_OUTBOUND_KIND = 'nota_de_salida' as const;
 export const CUSTOMER_DELIVERY_NOTE_KIND = 'nota_de_entrega' as const;
+/** Factory paper form. Distinct until business maps its role. Not a delivery note. */
+export const FACTORY_DELIVERY_NOTE_KIND = 'nota_de_entrega_de_fabrica' as const;
+/** Document exists in source evidence. Exact workflow role is unmapped. */
+export const FACTORY_DELIVERY_NOTE_ROLE_STATUS = 'BUSINESS_ROLE_REQUIRES_MAPPING' as const;
+export const FACTORY_DELIVERY_NOTE_ROLE_DECISION =
+  'BUSINESS_DECISION_REQUIRED — FACTORY_DELIVERY_NOTE_ROLE' as const;
 export const DELIVERY_SOURCE = 'employee_recorded' as const;
-export const DELIVERY_NOTE_NUMBER: null = null;
 export const DELIVERY_CLAIMS_INVOICE = false as const;
 export const DELIVERY_CLAIMS_TAX = false as const;
 export const DELIVERY_SIGNATURE_METHOD: null = null;
@@ -84,7 +98,11 @@ export const ENTREGA_PANEL_COPY = {
   orderDoesNotEmit: 'Un pedido no la emite. Una salida de almacén tampoco.',
   warehouseDistinct: 'La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega.',
   noDeliveryYet: 'Todavía no hay una entrega registrada.',
-  numberingUnknown: 'No se asigna un número. La política de numeración no está definida.',
+  numberingUnknown: 'No se asigna un número generado. La política de numeración no está definida.',
+  externalNumberPreserved:
+    'Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.',
+  factoryNoteDistinct:
+    'La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.',
   notInvoice: 'No es una factura y no calcula impuesto.',
   noLines: 'Sin líneas. El pedido no tiene cantidades conocidas para copiar.',
   noSignatureMethod: 'No hay un método de firma. Solo se puede anotar una referencia de evidencia.',
@@ -113,6 +131,8 @@ const NUMBER_KEYS = new Set([
   'correlativo',
   'format',
 ]);
+/** Allowed: source-preserved printed number only. Not a generated note number. */
+const ALLOWED_EXTERNAL_NUMBER_KEYS = new Set(['externaldocumentnumber']);
 const INVOICE_KEYS = new Set(['invoice', 'invoicenumber', 'factura', 'nit', 'fiscal', 'sin']);
 const TAX_KEYS = new Set(['tax', 'taxrate', 'iva']);
 const SIGNATURE_METHOD_KEYS = new Set(['signaturemethod', 'signedby', 'signatureprovider', 'firma']);
@@ -177,6 +197,8 @@ export const RecordWarehouseExitSchema = z
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
     quantities: optionalQuantities,
+    /** Source-preserved printed number only. Does not generate numbering. */
+    externalDocumentNumber: optionalText,
   })
   .strict();
 
@@ -191,6 +213,8 @@ export const RecordCustomerDeliverySchema = z
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
     quantities: optionalQuantities,
+    /** Source-preserved printed number only. Example: Nota de Entrega 007189. */
+    externalDocumentNumber: optionalText,
   })
   .strict();
 
@@ -278,6 +302,7 @@ export function assertNoDeliveryClaims(payload: unknown): void {
   }
   for (const key of keys) {
     const normalized = normalizeKey(key);
+    if (ALLOWED_EXTERNAL_NUMBER_KEYS.has(normalized)) continue;
     if (NUMBER_KEYS.has(normalized)) throw new Error('NUMBERING_POLICY_UNKNOWN');
     if (INVOICE_KEYS.has(normalized)) throw new Error('INVOICE_CLAIM_REFUSED');
     if (TAX_KEYS.has(normalized)) throw new Error('TAX_CLAIM_REFUSED');

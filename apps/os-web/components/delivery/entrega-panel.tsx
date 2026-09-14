@@ -169,7 +169,13 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega.
         </p>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No se asigna un número. La política de numeración no está definida.
+          No se asigna un número generado. La política de numeración no está definida.
+        </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.
+        </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.
         </p>
         {warehouseExits.length === 0 ? (
           <EmptyState
@@ -225,7 +231,13 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           La nota de entrega no puede ser anterior a la entrega.
         </p>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No se asigna un número. La política de numeración no está definida.
+          No se asigna un número generado. La política de numeración no está definida.
+        </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.
+        </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.
         </p>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           No es una factura y no calcula impuesto.

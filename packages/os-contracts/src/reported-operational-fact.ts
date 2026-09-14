@@ -75,11 +75,35 @@ const optionalText = z
   .optional()
   .transform((value) => value ?? null);
 
-const PaymentPayloadSchema = z.object({
+/**
+ * One operational payment event may contain several tender components.
+ * Example from Recibo Oficial de Caja 007472: Bs 1,070 efectivo + Bs 200 QR = Bs 1,270.
+ * This is operational evidence only. It is not a ledger, tax, or bank posting.
+ */
+const PaymentTenderSchema = z.object({
+  method: z.string().trim().min(1),
   amountCentavos: z.string().regex(/^[1-9]\d*$/),
-  currency: z.string().trim().min(1).default('BOB'),
-  method: optionalText,
 });
+
+const PaymentPayloadSchema = z
+  .object({
+    amountCentavos: z.string().regex(/^[1-9]\d*$/),
+    currency: z.string().trim().min(1).default('BOB'),
+    /** Optional single-method shorthand. Prefer tenders when more than one method exists. */
+    method: optionalText,
+    tenders: z.array(PaymentTenderSchema).min(1).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (!value.tenders) return;
+    const sum = value.tenders.reduce((acc, tender) => acc + BigInt(tender.amountCentavos), 0n);
+    if (sum !== BigInt(value.amountCentavos)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'tenders_must_sum_to_total',
+        path: ['tenders'],
+      });
+    }
+  });
 
 const DispatchPayloadSchema = z.object({
   reportedState: z.string().trim().min(1),
@@ -134,7 +158,8 @@ export type ReportedOperationalFactRow = {
   reversal_reason: string | null;
   source_reference: string | null;
   note: string | null;
-  payload_json: Record<string, string | null>;
+  /** Json payload. Payment tenders may be nested; ledger fields are forbidden. */
+  payload_json: Record<string, unknown>;
   corrects_fact_id: string | null;
   idempotency_key: string | null;
   created_at: string;
@@ -159,27 +184,29 @@ function assertRowShape(row: ReportedOperationalFactRow): void {
 /** Absent optional fields stay null. Undefined is not stored and does not confirm the report. */
 function reportedFactPayload(
   parsed: z.output<typeof RecordReportedOperationalFactSchema>,
-): Record<string, string | null> {
-  const fields: Record<string, string | null | undefined> =
-    parsed.kind === 'payment'
-      ? {
-          amountCentavos: parsed.payload.amountCentavos,
-          currency: parsed.payload.currency,
-          method: parsed.payload.method,
-        }
-      : parsed.kind === 'dispatch'
-        ? { reportedState: parsed.payload.reportedState }
-        : {
-            itemLabel: parsed.payload.itemLabel,
-            quantity: parsed.payload.quantity,
-            unit: parsed.payload.unit,
-          };
-
-  const payload: Record<string, string | null> = {};
-  for (const [key, value] of Object.entries(fields)) {
-    payload[key] = value ?? null;
+): Record<string, unknown> {
+  if (parsed.kind === 'payment') {
+    const payload: Record<string, unknown> = {
+      amountCentavos: parsed.payload.amountCentavos,
+      currency: parsed.payload.currency,
+      method: parsed.payload.method,
+    };
+    if (parsed.payload.tenders) {
+      payload.tenders = parsed.payload.tenders.map((tender) => ({
+        method: tender.method,
+        amountCentavos: tender.amountCentavos,
+      }));
+    }
+    return payload;
   }
-  return payload;
+  if (parsed.kind === 'dispatch') {
+    return { reportedState: parsed.payload.reportedState };
+  }
+  return {
+    itemLabel: parsed.payload.itemLabel,
+    quantity: parsed.payload.quantity,
+    unit: parsed.payload.unit,
+  };
 }
 
 /** Builds an insert row. Ignores any attempt to pass source or confirmation. */

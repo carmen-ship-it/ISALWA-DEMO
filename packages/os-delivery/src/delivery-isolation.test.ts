@@ -83,6 +83,7 @@ function noteRow(over: Partial<DeliveryNoteRecord> = {}): DeliveryNoteRecord {
     documentKind: 'nota_de_entrega',
     numberingPolicy: 'unknown',
     noteNumber: null,
+    externalDocumentNumber: null,
     deliveredAt: '2026-09-14T14:30:00.000Z',
     bornAt: '2026-09-14T14:30:00.000Z',
     claimsInvoice: false,

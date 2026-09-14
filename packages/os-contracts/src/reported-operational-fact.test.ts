@@ -144,4 +144,50 @@ describe('reported operational fact contract', () => {
       assert.match(sql, new RegExp(`\\b${column}\\b`));
     }
   });
+
+  it('preserves mixed tender components for one payment event without claiming ledger truth', () => {
+    const row = buildReportedOperationalFactRow(
+      {
+        ...paymentInput(),
+        id: 'fact-caja-007472',
+        sourceReference: '007472',
+        payload: {
+          amountCentavos: '127000',
+          currency: 'BOB',
+          tenders: [
+            { method: 'efectivo', amountCentavos: '107000' },
+            { method: 'qr', amountCentavos: '20000' },
+          ],
+        },
+      },
+      createdAt,
+    );
+
+    assert.equal(row.source_reference, '007472');
+    assert.equal(row.payload_json.amountCentavos, '127000');
+    assert.equal(row.confirmation, 'pending');
+    assert.equal(reportedFactMayConfirmPayment(), false);
+    assert.deepEqual(row.payload_json.tenders, [
+      { method: 'efectivo', amountCentavos: '107000' },
+      { method: 'qr', amountCentavos: '20000' },
+    ]);
+    assert.throws(
+      () =>
+        buildReportedOperationalFactRow(
+          {
+            ...paymentInput(),
+            payload: {
+              amountCentavos: '127000',
+              currency: 'BOB',
+              tenders: [
+                { method: 'efectivo', amountCentavos: '107000' },
+                { method: 'qr', amountCentavos: '10000' },
+              ],
+            },
+          },
+          createdAt,
+        ),
+      ZodError,
+    );
+  });
 });
