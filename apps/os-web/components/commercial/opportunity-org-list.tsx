@@ -5,6 +5,7 @@ import { opportunityHref } from '@/lib/commercial/navigation';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type OpportunityOrgListProps = {
   items: OpportunitySummaryReadModel[];
@@ -23,7 +24,7 @@ export function OpportunityOrgList({
   partyLabels,
 }: OpportunityOrgListProps) {
   return (
-    <ul className="min-w-0" aria-label="Oportunidades">
+    <ul className="min-w-0" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
       {items
         .filter(
           (item) =>

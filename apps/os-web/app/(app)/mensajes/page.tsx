@@ -4,6 +4,7 @@ import { CAPABILITY_PRESENTATION } from '@/lib/capabilities/presentation';
 import { resolveNavItemFromCapabilities } from '@/lib/capabilities/resolve-nav';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 export default async function MensajesPage() {
   const auth = await getServerOsAuthContext();
@@ -22,7 +23,7 @@ export default async function MensajesPage() {
   }
 
   return (
-    <PageContainer label="Mensajes" className="flex min-h-[50vh] items-center justify-center">
+    <PageContainer label="Mensajes" className="flex min-h-[50vh] items-center justify-center" data-tour={TOUR_TARGET.messagesFuture}>
       <CapabilityLockedState message={message} />
     </PageContainer>
   );

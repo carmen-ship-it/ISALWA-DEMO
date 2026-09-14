@@ -9,6 +9,7 @@ import {
 import { formatCentavos } from '@/lib/commercial/money';
 import { orderHref, quoteHref } from '@/lib/commercial/navigation';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type OrderListProps = {
   partyId: string;
@@ -24,7 +25,7 @@ const accentLinkClass =
 
 export function OrderList({ partyId, items, memberLabels }: OrderListProps) {
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Pedidos">
+    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Pedidos" data-tour={TOUR_TARGET.orderList}>
       {items.map((item) => {
         const createdAt = formatTimestamp(item.createdAt);
         return (

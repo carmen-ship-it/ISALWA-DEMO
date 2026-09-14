@@ -15,6 +15,7 @@ import {
   INVITE_ROLE_NOTICE,
 } from '@/lib/workforce/invite';
 import { equipoHref } from '@/lib/workforce/navigation';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type InviteMemberFormProps = {
   departments: SelectOption[];
@@ -50,7 +51,7 @@ export function InviteMemberForm({ departments, roles }: InviteMemberFormProps) 
   const canInvite = roles.length > 0;
 
   return (
-    <PageSection card className="p-8">
+    <PageSection card className="p-8" data-tour={TOUR_TARGET.inviteEmployee}>
       <p className="isalwa-section-label">Siguiente paso</p>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Al enviar, el proveedor de acceso envía un correo. La persona debe completar el acceso

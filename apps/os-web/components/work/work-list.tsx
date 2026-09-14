@@ -11,6 +11,7 @@ import {
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { isEngineeringFixtureCopy, staffFacingSubject } from '@/lib/work/staff-subject';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type WorkListProps = {
   items: WorkSummaryReadModel[];
@@ -39,7 +40,7 @@ export function WorkList({
   const visible = items.filter((work) => !isEngineeringFixtureCopy(work.title));
 
   return (
-    <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'}>
+    <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'} data-tour={TOUR_TARGET.workList}>
       {visible.map((work) => {
         const due = formatWorkDueLine(work, {
           caption: followUp ? FOLLOW_UP_COPY.due : 'Vence',

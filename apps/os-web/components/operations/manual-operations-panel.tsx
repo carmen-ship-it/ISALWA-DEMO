@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { StatusPill } from '@isalwa/ui';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import {
   CORRECTION_COPY,
   MANUAL_DATA_HEADING,
@@ -42,7 +43,7 @@ export function ManualOperationsPanel(props: ManualOperationsPanelProps) {
   }
 
   return (
-    <section aria-label={MANUAL_DATA_HEADING} className="max-w-xl space-y-4">
+    <section aria-label={MANUAL_DATA_HEADING} className="max-w-xl space-y-4" data-tour={TOUR_TARGET.manualDraft}>
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">{MANUAL_DATA_HEADING}</h2>
         <StatusPill tone="manual">Dato manual</StatusPill>

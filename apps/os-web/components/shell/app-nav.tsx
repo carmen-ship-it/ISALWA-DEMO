@@ -22,6 +22,7 @@ import {
   type NavItem,
 } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 const ICONS = {
   home: Home,
@@ -85,7 +86,11 @@ export function AppNav({ showAdmin, mobile, onNavigate }: AppNavProps) {
   );
 
   return (
-    <nav aria-label={t('nav.mainNav')} className={mobile ? 'flex flex-col gap-1 px-4 py-5' : 'flex flex-col gap-1'}>
+    <nav
+      aria-label={t('nav.mainNav')}
+      data-tour={TOUR_TARGET.navPrimary}
+      className={mobile ? 'flex flex-col gap-1 px-4 py-5' : 'flex flex-col gap-1'}
+    >
       {items.map((item) => (
         <NavLink
           key={item.id}

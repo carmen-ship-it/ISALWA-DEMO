@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Button } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type QuotePdfDownloadButtonProps = {
   quoteId: string;
@@ -79,7 +80,7 @@ export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloa
   }
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-start gap-3" data-tour={TOUR_TARGET.quotePdf}>
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"

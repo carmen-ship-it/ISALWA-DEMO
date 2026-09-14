@@ -10,6 +10,7 @@ import {
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { opportunityHref } from '@/lib/commercial/navigation';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type OpportunityListProps = {
   partyId: string;
@@ -19,7 +20,7 @@ type OpportunityListProps = {
 
 export function OpportunityList({ partyId, items, memberLabels }: OpportunityListProps) {
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Oportunidades">
+    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
       {items.map((item) => {
         const value = formatOptionalCentavos(item.expectedValueCentavos ?? undefined, 'BOB');
         return (

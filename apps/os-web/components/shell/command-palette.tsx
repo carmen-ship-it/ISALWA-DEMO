@@ -33,6 +33,7 @@ import {
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type CommandPaletteProps = {
   open: boolean;
@@ -512,6 +513,7 @@ export function CommandPaletteTrigger({
       type="button"
       className="inline-flex h-10 min-w-0 items-center gap-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-3 text-sm text-[var(--isalwa-slate)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
       onClick={onOpen}
+      data-tour={TOUR_TARGET.globalSearch}
       aria-haspopup="dialog"
       aria-keyshortcuts="Control+K Meta+K"
     >

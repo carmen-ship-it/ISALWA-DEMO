@@ -5,6 +5,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries, mapCoverage } from '@/lib/party/data-health';
 import { partyHref } from '@/lib/party/navigation';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 export default async function MapaPage() {
   const auth = await getServerOsAuthContext();
@@ -30,7 +31,7 @@ export default async function MapaPage() {
         }
       />
 
-      <PageSection>
+      <PageSection data-tour={TOUR_TARGET.mapCoverage}>
         <StatusPill tone="info">Sin proveedor de mapa</StatusPill>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {coverage.sentence ?? 'La lista aún no trae hechos de ubicación.'}

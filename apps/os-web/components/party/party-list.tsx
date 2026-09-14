@@ -6,6 +6,7 @@ import { partyListLocationMeta } from '@/lib/party/next-action';
 import { partyHref } from '@/lib/party/navigation';
 import type { MemberLabelMap } from '@/lib/work/member-resolver';
 import { memberLabel } from '@/lib/work/member-resolver';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type PartyListProps = {
   items: PartySummaryReadModel[];
@@ -41,7 +42,7 @@ export function PartyList({ items, listPath, listQuery, memberLabels }: PartyLis
         const selected = openPanel?.kind === 'party' && openPanel.id === party.partyId;
 
         return (
-          <li key={party.partyId}>
+          <li key={party.partyId} data-tour={TOUR_TARGET.customerRow}>
             <OperatingRow
               href={detailHref}
               selected={selected}

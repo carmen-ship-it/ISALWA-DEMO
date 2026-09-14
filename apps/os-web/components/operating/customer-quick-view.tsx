@@ -20,6 +20,7 @@ import { partyHref } from '@/lib/party/navigation';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { memberLabel } from '@/lib/work/member-resolver';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 const MAPS_ACTION_LABEL = 'Abrir origen en Maps';
 
@@ -161,7 +162,7 @@ function CustomerQuickViewBody({
   const followUpHref = `${partyHref(partyId)}#trabajo`;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour={TOUR_TARGET.customerQuickView}>
       <dl className="space-y-3 text-sm">
         {legalName ? (
           <div>

@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { AppNav } from '@/components/shell/app-nav';
+import { WalkthroughShell } from '@/components/walkthrough/walkthrough-shell';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/command-palette';
 import { UserMenu } from '@/components/shell/user-menu';
 import { signOutAction } from '@/lib/auth/actions';
@@ -112,6 +114,7 @@ export function AppShell({
             <button
               ref={menuButtonRef}
               type="button"
+              data-tour={TOUR_TARGET.navPrimary}
               className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] lg:hidden"
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
@@ -174,7 +177,9 @@ export function AppShell({
           </div>
         ) : null}
 
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1">
+          <WalkthroughShell>{children}</WalkthroughShell>
+        </div>
       </div>
     </div>
     </ShellIdentityContext.Provider>

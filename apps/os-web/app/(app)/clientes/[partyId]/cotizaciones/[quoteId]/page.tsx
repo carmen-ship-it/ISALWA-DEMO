@@ -11,6 +11,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import {
   formatQuoteStatus,
   formatTimestamp,
@@ -97,7 +98,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         <PageSection card className="bg-white p-8 md:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
-            <StatusPill tone={statusTone(quote.status)}>
+            <StatusPill tone={statusTone(quote.status)} data-tour={TOUR_TARGET.quoteStatus}>
               {formatQuoteStatus(quote.status)}
             </StatusPill>
             <QuotePdfDownloadButton quoteId={quote.quoteId} quoteNumber={quote.quoteNumber} />

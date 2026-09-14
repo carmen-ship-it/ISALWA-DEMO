@@ -11,6 +11,7 @@ import type { ApprovalAgingSource, CommitmentAgingAdapter } from '@/lib/work/agi
 import { supplementalAgingGroups } from '@/lib/work/aging/present';
 import { groupInicioAttention } from '@/lib/work/inicio-attention';
 import { AttentionList, FactualDueList } from '@/components/work/attention-list';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type InicioAttentionPanelProps = {
   items: AttentionItemReadModel[];
@@ -40,7 +41,7 @@ export function InicioAttentionPanel({
 
   if (unavailable) {
     return (
-      <div aria-label={t('pages.inicio.attention')}>
+      <div aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
         <SectionHeader title={t('pages.inicio.attention')} />
         <p className="text-sm text-[var(--isalwa-slate)]" role="status">
           {t('pages.inicio.attentionUnavailable')}
@@ -71,7 +72,7 @@ export function InicioAttentionPanel({
   if (groups.length === 0 && extraGroups.length === 0) return null;
 
   return (
-    <PageSection card className="p-3 md:p-4" aria-label={t('pages.inicio.attention')}>
+    <PageSection card className="p-3 md:p-4" aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
       <SectionHeader title={t('pages.inicio.attention')} className="mb-2" />
       <div>
         {groups.map((group, index) => (

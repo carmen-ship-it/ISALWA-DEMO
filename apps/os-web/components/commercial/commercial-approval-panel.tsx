@@ -13,6 +13,7 @@ import {
 import type { ActiveMemberOption, SubjectApprovalItem } from '@/lib/commercial/types';
 import { formatTimestamp } from '@/lib/commercial/labels';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type CommercialApprovalPanelProps = {
   partyId: string;
@@ -63,7 +64,7 @@ export function CommercialApprovalPanel({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-tour={TOUR_TARGET.approvalConsequence}>
       {approvals.length > 0 ? (
         <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Historial de aprobación">
           {approvals.map((approval) => {

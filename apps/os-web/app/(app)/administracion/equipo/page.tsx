@@ -14,6 +14,7 @@ import { buildDirectoryLabelMap } from '@/lib/workforce/member-labels';
 import { equipoHref, inviteMemberHref } from '@/lib/workforce/navigation';
 import type { MemberSearchParams } from '@/lib/workforce/types';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type EquipoPageProps = {
   searchParams: Promise<MemberSearchParams>;
@@ -56,7 +57,7 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
     const isEmpty = result.items.length === 0;
 
     return (
-      <PageContainer label="Equipo">
+      <PageContainer label="Equipo" data-tour={TOUR_TARGET.team}>
         <PageHeader
           kicker="Administración"
           title="Equipo"

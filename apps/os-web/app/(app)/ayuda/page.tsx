@@ -1,7 +1,9 @@
 import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
+import { WalkthroughHelpPanel } from '@/components/walkthrough/walkthrough-help-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { ayudaSections } from '@/lib/guidance/select';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 export default function AyudaPage() {
   const sections = ayudaSections();
@@ -9,12 +11,13 @@ export default function AyudaPage() {
   const workflows = sections.filter((section) => section.id !== 'standing-rules');
 
   return (
-    <PageContainer label="Cómo trabajamos">
+    <PageContainer label="Cómo trabajamos" data-tour={TOUR_TARGET.help}>
       <PageHeader
         kicker="Ayuda"
         title="Cómo trabajamos"
         description="Reglas ya vigentes en ISALWA. No sustituyen una autorización ni un dato que aún no existe."
       />
+      <WalkthroughHelpPanel />
       <div className="mb-8 space-y-8">
         {workflows.map((section) => (
           <section key={section.id} aria-labelledby={`guidance-${section.id}`}>

@@ -9,6 +9,7 @@ import { listHref, panelHref, type ListQueryState } from '@/lib/lists/url-state'
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type QuoteOrgListProps = {
   items: QuoteSummaryReadModel[];
@@ -47,7 +48,7 @@ export function QuoteOrgList({
   selectedQuoteId,
 }: QuoteOrgListProps) {
   return (
-    <ul className="min-w-0" aria-label="Cotizaciones">
+    <ul className="min-w-0" aria-label="Cotizaciones" data-tour={TOUR_TARGET.quoteList}>
       {items
         .filter(
           (item) =>
@@ -74,7 +75,7 @@ export function QuoteOrgList({
                 subject={item.quoteNumber}
                 meta={meta || undefined}
                 status={
-                  <StatusPill tone={statusTone(item.status)}>{formatQuoteStatus(item.status)}</StatusPill>
+                  <StatusPill tone={statusTone(item.status)} data-tour={TOUR_TARGET.quoteStatus}>{formatQuoteStatus(item.status)}</StatusPill>
                 }
                 actions={
                   listState ? (

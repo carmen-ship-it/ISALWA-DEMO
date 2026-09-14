@@ -13,6 +13,7 @@ import {
   sortLocationsForDisplay,
 } from '@/lib/party/customer-self-service';
 import type { LocationView } from '@/lib/party/types';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
@@ -27,7 +28,7 @@ export function CustomerLocationPanel({ partyId, locations, canMutate }: Custome
   const ordered = sortLocationsForDisplay(locations);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour={TOUR_TARGET.locationState}>
       {ordered.length === 0 ? (
         <EmptyState
           title="No hay ubicaciones"

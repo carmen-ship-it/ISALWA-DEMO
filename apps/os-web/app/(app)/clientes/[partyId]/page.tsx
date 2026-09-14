@@ -43,6 +43,7 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import type { ActiveMemberOption } from '@/lib/commercial/types';
 import type { Cliente360Composition } from '@/lib/party/next-action';
 import type { PartyDetailResponse } from '@/lib/party/types';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -294,7 +295,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     const manualOrganizationId = party.organizationId.trim();
 
     return (
-      <PageContainer label={displayName} className="min-w-0">
+      <PageContainer label={displayName} className="min-w-0" data-tour={TOUR_TARGET.customer360}>
         <PageHeader
           kicker="Cliente"
           title={displayName}

@@ -9,6 +9,7 @@ import {
 import { formatCentavos } from '@/lib/commercial/money';
 import { opportunityHref, quoteHref } from '@/lib/commercial/navigation';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type QuoteListProps = {
   partyId: string;
@@ -18,7 +19,7 @@ type QuoteListProps = {
 
 export function QuoteList({ partyId, items, memberLabels }: QuoteListProps) {
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Cotizaciones">
+    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Cotizaciones" data-tour={TOUR_TARGET.quoteList}>
       {items.map((item) => (
         <ListRow key={item.quoteId} as="li" className="px-1 py-1">
           <div className="rounded-[var(--isalwa-radius-control)] px-3 py-3">
@@ -70,7 +71,7 @@ export function QuoteList({ partyId, items, memberLabels }: QuoteListProps) {
                   ) : null}
                 </dl>
               </div>
-              <StatusPill tone={statusTone(item.status)}>
+              <StatusPill tone={statusTone(item.status)} data-tour={TOUR_TARGET.quoteStatus}>
                 {formatQuoteStatus(item.status)}
               </StatusPill>
             </div>
