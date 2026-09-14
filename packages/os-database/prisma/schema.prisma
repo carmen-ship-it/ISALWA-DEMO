@@ -64,6 +64,8 @@ model OsOrganization {
   importBatches      OsImportBatch[]
   importRows         OsImportRow[]
   reportedOperationalFacts OsReportedOperationalFact[]
+  commitments        OsCommitment[]
+  internalNotifications OsInternalNotification[]
 
   @@map("os_organizations")
 }
@@ -1027,4 +1029,55 @@ model OsReportedOperationalFact {
   @@index([organizationId, kind, activity])
   @@index([organizationId, reportedAt])
   @@map("os_reported_operational_facts")
+}
+
+/// Stored lifecycle is open, fulfilled, or cancelled only.
+/// Pending, due today, and overdue are derived from due_at and America/La_Paz.
+/// Not a payment, a work item, or an attention row. A suggestion is not a row here.
+model OsCommitment {
+  id                     String    @id
+  organizationId         String    @map("organization_id")
+  partyId                String?   @map("party_id")
+  ownerMemberId          String    @map("owner_member_id")
+  text                   String
+  dueAt                  DateTime? @map("due_at")
+  origin                 String
+  relatedSubjectType     String?   @map("related_subject_type")
+  relatedSubjectId       String?   @map("related_subject_id")
+  lifecycle              String    @default("open")
+  createdByMemberId      String    @map("created_by_member_id")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  fulfilledAt            DateTime? @map("fulfilled_at")
+  cancelledAt            DateTime? @map("cancelled_at")
+  provenanceSuggestionId String?   @map("provenance_suggestion_id")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, ownerMemberId, lifecycle, dueAt])
+  @@map("os_commitments")
+}
+
+/// Internal channel only. Not the legacy notifications table.
+/// Resolve only when the source condition is gone.
+/// The unresolved dedup unique index is partial and lives in SQL, not as a full unique here.
+model OsInternalNotification {
+  id                String    @id
+  organizationId    String    @map("organization_id")
+  recipientMemberId String    @map("recipient_member_id")
+  kind              String
+  dedupKey          String    @map("dedup_key")
+  title             String
+  body              String?
+  sourceRecordType  String    @map("source_record_type")
+  sourceRecordId    String    @map("source_record_id")
+  partyId           String?   @map("party_id")
+  channel           String    @default("internal")
+  readAt            DateTime? @map("read_at")
+  resolvedAt        DateTime? @map("resolved_at")
+  resolvedBecause   String?   @map("resolved_because")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@map("os_internal_notifications")
 }
