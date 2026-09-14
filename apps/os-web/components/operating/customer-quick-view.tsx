@@ -1,3 +1,4 @@
+import { locationHasCoordinates, selectLocationProvenanceUrl } from '@isalwa/os-contracts';
 import { FeedbackNote } from '@isalwa/ui';
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
@@ -6,6 +7,7 @@ import { QuickViewHost } from '@/components/operating/quick-view-host';
 import { PartyStatusBadge } from '@/components/party/party-role-badges';
 import type { ListQueryState } from '@/lib/lists/url-state';
 import {
+  formatCoordinates,
   provenanceHref,
   provenanceLinkLabel,
   sortLocationsForDisplay,
@@ -27,6 +29,39 @@ type CustomerQuickViewProps = {
   listPath: string;
   listQuery: ListQueryState;
 };
+
+type PanelLocation = {
+  status: string;
+  latitude: number | null;
+  longitude: number | null;
+  provenanceUrl: string | null;
+};
+
+export type PanelLocationFacts = {
+  /** Formatted latitude/longitude. Never a Maps or provenance URL. */
+  coordinates: string | null;
+  /** Stored source link. A Maps URL is provenance, not a location. */
+  provenance: { href: string; label: string } | null;
+};
+
+/**
+ * Split already-loaded locations for one open panel.
+ * Coordinates and provenance are independent: a shared Maps link does not count as a location.
+ */
+export function panelLocationFacts(locations: readonly PanelLocation[]): PanelLocationFacts {
+  const withCoordinates = sortLocationsForDisplay(locations).find((location) =>
+    locationHasCoordinates(location),
+  );
+  const coordinates = withCoordinates
+    ? (formatCoordinates(withCoordinates.latitude, withCoordinates.longitude) ??
+      'Ubicación disponible')
+    : null;
+  const href = provenanceHref(selectLocationProvenanceUrl(locations));
+  return {
+    coordinates,
+    provenance: href ? { href, label: provenanceLinkLabel(href) } : null,
+  };
+}
 
 export function existingMapsAction(
   locations: ReadonlyArray<{ provenanceUrl: string | null; status: string }>,
@@ -80,7 +115,7 @@ export async function CustomerQuickView({
     ]);
     const ownerLabel =
       ownerMemberId && memberLabels ? memberLabel(memberLabels, ownerMemberId) : null;
-    const maps = locations ? existingMapsAction(locations.locations) : null;
+    const locationFacts = locations ? panelLocationFacts(locations.locations) : null;
     const displayName = detail.party.displayName || detail.party.legalName || 'Sin nombre';
 
     return (
@@ -89,7 +124,8 @@ export async function CustomerQuickView({
           detail={detail}
           displayName={displayName}
           ownerLabel={ownerLabel}
-          maps={maps}
+          coordinates={locationFacts?.coordinates ?? null}
+          provenance={locationFacts?.provenance ?? null}
           partyId={partyId}
         />
       </QuickViewHost>
@@ -108,13 +144,15 @@ function CustomerQuickViewBody({
   detail,
   displayName,
   ownerLabel,
-  maps,
+  coordinates,
+  provenance,
   partyId,
 }: {
   detail: PartyDetailResponse;
   displayName: string;
   ownerLabel: string | null;
-  maps: { href: string; label: string } | null;
+  coordinates: string | null;
+  provenance: { href: string; label: string } | null;
   partyId: string;
 }) {
   const { party, contacts } = detail;
@@ -170,18 +208,28 @@ function CustomerQuickViewBody({
             <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{phone}</dd>
           </div>
         ) : null}
+        {coordinates ? (
+          <div>
+            <dt className="text-xs text-[var(--isalwa-slate)]">Coordenadas</dt>
+            <dd className="mt-0.5 break-words text-[var(--isalwa-kiln)]">{coordinates}</dd>
+          </div>
+        ) : null}
+        {provenance ? (
+          <div>
+            <dt className="text-xs text-[var(--isalwa-slate)]">Procedencia</dt>
+            <dd className="mt-0.5">
+              <a
+                href={provenance.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={actionClass}
+              >
+                {provenance.label}
+              </a>
+            </dd>
+          </div>
+        ) : null}
       </dl>
-
-      {maps ? (
-        <a
-          href={maps.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={actionClass}
-        >
-          {maps.label}
-        </a>
-      ) : null}
 
       <nav aria-label="Acciones del cliente" className="flex flex-col items-start gap-2 border-t border-[var(--isalwa-mist)] pt-4">
         <a href={partyHref(partyId)} className={actionClass}>
