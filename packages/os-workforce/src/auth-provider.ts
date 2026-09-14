@@ -4,8 +4,12 @@
  */
 export type AuthProviderPort = {
   readonly name: string;
-  /** Provider creates invite; returns opaque subject when user completes provider onboarding. */
-  createInvite(email: string): Promise<{ inviteRef: string }>;
+  /**
+   * Provider creates the invitation and delivers it.
+   * `providerUserId` is the provider's user id when the response includes one.
+   * It is not proof of control and must not activate OS access by itself.
+   */
+  createInvite(email: string): Promise<{ inviteRef: string; providerUserId?: string | null }>;
   /** Invalidate active provider sessions — used on suspend (credentials preserved). */
   revokeSessions(providerSubject: string): Promise<void>;
   /** Revoke credentials at provider — password reset/change happen ONLY at provider. */

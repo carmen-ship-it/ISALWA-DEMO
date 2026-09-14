@@ -131,6 +131,9 @@ Secrets (`anon`, `service_role`, Auth DB password) live in operator secret store
 | `SUPABASE_URL` | If supabase mode | — | JWT verification + admin API base |
 | `SUPABASE_ANON_KEY` | If supabase mode | — | JWT verification |
 | `SUPABASE_SERVICE_ROLE_KEY` | For invite/revoke/email admin ops | — | Server only; never in browser; required for InviteMember in supabase mode |
+| `OS_AUTH_INVITE_REDIRECT_URL` | No | first `OS_CORS_ORIGINS` origin + `/auth/complete-invite` | Provider redirect after the invitee opens the email. Must be on the Supabase Auth redirect allowlist. Must not be supplied by the browser. |
+
+Invite emails are sent by Supabase Auth (default project sender), not by ISALWA. ISALWA does not store a mailbox password. Production should later use company-owned SMTP and a company sender domain; that is not required for the completion ceremony. The invitee sets a password only in the provider session. Activation still requires `POST /v1/auth/complete-invite` with that session, which calls `ActivateMember`. There is no resend command yet.
 
 ### Worker tuning (optional)
 

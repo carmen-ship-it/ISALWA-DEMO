@@ -3,6 +3,7 @@ import { CommandsController } from './commands.controller';
 import { MembersController } from './members.controller';
 import { HealthController } from './health.controller';
 import { SessionController } from './session.controller';
+import { CompleteInviteController } from './complete-invite.controller';
 import { BootstrapController } from './bootstrap.controller';
 import { PartiesController } from './parties.controller';
 import { LocationsController } from './locations.controller';
@@ -22,6 +23,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
   controllers: [
     HealthController,
     SessionController,
+    CompleteInviteController,
     OperationsController,
     CommandsController,
     MembersController,

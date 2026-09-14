@@ -108,6 +108,24 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return row ? this.mapAuth(row) : null;
   }
 
+  async listAuthIdentitiesByProviderEmail(
+    provider: string,
+    email: string,
+  ): Promise<AuthIdentityRecord[]> {
+    const rows = await this.db().osAuthIdentity.findMany({
+      where: {
+        provider,
+        email: { equals: email.trim().toLowerCase(), mode: 'insensitive' },
+      },
+    });
+    return rows.map((row) => this.mapAuth(row));
+  }
+
+  async listMembersForPerson(personId: string): Promise<MemberRecord[]> {
+    const rows = await this.db().osOrganizationMember.findMany({ where: { personId } });
+    return rows.map((row) => mapMember(row));
+  }
+
   async findActiveMemberForPerson(
     personId: string,
     organizationId?: string,

@@ -80,6 +80,20 @@ export class MemoryOsStore implements OsWorkforceStore {
     return this.authIdentities.find((a) => a.id === authIdentityId) ?? null;
   }
 
+  async listAuthIdentitiesByProviderEmail(
+    provider: string,
+    email: string,
+  ): Promise<AuthIdentityRecord[]> {
+    const key = email.trim().toLowerCase();
+    return this.authIdentities.filter(
+      (identity) => identity.provider === provider && identity.email.trim().toLowerCase() === key,
+    );
+  }
+
+  async listMembersForPerson(personId: string): Promise<MemberRecord[]> {
+    return this.members.filter((member) => member.personId === personId);
+  }
+
   async findActiveMemberForPerson(
     personId: string,
     organizationId?: string,

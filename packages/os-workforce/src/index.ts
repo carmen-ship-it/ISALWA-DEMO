@@ -1,4 +1,6 @@
+export * from './auth-email';
 export * from './auth-provider';
+export * from './invite-completion';
 export * from './supabase-auth-provider';
 export * from './provider-side-effects';
 export * from './memory-store';

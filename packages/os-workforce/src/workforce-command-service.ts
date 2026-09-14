@@ -14,6 +14,7 @@ import {
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
 import type { AuthProviderPort } from './auth-provider';
+import { normalizeAuthEmail } from './auth-email';
 import type { OsWorkforceStore } from './os-workforce-store';
 import { runProviderSideEffectWithRetry } from './provider-side-effects';
 
@@ -330,7 +331,7 @@ export class WorkforceCommandService {
     store: OsWorkforceStore,
   ): Promise<CommandResult> {
     await this.authorize(ctx, 'InviteMember', ctx.organizationId, store);
-    const email = String(payload.email);
+    const email = normalizeAuthEmail(String(payload.email));
     const givenName = String(payload.givenName);
     const familyName = String(payload.familyName);
     const roleKey = String(payload.roleKey);
@@ -363,7 +364,7 @@ export class WorkforceCommandService {
       id: authId,
       personId,
       provider: this.authProvider.name,
-      providerSubject: null,
+      providerSubject: invite.providerUserId?.trim() || null,
       email,
       status: 'invited',
       invitedAt: ctx.effectiveAt,
@@ -436,6 +437,17 @@ export class WorkforceCommandService {
       throw new Error('VALIDATION_FAILED');
     }
 
+    const auth = await store.findAuthIdentityByPersonAndStatus(member.personId, 'invited');
+    if (auth) {
+      if (auth.providerSubject && auth.providerSubject !== providerSubject) {
+        throw new Error('VALIDATION_FAILED');
+      }
+      const bound = await store.findAuthIdentityByProviderSubject(auth.provider, providerSubject);
+      if (bound && bound.id !== auth.id) {
+        throw new Error('VALIDATION_FAILED');
+      }
+    }
+
     await store.updateMember(memberId, {
       accessStatus: 'active',
       employmentStatus: 'active',
@@ -443,7 +455,6 @@ export class WorkforceCommandService {
       version: member.version + 1,
     });
 
-    const auth = await store.findAuthIdentityByPersonAndStatus(member.personId, 'invited');
     if (auth) {
       await store.updateAuthIdentity(auth.id, {
         status: 'active',

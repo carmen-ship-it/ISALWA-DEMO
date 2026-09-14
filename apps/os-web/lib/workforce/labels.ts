@@ -22,7 +22,7 @@ export function formatAccessStatus(status: string): string {
     case 'revoked':
       return 'Acceso revocado';
     case 'invited':
-      return 'Invitación pendiente';
+      return 'Invitación enviada';
     case 'terminated':
       return 'Finalizado';
     default:
@@ -184,7 +184,7 @@ export function accessStatusExplanation(accessStatus: string, employmentStatus: 
     return 'Acceso suspendido temporalmente. La relación laboral puede seguir activa.';
   }
   if (accessStatus === 'invited') {
-    return 'La invitación está pendiente y la cuenta no está activada. La persona debe completar el acceso en el correo que envía el proveedor de acceso. Esta aplicación no crea ni restablece contraseñas. El acceso sigue pendiente hasta que el proveedor vincule la identidad.';
+    return 'Invitación enviada. La persona abre el correo de acceso, configura su contraseña y entra a ISALWA. Esta aplicación no guarda contraseñas ni permite que un administrador las invente.';
   }
   if (accessStatus === 'revoked' || employmentStatus === 'terminated') {
     return 'Relación laboral finalizada o acceso revocado de forma permanente.';

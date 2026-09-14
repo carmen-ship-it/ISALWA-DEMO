@@ -13,6 +13,7 @@ import {
 } from '@/lib/auth/dev-session';
 import { createServerSupabaseClient } from '@/lib/auth/supabase/server';
 import { t } from '@/lib/i18n/es';
+import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
 
 export type WebSession = {
   mode: 'supabase' | 'dev';
@@ -262,6 +263,38 @@ export async function confirmLiveAccess(): Promise<LiveAccess> {
       return 'expired';
     }
     return 'unavailable';
+  }
+}
+
+/**
+ * Binds the current provider session to the invited identity.
+ * Takes no form fields. Password never reaches this action.
+ */
+export async function completeInviteAction(): Promise<{ code: string }> {
+  if (getOsAuthMode() !== 'supabase' || !isSupabaseConfigured()) {
+    return { code: 'unauthenticated' };
+  }
+  let token: string;
+  try {
+    token = await getSupabaseAccessToken();
+  } catch {
+    return { code: 'unauthenticated' };
+  }
+
+  try {
+    const res = await fetch(`${getOsApiBaseUrl()}/auth/complete-invite`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: '{}',
+      cache: 'no-store',
+    });
+    const body = (await res.json().catch(() => null)) as unknown;
+    return { code: readInviteCompletionCode(body) };
+  } catch {
+    return { code: 'INTERNAL_ERROR' };
   }
 }
 

@@ -26,6 +26,12 @@ export interface OsWorkforceStore {
     providerSubject: string,
   ): Promise<AuthIdentityRecord | null>;
   findAuthIdentityById(authIdentityId: string): Promise<AuthIdentityRecord | null>;
+  /** Case-insensitive email match. Used only to reconcile a verified provider email. */
+  listAuthIdentitiesByProviderEmail(
+    provider: string,
+    email: string,
+  ): Promise<AuthIdentityRecord[]>;
+  listMembersForPerson(personId: string): Promise<MemberRecord[]>;
   findActiveMemberForPerson(
     personId: string,
     organizationId?: string,
