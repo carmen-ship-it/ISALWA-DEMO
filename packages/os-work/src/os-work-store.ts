@@ -3,6 +3,7 @@ import type {
   ApprovalRequestRecord,
   IdempotencyRecord,
   MemberRecord,
+  CommercialApprovalSubjectRecord,
   OwnershipHistoryRecord,
   RoleAssignmentRecord,
   DelegationRecord,
@@ -17,6 +18,19 @@ export interface OsWorkStore {
   listDelegationsForDelegate(memberId: string): Promise<DelegationRecord[]>;
 
   partyExistsInOrg(organizationId: string, partyId: string): Promise<boolean>;
+  getQuoteApprovalSubject(
+    organizationId: string,
+    quoteId: string,
+  ): Promise<CommercialApprovalSubjectRecord | null>;
+  getOrderApprovalSubject(
+    organizationId: string,
+    orderId: string,
+  ): Promise<CommercialApprovalSubjectRecord | null>;
+  listApprovalsForSubject(
+    organizationId: string,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<ApprovalRequestRecord[]>;
 
   insertWorkItem(item: WorkItemRecord): Promise<void>;
   getWorkItemInOrg(organizationId: string, workItemId: string): Promise<WorkItemRecord | null>;

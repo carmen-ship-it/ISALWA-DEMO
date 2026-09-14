@@ -33,6 +33,7 @@ import {
   WorkQueryService,
   ApprovalQueryService,
   AttentionQueryService,
+  AttentionClock,
   CommercialProjectionConsumer,
   CommercialQueryService,
   PartyTimelineProjectionConsumer,
@@ -77,6 +78,7 @@ export const OS_CAPABILITY_QUERY_SERVICE = Symbol('OS_CAPABILITY_QUERY_SERVICE')
 export const OS_QUOTE_PDF_SERVICE = Symbol('OS_QUOTE_PDF_SERVICE');
 export const OS_PROJECTION_RUNNER = Symbol('OS_PROJECTION_RUNNER');
 export const OS_OUTBOX_WORKER_HOST = Symbol('OS_OUTBOX_WORKER_HOST');
+export const OS_ATTENTION_CLOCK = Symbol('OS_ATTENTION_CLOCK');
 export const OS_OUTBOX_RECOVERY_SERVICE = Symbol('OS_OUTBOX_RECOVERY_SERVICE');
 
 function outboxWorkerEnabled(): boolean {
@@ -84,6 +86,10 @@ function outboxWorkerEnabled(): boolean {
     process.env.OS_OUTBOX_WORKER === '0' ||
     process.env.OS_PROJECTION_WORKER === '0';
   return !disabled;
+}
+
+function attentionClockEnabled(): boolean {
+  return process.env.OS_ATTENTION_CLOCK !== '0';
 }
 
 function createAuthProvider(): AuthProviderPort {
@@ -241,21 +247,23 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_WORK_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort) =>
+      useFactory: (projectionStore: OsProjectionStorePort, memberQueryStore: MemberQueryStorePort) =>
         new WorkQueryService({
           projectionStore,
           encodeCursor: encodeWorkSearchCursor,
+          directReports: memberQueryStore,
         }),
-      inject: [OS_PROJECTION_STORE],
+      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE],
     },
     {
       provide: OS_APPROVAL_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort) =>
+      useFactory: (projectionStore: OsProjectionStorePort, workStore: OsWorkStore) =>
         new ApprovalQueryService({
           projectionStore,
           encodeCursor: encodeApprovalCursor,
+          workStore,
         }),
-      inject: [OS_PROJECTION_STORE],
+      inject: [OS_PROJECTION_STORE, OS_WORK_STORE],
     },
     {
       provide: OS_ATTENTION_QUERY_SERVICE,
@@ -268,14 +276,15 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_COMMERCIAL_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort) =>
+      useFactory: (projectionStore: OsProjectionStorePort, memberQueryStore: MemberQueryStorePort) =>
         new CommercialQueryService({
           projectionStore,
           encodeOpportunityCursor,
           encodeQuoteCursor,
           encodeOrderCursor,
+          directReports: memberQueryStore,
         }),
-      inject: [OS_PROJECTION_STORE],
+      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE],
     },
     {
       provide: OS_PARTY_TIMELINE_QUERY_SERVICE,
@@ -344,6 +353,14 @@ function createMemberQueryStore(): MemberQueryStorePort {
       ],
     },
     {
+      provide: OS_ATTENTION_CLOCK,
+      useFactory: (projectionStore: OsProjectionStorePort) =>
+        new AttentionClock(projectionStore, {
+          pollIntervalMs: Number(process.env.OS_ATTENTION_CLOCK_MS ?? 60_000),
+        }),
+      inject: [OS_PROJECTION_STORE],
+    },
+    {
       provide: OS_OUTBOX_WORKER_HOST,
       useFactory: (outboxStore: OsOutboxStorePort, projectionRunner: ProjectionRunner) => {
         const pollIntervalMs = Number(
@@ -388,21 +405,28 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_QUOTE_PDF_SERVICE,
     OS_PROJECTION_RUNNER,
     OS_OUTBOX_WORKER_HOST,
+    OS_ATTENTION_CLOCK,
     OS_OUTBOX_RECOVERY_SERVICE,
   ],
 })
 export class OsStoreModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(OS_OUTBOX_WORKER_HOST) private readonly outboxHost: OutboxWorkerHost,
+    @Inject(OS_ATTENTION_CLOCK) private readonly attentionClock: AttentionClock,
   ) {}
 
   onModuleInit(): void {
-    if (outboxWorkerEnabled() && getOsPrisma()) {
+    if (!getOsPrisma()) return;
+    if (outboxWorkerEnabled()) {
       this.outboxHost.start();
+    }
+    if (attentionClockEnabled()) {
+      this.attentionClock.start();
     }
   }
 
   async onModuleDestroy(): Promise<void> {
+    await this.attentionClock.stop();
     await this.outboxHost.stop();
   }
 }

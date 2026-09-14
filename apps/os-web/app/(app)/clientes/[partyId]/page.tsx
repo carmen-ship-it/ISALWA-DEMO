@@ -6,6 +6,9 @@ import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { QuoteList } from '@/components/commercial/quote-list';
+import { CommercialOwnerLine } from '@/components/party/commercial-owner-line';
+import { CustomerEditForms } from '@/components/party/customer-edit-forms';
+import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import {
   CommercialBadge,
@@ -22,6 +25,14 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { CLIENTE_360_REQUEST_COUNT, loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
+import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
+import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import {
+  canManageContacts,
+  canMutateActiveParty,
+  commercialOwnerView,
+} from '@/lib/party/customer-self-service';
+import { memberLabel } from '@/lib/work/member-resolver';
 import {
   contactDisplayName,
   formatPartyKind,
@@ -48,11 +59,29 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
 
   try {
     const data = await loadCliente360(client, partyId);
-    const { detail, opportunities, quotes, orders, timeline, relatedWork, memberLabels } = data;
+    const { detail, opportunities, quotes, orders, timeline, relatedWork, locations, memberLabels } = data;
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
     const displayName = party.displayName || party.legalName || 'Sin nombre';
+    const actorIsMasterDataAdmin = await actorCanMutateMasterData(client);
+    const canEditParty = canMutateActiveParty(party.status, actorIsMasterDataAdmin ? ['master_data.admin'] : []);
+    const canEditContacts = canManageContacts(
+      party.partyKind,
+      party.status,
+      actorIsMasterDataAdmin ? ['master_data.admin'] : [],
+    );
+    const canReassignOwner = detail.commercialAuthority?.canReassignOwner === true;
+    const ownerMembers = canReassignOwner
+      ? (await client.listActiveMemberOptions().catch(() => ({ items: [] }))).items
+      : [];
+    const owner = commercialOwnerView(
+      commercialAccount?.ownerMemberId,
+      commercialAccount?.ownerMemberId
+        ? memberLabel(memberLabels, commercialAccount.ownerMemberId)
+        : null,
+      canReassignOwner,
+    );
 
     return (
       <PageContainer label={displayName}>
@@ -121,8 +150,24 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   hasCommercialAccount
                   commercialAccountStatus={commercialAccount.status}
                 />
+                <CommercialOwnerLine
+                  owner={owner}
+                  partyId={partyId}
+                  commercialAccountId={commercialAccount.id}
+                  members={ownerMembers}
+                />
               </div>
-            ) : null}
+            ) : (
+              <div className="mt-6 border-t border-[var(--isalwa-mist)] pt-6">
+                <CommercialOwnerLine owner={owner} />
+              </div>
+            )}
+            <CustomerEditForms
+              party={party}
+              contacts={contacts}
+              canEditParty={canEditParty}
+              canEditContacts={false}
+            />
             <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
               Datos fiscales (NIT, razón social tributaria) no están disponibles en esta vista todavía.
             </p>
@@ -176,6 +221,12 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 ))}
               </ul>
             )}
+            <CustomerEditForms
+              party={party}
+              contacts={contacts}
+              canEditParty={false}
+              canEditContacts={canEditContacts}
+            />
           </PageSection>
 
           <PageSection id="trabajo" card className="scroll-mt-24 p-6">
@@ -260,6 +311,28 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 </>
               )}
             </CommercialSectionState>
+          </PageSection>
+
+          <PageSection id="ubicaciones" card className="scroll-mt-24 p-6">
+            <SectionHeader title="Ubicaciones" />
+            <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
+              Direcciones registradas de esta empresa. Sin mapa y sin geocodificación.
+            </p>
+            {locations.status === 'ok' ? (
+              <CustomerLocationPanel
+                partyId={partyId}
+                locations={locations.data.locations}
+                canMutate={canEditParty}
+              />
+            ) : locations.status === 'unavailable' ? (
+              <ServiceUnavailableState />
+            ) : locations.status === 'forbidden' ? (
+              <AccessDeniedState />
+            ) : (
+              <p className="text-sm text-[var(--isalwa-slate)]" role="alert">
+                {locations.message}
+              </p>
+            )}
           </PageSection>
 
           <PageSection id="historial" card className="scroll-mt-24 p-6">

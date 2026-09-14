@@ -154,6 +154,13 @@ export type ReplayBusinessEvent = {
   payloadJson: Record<string, unknown> | null;
 };
 
+/** Server-only list constraints. Clients cannot set these fields. */
+export type ServerListConstraints = {
+  ownerMemberIds?: readonly string[];
+  dueBefore?: Date;
+  subjectTypes?: readonly string[];
+};
+
 export interface OsProjectionStorePort {
   upsertPartyReadModel(model: StoredPartyReadModel): Promise<void>;
   getPartyReadModel(organizationId: string, partyId: string): Promise<StoredPartyReadModel | null>;
@@ -167,7 +174,7 @@ export interface OsProjectionStorePort {
   getWorkReadModel(organizationId: string, workItemId: string): Promise<StoredWorkReadModel | null>;
   listWorkReadModels(
     organizationId: string,
-    query: ListOpenWorkQuery,
+    query: ListOpenWorkQuery & ServerListConstraints,
   ): Promise<{ items: StoredWorkReadModel[]; hasMore: boolean }>;
   deleteWorkReadModelsForOrg(organizationId: string): Promise<void>;
 
@@ -190,6 +197,18 @@ export interface OsProjectionStorePort {
     organizationId: string,
     items: StoredAttentionReadModel[],
   ): Promise<void>;
+  /**
+   * Re-derive attention for one organization from current work and approval read models.
+   * Must serialize per organization (event rebuild and clock refresh share this path)
+   * and re-read work status inside that serialization so a completion cannot be
+   * overwritten by a stale overdue snapshot.
+   */
+  rebuildAttentionForOrganization(organizationId: string, asOf: Date): Promise<void>;
+  /**
+   * Organizations where open work has crossed dueAt, or an overdue_work row no longer
+   * matches open past-due work. Empty when the stored projection already matches the clock.
+   */
+  listOrganizationIdsNeedingOverdueRefresh(asOf: Date): Promise<string[]>;
   listAttentionReadModels(
     organizationId: string,
     memberId: string,
@@ -206,7 +225,7 @@ export interface OsProjectionStorePort {
   ): Promise<StoredOpportunityReadModel | null>;
   listOpportunityReadModels(
     organizationId: string,
-    query: ListOpportunitiesQuery,
+    query: ListOpportunitiesQuery & ServerListConstraints,
   ): Promise<{ items: StoredOpportunityReadModel[]; hasMore: boolean }>;
   deleteOpportunityReadModelsForOrg(organizationId: string): Promise<void>;
 
@@ -214,7 +233,7 @@ export interface OsProjectionStorePort {
   getQuoteReadModel(organizationId: string, quoteId: string): Promise<StoredQuoteReadModel | null>;
   listQuoteReadModels(
     organizationId: string,
-    query: ListQuotesQuery,
+    query: ListQuotesQuery & ServerListConstraints,
   ): Promise<{ items: StoredQuoteReadModel[]; hasMore: boolean }>;
   deleteQuoteReadModelsForOrg(organizationId: string): Promise<void>;
 

@@ -14,6 +14,7 @@ export const OS_COMMERCIAL_EVENT_TYPES = [
   'quote.cancelled',
   'order.created',
   'order.cancelled',
+  'commercial_account.owner_reassigned',
 ] as const;
 
 export type OsCommercialEventType = (typeof OS_COMMERCIAL_EVENT_TYPES)[number];

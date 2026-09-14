@@ -92,14 +92,7 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     const row = await this.db().osCommercialAccount.findFirst({
       where: { organizationId, partyId },
     });
-    return row
-      ? {
-          id: row.id,
-          organizationId: row.organizationId,
-          partyId: row.partyId,
-          status: row.status,
-        }
-      : null;
+    return row ? mapCommercialAccount(row) : null;
   }
 
   async getCommercialAccountInOrg(
@@ -109,14 +102,19 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     const row = await this.db().osCommercialAccount.findFirst({
       where: { id: commercialAccountId, organizationId },
     });
-    return row
-      ? {
-          id: row.id,
-          organizationId: row.organizationId,
-          partyId: row.partyId,
-          status: row.status,
-        }
-      : null;
+    return row ? mapCommercialAccount(row) : null;
+  }
+
+  async updateCommercialAccount(
+    commercialAccountId: string,
+    patch: Partial<Pick<CommercialAccountRecord, 'ownerMemberId' | 'version'>>,
+    expectedVersion: number,
+  ): Promise<void> {
+    const result = await this.db().osCommercialAccount.updateMany({
+      where: { id: commercialAccountId, version: expectedVersion },
+      data: patch,
+    });
+    if (result.count === 0) throw new Error('CONFLICT');
   }
 
   async insertOpportunity(record: OpportunityRecord): Promise<void> {
@@ -469,6 +467,24 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
   async countOutbox(organizationId: string): Promise<number> {
     return this.db().osOutboxMessage.count({ where: { organizationId } });
   }
+}
+
+function mapCommercialAccount(row: {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  ownerMemberId: string | null;
+  status: string;
+  version: number;
+}): CommercialAccountRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    partyId: row.partyId,
+    ownerMemberId: row.ownerMemberId,
+    status: row.status,
+    version: row.version,
+  };
 }
 
 function mapOpportunity(row: {

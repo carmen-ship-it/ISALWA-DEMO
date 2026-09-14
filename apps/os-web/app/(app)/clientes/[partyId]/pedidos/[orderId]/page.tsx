@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { Button, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -12,24 +13,42 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
+import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type OrderDetailPageProps = {
   params: Promise<{ partyId: string; orderId: string }>;
+  searchParams: Promise<{ resultado?: string }>;
 };
 
-export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
   const { partyId, orderId } = await params;
+  const { resultado } = await searchParams;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
 
   try {
-    const { order, freshness } = await client.getOrder(orderId);
+    const { order, freshness, authority } = await client.getOrder(orderId);
     const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
+    let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
+    let approvals: SubjectApprovalItem[] = [];
+    if (order.status === 'open') {
+      try {
+        const [members, history] = await Promise.all([
+          client.listActiveMemberOptions(),
+          client.listSubjectApprovals('order', order.orderId),
+        ]);
+        approvalMembers = members.items;
+        approvals = history.items as SubjectApprovalItem[];
+      } catch {
+        approvalMembers = [];
+        approvals = [];
+      }
+    }
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -46,6 +65,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         />
 
         <StaleProjectionBanner freshness={freshness} />
+
+        {resultado === 'pedido' ? (
+          <p className="mb-6 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 py-3 text-sm text-[var(--isalwa-kiln)]" role="status">
+            Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
+          </p>
+        ) : null}
 
         <PageSection card className="p-6">
           <div className="flex flex-wrap gap-2">
@@ -85,6 +110,25 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             ) : null}
           </dl>
         </PageSection>
+
+        {order.status === 'open' || approvals.length > 0 ? (
+          <PageSection card className="mt-6 p-6">
+            <SectionHeader title="Aprobación" />
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+              La aprobación registra una decisión humana. No cambia el pedido ni emite factura.
+            </p>
+            <div className="mt-4">
+              <CommercialApprovalPanel
+                partyId={partyId}
+                subjectType="order"
+                subjectId={order.orderId}
+                canRequest={authority?.canRequestApproval === true}
+                members={approvalMembers}
+                approvals={approvals}
+              />
+            </div>
+          </PageSection>
+        ) : null}
       </PageContainer>
     );
   } catch (err) {

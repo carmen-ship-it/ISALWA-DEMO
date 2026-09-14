@@ -6,7 +6,8 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapWorkforceCommandError } from '@/lib/workforce/command-errors';
 import type { CommandActionResult } from '@/lib/workforce/command-types';
-import { equipoHref, memberHref } from '@/lib/workforce/navigation';
+import { buildInviteMemberPayload } from '@/lib/workforce/invite';
+import { equipoHref, inviteMemberHref, memberHref } from '@/lib/workforce/navigation';
 
 async function runWorkforceCommand(
   command: Parameters<typeof mapWorkforceCommandError>[0],
@@ -28,6 +29,31 @@ async function runWorkforceCommand(
 function revalidateMember(memberId: string) {
   revalidatePath(equipoHref());
   revalidatePath(memberHref(memberId));
+}
+
+export async function inviteMemberAction(formData: FormData): Promise<CommandActionResult> {
+  const built = buildInviteMemberPayload({
+    email: String(formData.get('email') ?? ''),
+    givenName: String(formData.get('givenName') ?? ''),
+    familyName: String(formData.get('familyName') ?? ''),
+    roleKey: String(formData.get('roleKey') ?? ''),
+    departmentId: String(formData.get('departmentId') ?? ''),
+  });
+  if (!built.ok) return built;
+
+  const result = await runWorkforceCommand('InviteMember', (client) =>
+    client.executeWorkforceCommand('InviteMember', built.payload, createId()).then((r) => r.data),
+  );
+  if (!result.ok) return result;
+
+  revalidatePath(equipoHref());
+  revalidatePath(inviteMemberHref());
+  const memberId = typeof result.data?.memberId === 'string' ? result.data.memberId : '';
+  if (memberId) {
+    revalidatePath(memberHref(memberId));
+    return { ...result, redirectTo: memberHref(memberId) };
+  }
+  return result;
 }
 
 export async function changeDepartmentAction(formData: FormData): Promise<CommandActionResult> {

@@ -37,6 +37,21 @@ export class ApprovalsController {
     }
   }
 
+  @Get('subject')
+  async listSubjectApprovals(
+    @Query('subjectType') subjectType: string,
+    @Query('subjectId') subjectId: string,
+    @Req() req: Request,
+  ) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      return await this.approvalQuery.listSubjectApprovals(ctx, subjectType ?? '', subjectId ?? '');
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
   @Get(':approvalRequestId')
   async getApproval(@Param('approvalRequestId') approvalRequestId: string, @Req() req: Request) {
     try {

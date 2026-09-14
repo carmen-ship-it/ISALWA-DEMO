@@ -63,6 +63,7 @@ describe('env-validation', () => {
     assert.equal(env.profile, 'development');
     assert.equal(env.authMode, 'dev');
     assert.equal(env.devBootstrapEnabled, true);
+    assert.equal(env.attentionClockEnabled, true);
   });
 
   it('accepts valid production-like supabase config', () => {

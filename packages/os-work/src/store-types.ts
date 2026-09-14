@@ -28,6 +28,14 @@ export type OwnershipHistoryRecord = {
   changedAt: Date;
 };
 
+export type CommercialApprovalSubjectRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  status: string;
+  partyId: string;
+};
+
 export type ApprovalRequestRecord = {
   id: string;
   organizationId: string;

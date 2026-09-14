@@ -24,7 +24,6 @@ describe('UI-2B command registry', () => {
 
   it('does not expose blocked provider commands', () => {
     assert.deepEqual(WORKFORCE_COMMANDS_BLOCKED_IN_UI, [
-      'InviteMember',
       'RehireMember',
       'ChangeMemberEmail',
       'RetryAuthProviderSync',
@@ -127,7 +126,7 @@ describe('UI-2B delegation scopes', () => {
 });
 
 describe('UI-2B blocked command absence in UI registry', () => {
-  it('InviteMember not wired', () => {
+  it('InviteMember is not part of the UI-2B registry', () => {
     assert.equal(UI_2B_WORKFORCE_COMMANDS.includes('InviteMember' as never), false);
   });
 

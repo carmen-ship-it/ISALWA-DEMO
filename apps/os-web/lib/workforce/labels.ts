@@ -62,6 +62,10 @@ export function formatRoleKey(roleKey: string): string {
       return 'Ventas';
     case 'sales_manager':
       return 'Jefe de ventas';
+    case 'commercial.team.read':
+      return 'Lectura comercial del equipo';
+    case 'commercial.org.read':
+      return 'Lectura comercial de la empresa';
     case 'finance.admin':
       return 'Finanzas';
     case 'operations':
@@ -126,6 +130,9 @@ export const FILTERABLE_EMPLOYMENT_STATUSES = ['active', 'pending_start', 'termi
 export function accessStatusExplanation(accessStatus: string, employmentStatus: string): string | null {
   if (accessStatus === 'suspended' && employmentStatus !== 'terminated') {
     return 'Acceso suspendido temporalmente. La relación laboral puede seguir activa.';
+  }
+  if (accessStatus === 'invited') {
+    return 'Invitación pendiente. El proveedor de acceso envía el correo y allí se define la contraseña. Esta aplicación no crea ni restablece contraseñas. El acceso al sistema sigue pendiente hasta que el proveedor vincule la identidad.';
   }
   if (accessStatus === 'revoked' || employmentStatus === 'terminated') {
     return 'Relación laboral finalizada o acceso revocado de forma permanente.';

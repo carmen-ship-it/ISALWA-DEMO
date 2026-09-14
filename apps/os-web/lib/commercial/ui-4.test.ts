@@ -146,11 +146,11 @@ describe('UI-4 Cliente 360 integration contract', () => {
   });
 
   it('documents parallel request budget', () => {
-    assert.equal(CLIENTE_360_REQUEST_COUNT, 6);
+    assert.equal(CLIENTE_360_REQUEST_COUNT, 7);
   });
 
   it('does not reference legacy Account or ActivityEvent APIs', () => {
-    const sources = ['getParty', 'listOpportunities', 'listQuotes', 'listOrders', 'listPartyTimeline'];
+    const sources = ['getParty', 'listOpportunities', 'listQuotes', 'listOrders', 'listPartyTimeline', 'listPartyLocations'];
     assert.equal(sources.includes('getAccount'), false);
     assert.equal(sources.includes('listActivityEvents'), false);
   });

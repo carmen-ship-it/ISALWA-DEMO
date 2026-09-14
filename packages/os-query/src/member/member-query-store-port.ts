@@ -1,8 +1,9 @@
 import type { ListMembersQuery, MemberSummaryReadModel } from '@isalwa/os-contracts';
+import type { DirectReportLookup } from '../leadership/direct-reports';
 
 export type MemberDirectoryRow = MemberSummaryReadModel;
 
-export interface MemberQueryStorePort {
+export interface MemberQueryStorePort extends DirectReportLookup {
   listMembers(
     organizationId: string,
     query: ListMembersQuery,

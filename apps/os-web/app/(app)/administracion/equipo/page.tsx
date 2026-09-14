@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { EmptyState, PageContainer, PageSection } from '@isalwa/ui';
+import { Button, EmptyState, PageContainer, PageSection } from '@isalwa/ui';
 import { AdminSubNav } from '@/components/admin/admin-sub-nav';
 import { MemberList } from '@/components/admin/member-list';
 import { MemberSearchForm } from '@/components/admin/member-search-form';
@@ -9,8 +9,9 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { INVITE_EMPLOYEE_ACTION_LABEL, inviteEmployeeVisible } from '@/lib/workforce/invite';
 import { buildDirectoryLabelMap } from '@/lib/workforce/member-labels';
-import { equipoHref } from '@/lib/workforce/navigation';
+import { equipoHref, inviteMemberHref } from '@/lib/workforce/navigation';
 import type { MemberSearchParams } from '@/lib/workforce/types';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -26,8 +27,8 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
   const client = createOsApiClient(auth);
 
   try {
-    const allowed = await client.probeAdminAccess();
-    if (!allowed) {
+    const peopleAdmin = await client.probeAdminAccess();
+    if (!inviteEmployeeVisible({ peopleAdmin })) {
       return (
         <PageContainer label="Equipo" className="flex min-h-[50vh] items-center justify-center">
           <AccessDeniedState />
@@ -60,6 +61,13 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
           kicker="Administración"
           title="Equipo"
           description="Personas de su empresa con rol, departamento y estado de acceso."
+          action={
+            <Link href={inviteMemberHref()}>
+              <Button type="button" variant="primary">
+                {INVITE_EMPLOYEE_ACTION_LABEL}
+              </Button>
+            </Link>
+          }
         />
 
         <AdminSubNav />
@@ -78,7 +86,16 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
                 description={
                   hasFilters
                     ? 'Pruebe con otros filtros o limpie la búsqueda.'
-                    : 'Cuando se registren personas en la empresa, aparecerán aquí.'
+                    : 'Invite a la primera persona. El rol se elige aquí; no se infiere del cargo.'
+                }
+                action={
+                  hasFilters ? undefined : (
+                    <Link href={inviteMemberHref()} className="inline-flex">
+                      <Button type="button" variant="primary">
+                        {INVITE_EMPLOYEE_ACTION_LABEL}
+                      </Button>
+                    </Link>
+                  )
                 }
               />
             ) : (

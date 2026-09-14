@@ -39,6 +39,8 @@ export const APPROVAL_SUBJECT_TYPES = [
   'party',
   'organization_member',
   'work_item',
+  'quote',
+  'order',
 ] as const;
 
 export type ApprovalSubjectType = (typeof APPROVAL_SUBJECT_TYPES)[number];

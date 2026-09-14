@@ -217,13 +217,6 @@ export function QuoteEditor({ partyId, quote }: QuoteEditorProps) {
             </dl>
           </PageSection>
         ) : null}
-        {quote.status === 'submitted' ? (
-          <PageSection card className="p-6">
-            <p className="text-sm text-[var(--isalwa-slate)]">
-              Conversión a pedido pendiente de política comercial.
-            </p>
-          </PageSection>
-        ) : null}
       </div>
     );
   }

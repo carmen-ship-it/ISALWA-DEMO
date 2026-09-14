@@ -89,10 +89,13 @@ describe('health controller', () => {
 
   it('liveness returns ok without dependency checks', async () => {
     const { HealthController } = await import('./health.controller');
-    const controller = new HealthController({
-      getState: () => ({ running: false, lastRunAt: null }),
-      getHealth: async () => ({ backlog: { pending: 0 } }),
-    } as never);
+    const controller = new HealthController(
+      {
+        getState: () => ({ running: false, lastRunAt: null }),
+        getHealth: async () => ({ backlog: { pending: 0 } }),
+      } as never,
+      { getState: () => ({ running: false, lastRunAt: null, lastError: null, lastRun: null, lastSuccessAt: null }) } as never,
+    );
     const body = controller.liveness();
     assert.equal(body.status, 'ok');
     assert.equal(body.check, 'liveness');
@@ -106,16 +109,20 @@ describe('health controller', () => {
       SUPABASE_URL: 'https://example.supabase.co',
       SUPABASE_ANON_KEY: 'anon-key-example',
       OS_OUTBOX_WORKER: '0',
+      OS_ATTENTION_CLOCK: '0',
       OS_CORS_ORIGINS: 'https://isalwa-demo.vercel.app',
     });
     resetValidatedOsEnvCacheForTests();
     validateOsApiEnvironment();
 
     const { HealthController } = await import('./health.controller');
-    const controller = new HealthController({
-      getState: () => ({ running: false, lastRunAt: null }),
-      getHealth: async () => ({ backlog: { pending: 0 } }),
-    } as never);
+    const controller = new HealthController(
+      {
+        getState: () => ({ running: false, lastRunAt: null }),
+        getHealth: async () => ({ backlog: { pending: 0 } }),
+      } as never,
+      { getState: () => ({ running: false, lastRunAt: null, lastError: null, lastRun: null, lastSuccessAt: null }) } as never,
+    );
 
     const res = {
       statusCode: 200,

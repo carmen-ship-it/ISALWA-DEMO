@@ -19,6 +19,10 @@ export function memberHref(memberId: string): string {
   return `/administracion/equipo/${encodeURIComponent(memberId)}`;
 }
 
+export function inviteMemberHref(): string {
+  return '/administracion/equipo/invitar';
+}
+
 export function capacidadesHref(): string {
   return '/administracion/capacidades';
 }

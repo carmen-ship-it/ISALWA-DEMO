@@ -16,6 +16,8 @@ type QuoteOrgListProps = {
   memberLabels: MemberLabelMap;
   partyLabels: PartyLabelMap;
   compact?: boolean;
+  /** Leadership lists omit document amounts. Default keeps the existing quote list. */
+  showAmount?: boolean;
 };
 
 export function QuoteOrgList({
@@ -23,6 +25,7 @@ export function QuoteOrgList({
   memberLabels,
   partyLabels,
   compact,
+  showAmount = true,
 }: QuoteOrgListProps) {
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Cotizaciones">
@@ -44,10 +47,12 @@ export function QuoteOrgList({
                   </Link>
                   {!compact ? (
                     <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
-                      <div>
-                        <dt className="sr-only">Total</dt>
-                        <dd>Total: {formatCentavos(item.totalCentavos, item.currency)}</dd>
-                      </div>
+                      {showAmount ? (
+                        <div>
+                          <dt className="sr-only">Total</dt>
+                          <dd>Total: {formatCentavos(item.totalCentavos, item.currency)}</dd>
+                        </div>
+                      ) : null}
                       <div>
                         <dt className="sr-only">Fecha</dt>
                         <dd>Fecha: {dateLabel}</dd>
@@ -59,8 +64,9 @@ export function QuoteOrgList({
                     </dl>
                   ) : (
                     <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                      {formatCentavos(item.totalCentavos, item.currency)}
-                      {dateLabel ? ` · ${dateLabel}` : ''}
+                      {showAmount
+                        ? `${formatCentavos(item.totalCentavos, item.currency)}${dateLabel ? ` · ${dateLabel}` : ''}`
+                        : `${memberLabel(memberLabels, item.ownerMemberId)}${dateLabel ? ` · ${dateLabel}` : ''}`}
                     </p>
                   )}
                 </div>

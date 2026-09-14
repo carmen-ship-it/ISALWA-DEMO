@@ -6,7 +6,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import type { CommandActionResult, CreateRedirectResult } from '@/lib/commercial/command-types';
-import { opportunityHref, quoteHref } from '@/lib/commercial/navigation';
+import { opportunityHref, orderHref, quoteHref } from '@/lib/commercial/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 
@@ -335,5 +335,104 @@ export async function cancelQuoteAction(formData: FormData): Promise<CommandActi
     revalidateCliente360(partyId);
     revalidatePath(quoteHref(partyId, quoteId));
   }
+  return result;
+}
+
+export async function createOrderAction(formData: FormData): Promise<CreateRedirectResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const quoteId = String(formData.get('quoteId') ?? '').trim();
+  if (!quoteId) return { ok: false, error: 'Cotización no válida.' };
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  try {
+    const result = await client.executeCommand('CreateOrder', { quoteId }, createId());
+    revalidateCliente360(partyId);
+    revalidatePath(quoteHref(partyId, quoteId));
+    const orderId = String(result.data.orderId ?? '');
+    if (orderId) {
+      return { ok: true, redirectTo: `${orderHref(partyId, orderId)}?resultado=pedido` };
+    }
+    return { ok: true, redirectTo: quoteHref(partyId, quoteId) };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function requestCommercialApprovalAction(formData: FormData): Promise<CommandActionResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const subjectType = String(formData.get('subjectType') ?? '').trim();
+  const subjectId = String(formData.get('subjectId') ?? '').trim();
+  const approverMemberId = String(formData.get('approverMemberId') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+  if (subjectType !== 'quote' && subjectType !== 'order') {
+    return { ok: false, error: 'Solo se puede solicitar aprobación de una cotización o un pedido.' };
+  }
+  if (!subjectId || !approverMemberId) {
+    return { ok: false, error: 'Seleccione un aprobador.' };
+  }
+
+  const payload: Record<string, unknown> = { subjectType, subjectId, approverMemberId };
+  if (note) payload.context = { note };
+
+  const result = await runCommand((client) =>
+    client.executeWorkCommand('RequestApproval', payload, createId()).then((r) => r.data),
+  );
+  if (result.ok && partyId) {
+    revalidateCliente360(partyId);
+    revalidatePath(subjectType === 'quote' ? quoteHref(partyId, subjectId) : orderHref(partyId, subjectId));
+  }
+  return result;
+}
+
+export async function decideCommercialApprovalAction(formData: FormData): Promise<CommandActionResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const subjectType = String(formData.get('subjectType') ?? '').trim();
+  const subjectId = String(formData.get('subjectId') ?? '').trim();
+  const approvalRequestId = String(formData.get('approvalRequestId') ?? '').trim();
+  const decision = String(formData.get('decision') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '').trim();
+  if (!approvalRequestId) return { ok: false, error: 'Aprobación no válida.' };
+  if (decision !== 'Approve' && decision !== 'Reject') {
+    return { ok: false, error: 'Decisión no válida.' };
+  }
+  if (decision === 'Reject' && !reason) {
+    return { ok: false, error: 'Indique un motivo para rechazar.' };
+  }
+
+  const payload: Record<string, unknown> = { approvalRequestId };
+  if (reason) payload.reason = reason;
+  const result = await runCommand((client) =>
+    client.executeWorkCommand(decision, payload, createId()).then((r) => r.data),
+  );
+  if (result.ok && partyId && subjectId) {
+    revalidateCliente360(partyId);
+    revalidatePath(subjectType === 'order' ? orderHref(partyId, subjectId) : quoteHref(partyId, subjectId));
+  }
+  return result;
+}
+
+export async function reassignCommercialAccountOwnerAction(
+  formData: FormData,
+): Promise<CommandActionResult> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const commercialAccountId = String(formData.get('commercialAccountId') ?? '').trim();
+  const ownerMemberId = String(formData.get('ownerMemberId') ?? '').trim();
+  const confirmed = String(formData.get('confirmed') ?? '') === 'yes';
+  if (!commercialAccountId || !ownerMemberId) {
+    return { ok: false, error: 'Seleccione el nuevo responsable.' };
+  }
+  if (!confirmed) {
+    return { ok: false, error: 'Confirme el cambio de responsable.' };
+  }
+
+  const result = await runCommand((client) =>
+    client
+      .executeCommand('ReassignCommercialAccountOwner', { commercialAccountId, ownerMemberId }, createId())
+      .then((r) => r.data),
+  );
+  if (result.ok && partyId) revalidateCliente360(partyId);
   return result;
 }

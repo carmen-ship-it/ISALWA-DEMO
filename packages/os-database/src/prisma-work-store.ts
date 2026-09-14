@@ -3,6 +3,7 @@ import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@
 import type { OsWorkStore } from '@isalwa/os-work';
 import type {
   ApprovalRequestRecord,
+  CommercialApprovalSubjectRecord,
   DelegationRecord,
   IdempotencyRecord,
   MemberRecord,
@@ -71,6 +72,53 @@ export class PrismaOsWorkStore implements OsWorkStore {
       where: { id: partyId, organizationId, status: { not: 'merged' } },
     });
     return Boolean(row);
+  }
+
+  async getQuoteApprovalSubject(
+    organizationId: string,
+    quoteId: string,
+  ): Promise<CommercialApprovalSubjectRecord | null> {
+    const row = await this.db().osQuote.findFirst({
+      where: { id: quoteId, organizationId },
+      select: { id: true, organizationId: true, ownerMemberId: true, status: true, partyId: true },
+    });
+    return row;
+  }
+
+  async getOrderApprovalSubject(
+    organizationId: string,
+    orderId: string,
+  ): Promise<CommercialApprovalSubjectRecord | null> {
+    const row = await this.db().osOrder.findFirst({
+      where: { id: orderId, organizationId },
+      select: { id: true, organizationId: true, ownerMemberId: true, status: true, partyId: true },
+    });
+    return row;
+  }
+
+  async listApprovalsForSubject(
+    organizationId: string,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<ApprovalRequestRecord[]> {
+    const rows = await this.db().osApprovalRequest.findMany({
+      where: { organizationId, subjectType, subjectId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      organizationId: row.organizationId,
+      workItemId: row.workItemId,
+      subjectType: row.subjectType,
+      subjectId: row.subjectId,
+      requestedByMemberId: row.requestedByMemberId,
+      approverMemberId: row.approverMemberId,
+      status: row.status,
+      contextSnapshotJson: (row.contextSnapshotJson ?? {}) as Record<string, unknown>,
+      decisionByMemberId: row.decisionByMemberId,
+      decisionReason: row.decisionReason,
+      decidedAt: row.decidedAt,
+    }));
   }
 
   async insertWorkItem(item: WorkItemRecord): Promise<void> {

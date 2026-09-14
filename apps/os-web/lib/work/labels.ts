@@ -72,6 +72,10 @@ export function formatSubjectType(subjectType: string | null): string | null {
       return 'Cuenta comercial';
     case 'work_item':
       return 'Trabajo relacionado';
+    case 'quote':
+      return 'Cotización';
+    case 'order':
+      return 'Pedido';
     default:
       return 'Asunto';
   }

@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
+import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
 import { PageHeader } from '@/components/shell/page-header';
@@ -16,6 +18,8 @@ import {
 } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { formatCentavos } from '@/lib/commercial/money';
+import { orderHref } from '@/lib/commercial/navigation';
+import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -33,8 +37,26 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
   const client = createOsApiClient(auth);
 
   try {
-    const { quote, freshness } = await client.getQuote(quoteId);
+    const { quote, freshness, authority } = await client.getQuote(quoteId);
     const memberLabels = await resolveMemberLabels(client, [quote.ownerMemberId]);
+    const relatedOrders =
+      quote.status === 'accepted' ? await client.listOrders({ quoteId: quote.quoteId, partyId, limit: 5 }) : null;
+    const relatedOrder = relatedOrders?.items[0] ?? null;
+    let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
+    let approvals: SubjectApprovalItem[] = [];
+    if (quote.status === 'submitted' || quote.status === 'accepted') {
+      try {
+        const [members, history] = await Promise.all([
+          client.listActiveMemberOptions(),
+          client.listSubjectApprovals('quote', quote.quoteId),
+        ]);
+        approvalMembers = members.items;
+        approvals = history.items as SubjectApprovalItem[];
+      } catch {
+        approvalMembers = [];
+        approvals = [];
+      }
+    }
 
     return (
       <PageContainer label={quote.quoteNumber}>
@@ -103,6 +125,49 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             <SectionHeader title={FOLLOW_UP_COPY.section} />
             <div className="mt-4">
               <RegisterFollowUpForm partyId={quote.partyId} quoteId={quote.quoteId} />
+            </div>
+          </PageSection>
+        ) : null}
+
+        {authority?.canConvertToOrder ? (
+          <PageSection card className="mt-6 p-6">
+            <SectionHeader title="Pedido" />
+            <div className="mt-4">
+              <ConvertQuoteForm partyId={partyId} quoteId={quote.quoteId} />
+            </div>
+          </PageSection>
+        ) : null}
+
+        {relatedOrder ? (
+          <PageSection card className="mt-6 p-6">
+            <SectionHeader title="Pedido" />
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+              Esta cotización ya tiene un pedido. La relación se conserva.
+            </p>
+            <Link
+              href={orderHref(partyId, relatedOrder.orderId)}
+              className="mt-4 inline-flex text-sm font-medium text-[var(--isalwa-kiln)] underline"
+            >
+              Ver {relatedOrder.orderNumber}
+            </Link>
+          </PageSection>
+        ) : null}
+
+        {quote.status === 'submitted' || approvals.length > 0 ? (
+          <PageSection card className="mt-6 p-6">
+            <SectionHeader title="Aprobación" />
+            <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+              La aprobación registra una decisión humana. No convierte la cotización ni cambia el precio.
+            </p>
+            <div className="mt-4">
+              <CommercialApprovalPanel
+                partyId={partyId}
+                subjectType="quote"
+                subjectId={quote.quoteId}
+                canRequest={authority?.canRequestApproval === true}
+                members={approvalMembers}
+                approvals={approvals}
+              />
             </div>
           </PageSection>
         ) : null}

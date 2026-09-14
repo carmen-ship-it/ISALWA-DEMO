@@ -43,8 +43,9 @@ export default async function AdministracionPage() {
             <Link href={equipoHref()} className="font-medium text-[var(--isalwa-glaze)] hover:underline">
               Equipo
             </Link>
-            {' '}puede cambiar departamento, rol, responsable, suspender o reactivar acceso,
-            finalizar relaciones y gestionar delegaciones según el estado de cada empleado.
+            {' '}puede invitar empleados, cambiar departamento, rol o responsable, suspender o
+            reactivar acceso, finalizar relaciones y gestionar delegaciones según el estado de
+            cada persona. La invitación no crea contraseñas ni asigna administración sola.
           </p>
         </PageSection>
       </div>

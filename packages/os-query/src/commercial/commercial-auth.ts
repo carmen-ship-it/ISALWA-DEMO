@@ -6,6 +6,10 @@ import type {
   StoredQuoteReadModel,
 } from '../projection-store-port';
 
+/**
+ * Existing directory-admin commercial read. Not a manager shortcut.
+ * Team and org leadership reads use commercial.team.read / commercial.org.read.
+ */
 export function isCommercialOrgAdmin(auth: MemberAccessSnapshot): boolean {
   return memberHasScope(auth, 'people.admin');
 }

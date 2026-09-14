@@ -9,6 +9,7 @@ const SECTIONS = [
   { id: 'oportunidades', label: 'Oportunidades' },
   { id: 'cotizaciones', label: 'Cotizaciones' },
   { id: 'pedidos', label: 'Pedidos' },
+  { id: 'ubicaciones', label: 'Ubicaciones' },
   { id: 'historial', label: 'Historial' },
 ] as const;
 

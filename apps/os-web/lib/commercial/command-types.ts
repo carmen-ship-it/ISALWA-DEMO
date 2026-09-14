@@ -6,7 +6,7 @@ export type CommercialCommandResult = {
   data: Record<string, unknown>;
 };
 
-/** Commands wired in UI-5A — CreateOrder intentionally excluded (G-02). */
+/** Opportunity and quote writes from UI-5A. CreateOrder is a separate provisional authority surface. */
 export const UI_5A_COMMERCIAL_COMMANDS = [
   'CreateOpportunity',
   'UpdateOpportunity',
@@ -24,7 +24,7 @@ export const UI_5A_COMMERCIAL_COMMANDS = [
 
 export type Ui5aCommercialCommand = (typeof UI_5A_COMMERCIAL_COMMANDS)[number];
 
-export const COMMERCIAL_COMMANDS_NOT_EXPOSED = ['CreateOrder', 'CancelOrder'] as const;
+export const COMMERCIAL_COMMANDS_NOT_EXPOSED = ['CancelOrder'] as const;
 
 export type CommandActionResult =
   | { ok: true; data?: Record<string, unknown> }

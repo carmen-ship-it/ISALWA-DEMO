@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   computeEffectiveScopes,
+  memberHasGrantedScope,
   memberHasScope,
   isAssignmentActive,
   aiEffectiveScopes,
@@ -97,5 +98,20 @@ describe('authorization', () => {
     };
     assert.deepEqual(aiEffectiveScopes(snap), ['sales_rep']);
     assert.equal(memberHasScope(snap, 'people.admin'), false);
+  });
+
+  it('granted read scope is not an admin scope', () => {
+    const snap = {
+      memberId: 'm1',
+      organizationId: 'o1',
+      accessStatus: 'active',
+      roleKeys: ['commercial.team.read', 'commercial.org.read'],
+      delegatedScopes: [],
+    };
+    assert.equal(memberHasGrantedScope(snap, 'commercial.team.read'), true);
+    assert.equal(memberHasGrantedScope(snap, 'commercial.org.read'), true);
+    assert.equal(memberHasScope(snap, 'people.admin'), false);
+    assert.equal(memberHasScope(snap, 'master_data.admin'), false);
+    assert.equal(memberHasGrantedScope({ ...snap, accessStatus: 'suspended' }, 'commercial.org.read'), false);
   });
 });

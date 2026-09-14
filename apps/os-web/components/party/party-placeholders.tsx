@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { EmptyState } from '@isalwa/ui';
 
 type FutureSectionPlaceholderProps = {
@@ -20,14 +21,22 @@ export function FutureSectionPlaceholder({ title, description }: FutureSectionPl
 
 type PartyEmptySearchProps = {
   hasQuery: boolean;
+  addCustomerHref?: string;
 };
 
-export function PartyEmptySearch({ hasQuery }: PartyEmptySearchProps) {
+export function PartyEmptySearch({ hasQuery, addCustomerHref }: PartyEmptySearchProps) {
   if (hasQuery) {
     return (
       <EmptyState
         title="Sin resultados"
         description="No encontramos empresas o contactos con esos criterios. Pruebe otro término o quite filtros."
+        action={
+          addCustomerHref ? (
+            <Link href={addCustomerHref} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+              Agregar cliente
+            </Link>
+          ) : undefined
+        }
       />
     );
   }
@@ -37,6 +46,13 @@ export function PartyEmptySearch({ hasQuery }: PartyEmptySearchProps) {
       title="No hay clientes registrados todavía"
       description="Cuando se registren empresas o contactos en el sistema, aparecerán aquí."
       example="Una empresa puede ser cliente y proveedor al mismo tiempo — verá una sola ficha con varias relaciones."
+      action={
+        addCustomerHref ? (
+          <Link href={addCustomerHref} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+            Agregar cliente
+          </Link>
+        ) : undefined
+      }
     />
   );
 }

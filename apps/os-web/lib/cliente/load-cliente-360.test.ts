@@ -55,6 +55,7 @@ function mockClient(overrides: {
     listOrders: async () => overrides.orders ?? emptyList(null),
     listPartyTimeline: async () => overrides.timeline ?? emptyList(null),
     listWorkItems: async () => overrides.work ?? emptyList(null),
+    listPartyLocations: async () => ({ partyId: 'party-1', locations: [] }),
     listMembers: async () => ({ items: [], meta: emptyMeta }),
   } as unknown as OsApiClient;
 }
@@ -111,6 +112,7 @@ describe('loadCliente360 null freshness', () => {
     assert.equal(data.quotes.status, 'ok');
     assert.equal(data.orders.status, 'ok');
     assert.equal(data.relatedWork.status, 'ok');
+    assert.equal(data.locations.status, 'ok');
   });
 
   it('does not mark stale when freshness present and isStale=false', async () => {

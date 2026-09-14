@@ -19,9 +19,16 @@ type WorkListProps = {
   items: WorkSummaryReadModel[];
   memberLabels: MemberLabelMap;
   presentation?: 'work' | 'follow-up';
+  /** Leadership lists omit approval state. They do not grant approval authority. */
+  showApproval?: boolean;
 };
 
-export function WorkList({ items, memberLabels, presentation = 'work' }: WorkListProps) {
+export function WorkList({
+  items,
+  memberLabels,
+  presentation = 'work',
+  showApproval = true,
+}: WorkListProps) {
   const followUp = presentation === 'follow-up';
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Lista de trabajo'}>
@@ -77,7 +84,7 @@ export function WorkList({ items, memberLabels, presentation = 'work' }: WorkLis
                         </dd>
                       </div>
                     ) : null}
-                    {work.approvalStatus !== 'none' ? (
+                    {showApproval && work.approvalStatus !== 'none' ? (
                       <div>
                         <dt className="sr-only">Estado de aprobación</dt>
                         <dd>{formatWorkApprovalStatus(work.approvalStatus)}</dd>

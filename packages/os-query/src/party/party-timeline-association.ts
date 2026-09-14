@@ -67,6 +67,16 @@ async function resolvePartyFromApprovalSubject(
     );
   }
 
+  if (subjectType === 'quote') {
+    const quote = await deps.commercialStore.getQuoteInOrg(organizationId, subjectId);
+    return quote?.partyId ?? null;
+  }
+
+  if (subjectType === 'order') {
+    const order = await deps.commercialStore.getOrderInOrg(organizationId, subjectId);
+    return order?.partyId ?? null;
+  }
+
   return null;
 }
 

@@ -12,6 +12,7 @@ async function main(): Promise<number> {
         authMode: env.authMode,
         database: env.databaseConfigured ? 'configured' : 'not_configured',
         outboxWorker: env.outboxWorkerEnabled ? 'enabled' : 'disabled',
+        attentionClock: env.attentionClockEnabled ? 'enabled' : 'disabled',
         devBootstrap: env.devBootstrapEnabled ? 'enabled' : 'disabled',
       }),
     );

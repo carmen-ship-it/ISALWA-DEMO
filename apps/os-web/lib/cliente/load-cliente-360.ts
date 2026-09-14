@@ -1,5 +1,5 @@
 import type { OsApiClient } from '@/lib/api/os-api-client';
-import type { PartyDetailResponse } from '@/lib/party/types';
+import type { PartyDetailResponse, PartyLocationsResponse } from '@/lib/party/types';
 import { fetchCommercialSection, type FetchOutcome } from '@/lib/commercial/fetch-outcome';
 import type {
   OpportunityListResponse,
@@ -19,6 +19,7 @@ export type Cliente360Data = {
   orders: FetchOutcome<OrderListResponse>;
   timeline: FetchOutcome<PartyTimelineResponse>;
   relatedWork: FetchOutcome<WorkListResponse>;
+  locations: FetchOutcome<PartyLocationsResponse>;
   memberLabels: Awaited<ReturnType<typeof resolveMemberLabels>>;
   staleFreshness: boolean;
 };
@@ -36,7 +37,7 @@ export async function loadCliente360(
   const detail = await client.getParty(partyId);
   const commercialAccountId = detail.commercialAccount?.id ?? null;
 
-  const [opportunities, quotes, orders, timeline, relatedWork] = await Promise.all([
+  const [opportunities, quotes, orders, timeline, relatedWork, locations] = await Promise.all([
     fetchCommercialSection(() => client.listOpportunities({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listQuotes({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listOrders({ partyId, limit: 10 })),
@@ -61,6 +62,7 @@ export async function loadCliente360(
         return partyWork;
       }
     }),
+    fetchCommercialSection(() => client.listPartyLocations(partyId)),
   ]);
 
   const memberIds = new Set<string>();
@@ -80,6 +82,10 @@ export async function loadCliente360(
     }
   }
 
+  if (detail.commercialAccount?.ownerMemberId) {
+    memberIds.add(detail.commercialAccount.ownerMemberId);
+  }
+
   const memberLabels = await resolveMemberLabels(client, memberIds);
 
   const staleFreshness =
@@ -96,10 +102,11 @@ export async function loadCliente360(
     orders,
     timeline,
     relatedWork,
+    locations,
     memberLabels,
     staleFreshness,
   };
 }
 
-/** Cliente detail: 1 party + up to 4 commercial/timeline + 1 work = 6 parallel reads max. */
-export const CLIENTE_360_REQUEST_COUNT = 6;
+/** Cliente detail: 1 party + 4 commercial/timeline + 1 work + 1 locations = 7 parallel reads max. */
+export const CLIENTE_360_REQUEST_COUNT = 7;

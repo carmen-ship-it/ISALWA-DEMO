@@ -55,6 +55,17 @@ export class MembersController {
     }
   }
 
+  @Get('active-options')
+  async listActiveOptions(@Req() req: Request) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      return await this.memberQuery.listActiveMemberOptions(ctx);
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
   @Get(':memberId')
   async getMember(@Param('memberId') memberId: string, @Req() req: Request) {
     try {

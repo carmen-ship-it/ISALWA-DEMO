@@ -89,11 +89,20 @@ export const ATTENTION_TYPES = [
 
 export type AttentionType = (typeof ATTENTION_TYPES)[number];
 
+/** Explicit read lens. Omitted keeps the existing personal (or people.admin) list. */
+export const COMMERCIAL_VISIBILITY_MODES = ['own', 'team', 'org'] as const;
+export type CommercialVisibilityMode = (typeof COMMERCIAL_VISIBILITY_MODES)[number];
+
 export const ListOpenWorkQuerySchema = CursorPaginationSchema.extend({
   ownerMemberId: z.string().trim().optional(),
   status: z.enum(['open', 'completed', 'cancelled']).optional(),
   subjectType: z.string().trim().optional(),
   subjectId: z.string().trim().optional(),
+  visibility: z.enum(COMMERCIAL_VISIBILITY_MODES).optional(),
+  /** Open work with dueAt before the server clock. Not a client-supplied cutoff. */
+  overdue: z.coerce.boolean().optional(),
+  /** Open follow-up work (party / commercial account subject). Read only. */
+  followUpOnly: z.coerce.boolean().optional(),
 });
 
 export type ListOpenWorkQuery = z.infer<typeof ListOpenWorkQuerySchema>;
@@ -254,6 +263,7 @@ export const ListOpportunitiesQuerySchema = CursorPaginationSchema.extend({
   stage: z.string().trim().optional(),
   partyId: z.string().trim().optional(),
   ownerMemberId: z.string().trim().optional(),
+  visibility: z.enum(COMMERCIAL_VISIBILITY_MODES).optional(),
 });
 
 export type ListOpportunitiesQuery = z.infer<typeof ListOpportunitiesQuerySchema>;
@@ -263,6 +273,7 @@ export const ListQuotesQuerySchema = CursorPaginationSchema.extend({
   partyId: z.string().trim().optional(),
   opportunityId: z.string().trim().optional(),
   ownerMemberId: z.string().trim().optional(),
+  visibility: z.enum(COMMERCIAL_VISIBILITY_MODES).optional(),
 });
 
 export type ListQuotesQuery = z.infer<typeof ListQuotesQuerySchema>;

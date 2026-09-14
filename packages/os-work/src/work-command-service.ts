@@ -1,5 +1,9 @@
 import type { WorkCommandName, RequestContext } from '@isalwa/os-contracts';
-import { ApprovalRequestContextSchema, COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
+import {
+  ApprovalRequestContextSchema,
+  COMMAND_REQUIRED_SCOPES,
+  canRequestCommercialSubjectApproval,
+} from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -364,6 +368,23 @@ export class WorkCommandService {
     const subjectType = String(payload.subjectType);
     const subjectId = String(payload.subjectId);
     await validateApprovalSubject(store, ctx.organizationId, subjectType, subjectId);
+    const commercialSubject =
+      subjectType === 'quote'
+        ? await store.getQuoteApprovalSubject(ctx.organizationId, subjectId)
+        : subjectType === 'order'
+          ? await store.getOrderApprovalSubject(ctx.organizationId, subjectId)
+          : null;
+    if (subjectType === 'quote' || subjectType === 'order') {
+      if (
+        !commercialSubject ||
+        !canRequestCommercialSubjectApproval({
+          actorMemberId: ctx.actorMemberId,
+          subjectOwnerMemberId: commercialSubject.ownerMemberId,
+        })
+      ) {
+        throw new Error('PERMISSION_DENIED');
+      }
+    }
 
     const parsedContext = payload.context
       ? ApprovalRequestContextSchema.safeParse(payload.context)
@@ -403,6 +424,7 @@ export class WorkCommandService {
       workItemId,
       subjectType,
       subjectId,
+      ...(commercialSubject?.partyId ? { partyId: commercialSubject.partyId } : {}),
     });
   }
 

@@ -1,5 +1,5 @@
 import type { ListMembersQuery, MemberSummaryReadModel } from '@isalwa/os-contracts';
-import type { MemberQueryStorePort } from '@isalwa/os-query';
+import { directReportMemberIds, type MemberQueryStorePort } from '@isalwa/os-query';
 import type { OsPrismaClient } from './client';
 
 function isAssignmentActive(effectiveAt: Date, endedAt: Date | null, asOf: Date): boolean {
@@ -181,6 +181,24 @@ export class PrismaMemberQueryStore implements MemberQueryStorePort {
     const hasMore = mapped.length > limit;
     const items = hasMore ? mapped.slice(0, limit) : mapped;
     return { items, hasMore };
+  }
+
+  async listDirectReportMemberIds(
+    organizationId: string,
+    managerMemberId: string,
+    asOf: Date,
+  ): Promise<string[]> {
+    const rows = await this.prisma.osManagerAssignment.findMany({
+      where: { organizationId, managerMemberId },
+      select: {
+        organizationId: true,
+        memberId: true,
+        managerMemberId: true,
+        effectiveAt: true,
+        endedAt: true,
+      },
+    });
+    return directReportMemberIds(rows, organizationId, managerMemberId, asOf);
   }
 
   async listCapabilityStateOverrides(

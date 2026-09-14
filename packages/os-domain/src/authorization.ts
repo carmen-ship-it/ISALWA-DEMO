@@ -54,6 +54,14 @@ export function memberHasScope(snapshot: MemberAccessSnapshot, scope: AdminScope
   return snapshot.roleKeys.includes(scope) || snapshot.delegatedScopes.includes(scope);
 }
 
+/** Any explicitly granted role or delegation scope. Does not elevate inactive members. */
+export function memberHasGrantedScope(snapshot: MemberAccessSnapshot, scope: string): boolean {
+  if (snapshot.accessStatus !== 'active') return false;
+  const key = scope.trim();
+  if (!key) return false;
+  return snapshot.roleKeys.includes(key) || snapshot.delegatedScopes.includes(key);
+}
+
 export function assertMemberActive(snapshot: MemberAccessSnapshot): void {
   if (snapshot.accessStatus === 'revoked' || snapshot.accessStatus === 'suspended') {
     throw new Error('ACCESS_REVOKED');

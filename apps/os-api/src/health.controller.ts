@@ -1,7 +1,8 @@
 import { Controller, Get, HttpStatus, Inject, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import type { OutboxWorkerHost } from '@isalwa/os-events';
-import { OS_OUTBOX_WORKER_HOST } from './os-store.module';
+import type { AttentionClock } from '@isalwa/os-query';
+import { OS_ATTENTION_CLOCK, OS_OUTBOX_WORKER_HOST } from './os-store.module';
 import { getPublicRuntimeSnapshot } from './env-validation';
 import { pingDatabase } from './readiness';
 
@@ -9,6 +10,7 @@ import { pingDatabase } from './readiness';
 export class HealthController {
   constructor(
     @Inject(OS_OUTBOX_WORKER_HOST) private readonly outboxHost: OutboxWorkerHost,
+    @Inject(OS_ATTENTION_CLOCK) private readonly attentionClock: AttentionClock,
   ) {}
 
   /** Liveness — process is running. Does not check dependencies. */
@@ -43,6 +45,15 @@ export class HealthController {
       });
     }
 
+    const clock = this.attentionClock.getState();
+    if (runtime.databaseConfigured && runtime.attentionClockEnabled) {
+      checks.push({
+        name: 'attentionClock',
+        ok: clock.running,
+        detail: clock.running ? 'running' : 'not_running',
+      });
+    }
+
     const failedRequired = checks.some((check) => !check.ok);
     const status = failedRequired ? 'not_ready' : 'ready';
 
@@ -74,6 +85,16 @@ export class HealthController {
         ? {
             enabled: runtime.outboxWorkerEnabled,
             pending,
+          }
+        : undefined,
+      attentionClock: runtime.databaseConfigured
+        ? {
+            enabled: runtime.attentionClockEnabled,
+            running: clock.running,
+            lastRunAt: clock.lastRunAt,
+            lastSuccessAt: clock.lastSuccessAt,
+            lastError: clock.lastError,
+            lastRefreshedOrganizations: clock.lastRun?.refreshedOrganizations ?? 0,
           }
         : undefined,
     };

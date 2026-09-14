@@ -28,6 +28,7 @@ const EVENT_LABELS: Record<string, string> = {
   'quote.cancelled': 'Cotización cancelada',
   'order.created': 'Pedido creado',
   'order.cancelled': 'Pedido cancelado',
+  'commercial_account.owner_reassigned': 'Responsable comercial cambiado',
   'work.created': 'Trabajo creado',
   'task.reassigned': 'Trabajo reasignado',
   'work.completed': 'Trabajo completado',

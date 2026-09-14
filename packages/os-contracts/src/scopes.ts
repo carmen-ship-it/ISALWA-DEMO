@@ -7,6 +7,35 @@ export const ADMIN_SCOPE_KEYS = [
   'integration.admin',
 ] as const;
 
+/**
+ * Provisional pilot read scopes (Leadership Visibility V1).
+ * Explicit assignment only. Not admin, not write, not approval, not cargo-mapped.
+ * Reversible: omit the assignment and these scopes grant nothing.
+ */
+export const COMMERCIAL_READ_SCOPE_KEYS = ['commercial.team.read', 'commercial.org.read'] as const;
+
+export type CommercialReadScopeKey = (typeof COMMERCIAL_READ_SCOPE_KEYS)[number];
+
+export const COMMERCIAL_TEAM_READ_SCOPE: CommercialReadScopeKey = 'commercial.team.read';
+export const COMMERCIAL_ORG_READ_SCOPE: CommercialReadScopeKey = 'commercial.org.read';
+
+/**
+ * Provisional V1 pilot write authorities. Explicit assignment only.
+ * Not implied by people.admin, leadership read scopes, Cargo, or title.
+ * Reversible: omit the assignment and these scopes grant nothing.
+ */
+export const COMMERCIAL_AUTHORITY_SCOPE_KEYS = [
+  'commercial.order.convert',
+  'commercial.account.reassign',
+] as const;
+
+export type CommercialAuthorityScopeKey = (typeof COMMERCIAL_AUTHORITY_SCOPE_KEYS)[number];
+
+export const COMMERCIAL_ORDER_CONVERT_SCOPE: CommercialAuthorityScopeKey =
+  'commercial.order.convert';
+export const COMMERCIAL_ACCOUNT_REASSIGN_SCOPE: CommercialAuthorityScopeKey =
+  'commercial.account.reassign';
+
 export type AdminScopeKey = (typeof ADMIN_SCOPE_KEYS)[number];
 
 /** Command → required scope (minimum). */
@@ -67,4 +96,5 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   CancelQuote: 'member_active',
   CreateOrder: 'member_active',
   CancelOrder: 'member_active',
+  ReassignCommercialAccountOwner: 'member_active',
 };

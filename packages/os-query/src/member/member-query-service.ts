@@ -9,8 +9,29 @@ export type MemberQueryServiceDeps = {
   encodeCursor: (familyName: string, memberId: string) => string;
 };
 
+export type ActiveMemberOption = {
+  memberId: string;
+  displayName: string;
+};
+
 export class MemberQueryService {
   constructor(private readonly deps: MemberQueryServiceDeps) {}
+
+  /** Bounded picker for same-tenant active members. Not the admin directory. */
+  async listActiveMemberOptions(ctx: QueryContext): Promise<{ items: ActiveMemberOption[] }> {
+    assertQueryScope(ctx, 'member_active');
+    assertQueryTenantResource(ctx, ctx.organizationId);
+    const { items } = await this.deps.store.listMembers(
+      ctx.organizationId,
+      { accessStatus: 'active', limit: 100 },
+      ctx.effectiveAt,
+    );
+    return {
+      items: items
+        .filter((item) => item.accessStatus === 'active')
+        .map((item) => ({ memberId: item.memberId, displayName: item.displayName })),
+    };
+  }
 
   async listMembers(
     ctx: QueryContext,

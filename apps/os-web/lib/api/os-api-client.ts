@@ -9,7 +9,7 @@ import type {
   WorkDetailResponse,
   WorkListResponse,
 } from '@/lib/work/types';
-import type { PartyDetailResponse, PartySearchResponse } from '@/lib/party/types';
+import type { PartyDetailResponse, PartyLocationsResponse, PartySearchResponse } from '@/lib/party/types';
 import type {
   CapabilityStateResponse,
   MemberDetailResponse,
@@ -17,7 +17,13 @@ import type {
 } from '@/lib/workforce/types';
 import type { CommercialCommandResult } from '@/lib/commercial/command-types';
 import type { WorkforceCommandResult } from '@/lib/workforce/command-types';
-import type { CommercialCommandName, WorkCommandName, WorkforceCommandName } from '@isalwa/os-contracts';
+import type {
+  CommercialCommandName,
+  LocationCommandName,
+  PartyCommandName,
+  WorkCommandName,
+  WorkforceCommandName,
+} from '@isalwa/os-contracts';
 import type { WorkCommandResult } from '@/lib/work/command-types';
 import type { AuthenticatedSessionView } from '@/lib/auth/session-identity';
 import type {
@@ -213,6 +219,13 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<ApprovalListResponse>('/approvals', { method: 'GET', query }),
     getApproval: (approvalRequestId: string) =>
       request<ApprovalDetailResponse>(`/approvals/${encodeURIComponent(approvalRequestId)}`),
+    listActiveMemberOptions: () =>
+      request<{ items: Array<{ memberId: string; displayName: string }> }>('/members/active-options'),
+    listSubjectApprovals: (subjectType: string, subjectId: string) =>
+      request<{ items: Array<Record<string, unknown>> }>('/approvals/subject', {
+        method: 'GET',
+        query: { subjectType, subjectId },
+      }),
     getMember: (memberId: string) =>
       request<MemberDetailResponse>(`/members/${encodeURIComponent(memberId)}`),
     listMembers: (query?: Record<string, string | number | boolean>) =>
@@ -223,6 +236,30 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<PartySearchResponse>('/parties', { method: 'GET', query }),
     getParty: (partyId: string) =>
       request<PartyDetailResponse>(`/parties/${encodeURIComponent(partyId)}`),
+    listPartyLocations: (partyId: string) =>
+      request<PartyLocationsResponse>(`/parties/${encodeURIComponent(partyId)}/locations`),
+    executePartyCommand: (
+      commandName: PartyCommandName,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<CommercialCommandResult>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
+    executeLocationCommand: (
+      commandName: LocationCommandName,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<CommercialCommandResult>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
     listOpportunities: (query?: Record<string, string | number | boolean>) =>
       request<OpportunityListResponse>('/opportunities', { method: 'GET', query }),
     getOpportunity: (opportunityId: string) =>

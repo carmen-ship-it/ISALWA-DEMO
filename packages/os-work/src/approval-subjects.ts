@@ -1,4 +1,4 @@
-import { isApprovalSubjectType } from '@isalwa/os-contracts';
+import { isApprovalSubjectType, isOrderApprovalEligible, isQuoteApprovalEligible } from '@isalwa/os-contracts';
 import type { OsWorkStore } from './os-work-store';
 
 /**
@@ -29,6 +29,18 @@ export async function validateApprovalSubject(
     case 'work_item': {
       const work = await store.getWorkItemInOrg(organizationId, subjectId);
       if (!work || work.status !== 'open') throw new Error('NOT_FOUND');
+      return;
+    }
+    case 'quote': {
+      const quote = await store.getQuoteApprovalSubject(organizationId, subjectId);
+      if (!quote) throw new Error('NOT_FOUND');
+      if (!isQuoteApprovalEligible(quote.status)) throw new Error('VALIDATION_FAILED');
+      return;
+    }
+    case 'order': {
+      const order = await store.getOrderApprovalSubject(organizationId, subjectId);
+      if (!order) throw new Error('NOT_FOUND');
+      if (!isOrderApprovalEligible(order.status)) throw new Error('VALIDATION_FAILED');
       return;
     }
     default:

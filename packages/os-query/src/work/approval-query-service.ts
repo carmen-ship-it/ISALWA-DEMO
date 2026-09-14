@@ -1,10 +1,11 @@
 import type { ApprovalSummaryReadModel, ListPendingApprovalsQuery } from '@isalwa/os-contracts';
 import { OS_PROJECTION_CONSUMER_KEYS } from '@isalwa/os-contracts';
+import type { OsWorkStore } from '@isalwa/os-work';
 import type { QueryContext } from '../query-context';
 import { assertQueryScope, assertQueryTenantResource } from '../query-context';
 import type { PaginatedResult } from '../pagination';
 import type { OsProjectionStorePort, StoredApprovalReadModel } from '../projection-store-port';
-import { assertApprovalListScope, canViewApproval } from './work-auth';
+import { assertApprovalListScope, canActAsApproverDelegate, canViewApproval } from './work-auth';
 
 function toApprovalSummary(model: StoredApprovalReadModel): ApprovalSummaryReadModel {
   return {
@@ -26,6 +27,11 @@ function toApprovalSummary(model: StoredApprovalReadModel): ApprovalSummaryReadM
 export type ApprovalQueryServiceDeps = {
   projectionStore: OsProjectionStorePort;
   encodeCursor: (approvalRequestId: string) => string;
+  workStore?: OsWorkStore;
+};
+
+export type SubjectApprovalItem = ApprovalSummaryReadModel & {
+  canDecide: boolean;
 };
 
 export class ApprovalQueryService {
@@ -63,6 +69,77 @@ export class ApprovalQueryService {
       meta: { nextCursor, limit: query.limit ?? 25, hasMore },
       freshness,
     } satisfies PaginatedResult<ApprovalSummaryReadModel> & { freshness: unknown };
+  }
+
+  async listSubjectApprovals(
+    ctx: QueryContext,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<{ items: SubjectApprovalItem[] }> {
+    assertQueryScope(ctx, 'member_active');
+    assertQueryTenantResource(ctx, ctx.organizationId);
+    if (!this.deps.workStore) throw new Error('VALIDATION_FAILED');
+    if (subjectType !== 'quote' && subjectType !== 'order') throw new Error('VALIDATION_FAILED');
+    if (!subjectId.trim()) throw new Error('VALIDATION_FAILED');
+
+    const subject =
+      subjectType === 'quote'
+        ? await this.deps.workStore.getQuoteApprovalSubject(ctx.organizationId, subjectId)
+        : await this.deps.workStore.getOrderApprovalSubject(ctx.organizationId, subjectId);
+    if (!subject) throw new Error('NOT_FOUND');
+
+    const canSeeAll =
+      subject.ownerMemberId === ctx.auth.memberId ||
+      ctx.auth.roleKeys.includes('people.admin') ||
+      ctx.auth.roleKeys.includes('commercial.team.read') ||
+      ctx.auth.roleKeys.includes('commercial.org.read');
+
+    const rows = await this.deps.workStore.listApprovalsForSubject(
+      ctx.organizationId,
+      subjectType,
+      subjectId,
+    );
+    const visible = rows.filter((row) => {
+      if (canSeeAll) return true;
+      return canViewApproval(ctx, {
+        approvalRequestId: row.id,
+        organizationId: row.organizationId,
+        workItemId: row.workItemId,
+        subjectType: row.subjectType,
+        subjectId: row.subjectId,
+        requestedByMemberId: row.requestedByMemberId,
+        approverMemberId: row.approverMemberId,
+        status: row.status,
+        decisionByMemberId: row.decisionByMemberId,
+        decisionReason: row.decisionReason,
+        decidedAt: row.decidedAt?.toISOString() ?? null,
+        requiredScope: null,
+        lastEventId: null,
+        lastOccurredAt: null,
+        updatedAt: row.decidedAt ?? new Date(0),
+      });
+    });
+    if (!canSeeAll && visible.length === 0 && rows.length > 0) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    return {
+      items: visible.map((row) => ({
+        approvalRequestId: row.id,
+        organizationId: row.organizationId,
+        workItemId: row.workItemId,
+        subjectType: row.subjectType,
+        subjectId: row.subjectId,
+        requestedByMemberId: row.requestedByMemberId,
+        approverMemberId: row.approverMemberId,
+        status: row.status,
+        decisionByMemberId: row.decisionByMemberId,
+        decisionReason: row.decisionReason,
+        decidedAt: row.decidedAt?.toISOString() ?? null,
+        requiredScope: null,
+        canDecide: row.status === 'pending' && canActAsApproverDelegate(ctx, row.approverMemberId),
+      })),
+    };
   }
 
   async getApproval(ctx: QueryContext, approvalRequestId: string) {

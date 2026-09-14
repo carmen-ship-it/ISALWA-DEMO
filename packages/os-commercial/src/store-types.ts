@@ -22,7 +22,9 @@ export type CommercialAccountRecord = {
   id: string;
   organizationId: string;
   partyId: string;
+  ownerMemberId: string | null;
   status: string;
+  version: number;
 };
 
 export type RoleAssignmentRecord = {

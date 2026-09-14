@@ -9,7 +9,6 @@ import {
 import type { OsOutboxConsumerPort } from '@isalwa/os-events';
 import type { OsWorkStore } from '@isalwa/os-work';
 import type { OsProjectionStorePort, StoredApprovalReadModel, StoredWorkReadModel } from '../projection-store-port';
-import { deriveAttentionReadModels } from './attention-derivation';
 
 export type WorkProjectionDeps = {
   projectionStore: OsProjectionStorePort;
@@ -106,10 +105,7 @@ async function hydrateApprovalReadModel(
 }
 
 async function rebuildAttention(deps: WorkProjectionDeps, organizationId: string): Promise<void> {
-  const workItems = await deps.projectionStore.listWorkReadModelsForOrg(organizationId);
-  const approvals = await deps.projectionStore.listApprovalReadModelsForOrg(organizationId);
-  const attention = deriveAttentionReadModels(organizationId, workItems, approvals, new Date());
-  await deps.projectionStore.replaceAttentionReadModels(organizationId, attention);
+  await deps.projectionStore.rebuildAttentionForOrganization(organizationId, new Date());
 }
 
 export class WorkProjectionConsumer implements OsOutboxConsumerPort {

@@ -49,6 +49,11 @@ export function isOutboxWorkerEnabled(): boolean {
   );
 }
 
+/** Wall-clock overdue refresh. Independent of the outbox worker. Default on. */
+export function isAttentionClockEnabled(): boolean {
+  return process.env.OS_ATTENTION_CLOCK !== '0';
+}
+
 function assertPostgresUrl(name: string, value: string): void {
   try {
     const url = new URL(value);
@@ -87,6 +92,7 @@ export type ValidatedOsEnv = {
   authMode: OsAuthMode;
   databaseConfigured: boolean;
   outboxWorkerEnabled: boolean;
+  attentionClockEnabled: boolean;
   devBootstrapEnabled: boolean;
   /** Exact CORS allowlist origins (empty only allowed in development). */
   corsOrigins: string[];
@@ -214,6 +220,7 @@ export function validateOsApiEnvironment(): ValidatedOsEnv {
     authMode,
     databaseConfigured: Boolean(dbUrl),
     outboxWorkerEnabled: isOutboxWorkerEnabled(),
+    attentionClockEnabled: isAttentionClockEnabled(),
     devBootstrapEnabled: isDevBootstrapEnabled(),
     corsOrigins,
   };
@@ -225,7 +232,12 @@ export function validateOsApiEnvironment(): ValidatedOsEnv {
 /** Safe public snapshot for health/readiness — no secrets. */
 export function getPublicRuntimeSnapshot(): Pick<
   ValidatedOsEnv,
-  'profile' | 'authMode' | 'databaseConfigured' | 'outboxWorkerEnabled' | 'devBootstrapEnabled'
+  | 'profile'
+  | 'authMode'
+  | 'databaseConfigured'
+  | 'outboxWorkerEnabled'
+  | 'attentionClockEnabled'
+  | 'devBootstrapEnabled'
 > {
   const env = getValidatedOsEnv();
   return {
@@ -233,6 +245,7 @@ export function getPublicRuntimeSnapshot(): Pick<
     authMode: env.authMode,
     databaseConfigured: env.databaseConfigured,
     outboxWorkerEnabled: env.outboxWorkerEnabled,
+    attentionClockEnabled: env.attentionClockEnabled,
     devBootstrapEnabled: env.devBootstrapEnabled,
   };
 }

@@ -53,6 +53,27 @@ export type PartyDetailResponse = {
     status: string;
     version: number;
   } | null;
+  commercialAuthority?: {
+    canReassignOwner: boolean;
+  };
+};
+
+export type LocationView = {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  label: string;
+  addressText: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  provenanceUrl: string | null;
+  status: string;
+  version: number;
+};
+
+export type PartyLocationsResponse = {
+  partyId: string;
+  locations: LocationView[];
 };
 
 export type PartySearchParams = {

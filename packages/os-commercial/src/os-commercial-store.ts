@@ -28,6 +28,11 @@ export interface OsCommercialStore {
     organizationId: string,
     commercialAccountId: string,
   ): Promise<CommercialAccountRecord | null>;
+  updateCommercialAccount(
+    commercialAccountId: string,
+    patch: Partial<Pick<CommercialAccountRecord, 'ownerMemberId' | 'version'>>,
+    expectedVersion: number,
+  ): Promise<void>;
 
   insertOpportunity(record: OpportunityRecord): Promise<void>;
   getOpportunityInOrg(organizationId: string, opportunityId: string): Promise<OpportunityRecord | null>;

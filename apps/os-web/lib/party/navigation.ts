@@ -1,3 +1,8 @@
+export function newCustomerHref(q?: string): string {
+  const query = q?.trim();
+  return query ? `/clientes/nuevo?q=${encodeURIComponent(query)}` : '/clientes/nuevo';
+}
+
 export function partyHref(partyId: string): string {
   return `/clientes/${encodeURIComponent(partyId)}`;
 }

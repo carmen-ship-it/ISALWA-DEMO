@@ -19,8 +19,8 @@ describe('UI-5A command registry', () => {
     assert.equal((UI_5A_COMMERCIAL_COMMANDS as readonly string[]).includes('CreateOrder'), false);
   });
 
-  it('does not expose CreateOrder or CancelOrder in UI slice', () => {
-    assert.deepEqual(COMMERCIAL_COMMANDS_NOT_EXPOSED, ['CreateOrder', 'CancelOrder']);
+  it('does not expose CancelOrder in the UI-5A write list', () => {
+    assert.deepEqual(COMMERCIAL_COMMANDS_NOT_EXPOSED, ['CancelOrder']);
     for (const cmd of COMMERCIAL_COMMANDS_NOT_EXPOSED) {
       assert.equal(UI_5A_COMMERCIAL_COMMANDS.includes(cmd as never), false);
     }
@@ -108,9 +108,7 @@ describe('UI-5A order and approval UI absence', () => {
     );
   });
 
-  it('submitted quote policy message is non-action', () => {
-    const message = 'Conversión a pedido pendiente de política comercial.';
-    assert.match(message, /pendiente de política/i);
-    assert.doesNotMatch(message, /CreateOrder/i);
+  it('keeps CreateOrder out of the UI-5A write list', () => {
+    assert.equal((UI_5A_COMMERCIAL_COMMANDS as readonly string[]).includes('CreateOrder'), false);
   });
 });

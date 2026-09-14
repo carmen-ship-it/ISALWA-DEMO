@@ -9,7 +9,11 @@ import {
   Req,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { SearchPartiesQuerySchema, ListPartyTimelineQuerySchema } from '@isalwa/os-contracts';
+import {
+  canReassignCommercialAccountOwner,
+  ListPartyTimelineQuerySchema,
+  SearchPartiesQuerySchema,
+} from '@isalwa/os-contracts';
 import type { OsPartyStore } from '@isalwa/os-party';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { buildQueryContext, type PartyQueryService, type PartyTimelineQueryService } from '@isalwa/os-query';
@@ -135,11 +139,18 @@ export class PartiesController {
         session.organizationId,
         partyId,
       );
+      const queryCtx = await buildQueryContext(session, this.workforceStore);
       return {
         party,
         roles,
         contacts,
         commercialAccount,
+        commercialAuthority: {
+          canReassignOwner: canReassignCommercialAccountOwner([
+            ...queryCtx.auth.roleKeys,
+            ...queryCtx.auth.delegatedScopes,
+          ]),
+        },
       };
     } catch (err) {
       if (err instanceof HttpException) throw err;

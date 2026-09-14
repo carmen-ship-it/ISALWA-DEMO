@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
+import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
@@ -10,6 +11,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
+import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { INICIO_ATTENTION_LIMIT } from '@/lib/work/inicio-attention';
@@ -71,15 +73,37 @@ export default async function InicioPage() {
     const quotesSubmitted =
       quotesSubmittedResult === 'unavailable' ? [] : quotesSubmittedResult.items;
 
+    const leadership = await loadInicioLeadership(client);
+    const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
+    const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
+
     const memberLabels = await resolveMemberLabels(client, [
       ...opportunities.map((item) => item.ownerMemberId),
       ...quotesDraft.map((item) => item.ownerMemberId),
       ...quotesSubmitted.map((item) => item.ownerMemberId),
+      ...(teamData?.opportunities ?? []).map((item) => item.ownerMemberId),
+      ...(teamData?.quotesDraft ?? []).map((item) => item.ownerMemberId),
+      ...(teamData?.quotesSubmitted ?? []).map((item) => item.ownerMemberId),
+      ...(teamData?.openWork ?? []).map((item) => item.ownerMemberId),
+      ...(teamData?.overdueWork ?? []).map((item) => item.ownerMemberId),
+      ...(teamData?.followUps ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.opportunities ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.quotesDraft ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.quotesSubmitted ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.openWork ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.overdueWork ?? []).map((item) => item.ownerMemberId),
+      ...(orgData?.followUps ?? []).map((item) => item.ownerMemberId),
     ]);
     const partyLabels = await resolvePartyLabels(client, [
       ...opportunities.map((item) => item.partyId),
       ...quotesDraft.map((item) => item.partyId),
       ...quotesSubmitted.map((item) => item.partyId),
+      ...(teamData?.opportunities ?? []).map((item) => item.partyId),
+      ...(teamData?.quotesDraft ?? []).map((item) => item.partyId),
+      ...(teamData?.quotesSubmitted ?? []).map((item) => item.partyId),
+      ...(orgData?.opportunities ?? []).map((item) => item.partyId),
+      ...(orgData?.quotesDraft ?? []).map((item) => item.partyId),
+      ...(orgData?.quotesSubmitted ?? []).map((item) => item.partyId),
     ]);
 
     const staleFreshness =
@@ -204,9 +228,26 @@ export default async function InicioPage() {
                   partyLabels={partyLabels}
                   compact
                 />
-              )}
-            </PageSection>
-          </div>
+            )}
+          </PageSection>
+
+          {leadership.team.kind === 'ready' ? (
+            <InicioLeadershipSection
+              variant="team"
+              data={leadership.team.data}
+              memberLabels={memberLabels}
+              partyLabels={partyLabels}
+            />
+          ) : null}
+          {leadership.org.kind === 'ready' ? (
+            <InicioLeadershipSection
+              variant="org"
+              data={leadership.org.data}
+              memberLabels={memberLabels}
+              partyLabels={partyLabels}
+            />
+          ) : null}
+        </div>
         </div>
       </PageContainer>
     );

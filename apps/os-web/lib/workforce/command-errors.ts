@@ -1,14 +1,28 @@
 import { OsApiError } from '@/lib/api/os-api-errors';
-import type { Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
+import type { PeopleV1InviteCommand, Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
 
 const OPEN_WORK_TERMINATE_MESSAGE =
   'No se puede finalizar todavía porque esta persona tiene trabajo abierto. Reasigna ese trabajo primero.';
 
+export const INVITE_PROVIDER_NOT_CONFIGURED_MESSAGE =
+  'El proveedor de acceso no está configurado. La invitación no se envió y no se creó una contraseña.';
+
+export const INVITE_PROVIDER_FAILED_MESSAGE =
+  'El proveedor de acceso no pudo enviar la invitación. No se creó una contraseña. El alta no se completó.';
+
+type MappedWorkforceCommand = Ui2bWorkforceCommand | PeopleV1InviteCommand;
+
 export function mapWorkforceCommandError(
-  command: Ui2bWorkforceCommand,
+  command: MappedWorkforceCommand,
   err: unknown,
 ): string {
   if (err instanceof OsApiError) {
+    if (command === 'InviteMember' && err.code === 'PROVIDER_NOT_CONFIGURED') {
+      return INVITE_PROVIDER_NOT_CONFIGURED_MESSAGE;
+    }
+    if (command === 'InviteMember' && err.code === 'PROVIDER_INVITE_FAILED') {
+      return INVITE_PROVIDER_FAILED_MESSAGE;
+    }
     switch (err.kind) {
       case 'unauthorized':
         return 'Su sesión venció. Vuelva a iniciar sesión.';

@@ -15,6 +15,7 @@ export * from './work-events';
 export * from './work-commands';
 export * from './commercial-events';
 export * from './commercial-commands';
+export * from './commercial-authority';
 export * from './party-timeline-events';
 export * from './command-registry';
 export * from './lifecycle';

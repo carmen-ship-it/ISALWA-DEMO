@@ -1,5 +1,9 @@
 import type { CommercialCommandName, RequestContext } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
+import {
+  COMMAND_REQUIRED_SCOPES,
+  canConvertQuoteToOrder,
+  canReassignCommercialAccountOwner,
+} from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -144,6 +148,9 @@ export class CommercialCommandService {
         break;
       case 'CancelOrder':
         result = await this.cancelOrder(ctx, payload, store);
+        break;
+      case 'ReassignCommercialAccountOwner':
+        result = await this.reassignCommercialAccountOwner(ctx, payload, store);
         break;
       default:
         throw new Error('VALIDATION_FAILED');
@@ -872,11 +879,20 @@ export class CommercialCommandService {
     payload: Record<string, unknown>,
     store: OsCommercialStore,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'CreateOrder', ctx.organizationId);
+    const snap = await this.authorize(ctx, 'CreateOrder', ctx.organizationId);
     const quoteId = String(payload.quoteId);
     const quote = await store.getQuoteInOrg(ctx.organizationId, quoteId);
     if (!quote) throw new Error('NOT_FOUND');
     if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
+    if (
+      !canConvertQuoteToOrder({
+        actorMemberId: snap.memberId,
+        grantedScopes: [...snap.roleKeys, ...snap.delegatedScopes],
+        quoteOwnerMemberId: quote.ownerMemberId,
+      })
+    ) {
+      throw new Error('PERMISSION_DENIED');
+    }
 
     const existingOrder = await store.getOrderForQuote(ctx.organizationId, quoteId);
     if (existingOrder) throw new Error('CONFLICT');
@@ -963,6 +979,65 @@ export class CommercialCommandService {
         orderId,
         reason: payload.reason ? String(payload.reason) : undefined,
       },
+    );
+  }
+
+  private async reassignCommercialAccountOwner(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommercialStore,
+  ): Promise<CommandResult> {
+    const snap = await this.authorize(ctx, 'ReassignCommercialAccountOwner', ctx.organizationId);
+    if (!canReassignCommercialAccountOwner([...snap.roleKeys, ...snap.delegatedScopes])) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    const commercialAccountId = String(payload.commercialAccountId);
+    const ownerMemberId = String(payload.ownerMemberId);
+    const account = await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId);
+    if (!account) throw new Error('NOT_FOUND');
+    if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
+
+    const target = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
+    if (!target) throw new Error('NOT_FOUND');
+    if (target.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
+
+    const previousOwnerMemberId = account.ownerMemberId;
+    if (previousOwnerMemberId === ownerMemberId) {
+      return {
+        commandId: ctx.correlationId,
+        correlationId: ctx.correlationId,
+        data: {
+          commercialAccountId,
+          partyId: account.partyId,
+          previousOwnerMemberId,
+          ownerMemberId,
+          unchanged: true,
+        },
+      };
+    }
+
+    await store.updateCommercialAccount(
+      commercialAccountId,
+      { ownerMemberId, version: account.version + 1 },
+      account.version,
+    );
+
+    return this.emit(
+      ctx,
+      store,
+      'commercial_account.owner_reassigned',
+      'commercial_account',
+      commercialAccountId,
+      {
+        commercialAccountId,
+        partyId: account.partyId,
+        previousOwnerMemberId,
+        ownerMemberId,
+      },
+      'commercial_account.owner_reassigned',
+      { ownerMemberId: previousOwnerMemberId },
+      { ownerMemberId },
     );
   }
 }

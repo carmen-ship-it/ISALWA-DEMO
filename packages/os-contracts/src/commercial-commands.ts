@@ -16,6 +16,7 @@ export const COMMERCIAL_COMMAND_NAMES = [
   'CancelQuote',
   'CreateOrder',
   'CancelOrder',
+  'ReassignCommercialAccountOwner',
 ] as const;
 
 export type CommercialCommandName = (typeof COMMERCIAL_COMMAND_NAMES)[number];
@@ -115,6 +116,11 @@ export const CancelOrderPayloadSchema = z.object({
   reason: z.string().optional(),
 });
 
+export const ReassignCommercialAccountOwnerPayloadSchema = z.object({
+  commercialAccountId: z.string().min(1),
+  ownerMemberId: z.string().min(1),
+});
+
 export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z.ZodTypeAny> = {
   CreateOpportunity: CreateOpportunityPayloadSchema,
   UpdateOpportunity: UpdateOpportunityPayloadSchema,
@@ -130,6 +136,7 @@ export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z
   CancelQuote: CancelQuotePayloadSchema,
   CreateOrder: CreateOrderPayloadSchema,
   CancelOrder: CancelOrderPayloadSchema,
+  ReassignCommercialAccountOwner: ReassignCommercialAccountOwnerPayloadSchema,
 };
 
 export function isOpenOpportunityStatus(status: string): status is (typeof OPPORTUNITY_STATUSES)[number] {

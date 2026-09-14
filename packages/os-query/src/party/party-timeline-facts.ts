@@ -27,6 +27,12 @@ const TIMELINE_FACT_ALLOWLIST: Record<string, readonly string[]> = {
   'quote.cancelled': ['quoteId', 'quoteNumber', 'status', 'reason'],
   'order.created': ['orderId', 'orderNumber', 'quoteId', 'partyId', 'totalCentavos'],
   'order.cancelled': ['orderId', 'reason'],
+  'commercial_account.owner_reassigned': [
+    'commercialAccountId',
+    'partyId',
+    'previousOwnerMemberId',
+    'ownerMemberId',
+  ],
   'work.created': ['workItemId', 'ownerMemberId', 'title', 'subjectType', 'subjectId'],
   'task.reassigned': ['workItemId', 'newOwnerMemberId', 'previousOwnerMemberId'],
   'work.completed': ['workItemId'],

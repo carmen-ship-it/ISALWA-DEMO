@@ -13,6 +13,7 @@ import type {
 import { EVENT_SCHEMA_VERSION_POLICY } from '@isalwa/os-contracts';
 import type {
   OsProjectionStorePort,
+  ServerListConstraints,
   ProjectionCheckpoint,
   ReplayBusinessEvent,
   StoredApprovalReadModel,
@@ -24,6 +25,10 @@ import type {
   StoredQuoteLineReadModel,
   StoredQuoteReadModel,
   StoredWorkReadModel,
+} from '@isalwa/os-query';
+import {
+  deriveAttentionReadModels,
+  organizationIdsNeedingOverdueRefresh,
 } from '@isalwa/os-query';
 import type { OsPrismaClient } from './client';
 import { Prisma } from './generated/client';
@@ -257,6 +262,25 @@ function mapApprovalRow(row: {
     lastEventId: row.lastEventId,
     lastOccurredAt: row.lastOccurredAt,
     updatedAt: row.updatedAt,
+  };
+}
+
+function attentionCreateData(item: StoredAttentionReadModel) {
+  return {
+    attentionKey: item.attentionKey,
+    organizationId: item.organizationId,
+    memberId: item.memberId,
+    attentionType: item.attentionType,
+    reasonCode: item.reasonCode,
+    reasonDetailJson: item.reasonDetail as Prisma.InputJsonValue,
+    resourceType: item.resourceType,
+    resourceId: item.resourceId,
+    workItemId: item.workItemId,
+    approvalRequestId: item.approvalRequestId,
+    subjectType: item.subjectType,
+    subjectId: item.subjectId,
+    isActive: item.isActive,
+    derivedAt: item.derivedAt,
   };
 }
 
@@ -525,15 +549,24 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
 
   async listWorkReadModels(
     organizationId: string,
-    query: ListOpenWorkQuery,
+    query: ListOpenWorkQuery & ServerListConstraints,
   ): Promise<{ items: StoredWorkReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeWorkCursor(query.cursor);
     const where: Record<string, unknown> = { organizationId };
+    if (query.ownerMemberIds && query.ownerMemberIds.length === 0) {
+      return { items: [], hasMore: false };
+    }
     if (query.status) where.status = query.status;
-    if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
-    if (query.subjectType) where.subjectType = query.subjectType;
+    if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
+    else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    if (query.subjectTypes && query.subjectTypes.length === 0) {
+      return { items: [], hasMore: false };
+    }
+    if (query.subjectTypes) where.subjectType = { in: [...query.subjectTypes] };
+    else if (query.subjectType) where.subjectType = query.subjectType;
     if (query.subjectId) where.subjectId = query.subjectId;
+    if (query.dueBefore) where.dueAt = { lt: query.dueBefore };
     if (cursor) {
       where.OR = [
         { title: { gt: cursor.title } },
@@ -636,25 +669,60 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
       this.prisma.osAttentionReadModel.deleteMany({ where: { organizationId } }),
       ...items.map((item) =>
         this.prisma.osAttentionReadModel.create({
-          data: {
-            attentionKey: item.attentionKey,
-            organizationId: item.organizationId,
-            memberId: item.memberId,
-            attentionType: item.attentionType,
-            reasonCode: item.reasonCode,
-            reasonDetailJson: item.reasonDetail as Prisma.InputJsonValue,
-            resourceType: item.resourceType,
-            resourceId: item.resourceId,
-            workItemId: item.workItemId,
-            approvalRequestId: item.approvalRequestId,
-            subjectType: item.subjectType,
-            subjectId: item.subjectId,
-            isActive: item.isActive,
-            derivedAt: item.derivedAt,
-          },
+          data: attentionCreateData(item),
         }),
       ),
     ]);
+  }
+
+  async rebuildAttentionForOrganization(organizationId: string, asOf: Date): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('isalwa.attention'), hashtext(${organizationId}))`;
+      const workRows = await tx.osWorkReadModel.findMany({ where: { organizationId } });
+      const approvalRows = await tx.osApprovalReadModel.findMany({ where: { organizationId } });
+      const attention = deriveAttentionReadModels(
+        organizationId,
+        workRows.map(mapWorkRow),
+        approvalRows.map(mapApprovalRow),
+        asOf,
+      );
+      await tx.osAttentionReadModel.deleteMany({ where: { organizationId } });
+      if (attention.length > 0) {
+        await tx.osAttentionReadModel.createMany({
+          data: attention.map(attentionCreateData),
+        });
+      }
+    });
+  }
+
+  async listOrganizationIdsNeedingOverdueRefresh(asOf: Date): Promise<string[]> {
+    const [dueRows, overdueRows] = await Promise.all([
+      this.prisma.osWorkReadModel.findMany({
+        where: { status: 'open', dueAt: { lt: asOf } },
+        select: { organizationId: true, workItemId: true, status: true, dueAt: true },
+      }),
+      this.prisma.osAttentionReadModel.findMany({
+        where: { attentionType: 'overdue_work', isActive: true },
+        select: {
+          organizationId: true,
+          workItemId: true,
+          attentionKey: true,
+          attentionType: true,
+          isActive: true,
+        },
+      }),
+    ]);
+
+    return organizationIdsNeedingOverdueRefresh(
+      dueRows.map((row) => ({
+        organizationId: row.organizationId,
+        workItemId: row.workItemId,
+        status: row.status,
+        dueAt: row.dueAt?.toISOString() ?? null,
+      })),
+      overdueRows,
+      asOf,
+    );
   }
 
   async listAttentionReadModels(
@@ -736,7 +804,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
 
   async listOpportunityReadModels(
     organizationId: string,
-    query: ListOpportunitiesQuery,
+    query: ListOpportunitiesQuery & ServerListConstraints,
   ): Promise<{ items: StoredOpportunityReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeOpportunityCursor(query.cursor);
@@ -744,7 +812,11 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     if (query.status) where.status = query.status;
     if (query.stage) where.stage = query.stage;
     if (query.partyId) where.partyId = query.partyId;
-    if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    if (query.ownerMemberIds && query.ownerMemberIds.length === 0) {
+      return { items: [], hasMore: false };
+    }
+    if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
+    else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
     if (cursor) {
       where.OR = [
         { title: { gt: cursor.title } },
@@ -824,7 +896,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
 
   async listQuoteReadModels(
     organizationId: string,
-    query: ListQuotesQuery,
+    query: ListQuotesQuery & ServerListConstraints,
   ): Promise<{ items: StoredQuoteReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeQuoteCursor(query.cursor);
@@ -832,7 +904,11 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     if (query.status) where.status = query.status;
     if (query.partyId) where.partyId = query.partyId;
     if (query.opportunityId) where.opportunityId = query.opportunityId;
-    if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    if (query.ownerMemberIds && query.ownerMemberIds.length === 0) {
+      return { items: [], hasMore: false };
+    }
+    if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
+    else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
     if (cursor) {
       where.OR = [
         { quoteNumber: { gt: cursor.quoteNumber } },
