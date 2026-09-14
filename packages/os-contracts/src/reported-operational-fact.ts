@@ -156,17 +156,11 @@ function assertRowShape(row: ReportedOperationalFactRow): void {
   }
 }
 
-/** Builds an insert row. Ignores any attempt to pass source or confirmation. */
-export function buildReportedOperationalFactRow(
-  input: RecordReportedOperationalFactInput,
-  createdAt: string,
-): ReportedOperationalFactRow {
-  const parsed = RecordReportedOperationalFactSchema.parse(input);
-  if (Number.isNaN(new Date(createdAt).getTime())) {
-    throw new Error('createdAt must be a valid timestamp');
-  }
-
-  const payload =
+/** Absent optional fields stay null. Undefined is not stored and does not confirm the report. */
+function reportedFactPayload(
+  parsed: z.output<typeof RecordReportedOperationalFactSchema>,
+): Record<string, string | null> {
+  const fields: Record<string, string | null | undefined> =
     parsed.kind === 'payment'
       ? {
           amountCentavos: parsed.payload.amountCentavos,
@@ -180,6 +174,25 @@ export function buildReportedOperationalFactRow(
             quantity: parsed.payload.quantity,
             unit: parsed.payload.unit,
           };
+
+  const payload: Record<string, string | null> = {};
+  for (const [key, value] of Object.entries(fields)) {
+    payload[key] = value ?? null;
+  }
+  return payload;
+}
+
+/** Builds an insert row. Ignores any attempt to pass source or confirmation. */
+export function buildReportedOperationalFactRow(
+  input: RecordReportedOperationalFactInput,
+  createdAt: string,
+): ReportedOperationalFactRow {
+  const parsed = RecordReportedOperationalFactSchema.parse(input);
+  if (Number.isNaN(new Date(createdAt).getTime())) {
+    throw new Error('createdAt must be a valid timestamp');
+  }
+
+  const payload = reportedFactPayload(parsed);
 
   const row: ReportedOperationalFactRow = {
     id: parsed.id,
