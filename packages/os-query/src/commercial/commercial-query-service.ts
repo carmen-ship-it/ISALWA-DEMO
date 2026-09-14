@@ -206,6 +206,7 @@ export class CommercialQueryService {
         status: query.status,
         stage: query.stage,
         partyId: query.partyId,
+        q: query.q,
         ...ownerFilter,
       },
     );
@@ -259,6 +260,7 @@ export class CommercialQueryService {
       status: query.status,
       partyId: query.partyId,
       opportunityId: query.opportunityId,
+      q: query.q,
       ...ownerFilter,
     });
     const visible = items.filter(

@@ -62,7 +62,7 @@ export function PartySearchForm({
             name="q"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Nombre, razón social…"
+            placeholder="Nombre, contacto o teléfono"
             autoComplete="off"
           />
         </div>

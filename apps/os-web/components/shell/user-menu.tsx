@@ -57,20 +57,33 @@ export function UserMenu({ displayLabel }: UserMenuProps) {
 
   return (
     <div ref={rootRef} className="relative z-40 min-w-0">
-      <button
-        ref={triggerRef}
-        type="button"
-        className="isalwa-t-fast flex min-w-0 max-w-[min(16rem,48vw)] cursor-pointer items-center rounded-[var(--isalwa-radius-control)] px-2 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:cursor-not-allowed disabled:opacity-60"
-        aria-label={t('account.menu')}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        aria-busy={pending}
-        disabled={pending}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <span className="min-w-0 truncate">{label}</span>
-      </button>
+      <div className="flex min-w-0 items-center gap-1">
+        <button
+          ref={triggerRef}
+          type="button"
+          className="isalwa-t-fast flex min-w-0 max-w-[min(16rem,40vw)] cursor-pointer flex-col items-end rounded-[var(--isalwa-radius-control)] px-2 py-1 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label={`${t('account.signedInAs')} ${label}`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-controls={menuId}
+          aria-busy={pending}
+          disabled={pending}
+          onClick={() => setOpen((current) => !current)}
+        >
+          <span className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)] sm:block">
+            {t('account.signedInAs')}
+          </span>
+          <span className="min-w-0 truncate">{label}</span>
+        </button>
+        <button
+          type="button"
+          className="hidden rounded-[var(--isalwa-radius-control)] px-2 py-2 text-sm text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-mist)] focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-60 sm:inline-flex"
+          disabled={pending}
+          onClick={signOut}
+        >
+          {pending ? 'Cerrando sesión…' : t('account.signOut')}
+        </button>
+      </div>
 
       {open ? (
         <div

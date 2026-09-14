@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Button, EmptyState, StatusPill } from '@isalwa/ui';
+import { EndSessionButton } from '@/components/auth/end-session-button';
 import { t } from '@/lib/i18n/es';
 
 type AccessTone = 'warning' | 'info' | 'neutral';
@@ -48,13 +49,7 @@ export function SessionExpiredState() {
       title={t('states.sessionExpired')}
       description={t('states.sessionExpiredDesc')}
       tone="warning"
-      action={
-        <Link href="/login" className="inline-flex">
-          <Button type="button" variant="primary">
-            {t('states.goToLogin')}
-          </Button>
-        </Link>
-      }
+      action={<EndSessionButton reason="expired" label={t('states.goToLogin')} />}
     />
   );
 }
@@ -82,13 +77,7 @@ export function AccountInactiveState() {
       title={t('states.accountInactive')}
       description={t('states.accountInactiveDesc')}
       tone="neutral"
-      action={
-        <Link href="/login" className="inline-flex">
-          <Button type="button" variant="primary">
-            {t('states.goToLogin')}
-          </Button>
-        </Link>
-      }
+      action={<EndSessionButton reason="revoked" label={t('states.goToLogin')} />}
     />
   );
 }

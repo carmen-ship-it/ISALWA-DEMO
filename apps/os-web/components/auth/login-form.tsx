@@ -6,6 +6,7 @@ import { Button, Panel } from '@isalwa/ui';
 import { devBootstrapAction, signInAction } from '@/lib/auth/actions';
 import { getOsAuthMode } from '@/lib/auth/config';
 import { t } from '@/lib/i18n/es';
+import { safeInternalPath } from '@/lib/shell/safe-next';
 
 export function LoginForm() {
   const router = useRouter();
@@ -24,8 +25,8 @@ export function LoginForm() {
         setError(result.error);
         return;
       }
-      const next = searchParams.get('next');
-      router.replace(result.redirectTo ?? (next && !next.startsWith('/login') ? next : '/inicio'));
+      const next = safeInternalPath(searchParams.get('next'));
+      router.replace(next ?? result.redirectTo ?? '/inicio');
       router.refresh();
     });
   }
@@ -43,8 +44,21 @@ export function LoginForm() {
     });
   }
 
+  const reason = searchParams.get('reason');
+  const reasonMessage =
+    reason === 'expired'
+      ? t('states.sessionExpiredDesc')
+      : reason === 'revoked'
+        ? t('states.accountInactiveDesc')
+        : null;
+
   return (
     <Panel className="mx-auto w-full max-w-md px-7 py-8 sm:px-9 sm:py-9">
+      {reasonMessage ? (
+        <p className="mb-5 text-sm leading-relaxed text-[var(--isalwa-kiln)]" role="status">
+          {reasonMessage}
+        </p>
+      ) : null}
       {isDevMode ? (
         <div className="space-y-4">
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{t('login.devHint')}</p>

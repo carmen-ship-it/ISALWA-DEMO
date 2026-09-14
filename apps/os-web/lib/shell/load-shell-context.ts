@@ -2,6 +2,7 @@ import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
+import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 
 const PERMISSION_DENIAL_CODES = new Set([
   'PERMISSION_DENIED',
@@ -12,6 +13,8 @@ const PERMISSION_DENIAL_CODES = new Set([
 export type ShellContext = {
   displayLabel: string;
   showAdmin: boolean;
+  canCreateCustomer: boolean;
+  actorKey: string | null;
   osAccess: 'ok' | 'revoked' | 'unavailable' | 'unauthorized' | 'denied';
   capabilities: CapabilityStateReadModel[];
 };
@@ -28,6 +31,8 @@ function shell(
   return {
     displayLabel: displayLabelOf(displayLabel),
     showAdmin: false,
+    canCreateCustomer: false,
+    actorKey: null,
     osAccess,
     capabilities: [],
   };
@@ -67,6 +72,8 @@ export async function loadShellContext(): Promise<ShellContext | null> {
 
   let osAccess: ShellContext['osAccess'] = 'ok';
   let showAdmin = false;
+  let canCreateCustomer = false;
+  let actorKey: string | null = null;
   let capabilities: CapabilityStateReadModel[] = [];
 
   try {
@@ -83,6 +90,21 @@ export async function loadShellContext(): Promise<ShellContext | null> {
     }
 
     try {
+      canCreateCustomer = await actorCanMutateMasterData(client);
+    } catch {
+      canCreateCustomer = false;
+    }
+
+    try {
+      const session = await client.getAuthenticatedSession();
+      if (session.memberId && session.organizationId) {
+        actorKey = `${session.organizationId}:${session.memberId}`;
+      }
+    } catch {
+      actorKey = null;
+    }
+
+    try {
       const state = await client.getCapabilityState();
       capabilities = state.capabilities;
     } catch {
@@ -93,6 +115,8 @@ export async function loadShellContext(): Promise<ShellContext | null> {
   return {
     displayLabel: displayLabelOf(webSession.displayLabel),
     showAdmin,
+    canCreateCustomer,
+    actorKey,
     osAccess,
     capabilities,
   };

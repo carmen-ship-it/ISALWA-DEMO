@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { AppNav } from '@/components/shell/app-nav';
+import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/command-palette';
 import { UserMenu } from '@/components/shell/user-menu';
 import { t } from '@/lib/i18n/es';
 
@@ -13,14 +14,25 @@ type AppShellProps = {
   children: ReactNode;
   displayLabel: string;
   showAdmin: boolean;
+  canCreateCustomer: boolean;
+  actorKey: string | null;
   capabilities: CapabilityStateReadModel[];
 };
 
-export function AppShell({ children, displayLabel, showAdmin, capabilities }: AppShellProps) {
+export function AppShell({
+  children,
+  displayLabel,
+  showAdmin,
+  canCreateCustomer,
+  actorKey,
+  capabilities,
+}: AppShellProps) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     function onPageShow(event: PageTransitionEvent) {
@@ -31,6 +43,16 @@ export function AppShell({ children, displayLabel, showAdmin, capabilities }: Ap
     window.addEventListener('pageshow', onPageShow);
     return () => window.removeEventListener('pageshow', onPageShow);
   }, [router]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key.toLowerCase() !== 'k' || (!event.metaKey && !event.ctrlKey) || event.altKey) return;
+      event.preventDefault();
+      setPaletteOpen((open) => !open);
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -89,8 +111,25 @@ export function AppShell({ children, displayLabel, showAdmin, capabilities }: Ap
               {t('app.name')}
             </p>
           </div>
-          <UserMenu displayLabel={displayLabel} />
+          <div className="flex min-w-0 items-center gap-2">
+            <CommandPaletteTrigger
+              buttonRef={searchButtonRef}
+              onOpen={() => {
+                setMobileOpen(false);
+                setPaletteOpen(true);
+              }}
+            />
+            <UserMenu displayLabel={displayLabel} />
+          </div>
         </header>
+        <CommandPalette
+          open={paletteOpen}
+          onOpenChange={setPaletteOpen}
+          showAdmin={showAdmin}
+          canCreateCustomer={canCreateCustomer}
+          actorKey={actorKey}
+          returnFocusRef={searchButtonRef}
+        />
 
         {mobileOpen ? (
           <div

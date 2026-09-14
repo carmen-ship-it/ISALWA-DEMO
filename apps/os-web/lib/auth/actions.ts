@@ -87,16 +87,11 @@ async function validateOsMembershipWithToken(accessToken: string): Promise<{ ok:
 
 function membershipProbeError(err: unknown): string {
   if (err instanceof OsApiError) {
-    if (err.code === 'ACCESS_REVOKED' || err.kind === 'forbidden') {
-      return t('login.errorNoMembership');
-    }
+    if (err.code === 'ACCESS_REVOKED') return t('states.accountInactiveDesc');
+    if (err.kind === 'forbidden' || err.kind === 'unauthorized') return t('login.errorNoMembership');
     if (err.kind === 'unavailable') {
       return 'El servicio no está disponible temporalmente. Espere unos segundos e intente de nuevo.';
     }
-    if (err.kind === 'unauthorized') {
-      return t('login.errorNoMembership');
-    }
-    return err.message;
   }
   return 'No se pudo verificar el acceso a la empresa. Intente de nuevo.';
 }
@@ -225,13 +220,49 @@ async function clearWebSession(): Promise<void> {
   }
 }
 
-export async function signOutAction(): Promise<{ error?: string }> {
+export type SignOutReason = 'expired' | 'revoked';
+
+export async function signOutAction(reason?: SignOutReason): Promise<{ error?: string }> {
   try {
     await clearWebSession();
   } catch {
     return { error: 'No se pudo cerrar la sesión. Intente de nuevo.' };
   }
-  redirect('/login');
+  const next = reason === 'expired' || reason === 'revoked' ? `/login?reason=${reason}` : '/login';
+  redirect(next);
+}
+
+export type LiveAccess = 'ok' | 'expired' | 'revoked' | 'unavailable';
+
+/** Used after logout/back and when a second tab returns. Does not grant access. */
+export async function confirmLiveAccess(): Promise<LiveAccess> {
+  const web = await getServerWebSession();
+  if (!web) return 'expired';
+
+  try {
+    const auth = await getServerOsAuthContext();
+    if (!auth) {
+      await clearWebSession();
+      return 'expired';
+    }
+    const client = createOsApiClient(auth);
+    await client.listAttention({ limit: '1' });
+    return 'ok';
+  } catch (err) {
+    if (err instanceof OsApiError && err.code === 'ACCESS_REVOKED') {
+      await clearWebSession();
+      return 'revoked';
+    }
+    if (err instanceof OsApiError && (err.kind === 'unauthorized' || err.code === 'AUTH_REQUIRED')) {
+      await clearWebSession();
+      return 'expired';
+    }
+    if (err instanceof Error && err.message === 'AUTH_REQUIRED') {
+      await clearWebSession();
+      return 'expired';
+    }
+    return 'unavailable';
+  }
 }
 
 export async function getServerOsAuthContext() {

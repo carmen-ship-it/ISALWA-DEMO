@@ -89,7 +89,8 @@ describe('UI-5A command error mapping', () => {
       code: 'CONFLICT',
       message: 'test',
     });
-    assert.match(mapCommandError(err), /conflicto/i);
+    assert.match(mapCommandError(err), /Actualice/i);
+    assert.match(mapCommandError(err), /duplicado/i);
   });
 
   it('does not show a generic Error message or raw API English', () => {

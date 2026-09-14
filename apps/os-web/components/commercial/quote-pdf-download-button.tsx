@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 
@@ -36,8 +36,11 @@ async function staffPdfError(response: Response): Promise<string> {
 export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloadButtonProps) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const locked = useRef(false);
 
   async function download(disposition: 'attachment' | 'inline') {
+    if (locked.current) return;
+    locked.current = true;
     setPending(true);
     setError(null);
     try {
@@ -70,6 +73,7 @@ export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloa
     } catch {
       setError('No se pudo preparar la cotización. Intente de nuevo.');
     } finally {
+      locked.current = false;
       setPending(false);
     }
   }

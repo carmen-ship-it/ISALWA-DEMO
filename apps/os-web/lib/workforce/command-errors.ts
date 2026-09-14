@@ -63,7 +63,7 @@ export function mapWorkforceCommandError(
         }
         return 'Revise los datos ingresados e intente de nuevo.';
       case 'conflict':
-        return 'La acción no pudo completarse por un conflicto. Actualice e intente de nuevo.';
+        return 'Esa acción ya se registró o la página quedó desactualizada. Actualice antes de intentar de nuevo.';
       case 'unavailable':
         return 'El servicio no está disponible temporalmente. Intente más tarde.';
       default:

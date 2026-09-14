@@ -104,6 +104,7 @@ export class WorkQueryService {
         subjectTypes,
         subjectId: query.subjectId,
         dueBefore: query.overdue ? ctx.effectiveAt : undefined,
+        q: query.q,
       },
     );
 

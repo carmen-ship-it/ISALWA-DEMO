@@ -1,4 +1,5 @@
 import { PageContainer } from '@isalwa/ui';
+import { SessionGuard } from '@/components/shell/session-guard';
 import { AppShell } from '@/components/shell/app-shell';
 import {
   AccessDeniedState,
@@ -47,8 +48,17 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
   }
 
   return (
-    <AppShell displayLabel={shell.displayLabel} showAdmin={shell.showAdmin} capabilities={shell.capabilities}>
-      {children}
-    </AppShell>
+    <>
+      <SessionGuard />
+      <AppShell
+        displayLabel={shell.displayLabel}
+        showAdmin={shell.showAdmin}
+        canCreateCustomer={shell.canCreateCustomer}
+        actorKey={shell.actorKey}
+        capabilities={shell.capabilities}
+      >
+        {children}
+      </AppShell>
+    </>
   );
 }

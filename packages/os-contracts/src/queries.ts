@@ -94,6 +94,7 @@ export const COMMERCIAL_VISIBILITY_MODES = ['own', 'team', 'org'] as const;
 export type CommercialVisibilityMode = (typeof COMMERCIAL_VISIBILITY_MODES)[number];
 
 export const ListOpenWorkQuerySchema = CursorPaginationSchema.extend({
+  q: z.string().trim().max(80).optional(),
   ownerMemberId: z.string().trim().optional(),
   status: z.enum(['open', 'completed', 'cancelled']).optional(),
   subjectType: z.string().trim().optional(),
@@ -259,6 +260,7 @@ export const OrderSummaryReadModelSchema = z.object({
 export type OrderSummaryReadModel = z.infer<typeof OrderSummaryReadModelSchema>;
 
 export const ListOpportunitiesQuerySchema = CursorPaginationSchema.extend({
+  q: z.string().trim().max(80).optional(),
   status: z.string().trim().optional(),
   stage: z.string().trim().optional(),
   partyId: z.string().trim().optional(),
@@ -269,6 +271,7 @@ export const ListOpportunitiesQuerySchema = CursorPaginationSchema.extend({
 export type ListOpportunitiesQuery = z.infer<typeof ListOpportunitiesQuerySchema>;
 
 export const ListQuotesQuerySchema = CursorPaginationSchema.extend({
+  q: z.string().trim().max(80).optional(),
   status: z.string().trim().optional(),
   partyId: z.string().trim().optional(),
   opportunityId: z.string().trim().optional(),
@@ -279,6 +282,7 @@ export const ListQuotesQuerySchema = CursorPaginationSchema.extend({
 export type ListQuotesQuery = z.infer<typeof ListQuotesQuerySchema>;
 
 export const ListOrdersQuerySchema = CursorPaginationSchema.extend({
+  q: z.string().trim().max(80).optional(),
   status: z.string().trim().optional(),
   partyId: z.string().trim().optional(),
   quoteId: z.string().trim().optional(),

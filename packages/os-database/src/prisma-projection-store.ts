@@ -33,6 +33,28 @@ import {
 import type { OsPrismaClient } from './client';
 import { Prisma } from './generated/client';
 
+/** Bounded contains match. ANDed with tenant, owner, and cursor predicates. Not a new index. */
+function andTextMatch(
+  where: Record<string, unknown>,
+  q: string | undefined,
+  fields: readonly string[],
+): void {
+  const term = q?.trim();
+  if (!term || fields.length === 0) return;
+  const match =
+    fields.length === 1
+      ? { [fields[0]!]: { contains: term, mode: 'insensitive' as const } }
+      : {
+          OR: fields.map((field) => ({
+            [field]: { contains: term, mode: 'insensitive' as const },
+          })),
+        };
+  const current = where.AND;
+  if (Array.isArray(current)) where.AND = [...current, match];
+  else if (current) where.AND = [current, match];
+  else where.AND = [match];
+}
+
 function mapPartyRow(row: {
   partyId: string;
   organizationId: string;
@@ -567,6 +589,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     else if (query.subjectType) where.subjectType = query.subjectType;
     if (query.subjectId) where.subjectId = query.subjectId;
     if (query.dueBefore) where.dueAt = { lt: query.dueBefore };
+    andTextMatch(where, query.q, ['title']);
     if (cursor) {
       where.OR = [
         { title: { gt: cursor.title } },
@@ -817,6 +840,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     }
     if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
     else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    andTextMatch(where, query.q, ['title']);
     if (cursor) {
       where.OR = [
         { title: { gt: cursor.title } },
@@ -909,6 +933,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     }
     if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
     else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    andTextMatch(where, query.q, ['quoteNumber']);
     if (cursor) {
       where.OR = [
         { quoteNumber: { gt: cursor.quoteNumber } },
@@ -1030,6 +1055,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     if (query.partyId) where.partyId = query.partyId;
     if (query.quoteId) where.quoteId = query.quoteId;
     if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    andTextMatch(where, query.q, ['orderNumber']);
     if (cursor) {
       where.OR = [
         { orderNumber: { gt: cursor.orderNumber } },

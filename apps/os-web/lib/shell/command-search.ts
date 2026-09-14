@@ -1,0 +1,281 @@
+'use server';
+
+import type { CommercialVisibilityMode } from '@isalwa/os-contracts';
+import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
+import {
+  customerPaletteItem,
+  opportunityPaletteItem,
+  orderPaletteItem,
+  PALETTE_GROUP_LIMIT,
+  PALETTE_MIN_QUERY,
+  quotePaletteItem,
+  workPaletteItem,
+  type PaletteItem,
+} from '@/lib/shell/command-palette';
+
+export type PaletteSearchResult =
+  | { ok: true; items: PaletteItem[]; partial: boolean }
+  | { ok: false; reason: 'session' | 'unavailable' };
+
+type Lens = Extract<CommercialVisibilityMode, 'team' | 'org'>;
+
+function isSessionFailure(err: unknown): boolean {
+  return (
+    err instanceof OsApiError &&
+    (err.kind === 'unauthorized' || err.code === 'AUTH_REQUIRED' || err.code === 'ACCESS_REVOKED')
+  );
+}
+
+function isDenied(err: unknown): boolean {
+  return err instanceof OsApiError && err.kind === 'forbidden';
+}
+
+async function probeLens(client: OsApiClient, visibility: Lens): Promise<boolean | 'session' | 'partial'> {
+  try {
+    await client.listOpportunities({ visibility, limit: 1 });
+    return true;
+  } catch (err) {
+    if (isSessionFailure(err)) return 'session';
+    if (isDenied(err)) return false;
+    return 'partial';
+  }
+}
+
+function dedupe(items: PaletteItem[]): PaletteItem[] {
+  const seen = new Set<string>();
+  const next: PaletteItem[] = [];
+  for (const item of items) {
+    if (seen.has(item.key)) continue;
+    seen.add(item.key);
+    next.push(item);
+  }
+  return next;
+}
+
+function cap(items: PaletteItem[]): { items: PaletteItem[]; truncated: boolean } {
+  const unique = dedupe(items);
+  return { items: unique.slice(0, PALETTE_GROUP_LIMIT), truncated: unique.length > PALETTE_GROUP_LIMIT };
+}
+
+export async function searchPalette(query: string): Promise<PaletteSearchResult> {
+  const q = query.trim();
+  if (q.length < PALETTE_MIN_QUERY) return { ok: true, items: [], partial: false };
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, reason: 'session' };
+  const client = createOsApiClient(auth);
+
+  let partial = false;
+  const lenses: Lens[] = [];
+  for (const visibility of ['team', 'org'] as const) {
+    const probed = await probeLens(client, visibility);
+    if (probed === 'session') return { ok: false, reason: 'session' };
+    if (probed === 'partial') partial = true;
+    if (probed === true) lenses.push(visibility);
+  }
+
+  const items: PaletteItem[] = [];
+
+  try {
+    const parties = await client.searchParties({ q, limit: PALETTE_GROUP_LIMIT });
+    for (const party of parties.items) {
+      items.push(
+        customerPaletteItem({
+          partyId: party.partyId,
+          displayName: party.displayName,
+          legalName: party.legalName,
+          status: party.status,
+        }),
+      );
+    }
+    if (parties.meta.hasMore) partial = true;
+  } catch (err) {
+    if (isSessionFailure(err)) return { ok: false, reason: 'session' };
+    partial = true;
+  }
+
+  const opportunityCalls = [
+    client.listOpportunities({ q, limit: PALETTE_GROUP_LIMIT }),
+    ...lenses.map((visibility) => client.listOpportunities({ q, visibility, limit: PALETTE_GROUP_LIMIT })),
+  ];
+  const quoteCalls = [
+    client.listQuotes({ q, limit: PALETTE_GROUP_LIMIT }),
+    ...lenses.map((visibility) => client.listQuotes({ q, visibility, limit: PALETTE_GROUP_LIMIT })),
+  ];
+  const workCalls = [
+    client.listWorkItems({ q, status: 'open', limit: PALETTE_GROUP_LIMIT }),
+    ...lenses.map((visibility) =>
+      client.listWorkItems({ q, visibility, status: 'open', limit: PALETTE_GROUP_LIMIT }),
+    ),
+  ];
+
+  const [opportunities, quotes, orders, work] = await Promise.all([
+    collect(opportunityCalls, (page) =>
+      page.items.map((item) =>
+        opportunityPaletteItem({
+          opportunityId: item.opportunityId,
+          partyId: item.partyId,
+          title: item.title,
+          status: item.status,
+        }),
+      ),
+    ),
+    collect(quoteCalls, (page) =>
+      page.items.map((item) =>
+        quotePaletteItem({
+          quoteId: item.quoteId,
+          partyId: item.partyId,
+          quoteNumber: item.quoteNumber,
+          status: item.status,
+          totalCentavos: item.totalCentavos,
+          currency: item.currency,
+        }),
+      ),
+    ),
+    collect(
+      [client.listOrders({ q, limit: PALETTE_GROUP_LIMIT })],
+      (page) =>
+        page.items.map((item) =>
+          orderPaletteItem({
+            orderId: item.orderId,
+            partyId: item.partyId,
+            orderNumber: item.orderNumber,
+            status: item.status,
+          }),
+        ),
+    ),
+    collect(workCalls, (page) =>
+      page.items.map((item) =>
+        workPaletteItem({
+          workItemId: item.workItemId,
+          title: item.title,
+          status: item.status,
+          subjectType: item.subjectType,
+        }),
+      ),
+    ),
+  ]);
+
+  for (const result of [opportunities, quotes, orders, work]) {
+    if (result.session) return { ok: false, reason: 'session' };
+    if (result.partial) partial = true;
+    items.push(...result.items);
+  }
+
+  const partyIds = items.filter((item) => item.kind === 'customer' && item.partyId).slice(0, 2).map((item) => item.partyId!);
+  if (partyIds.length > 0) {
+    const related = await Promise.all(partyIds.map((partyId) => relatedForParty(client, partyId, lenses)));
+    for (const result of related) {
+      if (result.session) return { ok: false, reason: 'session' };
+      if (result.partial) partial = true;
+      items.push(...result.items);
+    }
+  }
+
+  const grouped = dedupe(items);
+  return { ok: true, items: grouped, partial };
+}
+
+async function relatedForParty(client: OsApiClient, partyId: string, lenses: Lens[]) {
+  const opportunityCalls = [
+    client.listOpportunities({ partyId, status: 'open', limit: 4 }),
+    ...lenses.map((visibility) => client.listOpportunities({ partyId, visibility, status: 'open', limit: 4 })),
+  ];
+  const quoteCalls = [
+    client.listQuotes({ partyId, limit: 4 }),
+    ...lenses.map((visibility) => client.listQuotes({ partyId, visibility, limit: 4 })),
+  ];
+  const [opportunities, quotes, orders, work] = await Promise.all([
+    collect(opportunityCalls, (page) =>
+      page.items.map((item) =>
+        opportunityPaletteItem({
+          opportunityId: item.opportunityId,
+          partyId: item.partyId,
+          title: item.title,
+          status: item.status,
+        }),
+      ),
+    ),
+    collect(quoteCalls, (page) =>
+      page.items.map((item) =>
+        quotePaletteItem({
+          quoteId: item.quoteId,
+          partyId: item.partyId,
+          quoteNumber: item.quoteNumber,
+          status: item.status,
+          totalCentavos: item.totalCentavos,
+          currency: item.currency,
+        }),
+      ),
+    ),
+    collect([client.listOrders({ partyId, limit: 4 })], (page) =>
+      page.items.map((item) =>
+        orderPaletteItem({
+          orderId: item.orderId,
+          partyId: item.partyId,
+          orderNumber: item.orderNumber,
+          status: item.status,
+        }),
+      ),
+    ),
+    collect(
+      [
+        client.listWorkItems({ subjectType: 'party', subjectId: partyId, status: 'open', limit: 4 }),
+        ...lenses.map((visibility) =>
+          client.listWorkItems({
+            subjectType: 'party',
+            subjectId: partyId,
+            visibility,
+            status: 'open',
+            limit: 4,
+          }),
+        ),
+      ],
+      (page) =>
+        page.items.map((item) =>
+          workPaletteItem({
+            workItemId: item.workItemId,
+            title: item.title,
+            status: item.status,
+            subjectType: item.subjectType,
+          }),
+        ),
+    ),
+  ]);
+  if (opportunities.session || quotes.session || orders.session || work.session) {
+    return { items: [], session: true, partial: false };
+  }
+  return {
+    items: [...opportunities.items, ...quotes.items, ...orders.items, ...work.items],
+    session: false,
+    partial: opportunities.partial || quotes.partial || orders.partial || work.partial,
+  };
+}
+
+async function collect<T extends { items: unknown[]; meta: { hasMore: boolean } }>(
+  calls: Array<Promise<T>>,
+  map: (page: T) => PaletteItem[],
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const settled = await Promise.all(calls.map(async (call) => {
+    try {
+      return { ok: true as const, page: await call };
+    } catch (err) {
+      return { ok: false as const, err };
+    }
+  }));
+  const items: PaletteItem[] = [];
+  let partial = false;
+  for (const result of settled) {
+    if (!result.ok) {
+      if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
+      partial = true;
+      continue;
+    }
+    items.push(...map(result.page));
+    if (result.page.meta.hasMore) partial = true;
+  }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}

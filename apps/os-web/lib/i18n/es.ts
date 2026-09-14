@@ -71,7 +71,7 @@ export const es = {
     inicio: {
       title: 'Inicio',
       kicker: 'Hoy',
-      description: '¿Qué necesita su atención ahora?',
+      description: '¿Qué necesita su atención ahora? Vencido significa que la fecha ya pasó.',
       attention: 'Necesita su atención',
       attentionEmpty: 'No tiene pendientes que requieran atención ahora.',
       attentionUnavailable: 'No se pudo cargar lo que necesita su atención.',
