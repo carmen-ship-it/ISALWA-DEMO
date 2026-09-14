@@ -26,6 +26,21 @@ function FilterChip({ href, active, children }: { href: string; active: boolean;
   );
 }
 
+function filterRoleChips(): Array<{ label: string; roleKey: string; roleKeys: string[] }> {
+  const byLabel = new Map<string, string[]>();
+  for (const roleKey of FILTERABLE_ROLE_KEYS) {
+    const label = formatPartyRole(roleKey);
+    const existing = byLabel.get(label) ?? [];
+    existing.push(roleKey);
+    byLabel.set(label, existing);
+  }
+  return [...byLabel.entries()].map(([label, roleKeys]) => ({
+    label,
+    roleKey: roleKeys[0] ?? '',
+    roleKeys,
+  }));
+}
+
 export function PartySearchForm({
   initialQuery = '',
   initialRoleKey,
@@ -83,13 +98,13 @@ export function PartySearchForm({
         <FilterChip href={clientesSearchHref({ q: initialQuery, status: initialStatus })} active={!initialRoleKey}>
           Todas
         </FilterChip>
-        {FILTERABLE_ROLE_KEYS.map((roleKey) => (
+        {filterRoleChips().map((chip) => (
           <FilterChip
-            key={roleKey}
-            href={clientesSearchHref({ q: initialQuery, roleKey, status: initialStatus })}
-            active={initialRoleKey === roleKey}
+            key={chip.label}
+            href={clientesSearchHref({ q: initialQuery, roleKey: chip.roleKey, status: initialStatus })}
+            active={chip.roleKeys.includes(initialRoleKey ?? '')}
           >
-            {formatPartyRole(roleKey)}
+            {chip.label}
           </FilterChip>
         ))}
       </div>
