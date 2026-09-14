@@ -2,7 +2,7 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** _(set to ending tip after commit)_  
+**Exact candidate SHA:** `0ccbe9d39534358bbfc20dffe1a982da33386965`  
 Parent lineage: `2388a96` → coverage CreateOrder + prisma_port writers.  
 Code beneath prior tip: `a41e494`.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).

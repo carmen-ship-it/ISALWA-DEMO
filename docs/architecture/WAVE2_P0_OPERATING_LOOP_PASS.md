@@ -1,7 +1,7 @@
 # Wave 2 P0 operating-loop completion pass
 
 **Start tip:** `2388a96fecf2a9bddcf64e767af393cfe788612c`  
-**Ending tip:** _(set after commit)_  
+**Ending tip:** `0ccbe9d39534358bbfc20dffe1a982da33386965`  
 **Integration pin (unmoved):** `316426f272bce29924ffd4991da88ffe7d421bbd`  
 **Deploy / migrate / pin move:** NO  
 **LOCAL_PILOT_CORE:** NOT_READY
