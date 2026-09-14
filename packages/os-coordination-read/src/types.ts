@@ -55,7 +55,18 @@ export type AllocationAwaitingExitFact = {
   recordedAt: string | null;
 };
 
-export type AllocationSourceFact = OrderAllocation | AllocationAwaitingExitFact;
+/**
+ * An allocation row read from the company reader. Not an awaiting-exit gap.
+ * A missing warehouse-exit row is not this fact, and this fact is not one.
+ */
+export type AllocationReaderCitation = {
+  id: string;
+  organizationId: string;
+  awaitsWarehouseExit: false;
+  explicit: false;
+};
+
+export type AllocationSourceFact = OrderAllocation | AllocationAwaitingExitFact | AllocationReaderCitation;
 
 /**
  * Only an explicit recorded gap. A warehouse exit is not a customer delivery,
@@ -119,15 +130,66 @@ export type ExplicitReleaseExceptionFact = {
   recordedAt: string | null;
 };
 
+/**
+ * A stored release that is not a hold. A missing release is not this fact.
+ */
+export type ReleaseReaderCitation = {
+  id: string;
+  organizationId: string;
+  explicit: false;
+};
+
 export type ReleaseSourceFact =
   | OperationalReleaseDecision
   | OperationalReleaseReversal
-  | ExplicitReleaseExceptionFact;
+  | ExplicitReleaseExceptionFact
+  | ReleaseReaderCitation;
+
+/**
+ * A stored production issue the date-risk reader already holds.
+ * Flags are copied. They are not inferred from committed or target dates.
+ */
+export type DateRiskSourceFact = ProductionIssue | DateRiskNonIssue;
+
+/**
+ * The risk reader returned a row that is not an explicit customer-date issue.
+ * Not zero risk inferred from a calendar, and not UNPROVEN.
+ */
+export type DateRiskNonIssue = {
+  id: string;
+  organizationId: string;
+  explicitCustomerDateRisk: false;
+};
+
+/**
+ * A company production row from the operating reader.
+ * A quema or trace is not a calendar issue and is not a date-risk flag.
+ */
+export type ProductionOperatingCitation = {
+  id: string;
+  organizationId: string;
+  explicitCalendarIssue: false;
+  recordedAt: string | null;
+};
+
+export type ProductionSourceFact = ProductionIssue | ProductionOperatingCitation;
+
+/**
+ * A purchase row whose stored status is not a known request status.
+ * Unknown is not pending, and it is not zero purchases.
+ */
+export type PurchaseReaderCitation = {
+  id: string;
+  organizationId: string;
+  pending: false;
+};
+
+export type PurchaseSourceFact = PurchaseRequest | PurchaseReaderCitation;
 
 export type CoordinationInjectedSources = {
-  dateRisk?: InjectedSource<ProductionIssue> | null;
-  production?: InjectedSource<ProductionIssue> | null;
-  purchase?: InjectedSource<PurchaseRequest> | null;
+  dateRisk?: InjectedSource<DateRiskSourceFact> | null;
+  production?: InjectedSource<ProductionSourceFact> | null;
+  purchase?: InjectedSource<PurchaseSourceFact> | null;
   release?: InjectedSource<ReleaseSourceFact> | null;
   finishedGoods?: InjectedSource<FinishedGoodsReceiptQuantity> | null;
   allocation?: InjectedSource<AllocationSourceFact> | null;
@@ -147,6 +209,11 @@ export type CoordinationTrustedContext = {
   grantedScopes?: readonly string[] | null;
   cargo?: string | null;
   title?: string | null;
+  /**
+   * Passed through to company operating readers. Missing is not active.
+   * Cargo and title do not fill this in.
+   */
+  accessStatus?: string | null;
   /** Clock already trusted. Missing clock cannot mark a decision overdue. */
   asOf?: string | null;
   sources?: CoordinationInjectedSources | null;

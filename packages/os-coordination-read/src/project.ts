@@ -44,7 +44,10 @@ import type {
   CoordinationTrustedContext,
   CustomerInformedSourceFact,
   CustomerNotInformedFact,
+  DateRiskSourceFact,
   ExplicitReleaseExceptionFact,
+  ProductionSourceFact,
+  PurchaseSourceFact,
   ReleaseSourceFact,
   SourceProof,
   WarehouseExitAwaitingDeliveryFact,
@@ -88,6 +91,17 @@ function orgOfIssue(row: ProductionIssue): string | null {
   return blank(row.organizationId);
 }
 
+function isStoredProductionIssue(row: DateRiskSourceFact | ProductionSourceFact): row is ProductionIssue {
+  return (
+    'source' in row &&
+    row.source === PRODUCTION_ISSUE_SOURCE &&
+    'mayAffectCustomerDate' in row &&
+    'mayAffectProductionCalendar' in row &&
+    !('explicitCustomerDateRisk' in row) &&
+    !('explicitCalendarIssue' in row)
+  );
+}
+
 function issueFacts(
   facts: readonly ProductionIssue[],
   organizationId: string,
@@ -113,6 +127,10 @@ function issueFacts(
         blank(row.recordedAt),
       ),
     );
+}
+
+function isPurchaseRequestFact(row: PurchaseSourceFact): row is PurchaseRequest {
+  return 'status' in row && typeof row.status === 'string' && !('pending' in row && row.pending === false);
 }
 
 function purchaseFacts(facts: readonly PurchaseRequest[], organizationId: string): CoordinationException[] {
@@ -441,7 +459,7 @@ export function getCoordinationExceptions(
     sourceInput(sources, 'date-risk') as CoordinationInjectedSources['dateRisk'],
   );
   const dateItems = issueFacts(
-    dateRisk.facts,
+    dateRisk.facts.filter(isStoredProductionIssue),
     organizationId,
     'mayAffectCustomerDate',
     'customer_date_risk',
@@ -456,7 +474,7 @@ export function getCoordinationExceptions(
     sourceInput(sources, 'production') as CoordinationInjectedSources['production'],
   );
   const productionItems = issueFacts(
-    production.facts,
+    production.facts.filter(isStoredProductionIssue),
     organizationId,
     'mayAffectProductionCalendar',
     'production_issue',
@@ -470,7 +488,7 @@ export function getCoordinationExceptions(
     'purchase',
     sourceInput(sources, 'purchase') as CoordinationInjectedSources['purchase'],
   );
-  const purchaseItems = purchaseFacts(purchase.facts, organizationId);
+  const purchaseItems = purchaseFacts(purchase.facts.filter(isPurchaseRequestFact), organizationId);
   proofs.purchase = withActionableCount(purchase.proof, purchaseItems.length);
   collected.push(...purchaseItems);
 

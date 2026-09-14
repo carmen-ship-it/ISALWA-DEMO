@@ -1,7 +1,11 @@
 {
   "extends": "../config-ts/base.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@isalwa/os-contracts": ["../os-contracts/src/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts"]
