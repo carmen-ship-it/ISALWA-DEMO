@@ -11,6 +11,8 @@ import {
   changeDepartmentAction,
   changeManagerAction,
   changeRoleAction,
+  endAdditionalRoleAction,
+  grantAdditionalRoleAction,
   grantDelegationAction,
   requestMemberEmailChangeAction,
   revokeDelegationAction,
@@ -21,7 +23,8 @@ import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
 import { OPEN_WORK_TERMINATE_MESSAGE } from '@/lib/workforce/command-errors';
-import { formatRoleKeys } from '@/lib/workforce/labels';
+import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from '@isalwa/os-contracts';
+import { formatRoleKey, formatRoleKeys, isAdditionalAssignableScope, splitRoleKeys } from '@/lib/workforce/labels';
 
 type MemberAdminActionsPanelProps = {
   summary: MemberSummaryReadModel;
@@ -75,7 +78,15 @@ export function MemberAdminActionsPanel({
     initial,
   );
   const [roleState, roleAction] = useActionState(
-    wrapAction(changeRoleAction, 'Rol actualizado.'),
+    wrapAction(changeRoleAction, 'Rol principal actualizado.'),
+    initial,
+  );
+  const [grantRoleState, grantRoleFormAction] = useActionState(
+    wrapAction(grantAdditionalRoleAction, 'Permiso adicional asignado. El rol principal no cambió.'),
+    initial,
+  );
+  const [endRoleState, endRoleFormAction] = useActionState(
+    wrapAction(endAdditionalRoleAction, 'Permiso adicional retirado. El rol principal sigue activo.'),
     initial,
   );
   const [managerState, managerAction] = useActionState(
@@ -112,6 +123,11 @@ export function MemberAdminActionsPanel({
 
   const showOpenWorkHint =
     terminateState.error === OPEN_WORK_TERMINATE_MESSAGE;
+  const { primary, additional } = splitRoleKeys(summary.roleKeys);
+  const primaryRoleOptions = roles.filter((option) => !isAdditionalAssignableScope(option.value));
+  const additionalToAdd = ADDITIONAL_ASSIGNABLE_SCOPE_KEYS.filter(
+    (key) => !summary.roleKeys.includes(key),
+  );
 
   return (
     <div className="space-y-8">
@@ -163,36 +179,99 @@ export function MemberAdminActionsPanel({
             </div>
 
             <div>
-              <h3 className="isalwa-section-label">Cambiar rol</h3>
+              <h3 className="isalwa-section-label">Rol principal</h3>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                Sustituye el rol operativo. También finaliza los demás roles activos, incluidos los
+                permisos adicionales. No lo use para agregar un permiso.
+              </p>
               <FormFeedback error={roleState.error} success={roleState.success} />
-              {roles.length > 0 ? (
+              {primaryRoleOptions.length > 0 ? (
                 <form action={roleAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
                   <input type="hidden" name="memberId" value={memberId} />
                   <div className="min-w-0 flex-1">
                     <label htmlFor="role-select" className="isalwa-section-label">
-                      Rol
+                      Rol principal
                     </label>
                     <select
                       id="role-select"
                       name="roleKey"
                       required
-                      defaultValue={summary.roleKeys[0] ?? ''}
+                      defaultValue={primary[0] ?? ''}
                       className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
                     >
-                      {roles.map((opt) => (
+                      {primaryRoleOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
                         </option>
                       ))}
                     </select>
                   </div>
-                  <CommandSubmitButton label="Cambiar rol" variant="secondary" />
+                  <CommandSubmitButton label="Cambiar rol principal" variant="secondary" />
                 </form>
               ) : (
                 <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
-                  No hay roles registrados para elegir. El rol actual es {formatRoleKeys(summary.roleKeys)}.
+                  No hay roles operativos registrados para elegir. El rol actual es{' '}
+                  {formatRoleKeys(primary.length > 0 ? primary : summary.roleKeys)}.
                 </p>
               )}
+            </div>
+
+            <div>
+              <h3 className="isalwa-section-label">Permisos adicionales</h3>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                Se agregan al rol principal. No lo reemplazan y no se infieren del cargo.
+              </p>
+              <FormFeedback error={grantRoleState.error} success={grantRoleState.success} />
+              <FormFeedback error={endRoleState.error} success={endRoleState.success} />
+              {additional.length > 0 ? (
+                <ul className="mt-3 space-y-2">
+                  {additional.map((key) => (
+                    <li
+                      key={key}
+                      className="flex flex-col gap-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[var(--isalwa-kiln)]">{formatRoleKey(key)}</p>
+                        <p className="text-xs text-[var(--isalwa-slate)]">{key}</p>
+                      </div>
+                      <form action={endRoleFormAction}>
+                        <input type="hidden" name="memberId" value={memberId} />
+                        <input type="hidden" name="roleKey" value={key} />
+                        <CommandSubmitButton label="Quitar permiso" variant="secondary" />
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">Sin permisos adicionales.</p>
+              )}
+              {additionalToAdd.length > 0 ? (
+                <form action={grantRoleFormAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <input type="hidden" name="memberId" value={memberId} />
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="additional-role-select" className="isalwa-section-label">
+                      Agregar permiso
+                    </label>
+                    <select
+                      id="additional-role-select"
+                      name="roleKey"
+                      required
+                      defaultValue=""
+                      className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2"
+                    >
+                      <option value="" disabled>
+                        Seleccione…
+                      </option>
+                      {additionalToAdd.map((key) => (
+                        <option key={key} value={key}>
+                          {formatRoleKey(key)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <CommandSubmitButton label="Agregar permiso" variant="secondary" />
+                </form>
+              ) : null}
             </div>
 
             <div>

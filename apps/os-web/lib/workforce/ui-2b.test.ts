@@ -19,7 +19,7 @@ describe('UI-2B command registry', () => {
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('ChangeDepartment'));
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('TerminateMember'));
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('RequestMemberEmailChange'));
-    assert.equal(UI_2B_WORKFORCE_COMMANDS.length, 9);
+    assert.equal(UI_2B_WORKFORCE_COMMANDS.length, 11);
   });
 
   it('does not expose blocked provider commands', () => {

@@ -192,6 +192,27 @@ export class MemoryOsStore implements OsWorkforceStore {
     }
   }
 
+  async endActiveRoleAssignmentsForKey(
+    organizationId: string,
+    memberId: string,
+    roleKey: string,
+    endedAt: Date,
+  ): Promise<string[]> {
+    const ended: string[] = [];
+    for (const a of this.roleAssignments) {
+      if (
+        a.organizationId === organizationId &&
+        a.memberId === memberId &&
+        a.roleKey === roleKey &&
+        a.endedAt === null
+      ) {
+        a.endedAt = endedAt;
+        ended.push(a.id);
+      }
+    }
+    return ended;
+  }
+
   async endActiveManagerAssignments(memberId: string, endedAt: Date): Promise<void> {
     for (const a of this.managerAssignments) {
       if (a.memberId === memberId && a.endedAt === null) a.endedAt = endedAt;

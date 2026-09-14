@@ -15,7 +15,9 @@ import {
   accessStatusTone,
   formatAccessStatus,
   formatEmploymentStatus,
+  formatRoleKey,
   formatRoleKeys,
+  splitRoleKeys,
   formatTimestamp,
   memberDisplayName,
 } from '@/lib/workforce/labels';
@@ -51,6 +53,7 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
       loadMemberAdminOptions(client, memberId),
     ]);
 
+    const roles = splitRoleKeys(summary.roleKeys);
     const name = memberDisplayName(summary.displayName, summary.givenName, summary.familyName);
     const lifecycleNote = accessStatusExplanation(summary.accessStatus, summary.employmentStatus);
     const visibility = memberAdminVisibility(summary, actorMemberId);
@@ -121,8 +124,20 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
               <dd className="mt-2 text-[var(--isalwa-kiln)]">{summary.email ?? '—'}</dd>
             </div>
             <div>
-              <dt className="isalwa-section-label">Rol</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatRoleKeys(summary.roleKeys)}</dd>
+              <dt className="isalwa-section-label">Rol principal</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatRoleKeys(roles.primary)}</dd>
+            </div>
+            <div>
+              <dt className="isalwa-section-label">Permisos adicionales</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {roles.additional.length > 0
+                  ? roles.additional.map((key) => (
+                      <span key={key} className="block">
+                        {formatRoleKey(key)}
+                      </span>
+                    ))
+                  : 'Sin permisos adicionales'}
+              </dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Departamento</dt>

@@ -36,7 +36,7 @@ Do not execute the importer. Do not reverse the real client import batch. Do not
 1. Confirm `SUPABASE_SERVICE_ROLE_KEY` is present on the API. Missing key fails at invite time.
 2. The UI does not create or reset passwords. The person finishes access in the provider.
 3. If the provider invite fails, do not invent a second membership. Use the existing retry path only if the product exposes it. `RetryAuthProviderSync` is not in the employee UI.
-4. Role comes from a key already on the directory. Cargo does not create a role. `ChangeRole` ends every active assignment and inserts one key. Do not use it to add a leadership scope on top of another role.
+4. Invite still offers one primary role from keys already on the directory. Cargo does not create a role. `ChangeRole` still ends every active assignment and inserts one key. Additional pilot permissions are `GrantAdditionalRole` / `EndAdditionalRole` on the member ficha. They do not require another member to already hold the key. Do not use `ChangeRole` to stack a permission.
 
 ## Command failure
 
@@ -49,7 +49,7 @@ A single failed action is not an outage.
 
 ## Incorrect owner
 
-Reassignment is `commercial.account.reassign` only. `people.admin`, team read, and org read do not grant it. There is no ops SQL for this. If nobody holds the scope, that is a one-time additive role-assignment outside `ChangeRole`, recorded and reversible by ending that assignment. Do not infer it from Cargo.
+Reassignment is `commercial.account.reassign` only. `people.admin`, team read, and org read do not grant it. If the actor does not hold the scope, an administrator with `people.admin` grants `commercial.account.reassign` with `GrantAdditionalRole` and revokes it with `EndAdditionalRole`. Do not infer it from Cargo. Do not assign it with `ChangeRole`.
 
 ## Incorrect customer data
 
@@ -60,10 +60,11 @@ Extra phone numbers that did not import are an import receipt (`EXTRA_PHONE_NOT_
 ## Capability grant / revoke
 
 - A scope is a role assignment. Ending it removes the scope on the next read.
-- `ChangeRole` replaces the whole set. It is not an additive grant.
+- `ChangeRole` replaces the whole set, including additional permissions. It is not an additive grant.
+- `GrantAdditionalRole` adds one allowlisted key and leaves other active assignments in place. `EndAdditionalRole` ends only that key. Neither infers from Cargo.
 - Delegation (`approval.act`) is separate and is revoked with `RevokeDelegation`.
 - Suspend drops access immediately at the OS gate. Reactivation does not prove the old provider token is dead until it expires.
-- There is no staff UI to grant a scope that nobody on the directory already holds.
+- Additional permissions use the canonical allowlist. They do not require another member to already hold the key.
 
 ## Synthetic residue — identification only
 

@@ -1,3 +1,5 @@
+import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS, isAdditionalAssignableScope } from '@isalwa/os-contracts';
+
 /** Employee-facing Spanish labels for workforce read surfaces. */
 
 export function memberDisplayName(
@@ -63,9 +65,9 @@ export function formatRoleKey(roleKey: string): string {
     case 'sales_manager':
       return 'Jefe de ventas';
     case 'commercial.team.read':
-      return 'Lectura comercial del equipo';
+      return 'Ver equipo comercial';
     case 'commercial.org.read':
-      return 'Lectura comercial de la empresa';
+      return 'Ver operación comercial';
     case 'finance.admin':
       return 'Finanzas';
     case 'operations':
@@ -77,9 +79,9 @@ export function formatRoleKey(roleKey: string): string {
     case 'integration.admin':
       return 'Integraciones';
     case 'commercial.order.convert':
-      return 'Conversión de pedidos';
+      return 'Convertir cotizaciones a pedidos';
     case 'commercial.account.reassign':
-      return 'Reasignación de cuentas';
+      return 'Reasignar responsable de cliente';
     default:
       return 'Rol del sistema';
   }
@@ -89,6 +91,15 @@ export function formatRoleKeys(roleKeys: string[]): string {
   if (roleKeys.length === 0) return 'Sin rol asignado';
   return roleKeys.map(formatRoleKey).join(', ');
 }
+
+export function splitRoleKeys(roleKeys: string[]): { primary: string[]; additional: string[] } {
+  return {
+    primary: roleKeys.filter((key) => !isAdditionalAssignableScope(key)),
+    additional: ADDITIONAL_ASSIGNABLE_SCOPE_KEYS.filter((key) => roleKeys.includes(key)),
+  };
+}
+
+export { isAdditionalAssignableScope };
 
 export function formatCapabilityState(state: string): string {
   switch (state) {

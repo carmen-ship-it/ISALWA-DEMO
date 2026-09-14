@@ -10,6 +10,8 @@ export type WorkforceCommandResult = {
 export const UI_2B_WORKFORCE_COMMANDS = [
   'ChangeDepartment',
   'ChangeRole',
+  'GrantAdditionalRole',
+  'EndAdditionalRole',
   'ChangeManager',
   'SuspendMember',
   'ActivateMember',

@@ -82,6 +82,36 @@ export async function changeRoleAction(formData: FormData): Promise<CommandActio
   return result;
 }
 
+export async function grantAdditionalRoleAction(formData: FormData): Promise<CommandActionResult> {
+  const memberId = String(formData.get('memberId') ?? '').trim();
+  const roleKey = String(formData.get('roleKey') ?? '').trim();
+  if (!memberId || !roleKey) {
+    return { ok: false, error: 'Seleccione un permiso.' };
+  }
+  const result = await runWorkforceCommand('GrantAdditionalRole', (client) =>
+    client
+      .executeWorkforceCommand('GrantAdditionalRole', { memberId, roleKey }, createId())
+      .then((r) => r.data),
+  );
+  if (result.ok) revalidateMember(memberId);
+  return result;
+}
+
+export async function endAdditionalRoleAction(formData: FormData): Promise<CommandActionResult> {
+  const memberId = String(formData.get('memberId') ?? '').trim();
+  const roleKey = String(formData.get('roleKey') ?? '').trim();
+  if (!memberId || !roleKey) {
+    return { ok: false, error: 'Seleccione un permiso.' };
+  }
+  const result = await runWorkforceCommand('EndAdditionalRole', (client) =>
+    client
+      .executeWorkforceCommand('EndAdditionalRole', { memberId, roleKey }, createId())
+      .then((r) => r.data),
+  );
+  if (result.ok) revalidateMember(memberId);
+  return result;
+}
+
 export async function changeManagerAction(formData: FormData): Promise<CommandActionResult> {
   const memberId = String(formData.get('memberId') ?? '').trim();
   const managerMemberId = String(formData.get('managerMemberId') ?? '').trim();

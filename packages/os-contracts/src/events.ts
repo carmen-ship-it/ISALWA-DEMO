@@ -4,6 +4,8 @@ export const OS_FOUNDATION_EVENT_TYPES = [
   'member.activated',
   'member.department.changed',
   'member.role.changed',
+  'member.additional_role.granted',
+  'member.additional_role.ended',
   'member.manager.changed',
   'member.suspended',
   'member.terminated',

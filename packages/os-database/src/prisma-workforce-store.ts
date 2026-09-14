@@ -334,6 +334,24 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     });
   }
 
+  async endActiveRoleAssignmentsForKey(
+    organizationId: string,
+    memberId: string,
+    roleKey: string,
+    endedAt: Date,
+  ): Promise<string[]> {
+    const rows = await this.db().osRoleAssignment.findMany({
+      where: { organizationId, memberId, roleKey, endedAt: null },
+      select: { id: true },
+    });
+    if (rows.length === 0) return [];
+    await this.db().osRoleAssignment.updateMany({
+      where: { id: { in: rows.map((row) => row.id) } },
+      data: { endedAt },
+    });
+    return rows.map((row) => row.id);
+  }
+
   async endActiveManagerAssignments(memberId: string, endedAt: Date): Promise<void> {
     await this.db().osManagerAssignment.updateMany({
       where: { memberId, endedAt: null },

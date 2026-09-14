@@ -158,7 +158,7 @@ describe('People V1 existing workforce admin regression', () => {
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('ChangeRole'));
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('ChangeDepartment'));
     assert.ok(UI_2B_WORKFORCE_COMMANDS.includes('ChangeManager'));
-    assert.equal(UI_2B_WORKFORCE_COMMANDS.length, 9);
+    assert.equal(UI_2B_WORKFORCE_COMMANDS.length, 11);
   });
 
   it('keeps existing lifecycle visibility', () => {

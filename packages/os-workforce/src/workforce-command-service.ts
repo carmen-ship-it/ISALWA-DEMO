@@ -1,5 +1,5 @@
 import type { WorkforceCommandName, RequestContext } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES } from '@isalwa/os-contracts';
+import { COMMAND_REQUIRED_SCOPES, isAdditionalAssignableScope } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -128,6 +128,12 @@ export class WorkforceCommandService {
         break;
       case 'ChangeRole':
         commandResult = await this.changeRole(ctx, payload, store);
+        break;
+      case 'GrantAdditionalRole':
+        commandResult = await this.grantAdditionalRole(ctx, payload, store);
+        break;
+      case 'EndAdditionalRole':
+        commandResult = await this.endAdditionalRole(ctx, payload, store);
         break;
       case 'ChangeManager':
         commandResult = await this.changeManager(ctx, payload, store);
@@ -561,6 +567,8 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
+    // Primary-role replacement: ends every active assignment, including
+    // additional permissions. Additive grants use GrantAdditionalRole.
     await store.endActiveRoleAssignments(memberId, effectiveAt);
     await store.insertRoleAssignment({
       id: createId(),
@@ -576,6 +584,93 @@ export class WorkforceCommandService {
       roleKey,
       effectiveAt: effectiveAt.toISOString(),
     });
+  }
+
+  private async grantAdditionalRole(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsWorkforceStore,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, 'GrantAdditionalRole', ctx.organizationId, store);
+    const memberId = String(payload.memberId);
+    const roleKey = String(payload.roleKey);
+    if (!isAdditionalAssignableScope(roleKey)) throw new Error('VALIDATION_FAILED');
+    const member = await store.getMemberInOrg(ctx.organizationId, memberId);
+    if (!member) throw new Error('NOT_FOUND');
+
+    const existing = (await store.listRoleAssignmentsForMember(memberId)).find(
+      (assignment) =>
+        assignment.organizationId === ctx.organizationId &&
+        assignment.roleKey === roleKey &&
+        assignment.endedAt === null,
+    );
+    if (existing) {
+      return {
+        commandId: existing.id,
+        correlationId: ctx.correlationId,
+        data: {
+          assignmentId: existing.id,
+          memberId,
+          roleKey,
+          alreadyAssigned: true,
+        },
+      };
+    }
+
+    const assignmentId = createId();
+    await store.insertRoleAssignment({
+      id: assignmentId,
+      organizationId: ctx.organizationId,
+      memberId,
+      roleKey,
+      effectiveAt: ctx.effectiveAt,
+      endedAt: null,
+    });
+
+    return this.emit(ctx, 'member.additional_role.granted', 'role_assignment', assignmentId, store, {
+      assignmentId,
+      memberId,
+      roleKey,
+      grantedByMemberId: ctx.actorMemberId,
+      effectiveAt: ctx.effectiveAt.toISOString(),
+    });
+  }
+
+  private async endAdditionalRole(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsWorkforceStore,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, 'EndAdditionalRole', ctx.organizationId, store);
+    const memberId = String(payload.memberId);
+    const roleKey = String(payload.roleKey);
+    if (!isAdditionalAssignableScope(roleKey)) throw new Error('VALIDATION_FAILED');
+    const member = await store.getMemberInOrg(ctx.organizationId, memberId);
+    if (!member) throw new Error('NOT_FOUND');
+
+    const assignmentIds = await store.endActiveRoleAssignmentsForKey(
+      ctx.organizationId,
+      memberId,
+      roleKey,
+      ctx.effectiveAt,
+    );
+    if (assignmentIds.length === 0) throw new Error('NOT_FOUND');
+
+    return this.emit(
+      ctx,
+      'member.additional_role.ended',
+      'role_assignment',
+      assignmentIds[0] ?? memberId,
+      store,
+      {
+        assignmentId: assignmentIds[0],
+        assignmentIds,
+        memberId,
+        roleKey,
+        revokedByMemberId: ctx.actorMemberId,
+        endedAt: ctx.effectiveAt.toISOString(),
+      },
+    );
   }
 
   private async changeManager(

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from './scopes';
 
 export const WORKFORCE_COMMAND_NAMES = [
   'InviteMember',
@@ -7,6 +8,8 @@ export const WORKFORCE_COMMAND_NAMES = [
   'RequestMemberEmailChange',
   'ChangeDepartment',
   'ChangeRole',
+  'GrantAdditionalRole',
+  'EndAdditionalRole',
   'ChangeManager',
   'GrantDelegation',
   'RevokeDelegation',
@@ -51,6 +54,16 @@ export const ChangeRolePayloadSchema = z.object({
   memberId: z.string().min(1),
   roleKey: z.string().min(1),
   effectiveAt: z.string().datetime().optional(),
+});
+
+export const GrantAdditionalRolePayloadSchema = z.object({
+  memberId: z.string().min(1),
+  roleKey: z.enum(ADDITIONAL_ASSIGNABLE_SCOPE_KEYS),
+});
+
+export const EndAdditionalRolePayloadSchema = z.object({
+  memberId: z.string().min(1),
+  roleKey: z.enum(ADDITIONAL_ASSIGNABLE_SCOPE_KEYS),
 });
 
 export const ChangeManagerPayloadSchema = z.object({
@@ -98,6 +111,8 @@ export const WORKFORCE_COMMAND_PAYLOAD_SCHEMAS: Record<WorkforceCommandName, z.Z
   RequestMemberEmailChange: RequestMemberEmailChangePayloadSchema,
   ChangeDepartment: ChangeDepartmentPayloadSchema,
   ChangeRole: ChangeRolePayloadSchema,
+  GrantAdditionalRole: GrantAdditionalRolePayloadSchema,
+  EndAdditionalRole: EndAdditionalRolePayloadSchema,
   ChangeManager: ChangeManagerPayloadSchema,
   GrantDelegation: GrantDelegationPayloadSchema,
   RevokeDelegation: RevokeDelegationPayloadSchema,

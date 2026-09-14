@@ -36,6 +36,23 @@ export const COMMERCIAL_ORDER_CONVERT_SCOPE: CommercialAuthorityScopeKey =
 export const COMMERCIAL_ACCOUNT_REASSIGN_SCOPE: CommercialAuthorityScopeKey =
   'commercial.account.reassign';
 
+/**
+ * Explicit additional assignments. GrantAdditionalRole may add one of these
+ * without ending other active role assignments. Not inferred from Cargo,
+ * title, department, or another member's permissions. people.admin may
+ * administer the assignment and does not receive the capability by doing so.
+ */
+export const ADDITIONAL_ASSIGNABLE_SCOPE_KEYS = [
+  ...COMMERCIAL_READ_SCOPE_KEYS,
+  ...COMMERCIAL_AUTHORITY_SCOPE_KEYS,
+] as const;
+
+export type AdditionalAssignableScopeKey = (typeof ADDITIONAL_ASSIGNABLE_SCOPE_KEYS)[number];
+
+export function isAdditionalAssignableScope(value: string): value is AdditionalAssignableScopeKey {
+  return (ADDITIONAL_ASSIGNABLE_SCOPE_KEYS as readonly string[]).includes(value);
+}
+
 export type AdminScopeKey = (typeof ADMIN_SCOPE_KEYS)[number];
 
 /** Command → required scope (minimum). */
@@ -46,6 +63,8 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   RequestMemberEmailChange: 'member_active',
   ChangeDepartment: 'people.admin',
   ChangeRole: 'people.admin',
+  GrantAdditionalRole: 'people.admin',
+  EndAdditionalRole: 'people.admin',
   ChangeManager: 'people.admin',
   GrantDelegation: 'people.admin',
   RevokeDelegation: 'people.admin',

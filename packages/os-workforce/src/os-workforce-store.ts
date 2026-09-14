@@ -71,6 +71,13 @@ export interface OsWorkforceStore {
   ): Promise<void>;
   endActiveDepartmentAssignments(memberId: string, endedAt: Date): Promise<void>;
   endActiveRoleAssignments(memberId: string, endedAt: Date): Promise<void>;
+  /** Ends only active rows of one role key. Returns the assignment ids ended. */
+  endActiveRoleAssignmentsForKey(
+    organizationId: string,
+    memberId: string,
+    roleKey: string,
+    endedAt: Date,
+  ): Promise<string[]>;
   endActiveManagerAssignments(memberId: string, endedAt: Date): Promise<void>;
   updateWorkItemOwner(workItemId: string, newOwnerMemberId: string, version: number): Promise<void>;
   revokeDelegation(delegationId: string, revokedAt: Date): Promise<void>;
