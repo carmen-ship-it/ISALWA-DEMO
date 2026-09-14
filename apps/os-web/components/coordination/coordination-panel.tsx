@@ -32,12 +32,9 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
   return (
     <div className="space-y-6">
       <Panel padded>
-        <SectionHeader kicker="Comité" title="Asuntos que necesitan una decisión" />
-        <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No es un calendario de reuniones. Si no hay un asunto que cruce áreas, no hay nada que decidir.
-        </p>
+        <SectionHeader kicker="Asuntos" title="Decisión conjunta" />
         {model.committee.items.length === 0 ? (
-          <EmptyState title={model.emptyTitle} description={model.emptyDescription} />
+          <EmptyState title={model.emptyTitle} />
         ) : (
           <div>
             {model.committee.items.map((item) => (

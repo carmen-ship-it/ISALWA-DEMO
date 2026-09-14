@@ -5,11 +5,13 @@ import {
   coordinationGrantedCapabilitiesForSession,
   type CoordinationPageModel,
 } from '@/lib/coordination/page-model';
+import { unavailableOperatingFacts } from '@/lib/coordination/facts';
 
 /**
- * The page shows only facts a caller passed. This seam returns none.
- * CROSS_LANE: pass factual triggers here. Do not invent a case, and do not
- * read another tenant to fill an empty committee.
+ * Operating facts are generated only when a tenant-scoped query exists.
+ * None of those readers exist in this lane. An empty committee is the honest
+ * state. It is not a proof that operations were checked, and it is not filled
+ * from an unscoped list or from another tenant.
  */
 export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
   const web = await getServerWebSession();
@@ -17,6 +19,8 @@ export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
   const organizationId = dev?.organizationId ?? null;
   const actorMemberId = dev?.memberId ?? null;
   const actorLabel = dev?.displayLabel?.trim() || (web?.mode === 'supabase' ? web.email ?? null : null);
+  const facts = unavailableOperatingFacts();
+  const generated = coordinationFactsForSession(organizationId);
 
   return buildCoordinationPageModel({
     session: {
@@ -28,7 +32,8 @@ export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
         displayLabel: actorLabel,
       }),
     },
-    matters: coordinationFactsForSession(organizationId),
+    matters: generated.matters,
+    facts,
     decisions: [],
   });
 }

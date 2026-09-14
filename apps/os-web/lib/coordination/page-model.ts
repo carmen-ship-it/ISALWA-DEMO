@@ -1,6 +1,5 @@
 import {
   COORDINATION_DECISION_CAPABILITY,
-  COORDINATION_EMPTY_COMMITTEE_DESCRIPTION,
   COORDINATION_EMPTY_COMMITTEE_TITLE,
   coordinationCapabilityFromCargoOrTitle,
   coordinationCommitteeForSession,
@@ -14,6 +13,13 @@ import {
   type CoordinationMatterInput,
   type CoordinationSession,
 } from '@isalwa/os-contracts';
+import {
+  coordinationMattersFromOperatingFacts,
+  unavailableOperatingFacts,
+  type CoordinationFactProofs,
+  type CoordinationFactsResult,
+  type CoordinationOperatingFacts,
+} from './facts';
 
 export const COORDINATION_RECORD_BUTTON = 'REGISTRAR DECISIÓN';
 
@@ -50,7 +56,8 @@ export type CoordinationPageModel = {
   ledger: CoordinationLedger;
   openDecisions: readonly CoordinationDecisionRecord[];
   emptyTitle: typeof COORDINATION_EMPTY_COMMITTEE_TITLE;
-  emptyDescription: typeof COORDINATION_EMPTY_COMMITTEE_DESCRIPTION;
+  /** Proof of each operating fact. Unavailable is not a zero and carries no foreign count. */
+  factProofs: CoordinationFactProofs;
 };
 
 function blankToNull(value: string | null | undefined): string | null {
@@ -78,6 +85,7 @@ export function buildCoordinationPageModel(input: {
   session?: CoordinationSession | null;
   matters?: readonly CoordinationMatterInput[] | null;
   decisions?: readonly CoordinationDecisionRecord[] | null;
+  facts?: CoordinationOperatingFacts | null;
 }): CoordinationPageModel {
   const organizationId = blankToNull(input.session?.organizationId);
   const actorMemberId = blankToNull(input.session?.actorMemberId);
@@ -89,6 +97,10 @@ export function buildCoordinationPageModel(input: {
     title: input.session?.title,
   });
   const ledger = ledgerForSession(organizationId, input.decisions);
+  const generated = coordinationMattersFromOperatingFacts({
+    organizationId,
+    facts: input.facts ?? unavailableOperatingFacts(),
+  });
 
   if (!organizationId) {
     return {
@@ -100,13 +112,13 @@ export function buildCoordinationPageModel(input: {
       ledger: emptyCoordinationLedger(),
       openDecisions: [],
       emptyTitle: COORDINATION_EMPTY_COMMITTEE_TITLE,
-      emptyDescription: COORDINATION_EMPTY_COMMITTEE_DESCRIPTION,
+      factProofs: generated.proofs,
     };
   }
 
   const committee = coordinationCommitteeForSession({
     session: { organizationId },
-    matters: input.matters,
+    matters: [...(input.matters ?? []), ...generated.matters],
     decisions: input.decisions,
   });
   const open = canRecord
@@ -134,15 +146,21 @@ export function buildCoordinationPageModel(input: {
     ledger,
     openDecisions: open.ok ? open.value : [],
     emptyTitle: COORDINATION_EMPTY_COMMITTEE_TITLE,
-    emptyDescription: COORDINATION_EMPTY_COMMITTEE_DESCRIPTION,
+    factProofs: generated.proofs,
   };
 }
 
-/** Wired facts. Empty until a caller passes triggers. Do not invent a case here. */
+/**
+ * No tenant-scoped reader exists for these operating facts in this lane.
+ * Do not query an unscoped list to fill the gap.
+ */
 export function coordinationFactsForSession(
-  _organizationId: string | null,
-): readonly CoordinationMatterInput[] {
-  return [];
+  organizationId: string | null,
+): CoordinationFactsResult {
+  return coordinationMattersFromOperatingFacts({
+    organizationId,
+    facts: unavailableOperatingFacts(),
+  });
 }
 
 /** Member scopes are not on the web session. Title is not consulted. */

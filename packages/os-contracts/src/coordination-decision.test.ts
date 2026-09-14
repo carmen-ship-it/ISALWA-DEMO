@@ -75,7 +75,7 @@ describe('coordination committee', () => {
     assert.deepEqual(committee.items, []);
     assert.equal(committee.meetingRequired, false);
     assert.deepEqual(committee.meetings, []);
-    assert.equal(COORDINATION_EMPTY_COMMITTEE_TITLE, 'No hay nada que necesite una decisión de comité.');
+    assert.equal(COORDINATION_EMPTY_COMMITTEE_TITLE, 'No hay asuntos que requieren decisión conjunta.');
 
     const blank = deriveCoordinationCommittee({ organizationId: 'org-a', matters: [] });
     assert.equal(blank.items.length, 0);

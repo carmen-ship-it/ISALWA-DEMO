@@ -30,6 +30,7 @@ export const COORDINATION_TRIGGER_KINDS = [
   'production_issue_flag',
   'purchase_pending',
   'commercial_decision_required',
+  'special_order_decision',
   'payment_exception',
   'customer_not_informed',
   'finished_goods_awaiting_allocation',
@@ -44,6 +45,7 @@ export const COORDINATION_TRIGGER_LABELS: Record<CoordinationTrigger, string> = 
   production_issue_flag: 'Incidencia de producción',
   purchase_pending: 'Compra pendiente',
   commercial_decision_required: 'Decisión comercial requerida',
+  special_order_decision: 'Pedido especial que requiere decisión',
   payment_exception: 'Excepción de pago',
   customer_not_informed: 'Cliente no informado',
   finished_goods_awaiting_allocation: 'Producto terminado sin asignar',
@@ -67,10 +69,10 @@ export const COORDINATION_FIELD_LABELS = {
 } as const;
 
 export const COORDINATION_EMPTY_COMMITTEE_TITLE =
-  'No hay nada que necesite una decisión de comité.';
+  'No hay asuntos que requieren decisión conjunta.';
 
 export const COORDINATION_EMPTY_COMMITTEE_DESCRIPTION =
-  'No hace falta una reunión. Si un asunto cruza áreas y necesita una decisión, aparecerá aquí con los datos que ya existen.';
+  'Si un asunto cruza áreas y necesita una decisión, aparecerá aquí con los datos que ya existen.';
 
 export const COORDINATION_RECORD_LABEL = 'Registrar decisión';
 export const COORDINATION_RESOLVE_LABEL = 'Registrar resolución';

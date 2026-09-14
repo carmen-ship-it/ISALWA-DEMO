@@ -11,7 +11,7 @@ export default async function CoordinacionPage() {
       <PageHeader
         kicker="Asuntos que necesitan una decisión"
         title="Coordinación"
-        description="Solo lo que cruza áreas y necesita una decisión. No es un calendario de reuniones."
+        description="Asuntos que cruzan áreas y necesitan una decisión, tomados de los hechos que ya existen."
       />
       <CoordinationPanel model={model} />
     </PageContainer>

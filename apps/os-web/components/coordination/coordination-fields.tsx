@@ -34,9 +34,12 @@ export function CoordinationFieldList({
 }: {
   values: Record<CoordinationFieldKey, string | boolean | null>;
 }) {
+  const present = COORDINATION_FIELDS.filter((key) => coordinationFieldValue(key, values[key]) !== '');
+  if (present.length === 0) return null;
+
   return (
     <dl className="grid gap-3 sm:grid-cols-2">
-      {COORDINATION_FIELDS.map((key) => (
+      {present.map((key) => (
         <div key={key} className="min-w-0">
           <dt className="isalwa-section-label">{COORDINATION_FIELD_LABELS[key]}</dt>
           <dd className="mt-1 min-h-5 text-sm text-[var(--isalwa-kiln)]">
