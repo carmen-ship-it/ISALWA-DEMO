@@ -7,12 +7,11 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 import {
-  approvalSubjectLabel,
   formatApprovalStatus,
-  formatSubjectType,
   formatTimestamp,
   statusToneForApproval,
 } from '@/lib/work/labels';
+import { resolveApprovalSubjects } from '@/lib/work/resolve-staff-subjects';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { approvalHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -28,6 +27,7 @@ export default async function AprobacionesPage() {
 
   try {
     const result = await client.listApprovals({ limit: 50 });
+    const subjects = await resolveApprovalSubjects(client, result.items);
     const memberLabels = await resolveMemberLabels(
       client,
       result.items.flatMap((item) => [
@@ -51,7 +51,7 @@ export default async function AprobacionesPage() {
 
         <StaleProjectionBanner freshness={result.freshness} />
 
-        {result.items.length === 0 ? (
+        {result.items.filter((approval) => (subjects.get(approval.approvalRequestId) ?? '').trim()).length === 0 ? (
           <EmptyState
             title={t('states.emptyAprobaciones')}
             description="Cuando alguien solicite su aprobación, la verá aquí para decidir."
@@ -59,17 +59,16 @@ export default async function AprobacionesPage() {
         ) : (
           <PageSection card className="bg-white p-2 md:p-4">
             <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Bandeja de aprobaciones">
-              {result.items.map((approval) => {
+              {result.items.filter((approval) => (subjects.get(approval.approvalRequestId) ?? '').trim()).map((approval) => {
                 const decidedAt = formatTimestamp(approval.decidedAt);
-                const subject = formatSubjectType(approval.subjectType);
+                const subject =
+                  subjects.get(approval.approvalRequestId) ?? 'Solicitud de aprobación';
                 return (
                   <ListRow key={approval.approvalRequestId} as="li" className="px-1 py-2">
                     <div className="bg-white px-4 py-5">
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-[var(--isalwa-kiln)]">
-                            {approvalSubjectLabel(approval)}
-                          </p>
+                          <p className="font-medium text-[var(--isalwa-kiln)]">{subject}</p>
                           <dl className="mt-4 grid gap-2 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
                             <div>
                               <dt className="sr-only">Solicitado por</dt>
@@ -77,12 +76,6 @@ export default async function AprobacionesPage() {
                                 Solicitado por {memberLabel(memberLabels, approval.requestedByMemberId)}
                               </dd>
                             </div>
-                            {subject ? (
-                              <div>
-                                <dt className="sr-only">Asunto</dt>
-                                <dd>Asunto: {subject}</dd>
-                              </div>
-                            ) : null}
                             {decidedAt ? (
                               <div>
                                 <dt className="sr-only">Decisión</dt>

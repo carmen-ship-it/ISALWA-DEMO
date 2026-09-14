@@ -232,7 +232,6 @@ export function MemberAdminActionsPanel({
                     >
                       <div className="min-w-0">
                         <p className="text-[var(--isalwa-kiln)]">{formatRoleKey(key)}</p>
-                        <p className="text-xs text-[var(--isalwa-slate)]">{key}</p>
                       </div>
                       <form action={endRoleFormAction}>
                         <input type="hidden" name="memberId" value={memberId} />

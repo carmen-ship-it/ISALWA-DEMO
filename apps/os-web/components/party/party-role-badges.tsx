@@ -14,7 +14,7 @@ type PartyRoleBadgesProps = {
 };
 
 export function PartyRoleBadges({ roleKeys, size = 'md' }: PartyRoleBadgesProps) {
-  const unique = [...new Set(roleKeys)];
+  const unique = [...new Set(roleKeys.map((roleKey) => formatPartyRole(roleKey)))];
   if (unique.length === 0) {
     return (
       <StatusPill tone="neutral" className={size === 'sm' ? 'text-[10px]' : undefined}>
@@ -25,9 +25,9 @@ export function PartyRoleBadges({ roleKeys, size = 'md' }: PartyRoleBadgesProps)
 
   return (
     <div className="flex flex-wrap gap-1.5" aria-label="Relaciones comerciales">
-      {unique.map((roleKey) => (
-        <StatusPill key={roleKey} tone="info" className={size === 'sm' ? 'text-[10px]' : undefined}>
-          {formatPartyRole(roleKey)}
+      {unique.map((label) => (
+        <StatusPill key={label} tone="info" className={size === 'sm' ? 'text-[10px]' : undefined}>
+          {label}
         </StatusPill>
       ))}
     </div>

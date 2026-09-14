@@ -11,6 +11,7 @@ import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { filterNavByAccess, PRIMARY_NAV } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
 import { formatWorkStatus } from '@/lib/work/labels';
+import { isEngineeringFixtureCopy, usableStaffTitle } from '@/lib/work/staff-subject';
 import { workItemHref } from '@/lib/work/navigation';
 
 export const PALETTE_MIN_QUERY = 2;
@@ -195,10 +196,11 @@ export function workPaletteItem(input: {
   subjectType: string | null;
 }): PaletteItem {
   const followUp = isFollowUpSubject(input.subjectType);
+  const label = usableStaffTitle(input.title) ?? (followUp ? 'Seguimiento' : 'Trabajo');
   return {
     key: `${followUp ? 'follow-up' : 'work'}:${input.workItemId}`,
     kind: followUp ? 'follow-up' : 'work',
-    label: input.title.trim() || (followUp ? 'Seguimiento' : 'Trabajo'),
+    label,
     detail: formatWorkStatus(input.status),
     href: workItemHref(input.workItemId),
   };
@@ -266,6 +268,7 @@ export function parseRecents(raw: string | null): PaletteItem[] {
     const row = entry as Partial<StoredRecent>;
     if (typeof row.href !== 'string' || !row.href.startsWith('/') || row.href.startsWith('//')) continue;
     if (typeof row.label !== 'string' || !row.label.trim()) continue;
+    if (isEngineeringFixtureCopy(row.label) || isEngineeringFixtureCopy(row.detail)) continue;
     if (typeof row.key !== 'string' || !row.key) continue;
     items.push({
       key: `recent:${row.key}`,

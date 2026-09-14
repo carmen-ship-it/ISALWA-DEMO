@@ -23,6 +23,7 @@ import { approvalHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
 import { partyHref } from '@/lib/party/navigation';
+import { staffFacingSubject } from '@/lib/work/staff-subject';
 
 type WorkDetailPageProps = {
   params: Promise<{ workItemId: string }>;
@@ -47,15 +48,21 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
     const partyId = work.subjectType === 'party' ? work.subjectId : null;
     const partyLabels = partyId ? await resolvePartyLabels(client, [partyId]) : null;
     const customerName = partyId && partyLabels ? partyLabel(partyLabels, partyId) : null;
+    const staffTitle = staffFacingSubject({
+      title: work.title,
+      description: work.description,
+      subjectType: work.subjectType,
+      customerName: customerName && customerName !== 'Cliente' ? customerName : null,
+    });
     const statusLabel = customerFollowUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
     const undatedOpen = work.status === 'open' && !work.dueAt;
     const completedAt = formatTimestamp(work.completedAt);
 
     return (
-      <PageContainer label={work.title}>
+      <PageContainer label={staffTitle}>
         <PageHeader
           kicker={customerFollowUp ? FOLLOW_UP_COPY.section : 'Trabajo'}
-          title={work.title}
+          title={staffTitle}
           action={
             <Link href="/trabajo">
               <Button type="button" variant="secondary">

@@ -2,13 +2,13 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { AttentionItemReadModel } from '@isalwa/os-contracts';
 import {
-  attentionHeadline,
   attentionStatusTone,
   attentionStoredDueLabel,
   formatAttentionReason,
   formatAttentionType,
   formatSubjectType,
 } from '@/lib/work/labels';
+import { attentionStaffSubject } from '@/lib/work/staff-subject';
 import {
   attentionInspectLabel,
   attentionTargetHref,
@@ -16,10 +16,11 @@ import {
 
 type AttentionListProps = {
   items: AttentionItemReadModel[];
+  subjects?: Map<string, string>;
   compact?: boolean;
 };
 
-export function AttentionList({ items, compact = false }: AttentionListProps) {
+export function AttentionList({ items, subjects, compact = false }: AttentionListProps) {
   return (
     <ul className="min-w-0" aria-label="Elementos que requieren atención">
       {items.map((item) => {
@@ -27,13 +28,17 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
         const subject = formatSubjectType(item.subjectType);
         const dueLabel = attentionStoredDueLabel(item);
         const overdue = item.attentionType === 'overdue_work';
+        const reason = formatAttentionReason(item);
+        const statusLabel = formatAttentionType(item.attentionType);
         const content = (
           <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="break-words font-medium text-[var(--isalwa-kiln)]">{attentionHeadline(item)}</p>
-              <p className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">
-                {formatAttentionReason(item)}
+              <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                {subjects?.get(item.attentionKey) ?? attentionStaffSubject(item)}
               </p>
+              {reason !== statusLabel ? (
+                <p className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">{reason}</p>
+              ) : null}
               {dueLabel ? (
                 <p
                   className={
@@ -55,7 +60,7 @@ export function AttentionList({ items, compact = false }: AttentionListProps) {
               ) : null}
             </div>
             <StatusPill tone={attentionStatusTone(item.attentionType)} className="shrink-0">
-              {formatAttentionType(item.attentionType)}
+              {statusLabel}
             </StatusPill>
           </div>
         );

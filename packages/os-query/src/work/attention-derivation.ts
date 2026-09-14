@@ -138,6 +138,7 @@ export function deriveAttentionReadModels(
           reasonDetail: {
             source: 'work_read_model',
             workItemId: work.workItemId,
+            title: work.title,
             dueAt: work.dueAt,
           },
           resourceType: 'work_item',

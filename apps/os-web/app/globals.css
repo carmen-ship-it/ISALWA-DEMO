@@ -48,6 +48,20 @@ a {
   text-decoration: none;
 }
 
+/* Primary action on an anchor. Unlayered so it wins over `a { color: inherit }`. Same tokens as Button primary. */
+a.isalwa-action-link,
+a.isalwa-action-link:hover,
+a.isalwa-action-link:focus,
+a.isalwa-action-link:active {
+  color: var(--isalwa-white);
+  background-color: var(--isalwa-action);
+}
+
+a.isalwa-action-link:hover,
+a.isalwa-action-link:active {
+  background-color: var(--isalwa-action-deep);
+}
+
 .isalwa-page {
   min-height: 100%;
   max-width: var(--isalwa-page-max);

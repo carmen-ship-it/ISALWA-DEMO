@@ -11,12 +11,13 @@ import { formatTimestamp } from '@/lib/commercial/labels';
 import { orderHref, quoteHref } from '@/lib/commercial/navigation';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import {
-  approvalSubjectLabel,
   formatApprovalStatus,
   formatSubjectType,
   statusToneForApproval,
 } from '@/lib/work/labels';
+import { approvalStaffSubject } from '@/lib/work/staff-subject';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -45,13 +46,22 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
     const subject = formatSubjectType(approval.subjectType);
     const decidedAt = formatTimestamp(approval.decidedAt);
     const subjectLink = await resolveSubjectLink(client, approval.subjectType, approval.subjectId);
+    const customerName = subjectLink?.partyId
+      ? partyLabel(await resolvePartyLabels(client, [subjectLink.partyId]), subjectLink.partyId)
+      : null;
+    const title = approvalStaffSubject({
+      subjectType: approval.subjectType,
+      quoteNumber: approval.subjectType === 'quote' ? subjectLink?.label : null,
+      orderNumber: approval.subjectType === 'order' ? subjectLink?.label : null,
+      customerName: customerName && customerName !== 'Cliente' ? customerName : null,
+    });
     const canDecide = await resolveCanDecide(client, approval);
 
     return (
       <PageContainer label="Aprobación">
         <PageHeader
           kicker="Aprobaciones"
-          title={approvalSubjectLabel(approval)}
+          title={title}
           description="La decisión no crea un pedido."
           action={
             <Link href="/aprobaciones" className={accentLinkClass}>

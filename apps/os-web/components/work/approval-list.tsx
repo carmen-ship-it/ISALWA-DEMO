@@ -2,9 +2,7 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import {
-  approvalSubjectLabel,
   formatApprovalStatus,
-  formatSubjectType,
   formatTimestamp,
   statusToneForApproval,
 } from '@/lib/work/labels';
@@ -14,15 +12,16 @@ import { approvalHref } from '@/lib/work/navigation';
 type ApprovalListProps = {
   items: ApprovalSummaryReadModel[];
   memberLabels: MemberLabelMap;
+  subjects?: Map<string, string>;
   readOnly?: boolean;
 };
 
-export function ApprovalList({ items, memberLabels, readOnly = true }: ApprovalListProps) {
+export function ApprovalList({ items, memberLabels, subjects, readOnly = true }: ApprovalListProps) {
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Lista de aprobaciones">
       {items.map((approval) => {
         const decidedAt = formatTimestamp(approval.decidedAt);
-        const subject = formatSubjectType(approval.subjectType);
+        const subject = subjects?.get(approval.approvalRequestId) ?? 'Solicitud de aprobación';
         return (
           <ListRow key={approval.approvalRequestId} as="li" className="px-1 py-1">
             <Link
@@ -31,9 +30,7 @@ export function ApprovalList({ items, memberLabels, readOnly = true }: ApprovalL
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-[var(--isalwa-kiln)]">
-                    {approvalSubjectLabel(approval)}
-                  </p>
+                  <p className="font-medium text-[var(--isalwa-kiln)]">{subject}</p>
                   <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
                     <div>
                       <dt className="sr-only">Solicitado por</dt>
@@ -48,12 +45,6 @@ export function ApprovalList({ items, memberLabels, readOnly = true }: ApprovalL
                         Aprobador: {memberLabel(memberLabels, approval.approverMemberId)}
                       </dd>
                     </div>
-                    {subject ? (
-                      <div>
-                        <dt className="sr-only">Contexto</dt>
-                        <dd>Contexto: {subject}</dd>
-                      </div>
-                    ) : null}
                     {approval.workItemId ? (
                       <div>
                         <dt className="sr-only">Trabajo vinculado</dt>

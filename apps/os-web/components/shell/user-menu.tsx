@@ -61,19 +61,21 @@ export function UserMenu({ displayLabel }: UserMenuProps) {
         <button
           ref={triggerRef}
           type="button"
-          className="isalwa-t-fast flex min-w-0 max-w-[min(16rem,40vw)] cursor-pointer flex-col items-end rounded-[var(--isalwa-radius-control)] px-2 py-1 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="isalwa-t-fast flex min-w-0 max-w-[7.5rem] cursor-pointer flex-col items-end rounded-[var(--isalwa-radius-control)] px-2 py-1 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:cursor-not-allowed disabled:opacity-60 sm:max-w-[10rem] lg:max-w-[28rem] xl:max-w-none"
           aria-label={`${t('account.signedInAs')} ${label}`}
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={menuId}
           aria-busy={pending}
           disabled={pending}
+          title={label}
           onClick={() => setOpen((current) => !current)}
         >
-          <span className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)] sm:block">
+          <span className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--isalwa-slate)] lg:block">
             {t('account.signedInAs')}
           </span>
-          <span className="min-w-0 truncate">{label}</span>
+          <span className="lg:hidden">Cuenta</span>
+          <span className="hidden min-w-0 whitespace-normal break-words text-right lg:inline">{label}</span>
         </button>
         <button
           type="button"

@@ -18,7 +18,7 @@ type ClientesPageProps = {
 };
 
 const addCustomerClass =
-  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-action)] px-4 text-sm font-medium text-[var(--isalwa-white)] hover:bg-[var(--isalwa-action-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'isalwa-action-link isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] px-4 text-sm font-medium focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
@@ -36,7 +36,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     const result = await client.searchParties({
       ...(q ? { q } : {}),
       ...(roleKey ? { roleKey } : {}),
-      ...(status ? { status } : {}),
+      status: status || 'active',
       ...(cursor ? { cursor } : {}),
       limit: 25,
     });

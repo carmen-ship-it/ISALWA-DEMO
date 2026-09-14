@@ -9,6 +9,7 @@ import {
 import { opportunityHref } from '@/lib/commercial/navigation';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type OpportunityOrgListProps = {
   items: OpportunitySummaryReadModel[];
@@ -29,7 +30,7 @@ export function OpportunityOrgList({
 }: OpportunityOrgListProps) {
   return (
     <ul className="min-w-0" aria-label="Oportunidades">
-      {items.map((item) => {
+      {items.filter((item) => !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId))).map((item) => {
         const customer = partyLabel(partyLabels, item.partyId);
         const owner = memberLabel(memberLabels, item.ownerMemberId);
         return (

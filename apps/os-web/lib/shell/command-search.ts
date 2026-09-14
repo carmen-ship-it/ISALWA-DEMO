@@ -4,6 +4,7 @@ import type { CommercialVisibilityMode } from '@isalwa/os-contracts';
 import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import {
   customerPaletteItem,
   opportunityPaletteItem,
@@ -79,7 +80,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   const items: PaletteItem[] = [];
 
   try {
-    const parties = await client.searchParties({ q, limit: PALETTE_GROUP_LIMIT });
+    const parties = await client.searchParties({ q, status: 'active', limit: PALETTE_GROUP_LIMIT });
     for (const party of parties.items) {
       items.push(
         customerPaletteItem({
@@ -97,8 +98,10 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   }
 
   const opportunityCalls = [
-    client.listOpportunities({ q, limit: PALETTE_GROUP_LIMIT }),
-    ...lenses.map((visibility) => client.listOpportunities({ q, visibility, limit: PALETTE_GROUP_LIMIT })),
+    client.listOpportunities({ q, status: 'open', limit: PALETTE_GROUP_LIMIT }),
+    ...lenses.map((visibility) =>
+      client.listOpportunities({ q, visibility, status: 'open', limit: PALETTE_GROUP_LIMIT }),
+    ),
   ];
   const quoteCalls = [
     client.listQuotes({ q, limit: PALETTE_GROUP_LIMIT }),
@@ -113,26 +116,30 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
 
   const [opportunities, quotes, orders, work] = await Promise.all([
     collect(opportunityCalls, (page) =>
-      page.items.map((item) =>
-        opportunityPaletteItem({
-          opportunityId: item.opportunityId,
-          partyId: item.partyId,
-          title: item.title,
-          status: item.status,
-        }),
-      ),
+      page.items
+        .filter((item) => !isEngineeringFixtureCopy(item.title))
+        .map((item) =>
+          opportunityPaletteItem({
+            opportunityId: item.opportunityId,
+            partyId: item.partyId,
+            title: item.title,
+            status: item.status,
+          }),
+        ),
     ),
     collect(quoteCalls, (page) =>
-      page.items.map((item) =>
-        quotePaletteItem({
-          quoteId: item.quoteId,
-          partyId: item.partyId,
-          quoteNumber: item.quoteNumber,
-          status: item.status,
-          totalCentavos: item.totalCentavos,
-          currency: item.currency,
-        }),
-      ),
+      page.items
+        .filter((item) => item.status !== 'cancelled')
+        .map((item) =>
+          quotePaletteItem({
+            quoteId: item.quoteId,
+            partyId: item.partyId,
+            quoteNumber: item.quoteNumber,
+            status: item.status,
+            totalCentavos: item.totalCentavos,
+            currency: item.currency,
+          }),
+        ),
     ),
     collect(
       [client.listOrders({ q, limit: PALETTE_GROUP_LIMIT })],
@@ -189,26 +196,30 @@ async function relatedForParty(client: OsApiClient, partyId: string, lenses: Len
   ];
   const [opportunities, quotes, orders, work] = await Promise.all([
     collect(opportunityCalls, (page) =>
-      page.items.map((item) =>
-        opportunityPaletteItem({
-          opportunityId: item.opportunityId,
-          partyId: item.partyId,
-          title: item.title,
-          status: item.status,
-        }),
-      ),
+      page.items
+        .filter((item) => !isEngineeringFixtureCopy(item.title))
+        .map((item) =>
+          opportunityPaletteItem({
+            opportunityId: item.opportunityId,
+            partyId: item.partyId,
+            title: item.title,
+            status: item.status,
+          }),
+        ),
     ),
     collect(quoteCalls, (page) =>
-      page.items.map((item) =>
-        quotePaletteItem({
-          quoteId: item.quoteId,
-          partyId: item.partyId,
-          quoteNumber: item.quoteNumber,
-          status: item.status,
-          totalCentavos: item.totalCentavos,
-          currency: item.currency,
-        }),
-      ),
+      page.items
+        .filter((item) => item.status !== 'cancelled')
+        .map((item) =>
+          quotePaletteItem({
+            quoteId: item.quoteId,
+            partyId: item.partyId,
+            quoteNumber: item.quoteNumber,
+            status: item.status,
+            totalCentavos: item.totalCentavos,
+            currency: item.currency,
+          }),
+        ),
     ),
     collect([client.listOrders({ partyId, limit: 4 })], (page) =>
       page.items.map((item) =>

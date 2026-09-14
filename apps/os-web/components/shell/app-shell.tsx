@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
@@ -8,6 +8,7 @@ import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { AppNav } from '@/components/shell/app-nav';
 import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/command-palette';
 import { UserMenu } from '@/components/shell/user-menu';
+import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 
 type AppShellProps = {
@@ -29,6 +30,7 @@ export function AppShell({
 }: AppShellProps) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
@@ -94,7 +96,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-4 overflow-visible border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-4 lg:px-8">
+        <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-4 sm:gap-4 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               ref={menuButtonRef}
@@ -111,7 +113,7 @@ export function AppShell({
               {t('app.name')}
             </p>
           </div>
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <CommandPaletteTrigger
               buttonRef={searchButtonRef}
               onOpen={() => {
@@ -144,6 +146,20 @@ export function AppShell({
               mobile
               onNavigate={() => setMobileOpen(false)}
             />
+            <div className="px-4 pb-5">
+              <button
+                type="button"
+                disabled={signingOut}
+                className="isalwa-t-fast flex w-full items-center rounded-[var(--isalwa-radius-control)] px-3.5 py-3 text-left text-sm font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)] focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-60"
+                onClick={() => {
+                  startSignOut(async () => {
+                    await signOutAction();
+                  });
+                }}
+              >
+                {signingOut ? 'Cerrando sesión…' : t('account.signOut')}
+              </button>
+            </div>
           </div>
         ) : null}
 

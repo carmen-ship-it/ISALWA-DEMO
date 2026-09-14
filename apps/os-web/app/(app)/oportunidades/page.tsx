@@ -10,6 +10,7 @@ import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 export default async function OportunidadesPage() {
   const auth = await getServerOsAuthContext();
@@ -19,13 +20,14 @@ export default async function OportunidadesPage() {
 
   try {
     const result = await client.listOpportunities({ status: 'open', limit: 50 });
+    const visible = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
     const memberLabels = await resolveMemberLabels(
       client,
-      result.items.map((item) => item.ownerMemberId),
+      visible.map((item) => item.ownerMemberId),
     );
     const partyLabels = await resolvePartyLabels(
       client,
-      result.items.map((item) => item.partyId),
+      visible.map((item) => item.partyId),
     );
 
     return (
@@ -34,7 +36,7 @@ export default async function OportunidadesPage() {
           kicker={t('pages.oportunidades.kicker')}
           title={t('pages.oportunidades.title')}
           description={
-            result.items.length === 0
+            visible.length === 0
               ? undefined
               : t('pages.oportunidades.description')
           }
@@ -42,7 +44,7 @@ export default async function OportunidadesPage() {
 
         <StaleProjectionBanner freshness={result.freshness} />
 
-        {result.items.length === 0 ? (
+        {visible.length === 0 ? (
           <EmptyState
             title={t('states.emptyOportunidades')}
             description="Aquí aparecen las oportunidades abiertas, con cliente, etapa y responsable. Para registrar una, abra el cliente."
@@ -57,7 +59,7 @@ export default async function OportunidadesPage() {
         ) : (
           <PageSection card className="p-2 md:p-3">
             <OpportunityOrgList
-              items={result.items}
+              items={visible}
               memberLabels={memberLabels}
               partyLabels={partyLabels}
             />

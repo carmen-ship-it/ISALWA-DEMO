@@ -15,6 +15,7 @@ import {
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
+import { isEngineeringFixtureCopy, staffFacingSubject } from '@/lib/work/staff-subject';
 
 type WorkListProps = {
   items: WorkSummaryReadModel[];
@@ -50,11 +51,17 @@ export function WorkList({
   const followUp = presentation === 'follow-up';
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'}>
-      {items.map((work) => {
+      {items.filter((work) => !isEngineeringFixtureCopy(work.title)).map((work) => {
         const due = formatWorkDueLine(work, {
           caption: followUp ? FOLLOW_UP_COPY.due : 'Vence',
         });
         const subject = subjectPresentation(work, partyLabels);
+        const displayTitle = staffFacingSubject({
+          title: work.title,
+          description: work.description,
+          subjectType: work.subjectType,
+          customerName: subject?.href ? subject.label : null,
+        });
         const statusLabel = followUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
         const completedAt = formatTimestamp(work.completedAt);
         const undatedOpen = work.status === 'open' && !due.overdue && !work.dueAt;
@@ -81,9 +88,9 @@ export function WorkList({
                     className="isalwa-t-fast mt-1 block font-medium text-[var(--isalwa-kiln)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                   >
                     <span className="sr-only">{followUp ? `${FOLLOW_UP_COPY.nextAction}: ` : 'Próxima acción: '}</span>
-                    {work.title}
+                    {displayTitle}
                   </Link>
-                  {work.description ? (
+                  {work.description && displayTitle !== work.description && !displayTitle.startsWith(work.description) ? (
                     <p className="mt-2 line-clamp-2 text-sm text-[var(--isalwa-slate)]">
                       {work.description}
                     </p>

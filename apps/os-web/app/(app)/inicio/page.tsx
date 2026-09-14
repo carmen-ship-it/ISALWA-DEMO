@@ -15,6 +15,8 @@ import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { INICIO_ATTENTION_LIMIT } from '@/lib/work/inicio-attention';
+import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
@@ -75,7 +77,9 @@ export default async function InicioPage() {
 
     const attentionItems = attentionResult === 'unavailable' ? [] : attentionResult.items;
     const opportunities =
-      opportunitiesResult === 'unavailable' ? [] : opportunitiesResult.items;
+      opportunitiesResult === 'unavailable'
+        ? []
+        : opportunitiesResult.items.filter((item) => !isEngineeringFixtureCopy(item.title));
     const quotesDraft =
       quotesDraftResult === 'unavailable' ? [] : quotesDraftResult.items;
     const quotesSubmitted =
@@ -102,6 +106,17 @@ export default async function InicioPage() {
       ...(orgData?.overdueWork ?? []).map((item) => item.ownerMemberId),
       ...(orgData?.followUps ?? []).map((item) => item.ownerMemberId),
     ]);
+    const attentionSubjects =
+      attentionResult === 'unavailable'
+        ? new Map<string, string>()
+        : await resolveAttentionSubjects(client, attentionItems);
+    const visibleAttention =
+      attentionResult === 'unavailable'
+        ? []
+        : attentionItems.filter((item) => {
+            const subject = attentionSubjects.get(item.attentionKey) ?? '';
+            return subject.trim().length > 0 && !isEngineeringFixtureCopy(subject);
+          });
     const partyLabels = await resolvePartyLabels(client, [
       ...opportunities.map((item) => item.partyId),
       ...quotesDraft.map((item) => item.partyId),
@@ -160,7 +175,8 @@ export default async function InicioPage() {
             <div className="space-y-4">
               <p className="isalwa-kicker">Su responsabilidad</p>
               <InicioAttentionPanel
-                items={attentionItems}
+                items={visibleAttention}
+                subjects={attentionSubjects}
                 unavailable={attentionResult === 'unavailable'}
                 hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
               />

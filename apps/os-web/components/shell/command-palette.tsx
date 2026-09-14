@@ -249,9 +249,9 @@ export function CommandPalette({
                         onMouseEnter={() => setActive(index)}
                         onClick={() => activate(item)}
                       >
-                        <span className="truncate text-sm font-medium text-[var(--isalwa-kiln)]">{item.label}</span>
+                        <span className="whitespace-normal break-words text-sm font-medium text-[var(--isalwa-kiln)]">{item.label}</span>
                         {item.detail ? (
-                          <span className="truncate text-sm text-[var(--isalwa-slate)]">{item.detail}</span>
+                          <span className="whitespace-normal break-words text-sm text-[var(--isalwa-slate)]">{item.detail}</span>
                         ) : null}
                       </button>
                     </li>

@@ -10,6 +10,7 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type QuoteOrgListProps = {
   items: QuoteSummaryReadModel[];
@@ -33,7 +34,7 @@ export function QuoteOrgList({
 }: QuoteOrgListProps) {
   return (
     <ul className="min-w-0" aria-label="Cotizaciones">
-      {items.map((item) => {
+      {items.filter((item) => !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId))).map((item) => {
         const dateLabel = formatTimestamp(item.submittedAt ?? item.createdAt);
         const customer = partyLabel(partyLabels, item.partyId);
         const owner = memberLabel(memberLabels, item.ownerMemberId);

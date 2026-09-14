@@ -11,12 +11,14 @@ import { AttentionList } from '@/components/work/attention-list';
 
 type InicioAttentionPanelProps = {
   items: AttentionItemReadModel[];
+  subjects?: Map<string, string>;
   unavailable?: boolean;
   hasMore?: boolean;
 };
 
 export function InicioAttentionPanel({
   items,
+  subjects,
   unavailable = false,
   hasMore = false,
 }: InicioAttentionPanelProps) {
@@ -67,7 +69,7 @@ export function InicioAttentionPanel({
             className={index === 0 ? undefined : 'mt-8 border-t border-[var(--isalwa-mist)] pt-8'}
           >
             <h3 className="mb-3 text-sm font-medium text-[var(--isalwa-kiln)]">{group.title}</h3>
-            <AttentionList items={group.items} compact />
+            <AttentionList items={group.items} subjects={subjects} compact />
           </div>
         ))}
       </div>
