@@ -60,6 +60,19 @@ export type FiscalIdentityRecord = {
   endedAt: Date | null;
 };
 
+/** Batch input for a customer-list page. Not a second customer record. */
+export type PartyOperatingSource = {
+  partyId: string;
+  contacts: Array<{ id: string; status: string; phone: string | null }>;
+  locations: Array<{
+    status: string;
+    latitude: number | null;
+    longitude: number | null;
+    provenanceUrl: string | null;
+  }>;
+  commercialOwnerMemberId: string | null;
+};
+
 export type CommercialAccountRecord = {
   id: string;
   organizationId: string;

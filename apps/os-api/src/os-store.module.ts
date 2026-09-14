@@ -238,12 +238,14 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_PARTY_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort) =>
+      useFactory: (projectionStore: OsProjectionStorePort, partyStore: OsPartyStore) =>
         new PartyQueryService({
           projectionStore,
           encodeCursor: encodePartySearchCursor,
+          listOperatingSources: (organizationId, partyIds) =>
+            partyStore.listPartyOperatingSources(organizationId, partyIds),
         }),
-      inject: [OS_PROJECTION_STORE],
+      inject: [OS_PROJECTION_STORE, OS_PARTY_STORE],
     },
     {
       provide: OS_WORK_QUERY_SERVICE,

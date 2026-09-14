@@ -12,6 +12,7 @@ import type {
   LocationRecord,
   MemberRecord,
   MergeRequestRecord,
+  PartyOperatingSource,
   PartyRecord,
   PartyRoleAssignmentRecord,
   RoleAssignmentRecord,
@@ -322,6 +323,52 @@ export class PrismaOsPartyStore implements OsPartyStore {
         version: account.version,
       },
     });
+  }
+
+  async listPartyOperatingSources(
+    organizationId: string,
+    partyIds: string[],
+  ): Promise<PartyOperatingSource[]> {
+    const ids = [...new Set(partyIds.map((id) => id.trim()).filter(Boolean))];
+    if (ids.length === 0) return [];
+
+    const [contacts, locations, accounts] = await Promise.all([
+      this.db().osContact.findMany({
+        where: { organizationId, organizationPartyId: { in: ids } },
+        select: { id: true, organizationPartyId: true, status: true, phone: true },
+      }),
+      this.db().osLocation.findMany({
+        where: { organizationId, partyId: { in: ids } },
+        select: {
+          partyId: true,
+          status: true,
+          latitude: true,
+          longitude: true,
+          provenanceUrl: true,
+        },
+      }),
+      this.db().osCommercialAccount.findMany({
+        where: { organizationId, partyId: { in: ids } },
+        select: { partyId: true, ownerMemberId: true },
+      }),
+    ]);
+
+    return ids.map((partyId) => ({
+      partyId,
+      contacts: contacts
+        .filter((contact) => contact.organizationPartyId === partyId)
+        .map((contact) => ({ id: contact.id, status: contact.status, phone: contact.phone })),
+      locations: locations
+        .filter((location) => location.partyId === partyId)
+        .map((location) => ({
+          status: location.status,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          provenanceUrl: location.provenanceUrl,
+        })),
+      commercialOwnerMemberId:
+        accounts.find((account) => account.partyId === partyId)?.ownerMemberId ?? null,
+    }));
   }
 
   async getCommercialAccountForParty(

@@ -1,4 +1,5 @@
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
+import type { PartyOperatingSource } from './store-types';
 import type {
   CommercialAccountRecord,
   ContactRecord,
@@ -90,6 +91,14 @@ export interface OsPartyStore {
 
   insertCommercialAccount(account: CommercialAccountRecord): Promise<void>;
   getCommercialAccountForParty(organizationId: string, partyId: string): Promise<CommercialAccountRecord | null>;
+  /**
+   * One page of customer operating facts. Three queries, never one GetParty per row.
+   * Empty partyIds returns an empty list.
+   */
+  listPartyOperatingSources(
+    organizationId: string,
+    partyIds: string[],
+  ): Promise<PartyOperatingSource[]>;
   reassignCommercialAccountParty(
     organizationId: string,
     fromPartyId: string,

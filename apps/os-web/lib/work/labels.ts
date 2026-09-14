@@ -4,6 +4,7 @@ import type {
   AttentionType,
   WorkSummaryReadModel,
 } from '@isalwa/os-contracts';
+import { elapsedAge } from '@/lib/time/elapsed';
 
 export function formatWorkStatus(status: string): string {
   switch (status) {
@@ -152,14 +153,7 @@ export function formatAttentionReason(item: AttentionItemReadModel): string {
  * not invent a reminder threshold.
  */
 export function elapsedSinceStoredDue(iso: string, asOf = new Date()): string | null {
-  const due = new Date(iso);
-  if (Number.isNaN(due.getTime())) return null;
-  const elapsedMs = asOf.getTime() - due.getTime();
-  if (elapsedMs < 60_000) return null;
-  const hours = Math.floor(elapsedMs / 3_600_000);
-  if (hours < 1) return `${Math.floor(elapsedMs / 60_000)} min`;
-  if (hours < 48) return `${hours} h`;
-  return `${Math.floor(hours / 24)} d`;
+  return elapsedAge(iso, asOf)?.compact ?? null;
 }
 
 /** Shows the due date already stored on an overdue item. Does not classify overdue. */

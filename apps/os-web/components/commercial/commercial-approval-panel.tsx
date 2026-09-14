@@ -83,6 +83,16 @@ export function CommercialApprovalPanel({
                     Decidida: {formatTimestamp(approval.decidedAt)}
                   </p>
                 ) : null}
+                {approval.status === 'pending' ? (
+                  <div className="mt-3 space-y-1 text-sm leading-relaxed">
+                    <p className="font-medium text-[var(--isalwa-kiln)]">Bloqueado por</p>
+                    <p className="text-[var(--isalwa-slate)]">Aprobación pendiente. No crea un pedido.</p>
+                    <p className="font-medium text-[var(--isalwa-kiln)]">A quién acudir</p>
+                    <p className="text-[var(--isalwa-slate)]">
+                      {memberName(members, approval.approverMemberId)} — aprobador actual
+                    </p>
+                  </div>
+                ) : null}
                 {approval.decisionReason ? (
                   <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{approval.decisionReason}</p>
                 ) : null}

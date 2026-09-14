@@ -46,6 +46,17 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       limit: 25,
     });
 
+    const ownerIds = result.items
+      .map((item) => item.commercialOwnerMemberId)
+      .filter((id): id is string => Boolean(id));
+    const memberLabels =
+      ownerIds.length > 0
+        ? new Map(
+            (await client.listActiveMemberOptions().catch(() => ({ items: [] }))).items.map(
+              (member) => [member.memberId, member.displayName] as const,
+            ),
+          )
+        : undefined;
     const hasSearchCriteria = Boolean(q || roleKey || status);
     const isEmpty = result.items.length === 0;
     const addHref = canAddCustomer ? newCustomerHref(q) : undefined;
@@ -66,6 +77,11 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
         />
 
         <PartySearchForm initialQuery={q} initialRoleKey={roleKey} initialStatus={status} />
+        <p className="mt-3 text-sm">
+          <Link href="/mapa" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
+            Mapa y salud de datos
+          </Link>
+        </p>
 
         <div className="mt-8">
           <StaleProjectionBanner freshness={result.freshness} />
@@ -75,7 +91,12 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           ) : (
             <>
               <PageSection card className="mt-4 p-0">
-                <PartyList items={result.items} listPath="/clientes" listQuery={listQuery} />
+                <PartyList
+                  items={result.items}
+                  listPath="/clientes"
+                  listQuery={listQuery}
+                  memberLabels={memberLabels}
+                />
               </PageSection>
 
               {result.meta.hasMore && result.meta.nextCursor ? (

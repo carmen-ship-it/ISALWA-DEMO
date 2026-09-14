@@ -66,6 +66,7 @@ function CustomerCompactHeader({
   displayName,
   status,
   ownerLabel,
+  hasCoordinates,
   contactName,
   phone,
   maps,
@@ -75,6 +76,7 @@ function CustomerCompactHeader({
   displayName: string;
   status: string;
   ownerLabel: string | null;
+  hasCoordinates: boolean;
   contactName: string | null;
   phone: string | null;
   maps: { href: string; label: string } | null;
@@ -82,7 +84,8 @@ function CustomerCompactHeader({
   nextAction: WorkSummaryReadModel | null;
 }) {
   const facts = [
-    ownerLabel ? `Responsable: ${ownerLabel}` : null,
+    ownerLabel ? `Responsable comercial: ${ownerLabel}` : null,
+    hasCoordinates ? 'Ubicación disponible' : null,
     contactName,
     phone,
   ].filter((fact): fact is string => Boolean(fact));
@@ -305,6 +308,15 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
           displayName={displayName}
           status={party.status}
           ownerLabel={commercialAccount?.ownerMemberId ? owner.label : null}
+          hasCoordinates={
+            locations.status === 'ok' &&
+            locations.data.locations.some(
+              (location) =>
+                location.status === 'active' &&
+                Number.isFinite(location.latitude) &&
+                Number.isFinite(location.longitude),
+            )
+          }
           contactName={headerContact}
           phone={contact?.phone?.trim() || null}
           maps={maps}

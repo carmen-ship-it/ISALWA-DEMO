@@ -3,11 +3,14 @@ import type { PartySummaryReadModel } from '@isalwa/os-contracts';
 import { panelHref, parsePanel, type ListQueryState } from '@/lib/lists/url-state';
 import { formatPartyRoles, formatPartyStatus, partyStatusTone } from '@/lib/party/labels';
 import { partyHref } from '@/lib/party/navigation';
+import type { MemberLabelMap } from '@/lib/work/member-resolver';
+import { memberLabel } from '@/lib/work/member-resolver';
 
 type PartyListProps = {
   items: PartySummaryReadModel[];
   listPath?: string;
   listQuery?: ListQueryState;
+  memberLabels?: MemberLabelMap;
 };
 
 function relationshipLabel(roleKeys: string[]): string {
@@ -15,7 +18,15 @@ function relationshipLabel(roleKeys: string[]): string {
   return labels.length > 0 ? labels.join(', ') : 'Sin relación';
 }
 
-export function PartyList({ items, listPath, listQuery }: PartyListProps) {
+function operatingMeta(party: PartySummaryReadModel, memberLabels?: MemberLabelMap): string {
+  const ownerId = party.commercialOwnerMemberId?.trim();
+  const owner = ownerId && memberLabels ? `Responsable: ${memberLabel(memberLabels, ownerId)}` : null;
+  const phone = party.primaryPhone?.trim() || null;
+  const location = party.hasCoordinates === true ? 'Ubicación disponible' : null;
+  return [owner, phone, location].filter((part): part is string => Boolean(part)).join(' · ');
+}
+
+export function PartyList({ items, listPath, listQuery, memberLabels }: PartyListProps) {
   const openPanel = parsePanel(listQuery?.panel);
 
   return (
@@ -34,7 +45,11 @@ export function PartyList({ items, listPath, listQuery }: PartyListProps) {
               href={detailHref}
               selected={selected}
               subject={displayName}
-              meta={relationshipLabel(party.activeRoleKeys)}
+              meta={
+                [relationshipLabel(party.activeRoleKeys), operatingMeta(party, memberLabels)]
+                  .filter(Boolean)
+                  .join(' · ')
+              }
               status={
                 <StatusPill tone={partyStatusTone(party.status)}>
                   {formatPartyStatus(party.status)}
