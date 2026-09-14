@@ -165,12 +165,19 @@ describe('reported operational fact contract', () => {
 
     assert.equal(row.source_reference, '007472');
     assert.equal(row.payload_json.amountCentavos, '127000');
+    assert.equal(row.payload_json.currency, 'BOB');
+    assert.equal(row.organization_id, 'org-synthetic');
     assert.equal(row.confirmation, 'pending');
     assert.equal(reportedFactMayConfirmPayment(), false);
     assert.deepEqual(row.payload_json.tenders, [
       { method: 'efectivo', amountCentavos: '107000' },
       { method: 'qr', amountCentavos: '20000' },
     ]);
+    const tenders = row.payload_json.tenders as Array<{ amountCentavos: string }>;
+    assert.equal(
+      BigInt(tenders[0].amountCentavos) + BigInt(tenders[1].amountCentavos),
+      127000n,
+    );
     assert.throws(
       () =>
         buildReportedOperationalFactRow(

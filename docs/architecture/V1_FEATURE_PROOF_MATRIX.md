@@ -2,7 +2,9 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-Candidate lineage: `29d63bc` + this Isa-evidence / acceptance pass (new SHA at commit).
+**Exact candidate SHA:** `96c797bdee606605a19b8460569ff39a95409c02`  
+Parent: `29d63bc19928733068d691d27e038cf5f70dd506`  
+Clean build re-proven on this SHA (see `WAVE2_FIRST_STAGING_READINESS.md`). Prior `29d63bc` build proof is **not** silently inherited for packages changed since then; this matrix reflects re-run evidence at `96c797b`.
 
 Legend cells: Y = yes for that state · — = no · P = partial · U = UNPROVEN · G = FOUNDATION_GAP · D = BUSINESS_DECISION_REQUIRED · X = CROSS_LANE · H = HOLD
 
@@ -12,7 +14,13 @@ Extra where useful: LOCAL_FUNCTION · AUTH_PATH_LOCAL · LOCAL_HTTP
 
 ---
 
-## Identity / session
+## Release / staging prep
+
+| FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Clean build | pnpm -r + web/api/os-api/catalog + prisma validate | Platform | WAVE2_FIRST_STAGING_READINESS | Y | Y | Y | Y | — | — | — | — | — | Gate C for deploy |
+| Payment | Mixed tenders 1070+200 | Caja | reported-operational-fact @96c797b | Y | Y | Y | Y | — | — | U | — | — | hosted UI |
+| Governance | Quote/visit/location/coordination proposals | Carmen | WAVE2_STAGING_GOVERNANCE_PROPOSALS | Y | — | — | — | — | — | — | — | — | proposal only |
 
 | FEATURE | SUBFEATURE | OWNER | SOURCE | P | I | T | Int | Push | Dep | Host | Br | UA | BLOCKER |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
