@@ -1,5 +1,6 @@
 import { EmptyState, ListRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import {
+  ORDER_CASE_UNAVAILABLE,
   orderCasePanelModel,
   type OrderCaseFactInput,
   type OrderCaseLine,
@@ -11,6 +12,8 @@ type OrderCasePanelProps = {
   orderId: string;
   facts: readonly OrderCaseFactInput[];
   releases?: readonly OrderCaseReleaseInput[];
+  /** recorded: facts were loaded. unavailable: this view has no case query yet. */
+  availability?: 'recorded' | 'unavailable';
 };
 
 function CaseLine({ line }: { line: OrderCaseLine }) {
@@ -39,9 +42,16 @@ function CaseLine({ line }: { line: OrderCaseLine }) {
  * Lists annotations and release decisions for one order.
  * Does not confirm payment, stock, or delivery. Does not require a payment to proceed.
  */
-export function OrderCasePanel({ organizationId, orderId, facts, releases }: OrderCasePanelProps) {
+export function OrderCasePanel({
+  organizationId,
+  orderId,
+  facts,
+  releases,
+  availability = 'recorded',
+}: OrderCasePanelProps) {
   const model = orderCasePanelModel({ organizationId, orderId, facts, releases });
   const empty = model.facts.length === 0 && model.releases.length === 0;
+  const emptyTitle = availability === 'unavailable' ? ORDER_CASE_UNAVAILABLE : model.empty;
 
   return (
     <PageSection card className="bg-white p-8 md:p-10" aria-label={model.heading}>
@@ -60,7 +70,7 @@ export function OrderCasePanel({ organizationId, orderId, facts, releases }: Ord
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{model.accounting}</p>
       {empty ? (
         <div className="mt-8">
-          <EmptyState title={model.empty} description={model.paymentNotRequired} />
+          <EmptyState title={emptyTitle} description={model.paymentNotRequired} />
         </div>
       ) : (
         <ul className="mt-8" aria-label="Anotaciones y decisiones de este pedido">
