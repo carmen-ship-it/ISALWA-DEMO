@@ -250,3 +250,64 @@ export function assertNoForbiddenProductFields(value: unknown): void {
     throw new Error(`forbidden_product_field:${found.join(',')}`);
   }
 }
+
+/**
+ * Who may read Product, PriceList, and PriceEntry.
+ * people.admin, fiscal roles, and cargo titles do not grant this.
+ * A price is never a field on Product. Product.id stays the immutable candidate id.
+ */
+export const CATALOG_READ_SCOPES = [
+  'commercial.team.read',
+  'commercial.org.read',
+  'master_data.admin',
+] as const;
+
+export type CatalogReadScope = (typeof CATALOG_READ_SCOPES)[number];
+
+export const CATALOG_RESOURCES = ['product', 'price_list', 'price_entry'] as const;
+export type CatalogResource = (typeof CATALOG_RESOURCES)[number];
+
+export const CATALOG_ACCESS_DENIALS = [
+  'session_organization_required',
+  'role_denied',
+  'cross_tenant_denied',
+] as const;
+
+export type CatalogAccessDenial = (typeof CATALOG_ACCESS_DENIALS)[number];
+
+/** Session organization is the only tenant. A requested id is not a session. */
+export type CatalogSession = {
+  organizationId?: string | null;
+  grantedScopes?: readonly string[] | null;
+};
+
+export type CatalogReadDecision =
+  | { allowed: true; organizationId: string }
+  | { allowed: false; denial: CatalogAccessDenial };
+
+export function hasCatalogReadScope(grantedScopes: readonly string[] | null | undefined): boolean {
+  const granted = new Set((grantedScopes ?? []).map((scope) => scope.trim()).filter(Boolean));
+  return CATALOG_READ_SCOPES.some((scope) => granted.has(scope));
+}
+
+/**
+ * Same gate for Product, PriceList, and PriceEntry.
+ * Missing session organization denies even if the caller passes another organization's id.
+ */
+export function resolveCatalogRead(
+  session: CatalogSession | null | undefined,
+  requestedOrganizationId?: string | null,
+): CatalogReadDecision {
+  const organizationId = session?.organizationId?.trim() ?? '';
+  if (!organizationId) {
+    return { allowed: false, denial: 'session_organization_required' };
+  }
+  if (!hasCatalogReadScope(session?.grantedScopes)) {
+    return { allowed: false, denial: 'role_denied' };
+  }
+  const requested = requestedOrganizationId?.trim() ?? '';
+  if (requested && requested !== organizationId) {
+    return { allowed: false, denial: 'cross_tenant_denied' };
+  }
+  return { allowed: true, organizationId };
+}

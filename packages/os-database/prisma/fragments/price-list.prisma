@@ -1,0 +1,55 @@
+// CROSS_LANE: merge this fragment into schema.prisma. Do not edit schema.prisma in the product lane.
+// Add inverse relations or Prisma generate fails:
+//   OsOrganization.priceLists   OsPriceList[]
+//   OsCatalogProduct.priceEntries OsPriceEntry[]
+// Do not add Product.price. Do not insert rows. Quoted price stays on the quote line.
+
+/// Versioned price list. Not a column on the product master.
+model OsPriceList {
+  organizationId String    @map("organization_id")
+  id             String
+  version        String
+  currency       String
+  effectiveFrom  DateTime  @map("effective_from")
+  effectiveTo    DateTime? @map("effective_to")
+  sourceFilename String    @map("source_filename")
+  sourceSha256   String    @map("source_sha256")
+  sourcePage     Int?      @map("source_page")
+  sourceExcerpt  String    @map("source_excerpt")
+  printedContext String    @map("printed_context")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  entries      OsPriceEntry[]
+
+  @@id([organizationId, id])
+  @@unique([organizationId, version])
+  @@index([organizationId, effectiveFrom])
+  @@map("os_price_lists")
+}
+
+/// One sourced amount in one context. Not the advisor quoted price.
+model OsPriceEntry {
+  organizationId String   @map("organization_id")
+  id             String
+  priceListId    String   @map("price_list_id")
+  productId      String   @map("product_id")
+  context        String
+  currency       String
+  amountCentavos BigInt   @map("amount_centavos")
+  sourceFilename String   @map("source_filename")
+  sourceSha256   String   @map("source_sha256")
+  sourcePage     Int?     @map("source_page")
+  sourceExcerpt  String   @map("source_excerpt")
+  printedContext String   @map("printed_context")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization   @relation(fields: [organizationId], references: [id])
+  priceList    OsPriceList      @relation(fields: [organizationId, priceListId], references: [organizationId, id])
+  product      OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@id([organizationId, id])
+  @@unique([organizationId, priceListId, productId, context])
+  @@index([organizationId, productId])
+  @@map("os_price_entries")
+}

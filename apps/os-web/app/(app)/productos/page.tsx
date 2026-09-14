@@ -8,7 +8,7 @@ export default function ProductosPage() {
       <PageHeader
         kicker="Catálogo"
         title="Productos"
-        description="Candidatos leídos de los catálogos. Vista previa, no una lista de precios."
+        description="Candidatos leídos de los catálogos. No es una lista de precios mientras no exista un precio de origen."
       />
       <ProductCatalogPreview />
     </PageContainer>
