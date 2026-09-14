@@ -25,7 +25,7 @@ export type WorkforceAuthReader = {
     accessStatus: string;
   } | null>;
   listRoleAssignmentsForMember(memberId: string): Promise<
-    Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null }>
+    Array<{ roleKey: string; effectiveAt: Date; endedAt: Date | null; organizationId?: string }>
   >;
   listDelegationsForDelegate(memberId: string): Promise<
     Array<{
@@ -34,9 +34,18 @@ export type WorkforceAuthReader = {
       expiresAt: Date;
       revokedAt: Date | null;
       delegatorMemberId: string;
+      organizationId?: string;
     }>
   >;
 };
+
+
+function inSessionOrganization<T extends { organizationId?: string }>(
+  rows: readonly T[],
+  organizationId: string,
+): T[] {
+  return rows.filter((row) => row.organizationId === organizationId);
+}
 
 export async function buildQueryContext(
   session: RequestContext,
@@ -46,8 +55,14 @@ export async function buildQueryContext(
   if (!member) throw new Error('AUTH_REQUIRED');
   assertTenantMatch(session.organizationId, member.organizationId);
 
-  const roles = await workforce.listRoleAssignmentsForMember(member.id);
-  const delegations = await workforce.listDelegationsForDelegate(member.id);
+  const roles = inSessionOrganization(
+    await workforce.listRoleAssignmentsForMember(member.id),
+    session.organizationId,
+  );
+  const delegations = inSessionOrganization(
+    await workforce.listDelegationsForDelegate(member.id),
+    session.organizationId,
+  );
   const roleKeys = computeEffectiveScopes(
     roles.map((r) => ({
       roleKey: r.roleKey,

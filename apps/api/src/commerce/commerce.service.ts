@@ -48,6 +48,158 @@ type QuoteListRow = {
   items: unknown[];
 };
 
+type LastPriceProduct = {
+  id: string;
+  organizationId: string;
+  sku: string;
+  name: string;
+  listPriceCentavos: bigint;
+};
+
+type LastPriceObservation = {
+  unitPriceCentavos: bigint;
+  observedAt: Date;
+  source: string;
+  organizationId: string;
+};
+
+export type LastPriceResult = {
+  productId: string | null;
+  sku: string | null;
+  name: string | null;
+  listPrice: ReturnType<typeof money> | null;
+  lastPrice: ReturnType<typeof money> | null;
+  lastObservedAt: Date | null;
+  source: string | null;
+  suggestedUnitPriceCentavos: number | null;
+  code: CommerceDenialCode | null;
+  count: number;
+};
+
+export type QuoteDetailRow = {
+  id: string;
+  organizationId: string;
+  number: string;
+  status: string;
+  accountId: string;
+  notes: string | null;
+  validUntil: Date;
+  createdAt: Date;
+  sentAt: Date | null;
+  acceptedAt: Date | null;
+  subtotalCentavos: bigint;
+  taxCentavos: bigint;
+  totalCentavos: bigint;
+  account: { tradeName: string | null; legalName: string; code: string; organizationId?: string };
+  owner: { name: string };
+  items: Array<{
+    id: string;
+    productId: string;
+    description: string;
+    qty: { toString(): string } | number;
+    unitPriceCentavos: bigint;
+    lineTotalCentavos: bigint;
+    lastPriceShownCentavos: bigint | null;
+    product: { sku: string; name: string; organizationId?: string };
+  }>;
+  orders: Array<{ id: string; number: string; invoices: Array<{ id: string; number: string }> }>;
+};
+
+export type InvoiceDetailRow = {
+  id: string;
+  organizationId: string;
+  number: string;
+  status: string;
+  accountId: string;
+  issuedAt: Date;
+  dueAt: Date;
+  totalCentavos: bigint;
+  balanceCentavos: bigint;
+  orderId: string | null;
+  account: { tradeName: string | null; legalName: string; organizationId?: string };
+  order: { quoteId: string | null; quote: { number: string } | null } | null;
+  items: Array<{
+    id: string;
+    qty: { toString(): string } | number;
+    unitPriceCentavos: bigint;
+    lineTotalCentavos: bigint;
+    product: { name: string; sku: string; organizationId?: string };
+  }>;
+  allocations: Array<{
+    amountCentavos: bigint;
+    payment: {
+      id: string;
+      method: string;
+      paidAt: Date;
+      reference: string | null;
+      organizationId?: string;
+    };
+  }>;
+};
+
+export type CommerceDetailDb = {
+  account: {
+    findFirst: (args: {
+      where: { id: string; organizationId: string };
+      select: { id: true };
+    }) => Promise<{ id: string } | null>;
+  };
+  product: {
+    findFirst: (args: {
+      where: { id: string; organizationId: string };
+    }) => Promise<LastPriceProduct | null>;
+  };
+  priceObservation: {
+    findFirst: (args: {
+      where: { accountId: string; productId: string; organizationId: string };
+      orderBy: { observedAt: 'desc' };
+    }) => Promise<LastPriceObservation | null>;
+  };
+  quote: {
+    findFirst: (args: {
+      where: { id: string; organizationId: string };
+      include: {
+        account: true;
+        owner: true;
+        items: { include: { product: true }; orderBy: { position: 'asc' } };
+        orders: { include: { invoices: true } };
+      };
+    }) => Promise<QuoteDetailRow | null>;
+  };
+  invoice: {
+    findFirst: (args: {
+      where: { id: string; organizationId: string };
+      include: {
+        account: true;
+        order: { include: { quote: true } };
+        items: { include: { product: true } };
+        allocations: { include: { payment: true } };
+        promises: true;
+      };
+    }) => Promise<InvoiceDetailRow | null>;
+  };
+};
+
+function deniedLastPrice(code: CommerceDenialCode | null): LastPriceResult {
+  return {
+    productId: null,
+    sku: null,
+    name: null,
+    listPrice: null,
+    lastPrice: null,
+    lastObservedAt: null,
+    source: null,
+    suggestedUnitPriceCentavos: null,
+    code,
+    count: 0,
+  };
+}
+
+function detailDb(explicit: CommerceDetailDb | null | undefined): CommerceDetailDb | null {
+  if (explicit !== undefined) return explicit;
+  return getPrisma() as CommerceDetailDb | null;
+}
+
 export type CommerceReadDb = {
   product: {
     findMany: (args: {
@@ -149,19 +301,35 @@ export class CommerceService {
     return { items: mapped, code: null, count: mapped.length };
   }
 
-  async lastPrice(accountId: string, productId: string) {
-    const prisma = getPrisma();
-    if (!prisma) throw new NotFoundException();
-    const [obs, product] = await Promise.all([
-      prisma.priceObservation.findFirst({
-        where: { accountId, productId },
-        orderBy: { observedAt: 'desc' },
-      }),
-      prisma.product.findUnique({ where: { id: productId } }),
-    ]);
-    if (!product) throw new NotFoundException('Producto no encontrado');
+  async lastPrice(
+    accountId: string,
+    productId: string,
+    session?: TrustedCommerceSession | null,
+    db?: CommerceDetailDb | null,
+  ): Promise<LastPriceResult> {
+    const organizationId = trustedCommerceOrganization(session);
+    if (!organizationId) return deniedLastPrice('AUTH_REQUIRED');
+    if (!holdsCommerceScope(session, QUOTE_READ_SCOPE)) return deniedLastPrice('ROLE_FORBIDDEN');
+    const prisma = detailDb(db);
+    if (!prisma) return deniedLastPrice(null);
+
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, organizationId },
+      select: { id: true },
+    });
+    if (!account) return deniedLastPrice(null);
+
+    const product = await prisma.product.findFirst({
+      where: { id: productId, organizationId },
+    });
+    if (!product || product.organizationId !== organizationId) return deniedLastPrice(null);
+
+    const obs = await prisma.priceObservation.findFirst({
+      where: { accountId: account.id, productId: product.id, organizationId },
+      orderBy: { observedAt: 'desc' },
+    });
     return {
-      productId,
+      productId: product.id,
       sku: product.sku,
       name: product.name,
       listPrice: money(product.listPriceCentavos),
@@ -169,6 +337,8 @@ export class CommerceService {
       lastObservedAt: obs?.observedAt ?? null,
       source: obs?.source ?? null,
       suggestedUnitPriceCentavos: Number(obs?.unitPriceCentavos ?? product.listPriceCentavos),
+      code: null,
+      count: 1,
     };
   }
 
@@ -219,7 +389,101 @@ export class CommerceService {
     return { items: mapped, code: null, count: mapped.length };
   }
 
-  async getQuote(id: string) {
+
+  async getQuote(
+    id: string,
+    session?: TrustedCommerceSession | null,
+    db?: CommerceDetailDb | null,
+  ) {
+    const organizationId = trustedCommerceOrganization(session);
+    if (!organizationId) return { code: 'AUTH_REQUIRED' as const, count: 0 };
+    if (!holdsCommerceScope(session, QUOTE_READ_SCOPE)) {
+      return { code: 'ROLE_FORBIDDEN' as const, count: 0 };
+    }
+    const prisma = detailDb(db);
+    if (!prisma) return { code: null, count: 0 };
+    const q = await prisma.quote.findFirst({
+      where: { id, organizationId },
+      include: {
+        account: true,
+        owner: true,
+        items: { include: { product: true }, orderBy: { position: 'asc' } },
+        orders: { include: { invoices: true } },
+      },
+    });
+    if (!q || q.organizationId !== organizationId) return { code: null, count: 0 };
+    if (q.account.organizationId && q.account.organizationId !== organizationId) {
+      return { code: null, count: 0 };
+    }
+    return { ...this.serializeQuote(q), code: null, count: 1 };
+  }
+
+  /** No invoice surface exists. Uses the quote/order scope, not a new role. */
+  async getInvoice(
+    id: string,
+    session?: TrustedCommerceSession | null,
+    db?: CommerceDetailDb | null,
+  ) {
+    const organizationId = trustedCommerceOrganization(session);
+    if (!organizationId) return { code: 'AUTH_REQUIRED' as const, count: 0 };
+    if (!holdsCommerceScope(session, QUOTE_READ_SCOPE)) {
+      return { code: 'ROLE_FORBIDDEN' as const, count: 0 };
+    }
+    const prisma = detailDb(db);
+    if (!prisma) return { code: null, count: 0 };
+    const inv = await prisma.invoice.findFirst({
+      where: { id, organizationId },
+      include: {
+        account: true,
+        order: { include: { quote: true } },
+        items: { include: { product: true } },
+        allocations: { include: { payment: true } },
+        promises: true,
+      },
+    });
+    if (!inv || inv.organizationId !== organizationId) return { code: null, count: 0 };
+    if (inv.account.organizationId && inv.account.organizationId !== organizationId) {
+      return { code: null, count: 0 };
+    }
+    return {
+      id: inv.id,
+      number: inv.number,
+      status: inv.status,
+      accountId: inv.accountId,
+      accountName: inv.account.tradeName ?? inv.account.legalName,
+      issuedAt: inv.issuedAt,
+      dueAt: inv.dueAt,
+      total: money(inv.totalCentavos),
+      balance: money(inv.balanceCentavos),
+      orderId: inv.orderId,
+      quoteId: inv.order?.quoteId ?? null,
+      quoteNumber: inv.order?.quote?.number ?? null,
+      items: inv.items
+        .filter((i) => !i.product.organizationId || i.product.organizationId === organizationId)
+        .map((i) => ({
+          id: i.id,
+          productName: i.product.name,
+          sku: i.product.sku,
+          qty: Number(i.qty),
+          unitPrice: money(i.unitPriceCentavos),
+          lineTotal: money(i.lineTotalCentavos),
+        })),
+      payments: inv.allocations
+        .filter((a) => !a.payment.organizationId || a.payment.organizationId === organizationId)
+        .map((a) => ({
+          id: a.payment.id,
+          amount: money(a.amountCentavos),
+          method: a.payment.method,
+          paidAt: a.payment.paidAt,
+          reference: a.payment.reference,
+        })),
+      nextHref: inv.balanceCentavos > 0n ? null : `/personas/${inv.accountId}`,
+      code: null,
+      count: 1,
+    };
+  }
+
+  private async loadQuoteForWrite(id: string) {
     const prisma = getPrisma();
     if (!prisma) throw new NotFoundException();
     const q = await prisma.quote.findUnique({
@@ -311,7 +575,7 @@ export class CommerceService {
       metadata: { quoteId, totalCentavos: subtotal.toString() },
     });
 
-    return this.getQuote(quoteId);
+    return this.loadQuoteForWrite(quoteId);
   }
 
   async sendQuote(id: string) {
@@ -375,7 +639,7 @@ export class CommerceService {
       metadata: { quoteId: q.id, pdfBytes: pdfBytes.byteLength },
     });
 
-    return this.getQuote(id);
+    return this.loadQuoteForWrite(id);
   }
 
   async acceptQuote(id: string) {
@@ -387,7 +651,7 @@ export class CommerceService {
     });
     if (!q) throw new NotFoundException('Cotización no encontrada');
     if (q.orders.length > 0) {
-      return this.getQuote(id);
+      return this.loadQuoteForWrite(id);
     }
     if (q.status === 'rejected' || q.status === 'expired') {
       throw new BadRequestException('Cotización no aceptable');
@@ -497,10 +761,10 @@ export class CommerceService {
       });
     });
 
-    return this.getQuote(id);
+    return this.loadQuoteForWrite(id);
   }
 
-  async getInvoice(id: string) {
+  private async loadInvoiceForWrite(id: string) {
     const prisma = getPrisma();
     if (!prisma) throw new NotFoundException();
     const inv = await prisma.invoice.findUnique({
@@ -614,7 +878,7 @@ export class CommerceService {
       });
     });
 
-    return this.getInvoice(inv.id);
+    return this.loadInvoiceForWrite(inv.id);
   }
 
   private serializeQuote(q: {

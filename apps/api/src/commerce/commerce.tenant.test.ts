@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { CommerceService, type CommerceReadDb, type TrustedCommerceSession } from './commerce.service';
+import { CommerceController } from './commerce.controller';
+import { CommerceService, type CommerceDetailDb, type CommerceReadDb, type TrustedCommerceSession } from './commerce.service';
 
 const SESSION = 'org-session-alpha';
 const OTHER = 'org-other-zeta';
@@ -248,6 +249,329 @@ describe('CommerceService tenant scope', () => {
     const result = await service().listQuotes('acct-zeta', session([QUOTE_SCOPE]), db);
     assert.equal(result.count, 0);
     assert.notEqual(result.count, OTHER_COUNT);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+});
+
+const OTHER_PRICE = 700;
+
+function quoteDetail(id: string, organizationId: string, name: string) {
+  return {
+    id,
+    organizationId,
+    number: '',
+    status: 'draft',
+    accountId: `acct-${id}`,
+    notes: null,
+    validUntil: new Date('2026-02-01T00:00:00.000Z'),
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    sentAt: null,
+    acceptedAt: null,
+    subtotalCentavos: 0n,
+    taxCentavos: 0n,
+    totalCentavos: 0n,
+    account: { tradeName: name, legalName: name, code: id, organizationId },
+    owner: { name: 'owner' },
+    items: [],
+    orders: [],
+  };
+}
+
+function invoiceDetail(id: string, organizationId: string, name: string) {
+  return {
+    id,
+    organizationId,
+    number: '',
+    status: 'open',
+    accountId: `acct-${id}`,
+    issuedAt: new Date('2026-01-01T00:00:00.000Z'),
+    dueAt: new Date('2026-02-01T00:00:00.000Z'),
+    totalCentavos: 0n,
+    balanceCentavos: 0n,
+    orderId: null,
+    account: { tradeName: name, legalName: name, organizationId },
+    order: null,
+    items: [],
+    allocations: [],
+  };
+}
+
+function detailFixture() {
+  const accounts = [
+    { id: 'acct-alpha', organizationId: SESSION },
+    { id: 'acct-zeta', organizationId: OTHER },
+  ];
+  const products = [
+    { id: 'prod-alpha', organizationId: SESSION, sku: '', name: SESSION_NAME, listPriceCentavos: 0n },
+    { id: 'prod-zeta', organizationId: OTHER, sku: '', name: OTHER_NAME, listPriceCentavos: BigInt(OTHER_PRICE) },
+    { id: 'prod-zeta-prefix-long', organizationId: OTHER, sku: '', name: OTHER_NAME, listPriceCentavos: BigInt(OTHER_PRICE) },
+  ];
+  const observations = [
+    { accountId: 'acct-alpha', productId: 'prod-alpha', organizationId: SESSION, unitPriceCentavos: 0n, observedAt: new Date('2026-01-02T00:00:00.000Z'), source: 'quote' },
+    { accountId: 'acct-zeta', productId: 'prod-zeta', organizationId: OTHER, unitPriceCentavos: BigInt(OTHER_PRICE), observedAt: new Date('2026-01-02T00:00:00.000Z'), source: 'quote' },
+  ];
+  const quotes = [quoteDetail('quote-alpha', SESSION, SESSION_NAME), quoteDetail('quote-zeta', OTHER, OTHER_NAME)];
+  const invoices = [invoiceDetail('inv-alpha', SESSION, SESSION_NAME), invoiceDetail('inv-zeta', OTHER, OTHER_NAME)];
+  const accountCalls: Array<{ where: { id?: string; organizationId?: string } }> = [];
+  const productCalls: Array<{ where: { id?: string; organizationId?: string } }> = [];
+  const observationCalls: Array<{ where: { organizationId?: string } }> = [];
+  const quoteCalls: Array<{ where: { id?: string; organizationId?: string } }> = [];
+  const invoiceCalls: Array<{ where: { id?: string; organizationId?: string } }> = [];
+  const db = {
+    account: {
+      async findFirst(args: { where: { id: string; organizationId: string } }) {
+        accountCalls.push(args);
+        const found = accounts.find((row) => row.id === args.where.id && row.organizationId === args.where.organizationId);
+        return found ? { id: found.id } : null;
+      },
+    },
+    product: {
+      async findFirst(args: { where: { id: string; organizationId: string } }) {
+        productCalls.push(args);
+        return products.find((row) => row.id === args.where.id && row.organizationId === args.where.organizationId) ?? null;
+      },
+    },
+    priceObservation: {
+      async findFirst(args: { where: { accountId: string; productId: string; organizationId: string } }) {
+        observationCalls.push(args);
+        return (
+          observations.find(
+            (row) =>
+              row.accountId === args.where.accountId &&
+              row.productId === args.where.productId &&
+              row.organizationId === args.where.organizationId,
+          ) ?? null
+        );
+      },
+    },
+    quote: {
+      async findFirst(args: { where: { id: string; organizationId: string } }) {
+        quoteCalls.push(args);
+        return quotes.find((row) => row.id === args.where.id && row.organizationId === args.where.organizationId) ?? null;
+      },
+    },
+    invoice: {
+      async findFirst(args: { where: { id: string; organizationId: string } }) {
+        invoiceCalls.push(args);
+        return invoices.find((row) => row.id === args.where.id && row.organizationId === args.where.organizationId) ?? null;
+      },
+    },
+  } as CommerceDetailDb;
+  return { db, accountCalls, productCalls, observationCalls, quoteCalls, invoiceCalls };
+}
+
+describe('CommerceService direct resource tenant scope', () => {
+  it('CommerceService.lastPrice same-tenant account and product is allowed', async () => {
+    const { db, accountCalls, productCalls } = detailFixture();
+    const result = await service().lastPrice('acct-alpha', 'prod-alpha', session([QUOTE_SCOPE]), db);
+    assert.equal(result.code, null);
+    assert.equal(result.count, 1);
+    assert.equal(accountCalls[0]?.where.organizationId, SESSION);
+    assert.equal(productCalls[0]?.where.organizationId, SESSION);
+    assert.equal(result.name, SESSION_NAME);
+    assert.equal(result.suggestedUnitPriceCentavos, 0);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.lastPrice same-tenant wrong role is denied', async () => {
+    const { db, accountCalls } = detailFixture();
+    const result = await service().lastPrice('acct-alpha', 'prod-alpha', session([PRODUCT_SCOPE]), db);
+    assert.equal(result.code, 'ROLE_FORBIDDEN');
+    assert.equal(accountCalls.length, 0);
+    assert.equal(result.count, 0);
+    assert.equal(result.productId, null);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.lastPrice cross-tenant account id and product id return no row', async () => {
+    const { db, accountCalls, productCalls } = detailFixture();
+    const foreignAccount = await service().lastPrice('acct-zeta', 'prod-alpha', session([QUOTE_SCOPE]), db);
+    const foreignProduct = await service().lastPrice('acct-alpha', 'prod-zeta', session([QUOTE_SCOPE]), db);
+    const prefix = await service().lastPrice('acct-alpha', 'prod-zeta-pre', session([QUOTE_SCOPE]), db);
+    assert.equal(accountCalls.every((call) => call.where.organizationId === SESSION), true);
+    assert.equal(productCalls.every((call) => call.where.organizationId === SESSION), true);
+    assert.equal(foreignAccount.count, 0);
+    assert.equal(foreignProduct.count, 0);
+    assert.equal(prefix.count, 0);
+    assert.equal(foreignAccount.productId, null);
+    assert.equal(foreignProduct.name, null);
+    assert.notEqual(foreignProduct.suggestedUnitPriceCentavos, OTHER_PRICE);
+    assertNoOtherEvidence(JSON.stringify(foreignAccount) + JSON.stringify(foreignProduct) + JSON.stringify(prefix));
+  });
+
+  it('CommerceService.lastPrice missing session is denied', async () => {
+    const { db, accountCalls } = detailFixture();
+    const result = await service().lastPrice('acct-zeta', 'prod-zeta', null, db);
+    assert.equal(result.code, 'AUTH_REQUIRED');
+    assert.equal(accountCalls.length, 0);
+    assert.equal(result.count, 0);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.lastPrice count excludes the other tenant price', async () => {
+    const { db } = detailFixture();
+    const result = await service().lastPrice('acct-zeta', 'prod-zeta', session([QUOTE_SCOPE]), db);
+    assert.equal(result.count, 0);
+    assert.notEqual(result.suggestedUnitPriceCentavos, OTHER_PRICE);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getQuote same-tenant id is allowed', async () => {
+    const { db, quoteCalls } = detailFixture();
+    const result = await service().getQuote('quote-alpha', session([QUOTE_SCOPE]), db);
+    assert.equal(result.code, null);
+    assert.equal(result.count, 1);
+    assert.equal(quoteCalls[0]?.where.organizationId, SESSION);
+    assert.equal('accountName' in result && result.accountName, SESSION_NAME);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getQuote same-tenant wrong role is denied', async () => {
+    const { db, quoteCalls } = detailFixture();
+    const result = await service().getQuote('quote-alpha', session([PRODUCT_SCOPE]), db);
+    assert.equal(result.code, 'ROLE_FORBIDDEN');
+    assert.equal(quoteCalls.length, 0);
+    assert.equal(result.count, 0);
+    assert.equal('id' in result, false);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getQuote cross-tenant id and prefix return no row', async () => {
+    const { db, quoteCalls } = detailFixture();
+    const byId = await service().getQuote('quote-zeta', session([QUOTE_SCOPE]), db);
+    const byPrefix = await service().getQuote('quote-ze', session([QUOTE_SCOPE]), db);
+    assert.equal(quoteCalls.every((call) => call.where.organizationId === SESSION), true);
+    assert.equal(byId.count, 0);
+    assert.equal(byPrefix.count, 0);
+    assert.equal('number' in byId, false);
+    assert.equal('accountName' in byId, false);
+    assertNoOtherEvidence(JSON.stringify(byId) + JSON.stringify(byPrefix));
+  });
+
+  it('CommerceService.getQuote missing session is denied', async () => {
+    const { db, quoteCalls } = detailFixture();
+    const result = await service().getQuote('quote-zeta', undefined, db);
+    assert.equal(result.code, 'AUTH_REQUIRED');
+    assert.equal(quoteCalls.length, 0);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getQuote count excludes the other tenant', async () => {
+    const { db } = detailFixture();
+    const result = await service().getQuote('quote-zeta', session([QUOTE_SCOPE]), db);
+    assert.equal(result.count, 0);
+    assert.notEqual(result.count, 1);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getInvoice same-tenant id is allowed', async () => {
+    const { db, invoiceCalls } = detailFixture();
+    const result = await service().getInvoice('inv-alpha', session([QUOTE_SCOPE]), db);
+    assert.equal(result.code, null);
+    assert.equal(result.count, 1);
+    assert.equal(invoiceCalls[0]?.where.organizationId, SESSION);
+    assert.equal('accountName' in result && result.accountName, SESSION_NAME);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getInvoice same-tenant wrong role is denied', async () => {
+    const { db, invoiceCalls } = detailFixture();
+    const result = await service().getInvoice('inv-alpha', session([PRODUCT_SCOPE]), db);
+    assert.equal(result.code, 'ROLE_FORBIDDEN');
+    assert.equal(invoiceCalls.length, 0);
+    assert.equal('id' in result, false);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getInvoice cross-tenant id and prefix return no row', async () => {
+    const { db, invoiceCalls } = detailFixture();
+    const byId = await service().getInvoice('inv-zeta', session([QUOTE_SCOPE]), db);
+    const byPrefix = await service().getInvoice('inv-ze', session([QUOTE_SCOPE]), db);
+    assert.equal(invoiceCalls.every((call) => call.where.organizationId === SESSION), true);
+    assert.equal(byId.count, 0);
+    assert.equal(byPrefix.count, 0);
+    assert.equal('accountName' in byId, false);
+    assertNoOtherEvidence(JSON.stringify(byId) + JSON.stringify(byPrefix));
+  });
+
+  it('CommerceService.getInvoice missing session is denied', async () => {
+    const { db, invoiceCalls } = detailFixture();
+    const result = await service().getInvoice('inv-zeta', null, db);
+    assert.equal(result.code, 'AUTH_REQUIRED');
+    assert.equal(invoiceCalls.length, 0);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+
+  it('CommerceService.getInvoice count excludes the other tenant', async () => {
+    const { db } = detailFixture();
+    const result = await service().getInvoice('inv-zeta', session([QUOTE_SCOPE]), db);
+    assert.equal(result.count, 0);
+    assert.notEqual(result.count, 1);
+    assertNoOtherEvidence(JSON.stringify(result));
+  });
+});
+
+describe('CommerceController session boundary', () => {
+  it('CommerceController.products passes the session and ignores caller organizationId', async () => {
+    const { db, productCalls } = fixture();
+    const controller = new CommerceController(service());
+    const missing = await controller.products('Zeta', {
+      query: { organizationId: OTHER },
+      headers: { 'x-organization-id': OTHER },
+      readDb: db,
+    });
+    assert.equal(missing.code, 'AUTH_REQUIRED');
+    assert.equal(productCalls.length, 0);
+
+    const allowed = await controller.products('Alp', {
+      authenticatedSession: {
+        authenticated: true,
+        organizationId: SESSION,
+        grantedScopes: [PRODUCT_SCOPE],
+      },
+      query: { organizationId: OTHER },
+      headers: { 'x-organization-id': OTHER },
+      readDb: db,
+    });
+    assert.equal(productCalls[0]?.where.organizationId, SESSION);
+    assert.equal(allowed.items.some((item) => item.name === SESSION_NAME), true);
+    assertNoOtherEvidence(JSON.stringify(missing));
+  });
+
+  it('CommerceController.listQuotes passes the session and ignores caller organizationId', async () => {
+    const { db, quoteCalls } = fixture();
+    const controller = new CommerceController(service());
+    const missing = await controller.listQuotes('acct-zeta', {
+      query: { organizationId: OTHER },
+      headers: { 'x-organization-id': OTHER },
+      readDb: db,
+    });
+    assert.equal(missing.code, 'AUTH_REQUIRED');
+    assert.equal(quoteCalls.length, 0);
+
+    const allowed = await controller.listQuotes(undefined, {
+      authenticatedSession: {
+        authenticated: true,
+        organizationId: SESSION,
+        grantedScopes: [QUOTE_SCOPE],
+      },
+      query: { organizationId: OTHER },
+      readDb: db,
+    });
+    assert.equal(quoteCalls[0]?.where.organizationId, SESSION);
+    assert.equal(allowed.count, 1);
+    assertNoOtherEvidence(JSON.stringify(missing));
+  });
+
+  it('CommerceController.lastPrice missing session is denied', async () => {
+    const { db, accountCalls } = detailFixture();
+    const result = await new CommerceController(service()).lastPrice('acct-zeta', 'prod-zeta', {
+      query: { organizationId: OTHER },
+      headers: { 'x-organization-id': OTHER },
+      readDb: db,
+    });
+    assert.equal(result.code, 'AUTH_REQUIRED');
+    assert.equal(accountCalls.length, 0);
     assertNoOtherEvidence(JSON.stringify(result));
   });
 });
