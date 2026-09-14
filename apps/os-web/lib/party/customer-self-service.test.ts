@@ -31,6 +31,7 @@ import {
   hasMasterDataAdminScope,
   preserveProvenanceUrl,
   provenanceHref,
+  provenanceLinkLabel,
   shouldShowCustomerMutations,
   sortLocationsForDisplay,
 } from './customer-self-service';
@@ -165,6 +166,10 @@ describe('locations', () => {
     assert.equal(formatCoordinates(-16.5, -68.15), '-16.5, -68.15');
     assert.equal(formatCoordinates(null, null), null);
     assert.equal(provenanceHref(SHORT_MAPS_URL), SHORT_MAPS_URL);
+    assert.equal(provenanceLinkLabel(SHORT_MAPS_URL), 'Abrir origen en Maps');
+    assert.equal(provenanceLinkLabel('https://www.google.com/maps/place/Norte'), 'Abrir origen en Maps');
+    assert.equal(provenanceLinkLabel('https://goo.gl/maps/abc'), 'Abrir origen en Maps');
+    assert.equal(provenanceLinkLabel('https://example.com/lugar'), 'Abrir enlace de procedencia');
     const preserved = preserveProvenanceUrl(`  ${SHORT_MAPS_URL}  `);
     assert.equal(preserved.ok && preserved.url, SHORT_MAPS_URL);
   });

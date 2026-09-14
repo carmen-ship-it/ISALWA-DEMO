@@ -71,11 +71,14 @@ export const FUTURE_NAV: NavItem[] = [
 /** Ids that must never appear in the primary shell nav for now. */
 export const HIDDEN_PRIMARY_NAV_IDS = ['finanzas', 'mensajes'] as const;
 
+const HIDDEN_PRIMARY_NAV_ID_SET = new Set<string>(HIDDEN_PRIMARY_NAV_IDS);
+
 export function filterNavByAccess(
   items: NavItem[],
   access: { showAdmin: boolean },
 ): NavItem[] {
   return items.filter((item) => {
+    if (HIDDEN_PRIMARY_NAV_ID_SET.has(item.id)) return false;
     if (item.requiresAdminProbe && !access.showAdmin) return false;
     return true;
   });

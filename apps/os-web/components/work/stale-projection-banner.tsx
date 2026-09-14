@@ -10,15 +10,11 @@ export function StaleProjectionBanner({ freshness, stale }: StaleProjectionBanne
   if (!stale && !freshness?.isStale) return null;
 
   return (
-    <div
-      className="mb-6 rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-warning)_30%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-warning)_8%,white)] px-4 py-3 text-sm text-[var(--isalwa-slate)]"
+    <p
+      className="mb-6 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] px-4 py-3 text-sm text-[var(--isalwa-kiln)]"
       role="status"
     >
-      <p className="font-medium text-[var(--isalwa-kiln)]">Información en actualización</p>
-      <p className="mt-1 leading-relaxed">
-        Algunos datos pueden tardar unos momentos en reflejar cambios recientes. Si acaba de
-        registrar algo, espere e intente de nuevo.
-      </p>
-    </div>
+      Esta información puede estar desactualizada. Actualice en un momento.
+    </p>
   );
 }

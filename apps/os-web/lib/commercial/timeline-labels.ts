@@ -1,4 +1,5 @@
 import type { PartyTimelineEntryReadModel, PartyTimelineFacts } from '@isalwa/os-contracts';
+import { formatRecordStatus, formatStage, presentStage, formatOpportunityStatus } from './labels';
 import { formatOptionalCentavos } from './money';
 
 const EVENT_LABELS: Record<string, string> = {
@@ -76,7 +77,11 @@ const HIDDEN_FACT_KEYS = new Set([
   'decidedAt',
 ]);
 
-function factLine(key: string, value: string | number | boolean | null): string | null {
+function factLine(
+  key: string,
+  value: string | number | boolean | null,
+  entityType: string,
+): string | null {
   if (value === null || value === undefined || value === '') return null;
   switch (key) {
     case 'displayName':
@@ -88,11 +93,16 @@ function factLine(key: string, value: string | number | boolean | null): string 
     case 'orderNumber':
       return `Pedido: ${value}`;
     case 'stage':
-      return `Etapa: ${value}`;
+      return `Etapa: ${presentStage(String(value))}`;
     case 'status':
-      return `Estado: ${value}`;
-    case 'outcome':
-      return `Resultado: ${value}`;
+      return `Estado: ${formatRecordStatus(String(value), entityType)}`;
+    case 'outcome': {
+      const outcome = String(value);
+      if (outcome === 'won' || outcome === 'lost' || outcome === 'cancelled') {
+        return `Resultado: ${formatOpportunityStatus(outcome)}`;
+      }
+      return `Resultado: ${formatStage(outcome).trim()}`;
+    }
     case 'roleKey':
       return `Relación: ${value}`;
     case 'nit':
@@ -115,6 +125,7 @@ function factLine(key: string, value: string | number | boolean | null): string 
 }
 
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
+  const entityType = entry.primaryEntityType || entry.eventType.split('.')[0] || '';
   const parts: string[] = [];
   const nameFact =
     typeof entry.facts.displayName === 'string'
@@ -131,7 +142,7 @@ export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string
   for (const [key, value] of Object.entries(entry.facts as PartyTimelineFacts)) {
     if (['displayName', 'title', 'quoteNumber', 'orderNumber'].includes(key)) continue;
     if (HIDDEN_FACT_KEYS.has(key)) continue;
-    const line = factLine(key, value);
+    const line = factLine(key, value, entityType);
     if (line) parts.push(line);
   }
   return parts.join(' · ') || timelineEventLabel(entry.eventType);

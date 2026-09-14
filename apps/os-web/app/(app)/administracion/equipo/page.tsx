@@ -72,7 +72,7 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
 
         <AdminSubNav />
 
-        <div className="mt-6">
+        <div className="mt-10">
           <MemberSearchForm
             initialQuery={q}
             initialAccessStatus={accessStatus}
@@ -82,10 +82,10 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
           <div className="mt-8">
             {isEmpty ? (
               <EmptyState
-                title={hasFilters ? 'Sin resultados' : 'Sin empleados registrados'}
+                title={hasFilters ? 'Sin resultados' : 'El directorio está vacío'}
                 description={
                   hasFilters
-                    ? 'Pruebe con otros filtros o limpie la búsqueda.'
+                    ? 'Pruebe con otros criterios o limpie la búsqueda.'
                     : 'Invite a la primera persona. El rol se elige aquí; no se infiere del cargo.'
                 }
                 action={
@@ -100,7 +100,7 @@ export default async function EquipoPage({ searchParams }: EquipoPageProps) {
               />
             ) : (
               <>
-                <PageSection card className="p-2 md:p-3">
+                <PageSection card className="p-2 md:p-4">
                   <MemberList items={result.items} labelMap={labelMap} />
                 </PageSection>
 

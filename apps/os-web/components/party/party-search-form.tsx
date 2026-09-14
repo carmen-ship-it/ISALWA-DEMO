@@ -72,7 +72,7 @@ export function PartySearchForm({
         {hasFilters ? (
           <Link
             href="/clientes"
-            className="isalwa-t-fast inline-flex h-10 shrink-0 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)]"
+            className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
           >
             Limpiar
           </Link>

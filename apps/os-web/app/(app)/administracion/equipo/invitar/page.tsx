@@ -36,7 +36,7 @@ export default async function InviteMemberPage() {
         <PageHeader
           kicker="Equipo"
           title={INVITE_EMPLOYEE_ACTION_LABEL}
-          description="Registra a una persona con el comando de invitación existente. No crea contraseñas."
+          description="Registre a una persona de su empresa. Esta pantalla no crea una contraseña ni activa la cuenta. La persona debe completar el acceso en el correo que envía el proveedor de acceso."
           action={
             <Link href={equipoHref()}>
               <Button type="button" variant="secondary">
@@ -48,7 +48,7 @@ export default async function InviteMemberPage() {
 
         <AdminSubNav />
 
-        <div className="mt-6">
+        <div className="mt-10">
           <InviteMemberForm departments={options.departments} roles={options.roles} />
         </div>
       </PageContainer>

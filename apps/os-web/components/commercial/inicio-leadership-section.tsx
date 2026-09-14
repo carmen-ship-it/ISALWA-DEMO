@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { PageSection, SectionHeader } from '@isalwa/ui';
+import Link from 'next/link';
+import { Button, EmptyState, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import type { LeadershipBundle } from '@/lib/leadership/load-inicio-leadership';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
@@ -51,21 +52,34 @@ const COPY: Record<
 function FactList({
   title,
   empty,
+  emptyHint,
   children,
 }: {
   title: string;
   empty: boolean;
+  emptyHint: string;
   children: ReactNode;
 }) {
   return (
-    <div>
+    <div className="border-t border-[var(--isalwa-mist)] pt-6 first:border-t-0 first:pt-0">
       <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{title}</h3>
       {empty ? (
-        <p className="mt-2 px-1 text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipEmpty')}</p>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{emptyHint}</p>
       ) : (
-        <div className="mt-2">{children}</div>
+        <div className="mt-2 min-w-0">{children}</div>
       )}
     </div>
+  );
+}
+
+function lensIsEmpty(data: LeadershipBundle): boolean {
+  return (
+    data.opportunities.length === 0 &&
+    data.quotesDraft.length === 0 &&
+    data.quotesSubmitted.length === 0 &&
+    data.openWork.length === 0 &&
+    data.overdueWork.length === 0 &&
+    data.followUps.length === 0
   );
 }
 
@@ -83,61 +97,113 @@ export function InicioLeadershipSection({
   partyLabels: PartyLabelMap;
 }) {
   const copy = COPY[variant];
+  const scope = variant === 'team' ? 'del equipo' : 'de la empresa';
+  const emptyLens = Boolean(data && lensIsEmpty(data));
+
   return (
-    <PageSection card className="p-4" aria-label={t(copy.title)}>
-      <SectionHeader kicker={t(copy.kicker)} title={t(copy.title)} />
-      <p className="mb-4 px-1 text-sm text-[var(--isalwa-slate)]">
+    <section aria-label={t(copy.title)} className="min-w-0">
+      <SectionHeader
+        kicker={t(copy.kicker)}
+        title={t(copy.title)}
+        action={<StatusPill tone="neutral">Solo lectura</StatusPill>}
+      />
+      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {t(copy.description)} {t('pages.inicio.leadershipReadOnly')}
       </p>
       {unavailable || !data ? (
-        <p className="px-2 text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipUnavailable')}</p>
+        <p className="text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipUnavailable')}</p>
+      ) : emptyLens ? (
+        <EmptyState
+          title={t(copy.title)}
+          description={`No hay registros ${scope} en esta lectura. Puede continuar en Clientes o en Trabajo.`}
+          action={
+            <div className="flex flex-wrap gap-3">
+              <Link href="/trabajo" className="inline-flex">
+                <Button type="button" variant="primary">
+                  {t('states.viewWork')}
+                </Button>
+              </Link>
+              <Link href="/clientes" className="inline-flex">
+                <Button type="button" variant="secondary">
+                  {t('states.goToClientes')}
+                </Button>
+              </Link>
+            </div>
+          }
+        />
       ) : (
-        <div className="space-y-6">
-          <FactList title={t(copy.opportunities)} empty={data.opportunities.length === 0}>
-            <OpportunityOrgList
-              items={data.opportunities}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-              compact
-            />
-          </FactList>
-          <FactList title={t(copy.quotesDraft)} empty={data.quotesDraft.length === 0}>
-            <QuoteOrgList
-              items={data.quotesDraft}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-              compact
-              showAmount={false}
-            />
-          </FactList>
-          <FactList title={t(copy.quotesSubmitted)} empty={data.quotesSubmitted.length === 0}>
-            <QuoteOrgList
-              items={data.quotesSubmitted}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-              compact
-              showAmount={false}
-            />
-          </FactList>
-          <FactList title={t(copy.work)} empty={data.openWork.length === 0}>
-            <WorkList items={data.openWork} memberLabels={memberLabels} showApproval={false} />
-          </FactList>
-          <FactList title={t(copy.overdue)} empty={data.overdueWork.length === 0}>
-            <WorkList items={data.overdueWork} memberLabels={memberLabels} showApproval={false} />
-          </FactList>
-          <FactList title={t(copy.followUp)} empty={data.followUps.length === 0}>
-            <WorkList
-              items={data.followUps}
-              memberLabels={memberLabels}
-              presentation="follow-up"
-              showApproval={false}
-            />
-          </FactList>
+        <PageSection card className="min-w-0 p-5 md:p-6">
+          <div>
+            <FactList
+              title={t(copy.opportunities)}
+              empty={data.opportunities.length === 0}
+              emptyHint={`No hay oportunidades abiertas ${scope}. El registro sigue en Clientes.`}
+            >
+              <OpportunityOrgList
+                items={data.opportunities}
+                memberLabels={memberLabels}
+                partyLabels={partyLabels}
+                compact
+              />
+            </FactList>
+            <FactList
+              title={t(copy.quotesDraft)}
+              empty={data.quotesDraft.length === 0}
+              emptyHint={`No hay cotizaciones en borrador ${scope}. Se preparan desde Clientes.`}
+            >
+              <QuoteOrgList
+                items={data.quotesDraft}
+                memberLabels={memberLabels}
+                partyLabels={partyLabels}
+                compact
+                showAmount={false}
+              />
+            </FactList>
+            <FactList
+              title={t(copy.quotesSubmitted)}
+              empty={data.quotesSubmitted.length === 0}
+              emptyHint={`No hay cotizaciones enviadas ${scope}. El seguimiento continúa en Clientes.`}
+            >
+              <QuoteOrgList
+                items={data.quotesSubmitted}
+                memberLabels={memberLabels}
+                partyLabels={partyLabels}
+                compact
+                showAmount={false}
+              />
+            </FactList>
+            <FactList
+              title={t(copy.work)}
+              empty={data.openWork.length === 0}
+              emptyHint={`No hay trabajo abierto ${scope}. El detalle sigue en Trabajo.`}
+            >
+              <WorkList items={data.openWork} memberLabels={memberLabels} showApproval={false} />
+            </FactList>
+            <FactList
+              title={t(copy.overdue)}
+              empty={data.overdueWork.length === 0}
+              emptyHint={`No hay trabajo vencido ${scope}. El detalle sigue en Trabajo.`}
+            >
+              <WorkList items={data.overdueWork} memberLabels={memberLabels} showApproval={false} />
+            </FactList>
+            <FactList
+              title={t(copy.followUp)}
+              empty={data.followUps.length === 0}
+              emptyHint={`No hay seguimientos ${scope}. El detalle sigue en Trabajo.`}
+            >
+              <WorkList
+                items={data.followUps}
+                memberLabels={memberLabels}
+                presentation="follow-up"
+                showApproval={false}
+              />
+            </FactList>
+          </div>
           {data.hasMore ? (
-            <p className="px-2 text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipMore')}</p>
+            <p className="mt-6 text-sm text-[var(--isalwa-slate)]">{t('pages.inicio.leadershipMore')}</p>
           ) : null}
-        </div>
+        </PageSection>
       )}
-    </PageSection>
+    </section>
   );
 }

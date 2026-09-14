@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, PageContainer } from '@isalwa/ui';
+import { PageContainer } from '@isalwa/ui';
 import { QuoteCreateForm } from '@/components/commercial/quote-create-form';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -36,10 +36,11 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
           kicker="Cotización"
           title="Nueva cotización"
           action={
-            <Link href={opportunityHref(partyId, opportunityId)}>
-              <Button type="button" variant="secondary">
-                Volver a la oportunidad
-              </Button>
+            <Link
+              href={opportunityHref(partyId, opportunityId)}
+              className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline"
+            >
+              Volver a la oportunidad
             </Link>
           }
         />

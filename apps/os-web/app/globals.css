@@ -7,11 +7,30 @@ body {
   min-height: 100%;
 }
 
+/*
+ * Isabela command-center brand — scoped to os-web only.
+ * Navy / teal / beige / sky / white, used as roles, not decoration.
+ * No brand font file is in the repo; Newsreader + a quiet sans carries the feel.
+ */
+:root {
+  --isalwa-kiln: #1a3352;
+  --isalwa-slate: #4a5d73;
+  --isalwa-glaze: #2a746c;
+  --isalwa-glaze-deep: #1c5852;
+  --isalwa-porcelain: #f6f1e8;
+  --isalwa-mist: #e4eef5;
+  --isalwa-info: #7eadc8;
+  --isalwa-action: #1a3352;
+  --isalwa-action-deep: #12263d;
+  --isalwa-surface-hero: none;
+  --isalwa-surface-app: none;
+  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
+}
+
 body {
   margin: 0;
-  background: var(--isalwa-porcelain);
-  background-image: var(--isalwa-surface-hero);
-  background-attachment: fixed;
+  background: var(--isalwa-white);
+  background-image: none;
   color: var(--isalwa-kiln);
   font-family: var(--isalwa-font-sans);
   font-size: var(--isalwa-text-base);

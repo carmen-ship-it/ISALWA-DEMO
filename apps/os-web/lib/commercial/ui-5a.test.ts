@@ -91,6 +91,21 @@ describe('UI-5A command error mapping', () => {
     });
     assert.match(mapCommandError(err), /conflicto/i);
   });
+
+  it('does not show a generic Error message or raw API English', () => {
+    const leaked = 'PrismaClientKnownRequestError: invalid `prisma.quote`';
+    assert.equal(mapCommandError(new Error(leaked)), 'No se pudo completar la acción. Intente de nuevo.');
+    assert.doesNotMatch(mapCommandError(new Error(leaked)), /prisma|Error/i);
+    const unknown = new OsApiError({
+      kind: 'unknown',
+      status: 500,
+      code: 'UNKNOWN',
+      message: 'Unauthorized',
+    });
+    const mapped = mapCommandError(unknown);
+    assert.equal(mapped, 'No se pudo completar la acción. Intente de nuevo.');
+    assert.doesNotMatch(mapped, /Unauthorized|Error/i);
+  });
 });
 
 describe('UI-5A double-submit safety pattern', () => {

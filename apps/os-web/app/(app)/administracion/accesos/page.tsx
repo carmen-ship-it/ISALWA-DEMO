@@ -33,16 +33,16 @@ export default async function AccesosPage() {
 
       <AdminSubNav />
 
-      <PageSection card className="mt-6 p-6">
-        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <PageSection card className="mt-10 p-8">
+        <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           El estado de acceso de cada persona se consulta en{' '}
           <Link href={equipoHref()} className="font-medium text-[var(--isalwa-glaze)] hover:underline">
             Equipo
           </Link>
-          . Use los filtros por acceso para ver empleados activos, suspendidos o con acceso
+          . Use los filtros por acceso para ver personas activas, suspendidas o con acceso
           revocado.
         </p>
-        <ul className="mt-6 space-y-2 text-sm text-[var(--isalwa-slate)]">
+        <ul className="mt-8 max-w-2xl space-y-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
           <li>
             <strong className="text-[var(--isalwa-kiln)]">{formatAccessStatus('active')}</strong>
             {' — '}puede iniciar sesión con normalidad.
@@ -56,7 +56,7 @@ export default async function AccesosPage() {
             {' — '}acceso revocado de forma permanente, usualmente tras finalizar la relación.
           </li>
         </ul>
-        <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
+        <p className="mt-8 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           Para cambiar accesos, abra el detalle del empleado en{' '}
           <Link href={equipoHref()} className="font-medium text-[var(--isalwa-glaze)] hover:underline">
             Equipo

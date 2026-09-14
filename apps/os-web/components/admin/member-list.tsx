@@ -18,13 +18,13 @@ type MemberListProps = {
 
 export function MemberList({ items, labelMap }: MemberListProps) {
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Equipo">
+    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Directorio del equipo">
       {items.map((item) => {
         const name = memberDisplayName(item.displayName, item.givenName, item.familyName);
         return (
           <ListRow key={item.memberId} as="li" className="px-1 py-1">
-            <div className="rounded-[var(--isalwa-radius-control)] px-3 py-3">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="rounded-[var(--isalwa-radius-control)] px-3 py-4 md:px-4">
+              <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <Link
                     href={memberHref(item.memberId)}
@@ -32,39 +32,30 @@ export function MemberList({ items, labelMap }: MemberListProps) {
                   >
                     {name}
                   </Link>
-                  <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
-                    {item.email ? (
-                      <div>
-                        <dt className="sr-only">Correo</dt>
-                        <dd>{item.email}</dd>
-                      </div>
-                    ) : null}
+                  {item.email ? (
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.email}</p>
+                  ) : null}
+                  <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                      <dt className="sr-only">Rol</dt>
-                      <dd>Rol: {formatRoleKeys(item.roleKeys)}</dd>
-                    </div>
-                    {item.departmentName ? (
-                      <div>
-                        <dt className="sr-only">Departamento</dt>
-                        <dd>Departamento: {item.departmentName}</dd>
-                      </div>
-                    ) : null}
-                    <div>
-                      <dt className="sr-only">Responsable</dt>
-                      <dd>
-                        Responsable: {directoryMemberLabel(labelMap, item.managerMemberId)}
+                      <dt className="text-[var(--isalwa-slate)]">Estado</dt>
+                      <dd className="mt-1 text-[var(--isalwa-kiln)]">
+                        {formatEmploymentStatus(item.employmentStatus)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="sr-only">Relación laboral</dt>
-                      <dd>Relación: {formatEmploymentStatus(item.employmentStatus)}</dd>
+                      <dt className="text-[var(--isalwa-slate)]">Rol</dt>
+                      <dd className="mt-1 text-[var(--isalwa-kiln)]">{formatRoleKeys(item.roleKeys)}</dd>
                     </div>
-                    {item.activeDelegationCount > 0 ? (
-                      <div>
-                        <dt className="sr-only">Delegaciones</dt>
-                        <dd>Delegaciones activas: {item.activeDelegationCount}</dd>
-                      </div>
-                    ) : null}
+                    <div>
+                      <dt className="text-[var(--isalwa-slate)]">Departamento</dt>
+                      <dd className="mt-1 text-[var(--isalwa-kiln)]">{item.departmentName ?? '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[var(--isalwa-slate)]">Responsable</dt>
+                      <dd className="mt-1 text-[var(--isalwa-kiln)]">
+                        {directoryMemberLabel(labelMap, item.managerMemberId)}
+                      </dd>
+                    </div>
                   </dl>
                 </div>
                 <StatusPill tone={accessStatusTone(item.accessStatus)}>

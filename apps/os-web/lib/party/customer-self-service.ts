@@ -318,6 +318,39 @@ export function provenanceHref(url: string | null | undefined): string | null {
   return url;
 }
 
+const PROVENANCE_MAPS_LABEL = 'Abrir origen en Maps';
+const PROVENANCE_LINK_LABEL = 'Abrir enlace de procedencia';
+
+function isMapsPath(path: string): boolean {
+  return path === '/maps' || path.startsWith('/maps/');
+}
+
+/** Visible link text only. Does not resolve, expand, or geocode the URL. */
+export function provenanceLinkLabel(url: string | null | undefined): string {
+  if (!url?.trim()) return PROVENANCE_LINK_LABEL;
+  let parsed: URL;
+  try {
+    parsed = new URL(url.trim());
+  } catch {
+    return PROVENANCE_LINK_LABEL;
+  }
+  const host = parsed.hostname.toLowerCase();
+  const path = parsed.pathname.toLowerCase();
+  if (host === 'maps.app.goo.gl' || host === 'maps.google.com' || host.startsWith('maps.google.')) {
+    return PROVENANCE_MAPS_LABEL;
+  }
+  if ((host === 'goo.gl' || host === 'www.goo.gl') && isMapsPath(path)) {
+    return PROVENANCE_MAPS_LABEL;
+  }
+  if (
+    (host === 'google.com' || host === 'www.google.com' || host.endsWith('.google.com')) &&
+    isMapsPath(path)
+  ) {
+    return PROVENANCE_MAPS_LABEL;
+  }
+  return PROVENANCE_LINK_LABEL;
+}
+
 export function sortLocationsForDisplay<T extends { status: string }>(locations: readonly T[]): T[] {
   return locations
     .map((location, index) => ({ location, index }))

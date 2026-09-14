@@ -12,7 +12,6 @@ import {
   INVITE_FORM_FIELD_NAMES,
   INVITE_MANAGER_NOTICE,
   INVITE_NO_ROLES_NOTICE,
-  INVITE_PROVIDER_NOTICE,
   INVITE_ROLE_NOTICE,
 } from '@/lib/workforce/invite';
 import { equipoHref } from '@/lib/workforce/navigation';
@@ -51,17 +50,22 @@ export function InviteMemberForm({ departments, roles }: InviteMemberFormProps) 
   const canInvite = roles.length > 0;
 
   return (
-    <PageSection card className="p-6">
-      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{INVITE_PROVIDER_NOTICE}</p>
-      <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{INVITE_ROLE_NOTICE}</p>
-      <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{INVITE_MANAGER_NOTICE}</p>
+    <PageSection card className="p-8">
+      <p className="isalwa-section-label">Siguiente paso</p>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Al enviar, el proveedor de acceso envía un correo. La persona debe completar el acceso
+        allí. La cuenta no queda activada hasta que el proveedor vincule la identidad. Esta
+        pantalla no crea ni restablece una contraseña.
+      </p>
+      <p className="mt-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{INVITE_ROLE_NOTICE}</p>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{INVITE_MANAGER_NOTICE}</p>
 
       {!canInvite ? (
         <p className="mt-6 text-sm text-[var(--isalwa-kiln)]" role="status">
           {INVITE_NO_ROLES_NOTICE}
         </p>
       ) : (
-        <form action={formAction} className="mt-6 space-y-4">
+        <form action={formAction} className="mt-8 space-y-6">
           <FormFeedback error={state?.error} />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -146,17 +150,9 @@ export function InviteMemberForm({ departments, roles }: InviteMemberFormProps) 
                 ))}
               </select>
             ) : (
-              <>
-                <input
-                  id="invite-department"
-                  name={field.departmentId}
-                  className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                  placeholder="Opcional — identificador registrado"
-                />
-                <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-                  No hay catálogo de departamentos. Puede dejarlo vacío.
-                </p>
-              </>
+              <p id="invite-department" className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                No hay departamentos registrados. Puede asignarlo después, en la ficha, cuando existan.
+              </p>
             )}
           </div>
 

@@ -26,7 +26,7 @@ export function CustomerEditForms({
   if (!canEditParty && !canEditContacts) return null;
 
   return (
-    <div className="mt-6 space-y-4 border-t border-[var(--isalwa-mist)] pt-6">
+    <div className="mt-8 space-y-6">
       {canEditParty ? <PartyFieldsForm party={party} /> : null}
       {canEditContacts ? (
         <>
@@ -55,9 +55,9 @@ function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
   );
 
   return (
-    <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4">
+    <details className="border-t border-[var(--isalwa-mist)] pt-6">
       <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
-        Editar datos no fiscales
+        Editar datos del cliente
       </summary>
       <form action={formAction} className="mt-4 space-y-4">
         <FormFeedback error={state?.error} success={state?.success} />
@@ -85,7 +85,6 @@ function PartyFieldsForm({ party }: { party: PartyDetailResponse['party'] }) {
             defaultValue={party.legalName ?? ''}
             className={fieldClass}
           />
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">No es el NIT ni la razón social tributaria.</p>
         </div>
         <CommandSubmitButton label="Guardar cliente" />
       </form>
@@ -117,7 +116,7 @@ function ContactFieldsForm({
   const idPrefix = contact ? `contact-${contact.id}` : 'contact-new';
 
   return (
-    <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4">
+    <details className="border-t border-[var(--isalwa-mist)] pt-6">
       <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
         {contact ? `Editar contacto · ${contact.givenName} ${contact.familyName}` : 'Agregar contacto'}
       </summary>

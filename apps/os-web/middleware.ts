@@ -8,6 +8,11 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
+function applyPrivateNoStore(response: NextResponse): NextResponse {
+  response.headers.set('Cache-Control', 'private, no-store');
+  return response;
+}
+
 async function hasSession(request: NextRequest): Promise<{ ok: boolean; response: NextResponse }> {
   if (getOsAuthMode() === 'supabase' && isSupabaseConfigured()) {
     const { response, user } = await updateSupabaseSession(request);
@@ -43,11 +48,14 @@ export async function middleware(request: NextRequest) {
 
   if (!ok) {
     const loginUrl = new URL('/login', request.url);
+    if (loginUrl.pathname === pathname) {
+      return response;
+    }
     loginUrl.searchParams.set('next', pathname);
-    return NextResponse.redirect(loginUrl);
+    return applyPrivateNoStore(NextResponse.redirect(loginUrl));
   }
 
-  return response;
+  return applyPrivateNoStore(response);
 }
 
 export const config = {

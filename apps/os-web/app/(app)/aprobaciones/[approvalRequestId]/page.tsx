@@ -1,16 +1,20 @@
 import Link from 'next/link';
-import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { ApprovalDecisionForm } from '@/components/commercial/commercial-approval-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { formatTimestamp } from '@/lib/commercial/labels';
+import { orderHref, quoteHref } from '@/lib/commercial/navigation';
+import type { SubjectApprovalItem } from '@/lib/commercial/types';
+import { partyHref } from '@/lib/party/navigation';
 import {
   approvalSubjectLabel,
   formatApprovalStatus,
   formatSubjectType,
-  formatTimestamp,
   statusToneForApproval,
 } from '@/lib/work/labels';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -20,6 +24,9 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 type ApprovalDetailPageProps = {
   params: Promise<{ approvalRequestId: string }>;
 };
+
+const accentLinkClass =
+  'isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline';
 
 export default async function ApprovalDetailPage({ params }: ApprovalDetailPageProps) {
   const { approvalRequestId } = await params;
@@ -36,76 +43,92 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
       approval.decisionByMemberId ?? '',
     ]);
     const subject = formatSubjectType(approval.subjectType);
+    const decidedAt = formatTimestamp(approval.decidedAt);
+    const subjectLink = await resolveSubjectLink(client, approval.subjectType, approval.subjectId);
+    const canDecide = await resolveCanDecide(client, approval);
 
     return (
       <PageContainer label="Aprobación">
         <PageHeader
           kicker="Aprobaciones"
           title={approvalSubjectLabel(approval)}
-          description="Vista de solo lectura — las acciones de decisión estarán disponibles en una próxima versión."
+          description="La decisión no crea un pedido."
           action={
-            <Link href="/aprobaciones">
-              <Button type="button" variant="secondary">
-                Volver
-              </Button>
+            <Link href="/aprobaciones" className={accentLinkClass}>
+              Volver
             </Link>
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PageSection card className="p-6">
+        <PageSection card className="bg-white p-8 md:p-10">
           <StatusPill tone={statusToneForApproval(approval.status)}>
             {formatApprovalStatus(approval.status)}
           </StatusPill>
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
             <div>
               <dt className="isalwa-section-label">Solicitado por</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {memberLabel(memberLabels, approval.requestedByMemberId)}
               </dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Aprobador</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {memberLabel(memberLabels, approval.approverMemberId)}
               </dd>
             </div>
             {subject ? (
               <div>
-                <dt className="isalwa-section-label">Contexto</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">{subject}</dd>
+                <dt className="isalwa-section-label">Asunto</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{subject}</dd>
+              </div>
+            ) : null}
+            {subjectLink ? (
+              <div>
+                <dt className="isalwa-section-label">Registro</dt>
+                <dd className="mt-2">
+                  <Link href={subjectLink.href} className={accentLinkClass}>
+                    {subjectLink.label}
+                  </Link>
+                </dd>
               </div>
             ) : null}
             {approval.workItemId ? (
               <div>
                 <dt className="isalwa-section-label">Trabajo vinculado</dt>
-                <dd className="mt-1">
-                  <Link
-                    href={workItemHref(approval.workItemId)}
-                    className="text-[var(--isalwa-glaze)] hover:underline"
-                  >
+                <dd className="mt-2">
+                  <Link href={workItemHref(approval.workItemId)} className={accentLinkClass}>
                     Ver trabajo
                   </Link>
                 </dd>
               </div>
             ) : null}
-            {approval.decidedAt ? (
+            {decidedAt ? (
               <div>
-                <dt className="isalwa-section-label">Decidido</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">
-                  {formatTimestamp(approval.decidedAt)}
-                </dd>
+                <dt className="isalwa-section-label">Decidida</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{decidedAt}</dd>
               </div>
             ) : null}
             {approval.decisionReason ? (
               <div className="sm:col-span-2">
                 <dt className="isalwa-section-label">Motivo</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">{approval.decisionReason}</dd>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{approval.decisionReason}</dd>
               </div>
             ) : null}
           </dl>
+
+          {canDecide || approval.status !== 'pending' ? (
+            <ApprovalDecisionForm
+              partyId={subjectLink?.partyId}
+              subjectType={approval.subjectType}
+              subjectId={approval.subjectId}
+              approvalRequestId={approval.approvalRequestId}
+              locked={!canDecide || approval.status !== 'pending'}
+            />
+          ) : null}
         </PageSection>
       </PageContainer>
     );
@@ -124,5 +147,71 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
         <QuerySurfaceState error={classifyQueryError(err)} />
       </PageContainer>
     );
+  }
+}
+
+type SubjectLink = {
+  href: string;
+  label: string;
+  partyId?: string;
+};
+
+async function resolveSubjectLink(
+  client: ReturnType<typeof createOsApiClient>,
+  subjectType: string,
+  subjectId: string,
+): Promise<SubjectLink | null> {
+  if (!subjectId) return null;
+  if (subjectType === 'quote') {
+    try {
+      const { quote } = await client.getQuote(subjectId);
+      return {
+        href: quoteHref(quote.partyId, quote.quoteId),
+        label: quote.quoteNumber,
+        partyId: quote.partyId,
+      };
+    } catch {
+      return null;
+    }
+  }
+  if (subjectType === 'order') {
+    try {
+      const { order } = await client.getOrder(subjectId);
+      return {
+        href: orderHref(order.partyId, order.orderId),
+        label: order.orderNumber,
+        partyId: order.partyId,
+      };
+    } catch {
+      return null;
+    }
+  }
+  if (subjectType === 'party') {
+    return { href: partyHref(subjectId), label: 'Ver cliente', partyId: subjectId };
+  }
+  return null;
+}
+
+async function resolveCanDecide(
+  client: ReturnType<typeof createOsApiClient>,
+  approval: { approvalRequestId: string; subjectType: string; subjectId: string; status: string; approverMemberId: string },
+): Promise<boolean> {
+  if (approval.status !== 'pending') return false;
+  if (approval.subjectType === 'quote' || approval.subjectType === 'order') {
+    try {
+      const history = await client.listSubjectApprovals(approval.subjectType, approval.subjectId);
+      const match = (history.items as SubjectApprovalItem[]).find(
+        (item) => item.approvalRequestId === approval.approvalRequestId,
+      );
+      return match?.canDecide === true;
+    } catch {
+      return false;
+    }
+  }
+  try {
+    const session = await client.getAuthenticatedSession();
+    return session.memberId === approval.approverMemberId;
+  } catch {
+    return false;
   }
 }

@@ -24,7 +24,7 @@ export function formatAccessStatus(status: string): string {
     case 'terminated':
       return 'Finalizado';
     default:
-      return status;
+      return 'Acceso registrado';
   }
 }
 
@@ -39,7 +39,7 @@ export function formatEmploymentStatus(status: string): string {
     case 'leave':
       return 'Ausencia';
     default:
-      return status;
+      return 'Estado de relación';
   }
 }
 
@@ -70,8 +70,18 @@ export function formatRoleKey(roleKey: string): string {
       return 'Finanzas';
     case 'operations':
       return 'Operaciones';
+    case 'master_data.admin':
+      return 'Datos maestros';
+    case 'fiscal.admin':
+      return 'Fiscal';
+    case 'integration.admin':
+      return 'Integraciones';
+    case 'commercial.order.convert':
+      return 'Conversión de pedidos';
+    case 'commercial.account.reassign':
+      return 'Reasignación de cuentas';
     default:
-      return roleKey.replace(/[._]/g, ' ');
+      return 'Rol del sistema';
   }
 }
 
@@ -94,9 +104,40 @@ export function formatCapabilityState(state: string): string {
       return 'Degradado';
     case 'DEPRECATED':
       return 'Descontinuado';
+    case 'APPROVED':
+      return 'Aprobado';
+    case 'CONNECTING':
+      return 'En conexión';
     default:
-      return state;
+      return 'Sin detalle';
   }
+}
+
+const CAPABILITY_LABELS: Record<string, string> = {
+  finance: 'Finanzas',
+  messaging: 'Mensajes',
+  warehouse: 'Almacén',
+  commercial: 'Ventas comerciales',
+  workforce: 'Equipo',
+  partygraph: 'Clientes',
+  work: 'Trabajo',
+  territory: 'Territorio',
+  production: 'Producción',
+  integrations: 'Integraciones',
+};
+
+const CAPABILITY_DESCRIPTIONS: Record<string, string> = {
+  territory: 'Cobertura territorial. Todavía no está habilitada.',
+  production: 'Operación de producción. Todavía no está habilitada.',
+  integrations: 'Conexiones con otros sistemas. Todavía no están configuradas.',
+};
+
+export function formatCapabilityLabel(capabilityKey: string): string {
+  return CAPABILITY_LABELS[capabilityKey] ?? 'Función del sistema';
+}
+
+export function formatCapabilityDescription(capabilityKey: string): string {
+  return CAPABILITY_DESCRIPTIONS[capabilityKey] ?? 'Disponibilidad registrada para su empresa.';
 }
 
 export function capabilityStateTone(
@@ -132,7 +173,7 @@ export function accessStatusExplanation(accessStatus: string, employmentStatus: 
     return 'Acceso suspendido temporalmente. La relación laboral puede seguir activa.';
   }
   if (accessStatus === 'invited') {
-    return 'Invitación pendiente. El proveedor de acceso envía el correo y allí se define la contraseña. Esta aplicación no crea ni restablece contraseñas. El acceso al sistema sigue pendiente hasta que el proveedor vincule la identidad.';
+    return 'La invitación está pendiente y la cuenta no está activada. La persona debe completar el acceso en el correo que envía el proveedor de acceso. Esta aplicación no crea ni restablece contraseñas. El acceso sigue pendiente hasta que el proveedor vincule la identidad.';
   }
   if (accessStatus === 'revoked' || employmentStatus === 'terminated') {
     return 'Relación laboral finalizada o acceso revocado de forma permanente.';

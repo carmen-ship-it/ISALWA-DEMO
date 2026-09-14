@@ -1,13 +1,24 @@
-import { EmptyState, PageContainer, PageSection } from '@isalwa/ui';
+import Link from 'next/link';
+import { EmptyState, ListRow, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
-import { ApprovalList } from '@/components/work/approval-list';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
-import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import {
+  approvalSubjectLabel,
+  formatApprovalStatus,
+  formatSubjectType,
+  formatTimestamp,
+  statusToneForApproval,
+} from '@/lib/work/labels';
+import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { approvalHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
+
+const accentLinkClass =
+  'isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline';
 
 export default async function AprobacionesPage() {
   const auth = await getServerOsAuthContext();
@@ -33,8 +44,8 @@ export default async function AprobacionesPage() {
           title={t('pages.aprobaciones.title')}
           description={
             result.items.length === 0
-              ? 'Las solicitudes que requieran su revisión aparecerán aquí.'
-              : 'Vista de solo lectura — las decisiones se habilitarán en una próxima versión.'
+              ? undefined
+              : 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.'
           }
         />
 
@@ -43,12 +54,60 @@ export default async function AprobacionesPage() {
         {result.items.length === 0 ? (
           <EmptyState
             title={t('states.emptyAprobaciones')}
-            description="No hay aprobaciones pendientes para usted."
-            example="Cuando alguien solicite su aprobación sobre un trabajo, lo verá aquí."
+            description="Cuando alguien solicite su aprobación, la verá aquí para decidir."
           />
         ) : (
-          <PageSection card className="p-2 md:p-3">
-            <ApprovalList items={result.items} memberLabels={memberLabels} readOnly />
+          <PageSection card className="bg-white p-2 md:p-4">
+            <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Bandeja de aprobaciones">
+              {result.items.map((approval) => {
+                const decidedAt = formatTimestamp(approval.decidedAt);
+                const subject = formatSubjectType(approval.subjectType);
+                return (
+                  <ListRow key={approval.approvalRequestId} as="li" className="px-1 py-2">
+                    <div className="bg-white px-4 py-5">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-[var(--isalwa-kiln)]">
+                            {approvalSubjectLabel(approval)}
+                          </p>
+                          <dl className="mt-4 grid gap-2 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
+                            <div>
+                              <dt className="sr-only">Solicitado por</dt>
+                              <dd>
+                                Solicitado por {memberLabel(memberLabels, approval.requestedByMemberId)}
+                              </dd>
+                            </div>
+                            {subject ? (
+                              <div>
+                                <dt className="sr-only">Asunto</dt>
+                                <dd>Asunto: {subject}</dd>
+                              </div>
+                            ) : null}
+                            {decidedAt ? (
+                              <div>
+                                <dt className="sr-only">Decisión</dt>
+                                <dd>Decidida: {decidedAt}</dd>
+                              </div>
+                            ) : null}
+                          </dl>
+                          {approval.decisionReason ? (
+                            <p className="mt-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                              {approval.decisionReason}
+                            </p>
+                          ) : null}
+                          <Link href={approvalHref(approval.approvalRequestId)} className={`mt-5 inline-flex ${accentLinkClass}`}>
+                            Revisar
+                          </Link>
+                        </div>
+                        <StatusPill tone={statusToneForApproval(approval.status)}>
+                          {formatApprovalStatus(approval.status)}
+                        </StatusPill>
+                      </div>
+                    </div>
+                  </ListRow>
+                );
+              })}
+            </ul>
           </PageSection>
         )}
       </PageContainer>

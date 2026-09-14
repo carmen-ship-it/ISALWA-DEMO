@@ -3,7 +3,7 @@ import { ListRow, StatusPill } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
 import {
   formatOpportunityStatus,
-  formatStage,
+  presentStage,
   formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
@@ -36,7 +36,7 @@ export function OpportunityList({ partyId, items, memberLabels }: OpportunityLis
                   <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
                     <div>
                       <dt className="sr-only">Etapa</dt>
-                      <dd>Etapa: {formatStage(item.stage)}</dd>
+                      <dd>Etapa: {presentStage(item.stage)}</dd>
                     </div>
                     <div>
                       <dt className="sr-only">Responsable</dt>

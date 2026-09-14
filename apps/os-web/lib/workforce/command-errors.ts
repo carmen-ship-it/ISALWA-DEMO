@@ -2,7 +2,28 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import type { PeopleV1InviteCommand, Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
 
 const OPEN_WORK_TERMINATE_MESSAGE =
-  'No se puede finalizar todavía porque esta persona tiene trabajo abierto. Reasigna ese trabajo primero.';
+  'No se puede finalizar todavía porque esta persona tiene trabajo abierto. Reasigne ese trabajo primero.';
+
+const GENERIC_ERROR = 'Ocurrió un error. Intente de nuevo.';
+
+function isInternalStaffMessage(text: string): boolean {
+  if (/[a-z]+_[a-z0-9]+/i.test(text)) return true;
+  if (/\b(providerSubject|organizationId|capabilityKey|stack|undefined)\b/i.test(text)) return true;
+  const spanish = /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(text);
+  if (
+    !spanish &&
+    /\b(error|failed|invalid|unauthorized|forbidden|not found|required|internal|provider)\b/i.test(text)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function staffFacingMessage(message: string | undefined, fallback: string): string {
+  const text = message?.trim() ?? '';
+  if (!text || isInternalStaffMessage(text)) return fallback;
+  return text;
+}
 
 export const INVITE_PROVIDER_NOT_CONFIGURED_MESSAGE =
   'El proveedor de acceso no está configurado. La invitación no se envió y no se creó una contraseña.';
@@ -46,11 +67,11 @@ export function mapWorkforceCommandError(
       case 'unavailable':
         return 'El servicio no está disponible temporalmente. Intente más tarde.';
       default:
-        return err.message || 'Ocurrió un error. Intente de nuevo.';
+        return staffFacingMessage(err.message, GENERIC_ERROR);
     }
   }
-  if (err instanceof Error) return err.message;
-  return 'Ocurrió un error. Intente de nuevo.';
+  if (err instanceof Error) return staffFacingMessage(err.message, GENERIC_ERROR);
+  return GENERIC_ERROR;
 }
 
 export { OPEN_WORK_TERMINATE_MESSAGE };

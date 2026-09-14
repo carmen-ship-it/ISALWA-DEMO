@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -13,6 +13,8 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
+import { quoteHref } from '@/lib/commercial/navigation';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -22,6 +24,9 @@ type OrderDetailPageProps = {
   params: Promise<{ partyId: string; orderId: string }>;
   searchParams: Promise<{ resultado?: string }>;
 };
+
+const documentLinkClass =
+  'isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline';
 
 export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
   const { partyId, orderId } = await params;
@@ -33,7 +38,18 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
   try {
     const { order, freshness, authority } = await client.getOrder(orderId);
+    const partyLabels = await resolvePartyLabels(client, [order.partyId]);
+    const customerName = partyLabel(partyLabels, order.partyId);
     const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
+    let sourceQuoteNumber: string | null = null;
+    if (order.quoteId) {
+      try {
+        const { quote } = await client.getQuote(order.quoteId);
+        sourceQuoteNumber = quote.quoteNumber;
+      } catch {
+        sourceQuoteNumber = null;
+      }
+    }
     let approvalMembers: Array<{ memberId: string; displayName: string }> = [];
     let approvals: SubjectApprovalItem[] = [];
     if (order.status === 'open') {
@@ -55,69 +71,88 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         <PageHeader
           kicker="Pedido"
           title={order.orderNumber}
+          description={customerName}
           action={
-            <Link href={partyHref(partyId)}>
-              <Button type="button" variant="secondary">
-                Volver al cliente
-              </Button>
+            <Link href={partyHref(partyId)} className={documentLinkClass}>
+              Volver al cliente
             </Link>
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
 
-        {resultado === 'pedido' ? (
-          <p className="mb-6 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 py-3 text-sm text-[var(--isalwa-kiln)]" role="status">
-            Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
-          </p>
-        ) : null}
+        <PageSection card className="bg-white p-8 md:p-10">
+          <StatusPill tone={statusTone(order.status)}>
+            {formatOrderStatus(order.status)}
+          </StatusPill>
 
-        <PageSection card className="p-6">
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone={statusTone(order.status)}>
-              {formatOrderStatus(order.status)}
-            </StatusPill>
-          </div>
+          {resultado === 'pedido' ? (
+            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+              Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
+            </p>
+          ) : (
+            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              Pedido registrado desde una cotización.
+            </p>
+          )}
 
-          <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
-            Registro comercial del pedido. Entrega, inventario y pagos no se muestran en esta vista.
-          </p>
-
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
             <div>
-              <dt className="isalwa-section-label">Total</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
-                {formatCentavos(order.totalCentavos, order.currency)}
+              <dt className="isalwa-section-label">Cliente</dt>
+              <dd className="mt-2">
+                <Link href={partyHref(partyId)} className={documentLinkClass}>
+                  {customerName}
+                </Link>
               </dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {memberLabel(memberLabels, order.ownerMemberId)}
+              </dd>
+            </div>
+            {order.quoteId ? (
+              <div>
+                <dt className="isalwa-section-label">Cotización de origen</dt>
+                <dd className="mt-2">
+                  <Link href={quoteHref(partyId, order.quoteId)} className={documentLinkClass}>
+                    {sourceQuoteNumber ?? 'Ver cotización'}
+                  </Link>
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="isalwa-section-label">Total</dt>
+              <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
+                {formatCentavos(order.totalCentavos, order.currency)}
               </dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Creado</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{formatTimestamp(order.createdAt)}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.createdAt)}</dd>
             </div>
             {order.cancelledAt ? (
               <div>
                 <dt className="isalwa-section-label">Cancelado</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">
-                  {formatTimestamp(order.cancelledAt)}
-                </dd>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.cancelledAt)}</dd>
               </div>
             ) : null}
           </dl>
         </PageSection>
 
         {order.status === 'open' || approvals.length > 0 ? (
-          <PageSection card className="mt-6 p-6">
-            <SectionHeader title="Aprobación" />
-            <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
-              La aprobación registra una decisión humana. No cambia el pedido ni emite factura.
+          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+            <SectionHeader
+              title={
+                <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+                  Aprobación
+                </h2>
+              }
+            />
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              La aprobación registra una decisión humana. No cambia el pedido ni crea otro pedido.
             </p>
-            <div className="mt-4">
+            <div className="mt-8">
               <CommercialApprovalPanel
                 partyId={partyId}
                 subjectType="order"

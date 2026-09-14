@@ -29,7 +29,7 @@ export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: Qu
   );
 
   return (
-    <PageSection card className="p-6">
+    <PageSection card className="bg-white p-8 md:p-10">
       <p className="text-sm text-[var(--isalwa-slate)]">
         Oportunidad: <span className="font-medium text-[var(--isalwa-kiln)]">{opportunityTitle}</span>
       </p>
@@ -49,7 +49,7 @@ export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: Qu
             placeholder="Opcional"
           />
         </div>
-        <CommandSubmitButton label="Nueva cotización" />
+        <CommandSubmitButton label="Nueva cotización" pendingLabel="Creando…" />
       </form>
     </PageSection>
   );

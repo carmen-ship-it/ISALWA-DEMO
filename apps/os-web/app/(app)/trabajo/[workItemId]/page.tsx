@@ -7,6 +7,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import {
   formatDueDate,
   formatPriority,
@@ -15,13 +16,13 @@ import {
   formatWorkApprovalStatus,
   formatWorkStatus,
   isWorkOverdue,
-  priorityTone,
   statusToneForWork,
 } from '@/lib/work/labels';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { approvalHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
+import { partyHref } from '@/lib/party/navigation';
 
 type WorkDetailPageProps = {
   params: Promise<{ workItemId: string }>;
@@ -44,7 +45,11 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
     const subject = formatSubjectType(work.subjectType);
     const customerFollowUp = work.subjectType ? isFollowUpSubjectType(work.subjectType) : false;
     const partyId = work.subjectType === 'party' ? work.subjectId : null;
+    const partyLabels = partyId ? await resolvePartyLabels(client, [partyId]) : null;
+    const customerName = partyId && partyLabels ? partyLabel(partyLabels, partyId) : null;
     const statusLabel = customerFollowUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
+    const undatedOpen = work.status === 'open' && !work.dueAt;
+    const completedAt = formatTimestamp(work.completedAt);
 
     return (
       <PageContainer label={work.title}>
@@ -54,7 +59,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
           action={
             <Link href="/trabajo">
               <Button type="button" variant="secondary">
-                Volver
+                Volver a trabajo
               </Button>
             </Link>
           }
@@ -62,11 +67,11 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PageSection card className="p-6">
+        <PageSection card className="p-6 md:p-8">
           <div className="flex flex-wrap gap-2">
             <StatusPill tone={statusToneForWork(work.status)}>{statusLabel}</StatusPill>
-            <StatusPill tone={priorityTone(work.priority)}>{formatPriority(work.priority)}</StatusPill>
             {overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
+            {undatedOpen ? <StatusPill tone="neutral">Sin fecha</StatusPill> : null}
           </div>
 
           {work.description ? (
@@ -75,23 +80,40 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             </p>
           ) : null}
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-8 grid gap-6 sm:grid-cols-2">
             <div>
-              <dt className="isalwa-section-label">Asignado a</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dt className="isalwa-section-label">Responsable</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {memberLabel(memberLabels, work.ownerMemberId)}
               </dd>
             </div>
             <div>
-              <dt className="isalwa-section-label">{customerFollowUp ? FOLLOW_UP_COPY.due : 'Vence'}</dt>
-              <dd className={`mt-1 ${overdue ? 'text-[var(--isalwa-danger)]' : 'text-[var(--isalwa-kiln)]'}`}>
-                {formatDueDate(work.dueAt)}
-              </dd>
+              <dt className="isalwa-section-label">{customerFollowUp ? FOLLOW_UP_COPY.due : 'Fecha'}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatDueDate(work.dueAt)}</dd>
             </div>
-            {subject ? (
+            <div>
+              <dt className="isalwa-section-label">{FOLLOW_UP_COPY.nextAction}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{work.title}</dd>
+            </div>
+            {customerName && partyId ? (
+              <div>
+                <dt className="isalwa-section-label">Cliente</dt>
+                <dd className="mt-2">
+                  <Link href={partyHref(partyId)} className="text-[var(--isalwa-glaze)] hover:underline">
+                    {customerName}
+                  </Link>
+                </dd>
+              </div>
+            ) : subject ? (
               <div>
                 <dt className="isalwa-section-label">Sobre</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">{subject}</dd>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{subject}</dd>
+              </div>
+            ) : null}
+            {work.priority !== 'normal' ? (
+              <div>
+                <dt className="isalwa-section-label">Prioridad</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatPriority(work.priority)}</dd>
               </div>
             ) : null}
             <div>
@@ -113,12 +135,10 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
                 </dd>
               </div>
             ) : null}
-            {work.completedAt ? (
+            {completedAt ? (
               <div>
                 <dt className="isalwa-section-label">Completado</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">
-                  {formatTimestamp(work.completedAt)}
-                </dd>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{completedAt}</dd>
               </div>
             ) : null}
           </dl>

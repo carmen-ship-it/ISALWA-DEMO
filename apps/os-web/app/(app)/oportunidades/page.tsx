@@ -45,7 +45,7 @@ export default async function OportunidadesPage() {
         {result.items.length === 0 ? (
           <EmptyState
             title={t('states.emptyOportunidades')}
-            description="Cuando exista una oportunidad abierta, la verá aquí con cliente, etapa y responsable."
+            description="Aquí aparecen las oportunidades abiertas, con cliente, etapa y responsable. Para registrar una, abra el cliente."
             action={
               <Link href="/clientes" className="inline-flex">
                 <Button type="button" variant="primary">

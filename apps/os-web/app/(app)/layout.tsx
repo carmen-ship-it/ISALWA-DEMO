@@ -8,12 +8,15 @@ import {
 } from '@/components/states/app-states';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const shell = await loadShellContext();
 
-  if (!shell) {
+  if (!shell || shell.osAccess === 'unauthorized') {
     return (
-      <PageContainer label="Acceso requerido" className="flex min-h-screen items-center justify-center">
+      <PageContainer label="Sesión vencida" className="flex min-h-screen items-center justify-center">
         <SessionExpiredState />
       </PageContainer>
     );
@@ -27,7 +30,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
     );
   }
 
-  if (shell.osAccess === 'unauthorized') {
+  if (shell.osAccess === 'denied') {
     return (
       <PageContainer label="Sin acceso" className="flex min-h-screen items-center justify-center">
         <AccessDeniedState />

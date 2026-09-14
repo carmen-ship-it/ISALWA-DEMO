@@ -1,4 +1,4 @@
-import type { QuerySurfaceError } from '@/lib/work/query-errors';
+import { staffUnknownLoadMessage, type QuerySurfaceError } from '@/lib/work/query-errors';
 import {
   AccessDeniedState,
   ServiceUnavailableState,
@@ -20,11 +20,10 @@ export function QuerySurfaceState({ error }: QuerySurfaceStateProps) {
     default:
       return (
         <div
-          className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-6"
+          className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-6"
           role="alert"
         >
-          <p className="font-medium text-[var(--isalwa-kiln)]">No se pudo cargar la información</p>
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{error.message}</p>
+          <p className="text-sm text-[var(--isalwa-kiln)]">{staffUnknownLoadMessage(error.message)}</p>
         </div>
       );
   }

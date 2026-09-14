@@ -46,15 +46,10 @@ export function EmptyState({
   return (
     <div
       className={cx(
-        'flex flex-col items-start gap-4 rounded-[var(--isalwa-radius-panel)] border border-dashed border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_70%,white)] p-6 md:p-8',
+        'flex flex-col items-start gap-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_70%,white)] p-6 md:p-8',
         className,
       )}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,white)] text-[var(--isalwa-glaze)]">
-        <span aria-hidden className="text-lg">
-          ◌
-        </span>
-      </div>
       <div>
         <p className="font-semibold text-[var(--isalwa-kiln)]">{title}</p>
         {description ? (

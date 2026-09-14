@@ -27,14 +27,14 @@ export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
   );
 
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} className="space-y-6">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="quoteId" value={quoteId} />
-      <p className="text-sm text-[var(--isalwa-slate)]">
+      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         La conversión crea el pedido y conserva el vínculo con esta cotización. No emite factura ni nota de entrega.
       </p>
       <FormFeedback error={state?.error} />
-      <CommandSubmitButton label="Convertir a pedido" />
+      <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />
     </form>
   );
 }

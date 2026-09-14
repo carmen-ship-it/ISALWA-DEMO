@@ -1,11 +1,5 @@
-import { PageContainer } from '@isalwa/ui';
-import { PageHeader } from '@/components/shell/page-header';
+import { LoadingShell } from '@/components/states/app-states';
 
 export default function EquipoLoading() {
-  return (
-    <PageContainer label="Equipo">
-      <PageHeader kicker="Administración" title="Equipo" />
-      <p className="text-sm text-[var(--isalwa-slate)]">Cargando equipo…</p>
-    </PageContainer>
-  );
+  return <LoadingShell />;
 }

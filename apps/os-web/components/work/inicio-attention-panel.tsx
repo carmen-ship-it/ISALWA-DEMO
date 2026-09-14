@@ -23,17 +23,24 @@ export function InicioAttentionPanel({
   const groups = groupInicioAttention(items);
   const emptyCtas = inicioAttentionEmptyCtas();
 
-  return (
-    <PageSection card className="p-4" aria-label={t('pages.inicio.attention')}>
-      <SectionHeader title={t('pages.inicio.attention')} />
-
-      {unavailable ? (
-        <p className="px-2 text-sm text-[var(--isalwa-slate)]" role="status">
+  if (unavailable) {
+    return (
+      <div aria-label={t('pages.inicio.attention')}>
+        <SectionHeader title={t('pages.inicio.attention')} />
+        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
           {t('pages.inicio.attentionUnavailable')}
         </p>
-      ) : groups.length === 0 ? (
+      </div>
+    );
+  }
+
+  if (groups.length === 0) {
+    return (
+      <div aria-label={t('pages.inicio.attention')}>
+        <SectionHeader title={t('pages.inicio.attention')} />
         <EmptyState
           title={inicioAttentionEmptyMessage()}
+          description="Aquí aparece el trabajo, las reasignaciones y las aprobaciones que dependen de usted. Puede continuar en Trabajo o en Clientes."
           action={
             <div className="flex flex-wrap gap-3">
               {emptyCtas.map((cta) => (
@@ -46,26 +53,32 @@ export function InicioAttentionPanel({
             </div>
           }
         />
-      ) : (
-        <div className="space-y-6">
-          {groups.map((group) => (
-            <div key={group.id}>
-              <h3 className="mb-2 px-1 text-sm font-medium text-[var(--isalwa-kiln)]">
-                {group.title}
-              </h3>
-              <AttentionList items={group.items} compact />
-            </div>
-          ))}
-          {hasMore ? (
-            <p className="px-2 text-sm text-[var(--isalwa-slate)]">
-              {t('pages.inicio.attentionMore')}{' '}
-              <Link href="/trabajo" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
-                {t('states.viewWork')}
-              </Link>
-            </p>
-          ) : null}
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <PageSection card className="p-5 md:p-6" aria-label={t('pages.inicio.attention')}>
+      <SectionHeader title={t('pages.inicio.attention')} />
+      <div>
+        {groups.map((group, index) => (
+          <div
+            key={group.id}
+            className={index === 0 ? undefined : 'mt-8 border-t border-[var(--isalwa-mist)] pt-8'}
+          >
+            <h3 className="mb-3 text-sm font-medium text-[var(--isalwa-kiln)]">{group.title}</h3>
+            <AttentionList items={group.items} compact />
+          </div>
+        ))}
+      </div>
+      {hasMore ? (
+        <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
+          {t('pages.inicio.attentionMore')}{' '}
+          <Link href="/trabajo" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
+            {t('states.viewWork')}
+          </Link>
+        </p>
+      ) : null}
     </PageSection>
   );
 }

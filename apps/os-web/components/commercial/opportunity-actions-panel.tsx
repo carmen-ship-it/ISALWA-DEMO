@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useActionState, useState } from 'react';
 import { PageSection } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
 import {
@@ -28,6 +29,8 @@ export function OpportunityActionsPanel({
   opportunity,
   memberOptions,
 }: OpportunityActionsPanelProps) {
+  const router = useRouter();
+  const [closed, setClosed] = useState(false);
   const isOpen = opportunity.status === 'open';
   const currentAmount =
     opportunity.expectedValueCentavos != null
@@ -36,6 +39,7 @@ export function OpportunityActionsPanel({
 
   const [editState, editAction] = useActionState(async (_prev: typeof initial, formData: FormData) => {
     const result = await updateOpportunityAction(formData);
+    if (result.ok) router.refresh();
     return result.ok
       ? { error: null, success: 'Oportunidad actualizada.' }
       : { error: result.error, success: null };
@@ -43,6 +47,7 @@ export function OpportunityActionsPanel({
 
   const [stageState, stageAction] = useActionState(async (_prev: typeof initial, formData: FormData) => {
     const result = await changeOpportunityStageAction(formData);
+    if (result.ok) router.refresh();
     return result.ok
       ? { error: null, success: 'Etapa actualizada.' }
       : { error: result.error, success: null };
@@ -50,6 +55,7 @@ export function OpportunityActionsPanel({
 
   const [ownerState, ownerAction] = useActionState(async (_prev: typeof initial, formData: FormData) => {
     const result = await assignOpportunityOwnerAction(formData);
+    if (result.ok) router.refresh();
     return result.ok
       ? { error: null, success: 'Responsable asignado.' }
       : { error: result.error, success: null };
@@ -57,19 +63,27 @@ export function OpportunityActionsPanel({
 
   const [closeState, closeAction] = useActionState(async (_prev: typeof initial, formData: FormData) => {
     const result = await closeOpportunityAction(formData);
-    return result.ok
-      ? { error: null, success: 'Oportunidad cerrada.' }
-      : { error: result.error, success: null };
+    if (result.ok) {
+      setClosed(true);
+      router.refresh();
+      return { error: null, success: 'Oportunidad cerrada.' };
+    }
+    return { error: result.error, success: null };
   }, initial);
 
-  if (!isOpen) return null;
+  if (!isOpen || closed) {
+    if (closeState.success) {
+      return <FormFeedback error={null} success={closeState.success} />;
+    }
+    return null;
+  }
 
   return (
-    <div className="space-y-6">
-      <PageSection card className="p-6">
-        <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Editar oportunidad</h2>
+    <div className="mt-12 space-y-10">
+      <PageSection card className="bg-white p-8 md:p-10">
+        <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">Editar oportunidad</h2>
         <FormFeedback error={editState.error} success={editState.success} />
-        <form action={editAction} className="mt-4 space-y-4">
+        <form action={editAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="opportunityId" value={opportunity.opportunityId} />
           <div>
@@ -99,10 +113,10 @@ export function OpportunityActionsPanel({
         </form>
       </PageSection>
 
-      <PageSection card className="p-6">
-        <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Cambiar etapa</h2>
+      <PageSection card className="bg-white p-8 md:p-10">
+        <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">Cambiar etapa</h2>
         <FormFeedback error={stageState.error} success={stageState.success} />
-        <form action={stageAction} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <form action={stageAction} className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="opportunityId" value={opportunity.opportunityId} />
           <div className="min-w-0 flex-1">
@@ -117,15 +131,15 @@ export function OpportunityActionsPanel({
               className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
             />
           </div>
-          <CommandSubmitButton label="Cambiar etapa" variant="secondary" />
+          <CommandSubmitButton label="Guardar etapa" pendingLabel="Guardando…" variant="secondary" />
         </form>
       </PageSection>
 
       {memberOptions.length > 0 ? (
-        <PageSection card className="p-6">
-          <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Asignar responsable</h2>
+        <PageSection card className="bg-white p-8 md:p-10">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">Asignar responsable</h2>
           <FormFeedback error={ownerState.error} success={ownerState.success} />
-          <form action={ownerAction} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <form action={ownerAction} className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
             <input type="hidden" name="partyId" value={partyId} />
             <input type="hidden" name="opportunityId" value={opportunity.opportunityId} />
             <div className="min-w-0 flex-1">
@@ -146,15 +160,15 @@ export function OpportunityActionsPanel({
                 ))}
               </select>
             </div>
-            <CommandSubmitButton label="Asignar responsable" variant="secondary" />
+            <CommandSubmitButton label="Guardar responsable" pendingLabel="Guardando…" variant="secondary" />
           </form>
         </PageSection>
       ) : null}
 
-      <PageSection card className="p-6">
-        <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Cerrar oportunidad</h2>
+      <PageSection card className="bg-white p-8 md:p-10">
+        <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">Cerrar oportunidad</h2>
         <FormFeedback error={closeState.error} success={closeState.success} />
-        <form action={closeAction} className="mt-4 space-y-4">
+        <form action={closeAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="opportunityId" value={opportunity.opportunityId} />
           <fieldset>
@@ -170,7 +184,7 @@ export function OpportunityActionsPanel({
               </label>
             </div>
           </fieldset>
-          <CommandSubmitButton label="Cerrar oportunidad" variant="danger" />
+          <CommandSubmitButton label="Cerrar oportunidad" pendingLabel="Cerrando…" variant="danger" />
         </form>
       </PageSection>
     </div>

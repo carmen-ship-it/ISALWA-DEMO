@@ -112,10 +112,10 @@ export async function suspendMemberAction(formData: FormData): Promise<CommandAc
 
 export async function activateMemberAction(formData: FormData): Promise<CommandActionResult> {
   const memberId = String(formData.get('memberId') ?? '').trim();
-  const providerSubject = String(formData.get('providerSubject') ?? '').trim();
-  if (!memberId || !providerSubject) {
+  if (!memberId) {
     return { ok: false, error: 'No se pudo preparar la reactivación.' };
   }
+  const providerSubject = `reactivation:${memberId}`;
   const result = await runWorkforceCommand('ActivateMember', (client) =>
     client
       .executeWorkforceCommand('ActivateMember', { memberId, providerSubject }, createId())

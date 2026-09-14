@@ -2,26 +2,34 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Button } from '@isalwa/ui';
+import { Button, EmptyState, StatusPill } from '@isalwa/ui';
 import { t } from '@/lib/i18n/es';
 
-type StatePanelProps = {
+type AccessTone = 'warning' | 'info' | 'neutral';
+
+function AccessState({
+  title,
+  description,
+  tone,
+  action,
+}: {
   title: string;
   description: string;
+  tone: AccessTone;
   action?: ReactNode;
-};
-
-function StatePanel({ title, description, action }: StatePanelProps) {
+}) {
   return (
-    <div
-      className="mx-auto flex max-w-lg flex-col items-start gap-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-8 shadow-[var(--isalwa-shadow-soft)]"
-      role="alert"
-    >
-      <h1 className="isalwa-page-title">{title}</h1>
-      <p className="text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">
-        {description}
-      </p>
-      {action}
+    <div role="alert" className="w-full max-w-lg">
+      <EmptyState
+        title={title}
+        description={description}
+        action={
+          <div className="flex flex-col items-start gap-4">
+            <StatusPill tone={tone}>{title}</StatusPill>
+            {action}
+          </div>
+        }
+      />
     </div>
   );
 }
@@ -36,9 +44,10 @@ export function LoadingShell() {
 
 export function SessionExpiredState() {
   return (
-    <StatePanel
+    <AccessState
       title={t('states.sessionExpired')}
       description={t('states.sessionExpiredDesc')}
+      tone="warning"
       action={
         <Link href="/login" className="inline-flex">
           <Button type="button" variant="primary">
@@ -52,9 +61,10 @@ export function SessionExpiredState() {
 
 export function AccessDeniedState() {
   return (
-    <StatePanel
+    <AccessState
       title={t('states.accessDenied')}
       description={t('states.accessDeniedDesc')}
+      tone="neutral"
       action={
         <Link href="/inicio" className="inline-flex">
           <Button type="button" variant="secondary">
@@ -68,9 +78,10 @@ export function AccessDeniedState() {
 
 export function AccountInactiveState() {
   return (
-    <StatePanel
+    <AccessState
       title={t('states.accountInactive')}
       description={t('states.accountInactiveDesc')}
+      tone="neutral"
       action={
         <Link href="/login" className="inline-flex">
           <Button type="button" variant="primary">
@@ -84,9 +95,10 @@ export function AccountInactiveState() {
 
 export function ServiceUnavailableState({ onRetry }: { onRetry?: () => void }) {
   return (
-    <StatePanel
+    <AccessState
       title={t('states.serviceUnavailable')}
       description={t('states.serviceUnavailableDesc')}
+      tone="info"
       action={
         onRetry ? (
           <Button type="button" variant="secondary" onClick={onRetry}>
@@ -106,9 +118,10 @@ export function ServiceUnavailableState({ onRetry }: { onRetry?: () => void }) {
 
 export function CapabilityLockedState({ message }: { message?: string }) {
   return (
-    <StatePanel
+    <AccessState
       title={t('states.capabilityLocked')}
       description={message ?? t('states.capabilityLockedDesc')}
+      tone="neutral"
       action={
         <Link href="/inicio" className="inline-flex">
           <Button type="button" variant="secondary">

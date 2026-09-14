@@ -1,3 +1,5 @@
+export const UNRECOGNIZED_STATUS_LABEL = 'Estado no reconocido';
+
 export function formatOpportunityStatus(status: string): string {
   switch (status) {
     case 'open':
@@ -9,7 +11,7 @@ export function formatOpportunityStatus(status: string): string {
     case 'cancelled':
       return 'Cancelada';
     default:
-      return status;
+      return UNRECOGNIZED_STATUS_LABEL;
   }
 }
 
@@ -24,7 +26,7 @@ export function formatQuoteStatus(status: string): string {
     case 'cancelled':
       return 'Cancelada';
     default:
-      return status;
+      return UNRECOGNIZED_STATUS_LABEL;
   }
 }
 
@@ -35,12 +37,34 @@ export function formatOrderStatus(status: string): string {
     case 'cancelled':
       return 'Cancelado';
     default:
-      return status;
+      return UNRECOGNIZED_STATUS_LABEL;
   }
 }
 
+/** Free-text stage as entered. Underscores become spaces. Not a pipeline taxonomy. */
 export function formatStage(stage: string): string {
   return stage.replace(/_/g, ' ');
+}
+
+export function presentStage(stage: string): string {
+  const shown = formatStage(stage).trim();
+  return shown.length > 0 ? shown : 'Sin etapa';
+}
+
+/** Status label when the record kind is known. Ambiguous values stay unrecognized. */
+export function formatRecordStatus(status: string, entityType: string): string {
+  const kind = entityType.toLowerCase();
+  if (kind.includes('quote')) return formatQuoteStatus(status);
+  if (kind.includes('order')) return formatOrderStatus(status);
+  if (kind.includes('opportunity')) return formatOpportunityStatus(status);
+
+  const recognized = [
+    formatQuoteStatus(status),
+    formatOrderStatus(status),
+    formatOpportunityStatus(status),
+  ].filter((label) => label !== UNRECOGNIZED_STATUS_LABEL);
+  const unique = [...new Set(recognized)];
+  return unique.length === 1 ? unique[0] : UNRECOGNIZED_STATUS_LABEL;
 }
 
 export function statusTone(

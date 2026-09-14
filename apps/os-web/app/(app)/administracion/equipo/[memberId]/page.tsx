@@ -98,7 +98,7 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
 
         <AdminSubNav />
 
-        <PageSection card className="mt-6 p-6">
+        <PageSection card className="mt-10 p-8">
           <div className="flex flex-wrap gap-2">
             <StatusPill tone={accessStatusTone(summary.accessStatus)}>
               {formatAccessStatus(summary.accessStatus)}
@@ -106,26 +106,31 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
             <StatusPill tone="neutral">{formatEmploymentStatus(summary.employmentStatus)}</StatusPill>
           </div>
 
-          {lifecycleNote ? (
-            <p className="mt-4 text-sm text-[var(--isalwa-slate)]">{lifecycleNote}</p>
+          {summary.accessStatus === 'invited' && lifecycleNote ? (
+            <div className="mt-8 max-w-2xl border-t border-[var(--isalwa-mist)] pt-8">
+              <p className="isalwa-section-label">Siguiente paso</p>
+              <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{lifecycleNote}</p>
+            </div>
+          ) : lifecycleNote ? (
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{lifecycleNote}</p>
           ) : null}
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-8 grid gap-6 sm:grid-cols-2">
             <div>
               <dt className="isalwa-section-label">Correo</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{summary.email ?? '—'}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{summary.email ?? '—'}</dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Rol</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{formatRoleKeys(summary.roleKeys)}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatRoleKeys(summary.roleKeys)}</dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Departamento</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{summary.departmentName ?? '—'}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{summary.departmentName ?? '—'}</dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {summary.managerMemberId && summary.managerMemberId !== summary.memberId ? (
                   <Link
                     href={memberHref(summary.managerMemberId)}
@@ -140,27 +145,27 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
             </div>
             <div>
               <dt className="isalwa-section-label">Inicio de relación</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {formatTimestamp(summary.employmentStartedAt) ?? '—'}
               </dd>
             </div>
             {summary.employmentEndedAt ? (
               <div>
                 <dt className="isalwa-section-label">Fin de relación</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">
                   {formatTimestamp(summary.employmentEndedAt)}
                 </dd>
               </div>
             ) : null}
             <div>
               <dt className="isalwa-section-label">Delegaciones activas</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{summary.activeDelegationCount}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{summary.activeDelegationCount}</dd>
             </div>
           </dl>
         </PageSection>
 
         {showAdminActions ? (
-          <div className="mt-6">
+          <div className="mt-8">
             <MemberAdminActionsPanel
               summary={summary}
               visibility={visibility}
@@ -171,14 +176,6 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
             />
           </div>
         ) : null}
-
-        <PageSection card className="mt-6 p-6">
-          <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Historial</h2>
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-            El historial de cambios de rol, departamento y acceso estará disponible cuando exista
-            la consulta correspondiente.
-          </p>
-        </PageSection>
       </PageContainer>
     );
   } catch (err) {

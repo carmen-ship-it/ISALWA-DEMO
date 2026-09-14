@@ -9,13 +9,14 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import {
   formatOpportunityStatus,
-  formatStage,
   formatTimestamp,
+  presentStage,
   statusTone,
 } from '@/lib/commercial/labels';
 import { loadMemberOptionsForAdmin } from '@/lib/commercial/member-options';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
-import { newQuoteHref, opportunityHref } from '@/lib/commercial/navigation';
+import { newQuoteHref } from '@/lib/commercial/navigation';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -23,6 +24,9 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 type OpportunityDetailPageProps = {
   params: Promise<{ partyId: string; opportunityId: string }>;
 };
+
+const documentLinkClass =
+  'isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline';
 
 export default async function OpportunityDetailPage({ params }: OpportunityDetailPageProps) {
   const { partyId, opportunityId } = await params;
@@ -33,6 +37,8 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
 
   try {
     const { opportunity, freshness } = await client.getOpportunity(opportunityId);
+    const partyLabels = await resolvePartyLabels(client, [opportunity.partyId]);
+    const customerName = partyLabel(partyLabels, opportunity.partyId);
     const memberLabels = await resolveMemberLabels(client, [opportunity.ownerMemberId]);
     const memberOptions = await loadMemberOptionsForAdmin(client);
     const value = formatOptionalCentavos(opportunity.expectedValueCentavos ?? undefined, 'BOB');
@@ -43,60 +49,65 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
         <PageHeader
           kicker="Oportunidad"
           title={opportunity.title}
+          description={customerName}
           action={
-            <div className="flex flex-wrap gap-2">
-              {isOpen ? (
-                <Link href={newQuoteHref(partyId, opportunityId)}>
-                  <Button type="button" variant="primary">
-                    Nueva cotización
-                  </Button>
-                </Link>
-              ) : null}
-              <Link href={partyHref(partyId)}>
-                <Button type="button" variant="secondary">
-                  Volver al cliente
-                </Button>
-              </Link>
-            </div>
+            <Link href={partyHref(partyId)} className={documentLinkClass}>
+              Volver al cliente
+            </Link>
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PageSection card className="p-6">
-          <div className="flex flex-wrap gap-2">
+        <PageSection card className="bg-white p-8 md:p-10">
+          <div className="flex flex-wrap items-center justify-between gap-6">
             <StatusPill tone={statusTone(opportunity.status)}>
               {formatOpportunityStatus(opportunity.status)}
             </StatusPill>
+            {isOpen ? (
+              <Link href={newQuoteHref(partyId, opportunityId)}>
+                <Button type="button" variant="primary">
+                  Nueva cotización
+                </Button>
+              </Link>
+            ) : null}
           </div>
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
+            <div>
+              <dt className="isalwa-section-label">Cliente</dt>
+              <dd className="mt-2">
+                <Link href={partyHref(partyId)} className={documentLinkClass}>
+                  {customerName}
+                </Link>
+              </dd>
+            </div>
             <div>
               <dt className="isalwa-section-label">Etapa</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">{formatStage(opportunity.stage)}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentStage(opportunity.stage)}</dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {memberLabel(memberLabels, opportunity.ownerMemberId)}
               </dd>
             </div>
             {value ? (
               <div>
                 <dt className="isalwa-section-label">Monto estimado</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">{value}</dd>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{value}</dd>
               </div>
             ) : null}
             <div>
               <dt className="isalwa-section-label">Creada</dt>
-              <dd className="mt-1 text-[var(--isalwa-kiln)]">
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
                 {formatTimestamp(opportunity.createdAt)}
               </dd>
             </div>
             {opportunity.closedAt ? (
               <div>
                 <dt className="isalwa-section-label">Cerrada</dt>
-                <dd className="mt-1 text-[var(--isalwa-kiln)]">
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">
                   {formatTimestamp(opportunity.closedAt)}
                 </dd>
               </div>

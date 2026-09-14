@@ -14,7 +14,7 @@ export function formatWorkStatus(status: string): string {
     case 'cancelled':
       return 'Cancelado';
     default:
-      return status;
+      return 'Estado de trabajo';
   }
 }
 
@@ -27,7 +27,7 @@ export function formatApprovalStatus(status: string): string {
     case 'rejected':
       return 'Rechazado';
     default:
-      return status;
+      return 'Estado de aprobación';
   }
 }
 
@@ -42,7 +42,7 @@ export function formatWorkApprovalStatus(status: WorkSummaryReadModel['approvalS
     case 'rejected':
       return 'Rechazado';
     default:
-      return status;
+      return 'Estado de aprobación';
   }
 }
 
@@ -57,7 +57,7 @@ export function formatPriority(priority: string): string {
     case 'urgent':
       return 'Urgente';
     default:
-      return priority;
+      return 'Prioridad registrada';
   }
 }
 
@@ -106,7 +106,7 @@ export function formatAttentionType(type: AttentionType): string {
     case 'open_work_assigned':
       return 'Trabajo pendiente';
     case 'reassigned_work':
-      return 'Reasignado a ti';
+      return 'Reasignado a usted';
     case 'overdue_work':
       return 'Vencido';
     case 'pending_approval':
@@ -137,7 +137,7 @@ export function formatAttentionReason(item: AttentionItemReadModel): string {
     case 'work.open.owned':
       return 'Trabajo asignado';
     case 'work.reassigned.to_you':
-      return 'Reasignado a ti';
+      return 'Reasignado a usted';
     case 'work.open.overdue':
       return 'Vencido';
     case 'approval.pending.for_you':

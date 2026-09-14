@@ -92,7 +92,8 @@ describe('UI-4 orders presentation', () => {
   it('maps order status without fulfillment labels', () => {
     assert.equal(formatOrderStatus('open'), 'Registrado');
     assert.equal(formatOrderStatus('cancelled'), 'Cancelado');
-    assert.equal(formatOrderStatus('shipped' as never), 'shipped');
+    assert.equal(formatOrderStatus('shipped' as never), 'Estado no reconocido');
+    assert.notEqual(formatOrderStatus('shipped' as never), 'shipped');
   });
 
   it('does not expose payment or inventory fields in fixture', () => {

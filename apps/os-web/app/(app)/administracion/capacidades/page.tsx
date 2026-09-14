@@ -38,7 +38,7 @@ export default async function CapacidadesPage() {
 
         <AdminSubNav />
 
-        <PageSection card className="mt-6 p-6">
+        <PageSection card className="mt-10 p-8">
           <CapabilityList items={capabilities} />
         </PageSection>
       </PageContainer>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { AppNav } from '@/components/shell/app-nav';
@@ -16,30 +17,67 @@ type AppShellProps = {
 };
 
 export function AppShell({ children, displayLabel, showAdmin, capabilities }: AppShellProps) {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onPageShow(event: PageTransitionEvent) {
+      if (event.persisted) {
+        router.refresh();
+      }
+    }
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, [router]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const panel = mobileNavRef.current;
+    const firstLink = panel?.querySelector<HTMLElement>('a[href]');
+    (firstLink ?? panel)?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setMobileOpen(false);
+      menuButtonRef.current?.focus();
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="hidden border-r border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_88%,white)] lg:flex lg:flex-col">
-        <div className="border-b border-[var(--isalwa-mist)] px-5 py-6">
-          <Link href="/inicio" className="block">
-            <p className="isalwa-kicker">{t('app.name')}</p>
-            <p className="mt-1 font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+    <div className="min-h-screen bg-[var(--isalwa-white)] lg:grid lg:grid-cols-[18rem_1fr]">
+      <aside className="hidden bg-[var(--isalwa-mist)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto">
+        <div className="px-6 pb-4 pt-8">
+          <Link
+            href="/inicio"
+            className="block rounded-[var(--isalwa-radius-control)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+          >
+            <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
+              {t('app.name')}
+            </p>
+            <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
               {t('app.tagline')}
             </p>
           </Link>
         </div>
-        <div className="flex-1 px-3 py-4">
+        <div className="px-4 pb-8 pt-4">
           <AppNav showAdmin={showAdmin} capabilities={capabilities} />
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-4 py-3 backdrop-blur-md lg:px-6">
-          <div className="flex items-center gap-3">
+      <div className="flex min-h-screen min-w-0 flex-col">
+        <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-4 overflow-visible border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-4 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
             <button
+              ref={menuButtonRef}
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-kiln)] lg:hidden"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] lg:hidden"
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
               onClick={() => setMobileOpen((open) => !open)}
@@ -47,9 +85,9 @@ export function AppShell({ children, displayLabel, showAdmin, capabilities }: Ap
               <span className="sr-only">{mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}</span>
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
-            <div className="lg:hidden">
-              <p className="isalwa-kicker">{t('app.name')}</p>
-            </div>
+            <p className="min-w-0 truncate font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)] lg:hidden">
+              {t('app.name')}
+            </p>
           </div>
           <UserMenu displayLabel={displayLabel} />
         </header>
@@ -57,7 +95,9 @@ export function AppShell({ children, displayLabel, showAdmin, capabilities }: Ap
         {mobileOpen ? (
           <div
             id="mobile-nav"
-            className="border-b border-[var(--isalwa-mist)] bg-white lg:hidden"
+            ref={mobileNavRef}
+            tabIndex={-1}
+            className="min-w-0 overflow-x-hidden bg-[var(--isalwa-mist)] outline-none lg:hidden"
           >
             <AppNav
               showAdmin={showAdmin}
@@ -68,7 +108,7 @@ export function AppShell({ children, displayLabel, showAdmin, capabilities }: Ap
           </div>
         ) : null}
 
-        <div className="flex-1">{children}</div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
   );

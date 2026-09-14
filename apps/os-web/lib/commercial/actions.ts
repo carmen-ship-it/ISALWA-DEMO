@@ -7,6 +7,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import type { CommandActionResult, CreateRedirectResult } from '@/lib/commercial/command-types';
 import { opportunityHref, orderHref, quoteHref } from '@/lib/commercial/navigation';
+import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 
@@ -407,9 +408,13 @@ export async function decideCommercialApprovalAction(formData: FormData): Promis
   const result = await runCommand((client) =>
     client.executeWorkCommand(decision, payload, createId()).then((r) => r.data),
   );
-  if (result.ok && partyId && subjectId) {
+  if (result.ok && partyId && subjectId && (subjectType === 'quote' || subjectType === 'order')) {
     revalidateCliente360(partyId);
     revalidatePath(subjectType === 'order' ? orderHref(partyId, subjectId) : quoteHref(partyId, subjectId));
+  }
+  if (result.ok && approvalRequestId) {
+    revalidatePath('/aprobaciones');
+    revalidatePath(approvalHref(approvalRequestId));
   }
   return result;
 }

@@ -1,15 +1,18 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
 
 const SECTIONS = [
   { id: 'resumen', label: 'Resumen' },
   { id: 'contactos', label: 'Contactos' },
+  { id: 'ubicaciones', label: 'Ubicaciones' },
   { id: 'relaciones', label: 'Relaciones' },
-  { id: 'trabajo', label: 'Seguimiento' },
   { id: 'oportunidades', label: 'Oportunidades' },
   { id: 'cotizaciones', label: 'Cotizaciones' },
   { id: 'pedidos', label: 'Pedidos' },
-  { id: 'ubicaciones', label: 'Ubicaciones' },
+  { id: 'trabajo', label: 'Seguimiento' },
   { id: 'historial', label: 'Historial' },
 ] as const;
 
@@ -18,23 +21,46 @@ type Cliente360NavProps = {
 };
 
 export function Cliente360Nav({ partyId }: Cliente360NavProps) {
+  const [activeId, setActiveId] = useState<string>('resumen');
+
+  useEffect(() => {
+    const fromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (SECTIONS.some((section) => section.id === hash)) setActiveId(hash);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
   return (
     <nav
       aria-label="Secciones del cliente"
-      className="overflow-x-auto rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-2"
+      className="sticky top-14 z-10 mt-10 max-w-full border-b border-[var(--isalwa-mist)] bg-white"
     >
-      <ul className="flex min-w-max gap-1">
-        {SECTIONS.map((section) => (
-          <li key={section.id}>
-            <Link
-              href={clienteSectionHref(partyId, section.id)}
-              className="isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] px-3 text-sm font-medium text-[var(--isalwa-slate)] outline-none hover:bg-[var(--isalwa-porcelain)] hover:text-[var(--isalwa-kiln)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-            >
-              {section.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="overflow-x-auto overscroll-x-contain">
+        <ul className="flex w-max">
+          {SECTIONS.map((section) => {
+            const active = activeId === section.id;
+            return (
+              <li key={section.id}>
+                <Link
+                  href={clienteSectionHref(partyId, section.id)}
+                  aria-current={active ? 'true' : undefined}
+                  onClick={() => setActiveId(section.id)}
+                  className={
+                    active
+                      ? 'inline-flex h-11 items-center border-b-2 border-[var(--isalwa-glaze)] px-3 text-sm font-medium text-[var(--isalwa-glaze)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]'
+                      : 'inline-flex h-11 items-center border-b-2 border-transparent px-3 text-sm text-[var(--isalwa-slate)] outline-none hover:text-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]'
+                  }
+                >
+                  {section.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </nav>
   );
 }

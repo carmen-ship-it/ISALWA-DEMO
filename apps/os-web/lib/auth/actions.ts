@@ -181,18 +181,56 @@ export async function devBootstrapAction(): Promise<{ error?: string; redirectTo
   }
 }
 
-export async function signOutAction(): Promise<void> {
+function isAuthCookie(name: string): boolean {
+  return name === OS_DEV_SESSION_COOKIE || name.startsWith('sb-');
+}
+
+function expireAuthCookie(cookieStore: Awaited<ReturnType<typeof cookies>>, name: string) {
+  cookieStore.set(name, '', {
+    path: '/',
+    maxAge: 0,
+    expires: new Date(0),
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+  });
+}
+
+/** Clears provider and local session cookies. Never surfaces provider errors. */
+async function clearWebSession(): Promise<void> {
+  const cookieStore = await cookies();
+  const names = new Set(
+    cookieStore
+      .getAll()
+      .filter((cookie) => isAuthCookie(cookie.name))
+      .map((cookie) => cookie.name),
+  );
+  names.add(OS_DEV_SESSION_COOKIE);
+
   if (isSupabaseConfigured()) {
     try {
       const supabase = await createServerSupabaseClient();
       await supabase.auth.signOut();
     } catch {
-      // continue
+      // Provider failures must not leave a usable local session.
     }
   }
 
-  const cookieStore = await cookies();
-  cookieStore.delete(OS_DEV_SESSION_COOKIE);
+  const afterSignOut = await cookies();
+  for (const cookie of afterSignOut.getAll()) {
+    if (isAuthCookie(cookie.name)) names.add(cookie.name);
+  }
+  for (const name of names) {
+    expireAuthCookie(afterSignOut, name);
+  }
+}
+
+export async function signOutAction(): Promise<{ error?: string }> {
+  try {
+    await clearWebSession();
+  } catch {
+    return { error: 'No se pudo cerrar la sesión. Intente de nuevo.' };
+  }
   redirect('/login');
 }
 

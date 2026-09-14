@@ -6,6 +6,7 @@ import { cx } from '@isalwa/ui';
 
 type CommandSubmitButtonProps = {
   label: string;
+  pendingLabel?: string;
   variant?: 'primary' | 'secondary' | 'danger';
   className?: string;
   disabled?: boolean;
@@ -13,6 +14,7 @@ type CommandSubmitButtonProps = {
 
 export function CommandSubmitButton({
   label,
+  pendingLabel = 'Guardando…',
   variant = 'primary',
   className,
   disabled = false,
@@ -26,7 +28,7 @@ export function CommandSubmitButton({
       aria-busy={pending}
       className={cx(className)}
     >
-      {pending ? 'Guardando…' : label}
+      {pending ? pendingLabel : label}
     </Button>
   );
 }

@@ -30,7 +30,7 @@ export function OpportunityCreateForm({ partyId, memberOptions }: OpportunityCre
   );
 
   return (
-    <PageSection card className="p-6">
+    <PageSection card className="bg-white p-8 md:p-10">
       <FormFeedback error={state?.error} />
       <form action={formAction} className="mt-4 space-y-4">
         <input type="hidden" name="partyId" value={partyId} />
@@ -94,7 +94,7 @@ export function OpportunityCreateForm({ partyId, memberOptions }: OpportunityCre
           </div>
         ) : null}
 
-        <CommandSubmitButton label="Crear oportunidad" />
+        <CommandSubmitButton label="Crear oportunidad" pendingLabel="Creando…" />
       </form>
     </PageSection>
   );

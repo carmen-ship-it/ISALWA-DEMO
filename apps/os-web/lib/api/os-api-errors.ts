@@ -60,6 +60,37 @@ function kindFromStatus(status: number, code?: string): OsApiFailureKind {
   return 'unknown';
 }
 
+/**
+ * True when a provider or envelope string must not be shown to staff.
+ * Structured code, status, and requestId stay on the error object.
+ */
+export function isTechnicalStaffMessage(message: string): boolean {
+  const text = message.trim();
+  if (!text) return true;
+  if (/^(?:(?:401|403)\s+)?(?:unauthorized|forbidden)\.?$/i.test(text)) return true;
+  if (/exception/i.test(text)) return true;
+  if (/\berror\s*:/i.test(text)) return true;
+  if (/\bstack\b/i.test(text)) return true;
+  if (/\b(?:sql|syntax error|prisma|econnrefused)\b/i.test(text)) return true;
+  if (/\b(?:select|insert|update|delete)\b[\s\S]{0,80}\b(?:from|into|set|where)\b/i.test(text)) {
+    return true;
+  }
+  if (/[A-Za-z0-9]+_[A-Za-z0-9_]+/.test(text)) return true;
+  if (/\b[A-Z][A-Za-z]+(?:Error|Exception)\b/.test(text)) return true;
+  if (/\/v\d+\//.test(text) || /\/api\//.test(text)) return true;
+  if (/\b(?:apps|packages)\//.test(text)) return true;
+  if (/\.(?:ts|tsx|js|mjs)\b/.test(text)) return true;
+  if (/\blocalhost\b|\b127\.0\.0\.1\b/.test(text)) return true;
+  if (/\brequestId\b/i.test(text)) return true;
+  return false;
+}
+
+function staffMessage(kind: OsApiFailureKind, code: string | undefined, raw?: string): string {
+  const fallback = spanishMessage(kind, code);
+  if (!raw || isTechnicalStaffMessage(raw)) return fallback;
+  return raw;
+}
+
 function spanishMessage(kind: OsApiFailureKind, code?: string): string {
   switch (kind) {
     case 'unauthorized':
@@ -100,7 +131,7 @@ export async function parseOsApiError(response: Response): Promise<OsApiError> {
       kind,
       status: response.status,
       code,
-      message: message || spanishMessage(kind, code),
+      message: staffMessage(kind, code, message),
       requestId,
       details,
     });

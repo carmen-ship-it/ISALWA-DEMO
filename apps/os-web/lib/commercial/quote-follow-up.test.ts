@@ -150,7 +150,7 @@ describe('CC-4 submitted quote follow-up', () => {
     assert.doesNotMatch(submit, /dueAt|overdue|SLA|stale quote|reminder/i);
     assert.doesNotMatch(eligibility, /CreateWorkItem|executeWorkCommand|executeCommand/);
     assert.doesNotMatch(eligibility, /overdue|SLA|stale quote|reminder|after \d+ days/i);
-    assert.doesNotMatch(quotePage, /overdue|SLA|reminder period|quote overdue/i);
+    assert.doesNotMatch(quotePage, /overdue|\bSLA\b|reminder period|quote overdue/i);
     assert.doesNotMatch(workActions, /AttentionItem|createAttention|listAttention/);
     assert.match(workActions, /revalidatePath\(quoteHref\(partyId, quoteId\)\)/);
     assert.match(workActions, /revalidatePath\(partyHref\(partyId\)\)/);

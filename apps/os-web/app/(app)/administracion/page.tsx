@@ -28,24 +28,24 @@ export default async function AdministracionPage() {
       <PageHeader
         kicker={t('pages.administracion.kicker')}
         title={t('pages.administracion.title')}
-        description="Consulte y administre el equipo, los accesos y la disponibilidad del sistema."
+        description="Equipo, accesos y lo que la empresa tiene habilitado. El trabajo del día permanece en Clientes y en Trabajo."
       />
 
       <AdminSubNav />
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-10 space-y-8">
         <AdminSectionCards />
 
-        <PageSection card className="p-6">
-          <SectionHeader title="Acciones de administración" />
-          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        <PageSection card className="p-8">
+          <SectionHeader title="Equipo y accesos" />
+          <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Desde{' '}
             <Link href={equipoHref()} className="font-medium text-[var(--isalwa-glaze)] hover:underline">
               Equipo
             </Link>
-            {' '}puede invitar empleados, cambiar departamento, rol o responsable, suspender o
-            reactivar acceso, finalizar relaciones y gestionar delegaciones según el estado de
-            cada persona. La invitación no crea contraseñas ni asigna administración sola.
+            {' '}puede invitar a una persona, ajustar departamento, rol o responsable, y suspender,
+            reactivar o finalizar el acceso según su estado. La invitación no crea una contraseña
+            ni asigna administración por sí sola.
           </p>
         </PageSection>
       </div>

@@ -69,8 +69,7 @@ export function ApprovalList({ items, memberLabels, readOnly = true }: ApprovalL
                   </dl>
                   {readOnly && approval.status === 'pending' ? (
                     <p className="mt-3 text-xs text-[var(--isalwa-slate)]">
-                      Solo lectura — las acciones de aprobación estarán disponibles en una
-                      próxima versión.
+                      Abra la solicitud para registrar la decisión.
                     </p>
                   ) : null}
                 </div>

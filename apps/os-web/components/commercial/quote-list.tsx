@@ -7,7 +7,7 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
-import { quoteHref } from '@/lib/commercial/navigation';
+import { opportunityHref, quoteHref } from '@/lib/commercial/navigation';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 
 type QuoteListProps = {
@@ -42,7 +42,14 @@ export function QuoteList({ partyId, items, memberLabels }: QuoteListProps) {
                   {item.opportunityId ? (
                     <div>
                       <dt className="sr-only">Oportunidad</dt>
-                      <dd>Oportunidad vinculada</dd>
+                      <dd>
+                        <Link
+                          href={opportunityHref(partyId, item.opportunityId)}
+                          className="isalwa-t-fast text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline"
+                        >
+                          Ver oportunidad
+                        </Link>
+                      </dd>
                     </div>
                   ) : null}
                   <div>

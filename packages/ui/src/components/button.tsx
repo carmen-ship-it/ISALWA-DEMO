@@ -12,7 +12,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const styles: Record<Variant, string> = {
   primary:
-    'bg-[var(--isalwa-glaze)] text-[var(--isalwa-white)] hover:bg-[var(--isalwa-glaze-deep)] active:scale-[0.98]',
+    'bg-[var(--isalwa-action)] text-[var(--isalwa-white)] hover:bg-[var(--isalwa-action-deep)] active:scale-[0.98]',
   secondary:
     'bg-[var(--isalwa-white)] text-[var(--isalwa-kiln)] border border-[var(--isalwa-mist)] hover:border-[var(--isalwa-glaze)] hover:bg-[var(--isalwa-porcelain)] active:scale-[0.98]',
   ghost:

@@ -37,7 +37,7 @@ export function RegisterFollowUpForm({ partyId, quoteId }: RegisterFollowUpFormP
   );
 
   return (
-    <div className="mb-6 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4">
+    <div className="mb-6 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4">
       <p className="font-medium text-[var(--isalwa-kiln)]">{FOLLOW_UP_COPY.action}</p>
       <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{FOLLOW_UP_COPY.ownerNote}</p>
       <FormFeedback error={state?.error} success={state?.success} />

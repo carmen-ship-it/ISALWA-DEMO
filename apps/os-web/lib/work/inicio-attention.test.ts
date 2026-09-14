@@ -107,7 +107,7 @@ describe('CC-1 inicio attention grouping', () => {
       'open_work_assigned',
     ]);
     assert.equal(formatAttentionType('overdue_work'), 'Vencido');
-    assert.equal(formatAttentionType('reassigned_work'), 'Reasignado a ti');
+    assert.equal(formatAttentionType('reassigned_work'), 'Reasignado a usted');
     assert.equal(formatAttentionType('pending_approval'), 'Aprobación pendiente');
     assert.equal(formatAttentionType('open_work_assigned'), 'Trabajo pendiente');
   });
@@ -118,13 +118,13 @@ describe('CC-1 empty attention state', () => {
     assert.equal(groupInicioAttention([]).length, 0);
     assert.equal(
       inicioAttentionEmptyMessage(),
-      'No tienes pendientes que requieran atención ahora.',
+      'No tiene pendientes que requieran atención ahora.',
     );
     assert.deepEqual(inicioAttentionEmptyCtas(), [
       { href: '/trabajo', label: 'Ver trabajo' },
       { href: '/clientes', label: 'Ir a clientes' },
     ]);
-    assert.equal(t('pages.inicio.attention'), 'Necesita tu atención');
+    assert.equal(t('pages.inicio.attention'), 'Necesita su atención');
     assert.doesNotMatch(inicioAttentionEmptyMessage(), /felicidades|todo al día|kpi/i);
   });
 });
@@ -149,6 +149,16 @@ describe('CC-1 inicio page wiring', () => {
     assert.ok(draftAt < submittedAt);
     assert.match(page, /OpportunityOrgList/);
     assert.match(page, /QuoteOrgList/);
+
+    const gridOpen = page.lastIndexOf('<div', page.indexOf('lg:grid-cols-2'));
+    const leadershipAt = page.indexOf('<InicioLeadershipSection');
+    assert.ok(gridOpen >= 0);
+    assert.ok(leadershipAt > gridOpen);
+    let depth = 0;
+    for (const tag of page.slice(gridOpen, leadershipAt).matchAll(/<\/?div\b[^>]*>/g)) {
+      depth += tag[0].startsWith('</') ? -1 : 1;
+    }
+    assert.equal(depth, 0);
 
     assert.doesNotMatch(page, FORBIDDEN_AGING);
     assert.doesNotMatch(panel, FORBIDDEN_AGING);

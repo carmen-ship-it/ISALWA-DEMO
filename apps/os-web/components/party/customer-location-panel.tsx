@@ -2,13 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import { useActionState, useState } from 'react';
-import { ListRow, StatusPill } from '@isalwa/ui';
+import { EmptyState, ListRow, StatusPill } from '@isalwa/ui';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { createLocationAction, deactivateLocationAction, updateLocationAction } from '@/lib/party/actions';
 import {
   formatCoordinates,
   provenanceHref,
+  provenanceLinkLabel,
   sortLocationsForDisplay,
 } from '@/lib/party/customer-self-service';
 import type { LocationView } from '@/lib/party/types';
@@ -28,7 +29,14 @@ export function CustomerLocationPanel({ partyId, locations, canMutate }: Custome
   return (
     <div className="space-y-4">
       {ordered.length === 0 ? (
-        <p className="text-sm text-[var(--isalwa-slate)]">No hay ubicaciones registradas.</p>
+        <EmptyState
+          title="No hay ubicaciones"
+          description={
+            canMutate
+              ? 'Esta empresa no tiene ubicaciones registradas. Puede agregar una a continuación.'
+              : 'Esta empresa no tiene ubicaciones registradas.'
+          }
+        />
       ) : (
         <ul className="divide-y divide-[var(--isalwa-mist)]">
           {ordered.map((location) => (
@@ -46,34 +54,36 @@ function LocationFacts({ location }: { location: LocationView }) {
   const href = provenanceHref(location.provenanceUrl);
 
   return (
-    <dl className="mt-2 grid gap-2 text-sm text-[var(--isalwa-slate)]">
+    <dl className="mt-3 grid min-w-0 gap-4 text-sm">
       {location.addressText ? (
-        <div>
+        <div className="min-w-0">
           <dt className="isalwa-section-label">Dirección</dt>
-          <dd className="mt-1 text-[var(--isalwa-kiln)]">{location.addressText}</dd>
+          <dd className="mt-1 whitespace-pre-wrap break-words text-[var(--isalwa-kiln)] [overflow-wrap:anywhere]">
+            {location.addressText}
+          </dd>
         </div>
       ) : null}
-      <div>
-        <dt className="isalwa-section-label">Coordenadas</dt>
-        <dd className="mt-1 text-[var(--isalwa-kiln)]">{coordinates ?? 'Sin coordenadas'}</dd>
-      </div>
-      <div>
-        <dt className="isalwa-section-label">Procedencia</dt>
-        <dd className="mt-1">
-          {href ? (
+      {coordinates ? (
+        <div className="min-w-0">
+          <dt className="isalwa-section-label">Coordenadas</dt>
+          <dd className="mt-1 break-words text-[var(--isalwa-kiln)]">{coordinates}</dd>
+        </div>
+      ) : null}
+      {href ? (
+        <div className="min-w-0">
+          <dt className="isalwa-section-label">Procedencia</dt>
+          <dd className="mt-1">
             <a
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="break-all text-[var(--isalwa-glaze)] hover:underline"
+              className="text-[var(--isalwa-glaze)] hover:underline"
             >
-              {href}
+              {provenanceLinkLabel(href)}
             </a>
-          ) : (
-            <span className="text-[var(--isalwa-slate)]">Sin enlace de procedencia</span>
-          )}
-        </dd>
-      </div>
+          </dd>
+        </div>
+      ) : null}
     </dl>
   );
 }
@@ -89,10 +99,10 @@ function LocationRow({
 }) {
   const active = location.status === 'active';
   return (
-    <ListRow as="li" className="px-1 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="font-medium text-[var(--isalwa-kiln)]">{location.label}</p>
+    <ListRow as="li" className="min-w-0 px-1 py-1">
+      <div className="flex w-full min-w-0 flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 max-w-full flex-1">
+          <p className="break-words font-medium text-[var(--isalwa-kiln)]">{location.label}</p>
           <LocationFacts location={location} />
         </div>
         <StatusPill tone={active ? 'success' : 'neutral'}>{active ? 'Activa' : 'Inactiva'}</StatusPill>
@@ -124,11 +134,9 @@ function CreateLocationForm({ partyId }: { partyId: string }) {
   );
 
   return (
-    <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4">
+    <details className="border-t border-[var(--isalwa-mist)] pt-6">
       <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">Agregar ubicación</summary>
-      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-        Las coordenadas son opcionales. El enlace de procedencia no se resuelve ni se geocodifica.
-      </p>
+      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Las coordenadas son opcionales.</p>
       <form key={formKey} action={formAction} className="mt-4 space-y-4">
         <FormFeedback error={state?.error} success={state?.success} />
         <input type="hidden" name="partyId" value={partyId} />
@@ -154,7 +162,7 @@ function UpdateLocationForm({ partyId, location }: { partyId: string; location: 
   );
 
   return (
-    <details className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3">
+    <details className="border-t border-[var(--isalwa-mist)] pt-4">
       <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">Editar ubicación</summary>
       <form action={formAction} className="mt-3 space-y-4">
         <FormFeedback error={state?.error} success={state?.success} />
@@ -177,6 +185,7 @@ function UpdateLocationForm({ partyId, location }: { partyId: string; location: 
 
 function DeactivateLocationForm({ partyId, locationId }: { partyId: string; locationId: string }) {
   const router = useRouter();
+  const [confirmed, setConfirmed] = useState(false);
   const [state, formAction] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       const result = await deactivateLocationAction(formData);
@@ -190,11 +199,20 @@ function DeactivateLocationForm({ partyId, locationId }: { partyId: string; loca
   );
 
   return (
-    <form action={formAction} className="flex flex-wrap items-center gap-3">
+    <form action={formAction} className="space-y-4 border-t border-[var(--isalwa-mist)] pt-4">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="locationId" value={locationId} />
       <FormFeedback error={state?.error} />
-      <CommandSubmitButton label="Desactivar" variant="danger" />
+      <label className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">
+        <input
+          type="checkbox"
+          checked={confirmed}
+          onChange={(event) => setConfirmed(event.target.checked)}
+          className="mt-1"
+        />
+        Confirmo que deseo desactivar esta ubicación.
+      </label>
+      <CommandSubmitButton label="Desactivar" variant="danger" disabled={!confirmed} />
     </form>
   );
 }

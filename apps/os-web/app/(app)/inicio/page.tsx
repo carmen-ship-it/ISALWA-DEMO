@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { Button, EmptyState, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
@@ -26,6 +26,14 @@ async function safeFetch<T>(fn: () => Promise<T>): Promise<T | 'unavailable'> {
     if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
     throw err;
   }
+}
+
+function destinationLink(href: string, label: string) {
+  return (
+    <Link href={href} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+      {label}
+    </Link>
+  );
 }
 
 export default async function InicioPage() {
@@ -116,12 +124,20 @@ export default async function InicioPage() {
       (attentionResult !== 'unavailable' &&
         isProjectionStale(attentionResult.freshness));
 
+    const showLenses = leadership.team.kind === 'ready' || leadership.org.kind === 'ready';
+
     return (
       <PageContainer label={t('pages.inicio.title')}>
         <PageHeader
           kicker={t('pages.inicio.kicker')}
           title={t('pages.inicio.title')}
           description={t('pages.inicio.description')}
+          action={
+            <div className="flex flex-wrap items-center gap-4">
+              {destinationLink('/trabajo', t('states.viewWork'))}
+              {destinationLink('/clientes', t('states.goToClientes'))}
+            </div>
+          }
         />
 
         {staleFreshness ? (
@@ -139,115 +155,129 @@ export default async function InicioPage() {
           />
         ) : null}
 
-        <div className="space-y-6">
-          <InicioAttentionPanel
-            items={attentionItems}
-            unavailable={attentionResult === 'unavailable'}
-            hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
-          />
+        <div className="min-w-0">
+          <section aria-label="Su responsabilidad" className="min-w-0 space-y-10">
+            <div className="space-y-4">
+              <p className="isalwa-kicker">Su responsabilidad</p>
+              <InicioAttentionPanel
+                items={attentionItems}
+                unavailable={attentionResult === 'unavailable'}
+                hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
+              />
+            </div>
 
-          <PageSection card className="p-4">
-            <SectionHeader
-              title={t('pages.inicio.opportunities')}
-              action={
-                opportunities.length > 0 ? (
-                  <Link
-                    href="/oportunidades"
-                    className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-                  >
-                    Ver todas
-                  </Link>
-                ) : undefined
-              }
-            />
             {opportunities.length === 0 ? (
-              <p className="px-2 text-sm text-[var(--isalwa-slate)]">
-                {t('states.emptyOportunidades')}
-              </p>
+              <EmptyState
+                title={t('pages.inicio.opportunities')}
+                description="No hay oportunidades abiertas a su cargo. Cuando registre una, aparecerá aquí. Continúe en Clientes."
+                action={
+                  <Link href="/clientes" className="inline-flex">
+                    <Button type="button" variant="primary">
+                      {t('states.goToClientes')}
+                    </Button>
+                  </Link>
+                }
+              />
             ) : (
-              <OpportunityOrgList
-                items={opportunities}
-                memberLabels={memberLabels}
-                partyLabels={partyLabels}
-                compact
-              />
+              <PageSection card className="min-w-0 p-5 md:p-6">
+                <SectionHeader
+                  title={t('pages.inicio.opportunities')}
+                  action={destinationLink('/oportunidades', 'Ver todas')}
+                />
+                <OpportunityOrgList
+                  items={opportunities}
+                  memberLabels={memberLabels}
+                  partyLabels={partyLabels}
+                  compact
+                />
+              </PageSection>
             )}
-          </PageSection>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <PageSection card className="p-4">
-              <SectionHeader
-                title={t('pages.inicio.quotesDraft')}
-                action={
-                  quotesDraft.length > 0 ? (
-                    <Link
-                      href="/cotizaciones?status=draft"
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-                    >
-                      Ver todas
-                    </Link>
-                  ) : undefined
-                }
-              />
+            <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-2">
               {quotesDraft.length === 0 ? (
-                <p className="px-2 text-sm text-[var(--isalwa-slate)]">
-                  Sin cotizaciones en borrador
-                </p>
-              ) : (
-                <QuoteOrgList
-                  items={quotesDraft}
-                  memberLabels={memberLabels}
-                  partyLabels={partyLabels}
-                  compact
-                />
-              )}
-            </PageSection>
-
-            <PageSection card className="p-4">
-              <SectionHeader
-                title={t('pages.inicio.quotesSubmitted')}
-                action={
-                  quotesSubmitted.length > 0 ? (
-                    <Link
-                      href="/cotizaciones?status=submitted"
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-                    >
-                      Ver todas
+                <EmptyState
+                  className="min-w-0"
+                  title={t('pages.inicio.quotesDraft')}
+                  description="No hay borradores a su cargo. Las cotizaciones se preparan desde un cliente."
+                  action={
+                    <Link href="/clientes" className="inline-flex">
+                      <Button type="button" variant="primary">
+                        {t('states.goToClientes')}
+                      </Button>
                     </Link>
-                  ) : undefined
-                }
-              />
-              {quotesSubmitted.length === 0 ? (
-                <p className="px-2 text-sm text-[var(--isalwa-slate)]">
-                  Sin cotizaciones enviadas
-                </p>
+                  }
+                />
               ) : (
-                <QuoteOrgList
-                  items={quotesSubmitted}
+                <PageSection card className="min-w-0 p-5 md:p-6">
+                  <SectionHeader
+                    title={t('pages.inicio.quotesDraft')}
+                    action={destinationLink('/cotizaciones?status=draft', 'Ver todas')}
+                  />
+                  <QuoteOrgList
+                    items={quotesDraft}
+                    memberLabels={memberLabels}
+                    partyLabels={partyLabels}
+                    compact
+                  />
+                </PageSection>
+              )}
+
+              {quotesSubmitted.length === 0 ? (
+                <EmptyState
+                  className="min-w-0"
+                  title={t('pages.inicio.quotesSubmitted')}
+                  description="No hay cotizaciones enviadas a su cargo. El seguimiento continúa en Clientes."
+                  action={
+                    <Link href="/clientes" className="inline-flex">
+                      <Button type="button" variant="primary">
+                        {t('states.goToClientes')}
+                      </Button>
+                    </Link>
+                  }
+                />
+              ) : (
+                <PageSection card className="min-w-0 p-5 md:p-6">
+                  <SectionHeader
+                    title={t('pages.inicio.quotesSubmitted')}
+                    action={destinationLink('/cotizaciones?status=submitted', 'Ver todas')}
+                  />
+                  <QuoteOrgList
+                    items={quotesSubmitted}
+                    memberLabels={memberLabels}
+                    partyLabels={partyLabels}
+                    compact
+                  />
+                </PageSection>
+              )}
+            </div>
+          </section>
+
+          {showLenses ? (
+            <section
+              aria-label="Lecturas de equipo y empresa"
+              className="mt-12 min-w-0 space-y-10 border-t border-[var(--isalwa-mist)] pt-10"
+            >
+              <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                Equipo y empresa son lecturas de esta misma página. Solo lectura.
+              </p>
+              {leadership.team.kind === 'ready' ? (
+                <InicioLeadershipSection
+                  variant="team"
+                  data={leadership.team.data}
                   memberLabels={memberLabels}
                   partyLabels={partyLabels}
-                  compact
                 />
-            )}
-          </PageSection>
-
-          {leadership.team.kind === 'ready' ? (
-            <InicioLeadershipSection
-              variant="team"
-              data={leadership.team.data}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-            />
+              ) : null}
+              {leadership.org.kind === 'ready' ? (
+                <InicioLeadershipSection
+                  variant="org"
+                  data={leadership.org.data}
+                  memberLabels={memberLabels}
+                  partyLabels={partyLabels}
+                />
+              ) : null}
+            </section>
           ) : null}
-          {leadership.org.kind === 'ready' ? (
-            <InicioLeadershipSection
-              variant="org"
-              data={leadership.org.data}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-            />
-          ) : null}
-        </div>
         </div>
       </PageContainer>
     );

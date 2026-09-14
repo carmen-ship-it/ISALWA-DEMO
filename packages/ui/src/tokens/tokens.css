@@ -8,6 +8,10 @@
   --isalwa-glaze: #2f6f68;
   --isalwa-glaze-deep: #1f4f4a;
   --isalwa-copper: #b08a5b;
+  /* Filled primary actions. Defaults to glaze so existing products stay unchanged.
+     os-web remaps this to navy for Isabela’s command center. */
+  --isalwa-action: var(--isalwa-glaze);
+  --isalwa-action-deep: var(--isalwa-glaze-deep);
   /* Soft status — muted, never neon */
   --isalwa-success: #3a7a52;
   --isalwa-warning: #b8872e;

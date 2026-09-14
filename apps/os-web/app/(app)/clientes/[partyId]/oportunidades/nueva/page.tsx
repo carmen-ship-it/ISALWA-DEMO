@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, PageContainer } from '@isalwa/ui';
+import { PageContainer } from '@isalwa/ui';
 import { OpportunityCreateForm } from '@/components/commercial/opportunity-create-form';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -32,10 +32,11 @@ export default async function NewOpportunityPage({ params }: NewOpportunityPageP
           title="Nueva oportunidad"
           description={party.displayName}
           action={
-            <Link href={partyHref(partyId)}>
-              <Button type="button" variant="secondary">
-                Volver al cliente
-              </Button>
+            <Link
+              href={partyHref(partyId)}
+              className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline"
+            >
+              Volver al cliente
             </Link>
           }
         />

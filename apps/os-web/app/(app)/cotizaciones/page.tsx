@@ -66,7 +66,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
                 className={cx(
                   'isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border px-4 text-sm font-medium outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
                   active
-                    ? 'border-[var(--isalwa-glaze)] bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,white)] text-[var(--isalwa-glaze-deep)]'
+                    ? 'border-[var(--isalwa-kiln)] bg-white text-[var(--isalwa-kiln)]'
                     : 'border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]',
                 )}
               >
@@ -83,8 +83,8 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
             title={t('states.emptyCotizaciones')}
             description={
               status === 'draft'
-                ? 'No hay cotizaciones en borrador.'
-                : 'No hay cotizaciones enviadas.'
+                ? 'Un borrador se prepara desde una oportunidad del cliente. Ábralo allí para crear la cotización.'
+                : 'Las cotizaciones enviadas al cliente aparecen aquí. Si aún está en preparación, revísela en borrador o en la oportunidad.'
             }
             action={
               <div className="flex flex-wrap gap-3">

@@ -18,7 +18,7 @@ type ClientesPageProps = {
 };
 
 const addCustomerClass =
-  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-glaze)] px-4 text-sm font-medium text-[var(--isalwa-white)] hover:bg-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-action)] px-4 text-sm font-medium text-[var(--isalwa-white)] hover:bg-[var(--isalwa-action-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
@@ -46,7 +46,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     const addHref = canAddCustomer ? newCustomerHref(q) : undefined;
 
     return (
-      <PageContainer label="Clientes">
+      <PageContainer label="Clientes" className="min-w-0">
         <PageHeader
           kicker="Relaciones"
           title="Clientes"
@@ -82,7 +82,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                       status,
                       cursor: result.meta.nextCursor,
                     })}
-                    className="isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-5 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                    className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                   >
                     Cargar más
                   </Link>

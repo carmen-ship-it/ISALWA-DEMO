@@ -21,6 +21,7 @@ import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
 import { OPEN_WORK_TERMINATE_MESSAGE } from '@/lib/workforce/command-errors';
+import { formatRoleKeys } from '@/lib/workforce/labels';
 
 type MemberAdminActionsPanelProps = {
   summary: MemberSummaryReadModel;
@@ -49,7 +50,7 @@ function wrapAction(
       return {
         error: null,
         success: result.data?.delegationId
-          ? `${successMessage} ID: ${String(result.data.delegationId)}`
+          ? `${successMessage} Guarde esta referencia para revocarla: ${String(result.data.delegationId)}`
           : successMessage,
       };
     }
@@ -113,9 +114,9 @@ export function MemberAdminActionsPanel({
     terminateState.error === OPEN_WORK_TERMINATE_MESSAGE;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {visibility.organization ? (
-        <PageSection card className="p-6">
+        <PageSection card className="p-8">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Organización</h2>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
             Cambios de departamento, rol y responsable quedan registrados con fecha efectiva.
@@ -125,13 +126,13 @@ export function MemberAdminActionsPanel({
             <div>
               <h3 className="isalwa-section-label">Cambiar departamento</h3>
               <FormFeedback error={deptState.error} success={deptState.success} />
-              <form action={deptAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-                <input type="hidden" name="memberId" value={memberId} />
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="dept-select" className="isalwa-section-label">
-                    Departamento
-                  </label>
-                  {departments.length > 0 ? (
+              {departments.length > 0 ? (
+                <form action={deptAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <input type="hidden" name="memberId" value={memberId} />
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="dept-select" className="isalwa-section-label">
+                      Departamento
+                    </label>
                     <select
                       id="dept-select"
                       name="departmentId"
@@ -148,37 +149,29 @@ export function MemberAdminActionsPanel({
                         </option>
                       ))}
                     </select>
-                  ) : (
-                    <>
-                      <input
-                        id="dept-select"
-                        name="departmentId"
-                        required
-                        placeholder="Identificador de departamento"
-                        defaultValue={summary.departmentId ?? ''}
-                        className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
-                      />
-                      <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-                        No hay catálogo de departamentos disponible. Ingrese el identificador
-                        registrado en el sistema.
-                      </p>
-                    </>
-                  )}
-                </div>
-                <CommandSubmitButton label="Cambiar departamento" variant="secondary" />
-              </form>
+                  </div>
+                  <CommandSubmitButton label="Cambiar departamento" variant="secondary" />
+                </form>
+              ) : (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+                  {summary.departmentName
+                    ? `Departamento actual: ${summary.departmentName}. `
+                    : null}
+                  No hay departamentos registrados para elegir.
+                </p>
+              )}
             </div>
 
             <div>
               <h3 className="isalwa-section-label">Cambiar rol</h3>
               <FormFeedback error={roleState.error} success={roleState.success} />
-              <form action={roleAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-                <input type="hidden" name="memberId" value={memberId} />
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="role-select" className="isalwa-section-label">
-                    Rol
-                  </label>
-                  {roles.length > 0 ? (
+              {roles.length > 0 ? (
+                <form action={roleAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <input type="hidden" name="memberId" value={memberId} />
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="role-select" className="isalwa-section-label">
+                      Rol
+                    </label>
                     <select
                       id="role-select"
                       name="roleKey"
@@ -192,18 +185,14 @@ export function MemberAdminActionsPanel({
                         </option>
                       ))}
                     </select>
-                  ) : (
-                    <input
-                      id="role-select"
-                      name="roleKey"
-                      required
-                      defaultValue={summary.roleKeys[0] ?? ''}
-                      className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
-                    />
-                  )}
-                </div>
-                <CommandSubmitButton label="Cambiar rol" variant="secondary" />
-              </form>
+                  </div>
+                  <CommandSubmitButton label="Cambiar rol" variant="secondary" />
+                </form>
+              ) : (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+                  No hay roles registrados para elegir. El rol actual es {formatRoleKeys(summary.roleKeys)}.
+                </p>
+              )}
             </div>
 
             <div>
@@ -240,7 +229,7 @@ export function MemberAdminActionsPanel({
       ) : null}
 
       {visibility.suspend || visibility.reactivate || visibility.terminate ? (
-        <PageSection card className="p-6">
+        <PageSection card className="p-8">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Acceso</h2>
 
           {visibility.suspend ? (
@@ -291,11 +280,6 @@ export function MemberAdminActionsPanel({
               <FormFeedback error={reactivateState.error} success={reactivateState.success} />
               <form action={reactivateAction} className="mt-4">
                 <input type="hidden" name="memberId" value={memberId} />
-                <input
-                  type="hidden"
-                  name="providerSubject"
-                  value={`reactivation:${memberId}`}
-                />
                 <CommandSubmitButton label="Reactivar acceso" variant="secondary" />
               </form>
             </div>
@@ -350,7 +334,7 @@ export function MemberAdminActionsPanel({
       ) : null}
 
       {visibility.delegation ? (
-        <PageSection card className="p-6">
+        <PageSection card className="p-8">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Delegaciones</h2>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
             Delegaciones activas registradas: {summary.activeDelegationCount}. Las delegaciones
@@ -420,13 +404,13 @@ export function MemberAdminActionsPanel({
               <form action={revokeAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div className="min-w-0 flex-1">
                   <label htmlFor="delegation-id" className="isalwa-section-label">
-                    Identificador de delegación
+                    Referencia de la delegación
                   </label>
                   <input
                     id="delegation-id"
                     name="delegationId"
                     required
-                    placeholder="ID mostrado al crear la delegación"
+                    placeholder="Referencia anotada al crear la delegación"
                     className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
                   />
                 </div>
@@ -438,7 +422,7 @@ export function MemberAdminActionsPanel({
       ) : null}
 
       {visibility.requestEmailChange ? (
-        <PageSection card className="p-6">
+        <PageSection card className="p-8">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Cuenta</h2>
           <h3 className="mt-4 isalwa-section-label">Solicitar cambio de correo</h3>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">

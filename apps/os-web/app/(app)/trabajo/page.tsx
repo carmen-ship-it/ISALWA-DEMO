@@ -1,16 +1,17 @@
-import { EmptyState, PageContainer, PageSection } from '@isalwa/ui';
+import Link from 'next/link';
+import { Button, EmptyState, PageContainer, PageSection } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { WorkList } from '@/components/work/work-list';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { partyHref } from '@/lib/party/navigation';
+import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
+import { partyHref } from '@/lib/party/navigation';
 import { sortOpenWorkByDue } from '@/lib/work/due-order';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
-import Link from 'next/link';
 
 type TrabajoPageProps = {
   searchParams: Promise<{ subjectType?: string; subjectId?: string }>;
@@ -37,6 +38,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       client,
       items.flatMap((item) => [item.ownerMemberId, item.createdByMemberId]),
     );
+    const partyLabels = await resolvePartyLabels(
+      client,
+      items.flatMap((item) => (item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [])),
+    );
 
     return (
       <PageContainer label={t('pages.trabajo.title')}>
@@ -45,10 +50,8 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           title={t('pages.trabajo.title')}
           description={
             filteredByParty
-              ? 'Trabajo abierto vinculado a un cliente.'
-              : items.length === 0
-                ? 'Cuando tenga trabajo asignado, lo verá aquí con fecha, estado y contexto.'
-                : undefined
+              ? 'Trabajo abierto vinculado a este cliente, en la misma cola.'
+              : 'Cola de trabajo abierto, con responsable, cliente y fecha.'
           }
           action={
             filteredByParty ? (
@@ -63,17 +66,26 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
 
         {items.length === 0 ? (
           <EmptyState
-            title={t('states.emptyTrabajo')}
+            title="No tiene trabajo pendiente en este momento."
             description={
               filteredByParty
-                ? 'No hay trabajo abierto vinculado a este cliente.'
-                : 'No tienes trabajo pendiente en este momento.'
+                ? 'Este cliente no tiene trabajo abierto en la cola. Un seguimiento registrado en su ficha aparecerá aquí.'
+                : 'Esta es su cola de trabajo. Cuando registre un seguimiento en la ficha de un cliente, o se le asigne una tarea, lo verá aquí.'
             }
-            example="Un seguimiento de cliente o una tarea interna aparecerá aquí cuando exista."
+            example="Un seguimiento con responsable y fecha permanece aquí hasta que lo complete."
+            action={
+              filteredByParty ? undefined : (
+                <Link href="/clientes" className="inline-flex">
+                  <Button type="button" variant="primary">
+                    {t('states.goToClientes')}
+                  </Button>
+                </Link>
+              )
+            }
           />
         ) : (
           <PageSection card className="p-2 md:p-3">
-            <WorkList items={items} memberLabels={memberLabels} />
+            <WorkList items={items} memberLabels={memberLabels} partyLabels={partyLabels} />
           </PageSection>
         )}
       </PageContainer>

@@ -78,4 +78,41 @@ describe('os api error parsing', () => {
     assert.equal(err.kind, 'forbidden');
     assert.match(err.message, /desactivada/i);
   });
+
+  it('hides a technical envelope message and keeps requestId', async () => {
+    const response = new Response(
+      JSON.stringify({
+        error: {
+          code: 'AUTH_REQUIRED',
+          message: 'Unauthorized',
+          requestId: 'req-keep-1',
+        },
+      }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
+    );
+    const err = await parseOsApiError(response);
+    assert.equal(err.kind, 'unauthorized');
+    assert.equal(err.code, 'AUTH_REQUIRED');
+    assert.equal(err.status, 401);
+    assert.equal(err.requestId, 'req-keep-1');
+    assert.match(err.message, /sesión/i);
+    assert.doesNotMatch(err.message, /Unauthorized|req-keep-1/);
+  });
+
+  it('prefers Spanish when the envelope message is a provider exception', async () => {
+    const response = new Response(
+      JSON.stringify({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'PrismaClientKnownRequestError: SELECT * FROM quotes WHERE id = $1',
+          requestId: 'req-keep-2',
+        },
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+    const err = await parseOsApiError(response);
+    assert.equal(err.requestId, 'req-keep-2');
+    assert.match(err.message, /Revise los datos/i);
+    assert.doesNotMatch(err.message, /Prisma|SELECT|req-keep-2/);
+  });
 });
