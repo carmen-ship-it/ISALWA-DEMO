@@ -1,10 +1,26 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  CORRECTION_COPY,
+  DISPATCH_BOUNDARY,
+  INVENTORY_SNAPSHOT_COPY,
+  MANUAL_DISPATCH_COPY,
+  MANUAL_OPERATIONS_INTRO,
+  MANUAL_PAYMENT_COPY,
+  PAYMENT_BOUNDARY,
+  REPORTED_FACT_NOT_PERSISTED_COPY,
+  STOCK_BOUNDARY,
+  correctReportedFact,
   createReportedOperationalFact,
   manualFactsSummary,
+  parseReportedAmountToCentavos,
+  linkCorrection,
+  recordReportedOperationalFact,
   reportedFactConfirmation,
   reportedFactCopy,
+  reportedFactErrorCopy,
+  reportedFactMayMutateCanonical,
+  reportedFactProvenance,
   reverseReportedFact,
   type CreateReportedFactInput,
 } from './reported-fact';
@@ -142,5 +158,78 @@ describe('reported operational fact', () => {
     assert.equal(manualFactsSummary([]), 'No hay datos manuales reportados.');
     const one = createReportedOperationalFact(draft());
     assert.equal(manualFactsSummary([one]), '1 dato manual. Pendiente de confirmar.');
+  });
+
+  it('does not persist a report and does not mutate a canonical record', () => {
+    const recorded = recordReportedOperationalFact(draft());
+    assert.equal(recorded.persisted, false);
+    assert.equal(recorded.reason, 'api_command_unwired');
+    assert.equal(recorded.notice, REPORTED_FACT_NOT_PERSISTED_COPY);
+    assert.equal(recorded.fact.confirmation, 'pending');
+    assert.equal(reportedFactMayMutateCanonical(), false);
+    assert.equal('paidAt' in recorded.fact, false);
+    assert.equal('latitude' in recorded.fact, false);
+  });
+
+  it('reads a boliviano amount without posting it', () => {
+    assert.equal(parseReportedAmountToCentavos('4.500,00'), '450000');
+    assert.equal(parseReportedAmountToCentavos('4500.50'), '450050');
+    assert.equal(parseReportedAmountToCentavos('Bs. 10'), '1000');
+    assert.throws(() => parseReportedAmountToCentavos('0'), /ledger/);
+    assert.throws(() => parseReportedAmountToCentavos('-5'), /ledger/);
+  });
+
+  it('corrects by reversing and pointing at the prior report, without rewriting it', () => {
+    const original = createReportedOperationalFact(draft());
+    const corrected = correctReportedFact(
+      original,
+      draft({ id: 'fact-synthetic-2', amountCentavos: '100' }),
+      'Cifra equivocada',
+    );
+
+    assert.equal(corrected.persisted, false);
+    assert.equal(corrected.reversed.activity, 'reversed');
+    assert.equal(corrected.reversed.confirmation, 'pending');
+    assert.equal(original.activity, 'active');
+    if (original.kind === 'payment' && corrected.reversed.kind === 'payment') {
+      assert.equal(corrected.reversed.amountCentavos, original.amountCentavos);
+    }
+    assert.equal(corrected.replacement.correctsFactId, original.id);
+    const linked = linkCorrection(createReportedOperationalFact(draft({ id: 'fact-synthetic-3' })), original.id);
+    assert.equal(linked.correctsFactId, original.id);
+    assert.equal(linked.confirmation, 'pending');
+    assert.equal(linked.source, 'manual');
+    assert.equal(corrected.replacement.confirmation, 'pending');
+    assert.match(reportedFactProvenance(corrected.replacement).lines.join('\n'), /no se reescribe/i);
+    assert.throws(
+      () =>
+        correctReportedFact(
+          original,
+          draft({ id: 'other', subjectId: 'otro-sujeto' }),
+          'mover',
+        ),
+      /same subject/,
+    );
+  });
+
+  it('keeps operator copy from sounding confirmed or official', () => {
+    const copy = [
+      REPORTED_FACT_NOT_PERSISTED_COPY,
+      MANUAL_OPERATIONS_INTRO,
+      PAYMENT_BOUNDARY,
+      DISPATCH_BOUNDARY,
+      STOCK_BOUNDARY,
+      ...Object.values(MANUAL_PAYMENT_COPY),
+      ...Object.values(MANUAL_DISPATCH_COPY),
+      ...Object.values(INVENTORY_SNAPSHOT_COPY),
+      ...Object.values(CORRECTION_COPY),
+      reportedFactErrorCopy(new Error('amountCentavos must be a positive integer. This is not a ledger posting.')),
+    ].join('\n');
+    for (const pattern of FORBIDDEN) {
+      assert.equal(pattern.test(copy), false, pattern.source);
+    }
+    assert.match(PAYMENT_BOUNDARY, /No confirma el pago/);
+    assert.match(DISPATCH_BOUNDARY, /No autoriza el despacho/);
+    assert.match(STOCK_BOUNDARY, /No es un movimiento de inventario/);
   });
 });
