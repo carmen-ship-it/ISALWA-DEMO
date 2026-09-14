@@ -12,6 +12,7 @@ import { ExecutiveLens } from '@/components/commercial/executive-lens';
 import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
+import { InicioManagementLens } from '@/components/management/inicio-management-lens';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -21,6 +22,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
 import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
+import { loadInicioManagement } from '@/lib/management/load-inicio-management';
 import { t } from '@/lib/i18n/es';
 import { greetingLine } from '@/lib/shell/greeting';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
@@ -121,6 +123,7 @@ export default async function InicioPage() {
       quotesDraftResult,
       quotesSubmittedResult,
       personalWorkResult,
+      management,
     ] = await Promise.all([
       loadShellContext(),
       safeFetch(() =>
@@ -130,6 +133,7 @@ export default async function InicioPage() {
       safeFetch(() => client.listQuotes({ status: 'draft', limit })),
       safeFetch(() => client.listQuotes({ status: 'submitted', limit })),
       safeFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
+      loadInicioManagement(client),
     ]);
 
     const allUnavailable = [
@@ -279,6 +283,8 @@ export default async function InicioPage() {
             hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
             quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
           />
+
+          <InicioManagementLens model={management} />
 
           {upcomingRows.length > 0 ? (
             <section aria-label="Próximos" className="min-w-0 space-y-3">
