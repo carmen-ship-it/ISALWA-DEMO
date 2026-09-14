@@ -2,11 +2,12 @@
 
 Honest states only. Never collapse PLANNED → USER-ACCEPTED.
 
-**Exact candidate SHA:** `8aa82c32bfeb3112ce8a5a81983afb3757c10379`  
+**Exact candidate SHA:** `a41e4941f4c3c68617e99b081fe0c123f6bc8841` (P0 code + full `pnpm -r build` proof)  
 Parent lineage: `fea519369eca49f19485d569a4e786d3df101840` → P0 member selector + quote-authority decision lock.  
 Integration pin remains: `316426f272bce29924ffd4991da88ffe7d421bbd` (not moved).
+Evidence-doc tip may sit one or two commits ahead of the code SHA; do not treat doc-tip-only commits as a substitute for re-running build on `a41e494`.
 
-Prior `96c797b` / `fea5193` build proofs are **not** silently inherited — re-prove on ending SHA.
+Prior `96c797b` / `fea5193` build proofs are **not** silently inherited — re-prove on ending code SHA.
 
 Legend cells: Y = yes for that state · — = no · P = partial · U = UNPROVEN · G = FOUNDATION_GAP · D = BUSINESS_DECISION_REQUIRED · X = CROSS_LANE · H = HOLD
 

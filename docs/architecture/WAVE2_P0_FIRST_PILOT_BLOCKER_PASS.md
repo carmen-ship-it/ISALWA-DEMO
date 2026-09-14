@@ -1,7 +1,7 @@
 # Wave 2 P0 first-pilot blocker pass — receipt
 
 **Start SHA:** `fea519369eca49f19485d569a4e786d3df101840`  
-**End SHA:** `8aa82c32bfeb3112ce8a5a81983afb3757c10379`  
+**End code SHA:** `a41e4941f4c3c68617e99b081fe0c123f6bc8841`  
 **Integration pin (unchanged):** `316426f272bce29924ffd4991da88ffe7d421bbd`  
 **Deploy / migrate / pin move:** NO  
 **Pushed:** NO
