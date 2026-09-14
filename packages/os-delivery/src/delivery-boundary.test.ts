@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
+  CUSTOMER_DELIVERY_RECORD_SCOPE,
   ENTREGA_PANEL_COPY,
+  WAREHOUSE_EXIT_RECORD_SCOPE,
   assertNoteDoesNotPredateDelivery,
   assignDeliveryNoteNumber,
   assignWarehouseOutboundNumber,
@@ -23,9 +25,10 @@ const EXITED_AT = '2026-09-14T13:00:00.000Z';
 
 function storeWithOrder(lines: readonly unknown[] | null = null) {
   const store = new MemoryDeliveryStore();
-  store.putMember({ id: 'member-a', organizationId: 'org-a', accessStatus: 'active' });
-  store.putMember({ id: 'member-b', organizationId: 'org-a', accessStatus: 'active' });
-  store.putMember({ id: 'member-c', organizationId: 'org-b', accessStatus: 'active' });
+  const both = [WAREHOUSE_EXIT_RECORD_SCOPE, CUSTOMER_DELIVERY_RECORD_SCOPE];
+  store.putMember({ id: 'member-a', organizationId: 'org-a', accessStatus: 'active', grantedScopes: both });
+  store.putMember({ id: 'member-b', organizationId: 'org-a', accessStatus: 'active', grantedScopes: [] });
+  store.putMember({ id: 'member-c', organizationId: 'org-b', accessStatus: 'active', grantedScopes: both });
   store.putOrder({ id: 'order-1', organizationId: 'org-a', status: 'open', lines });
   store.putOrder({ id: 'order-b', organizationId: 'org-b', status: 'open', lines: null });
   return store;
@@ -191,6 +194,56 @@ describe('delivery and nota de entrega boundary', () => {
     assert.ok(Date.parse(note.bornAt) >= Date.parse(note.deliveredAt));
   });
 
+  it('allows a second delivery of a smaller quantity without declaring fulfillment', async () => {
+    const store = storeWithOrder([
+      {
+        orderLineId: 'line-1',
+        productRef: 'jar-500',
+        description: 'Mermelada 500g',
+        quantity: 12,
+        unitLabel: 'unidades',
+      },
+    ]);
+    const service = new DeliveryCommandService(store);
+    const first = await service.recordCustomerDelivery(
+      ctx(),
+      deliveryPayload({
+        deliveredAt: '2026-09-14T12:00:00.000Z',
+        quantities: [{ orderLineId: 'line-1', quantity: 8 }],
+      }),
+    );
+    const second = await service.recordCustomerDelivery(
+      ctx(),
+      deliveryPayload({
+        deliveredAt: '2026-09-14T14:00:00.000Z',
+        quantities: [{ orderLineId: 'line-1', quantity: 3 }],
+      }),
+    );
+    assert.notEqual(first.deliveryId, second.deliveryId);
+    assert.equal(first.noteNumber, null);
+    assert.equal(second.noteNumber, null);
+    assert.equal(first.numberingPolicy, 'unknown');
+    assert.equal(second.numberingPolicy, 'unknown');
+    assert.equal('fulfillmentStatus' in first, false);
+    assert.equal('fulfillmentStatus' in second, false);
+    const firstLines = await store.listDeliveryNoteLines('org-a', first.deliveryNoteId);
+    const secondLines = await store.listDeliveryNoteLines('org-a', second.deliveryNoteId);
+    assert.equal(firstLines[0]?.quantity, 8);
+    assert.equal(secondLines[0]?.quantity, 3);
+    assert.ok((secondLines[0]?.quantity ?? 0) < (firstLines[0]?.quantity ?? 0));
+    assert.equal((await store.getOrderInOrg('org-a', 'order-1'))?.status, 'open');
+    assert.equal((await store.listDeliveries('org-a', 'order-1')).length, 2);
+    assert.equal((await store.listDeliveryNotes('org-a', 'order-1')).length, 2);
+    await assert.rejects(
+      () =>
+        service.recordCustomerDelivery(
+          ctx(),
+          deliveryPayload({ fullyFulfilled: true, quantities: [{ orderLineId: 'line-1', quantity: 1 }] }),
+        ),
+      /VALIDATION_FAILED/,
+    );
+  });
+
   it('allows delivery without a payment confirmation', async () => {
     assert.equal(paymentRequiredBeforeDelivery(), false);
     assert.equal(paymentExceptionIsConfirmedLedgerPayment(), false);
@@ -351,7 +404,7 @@ describe('delivery persistence and panel stay inside the boundary', () => {
     assert.match(index, /export \* from '\.\/delivery'/);
   });
 
-  it('leaves the Spanish panel unmounted and honest', () => {
+  it('mounts the Spanish panel on /entregas and leaves the pedido page alone', () => {
     const panel = readFileSync(
       join(repo, 'apps/os-web/components/delivery/entrega-panel.tsx'),
       'utf8',
@@ -367,5 +420,17 @@ describe('delivery persistence and panel stay inside the boundary', () => {
     );
     assert.equal(page.includes('EntregaPanel'), false);
     assert.equal(page.includes('entrega-panel'), false);
+    const entregas = readFileSync(join(repo, 'apps/os-web/app/(app)/entregas/page.tsx'), 'utf8');
+    assert.match(entregas, /EntregaPanel/);
+    assert.match(entregas, /registro interno de entrega/i);
+    assert.doesNotMatch(entregas, /NE-\d/);
+    assert.doesNotMatch(entregas, /noteNumber/);
+    const loading = readFileSync(join(repo, 'apps/os-web/app/(app)/entregas/loading.tsx'), 'utf8');
+    assert.match(loading, /loading/);
+    assert.match(panel, /Cronología/);
+    assert.match(panel, /Cargando el registro de entrega/);
+    assert.match(panel, /No se pudo cargar el registro de entrega/);
+    assert.match(panel, /No tiene permiso para ver este registro de entrega/);
+    assert.doesNotMatch(panel, /Cumplido/);
   });
 });

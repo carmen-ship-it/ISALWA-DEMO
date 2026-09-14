@@ -121,4 +121,53 @@ export class MemoryDeliveryStore implements DeliveryStore {
       (row) => row.organizationId === organizationId && row.subjectType === subjectType && row.subjectId === subjectId,
     );
   }
+
+  async listAllWarehouseExits(organizationId: string): Promise<WarehouseExitRecord[]> {
+    return this.exits.filter((row) => row.organizationId === organizationId);
+  }
+
+  async listAllDeliveries(organizationId: string): Promise<DeliveryRecord[]> {
+    return this.deliveries.filter((row) => row.organizationId === organizationId);
+  }
+
+  async listAllDeliveryNotes(organizationId: string): Promise<DeliveryNoteRecord[]> {
+    return this.deliveryNotes.filter((row) => row.organizationId === organizationId);
+  }
+
+  async getDeliveryNoteById(organizationId: string, noteId: string): Promise<DeliveryNoteRecord | null> {
+    return this.deliveryNotes.find((row) => row.organizationId === organizationId && row.id === noteId) ?? null;
+  }
+
+  async listRecipientCandidates(organizationId: string) {
+    const fromDeliveries = this.deliveries
+      .filter((row) => row.organizationId === organizationId && row.deliveredTo)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.deliveredTo as string }));
+    const fromEvidence = this.evidence
+      .filter((row) => row.organizationId === organizationId && row.recipient)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient as string }));
+    return [...fromDeliveries, ...fromEvidence];
+  }
+
+  /** Unscoped snapshots. The command service must not call these. */
+  protected warehouseExitRows(): WarehouseExitRecord[] {
+    return this.exits;
+  }
+
+  protected deliveryRows(): DeliveryRecord[] {
+    return this.deliveries;
+  }
+
+  protected deliveryNoteRows(): DeliveryNoteRecord[] {
+    return this.deliveryNotes;
+  }
+
+  protected recipientRows(): Array<{ organizationId: string; recipient: string }> {
+    const fromDeliveries = this.deliveries
+      .filter((row) => row.deliveredTo)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.deliveredTo as string }));
+    const fromEvidence = this.evidence
+      .filter((row) => row.recipient)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient as string }));
+    return [...fromDeliveries, ...fromEvidence];
+  }
 }

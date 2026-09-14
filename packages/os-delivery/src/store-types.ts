@@ -11,6 +11,13 @@ export type MemberSnapshot = {
   id: string;
   organizationId: string;
   accessStatus: string;
+  /** Explicit scopes only. Missing means none. Cargo never fills this. */
+  grantedScopes?: readonly string[];
+};
+
+export type RecipientCandidate = {
+  organizationId: string;
+  recipient: string;
 };
 
 export type WarehouseExitRecord = {
@@ -110,4 +117,9 @@ export interface DeliveryStore {
   listOutboundLines(organizationId: string, noteId: string): Promise<NoteLineRecord[]>;
   listDeliveryNoteLines(organizationId: string, noteId: string): Promise<NoteLineRecord[]>;
   listEvidence(organizationId: string, subjectType: DeliverySubjectType, subjectId: string): Promise<EvidenceRecord[]>;
+  listAllWarehouseExits(organizationId: string): Promise<WarehouseExitRecord[]>;
+  listAllDeliveries(organizationId: string): Promise<DeliveryRecord[]>;
+  listAllDeliveryNotes(organizationId: string): Promise<DeliveryNoteRecord[]>;
+  getDeliveryNoteById(organizationId: string, noteId: string): Promise<DeliveryNoteRecord | null>;
+  listRecipientCandidates(organizationId: string): Promise<RecipientCandidate[]>;
 }

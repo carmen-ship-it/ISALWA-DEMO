@@ -34,6 +34,28 @@ export const CONFIRMED_LEDGER_PAYMENT = false as const;
 export const LEDGER_POSTING = 'none' as const;
 export const PAYMENT_REQUIRED_BEFORE_DELIVERY = false as const;
 
+/**
+ * Explicit assignment only. Cargo, title, and a sibling scope never grant these.
+ * delivery.record is the existing delivery scope. warehouse.outbound.record is
+ * this lane's warehouse-exit gate. It is not finished-goods receipt.
+ * CROSS_LANE: register warehouse.outbound.record on the shared scope catalog
+ * if another package must assign it. Do not infer it here.
+ */
+export const WAREHOUSE_EXIT_RECORD_SCOPE = 'warehouse.outbound.record' as const;
+export const CUSTOMER_DELIVERY_RECORD_SCOPE = 'delivery.record' as const;
+export const DELIVERY_NOTE_RECORD_SCOPE = 'delivery.record' as const;
+
+export const DELIVERY_RESOURCE_SCOPES = {
+  warehouse_exit: WAREHOUSE_EXIT_RECORD_SCOPE,
+  delivery: CUSTOMER_DELIVERY_RECORD_SCOPE,
+  delivery_note: DELIVERY_NOTE_RECORD_SCOPE,
+} as const;
+
+export type DeliveryResource = keyof typeof DELIVERY_RESOURCE_SCOPES;
+
+/** Partial quantity is stored. Fulfillment is unspecified. Do not invent a status. */
+export const DELIVERY_FULFILLMENT_STATUS: null = null;
+
 export const DELIVERY_COMMAND_NAMES = [
   'RecordWarehouseExit',
   'RecordCustomerDelivery',
@@ -72,6 +94,14 @@ export const ENTREGA_PANEL_COPY = {
     'La coordinación, el pago, la salida de almacén y la confirmación de entrega son evidencias distintas. No se mezclan en un solo actor.',
   delivered: 'Entrega registrada. La nota existe porque la mercadería llegó al cliente final.',
   noteDoesNotPredate: 'La nota de entrega no puede ser anterior a la entrega.',
+  internalRecord: 'Este es un registro interno de entrega. No reclama un número oficial.',
+  partialDeliveries:
+    'Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.',
+  chronology: 'Cronología',
+  chronologyEmpty: 'Sin movimientos en la cronología.',
+  loading: 'Cargando el registro de entrega.',
+  loadError: 'No se pudo cargar el registro de entrega.',
+  permissionDenied: 'No tiene permiso para ver este registro de entrega.',
 } as const;
 
 const NUMBER_KEYS = new Set([
@@ -91,6 +121,13 @@ const PAYMENT_CONFIRMATION_KEYS = new Set([
   'paymentconfirmed',
   'paidat',
   'ledgerentryid',
+]);
+const FULFILLMENT_KEYS = new Set([
+  'fulfillmentstatus',
+  'fullyfulfilled',
+  'partiallyfulfilled',
+  'fulfilled',
+  'fulfillment',
 ]);
 
 const optionalText = z
@@ -121,6 +158,17 @@ export type CopiedDeliveryLine = {
   unitLabel: string | null;
 };
 
+export const RequestedQuantitySchema = z
+  .object({
+    orderLineId: z.string().trim().min(1),
+    quantity: z.number().int().min(1),
+  })
+  .strict();
+
+export type RequestedQuantity = z.output<typeof RequestedQuantitySchema>;
+
+const optionalQuantities = z.array(RequestedQuantitySchema).optional();
+
 export const RecordWarehouseExitSchema = z
   .object({
     orderId: z.string().trim().min(1),
@@ -128,6 +176,7 @@ export const RecordWarehouseExitSchema = z
     recordedBy: z.string().trim().min(1),
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
+    quantities: optionalQuantities,
   })
   .strict();
 
@@ -141,6 +190,7 @@ export const RecordCustomerDeliverySchema = z
     recordedBy: z.string().trim().min(1),
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
+    quantities: optionalQuantities,
   })
   .strict();
 
@@ -233,6 +283,7 @@ export function assertNoDeliveryClaims(payload: unknown): void {
     if (TAX_KEYS.has(normalized)) throw new Error('TAX_CLAIM_REFUSED');
     if (SIGNATURE_METHOD_KEYS.has(normalized)) throw new Error('SIGNATURE_NOT_IN_PRODUCT');
     if (PAYMENT_CONFIRMATION_KEYS.has(normalized)) throw new Error('PAYMENT_CONFIRMATION_REFUSED');
+    if (FULFILLMENT_KEYS.has(normalized)) throw new Error('VALIDATION_FAILED');
     if (normalized === 'lines') throw new Error('VALIDATION_FAILED');
   }
 }
@@ -310,6 +361,80 @@ export function copyKnownOrderQuantities(
     const unitLabel = typeof row.unitLabel === 'string' && row.unitLabel.trim() ? row.unitLabel.trim() : null;
     return { orderLineId, productRef, description, quantity, unitLabel };
   });
+}
+
+/**
+ * Stores the quantity this delivery or exit recorded.
+ * A smaller quantity is allowed. A second call is not a fulfillment decision.
+ * Unknown order lines are not invented. Missing quantities copy known lines only.
+ */
+export function storeDeliveredQuantities(
+  lines: readonly unknown[] | null | undefined,
+  requested: readonly RequestedQuantity[] | null | undefined,
+): CopiedDeliveryLine[] {
+  const known = copyKnownOrderQuantities(lines);
+  if (!requested || requested.length === 0) return known;
+  const knownById = new Map(known.map((line) => [line.orderLineId, line]));
+  const seen = new Set<string>();
+  return requested.map((item) => {
+    if (seen.has(item.orderLineId)) throw new Error('VALIDATION_FAILED');
+    seen.add(item.orderLineId);
+    const line = knownById.get(item.orderLineId);
+    if (!line) throw new Error('VALIDATION_FAILED');
+    return { ...line, quantity: item.quantity };
+  });
+}
+
+export function requireSessionOrganization(organizationId: string | null | undefined): string {
+  const org = typeof organizationId === 'string' ? organizationId.trim() : '';
+  if (!org) throw new Error('TENANT_FORBIDDEN');
+  return org;
+}
+
+/** Cargo, title, people.admin, and a sibling scope do not satisfy the required scope. */
+export function assertDeliveryResourceRole(
+  resource: DeliveryResource,
+  grantedScopes: readonly string[] | null | undefined,
+): void {
+  const required = DELIVERY_RESOURCE_SCOPES[resource];
+  const held = new Set((grantedScopes ?? []).map((scope) => scope.trim()).filter(Boolean));
+  if (!held.has(required)) throw new Error('PERMISSION_DENIED');
+}
+
+export function denyForeignRows<T extends { organizationId: string }>(
+  sessionOrgId: string,
+  rows: readonly T[],
+): T[] {
+  return rows.filter((row) => row.organizationId === sessionOrgId);
+}
+
+/** Wrong organization is not found. The foreign row is not returned. */
+export function visibleInSession<T extends { organizationId: string }>(
+  sessionOrgId: string,
+  row: T | null | undefined,
+): T | null {
+  if (!row || row.organizationId !== sessionOrgId) return null;
+  return row;
+}
+
+export function suggestRecipientsInTenant(
+  sessionOrgId: string,
+  candidates: readonly { organizationId: string; recipient: string | null }[],
+  query: string,
+): string[] {
+  const needle = query.trim().toLowerCase();
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const row of candidates) {
+    if (row.organizationId !== sessionOrgId) continue;
+    const recipient = row.recipient?.trim() ?? '';
+    if (!recipient) continue;
+    if (needle && !recipient.toLowerCase().includes(needle)) continue;
+    if (seen.has(recipient)) continue;
+    seen.add(recipient);
+    out.push(recipient);
+  }
+  return out;
 }
 
 export function evidenceRoleFitsSubject(subjectType: DeliverySubjectType, role: DeliveryEvidenceRole): boolean {
