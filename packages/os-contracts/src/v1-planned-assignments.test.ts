@@ -142,14 +142,15 @@ describe('V1 planned function map', () => {
         row.functionLabel,
       );
       assert.deepEqual(granted, []);
+      const grantedScopes = granted as readonly string[];
       for (const scope of row.intendedCapabilities) {
-        assert.equal(granted.includes(scope), false, row.functionId);
+        assert.equal(grantedScopes.includes(scope), false, row.functionId);
         assert.equal(intendedCapabilityIsGrantedNow(row, scope), false);
       }
       for (const slot of row.explicitSlotsNotAutoGranted) {
         assert.equal(slot.autoGranted, false);
         assert.equal(slot.grantedByTitle, false);
-        assert.equal(granted.includes(slot.capability), false);
+        assert.equal(grantedScopes.includes(slot.capability), false);
       }
     }
   });
@@ -184,7 +185,7 @@ describe('V1 planned function map', () => {
       WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
       WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE,
     );
-    const heldReceive = [WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE];
+    const heldReceive = [WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE] as readonly string[];
     assert.equal(heldReceive.includes(WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE), false);
     for (const held of warehouse.intendedCapabilities) {
       for (const required of warehouse.intendedCapabilities) {
@@ -266,7 +267,7 @@ describe('V1 planned function map', () => {
       assert.equal(row.explicitSlotsNotAutoGranted.length, 1);
       assert.equal(row.explicitSlotsNotAutoGranted[0]?.autoGranted, false);
       assert.equal(
-        capabilitiesGrantedByFunctionLabel(row.functionLabel).includes(
+        (capabilitiesGrantedByFunctionLabel(row.functionLabel) as readonly string[]).includes(
           COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
         ),
         false,

@@ -13,6 +13,9 @@
   "dependencies": {
     "@isalwa/contracts": "workspace:*",
     "@isalwa/database": "workspace:*",
+    "@isalwa/os-database": "workspace:*",
+    "@isalwa/os-request-session": "workspace:*",
+    "@isalwa/os-workforce": "workspace:*",
     "@isalwa/providers": "workspace:*",
     "@isalwa/ts-utils": "workspace:*",
     "@nestjs/common": "^11.0.12",

@@ -337,11 +337,16 @@ describe('loadTrustedMemberContextFromRequest', { concurrency: false }, () => {
   it('does not read query, body, or member headers as the grant source', () => {
     const source = readFileSync(new URL('./trusted-member-context.ts', import.meta.url), 'utf8');
     const subject = readFileSync(new URL('./os-session.ts', import.meta.url), 'utf8');
-    const proof = functionSource(subject, 'resolveAuthenticatedProviderSubject');
+    const shared = readFileSync(
+      new URL('../../../packages/os-request-session/src/canonical-request-session.ts', import.meta.url),
+      'utf8',
+    );
+    const proof = functionSource(shared, 'resolveAuthenticatedProviderSubject');
     const session = functionSource(subject, 'resolveSession');
     const jwt = functionSource(subject, 'sessionFromSupabaseJwt');
     assert.match(source, /resolveRequestTrustedContext/);
-    assert.match(subject, /resolveTrustedMemberContext/);
+    assert.match(shared, /resolveTrustedMemberContext/);
+    assert.match(subject, /resolveCanonicalRequestContext/);
     assert.doesNotMatch(proof, /HEADER_ORG/);
     assert.doesNotMatch(proof, /HEADER_MEMBER/);
     assert.doesNotMatch(proof, /grantedScopes/);

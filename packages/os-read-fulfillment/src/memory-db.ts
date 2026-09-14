@@ -130,7 +130,9 @@ export class MemoryFulfillmentReadDb implements FulfillmentReadDbPort {
     return sameOrg(organizationId, this.reversals).filter((row) => ids.has(row.decisionId));
   }
 
-  async listCoordinationDecisions(predicate: TenantPredicate & { id?: string }) {
+  async listCoordinationDecisions(
+    predicate: TenantPredicate & { id?: string },
+  ): Promise<CoordinationDecisionRow[]> {
     this.record('listCoordinationDecisions', predicate);
     throw new Error('CROSS_LANE_CHANGE_REQUEST');
   }

@@ -20,6 +20,12 @@ export class LocationsController {
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
   ) {}
 
+  /**
+   * Tenant-scoped through getLocationInOrg.
+   * No existing contract names a narrower location read capability.
+   * Authenticated membership is not that capability.
+   * CROSS_LANE_CHANGE_REQUEST. Do not invent a scope.
+   */
   @Get(':locationId')
   async getLocation(@Param('locationId') locationId: string, @Req() req: Request) {
     try {

@@ -1,14 +1,11 @@
+import { writeAttachedSession } from '@isalwa/os-request-session';
+
 /**
- * Trusted tenant session for apps/api reads and writes.
- *
- * The organization and grantedScopes come from attachTrustedTenantSession,
- * which production middleware calls with a trusted-resolver result. A client
- * query, body organizationId, or body grantedScopes is not an input.
+ * Reads the session written by attachCanonicalTrustedSession.
+ * Production apps/api registration is CanonicalSessionMiddleware in AppModule.
+ * This file does not resolve membership and must not be registered instead.
+ * A client query, body organizationId, or body grantedScopes is not an input.
  * Cargo, title, hidden navigation, and page-local labels are not authority.
- *
- * sessionFromAuthenticatedRequest still reads the attached object so existing
- * controllers do not need a rewrite. Nest bootstrap (AppModule / main.ts) is
- * outside this file and does not yet register the middleware.
  */
 
 export type TrustedTenantSession = {
@@ -96,19 +93,13 @@ export function attachTrustedTenantSession(
     req.authenticatedSession = undefined;
     return null;
   }
-  const grantedScopes = [...source.grantedScopes];
-  req.authenticatedSession = {
-    authenticated: true,
-    organizationId,
-    grantedScopes,
-  };
-  return { organizationId, grantedScopes };
+  const attached = writeAttachedSession(req, { organizationId, grantedScopes: source.grantedScopes });
+  return attached;
 }
 
 /**
- * One controller-style request path. Production middleware calls this after
- * the trusted resolver. Scopes come only from `resolve`, never from
- * the request body or a session already sitting on the request.
+ * Test helper. Production bootstrap does not call this.
+ * CanonicalSessionMiddleware is the registered apps/api path.
  */
 export async function readControllerTrustedSession(
   req: AuthenticatedTenantRequest,
@@ -125,7 +116,7 @@ export type TrustedSessionMiddleware = (
   next: (err?: unknown) => void,
 ) => Promise<void>;
 
-/** Express/Nest middleware production bootstrap can register. */
+/** Not registered by AppModule. Production uses CanonicalSessionMiddleware. */
 export function trustedSessionMiddleware(
   resolve: (req: AuthenticatedTenantRequest) => Promise<TrustedSessionSource | null>,
 ): TrustedSessionMiddleware {

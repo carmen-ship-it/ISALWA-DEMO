@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
+import {
+  CANONICAL_SESSION_STORE,
+  CanonicalSessionMiddleware,
+  applyCanonicalSessionMiddleware,
+} from './auth/canonical-session.middleware';
 import { HealthController } from './health/health.controller';
 import { HealthService } from './health/health.service';
 import { ProvidersModule } from './providers/providers.module';
@@ -24,6 +29,20 @@ import { VisitsModule } from './visits/visits.module';
     VisitsModule,
   ],
   controllers: [HealthController],
-  providers: [HealthService],
+  providers: [
+    HealthService,
+    {
+      provide: CANONICAL_SESSION_STORE,
+      useFactory: async () => {
+        const { createCanonicalSessionStore } = await import('./auth/canonical-session.store');
+        return createCanonicalSessionStore();
+      },
+    },
+    CanonicalSessionMiddleware,
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    applyCanonicalSessionMiddleware(consumer);
+  }
+}

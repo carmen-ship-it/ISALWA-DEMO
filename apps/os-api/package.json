@@ -17,6 +17,7 @@
     "@isalwa/os-events": "workspace:*",
     "@isalwa/os-party": "workspace:*",
     "@isalwa/os-query": "workspace:*",
+    "@isalwa/os-request-session": "workspace:*",
     "@isalwa/os-work": "workspace:*",
     "@isalwa/os-commercial": "workspace:*",
     "@isalwa/os-import": "workspace:*",

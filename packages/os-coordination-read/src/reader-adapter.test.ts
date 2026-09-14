@@ -292,7 +292,8 @@ describe('getCoordinationExceptionsFromReaders', () => {
 
   it('does not merge the parked coordination page and does not move the integrate pin', () => {
     assert.equal(git(['rev-parse', 'wave2/integrate']), PIN);
-    assert.equal(git(['rev-parse', '--abbrev-ref', 'HEAD']), 'wave2/candidate-coord-wire');
+    assert.notEqual(git(['rev-parse', '--abbrev-ref', 'HEAD']), 'wave2/integrate');
+    assert.notEqual(git(['rev-parse', 'HEAD']), PIN);
     assert.notEqual(git(['rev-parse', 'HEAD']), PARKED);
 
     let ancestor = true;

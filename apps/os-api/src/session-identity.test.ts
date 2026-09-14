@@ -5,7 +5,6 @@ import { describe, it } from 'node:test';
 import type { AuthIdentityRecord, MemberRecord } from '@isalwa/os-workforce';
 import {
   authenticatedSessionHttpError,
-  resolveActiveMembership,
   toAuthenticatedSessionView,
 } from './os-session';
 
@@ -62,101 +61,19 @@ function store(input: {
   };
 }
 
-describe('CC-2A hosted session membership', () => {
-  it('resolves memberId from AuthIdentity to the active OrganizationMember', async () => {
-    const resolved = await resolveActiveMembership(
-      store({ identities: [auth()], members: [member()] }),
-      { provider: 'supabase', providerSubject: 'supabase-user-1' },
-    );
-    assert.equal(resolved.memberId, 'mem-hosted');
-    assert.equal(resolved.organizationId, 'org-1');
-    assert.equal(resolved.accessStatus, 'active');
+describe('retired membership probe', () => {
+  it('is not a production session attachment path', () => {
+    const source = readFileSync(resolve('src/os-session.ts'), 'utf8');
+    assert.doesNotMatch(source, /export async function resolveActiveMembership/);
+    assert.doesNotMatch(source, /findActiveMemberForPerson\(/);
+    assert.match(source, /resolveCanonicalRequestContext/);
     const view = toAuthenticatedSessionView({
-      actorMemberId: resolved.memberId,
-      organizationId: resolved.organizationId,
+      actorMemberId: member().id,
+      organizationId: member().organizationId,
     });
     assert.deepEqual(Object.keys(view).sort(), ['accessStatus', 'memberId', 'organizationId']);
     assert.equal('personId' in view, false);
     assert.equal('authIdentityId' in view, false);
-  });
-
-  it('ignores a caller-supplied member id and organization', async () => {
-    const resolved = await resolveActiveMembership(
-      store({ identities: [auth()], members: [member()] }),
-      {
-        provider: 'supabase',
-        providerSubject: 'supabase-user-1',
-        organizationHint: 'org-1',
-      },
-    );
-    assert.equal(resolved.memberId, 'mem-hosted');
-    assert.notEqual(resolved.memberId, 'mem-attacker');
-    assert.equal(resolved.organizationId, 'org-1');
-  });
-
-  it('rejects a missing AuthIdentity', async () => {
-    await assert.rejects(
-      () =>
-        resolveActiveMembership(store({ identities: [], members: [member()] }), {
-          provider: 'supabase',
-          providerSubject: 'missing-user',
-        }),
-      /AUTH_REQUIRED/,
-    );
-  });
-
-  it('rejects a missing or inactive member', async () => {
-    await assert.rejects(
-      () =>
-        resolveActiveMembership(store({ identities: [auth()], members: [] }), {
-          provider: 'supabase',
-          providerSubject: 'supabase-user-1',
-        }),
-      /ACCESS_REVOKED/,
-    );
-    await assert.rejects(
-      () =>
-        resolveActiveMembership(
-          store({
-            identities: [auth()],
-            members: [member({ accessStatus: 'suspended', id: 'mem-suspended' })],
-          }),
-          { provider: 'supabase', providerSubject: 'supabase-user-1' },
-        ),
-      /ACCESS_REVOKED/,
-    );
-  });
-
-  it('rejects a cross-tenant organization hint', async () => {
-    await assert.rejects(
-      () =>
-        resolveActiveMembership(store({ identities: [auth()], members: [member()] }), {
-          provider: 'supabase',
-          providerSubject: 'supabase-user-1',
-          organizationHint: 'org-other',
-        }),
-      /ACCESS_REVOKED/,
-    );
-  });
-
-  it('rejects a membership returned from another organization', async () => {
-    const leaking = {
-      async findAuthIdentityByProviderSubject() {
-        return auth();
-      },
-      async findActiveMemberForPerson() {
-        return member({ organizationId: 'org-other', id: 'mem-other' });
-      },
-    };
-    await assert.rejects(
-      () =>
-        resolveActiveMembership(leaking, {
-          provider: 'supabase',
-          providerSubject: 'supabase-user-1',
-          organizationHint: 'org-1',
-        }),
-      /TENANT_FORBIDDEN/,
-    );
   });
 });
 

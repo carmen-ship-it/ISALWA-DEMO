@@ -66,11 +66,11 @@ describe('apps/api trusted session attachment', () => {
     assert.deepEqual(sessionFromAuthenticatedRequest(req)?.grantedScopes, [STORED]);
     const source = readFileSync(new URL('./trusted-session.ts', import.meta.url), 'utf8');
     const helperStart = source.indexOf('export function attachTrustedTenantSession');
-    const helperEnd = source.indexOf('return { organizationId, grantedScopes };', helperStart);
+    const helperEnd = source.indexOf('export async function readControllerTrustedSession', helperStart);
     const helper = source.slice(helperStart, helperEnd);
     assert.doesNotMatch(helper, /req\.body/);
     assert.doesNotMatch(helper, /req\.query/);
-    assert.doesNotMatch(helper, /grantedScopes\?:/);
+    assert.match(helper, /writeAttachedSession/);
     assert.match(source, /readControllerTrustedSession/);
   });
 });

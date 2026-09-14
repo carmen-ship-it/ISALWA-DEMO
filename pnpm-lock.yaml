@@ -30,6 +30,15 @@ importers:
       '@isalwa/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@isalwa/os-database':
+        specifier: workspace:*
+        version: link:../../packages/os-database
+      '@isalwa/os-request-session':
+        specifier: workspace:*
+        version: link:../../packages/os-request-session
+      '@isalwa/os-workforce':
+        specifier: workspace:*
+        version: link:../../packages/os-workforce
       '@isalwa/providers':
         specifier: workspace:*
         version: link:../../packages/providers
@@ -170,6 +179,9 @@ importers:
       '@isalwa/os-query':
         specifier: workspace:*
         version: link:../../packages/os-query
+      '@isalwa/os-request-session':
+        specifier: workspace:*
+        version: link:../../packages/os-request-session
       '@isalwa/os-work':
         specifier: workspace:*
         version: link:../../packages/os-work
@@ -441,6 +453,19 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/os-coordination-read:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/os-customer-date:
     devDependencies:
       tsx:
@@ -594,6 +619,25 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/os-pedido-case:
+    dependencies:
+      '@isalwa/os-read-dates':
+        specifier: workspace:*
+        version: link:../os-read-dates
+      '@isalwa/os-read-fulfillment':
+        specifier: workspace:*
+        version: link:../os-read-fulfillment
+      '@isalwa/os-read-ops':
+        specifier: workspace:*
+        version: link:../os-read-ops
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/os-production:
     devDependencies:
       tsx:
@@ -656,11 +700,36 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/os-read-fulfillment:
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/os-read-ops:
     devDependencies:
       '@types/node':
         specifier: ^22.13.10
         version: 22.20.1
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-request-session:
+    dependencies:
+      '@isalwa/os-domain':
+        specifier: workspace:*
+        version: link:../os-domain
+      '@supabase/supabase-js':
+        specifier: ^2.110.8
+        version: 2.110.8
+    devDependencies:
       tsx:
         specifier: ^4.19.3
         version: 4.23.1
