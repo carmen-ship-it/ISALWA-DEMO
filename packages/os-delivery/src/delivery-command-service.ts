@@ -7,13 +7,20 @@ import {
   DELIVERY_NUMBERING_POLICY,
   PAYMENT_REQUIRED_BEFORE_DELIVERY,
   WAREHOUSE_OUTBOUND_KIND,
+  assertDeliveryResourceRole,
   assertEventHasOccurred,
   assertNoteDoesNotPredateDelivery,
-  copyKnownOrderQuantities,
   createDeliveryNoteWithoutDelivery,
+  denyForeignRows,
   parseRecordCustomerDelivery,
   parseRecordDeliveryEvidence,
   parseRecordWarehouseExit,
+  requireSessionOrganization,
+  storeDeliveredQuantities,
+  suggestRecipientsInTenant,
+  visibleInSession,
+  type CopiedDeliveryLine,
+  type DeliveryResource,
 } from '../../os-contracts/src/delivery';
 import { createId } from '../../ts-utils/src/index';
 import type {
@@ -27,9 +34,13 @@ import type {
 } from './store-types';
 
 export type DeliveryContext = {
-  organizationId: string;
+  organizationId?: string | null;
   actorMemberId: string;
   effectiveAt: Date;
+};
+
+export type DeliveryAggregate = {
+  count: number;
 };
 
 export type WarehouseExitResult = {
@@ -92,16 +103,17 @@ export class DeliveryCommandService {
   async recordWarehouseExit(ctx: DeliveryContext, payload: unknown): Promise<WarehouseExitResult> {
     try {
       const parsed = parseRecordWarehouseExit(payload);
-      await this.authorize(ctx, parsed.recordedBy);
+      await this.authorize(ctx, parsed.recordedBy, 'warehouse_exit');
       if (Date.parse(parsed.exitedAt) > ctx.effectiveAt.getTime()) throw new Error('VALIDATION_FAILED');
-      const order = await this.requireOpenOrder(ctx.organizationId, parsed.orderId);
-      const lines = copyKnownOrderQuantities(order.lines);
+      const organizationId = requireSessionOrganization(ctx.organizationId);
+      const order = await this.requireOpenOrder(organizationId, parsed.orderId);
+      const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
       const bornAt = parsed.exitedAt;
       assertNoteDoesNotPredateDelivery(bornAt, parsed.exitedAt);
       const now = ctx.effectiveAt.toISOString();
       const exit: WarehouseExitRecord = {
         id: createId(),
-        organizationId: ctx.organizationId,
+        organizationId,
         orderId: parsed.orderId,
         exitedAt: parsed.exitedAt,
         recordedByMemberId: parsed.recordedBy,
@@ -111,7 +123,7 @@ export class DeliveryCommandService {
       };
       const note: OutboundNoteRecord = {
         id: createId(),
-        organizationId: ctx.organizationId,
+        organizationId,
         warehouseExitId: exit.id,
         orderId: parsed.orderId,
         documentKind: WAREHOUSE_OUTBOUND_KIND,
@@ -123,7 +135,7 @@ export class DeliveryCommandService {
       };
       await this.store.insertWarehouseExit(exit);
       await this.store.insertOutboundNote(note);
-      await this.store.insertOutboundLines(lines.map((line) => this.lineRow(ctx.organizationId, note.id, line)));
+      await this.store.insertOutboundLines(lines.map((line) => this.lineRow(organizationId, note.id, line)));
       return {
         warehouseExitId: exit.id,
         outboundNoteId: note.id,
@@ -145,16 +157,17 @@ export class DeliveryCommandService {
   async recordCustomerDelivery(ctx: DeliveryContext, payload: unknown): Promise<CustomerDeliveryResult> {
     try {
       const parsed = parseRecordCustomerDelivery(payload);
-      await this.authorize(ctx, parsed.recordedBy);
+      await this.authorize(ctx, parsed.recordedBy, 'delivery');
       assertEventHasOccurred(parsed.deliveredAt, ctx.effectiveAt);
-      const order = await this.requireOpenOrder(ctx.organizationId, parsed.orderId);
-      const lines = copyKnownOrderQuantities(order.lines);
+      const organizationId = requireSessionOrganization(ctx.organizationId);
+      const order = await this.requireOpenOrder(organizationId, parsed.orderId);
+      const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
       const bornAt = parsed.deliveredAt;
       assertNoteDoesNotPredateDelivery(bornAt, parsed.deliveredAt);
       const now = ctx.effectiveAt.toISOString();
       const delivery: DeliveryRecord = {
         id: createId(),
-        organizationId: ctx.organizationId,
+        organizationId,
         orderId: parsed.orderId,
         deliveredAt: parsed.deliveredAt,
         deliveredTo: parsed.deliveredTo,
@@ -165,7 +178,7 @@ export class DeliveryCommandService {
       };
       const note: DeliveryNoteRecord = {
         id: createId(),
-        organizationId: ctx.organizationId,
+        organizationId,
         deliveryId: delivery.id,
         orderId: parsed.orderId,
         documentKind: CUSTOMER_DELIVERY_NOTE_KIND,
@@ -179,7 +192,7 @@ export class DeliveryCommandService {
       };
       await this.store.insertDelivery(delivery);
       await this.store.insertDeliveryNote(note);
-      await this.store.insertDeliveryNoteLines(lines.map((line) => this.lineRow(ctx.organizationId, note.id, line)));
+      await this.store.insertDeliveryNoteLines(lines.map((line) => this.lineRow(organizationId, note.id, line)));
       return {
         deliveryId: delivery.id,
         deliveryNoteId: note.id,
@@ -205,22 +218,25 @@ export class DeliveryCommandService {
   async recordEvidence(ctx: DeliveryContext, payload: unknown): Promise<EvidenceRecord> {
     try {
       const parsed = parseRecordDeliveryEvidence(payload);
-      await this.authorize(ctx, parsed.recordedBy);
+      const organizationId = await this.authorize(ctx, parsed.recordedBy);
       if (parsed.subjectType === 'delivery') {
-        const delivery = await this.store.getDelivery(ctx.organizationId, parsed.subjectId);
+        const delivery = visibleInSession(organizationId, await this.store.getDelivery(organizationId, parsed.subjectId));
         if (!delivery) throw new Error('NOT_FOUND');
       } else {
-        const exit = await this.store.getWarehouseExit(ctx.organizationId, parsed.subjectId);
+        const exit = visibleInSession(
+          organizationId,
+          await this.store.getWarehouseExit(organizationId, parsed.subjectId),
+        );
         if (!exit) throw new Error('NOT_FOUND');
       }
       if (parsed.authorizedBy) {
-        const authorizer = await this.store.getMemberInOrg(ctx.organizationId, parsed.authorizedBy);
+        const authorizer = await this.store.getMemberInOrg(organizationId, parsed.authorizedBy);
         if (!authorizer) throw new Error('NOT_FOUND');
-        assertTenantMatch(ctx.organizationId, authorizer.organizationId);
+        assertTenantMatch(organizationId, authorizer.organizationId);
       }
       const row: EvidenceRecord = {
         id: createId(),
-        organizationId: ctx.organizationId,
+        organizationId,
         subjectType: parsed.subjectType,
         subjectId: parsed.subjectId,
         role: parsed.role,
@@ -245,25 +261,130 @@ export class DeliveryCommandService {
   }
 
   async listNotesForOrder(ctx: DeliveryContext, orderId: string): Promise<DeliveryNoteRecord[]> {
-    await this.authorizeReader(ctx);
-    const order = await this.store.getOrderInOrg(ctx.organizationId, orderId);
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const order = await this.store.getOrderInOrg(organizationId, orderId);
     if (!order) throw new Error('NOT_FOUND');
-    return this.store.listDeliveryNotes(ctx.organizationId, orderId);
+    return denyForeignRows(organizationId, await this.store.listDeliveryNotes(organizationId, orderId));
   }
 
-  private async authorize(ctx: DeliveryContext, recordedBy: string): Promise<void> {
+  async getWarehouseExitById(ctx: DeliveryContext, warehouseExitId: string): Promise<WarehouseExitRecord> {
+    return this.readById(ctx, 'warehouse_exit', warehouseExitId, (orgId, id) =>
+      this.store.getWarehouseExit(orgId, id),
+    );
+  }
+
+  async getDeliveryById(ctx: DeliveryContext, deliveryId: string): Promise<DeliveryRecord> {
+    return this.readById(ctx, 'delivery', deliveryId, (orgId, id) => this.store.getDelivery(orgId, id));
+  }
+
+  async getDeliveryNoteById(ctx: DeliveryContext, noteId: string): Promise<DeliveryNoteRecord> {
+    return this.readById(ctx, 'delivery_note', noteId, (orgId, id) => this.store.getDeliveryNoteById(orgId, id));
+  }
+
+  async listDeliveryNotesForSession(ctx: DeliveryContext): Promise<DeliveryNoteRecord[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    return denyForeignRows(organizationId, await this.store.listAllDeliveryNotes(organizationId));
+  }
+
+  async searchWarehouseExits(ctx: DeliveryContext, query: string): Promise<WarehouseExitRecord[]> {
+    const organizationId = await this.authorizeResource(ctx, 'warehouse_exit');
+    return this.matchQuery(denyForeignRows(organizationId, await this.store.listAllWarehouseExits(organizationId)), query, [
+      'orderId',
+      'notes',
+      'id',
+    ]);
+  }
+
+  async searchDeliveries(ctx: DeliveryContext, query: string): Promise<DeliveryRecord[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery');
+    return this.matchQuery(denyForeignRows(organizationId, await this.store.listAllDeliveries(organizationId)), query, [
+      'orderId',
+      'notes',
+      'deliveredTo',
+      'id',
+    ]);
+  }
+
+  async searchDeliveryNotes(ctx: DeliveryContext, query: string): Promise<DeliveryNoteRecord[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    return this.matchQuery(
+      denyForeignRows(organizationId, await this.store.listAllDeliveryNotes(organizationId)),
+      query,
+      ['orderId', 'id', 'documentKind'],
+    );
+  }
+
+  async aggregateWarehouseExits(ctx: DeliveryContext): Promise<DeliveryAggregate> {
+    const organizationId = await this.authorizeResource(ctx, 'warehouse_exit');
+    const rows = denyForeignRows(organizationId, await this.store.listAllWarehouseExits(organizationId));
+    return { count: rows.length };
+  }
+
+  async aggregateDeliveries(ctx: DeliveryContext): Promise<DeliveryAggregate> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery');
+    const rows = denyForeignRows(organizationId, await this.store.listAllDeliveries(organizationId));
+    return { count: rows.length };
+  }
+
+  async aggregateDeliveryNotes(ctx: DeliveryContext): Promise<DeliveryAggregate> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const rows = denyForeignRows(organizationId, await this.store.listAllDeliveryNotes(organizationId));
+    return { count: rows.length };
+  }
+
+  async suggestRecipients(ctx: DeliveryContext, query: string): Promise<string[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const candidates = await this.store.listRecipientCandidates(organizationId);
+    return suggestRecipientsInTenant(organizationId, candidates, query);
+  }
+
+  private async readById<T extends { organizationId: string }>(
+    ctx: DeliveryContext,
+    resource: DeliveryResource,
+    id: string,
+    load: (organizationId: string, id: string) => Promise<T | null>,
+  ): Promise<T> {
+    const organizationId = await this.authorizeResource(ctx, resource);
+    const row = visibleInSession(organizationId, await load(organizationId, id));
+    if (!row) throw new Error('NOT_FOUND');
+    return row;
+  }
+
+  private matchQuery<T extends object>(rows: T[], query: string, fields: Array<keyof T>): T[] {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return rows;
+    return rows.filter((row) =>
+      fields.some((field) => {
+        const value = row[field];
+        return typeof value === 'string' && value.toLowerCase().includes(needle);
+      }),
+    );
+  }
+
+  private async authorize(
+    ctx: DeliveryContext,
+    recordedBy: string,
+    resource?: DeliveryResource,
+  ): Promise<string> {
+    const organizationId = requireSessionOrganization(ctx.organizationId);
     if (recordedBy !== ctx.actorMemberId) throw new Error('PERMISSION_DENIED');
-    const member = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
+    const member = await this.store.getMemberInOrg(organizationId, ctx.actorMemberId);
     if (!member) throw new Error('TENANT_FORBIDDEN');
-    assertTenantMatch(ctx.organizationId, member.organizationId);
+    assertTenantMatch(organizationId, member.organizationId);
     assertMemberActive(member.accessStatus);
+    if (resource) assertDeliveryResourceRole(resource, member.grantedScopes);
+    return organizationId;
   }
 
-  private async authorizeReader(ctx: DeliveryContext): Promise<void> {
-    const member = await this.store.getMemberInOrg(ctx.organizationId, ctx.actorMemberId);
+  private async authorizeResource(ctx: DeliveryContext, resource: DeliveryResource): Promise<string> {
+    const organizationId = requireSessionOrganization(ctx.organizationId);
+    if (!ctx.actorMemberId.trim()) throw new Error('PERMISSION_DENIED');
+    const member = await this.store.getMemberInOrg(organizationId, ctx.actorMemberId);
     if (!member) throw new Error('TENANT_FORBIDDEN');
-    assertTenantMatch(ctx.organizationId, member.organizationId);
+    assertTenantMatch(organizationId, member.organizationId);
     assertMemberActive(member.accessStatus);
+    assertDeliveryResourceRole(resource, member.grantedScopes);
+    return organizationId;
   }
 
   private async requireOpenOrder(organizationId: string, orderId: string) {
@@ -274,7 +395,7 @@ export class DeliveryCommandService {
     return order;
   }
 
-  private lineRow(organizationId: string, noteId: string, line: ReturnType<typeof copyKnownOrderQuantities>[number]): NoteLineRecord {
+  private lineRow(organizationId: string, noteId: string, line: CopiedDeliveryLine): NoteLineRecord {
     return {
       id: createId(),
       organizationId,

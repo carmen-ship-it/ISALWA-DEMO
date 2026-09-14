@@ -2,7 +2,10 @@ import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
+import { OrderCasePanel } from '@/components/operations/order-case-panel';
+import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
+import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -17,6 +20,7 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
+import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -39,9 +43,18 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
   try {
     const { order, freshness, authority } = await client.getOrder(orderId);
+    if (auth.mode === 'dev' && auth.session.organizationId !== order.organizationId) {
+      return (
+        <PageContainer label="Pedido">
+          <AccessDeniedState />
+        </PageContainer>
+      );
+    }
+
     const partyLabels = await resolvePartyLabels(client, [order.partyId]);
     const customerName = partyLabel(partyLabels, order.partyId);
     const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
+    const ownerLabel = memberLabel(memberLabels, order.ownerMemberId);
     let sourceQuoteNumber: string | null = null;
     if (order.quoteId) {
       try {
@@ -67,6 +80,31 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       }
     }
 
+    const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+    const operating = buildPedidoOperatingView({
+      order: {
+        organizationId: order.organizationId,
+        orderId: order.orderId,
+        orderNumber: order.orderNumber,
+        partyId: order.partyId,
+        customerName,
+        ownerMemberId: order.ownerMemberId,
+        ownerLabel,
+        statusLabel: formatOrderStatus(order.status),
+        createdAt: order.createdAt,
+        cancelledAt: order.cancelledAt,
+      },
+      actorMemberId,
+      asOf: new Date(),
+      apiAuthorizedDocument: true,
+      grants: [],
+      allocations: null,
+      deliveries: null,
+      classification: null,
+      customerDate: null,
+      productionDate: null,
+    });
+
     return (
       <PageContainer label={order.orderNumber}>
         <PageHeader
@@ -82,7 +120,19 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PageSection card className="bg-white p-8 md:p-10">
+        <PedidoOperatingSummary view={operating} />
+
+        <div className="mt-10">
+          <OrderCasePanel
+            organizationId={order.organizationId}
+            orderId={order.orderId}
+            facts={[]}
+            releases={[]}
+            availability="unavailable"
+          />
+        </div>
+
+        <PageSection card className="mt-10 bg-white p-8 md:p-10">
           <StatusPill tone={statusTone(order.status)}>
             {formatOrderStatus(order.status)}
           </StatusPill>
@@ -108,9 +158,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             </div>
             <div>
               <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {memberLabel(memberLabels, order.ownerMemberId)}
-              </dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
             </div>
             {order.quoteId ? (
               <div>
@@ -141,9 +189,11 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </dl>
         </PageSection>
 
-        <PageSection card className="mt-10 bg-white p-8 md:p-10">
-          <OrderLines currency={order.currency} lines={order.lines} />
-        </PageSection>
+        {operating.sections.lines ? (
+          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+            <OrderLines currency={order.currency} lines={order.lines} />
+          </PageSection>
+        ) : null}
 
         {order.status === 'open' || approvals.length > 0 ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
@@ -178,6 +228,13 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           <QuerySurfaceState
             error={{ kind: 'unknown', message: 'No se encontró este pedido.' }}
           />
+        </PageContainer>
+      );
+    }
+    if (err instanceof OsApiError && err.kind === 'forbidden') {
+      return (
+        <PageContainer label="Pedido">
+          <AccessDeniedState />
         </PageContainer>
       );
     }

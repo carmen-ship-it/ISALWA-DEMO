@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { COMMERCIAL_ORDER_CONVERT_SCOPE, COMMERCIAL_TEAM_READ_SCOPE } from './scopes';
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
+  COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
   COMMERCIAL_PRICE_APPROVE_SCOPE,
   COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
   DELIVERY_RECORD_SCOPE,
@@ -23,6 +24,7 @@ import {
   WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE,
   canActAsSystemAdmin,
   canApproveCommercialPrice,
+  canAuthorizePaymentException,
   canConfirmFinance,
   canConvertOwnEligibleQuote,
   canImpersonateProduction,
@@ -74,6 +76,7 @@ describe('operational access scopes', () => {
       'management.org.read',
       'commercial.quote.convert.own',
       'commercial.price.approve',
+      'commercial.exception.authorize',
       'finance.operational.record',
       'production.operational.record',
       'warehouse.finished_goods.receive',
@@ -96,6 +99,7 @@ describe('operational access scopes', () => {
       assert.deepEqual(scopesGrantedByCargoOrTitle(cargo, title), []);
       assert.equal(canRegisterCustomer(scopesGrantedByCargoOrTitle(cargo, title)), false);
       assert.equal(canApproveCommercialPrice(scopesGrantedByCargoOrTitle(cargo, title)), false);
+      assert.equal(canAuthorizePaymentException(scopesGrantedByCargoOrTitle(cargo, title)), false);
       assert.equal(canActAsSystemAdmin(scopesGrantedByCargoOrTitle(cargo, title)), false);
     }
   });
@@ -232,6 +236,31 @@ describe('operational access scopes', () => {
         quoteStatus,
       );
     }
+  });
+
+  it('authorizes a payment exception only from the explicit scope, never from cargo or title', () => {
+    assert.equal(canAuthorizePaymentException([COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE]), true);
+    assert.equal(canAuthorizePaymentException([COMMERCIAL_TEAM_READ_SCOPE]), false);
+    assert.equal(canAuthorizePaymentException([MANAGEMENT_ORG_READ_SCOPE]), false);
+    assert.equal(
+      canAuthorizePaymentException(['Jefe', 'JEFE COMERCIAL', 'Gerente', 'Gerencia', 'asesor']),
+      false,
+    );
+    assert.equal(
+      scopeImplies(COMMERCIAL_TEAM_READ_SCOPE, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE),
+      false,
+    );
+    assert.equal(
+      scopeImplies(MANAGEMENT_ORG_READ_SCOPE, COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE),
+      false,
+    );
+    assert.equal(
+      (scopesGrantedByCargoOrTitle('jefe', 'Gerencia') as readonly string[]).includes(
+        COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE,
+      ),
+      false,
+    );
+    assert.equal(COMMERCIAL_EXCEPTION_AUTHORIZE_SCOPE.includes('payment'), false);
   });
 
   it('requires an explicit price-approval assignment, not a title', () => {

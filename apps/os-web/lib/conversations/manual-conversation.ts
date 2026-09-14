@@ -2,7 +2,7 @@ import {
   recordManualCustomerConversation,
   type ManualCustomerConversation,
   type RecordCustomerConversationInput,
-} from '../../../../packages/os-contracts/src/customer-conversation';
+} from '@isalwa/os-contracts';
 
 export const MANUAL_CONVERSATION_COPY = {
   title: 'Registrar conversación con cliente',

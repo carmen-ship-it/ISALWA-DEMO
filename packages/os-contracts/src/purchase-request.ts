@@ -1,44 +1,86 @@
 import { z } from 'zod';
+import { canRecordPurchasing } from './operations-scopes';
 
 /**
  * A purchase request is a message from a responsible area to the buyer.
  * The encargada de compras buys. This is not inventory and not an ERP ledger.
  *
- * A request does not prove there is no stock, does not open a shortage,
- * does not set a reorder point, and does not create a supplier as an accounting party.
+ * A request does not prove there is no stock, does not open a reorder,
+ * and does not create a supplier as an accounting party.
  * Quantity and a production or order link are stored only when the area provided them.
+ *
+ * Stored status ids: solicitado, cotizandose, pedido_preparandose, entregado, cancelled.
+ * cancelled is a stop for a mistaken request, not a happy-path step.
+ * Legacy keys map forward. They are not stored again.
  *
  * CROSS_LANE: export this file from packages/os-contracts/src/index.ts.
  * Do not register it as inventory, purchasing ERP, or approval-threshold policy.
+ * schema.prisma and the 20260915180000 migration stay as they are.
  */
 
 export const PURCHASE_REQUEST_STATUSES = [
-  'requested',
-  'in_progress',
-  'received',
+  'solicitado',
+  'cotizandose',
+  'pedido_preparandose',
+  'entregado',
   'cancelled',
 ] as const;
 export type PurchaseRequestStatus = (typeof PURCHASE_REQUEST_STATUSES)[number];
 
-/** Display labels. Never store these as status ids. */
+/** Happy path. Cancelado is not a step on this path. */
+export const PURCHASE_REQUEST_HAPPY_PATH = [
+  'solicitado',
+  'cotizandose',
+  'pedido_preparandose',
+  'entregado',
+] as const;
+
+/**
+ * Existing keys map forward. cancelled stays a stop.
+ * requested -> solicitado, in_progress -> cotizandose, received -> entregado.
+ */
+export const LEGACY_PURCHASE_REQUEST_STATUS_MAP = {
+  requested: 'solicitado',
+  in_progress: 'cotizandose',
+  received: 'entregado',
+  cancelled: 'cancelled',
+} as const;
+
+/** Display labels. Never store these as status ids. Isa's words, exact. */
 export const PURCHASE_REQUEST_STATUS_LABELS: Record<PurchaseRequestStatus, string> = {
-  requested: 'Pedido de compra',
-  in_progress: 'En curso',
-  received: 'Recibido',
+  solicitado: 'Solicitado',
+  cotizandose: 'Cotizándose',
+  pedido_preparandose: 'Pedido y Preparándose',
+  entregado: 'Entregado',
   cancelled: 'Cancelado',
 };
+
+/** Next happy-path label. The stop is not a next action. */
+export const PURCHASE_REQUEST_NEXT_ACTION_LABELS: Record<
+  PurchaseRequestStatus,
+  string | null
+> = {
+  solicitado: 'Cotizándose',
+  cotizandose: 'Pedido y Preparándose',
+  pedido_preparandose: 'Entregado',
+  entregado: null,
+  cancelled: null,
+};
+
+export const PURCHASE_REQUEST_ROLES = ['requester', 'buyer'] as const;
+export type PurchaseRequestRole = (typeof PURCHASE_REQUEST_ROLES)[number];
 
 export const PURCHASE_REQUEST_SOURCE = 'manual' as const;
 /**
  * not_official means this row is not a stock authority.
- * It does not mean stock is zero and it does not mean there is a shortage.
+ * It does not mean stock is zero.
  */
 export const PURCHASE_REQUEST_STOCK_AUTHORITY = 'not_official' as const;
 /** This record never creates a follow-on purchase. */
 export const PURCHASE_REQUEST_REORDER_POLICY = 'none' as const;
 
 export const PURCHASE_REQUEST_BOUNDARY =
-  'Un pedido de compra no prueba que no haya stock. No es inventario, no es un faltante oficial y no genera una recompra automática.';
+  'Un pedido de compra no prueba que no haya stock. No es inventario y no genera una recompra automática.';
 
 export const PURCHASE_REQUEST_TABLES = [
   'os_purchase_requests',
@@ -47,9 +89,10 @@ export const PURCHASE_REQUEST_TABLES = [
 ] as const;
 
 const NEXT_STATUS: Record<PurchaseRequestStatus, readonly PurchaseRequestStatus[]> = {
-  requested: ['in_progress', 'cancelled'],
-  in_progress: ['received', 'cancelled'],
-  received: [],
+  solicitado: ['cotizandose', 'cancelled'],
+  cotizandose: ['pedido_preparandose', 'cancelled'],
+  pedido_preparandose: ['entregado', 'cancelled'],
+  entregado: [],
   cancelled: [],
 };
 
@@ -75,6 +118,11 @@ export type PurchaseRequestFailure =
   | 'forbidden_approval'
   | 'forbidden_ledger';
 
+export type PurchaseRequestAccessFailure =
+  | 'session_org_required'
+  | 'unauthorized_role'
+  | 'cross_tenant';
+
 export type PurchaseRequestStatusEntry = {
   id: string;
   fromStatus: PurchaseRequestStatus | null;
@@ -93,7 +141,7 @@ export type PurchaseRequestNote = {
   actorLabel: string;
   actorMemberId: string | null;
   source: typeof PURCHASE_REQUEST_SOURCE;
-  /** A human reference. Not a file store and not proof of a shortage. */
+  /** A human reference. Not a file store and not a stock reading. */
   evidenceReference: string | null;
 };
 
@@ -130,6 +178,35 @@ export type PurchaseRequest = {
 export type PurchaseRequestResult =
   | { ok: true; request: PurchaseRequest }
   | { ok: false; reason: PurchaseRequestFailure };
+
+export type PurchaseRequestSession = {
+  organizationId?: string | null;
+  role?: string | null;
+  grantedScopes?: readonly string[] | null;
+  actorLabel?: string | null;
+};
+
+export type PurchaseBuyerCandidate = {
+  organizationId: string;
+  label: string;
+  role: string;
+};
+
+export type PurchaseRequestQueueResult =
+  | { ok: true; organizationId: string; requests: PurchaseRequest[]; count: number }
+  | { ok: false; reason: PurchaseRequestAccessFailure };
+
+export type PurchaseRequestCountResult =
+  | { ok: true; count: number }
+  | { ok: false; reason: PurchaseRequestAccessFailure };
+
+export type PurchaseRequestSearchResult =
+  | { ok: true; requests: PurchaseRequest[] }
+  | { ok: false; reason: PurchaseRequestAccessFailure };
+
+export type PurchaseBuyerSuggestionResult =
+  | { ok: true; labels: string[] }
+  | { ok: false; reason: PurchaseRequestAccessFailure };
 
 const FORBIDDEN_INPUT_KEYS: Record<string, PurchaseRequestFailure> = {
   stockOnHand: 'forbidden_stock_claim',
@@ -208,12 +285,157 @@ function parseTime(value: unknown): string | null {
   return parsed.success ? parsed.data : null;
 }
 
+export function mapLegacyPurchaseRequestStatus(value: string): PurchaseRequestStatus | null {
+  if (isPurchaseRequestStatus(value)) return value;
+  if (value === 'requested' || value === 'in_progress' || value === 'received') {
+    return LEGACY_PURCHASE_REQUEST_STATUS_MAP[value];
+  }
+  return null;
+}
+
 export function purchaseRequestStatusLabel(status: PurchaseRequestStatus): string {
   return PURCHASE_REQUEST_STATUS_LABELS[status];
 }
 
+export function purchaseRequestDisplayStatusLabel(status: string): string | null {
+  const mapped = mapLegacyPurchaseRequestStatus(status);
+  return mapped ? PURCHASE_REQUEST_STATUS_LABELS[mapped] : null;
+}
+
 export function isPurchaseRequestStatus(value: string): value is PurchaseRequestStatus {
   return (PURCHASE_REQUEST_STATUSES as readonly string[]).includes(value);
+}
+
+export function isPurchaseRequestRole(value: string): value is PurchaseRequestRole {
+  return (PURCHASE_REQUEST_ROLES as readonly string[]).includes(value);
+}
+
+/** Cargo and title never grant this. Only an assigned purchasing role or scope. */
+export function purchaseRequestRoleAllowsQueue(input: {
+  role?: string | null;
+  grantedScopes?: readonly string[] | null;
+}): boolean {
+  const role = input.role?.trim() ?? '';
+  if (isPurchaseRequestRole(role)) return true;
+  return canRecordPurchasing(input.grantedScopes ?? []);
+}
+
+/**
+ * Session organization is required. A missing org is denied before any row is read.
+ * A different target organization is cross-tenant, even for an allowed role.
+ * A same-tenant actor without the purchasing role is denied. system.admin does not imply it.
+ */
+export function authorizePurchaseRequestRead(
+  session: PurchaseRequestSession | null | undefined,
+  targetOrganizationId?: string | null,
+): { ok: true; organizationId: string } | { ok: false; reason: PurchaseRequestAccessFailure } {
+  const organizationId = session?.organizationId?.trim() ?? '';
+  if (!session || !organizationId) return { ok: false, reason: 'session_org_required' };
+  const target = targetOrganizationId?.trim() ?? '';
+  if (target && target !== organizationId) return { ok: false, reason: 'cross_tenant' };
+  if (
+    !purchaseRequestRoleAllowsQueue({
+      role: session.role,
+      grantedScopes: session.grantedScopes,
+    })
+  ) {
+    return { ok: false, reason: 'unauthorized_role' };
+  }
+  return { ok: true, organizationId };
+}
+
+function sameTenant(
+  requests: readonly PurchaseRequest[],
+  organizationId: string,
+): PurchaseRequest[] {
+  return requests.filter((request) => request.organizationId === organizationId).map(cloneRequest);
+}
+
+function textMatches(value: string | null | undefined, needle: string): boolean {
+  return Boolean(value && value.toLocaleLowerCase('es').includes(needle));
+}
+
+function requestMatches(request: PurchaseRequest, needle: string): boolean {
+  if (!needle) return true;
+  if (textMatches(request.description, needle)) return true;
+  if (textMatches(request.requestingArea, needle)) return true;
+  if (textMatches(request.requestedByLabel, needle)) return true;
+  if (textMatches(request.buyerLabel, needle)) return true;
+  if (textMatches(request.reason, needle)) return true;
+  return request.notes.some(
+    (note) => textMatches(note.body, needle) || textMatches(note.evidenceReference, needle),
+  );
+}
+
+/** Own-tenant queue only. Denial carries no rows and no count. */
+export function readPurchaseRequestQueue(
+  session: PurchaseRequestSession | null | undefined,
+  requests: readonly PurchaseRequest[],
+  targetOrganizationId?: string | null,
+): PurchaseRequestQueueResult {
+  const access = authorizePurchaseRequestRead(session, targetOrganizationId);
+  if (!access.ok) return { ok: false, reason: access.reason };
+  const own = sameTenant(requests, access.organizationId);
+  return { ok: true, organizationId: access.organizationId, requests: own, count: own.length };
+}
+
+/** Search never returns another tenant, even when the query matches their request. */
+export function searchPurchaseRequests(
+  session: PurchaseRequestSession | null | undefined,
+  requests: readonly PurchaseRequest[],
+  query: string,
+  targetOrganizationId?: string | null,
+): PurchaseRequestSearchResult {
+  const access = authorizePurchaseRequestRead(session, targetOrganizationId);
+  if (!access.ok) return { ok: false, reason: access.reason };
+  const needle = query.trim().toLocaleLowerCase('es');
+  const own = sameTenant(requests, access.organizationId).filter((request) =>
+    requestMatches(request, needle),
+  );
+  return { ok: true, requests: own };
+}
+
+/** Count is the session tenant only. Denial does not include a number. */
+export function countPurchaseRequests(
+  session: PurchaseRequestSession | null | undefined,
+  requests: readonly PurchaseRequest[],
+  targetOrganizationId?: string | null,
+): PurchaseRequestCountResult {
+  const access = authorizePurchaseRequestRead(session, targetOrganizationId);
+  if (!access.ok) return { ok: false, reason: access.reason };
+  return {
+    ok: true,
+    count: requests.filter((request) => request.organizationId === access.organizationId).length,
+  };
+}
+
+/**
+ * Buyer names come only from same-tenant buyers.
+ * A requester from another tenant is never named, even when the query matches.
+ */
+export function suggestPurchaseBuyers(
+  session: PurchaseRequestSession | null | undefined,
+  candidates: readonly PurchaseBuyerCandidate[],
+  query: string,
+  targetOrganizationId?: string | null,
+): PurchaseBuyerSuggestionResult {
+  const access = authorizePurchaseRequestRead(session, targetOrganizationId);
+  if (!access.ok) return { ok: false, reason: access.reason };
+  const needle = query.trim().toLocaleLowerCase('es');
+  if (!needle) return { ok: true, labels: [] };
+  const labels: string[] = [];
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    if (candidate.organizationId !== access.organizationId) continue;
+    if (candidate.role !== 'buyer') continue;
+    const label = candidate.label.trim();
+    if (!label || !label.toLocaleLowerCase('es').includes(needle)) continue;
+    const key = label.toLocaleLowerCase('es');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    labels.push(label);
+  }
+  return { ok: true, labels };
 }
 
 /** A purchase request is never an official stock reading. */
@@ -234,6 +456,17 @@ export function nextPurchaseRequestStatuses(
   status: PurchaseRequestStatus,
 ): readonly PurchaseRequestStatus[] {
   return NEXT_STATUS[status];
+}
+
+/** The single forward step. Cancelled is not returned here. */
+export function purchaseRequestForwardStatus(
+  status: PurchaseRequestStatus,
+): PurchaseRequestStatus | null {
+  return NEXT_STATUS[status].find((next) => next !== 'cancelled') ?? null;
+}
+
+export function purchaseRequestNextActionLabel(status: PurchaseRequestStatus): string | null {
+  return PURCHASE_REQUEST_NEXT_ACTION_LABELS[status];
 }
 
 export type CreatePurchaseRequestInput = {
@@ -263,7 +496,7 @@ export type CreatePurchaseRequestInput = {
 export function createPurchaseRequest(input: CreatePurchaseRequestInput): PurchaseRequestResult {
   const forbidden = rejectForbidden(input);
   if (forbidden) return fail(forbidden);
-  if ('status' in input && input.status != null && input.status !== 'requested') {
+  if ('status' in input && input.status != null && input.status !== 'solicitado') {
     return fail('invalid_status');
   }
 
@@ -335,7 +568,7 @@ export function createPurchaseRequest(input: CreatePurchaseRequestInput): Purcha
     orderId: orderId.data,
     reason,
     requestedAt,
-    status: 'requested',
+    status: 'solicitado',
     buyerLabel: null,
     buyerMemberId: null,
     notes,
@@ -343,7 +576,7 @@ export function createPurchaseRequest(input: CreatePurchaseRequestInput): Purcha
       {
         id: statusEntryId,
         fromStatus: null,
-        toStatus: 'requested',
+        toStatus: 'solicitado',
         at: requestedAt,
         actorLabel,
         actorMemberId: actorMemberId.data,
@@ -383,10 +616,11 @@ export function changePurchaseRequestStatus(
 ): PurchaseRequestResult {
   const forbidden = rejectForbidden(input);
   if (forbidden) return fail(forbidden);
-  if (!isPurchaseRequestStatus(request.status)) return fail('invalid_status');
-  if (NEXT_STATUS[request.status].length === 0) return fail('terminal');
+  const current = mapLegacyPurchaseRequestStatus(request.status);
+  if (!current) return fail('invalid_status');
+  if (NEXT_STATUS[current].length === 0) return fail('terminal');
   if (!isPurchaseRequestStatus(input.status)) return fail('invalid_status');
-  if (!NEXT_STATUS[request.status].includes(input.status)) return fail('invalid_transition');
+  if (!NEXT_STATUS[current].includes(input.status)) return fail('invalid_transition');
 
   const at = parseTime(input.at);
   if (!at) return fail('invalid_time');
@@ -403,7 +637,7 @@ export function changePurchaseRequestStatus(
 
   const entry: PurchaseRequestStatusEntry = {
     id: statusEntryId,
-    fromStatus: request.status,
+    fromStatus: current,
     toStatus: input.status,
     at,
     actorLabel,
@@ -502,7 +736,8 @@ export function assignPurchaseRequestBuyer(
 ): PurchaseRequestResult {
   const forbidden = rejectForbidden(input);
   if (forbidden) return fail(forbidden);
-  if (request.status === 'received' || request.status === 'cancelled') return fail('terminal');
+  const current = mapLegacyPurchaseRequestStatus(request.status);
+  if (!current || current === 'entregado' || current === 'cancelled') return fail('terminal');
   const at = parseTime(input.at);
   if (!at) return fail('invalid_time');
   const buyerLabel = requiredText(input.buyerLabel);
@@ -516,6 +751,7 @@ export function assignPurchaseRequestBuyer(
     ok: true,
     request: {
       ...request,
+      status: current,
       buyerLabel,
       buyerMemberId: buyerMemberId.data,
       actorLabel,
@@ -528,5 +764,16 @@ export function assignPurchaseRequestBuyer(
       reorderPolicy: PURCHASE_REQUEST_REORDER_POLICY,
       updatedAt: at,
     },
+  };
+}
+
+function cloneRequest(request: PurchaseRequest): PurchaseRequest {
+  return {
+    ...request,
+    status: mapLegacyPurchaseRequestStatus(request.status) ?? request.status,
+    notes: request.notes.map((note) => ({ ...note })),
+    statusHistory: request.statusHistory.map((entry) => ({ ...entry })),
+    claimsOfficialStock: false,
+    triggersReorder: false,
   };
 }

@@ -1,12 +1,18 @@
 /**
  * Quote product picker.
  *
- * Product Master is not wired yet. Search goes through a port and stays empty
- * until that port is integrated. This module never invents a price: the advisor
- * types the quoted price, and it is not a list price.
+ * Search goes through a port. A missing port stays empty. This module never
+ * invents a price: the advisor types the quoted price, and it is not a list price.
+ * A commercial code is optional and is not the search key.
  *
  * PRICE_SOURCE_MISSING: there is no governed price list to read.
  */
+
+import {
+  applicablePriceContext,
+  governQuotedPrice,
+  type QuotedPriceGovernance,
+} from '@isalwa/os-contracts';
 
 export const PRICE_SOURCE_MISSING = true as const;
 
@@ -40,6 +46,12 @@ export type CatalogProductHit = {
   description: string;
   category: string | null;
   active: boolean;
+  /** Used only to drop another tenant. Not shown in the quote form. */
+  organizationId?: string;
+  /** Nullable until a person assigns one. Search does not require it. */
+  businessCode?: string | null;
+  aliases?: string[];
+  attributeValues?: string[];
 };
 
 export type ProductSearchQuery = {
@@ -74,7 +86,31 @@ export function publicCatalogHit(hit: CatalogProductHit): CatalogProductHit {
   };
 }
 
-/** Drop inactive rows and any price-like extras. Does not invent products. */
+/**
+ * Sales search is name, category, description, aliases, and technical attributes.
+ * A null commercial code stays searchable. The code is not the search key.
+ */
+export function matchesSalesSearch(hit: CatalogProductHit, text: string): boolean {
+  const needle = text.trim().toLowerCase();
+  if (needle.length < MIN_SEARCH_LENGTH) return false;
+  const haystack = [
+    hit.name,
+    hit.category ?? '',
+    hit.description ?? '',
+    ...(hit.aliases ?? []),
+    ...(hit.attributeValues ?? []),
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(needle);
+}
+
+function belongsToOrganization(hit: CatalogProductHit, organizationId: string): boolean {
+  if (!hit.organizationId) return true;
+  return hit.organizationId === organizationId;
+}
+
+/** Drop inactive rows, other tenants, and any price-like extras. Does not invent products. */
 export async function searchCatalog(
   port: ProductSearchPort,
   query: ProductSearchQuery,
@@ -83,7 +119,19 @@ export async function searchCatalog(
   const text = query.text.trim();
   if (!organizationId || text.length < MIN_SEARCH_LENGTH) return [];
   const hits = await port.search({ organizationId, text });
-  return hits.filter((hit) => hit.active !== false).map(publicCatalogHit);
+  return hits
+    .filter((hit) => hit.active !== false)
+    .filter((hit) => belongsToOrganization(hit, organizationId))
+    .map(publicCatalogHit);
+}
+
+/** Autocomplete uses the same tenant filter and does not return an amount. */
+export async function suggestCatalog(
+  port: ProductSearchPort,
+  query: ProductSearchQuery,
+): Promise<Array<{ productId: string; name: string }>> {
+  const hits = await searchCatalog(port, query);
+  return hits.slice(0, 8).map((hit) => ({ productId: hit.productId, name: hit.name }));
 }
 
 export function quoteLinesAreEditable(status: string): boolean {
@@ -104,6 +152,46 @@ export function quotedPriceEntry(_ignoredCatalogPrice?: unknown): QuotedPriceEnt
     suggestedCentavos: null,
   };
 }
+
+export type GovernedPriceReference = {
+  context: string;
+  currency: 'BOB';
+  amountCentavos: string;
+};
+
+export type PriceReferenceQuery = {
+  organizationId: string;
+  productId: string;
+  quantity: number;
+};
+
+export type PriceReferencePort = {
+  referenceFor(query: PriceReferenceQuery): Promise<GovernedPriceReference | null>;
+};
+
+/** No governed source is not invented and does not become a suggested quote. */
+export const emptyPriceReferencePort: PriceReferencePort = {
+  async referenceFor() {
+    return null;
+  },
+};
+
+export function priceReferenceContext(quantity: number): string {
+  return applicablePriceContext(quantity);
+}
+
+export function governAdvisorQuote(input: {
+  quotedCentavos: string | null;
+  governedCentavos: string | null;
+}): QuotedPriceGovernance {
+  return governQuotedPrice(input);
+}
+
+export const PENDING_APPROVAL_COPY =
+  'El precio cotizado está por debajo del precio de referencia. Queda pendiente de aprobación.';
+export const NO_GOVERNED_PRICE_COPY =
+  'Sin precio de origen. La cotización no se bloquea.';
+export const REFERENCE_PRICE_LABEL = 'Precio de referencia';
 
 export function formatDescriptionSnapshot(name: string, detail: string): string {
   const itemName = name.trim().slice(0, MAX_NAME_LENGTH);

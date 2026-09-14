@@ -2,13 +2,23 @@ import {
   addPurchaseRequestNote,
   assignPurchaseRequestBuyer,
   changePurchaseRequestStatus,
+  countPurchaseRequests,
   createPurchaseRequest,
+  readPurchaseRequestQueue,
+  searchPurchaseRequests,
+  suggestPurchaseBuyers,
   type AddPurchaseRequestNoteInput,
   type AssignPurchaseRequestBuyerInput,
   type ChangePurchaseRequestStatusInput,
   type CreatePurchaseRequestInput,
+  type PurchaseBuyerCandidate,
+  type PurchaseBuyerSuggestionResult,
   type PurchaseRequest,
+  type PurchaseRequestCountResult,
+  type PurchaseRequestQueueResult,
   type PurchaseRequestResult,
+  type PurchaseRequestSearchResult,
+  type PurchaseRequestSession,
 } from '../../os-contracts/src/purchase-request';
 
 export type PurchaseRequestStoreFailure = 'not_found' | 'already_exists';
@@ -24,6 +34,7 @@ export type PurchaseRequestStoreResult =
  */
 export class InMemoryPurchaseRequestStore {
   private readonly records = new Map<string, PurchaseRequest>();
+  private readonly people: PurchaseBuyerCandidate[] = [];
 
   create(input: CreatePurchaseRequestInput): PurchaseRequestStoreResult {
     const idempotencyKey = input.idempotencyKey?.trim();
@@ -38,6 +49,7 @@ export class InMemoryPurchaseRequestStore {
     const key = recordKey(created.request.organizationId, created.request.id);
     if (this.records.has(key)) return { ok: false, reason: 'already_exists' };
     this.records.set(key, created.request);
+    this.rememberPerson(created.request.organizationId, created.request.requestedByLabel, 'requester');
     return { ok: true, request: cloneRequest(created.request) };
   }
 
@@ -62,6 +74,9 @@ export class InMemoryPurchaseRequestStore {
     const changed = changePurchaseRequestStatus(current, input);
     if (!changed.ok) return changed;
     this.records.set(recordKey(organizationId, id), changed.request);
+    if (changed.request.buyerLabel) {
+      this.rememberPerson(organizationId, changed.request.buyerLabel, 'buyer');
+    }
     return { ok: true, request: cloneRequest(changed.request) };
   }
 
@@ -88,7 +103,60 @@ export class InMemoryPurchaseRequestStore {
     const assigned = assignPurchaseRequestBuyer(current, input);
     if (!assigned.ok) return assigned;
     this.records.set(recordKey(organizationId, id), assigned.request);
+    this.rememberPerson(organizationId, assigned.request.buyerLabel ?? '', 'buyer');
     return { ok: true, request: cloneRequest(assigned.request) };
+  }
+
+  /**
+   * Queue read for one session organization. A missing org, a wrong role, or
+   * another tenant returns no rows and no count.
+   */
+  readQueue(
+    session: PurchaseRequestSession | null | undefined,
+    targetOrganizationId?: string | null,
+  ): PurchaseRequestQueueResult {
+    return readPurchaseRequestQueue(session, this.snapshot(), targetOrganizationId);
+  }
+
+  searchQueue(
+    session: PurchaseRequestSession | null | undefined,
+    query: string,
+    targetOrganizationId?: string | null,
+  ): PurchaseRequestSearchResult {
+    return searchPurchaseRequests(session, this.snapshot(), query, targetOrganizationId);
+  }
+
+  /** Compras queue count. Never includes another tenant. Denial has no number. */
+  countQueue(
+    session: PurchaseRequestSession | null | undefined,
+    targetOrganizationId?: string | null,
+  ): PurchaseRequestCountResult {
+    return countPurchaseRequests(session, this.snapshot(), targetOrganizationId);
+  }
+
+  /** Suggests buyers in the session tenant. Never names another tenant's requester. */
+  suggestBuyers(
+    session: PurchaseRequestSession | null | undefined,
+    query: string,
+    targetOrganizationId?: string | null,
+  ): PurchaseBuyerSuggestionResult {
+    return suggestPurchaseBuyers(session, this.people, query, targetOrganizationId);
+  }
+
+  private snapshot(): PurchaseRequest[] {
+    return [...this.records.values()];
+  }
+
+  private rememberPerson(organizationId: string, label: string, role: 'buyer' | 'requester') {
+    const trimmed = label.trim();
+    if (!organizationId || !trimmed) return;
+    const exists = this.people.some(
+      (person) =>
+        person.organizationId === organizationId &&
+        person.role === role &&
+        person.label.toLocaleLowerCase('es') === trimmed.toLocaleLowerCase('es'),
+    );
+    if (!exists) this.people.push({ organizationId, label: trimmed, role });
   }
 
   private findByIdempotency(organizationId: string, idempotencyKey: string): PurchaseRequest | null {

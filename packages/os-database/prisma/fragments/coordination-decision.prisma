@@ -1,0 +1,33 @@
+// Coordination decision fragment. Not included by schema.prisma.
+// Integration later: add `coordinationDecisions OsCoordinationDecision[]` on OsOrganization.
+// Do not add that line in this lane.
+// linkedCaseId is opaque. It is not a foreign key to a case, order, production, or payment row.
+// Resolution is a new row. Do not UPDATE a prior decision to close it.
+// This table does not grant production, finance, or warehouse authority.
+// Cargo and title never grant coordination.decision.record.
+
+/// A recorded decision or a later resolution row. Not a meeting minute.
+model OsCoordinationDecision {
+  id                   String    @id
+  organizationId       String    @map("organization_id")
+  kind                 String    @default("recorded")
+  decision             String
+  ownerLabel           String?   @map("owner_label")
+  ownerMemberId        String?   @map("owner_member_id")
+  /// Caller-provided date or instant. Not a meeting slot. Stored as text so a date is not rewritten.
+  dueAt                String?   @map("due_at")
+  actorLabel           String    @map("actor_label")
+  actorMemberId        String?   @map("actor_member_id")
+  occurredAt           DateTime  @map("occurred_at")
+  linkedCaseId         String?   @map("linked_case_id")
+  notes                String?
+  resolvesDecisionId   String?   @map("resolves_decision_id")
+  recordedAt           DateTime  @map("recorded_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, occurredAt])
+  @@index([organizationId, kind])
+  @@map("os_coordination_decisions")
+}

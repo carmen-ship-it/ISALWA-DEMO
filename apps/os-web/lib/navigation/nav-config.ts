@@ -37,6 +37,12 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'fileText',
   },
   { id: 'trabajo', href: '/trabajo', labelKey: 'nav.trabajo', icon: 'briefcase' },
+  { id: 'productos', href: '/productos', labelKey: 'nav.productos', icon: 'fileText' },
+  { id: 'produccion', href: '/produccion', labelKey: 'nav.produccion', icon: 'briefcase' },
+  { id: 'almacen', href: '/almacen', labelKey: 'nav.almacen', icon: 'briefcase' },
+  { id: 'compras', href: '/compras', labelKey: 'nav.compras', icon: 'wallet' },
+  { id: 'entregas', href: '/entregas', labelKey: 'nav.entregas', icon: 'briefcase' },
+  { id: 'coordinacion', href: '/coordinacion', labelKey: 'nav.coordinacion', icon: 'check' },
   { id: 'aprobaciones', href: '/aprobaciones', labelKey: 'nav.aprobaciones', icon: 'check' },
   {
     id: 'administracion',

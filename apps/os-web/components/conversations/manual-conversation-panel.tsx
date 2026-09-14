@@ -8,7 +8,7 @@ import {
   MANUAL_CONVERSATION_ERRORS,
   admitManualConversation,
 } from '@/lib/conversations/manual-conversation';
-import type { ManualCustomerConversation } from '../../../../packages/os-contracts/src/customer-conversation';
+import type { ManualCustomerConversation } from '@isalwa/os-contracts';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';

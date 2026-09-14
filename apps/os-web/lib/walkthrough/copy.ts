@@ -1,35 +1,27 @@
-import type { TourWelcome } from './types';
+/** Chrome for Modo guiado. No names, numbers, or search suggestions. */
 
-/** Local fallback until chapters/global.ts registers a welcome. Not a product chapter. */
-export const FALLBACK_WELCOME: TourWelcome = {
-  title: 'Bienvenido a ISALWA',
-  kicker: 'Primer paso',
-  body: 'Puedes salir cuando quieras y volver desde Ayuda.',
-};
-
-export const SHELL_CONTROLS = {
-  start: 'Comenzar recorrido',
-  explore: 'Explorar por mi cuenta',
-  close: 'Cerrar recorrido',
-  later: 'Continuar después',
-  home: 'Volver a Inicio',
-  previous: 'Anterior',
-  next: 'Siguiente',
-  replay: 'Volver a hacer el recorrido',
-  pageTour: 'Ver recorrido de esta página',
-  pageOfferTitle: '¿Primera vez aquí?',
-  viewTour: 'Ver recorrido',
-  notNow: 'Ahora no',
+export const GUIDE_CHROME = {
+  kicker: 'Modo guiado',
+  title: 'Recorrido del piloto',
+  continue: 'Continuar',
+  close: 'Cerrar',
+  show: 'Mostrar recorrido',
+  reset: 'Restablecer recorrido',
+  replay: 'Repetir',
+  ayuda: 'Repetir desde Ayuda',
+  localNote: 'El avance queda en este navegador. No es un registro de la empresa.',
+  routePill: 'En esta rama',
+  wavePill: 'En esta ola',
+  patternPill: 'Sin ejemplo',
+  closeLabel: 'Cerrar recorrido',
 } as const;
 
-export const LEARNING_MODE_LABEL = 'Modo aprendizaje';
+export function progressLabel(index: number, total: number): string {
+  const safeTotal = Math.max(total, 1);
+  const safeIndex = Math.min(Math.max(index, 0), safeTotal - 1);
+  return `Paso ${safeIndex + 1} de ${safeTotal}`;
+}
 
-export const STATE_LABEL_TEXT = {
-  disponible: 'Disponible',
-  manual: 'Manual',
-  parcial: 'Parcial',
-  preparacion: 'En preparación',
-  proximamente: 'Próximamente',
-  'vista-demo': 'Vista demo',
-  validacion: 'Validación',
-} as const;
+export function replayLabel(title: string): string {
+  return `${GUIDE_CHROME.replay} ${title}`;
+}

@@ -1,9 +1,9 @@
-import { EmptyState, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
+import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
 
 /**
- * Presentational Entrega panel. Not mounted.
- * CROSS_LANE: mount from apps/os-web/app/(app)/clientes/[partyId]/pedidos/[orderId]/page.tsx
- * only after that shared order page is free. Do not invent a number there.
+ * Entrega panel. Mounted on /entregas. Not mounted on the pedido page.
+ * Numbering stays unknown. This is an internal record, not an official number.
  * Warehouse exit and customer delivery stay in separate sections.
  */
 
@@ -24,17 +24,24 @@ export type EntregaEvidenceView = {
   signatureReference: string | null;
 };
 
+export type EntregaPanelStatus = 'ready' | 'empty' | 'loading' | 'error' | 'permission';
+
 export type EntregaPanelProps = {
+  status?: EntregaPanelStatus;
   warehouseExits: Array<{
+    id?: string;
     exitedAt: string;
     recordedByLabel: string;
+    sourceLabel?: string;
     notes: string | null;
     lines: EntregaLineView[];
   }>;
   deliveries: Array<{
+    id?: string;
     deliveredAt: string;
     deliveredTo: string | null;
     recordedByLabel: string;
+    sourceLabel?: string;
     notes: string | null;
     lines: EntregaLineView[];
     evidence: EntregaEvidenceView[];
@@ -62,8 +69,8 @@ function LineList({ lines }: { lines: EntregaLineView[] }) {
   }
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Cantidades conocidas">
-      {lines.map((line) => (
-        <li key={`${line.description}:${line.quantity}`} className="flex items-baseline justify-between gap-4 py-3 text-sm">
+      {lines.map((line, index) => (
+        <li key={`${line.description}:${line.quantity}:${index}`} className="flex items-baseline justify-between gap-4 py-3 text-sm">
           <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
           <span className="text-[var(--isalwa-slate)]">
             {line.quantity}
@@ -75,9 +82,79 @@ function LineList({ lines }: { lines: EntregaLineView[] }) {
   );
 }
 
-export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) {
+function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
+  const items = buildEntregaChronology({ warehouseExits, deliveries });
+  return (
+    <section aria-label="Cronología" className="space-y-4">
+      <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+        Cronología
+      </h2>
+      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.
+      </p>
+      {items.length === 0 ? (
+        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">Sin movimientos en la cronología.</p>
+      ) : (
+        <Timeline
+          items={items.map((item) => ({
+            id: item.id,
+            label: item.label,
+            meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
+            body: (
+              <span>
+                {item.detail} Registró {item.recordedByLabel}.
+                {item.sourceLabel ? ` Origen: ${item.sourceLabel}.` : ''}
+              </span>
+            ),
+          }))}
+        />
+      )}
+    </section>
+  );
+}
+
+export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: EntregaPanelProps) {
+  const surface = status === 'ready' && warehouseExits.length === 0 && deliveries.length === 0 ? 'empty' : status;
+
+  if (surface === 'loading') {
+    return (
+      <div className="space-y-6" data-entrega-boundary="loading" aria-busy="true" aria-live="polite">
+        <p className="text-sm text-[var(--isalwa-slate)]">Cargando el registro de entrega.</p>
+        <Skeleton h={18} rounded="pill" />
+        <Skeleton h={96} rounded="panel" />
+      </div>
+    );
+  }
+
+  if (surface === 'error') {
+    return (
+      <div data-entrega-boundary="error">
+        <EmptyState
+          title="No se pudo cargar el registro de entrega."
+          description="Este es un registro interno de entrega. No reclama un número oficial."
+        />
+      </div>
+    );
+  }
+
+  if (surface === 'permission') {
+    return (
+      <div data-entrega-boundary="permission" role="alert">
+        <EmptyState
+          title="No tiene permiso para ver este registro de entrega."
+          description="Este es un registro interno de entrega. No reclama un número oficial."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
+      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Este es un registro interno de entrega. No reclama un número oficial.
+      </p>
+      <Chronology warehouseExits={warehouseExits} deliveries={deliveries} />
+
       <PageSection card className="bg-white p-8 md:p-10">
         <SectionHeader
           kicker="Entrega"
@@ -103,7 +180,7 @@ export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) 
         ) : (
           <ul className="mt-8 space-y-8" aria-label="Salidas de almacén">
             {warehouseExits.map((exit) => (
-              <li key={exit.exitedAt} className="space-y-4">
+              <li key={exit.id ?? exit.exitedAt} className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   <StatusPill tone="neutral">Sin número</StatusPill>
                 </div>
@@ -115,6 +192,10 @@ export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) 
                   <div>
                     <dt className="isalwa-section-label">Registró</dt>
                     <dd className="mt-2 text-[var(--isalwa-kiln)]">{exit.recordedByLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="isalwa-section-label">Origen</dt>
+                    <dd className="mt-2 text-[var(--isalwa-kiln)]">{exit.sourceLabel ?? 'Registro interno'}</dd>
                   </div>
                 </dl>
                 {exit.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{exit.notes}</p> : null}
@@ -161,6 +242,9 @@ export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) 
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           No hay un método de firma. Solo se puede anotar una referencia de evidencia.
         </p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.
+        </p>
 
         {deliveries.length === 0 ? (
           <EmptyState
@@ -173,7 +257,7 @@ export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) 
             {deliveries.map((delivery) => {
               const payment = delivery.evidence.find((item) => item.role === 'accounting_payment') ?? null;
               return (
-                <li key={delivery.deliveredAt} className="space-y-6">
+                <li key={delivery.id ?? delivery.deliveredAt} className="space-y-6">
                   <div className="flex flex-wrap gap-2">
                     <StatusPill tone="success">Entregada</StatusPill>
                     <StatusPill tone="neutral">Sin número</StatusPill>
@@ -195,6 +279,10 @@ export function EntregaPanel({ warehouseExits, deliveries }: EntregaPanelProps) 
                     <div>
                       <dt className="isalwa-section-label">Registró</dt>
                       <dd className="mt-2 text-[var(--isalwa-kiln)]">{delivery.recordedByLabel}</dd>
+                    </div>
+                    <div>
+                      <dt className="isalwa-section-label">Origen</dt>
+                      <dd className="mt-2 text-[var(--isalwa-kiln)]">{delivery.sourceLabel ?? 'Registro interno'}</dd>
                     </div>
                     {delivery.deliveredTo ? (
                       <div>

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { WHATSAPP_NUMBER_PENDING } from '../../../../packages/os-contracts/src/customer-conversation';
+import { WHATSAPP_NUMBER_PENDING } from '@isalwa/os-contracts';
 import { MANUAL_CONVERSATION_COPY, admitManualConversation } from './manual-conversation';
 
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), '../../app/(app)/mensajes/page.tsx');

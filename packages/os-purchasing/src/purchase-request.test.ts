@@ -52,8 +52,8 @@ describe('purchase request does not claim official stock truth', () => {
     assert.equal(created.request.stockAuthority, 'not_official');
     assert.equal(purchaseRequestClaimsOfficialStock(created.request), false);
     assert.equal(purchaseRequestMayPostInventory(), false);
-    assert.equal(created.request.status, 'requested');
-    assert.equal(PURCHASE_REQUEST_STATUS_LABELS[created.request.status], 'Pedido de compra');
+    assert.equal(created.request.status, 'solicitado');
+    assert.equal(PURCHASE_REQUEST_STATUS_LABELS[created.request.status], 'Solicitado');
     assert.match(PURCHASE_REQUEST_BOUNDARY, /no prueba que no haya stock/i);
     assert.equal('shortage' in created.request, false);
     assert.equal('stockOnHand' in created.request, false);
@@ -118,7 +118,7 @@ describe('purchase request tenant isolation', () => {
     });
     assert.equal(crossed.ok, false);
     if (!crossed.ok) assert.equal(crossed.reason, 'not_found');
-    assert.equal(store.get('org-a', created.request.id)?.status, 'requested');
+    assert.equal(store.get('org-a', created.request.id)?.status, 'solicitado');
     assert.equal(store.get('org-a', created.request.id)?.description, 'Tinta negra para etiquetas');
   });
 });
@@ -133,7 +133,7 @@ describe('purchase request status history', () => {
     const before = store.get('org-a', created.request.id);
     assert.ok(before);
     const opened = store.changeStatus('org-a', created.request.id, {
-      status: 'in_progress',
+      status: 'cotizandose',
       at: later,
       actorLabel: 'Encargada de compras',
       statusEntryId: 'hist-2',
@@ -143,8 +143,17 @@ describe('purchase request status history', () => {
     assert.equal(opened.ok, true);
     if (!opened.ok) return;
 
+    const preparing = store.changeStatus('org-a', created.request.id, {
+      status: 'pedido_preparandose',
+      at: '2026-09-14T17:00:00.000Z',
+      actorLabel: 'Encargada de compras',
+      statusEntryId: 'hist-2b',
+    });
+    assert.equal(preparing.ok, true);
+    if (!preparing.ok) return;
+
     const done = store.changeStatus('org-a', created.request.id, {
-      status: 'received',
+      status: 'entregado',
       at: receivedAt,
       actorLabel: 'Encargada de compras',
       statusEntryId: 'hist-3',
@@ -153,20 +162,22 @@ describe('purchase request status history', () => {
     if (!done.ok) return;
 
     assert.ok(before);
-    assert.equal(before.status, 'requested');
+    assert.equal(before.status, 'solicitado');
     assert.equal(before.statusHistory.length, 1);
-    assert.equal(done.request.status, 'received');
-    assert.equal(done.request.statusHistory.length, 3);
+    assert.equal(done.request.status, 'entregado');
+    assert.equal(done.request.statusHistory.length, 4);
     assert.deepEqual(done.request.statusHistory[0], before.statusHistory[0]);
-    assert.equal(done.request.statusHistory[1]?.fromStatus, 'requested');
-    assert.equal(done.request.statusHistory[1]?.toStatus, 'in_progress');
-    assert.equal(done.request.statusHistory[2]?.fromStatus, 'in_progress');
-    assert.equal(done.request.statusHistory[2]?.toStatus, 'received');
+    assert.equal(done.request.statusHistory[1]?.fromStatus, 'solicitado');
+    assert.equal(done.request.statusHistory[1]?.toStatus, 'cotizandose');
+    assert.equal(done.request.statusHistory[2]?.fromStatus, 'cotizandose');
+    assert.equal(done.request.statusHistory[2]?.toStatus, 'pedido_preparandose');
+    assert.equal(done.request.statusHistory[3]?.fromStatus, 'pedido_preparandose');
+    assert.equal(done.request.statusHistory[3]?.toStatus, 'entregado');
     assert.equal(done.request.buyerLabel, 'Encargada de compras');
-    assert.equal(PURCHASE_REQUEST_STATUS_LABELS.received, 'Recibido');
+    assert.equal(PURCHASE_REQUEST_STATUS_LABELS.entregado, 'Entregado');
 
     const skipped = store.changeStatus('org-a', 'missing', {
-      status: 'received',
+      status: 'entregado',
       at: receivedAt,
       actorLabel: 'Encargada de compras',
       statusEntryId: 'hist-skip',
@@ -189,14 +200,20 @@ describe('purchase request does not reorder', () => {
     if (!created.ok) return;
 
     store.changeStatus('org-a', created.request.id, {
-      status: 'in_progress',
+      status: 'cotizandose',
       at: later,
       actorLabel: 'Encargada de compras',
       statusEntryId: 'hist-2',
       buyerLabel: 'Encargada de compras',
     });
+    store.changeStatus('org-a', created.request.id, {
+      status: 'pedido_preparandose',
+      at: '2026-09-14T17:00:00.000Z',
+      actorLabel: 'Encargada de compras',
+      statusEntryId: 'hist-2b',
+    });
     const received = store.changeStatus('org-a', created.request.id, {
-      status: 'received',
+      status: 'entregado',
       at: receivedAt,
       actorLabel: 'Encargada de compras',
       statusEntryId: 'hist-3',
@@ -237,7 +254,7 @@ describe('purchase request does not reorder', () => {
 });
 
 describe('purchase request files stay outside stock and ERP', () => {
-  it('keeps the migration, fragment, and unmounted panel on the request boundary', () => {
+  it('keeps the old migration and mounts the queue without a stock claim', () => {
     const root = join(__dirname, '../../..');
     const sql = readFileSync(
       join(root, 'packages/os-database/prisma/migrations/20260915180000_os_purchase_request/migration.sql'),
@@ -251,12 +268,29 @@ describe('purchase request files stay outside stock and ERP', () => {
       join(root, 'apps/os-web/components/purchasing/purchase-request-panel.tsx'),
       'utf8',
     );
+    const page = readFileSync(join(root, 'apps/os-web/app/(app)/compras/page.tsx'), 'utf8');
     const contractIndex = readFileSync(join(root, 'packages/os-contracts/src/index.ts'), 'utf8');
 
     for (const table of PURCHASE_REQUEST_TABLES) {
       assert.match(sql, new RegExp(`CREATE TABLE ${table}`));
     }
     assert.match(sql, /status IN \('requested', 'in_progress', 'received', 'cancelled'\)/);
+    const workflow = readFileSync(
+      join(
+        root,
+        'packages/os-database/prisma/migrations/20260916140000_os_purchase_status_workflow/migration.sql',
+      ),
+      'utf8',
+    );
+    assert.match(workflow, /requested.*solicitado/s);
+    assert.match(workflow, /in_progress.*cotizandose/s);
+    assert.match(workflow, /received.*entregado/s);
+    assert.match(workflow, /cancelled stays cancelled|cancelled' THEN 'cancelled'|ELSE status/i);
+    assert.match(
+      workflow,
+      /status IN \('solicitado', 'cotizandose', 'pedido_preparandose', 'entregado', 'cancelled'\)/,
+    );
+    assert.doesNotMatch(workflow, /shortage|reorder_point|supplier_party|approval_threshold/i);
     assert.match(sql, /stock_authority = 'not_official'/);
     assert.match(sql, /reorder_policy = 'none'/);
     assert.match(sql, /source = 'manual'/);
@@ -272,8 +306,94 @@ describe('purchase request files stay outside stock and ERP', () => {
     for (const label of Object.values(PURCHASE_REQUEST_STATUS_LABELS)) {
       assert.match(panel, new RegExp(label));
     }
-    assert.match(panel, /Unmounted/);
-    assert.doesNotMatch(panel, /punto de reorden|sin stock|proveedor|supplierPartyId|reorderPoint/i);
+    assert.doesNotMatch(panel, /Unmounted/);
+    assert.match(page, /PurchaseRequestPanel/);
+    assert.doesNotMatch(panel, /punto de reorden|sin stock|proveedor|supplierPartyId|reorderPoint|faltante|shortage/i);
+    assert.doesNotMatch(page, /punto de reorden|sin stock|proveedor|faltante|shortage/i);
     assert.match(contractIndex, /export \* from '\.\/purchase-request'/);
+  });
+});
+
+describe('purchase request queue access', () => {
+  const buyer = { organizationId: 'org-a', role: 'buyer' as const };
+
+  function seed() {
+    const store = openStore();
+    ask(store, { id: 'pr-a', requestedByLabel: 'Ana del área', statusEntryId: 'hist-a' });
+    ask(store, {
+      id: 'pr-b',
+      organizationId: 'org-b',
+      requestedByLabel: 'Beatriz de otra empresa',
+      description: 'Caja ajena',
+      statusEntryId: 'hist-b',
+    });
+    store.assignBuyer('org-a', 'pr-a', {
+      buyerLabel: 'Encargada de compras',
+      at: later,
+      actorLabel: 'Encargada de compras',
+    });
+    store.assignBuyer('org-b', 'pr-b', {
+      buyerLabel: 'Compradora ajena',
+      at: later,
+      actorLabel: 'Compradora ajena',
+    });
+    return store;
+  }
+
+  it('allows the same tenant and denies an unauthorized role', () => {
+    const store = seed();
+    const allowed = store.readQueue(buyer);
+    assert.equal(allowed.ok, true);
+    if (!allowed.ok) return;
+    assert.equal(allowed.count, 1);
+    assert.equal(allowed.requests[0]?.id, 'pr-a');
+
+    const denied = store.readQueue({ organizationId: 'org-a', role: 'finance' });
+    assert.equal(denied.ok, false);
+    if (!denied.ok) assert.equal(denied.reason, 'unauthorized_role');
+    assert.equal('count' in denied, false);
+    assert.equal('requests' in denied, false);
+  });
+
+  it('denies cross-tenant reads and a direct call without a session organization', () => {
+    const store = seed();
+    const crossed = store.readQueue(buyer, 'org-b');
+    assert.equal(crossed.ok, false);
+    if (!crossed.ok) assert.equal(crossed.reason, 'cross_tenant');
+    assert.equal('requests' in crossed, false);
+
+    const missing = store.countQueue(null);
+    assert.equal(missing.ok, false);
+    if (!missing.ok) assert.equal(missing.reason, 'session_org_required');
+    assert.equal('count' in missing, false);
+  });
+
+  it('does not leak another tenant through search or the Compras queue count', () => {
+    const store = seed();
+    const search = store.searchQueue(buyer, 'Beatriz de otra empresa');
+    assert.equal(search.ok, true);
+    if (!search.ok) return;
+    assert.equal(search.requests.length, 0);
+    assert.equal(JSON.stringify(search).includes('Beatriz'), false);
+
+    const count = store.countQueue(buyer);
+    assert.equal(count.ok, true);
+    if (!count.ok) return;
+    assert.equal(count.count, 1);
+    assert.notEqual(count.count, store.list('org-a').length + store.list('org-b').length);
+  });
+
+  it('does not name another tenant’s requester as a buyer suggestion', () => {
+    const store = seed();
+    const suggestions = store.suggestBuyers(buyer, 'Beatriz');
+    assert.equal(suggestions.ok, true);
+    if (!suggestions.ok) return;
+    assert.deepEqual(suggestions.labels, []);
+    assert.equal(suggestions.labels.includes('Beatriz de otra empresa'), false);
+
+    const own = store.suggestBuyers(buyer, 'Encargada');
+    assert.equal(own.ok, true);
+    if (!own.ok) return;
+    assert.deepEqual(own.labels, ['Encargada de compras']);
   });
 });

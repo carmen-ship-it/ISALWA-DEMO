@@ -17,7 +17,9 @@ export default function AyudaPage() {
         title="Cómo trabajamos"
         description="Reglas ya vigentes en ISALWA. No sustituyen una autorización ni un dato que aún no existe."
       />
-      <WalkthroughHelpPanel />
+      <div data-guide-replay="ayuda">
+        <WalkthroughHelpPanel />
+      </div>
       <div className="mb-8 space-y-8">
         {workflows.map((section) => (
           <section key={section.id} aria-labelledby={`guidance-${section.id}`}>

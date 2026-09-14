@@ -4,6 +4,7 @@ import {
   ORDER_CASE_ACCOUNTING,
   ORDER_CASE_PAYMENT_NOT_REQUIRED,
   ORDER_CASE_PENDING,
+  ORDER_CASE_UNAVAILABLE,
   orderCasePanelModel,
 } from './operational-case';
 
@@ -79,6 +80,8 @@ describe('order case panel', () => {
     assert.equal(model.accounting, ORDER_CASE_ACCOUNTING);
     assert.match(model.paymentNotRequired, /no es siempre requisito|no solo por un pago/i);
     assert.equal(model.paymentNotRequired, ORDER_CASE_PAYMENT_NOT_REQUIRED);
+    assert.match(ORDER_CASE_UNAVAILABLE, /no se inventan/i);
+    assert.equal(/pago confirmado/i.test(ORDER_CASE_UNAVAILABLE), false);
 
     const copy = JSON.stringify(model);
     for (const pattern of FORBIDDEN) {

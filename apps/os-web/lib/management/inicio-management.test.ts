@@ -57,8 +57,8 @@ describe('Inicio management lens', () => {
       ['Qué está esperando', 'Quién lo maneja', 'Qué necesita atención'],
     );
     assert.equal(
-      model.labels.some((item) => item.lane === 'owner'),
-      false,
+      model.labels.every((item) => item.lane === 'waiting' || item.lane === 'attention'),
+      true,
     );
 
     const copy = [

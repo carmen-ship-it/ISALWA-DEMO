@@ -17,6 +17,8 @@ export const ORDER_CASE_ACCOUNTING = 'La contabilidad oficial queda afuera.';
 export const ORDER_CASE_PAYMENT_NOT_REQUIRED =
   'Se puede seguir con el pedido por un acuerdo comercial, no solo por un pago.';
 export const ORDER_CASE_RELEASE_NOT_PAYMENT = 'Esta decisión no confirma el pago.';
+export const ORDER_CASE_UNAVAILABLE =
+  'Las anotaciones de este pedido no están en esta vista. No se inventan.';
 
 const FORBIDDEN_COPY = [
   /\bpagado\b/i,

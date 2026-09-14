@@ -1,0 +1,29 @@
+// Additive Prisma fragment. Not applied to schema.prisma in this lane.
+// Pedido especial is an explicit classification. There is no numeric threshold column.
+// Requires-production-planning is a separate explicit flag. Special does not set it.
+// Customer date and production date are not columns here and are not added to OsOrder.
+// orderId is opaque. No relation to OsOrder.
+//
+// CROSS_LANE: when merging, add this field to model OsOrganization, then paste the model below:
+//   specialOrderClassifications       OsSpecialOrderClassification[]
+
+/// Append-only classification. Later rows audit the change. Nothing here is computed from quantity.
+model OsSpecialOrderClassification {
+  id                                 String   @id
+  organizationId                     String   @map("organization_id")
+  orderId                            String   @map("order_id")
+  classification                     String
+  requiresProductionPlanning         Boolean  @map("requires_production_planning")
+  actorMemberId                      String?  @map("actor_member_id")
+  actorLabel                         String   @map("actor_label")
+  source                             String
+  recordedAt                         DateTime @map("recorded_at")
+  previousClassification             String?  @map("previous_classification")
+  previousRequiresProductionPlanning Boolean? @map("previous_requires_production_planning")
+  createdAt                          DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, orderId, recordedAt])
+  @@map("os_special_order_classifications")
+}

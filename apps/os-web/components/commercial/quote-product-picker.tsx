@@ -1,20 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, SearchField } from '@isalwa/ui';
+import { Button, SearchField, StatusPill } from '@isalwa/ui';
+import { parseBobInputToCentavos } from '@/lib/commercial/parse-money-input';
+import { formatCentavos } from '@/lib/commercial/money';
 import {
   ADD_LINE_NEXT_ACTION,
   CATALOG_NO_MATCH_COPY,
   CATALOG_SEARCH_LABEL,
   CATALOG_UNAVAILABLE_COPY,
+  NO_GOVERNED_PRICE_COPY,
+  PENDING_APPROVAL_COPY,
   QUOTED_PRICE_HINT,
   QUOTED_PRICE_LABEL,
+  REFERENCE_PRICE_LABEL,
   SNAPSHOT_NOTE,
   SPECIAL_ITEM_LABEL,
   catalogIsAvailable,
+  emptyPriceReferencePort,
   emptyProductSearchPort,
+  governAdvisorQuote,
   searchCatalog,
   type CatalogProductHit,
+  type GovernedPriceReference,
+  type PriceReferencePort,
   type ProductSearchPort,
 } from '@/lib/commercial/product-picker';
 
@@ -24,6 +33,7 @@ const fieldClass =
 type QuoteProductPickerProps = {
   organizationId: string;
   searchPort?: ProductSearchPort;
+  pricePort?: PriceReferencePort;
   onReadyChange?: (ready: boolean) => void;
 };
 
@@ -34,6 +44,7 @@ type Selection =
 export function QuoteProductPicker({
   organizationId,
   searchPort = emptyProductSearchPort,
+  pricePort = emptyPriceReferencePort,
   onReadyChange,
 }: QuoteProductPickerProps) {
   const catalogReady = catalogIsAvailable(searchPort);
@@ -42,8 +53,15 @@ export function QuoteProductPicker({
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [quantity, setQuantity] = useState('1');
+  const [quotedPrice, setQuotedPrice] = useState('');
+  const [reference, setReference] = useState<GovernedPriceReference | null>(null);
 
   const ready = selection != null && selection.name.trim().length > 0;
+  const governance = governAdvisorQuote({
+    quotedCentavos: parseBobInputToCentavos(quotedPrice),
+    governedCentavos: reference?.amountCentavos ?? null,
+  });
 
   useEffect(() => {
     onReadyChange?.(ready);
@@ -73,7 +91,33 @@ export function QuoteProductPicker({
     };
   }, [organizationId, query, searchPort]);
 
+  useEffect(() => {
+    if (selection?.kind !== 'catalog') {
+      setReference(null);
+      return;
+    }
+    const qty = Number.parseInt(quantity, 10);
+    if (!organizationId.trim() || !Number.isFinite(qty) || qty < 1) {
+      setReference(null);
+      return;
+    }
+    let cancelled = false;
+    void pricePort
+      .referenceFor({
+        organizationId,
+        productId: selection.productId,
+        quantity: qty,
+      })
+      .then((found) => {
+        if (!cancelled) setReference(found);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId, pricePort, quantity, selection]);
+
   function selectHit(hit: CatalogProductHit) {
+    setReference(null);
     setSelection({
       kind: 'catalog',
       productId: hit.productId,
@@ -87,6 +131,7 @@ export function QuoteProductPicker({
 
   function startSpecial() {
     if (selection?.kind === 'special') return;
+    setReference(null);
     setSelection({ kind: 'special', name: '', detail: '', note: '' });
     setQuery('');
     setHits([]);
@@ -119,7 +164,7 @@ export function QuoteProductPicker({
             setQuery(event.target.value);
             if (selection?.kind === 'catalog') setSelection(null);
           }}
-          placeholder="Nombre del producto"
+          placeholder="Nombre, categoría o detalle técnico"
           autoComplete="off"
           className="mt-2"
         />
@@ -223,7 +268,15 @@ export function QuoteProductPicker({
               <label htmlFor="new-qty" className="isalwa-section-label">
                 Cantidad
               </label>
-              <input id="new-qty" name="quantity" required defaultValue="1" className={fieldClass} />
+              <input
+                id="new-qty"
+                name="quantity"
+                required
+                inputMode="numeric"
+                value={quantity}
+                onChange={(event) => setQuantity(event.target.value)}
+                className={fieldClass}
+              />
             </div>
             <div>
               <label htmlFor="new-unit" className="isalwa-section-label">
@@ -231,12 +284,37 @@ export function QuoteProductPicker({
               </label>
               <input id="new-unit" name="unitLabel" className={fieldClass} />
             </div>
+            {selection.kind === 'catalog' ? (
+              <div className="sm:col-span-2">
+                <p className="isalwa-section-label">{REFERENCE_PRICE_LABEL}</p>
+                {reference ? (
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                    {reference.context} · {formatCentavos(reference.amountCentavos, reference.currency)}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{NO_GOVERNED_PRICE_COPY}</p>
+                )}
+              </div>
+            ) : null}
             <div>
               <label htmlFor="new-price" className="isalwa-section-label">
                 {QUOTED_PRICE_LABEL}
               </label>
-              <input id="new-price" name="unitPrice" required className={fieldClass} />
+              <input
+                id="new-price"
+                name="unitPrice"
+                required
+                value={quotedPrice}
+                onChange={(event) => setQuotedPrice(event.target.value)}
+                className={fieldClass}
+              />
               <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
+              {governance.approval === 'pending' ? (
+                <div className="mt-3 space-y-2">
+                  <StatusPill tone="warning">Pendiente de aprobación</StatusPill>
+                  <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{PENDING_APPROVAL_COPY}</p>
+                </div>
+              ) : null}
             </div>
             <div>
               <label htmlFor="new-disc" className="isalwa-section-label">

@@ -10,16 +10,22 @@ import {
   QUOTED_PRICE_LABEL,
   QUOTED_PRICE_READ_LABEL,
   SPECIAL_ITEM_LABEL,
+  emptyPriceReferencePort,
   emptyProductSearchPort,
+  governAdvisorQuote,
+  NO_GOVERNED_PRICE_COPY,
+  REFERENCE_PRICE_LABEL,
   isCatalogProductRef,
   isOffCatalogProductRef,
   lineProvenanceView,
+  matchesSalesSearch,
   publicCatalogHit,
   quoteLinesAreEditable,
   quotedPriceEntry,
   resolveAddQuoteLineDraft,
   searchCatalog,
   snapshotCatalogSelection,
+  suggestCatalog,
   type CatalogProductHit,
   type ProductSearchPort,
 } from '@/lib/commercial/product-picker';
@@ -249,5 +255,79 @@ describe('quote product picker', () => {
     assert.match(quotePage, /lineProvenanceView/);
     assert.doesNotMatch([editor, picker, actions, quotePage].join('\n'), FORBIDDEN_PRICE_LABEL);
     assert.doesNotMatch(picker, /unitPriceCentavos|listPrice|precioLista/);
+    assert.doesNotMatch(picker, /name="sku"|businessCode|código comercial/);
+  });
+
+  it('keeps a null commercial code searchable and does not require one', async () => {
+    const hit = catalogHit({ businessCode: null, attributeValues: ['gravedad'], aliases: ['inodoro'] });
+    assert.equal(hit.businessCode, null);
+    assert.equal(matchesSalesSearch(hit, 'Capri'), true);
+    assert.equal(matchesSalesSearch(hit, 'gravedad'), true);
+    assert.equal(matchesSalesSearch(hit, 'invented-sku'), false);
+    const draft = snapshotCatalogSelection(hit);
+    assert.equal(draft.productRef, 'prod_capri');
+    assert.equal('businessCode' in draft, false);
+
+    const port: ProductSearchPort = {
+      catalogAvailable: true,
+      async search() {
+        return [hit];
+      },
+    };
+    const hits = await searchCatalog(port, { organizationId: 'org-1', text: 'Capri' });
+    assert.equal(hits[0]?.productId, 'prod_capri');
+    assert.equal('businessCode' in (hits[0] ?? {}), false);
+  });
+
+  it('does not invent a governed price and does not treat the quote as a list price', async () => {
+    assert.equal(await emptyPriceReferencePort.referenceFor({
+      organizationId: 'org-1',
+      productId: 'prod_capri',
+      quantity: 1,
+    }), null);
+    const missing = governAdvisorQuote({ quotedCentavos: '800', governedCentavos: null });
+    assert.equal(missing.quotedIsListPrice, false);
+    assert.equal(missing.blocksQuote, false);
+    assert.equal(missing.approval, 'not_applicable');
+    assert.equal(missing.governedCentavos, null);
+
+    const pending = governAdvisorQuote({ quotedCentavos: '100', governedCentavos: '250' });
+    assert.equal(pending.approval, 'pending');
+    assert.equal(pending.quotedIsListPrice, false);
+    assert.equal(pending.blocksQuote, false);
+    assert.equal(REFERENCE_PRICE_LABEL, 'Precio de referencia');
+    assert.match(NO_GOVERNED_PRICE_COPY, /no se bloquea/i);
+    assert.match(picker, /REFERENCE_PRICE_LABEL/);
+    assert.match(picker, /Pendiente de aprobación/);
+    assert.match(picker, /PENDING_APPROVAL_COPY/);
+    assert.doesNotMatch(picker, FORBIDDEN_PRICE_LABEL);
+  });
+
+  it('does not return another tenant name or amount from search or autocomplete', async () => {
+    const port: ProductSearchPort = {
+      catalogAvailable: true,
+      async search() {
+        return [
+          catalogHit({ organizationId: 'org-1' }),
+          {
+            ...catalogHit({
+              productId: 'prod_foreign',
+              name: 'Secreto Beta',
+              organizationId: 'org-2',
+            }),
+            amountCentavos: '424200',
+          } as CatalogProductHit,
+        ];
+      },
+    };
+    const hits = await searchCatalog(port, { organizationId: 'org-1', text: 'Capri' });
+    const suggestions = await suggestCatalog(port, { organizationId: 'org-1', text: 'Capri' });
+    const text = JSON.stringify({ hits, suggestions });
+    assert.equal(text.includes('Secreto Beta'), false);
+    assert.equal(text.includes('prod_foreign'), false);
+    assert.equal(text.includes('424200'), false);
+    assert.equal(hits.length, 1);
+    assert.equal(suggestions[0]?.name, 'Capri');
+    assert.equal('amountCentavos' in (suggestions[0] ?? {}), false);
   });
 });

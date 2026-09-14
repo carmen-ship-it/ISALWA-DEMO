@@ -1,2 +1,2 @@
 export { WalkthroughShell } from './walkthrough-shell';
-export { WalkthroughHelpPanel, LearningModeControl } from './walkthrough-help-panel';
+export { WalkthroughHelpPanel, replayFromAyuda } from './walkthrough-help-panel';
