@@ -11,6 +11,7 @@ import {
   applyEvidenceCorrection,
   extractionMayMutateCanonical,
   paymentClaimMayBeConfirmed,
+  questionRemainsOpen,
   truthLevelForSource,
   type ConfirmationState,
   type EvidenceChannel,
@@ -247,5 +248,566 @@ export function recordExtractionCorrection(
   return {
     ...corrected,
     authority: refuseUngovernedExtraction(corrected.sourceType),
+  };
+}
+
+/**
+ * A customer statement is not company-confirmed truth.
+ * Confirmation cannot upgrade it.
+ */
+export function customerStatementIsCompanyConfirmed(_confirmationState: ConfirmationState): false {
+  return false;
+}
+
+/** A customer message is not a confirmed payment. The text is ignored on purpose. */
+export function customerMessageConfirmsPayment(_text: string): false {
+  return false;
+}
+
+/**
+ * Company acceptance is not source and not confidence.
+ * A customer, employee, or model reading never qualifies.
+ */
+export function statementIsCompanyConfirmed(
+  sourceType: EvidenceSourceType,
+  confirmationState: ConfirmationState,
+): boolean {
+  if (
+    sourceType === 'customer_message' ||
+    sourceType === 'ai_inferred' ||
+    sourceType === 'employee_entered'
+  ) {
+    return false;
+  }
+  return confirmationState === 'confirmed';
+}
+
+/** Confirming a payment from a message is refused for every source, including an external system. */
+export function confirmPaymentFromMessage(_sourceType: EvidenceSourceType): {
+  accepted: false;
+  reason: 'payment_confirmation_refused';
+  paymentConfirmed: false;
+  canonicalMutation: 'refused';
+} {
+  return {
+    accepted: false,
+    reason: 'payment_confirmation_refused',
+    paymentConfirmed: false,
+    canonicalMutation: 'refused',
+  };
+}
+
+const AUTHORITATIVE_SOURCE_TYPES = ['external_system', 'isalwa_confirmed'] as const;
+
+function isAuthoritativeSource(sourceType: EvidenceSourceType): boolean {
+  return (AUTHORITATIVE_SOURCE_TYPES as readonly string[]).includes(sourceType);
+}
+
+export const EVIDENCE_REVIEW_ACTIONS = ['register_as_reported', 'dismiss', 'link_existing'] as const;
+export type EvidenceReviewAction = (typeof EVIDENCE_REVIEW_ACTIONS)[number];
+
+export type EvidenceReviewRefusal =
+  | 'already_dismissed'
+  | 'missing_link'
+  | 'missing_actor'
+  | 'authoritative_override_refused';
+
+export type EvidenceReviewInput =
+  | { action: 'register_as_reported'; at: string; actorMemberId: string }
+  | { action: 'dismiss'; at: string; actorMemberId: string; reason: string | null }
+  | {
+      action: 'link_existing';
+      at: string;
+      actorMemberId: string;
+      relatedRecordType: string;
+      relatedRecordId: string;
+    };
+
+export type EvidenceReviewResult =
+  | {
+      accepted: true;
+      action: EvidenceReviewAction;
+      fact: EvidenceFact;
+      authority: ExtractionAuthority;
+      paymentConfirmed: false;
+      canonicalMutation: 'refused';
+      companyConfirmed: false;
+      relatedRecordMutated: false;
+    }
+  | {
+      accepted: false;
+      reason: EvidenceReviewRefusal;
+      authority: ExtractionAuthority;
+      paymentConfirmed: false;
+      canonicalMutation: 'refused';
+      companyConfirmed: false;
+      relatedRecordMutated: false;
+    };
+
+const REPORTED_REVIEW_REASON =
+  'Registrado como dato reportado. No confirma el cobro ni cambia un registro.';
+const LINK_REVIEW_REASON = 'Vinculado a un registro existente. El registro no se modificó.';
+
+function refusedReview(
+  fact: EvidenceFact,
+  reason: EvidenceReviewRefusal,
+): EvidenceReviewResult {
+  return {
+    accepted: false,
+    reason,
+    authority: refuseUngovernedExtraction(fact.sourceType),
+    paymentConfirmed: false,
+    canonicalMutation: 'refused',
+    companyConfirmed: false,
+    relatedRecordMutated: false,
+  };
+}
+
+function acceptedReview(
+  action: EvidenceReviewAction,
+  fact: EvidenceFact,
+): EvidenceReviewResult {
+  return {
+    accepted: true,
+    action,
+    fact,
+    authority: refuseUngovernedExtraction(fact.sourceType),
+    paymentConfirmed: false,
+    canonicalMutation: 'refused',
+    companyConfirmed: false,
+    relatedRecordMutated: false,
+  };
+}
+
+function hasActor(input: { at: string; actorMemberId: string }): boolean {
+  return input.at.trim().length > 0 && input.actorMemberId.trim().length > 0;
+}
+
+/**
+ * Employee review of an extraction.
+ * Registers a reported reading, dismisses it, or points at an existing record.
+ * Does not confirm a payment and does not write the linked record.
+ */
+export function reviewEvidence(fact: EvidenceFact, input: EvidenceReviewInput): EvidenceReviewResult {
+  if (!hasActor(input)) return refusedReview(fact, 'missing_actor');
+
+  if (input.action === 'dismiss') {
+    if (isAuthoritativeSource(fact.sourceType)) {
+      return refusedReview(fact, 'authoritative_override_refused');
+    }
+    if (fact.confirmationState === 'dismissed') return refusedReview(fact, 'already_dismissed');
+    const corrected = recordExtractionCorrection(fact, {
+      at: input.at,
+      actorMemberId: input.actorMemberId,
+      action: 'dismiss',
+      reason: input.reason,
+    });
+    return acceptedReview('dismiss', corrected);
+  }
+
+  if (input.action === 'register_as_reported') {
+    if (isAuthoritativeSource(fact.sourceType)) {
+      return refusedReview(fact, 'authoritative_override_refused');
+    }
+    if (fact.confirmationState === 'dismissed') return refusedReview(fact, 'already_dismissed');
+    if (fact.confirmationState === 'reviewed') return acceptedReview('register_as_reported', fact);
+    const reviewed: EvidenceFact = {
+      ...fact,
+      confirmationState: 'reviewed',
+      revisions: [
+        ...fact.revisions,
+        {
+          at: input.at,
+          actorMemberId: input.actorMemberId,
+          action: 'correct',
+          reason: REPORTED_REVIEW_REASON,
+          previousInterpretation: fact.interpretation,
+          previousConfirmationState: fact.confirmationState,
+        },
+      ],
+    };
+    return acceptedReview('register_as_reported', reviewed);
+  }
+
+  const relatedRecordType = input.relatedRecordType.trim();
+  const relatedRecordId = input.relatedRecordId.trim();
+  if (!relatedRecordType || !relatedRecordId) return refusedReview(fact, 'missing_link');
+  const linked: EvidenceFact = {
+    ...fact,
+    relatedRecordType,
+    relatedRecordId,
+    revisions: [
+      ...fact.revisions,
+      {
+        at: input.at,
+        actorMemberId: input.actorMemberId,
+        action: 'correct',
+        reason: LINK_REVIEW_REASON,
+        previousInterpretation: fact.interpretation,
+        previousConfirmationState: fact.confirmationState,
+      },
+    ],
+  };
+  return acceptedReview('link_existing', linked);
+}
+
+export const AI_READY_CONTEXT_BOUNDARY =
+  'Un mensaje del cliente no es verdad confirmada por la empresa. Un mensaje no confirma un pago. Fuente, confianza y confirmación se conservan por separado. No cambies un pedido, un pago ni una ubicación.';
+
+export type AiReadyProvenance = {
+  sourceType: EvidenceSourceType;
+  sourceChannel: EvidenceChannel | null;
+  confidence: ExtractionConfidence | null;
+  confirmationState: ConfirmationState;
+  companyConfirmed: boolean;
+  paymentConfirmed: false;
+};
+
+export type AiReadySourceMessage = AiReadyProvenance & {
+  role: 'source_message';
+  messageId: string;
+  occurredAt: string;
+  text: string;
+  phoneKey: string;
+  providerMessageId: string | null;
+  sourceType: 'customer_message';
+  companyConfirmed: false;
+};
+
+export type AiReadyInterpretation = AiReadyProvenance & {
+  role: 'interpretation';
+  id: string;
+  messageId: string;
+  kind: string;
+  interpretation: string;
+  why: string;
+  sourceExcerpt: string;
+};
+
+export type AiReadyContext = {
+  organizationId: string;
+  conversationId: string;
+  builtAt: string;
+  modelCalled: false;
+  providerCalled: false;
+  boundary: typeof AI_READY_CONTEXT_BOUNDARY;
+  messages: readonly AiReadySourceMessage[];
+  interpretations: readonly AiReadyInterpretation[];
+};
+
+function sameConversation(
+  item: { organizationId: string; conversationId: string },
+  organizationId: string,
+  conversationId: string,
+): boolean {
+  return item.organizationId === organizationId && item.conversationId === conversationId;
+}
+
+/**
+ * Packet a future model may read. Does not call a model or a WhatsApp provider.
+ * Other tenants are omitted. Customer statements stay unconfirmed company truth.
+ */
+export function buildAiReadyContext(input: {
+  organizationId: string;
+  conversationId: string;
+  builtAt: string;
+  messages: readonly NormalizedConversationMessage[];
+  candidates: readonly ExtractionCandidate[];
+}): AiReadyContext {
+  const messages: AiReadySourceMessage[] = input.messages
+    .filter((message) => sameConversation(message, input.organizationId, input.conversationId))
+    .map((message) => ({
+      role: 'source_message',
+      messageId: message.id,
+      occurredAt: message.occurredAt,
+      text: message.text,
+      phoneKey: message.phoneKey,
+      providerMessageId: message.providerMessageId,
+      sourceType: 'customer_message',
+      sourceChannel: message.channel,
+      confidence: null,
+      confirmationState: 'unconfirmed',
+      companyConfirmed: customerStatementIsCompanyConfirmed('unconfirmed'),
+      paymentConfirmed: customerMessageConfirmsPayment(message.text),
+    }));
+
+  const interpretations: AiReadyInterpretation[] = input.candidates
+    .filter((candidate) => sameConversation(candidate, input.organizationId, input.conversationId))
+    .map((candidate) => ({
+      role: 'interpretation',
+      id: candidate.id,
+      messageId: candidate.messageId,
+      kind: candidate.kind,
+      interpretation: candidate.interpretation,
+      why: candidate.why,
+      sourceExcerpt: candidate.sourceExcerpt,
+      sourceType: candidate.sourceType,
+      sourceChannel: candidate.sourceChannel,
+      confidence: candidate.confidence,
+      confirmationState: candidate.confirmationState,
+      companyConfirmed:
+        candidate.sourceType === 'customer_message'
+          ? customerStatementIsCompanyConfirmed(candidate.confirmationState)
+          : statementIsCompanyConfirmed(candidate.sourceType, candidate.confirmationState),
+      paymentConfirmed: customerMessageConfirmsPayment(candidate.sourceExcerpt),
+    }));
+
+  return {
+    organizationId: input.organizationId,
+    conversationId: input.conversationId,
+    builtAt: input.builtAt,
+    modelCalled: false,
+    providerCalled: false,
+    boundary: AI_READY_CONTEXT_BOUNDARY,
+    messages,
+    interpretations,
+  };
+}
+
+export const COMMITMENT_KINDS = [
+  'promised_callback',
+  'requested_callback',
+  'delivery_expectation',
+  'quantity_mention',
+  'payment_claim',
+  'document_request',
+  'follow_up_request',
+  'quote_promise',
+  'stated_preference',
+] as const;
+
+export type CommitmentKind = (typeof COMMITMENT_KINDS)[number];
+
+/**
+ * Shape a future extractor may propose.
+ * Sealing forces unconfirmed, not a payment, and no canonical write.
+ */
+export type FutureCommitmentCandidate = {
+  kind: CommitmentKind;
+  interpretation: string;
+  sourceExcerpt: string;
+  speaker: 'customer' | 'employee';
+  sourceType: 'customer_message' | 'employee_entered';
+  confidence: ExtractionConfidence;
+  confirmationState: 'unconfirmed';
+  companyConfirmed: false;
+  paymentConfirmed: false;
+  canonicalMutation: 'refused';
+};
+
+export function sealFutureCommitmentCandidate(
+  candidate: Omit<
+    FutureCommitmentCandidate,
+    'confirmationState' | 'companyConfirmed' | 'paymentConfirmed' | 'canonicalMutation'
+  >,
+): FutureCommitmentCandidate {
+  return {
+    ...candidate,
+    confirmationState: 'unconfirmed',
+    companyConfirmed: false,
+    paymentConfirmed: false,
+    canonicalMutation: 'refused',
+  };
+}
+
+export type CommitmentExtractionRequest = {
+  organizationId: string;
+  conversationId: string;
+  messageId: string;
+  text: string;
+  speaker: 'customer' | 'employee';
+};
+
+export type CommitmentExtractionResult = {
+  mode: 'not_live';
+  live: false;
+  extracted: false;
+  modelCalled: false;
+  providerCalled: false;
+  candidates: readonly [];
+  reason: 'extraction_not_live';
+  companyConfirmed: false;
+  paymentConfirmed: false;
+  canonicalMutation: 'refused';
+};
+
+export type CommitmentExtractor = {
+  readonly live: false;
+  readonly mode: 'not_live';
+  propose(request: CommitmentExtractionRequest): CommitmentExtractionResult;
+};
+
+const NOT_LIVE_COMMITMENT_EXTRACTION: CommitmentExtractionResult = {
+  mode: 'not_live',
+  live: false,
+  extracted: false,
+  modelCalled: false,
+  providerCalled: false,
+  candidates: [],
+  reason: 'extraction_not_live',
+  companyConfirmed: false,
+  paymentConfirmed: false,
+  canonicalMutation: 'refused',
+};
+
+/** Future commitment extraction. Does not read the text and does not call a model. */
+export const futureCommitmentExtractor: CommitmentExtractor = {
+  live: false,
+  mode: 'not_live',
+  propose(request) {
+    void request;
+    return NOT_LIVE_COMMITMENT_EXTRACTION;
+  },
+};
+
+export function extractCommitments(request: CommitmentExtractionRequest): CommitmentExtractionResult {
+  return futureCommitmentExtractor.propose(request);
+}
+
+export type OpenQuestionSignal = {
+  messageId: string;
+  text: string;
+  sourceType: 'customer_message';
+  confirmationState: 'unconfirmed';
+  companyConfirmed: false;
+  resolvedByOutbound: false;
+  origin: 'deterministic';
+};
+
+/**
+ * Bounded question detection. Not a model.
+ * An outbound reply is not available here, and would not close the question.
+ */
+export function listUnconfirmedCustomerQuestions(
+  messages: readonly NormalizedConversationMessage[],
+): OpenQuestionSignal[] {
+  return messages
+    .filter((message) => questionRemainsOpen({ text: message.text, markedResolved: false }))
+    .map((message) => ({
+      messageId: message.id,
+      text: message.text,
+      sourceType: 'customer_message',
+      confirmationState: 'unconfirmed',
+      companyConfirmed: false,
+      resolvedByOutbound: false,
+      origin: 'deterministic',
+    }));
+}
+
+export type ConversationIntelligenceRequest = {
+  organizationId: string;
+  conversationId: string;
+  messages: readonly NormalizedConversationMessage[];
+};
+
+export type ConversationIntelligenceBrief = {
+  mode: 'not_live';
+  live: false;
+  modelCalled: false;
+  providerCalled: false;
+  whatCustomerAsked: readonly [];
+  whatWasPromised: readonly [];
+  whatIsMissing: readonly [];
+  whatTheyAreWaitingFor: readonly [];
+  whatChanged: readonly [];
+  nextStep: null;
+  companyConfirmed: false;
+  canonicalMutation: 'refused';
+};
+
+export type ConversationIntelligence = {
+  readonly live: false;
+  readonly mode: 'not_live';
+  summarize(request: ConversationIntelligenceRequest): ConversationIntelligenceBrief;
+};
+
+const NOT_LIVE_INTELLIGENCE: ConversationIntelligenceBrief = {
+  mode: 'not_live',
+  live: false,
+  modelCalled: false,
+  providerCalled: false,
+  whatCustomerAsked: [],
+  whatWasPromised: [],
+  whatIsMissing: [],
+  whatTheyAreWaitingFor: [],
+  whatChanged: [],
+  nextStep: null,
+  companyConfirmed: false,
+  canonicalMutation: 'refused',
+};
+
+/** Future conversation summary. Does not invent promises, gaps, or a next step. */
+export const futureConversationIntelligence: ConversationIntelligence = {
+  live: false,
+  mode: 'not_live',
+  summarize(request) {
+    void request;
+    return NOT_LIVE_INTELLIGENCE;
+  },
+};
+
+export function summarizeConversation(
+  request: ConversationIntelligenceRequest,
+): ConversationIntelligenceBrief {
+  return futureConversationIntelligence.summarize(request);
+}
+
+export const MEDIA_EVIDENCE_TYPES = ['image', 'pdf', 'audio', 'location', 'document'] as const;
+export type MediaEvidenceType = (typeof MEDIA_EVIDENCE_TYPES)[number];
+
+export type DeferredMediaCapture = {
+  liveInterpretation: false;
+  providerMediaId: string;
+  filename: string | null;
+  mediaType: MediaEvidenceType;
+  occurredAt: string;
+  conversationId: string;
+  senderLabel: string | null;
+};
+
+/** Stores attachment metadata only. Does not OCR, transcribe, or confirm a receipt. */
+export function captureMediaMetadata(
+  input: Omit<DeferredMediaCapture, 'liveInterpretation'>,
+): DeferredMediaCapture {
+  return { ...input, liveInterpretation: false };
+}
+
+export type VoiceTranscriptionResult = {
+  live: false;
+  transcript: null;
+  label: 'Transcripción automática';
+  moreAuthoritativeThanAudio: false;
+  modelCalled: false;
+};
+
+/** Future voice transcription. The original audio stays more authoritative. */
+export function transcribeVoiceNote(_audioEvidenceId: string): VoiceTranscriptionResult {
+  return {
+    live: false,
+    transcript: null,
+    label: 'Transcripción automática',
+    moreAuthoritativeThanAudio: false,
+    modelCalled: false,
+  };
+}
+
+export type SharedLocationEvidence = {
+  latitude: number;
+  longitude: number;
+  occurredAt: string;
+  conversationId: string;
+  providerMessageId: string | null;
+  replacesCanonicalLocation: false;
+  companyConfirmed: false;
+};
+
+/** A shared pin is evidence. It does not replace the canonical location. */
+export function recordSharedLocationEvidence(
+  input: Omit<SharedLocationEvidence, 'replacesCanonicalLocation' | 'companyConfirmed'>,
+): SharedLocationEvidence {
+  return {
+    ...input,
+    replacesCanonicalLocation: false,
+    companyConfirmed: false,
   };
 }
