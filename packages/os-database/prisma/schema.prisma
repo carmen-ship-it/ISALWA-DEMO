@@ -67,6 +67,27 @@ model OsOrganization {
   commitments        OsCommitment[]
   internalNotifications OsInternalNotification[]
 
+  catalogProducts                       OsCatalogProduct[]
+  orderLines                            OsOrderLine[]
+  operationalCases                      OsOperationalCase[]
+  operationalCaseFacts                  OsOperationalCaseFact[]
+  operationalCaseFactReversals          OsOperationalCaseFactReversal[]
+  operationalReleaseDecisions           OsOperationalReleaseDecision[]
+  operationalReleaseDecisionReversals   OsOperationalReleaseDecisionReversal[]
+  productionQuemas                      OsProductionQuema[]
+  productionQuemaTimes                  OsProductionQuemaTime[]
+  productionQuemaProducts               OsProductionQuemaProduct[]
+  productionTraceEntries                OsProductionTraceEntry[]
+  customerConversations                 OsCustomerConversation[]
+  customerCommittedDates                CustomerCommittedDate[]
+  customerCommittedDateRevisions        CustomerCommittedDateRevision[]
+  productionInternalTargetDates         ProductionInternalTargetDate[]
+  productionInternalTargetRevisions     ProductionInternalTargetRevision[]
+  productionDateIssues                  ProductionDateIssue[]
+  customerDateInformedRecords           CustomerDateInformedRecord[]
+  orderAllocations                      OsOrderAllocation[]
+  purchaseRequests                      OsPurchaseRequest[]
+
   @@map("os_organizations")
 }
 
@@ -552,6 +573,7 @@ model OsQuote {
   opportunity  OsOpportunity?   @relation(fields: [opportunityId], references: [id])
   lines        OsQuoteLine[]
   orders       OsOrder[]
+  orderLines   OsOrderLine[]
 
   @@unique([organizationId, quoteNumber])
   @@index([organizationId, partyId])
@@ -576,6 +598,7 @@ model OsQuoteLine {
 
   organization OsOrganization @relation(fields: [organizationId], references: [id])
   quote        OsQuote          @relation(fields: [quoteId], references: [id])
+  orderLines   OsOrderLine[]
 
   @@unique([quoteId, lineNumber])
   @@index([organizationId, quoteId])
@@ -603,6 +626,7 @@ model OsOrder {
   organization OsOrganization @relation(fields: [organizationId], references: [id])
   party        OsParty          @relation(fields: [partyId], references: [id])
   quote        OsQuote          @relation(fields: [quoteId], references: [id])
+  lines        OsOrderLine[]
 
   @@unique([organizationId, orderNumber])
   @@index([organizationId, partyId])
@@ -1080,4 +1104,745 @@ model OsInternalNotification {
   organization OsOrganization @relation(fields: [organizationId], references: [id])
 
   @@map("os_internal_notifications")
+}
+
+// Company operations wave. Additive models. Product id is the join. Production is not an order relation.
+
+// fragment: product-catalog.prisma
+model OsCatalogProduct {
+  organizationId String    @map("organization_id")
+  id             String
+  businessCode   String?   @map("business_code")
+  name           String
+  category       String
+  description    String?
+  active         Boolean   @default(true)
+  canonicalKey   String    @map("canonical_key")
+  reviewStatus   String    @map("review_status")
+  reviewNotes    String[]  @map("review_notes")
+  deactivatedAt  DateTime? @map("deactivated_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization                @relation(fields: [organizationId], references: [id])
+  provenance   OsCatalogProductProvenance[]
+  attributes   OsCatalogProductAttribute[]
+  statusEvents OsCatalogProductStatusEvent[]
+
+  @@id([organizationId, id])
+  @@unique([organizationId, canonicalKey])
+  @@index([organizationId, active])
+  @@map("os_catalog_products")
+}
+
+model OsCatalogProductProvenance {
+  id             String  @id
+  organizationId String  @map("organization_id")
+  productId      String  @map("product_id")
+  sourceFilename String  @map("source_filename")
+  sourceSha256   String  @map("source_sha256")
+  page           Int
+  printedLabel   String? @map("printed_label")
+  role           String
+  excerpt        String
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId])
+  @@map("os_catalog_product_provenance")
+}
+
+model OsCatalogProductAttribute {
+  id             String  @id
+  organizationId String  @map("organization_id")
+  productId      String  @map("product_id")
+  attributeKey   String  @map("attribute_key")
+  attributeValue String  @map("attribute_value")
+  columnLabel    String? @map("column_label")
+  sourceFilename String  @map("source_filename")
+  page           Int
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId])
+  @@map("os_catalog_product_attributes")
+}
+
+model OsCatalogProductStatusEvent {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  active         Boolean
+  reason         String
+  recordedAt     DateTime @map("recorded_at")
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId, recordedAt])
+  @@map("os_catalog_product_status_events")
+}
+
+// fragment: order-line.prisma
+// Order lines are quote snapshots. Do not replace OsOrder.
+// Also add inverse relations, or Prisma generate fails:
+//   OsOrganization.orderLines OsOrderLine[]
+//   OsOrder.lines             OsOrderLine[]
+//   OsQuote.orderLines        OsOrderLine[]
+//   OsQuoteLine.orderLines    OsOrderLine[]
+// Snapshots are not a product relation. Do not add a product-master foreign key.
+// Do not backfill historical orders from header totals.
+
+model OsOrderLine {
+  id                        String   @id
+  organizationId            String   @map("organization_id")
+  orderId                   String   @map("order_id")
+  quoteId                   String   @map("quote_id")
+  quoteLineId               String   @map("quote_line_id")
+  lineNumber                Int      @map("line_number")
+  descriptionSnapshot       String   @map("description_snapshot")
+  quantity                  Int
+  unitLabel                 String?  @map("unit_label")
+  unitPriceCentavosSnapshot BigInt   @map("unit_price_centavos_snapshot")
+  discountCentavos          BigInt   @default(0) @map("discount_centavos")
+  lineTotalCentavos         BigInt   @map("line_total_centavos")
+  productRefSnapshot        String?  @map("product_ref_snapshot")
+  provenance                String
+  copiedAt                  DateTime @map("copied_at")
+  createdAt                 DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  order        OsOrder        @relation(fields: [orderId], references: [id])
+  quote        OsQuote        @relation(fields: [quoteId], references: [id])
+  quoteLine    OsQuoteLine    @relation(fields: [quoteLineId], references: [id])
+
+  @@unique([orderId, lineNumber])
+  @@unique([orderId, quoteLineId])
+  @@index([organizationId, orderId])
+  @@map("os_order_lines")
+}
+
+// fragment: operational-case.prisma
+// Organization inverses are composed above.
+//   operationalCases                  OsOperationalCase[]
+//   operationalCaseFacts              OsOperationalCaseFact[]
+//   operationalCaseFactReversals      OsOperationalCaseFactReversal[]
+//   operationalReleaseDecisions       OsOperationalReleaseDecision[]
+//   operationalReleaseDecisionReversals OsOperationalReleaseDecisionReversal[]
+
+/// One governed folder of reports for one order. Not a department workflow.
+/// Opening a case does not confirm payment, delivery, or stock.
+model OsOperationalCase {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  orderId          String   @map("order_id")
+  openedAt         DateTime @map("opened_at")
+  openedByMemberId String?  @map("opened_by_member_id")
+  openedByLabel    String   @map("opened_by_label")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  organization     OsOrganization                     @relation(fields: [organizationId], references: [id])
+  facts            OsOperationalCaseFact[]
+  releaseDecisions OsOperationalReleaseDecision[]
+
+  @@unique([organizationId, orderId])
+  @@unique([id, organizationId, orderId])
+  @@index([organizationId, orderId])
+  @@map("os_operational_cases")
+}
+
+/// A report inside a case. confirmation stays pending. Manual still needs provenance.
+/// Reversal is a separate row so this row is not rewritten.
+model OsOperationalCaseFact {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  caseId            String   @map("case_id")
+  orderId           String   @map("order_id")
+  orderLineId       String?  @map("order_line_id")
+  kind              String
+  source            String
+  actorMemberId     String?  @map("actor_member_id")
+  actorLabel        String   @map("actor_label")
+  occurredAt        DateTime @map("occurred_at")
+  recordedAt        DateTime @map("recorded_at")
+  evidenceText      String   @map("evidence_text")
+  evidenceReference String?  @map("evidence_reference")
+  confirmation      String   @default("pending")
+  payloadJson       Json     @default("{}") @map("payload_json")
+  correctsFactId    String?  @map("corrects_fact_id")
+  idempotencyKey    String?  @map("idempotency_key")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  organization    OsOrganization                  @relation(fields: [organizationId], references: [id])
+  operationalCase OsOperationalCase               @relation(fields: [caseId, organizationId, orderId], references: [id, organizationId, orderId])
+  correctsFact    OsOperationalCaseFact?          @relation("OperationalCaseFactCorrection", fields: [correctsFactId, organizationId], references: [id, organizationId])
+  corrections     OsOperationalCaseFact[]         @relation("OperationalCaseFactCorrection")
+  reversals       OsOperationalCaseFactReversal[]
+
+  @@unique([id, organizationId])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, orderId, recordedAt])
+  @@index([organizationId, caseId])
+  @@map("os_operational_case_facts")
+}
+
+/// Append-only reversal. The fact text stays as it was recorded.
+model OsOperationalCaseFactReversal {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  factId         String   @map("fact_id")
+  reason         String
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  recordedAt     DateTime @map("recorded_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization        @relation(fields: [organizationId], references: [id])
+  fact         OsOperationalCaseFact @relation(fields: [factId, organizationId], references: [id, organizationId])
+
+  @@unique([organizationId, factId])
+  @@map("os_operational_case_fact_reversals")
+}
+
+/// Operational go-ahead for one order. Not a finance confirmation and not a payment gate.
+/// payment_verified is a stated basis only. commercial_agreement covers an approved exception.
+/// There is no paymentConfirmed field.
+model OsOperationalReleaseDecision {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  caseId             String   @map("case_id")
+  orderId            String   @map("order_id")
+  state              String
+  basis              String
+  reason             String
+  source             String
+  actorMemberId      String?  @map("actor_member_id")
+  actorLabel         String   @map("actor_label")
+  decidedAt          DateTime @map("decided_at")
+  recordedAt         DateTime @map("recorded_at")
+  evidenceText       String   @map("evidence_text")
+  evidenceReference  String?  @map("evidence_reference")
+  correctsDecisionId String?  @map("corrects_decision_id")
+  idempotencyKey     String?  @map("idempotency_key")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  organization     OsOrganization                        @relation(fields: [organizationId], references: [id])
+  operationalCase  OsOperationalCase                     @relation(fields: [caseId, organizationId, orderId], references: [id, organizationId, orderId])
+  correctsDecision OsOperationalReleaseDecision?         @relation("OperationalReleaseCorrection", fields: [correctsDecisionId, organizationId], references: [id, organizationId])
+  corrections      OsOperationalReleaseDecision[]        @relation("OperationalReleaseCorrection")
+  reversals        OsOperationalReleaseDecisionReversal[]
+
+  @@unique([id, organizationId])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, orderId, recordedAt])
+  @@map("os_operational_release_decisions")
+}
+
+/// Append-only reversal. The release decision stays as it was recorded.
+model OsOperationalReleaseDecisionReversal {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  decisionId     String   @map("decision_id")
+  reason         String
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  recordedAt     DateTime @map("recorded_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization               @relation(fields: [organizationId], references: [id])
+  decision     OsOperationalReleaseDecision @relation(fields: [decisionId, organizationId], references: [id, organizationId])
+
+  @@unique([organizationId, decisionId])
+  @@map("os_operational_release_decision_reversals")
+}
+
+// fragment: production-trace.prisma
+model OsProductionQuema {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  source         String   @default("manual")
+  evidenceJson   Json     @map("evidence_json")
+  recordedAt     DateTime @map("recorded_at")
+  idempotencyKey String?  @map("idempotency_key")
+
+  organization OsOrganization           @relation(fields: [organizationId], references: [id])
+  times        OsProductionQuemaTime[]
+  products     OsProductionQuemaProduct[]
+  processRows  OsProductionTraceEntry[]
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  @@map("os_production_quemas")
+}
+
+/// Start or end of a quema. A later correction is a new row.
+model OsProductionQuemaTime {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  quemaId          String   @map("quema_id")
+  phase            String
+  at               DateTime
+  actorMemberId    String?  @map("actor_member_id")
+  actorLabel       String   @map("actor_label")
+  source           String   @default("manual")
+  occurredAt       DateTime @map("occurred_at")
+  recordedAt       DateTime @map("recorded_at")
+  evidenceJson     Json     @map("evidence_json")
+  correctsTimeId   String?  @map("corrects_time_id")
+  correctionReason String?  @map("correction_reason")
+
+  organization OsOrganization          @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema       @relation(fields: [quemaId], references: [id])
+  correctsTime OsProductionQuemaTime?  @relation("QuemaTimeCorrection", fields: [correctsTimeId], references: [id])
+  corrections  OsProductionQuemaTime[] @relation("QuemaTimeCorrection")
+
+  @@index([organizationId, quemaId, phase])
+  @@map("os_production_quema_times")
+}
+
+/// Product membership of a quema. Quantity may be null until a later append.
+model OsProductionQuemaProduct {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  quemaId          String   @map("quema_id")
+  productId        String   @map("product_id")
+  quantity         String?
+  unit             String?
+  actorMemberId    String?  @map("actor_member_id")
+  actorLabel       String   @map("actor_label")
+  source           String   @default("manual")
+  occurredAt       DateTime @map("occurred_at")
+  recordedAt       DateTime @map("recorded_at")
+  evidenceJson     Json     @map("evidence_json")
+  correctsLinkId   String?  @map("corrects_link_id")
+  correctionReason String?  @map("correction_reason")
+
+  organization OsOrganization             @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema          @relation(fields: [quemaId], references: [id])
+  correctsLink OsProductionQuemaProduct?  @relation("QuemaProductCorrection", fields: [correctsLinkId], references: [id])
+  corrections  OsProductionQuemaProduct[] @relation("QuemaProductCorrection")
+
+  @@index([organizationId, quemaId])
+  @@index([organizationId, productId])
+  @@map("os_production_quema_products")
+}
+
+/// Append-only manufacturing fact. Listo is finished_goods_receipt only, and it does not assign a customer order.
+model OsProductionTraceEntry {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  kind                   String
+  productId              String?  @map("product_id")
+  stepKey                String?  @map("step_key")
+  quemaId                String?  @map("quema_id")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("manual")
+  occurredAt             DateTime @map("occurred_at")
+  recordedAt             DateTime @map("recorded_at")
+  evidenceJson           Json     @map("evidence_json")
+  quantityLost           String?  @map("quantity_lost")
+  percentageLost         String?  @map("percentage_lost")
+  lossReason             String?  @map("loss_reason")
+  consumptionCategory    String?  @map("consumption_category")
+  consumptionDescription String?  @map("consumption_description")
+  consumptionReference   String?  @map("consumption_reference")
+  consumptionQuantity    String?  @map("consumption_quantity")
+  consumptionUnit        String?  @map("consumption_unit")
+  inventoryEffect        String?  @map("inventory_effect")
+  goodCount              Int?     @map("good_count")
+  lostCount              Int?     @map("lost_count")
+  receiptQuantity        String?  @map("receipt_quantity")
+  note                   String?
+  correctsEntryId        String?  @map("corrects_entry_id")
+  correctionReason       String?  @map("correction_reason")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization           @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema?       @relation(fields: [quemaId], references: [id])
+  correctsEntry OsProductionTraceEntry?  @relation("ProductionTraceCorrection", fields: [correctsEntryId], references: [id])
+  corrections   OsProductionTraceEntry[] @relation("ProductionTraceCorrection")
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  @@index([organizationId, productId])
+  @@index([organizationId, kind])
+  @@index([organizationId, correctsEntryId])
+  @@map("os_production_trace_entries")
+}
+
+// fragment: customer-conversation.prisma
+// Manual evidence. Merge onto OsOrganization as customerConversations.
+/// Do not add payment, stock, delivery, production, or discount confirmation columns.
+/// Do not add a phone column. The sales advisor corporate number is WHATSAPP_NUMBER_PENDING.
+/// opportunityId, quoteId, and orderId are opaque links. They must not update those rows.
+model OsCustomerConversation {
+  id                     String    @id
+  organizationId         String    @map("organization_id")
+  customerId             String    @map("customer_id")
+  customerLabel          String    @map("customer_label")
+  contactLabel           String?   @map("contact_label")
+  channel                String
+  occurredAt             DateTime  @map("occurred_at")
+  enteredByMemberId      String?   @map("entered_by_member_id")
+  enteredByLabel         String    @map("entered_by_label")
+  summary                String
+  pastedEvidence         String?   @map("pasted_evidence")
+  opportunityId          String?   @map("opportunity_id")
+  quoteId                String?   @map("quote_id")
+  orderId                String?   @map("order_id")
+  customerQuestion       String?   @map("customer_question")
+  commitmentCandidate    String?   @map("commitment_candidate")
+  possibleRequestedDate  DateTime? @map("possible_requested_date") @db.Date
+  nextAction             String?   @map("next_action")
+  source                 String    @default("employee_entered")
+  provenance             String    @default("company_entered")
+  advisorNumberStatus    String    @default("WHATSAPP_NUMBER_PENDING") @map("advisor_number_status")
+  createdAt              DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, customerId, occurredAt(sort: Desc)])
+  @@index([organizationId, occurredAt(sort: Desc)])
+  @@map("os_customer_conversations")
+}
+
+// fragment: delivery.prisma
+// Warehouse exit and customer delivery stay different models.
+// orderLineId is an opaque copy. SQL keeps the organization and order foreign keys.
+
+model OsWarehouseExit {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  orderId            String   @map("order_id")
+  exitedAt           DateTime @map("exited_at")
+  recordedByMemberId String   @map("recorded_by_member_id")
+  source             String
+  notes              String?
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_warehouse_exits")
+}
+
+model OsWarehouseOutboundNote {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  warehouseExitId String   @unique @map("warehouse_exit_id")
+  orderId         String   @map("order_id")
+  documentKind    String   @map("document_kind")
+  numberingPolicy String   @map("numbering_policy")
+  exitedAt        DateTime @map("exited_at")
+  bornAt          DateTime @map("born_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_warehouse_outbound_notes")
+}
+
+model OsWarehouseOutboundNoteLine {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  outboundNoteId String   @map("outbound_note_id")
+  orderLineId    String   @map("order_line_id")
+  productRef     String?  @map("product_ref")
+  description    String
+  quantity       Int
+  unitLabel      String?  @map("unit_label")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, outboundNoteId])
+  @@map("os_warehouse_outbound_note_lines")
+}
+
+model OsDelivery {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  orderId            String   @map("order_id")
+  deliveredAt        DateTime @map("delivered_at")
+  deliveredTo        String?  @map("delivered_to")
+  recordedByMemberId String   @map("recorded_by_member_id")
+  source             String
+  notes              String?
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_deliveries")
+}
+
+model OsDeliveryNote {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  deliveryId      String   @unique @map("delivery_id")
+  orderId         String   @map("order_id")
+  documentKind    String   @map("document_kind")
+  numberingPolicy String   @map("numbering_policy")
+  deliveredAt     DateTime @map("delivered_at")
+  bornAt          DateTime @map("born_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, orderId])
+  @@map("os_delivery_notes")
+}
+
+model OsDeliveryNoteLine {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  deliveryNoteId String   @map("delivery_note_id")
+  orderLineId    String   @map("order_line_id")
+  productRef     String?  @map("product_ref")
+  description    String
+  quantity       Int
+  unitLabel      String?  @map("unit_label")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, deliveryNoteId])
+  @@map("os_delivery_note_lines")
+}
+
+model OsDeliveryEvidence {
+  id                      String   @id
+  organizationId          String   @map("organization_id")
+  subjectType             String   @map("subject_type")
+  subjectId               String   @map("subject_id")
+  role                    String
+  recordedByMemberId      String   @map("recorded_by_member_id")
+  reference               String?
+  note                    String?
+  paymentState            String?  @map("payment_state")
+  exceptionReason         String?  @map("exception_reason")
+  authorizedByMemberId    String?  @map("authorized_by_member_id")
+  recipient               String?
+  signatureReference      String?  @map("signature_reference")
+  confirmedLedgerPayment  Boolean  @map("confirmed_ledger_payment")
+  ledgerPosting           String   @map("ledger_posting")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId, subjectType, subjectId, role])
+  @@map("os_delivery_evidence")
+}
+
+// fragment: customer-committed-date.prisma
+model CustomerCommittedDate {
+  id                      String   @id
+  organizationId          String   @map("organization_id")
+  subjectType             String   @map("subject_type")
+  subjectId               String   @map("subject_id")
+  partyId                 String?  @map("party_id")
+  commercialOwnerMemberId String   @map("commercial_owner_member_id")
+  committedOn             DateTime @map("committed_on") @db.Date
+  originalCommittedOn     DateTime @map("original_committed_on") @db.Date
+  originalReason          String   @map("original_reason")
+  source                  String   @default("sales_customer_coordination")
+  setByMemberId           String   @map("set_by_member_id")
+  setAt                   DateTime @map("set_at")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization                  @relation(fields: [organizationId], references: [id])
+  revisions    CustomerCommittedDateRevision[]
+
+  @@unique([organizationId, subjectType, subjectId])
+  @@index([organizationId, commercialOwnerMemberId, committedOn])
+  @@map("os_customer_committed_dates")
+}
+
+/// Append-only customer-date history. Actor, source, and timestamp stay.
+model CustomerCommittedDateRevision {
+  id                  String   @id
+  committedDateId     String   @map("committed_date_id")
+  organizationId      String   @map("organization_id")
+  previousCommittedOn DateTime @map("previous_committed_on") @db.Date
+  nextCommittedOn     DateTime @map("next_committed_on") @db.Date
+  reason              String
+  actorMemberId       String   @map("actor_member_id")
+  source              String   @default("sales_customer_coordination")
+  revisedAt           DateTime @map("revised_at")
+
+  committedDate CustomerCommittedDate @relation(fields: [committedDateId], references: [id])
+  organization  OsOrganization        @relation(fields: [organizationId], references: [id])
+
+  @@index([committedDateId, revisedAt])
+  @@map("os_customer_committed_date_revisions")
+}
+
+/// Fecha interna de producción. Production maintains it. Not copied from the customer date.
+model ProductionInternalTargetDate {
+  id                   String   @id
+  organizationId       String   @map("organization_id")
+  subjectType          String   @map("subject_type")
+  subjectId            String   @map("subject_id")
+  maintainedByMemberId String   @map("maintained_by_member_id")
+  targetOn             DateTime @map("target_on") @db.Date
+  originalTargetOn     DateTime @map("original_target_on") @db.Date
+  originalReason       String   @map("original_reason")
+  source               String   @default("production_internal")
+  setByMemberId        String   @map("set_by_member_id")
+  setAt                DateTime @map("set_at")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization                     @relation(fields: [organizationId], references: [id])
+  revisions    ProductionInternalTargetRevision[]
+
+  @@unique([organizationId, subjectType, subjectId])
+  @@index([organizationId, maintainedByMemberId, targetOn])
+  @@map("os_production_internal_target_dates")
+}
+
+/// Separate from customer-date revisions. Do not write a customer date here.
+model ProductionInternalTargetRevision {
+  id               String   @id
+  targetDateId     String   @map("target_date_id")
+  organizationId   String   @map("organization_id")
+  previousTargetOn DateTime @map("previous_target_on") @db.Date
+  nextTargetOn     DateTime @map("next_target_on") @db.Date
+  reason           String
+  actorMemberId    String   @map("actor_member_id")
+  source           String   @default("production_internal")
+  revisedAt        DateTime @map("revised_at")
+
+  targetDate   ProductionInternalTargetDate @relation(fields: [targetDateId], references: [id])
+  organization OsOrganization               @relation(fields: [organizationId], references: [id])
+
+  @@index([targetDateId, revisedAt])
+  @@map("os_production_internal_target_date_revisions")
+}
+
+/// Explicit human issue. Both flags are recorded. Neither is inferred.
+/// No informed column. Customer informed is a different model.
+model ProductionDateIssue {
+  id                           String   @id
+  organizationId               String   @map("organization_id")
+  subjectType                  String   @map("subject_type")
+  subjectId                    String   @map("subject_id")
+  mayAffectProductionCalendar  Boolean  @map("may_affect_production_calendar")
+  mayAffectCustomerDate        Boolean  @map("may_affect_customer_date")
+  source                       String   @default("human_explicit")
+  note                         String?
+  recordedByMemberId           String   @map("recorded_by_member_id")
+  recordedAt                   DateTime @map("recorded_at")
+  createdAt                    DateTime @default(now()) @map("created_at")
+
+  organization    OsOrganization              @relation(fields: [organizationId], references: [id])
+  informedRecords CustomerDateInformedRecord[]
+
+  @@index([organizationId, subjectType, subjectId, recordedAt])
+  @@map("os_production_date_issues")
+}
+
+/// Whether the customer was informed about one issue. Separate from the issue flags.
+model CustomerDateInformedRecord {
+  id                 String   @id
+  issueId            String   @map("issue_id")
+  organizationId     String   @map("organization_id")
+  subjectType        String   @map("subject_type")
+  subjectId          String   @map("subject_id")
+  note               String
+  recordedByMemberId String   @map("recorded_by_member_id")
+  recordedAt         DateTime @map("recorded_at")
+  notified           Boolean
+
+  issue        ProductionDateIssue @relation(fields: [issueId], references: [id])
+  organization OsOrganization      @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, issueId, recordedAt])
+  @@map("os_customer_date_informed_records")
+}
+
+// fragment: order-allocation.prisma
+model OsOrderAllocation {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  productId              String   @map("product_id")
+  goodsKind              String   @default("finished") @map("goods_kind")
+  quantity               String
+  orderLineId            String   @map("order_line_id")
+  allocatedAt            DateTime @map("allocated_at")
+  recordedAt             DateTime @map("recorded_at")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("explicit_command")
+  finishedGoodsReceiptId String?  @map("finished_goods_receipt_id")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  // Several rows may cite the same order line. That is not a fulfillment status.
+  @@index([organizationId, productId, allocatedAt])
+  @@index([organizationId, orderLineId, allocatedAt])
+  @@map("os_order_allocations")
+}
+
+// fragment: purchase-request.prisma
+model OsPurchaseRequest {
+  id                   String   @id
+  organizationId       String   @map("organization_id")
+  requestingArea       String   @map("requesting_area")
+  requestedByLabel     String   @map("requested_by_label")
+  requestedByMemberId  String?  @map("requested_by_member_id")
+  description          String
+  quantity             String?
+  unit                 String?
+  productionContextId  String?  @map("production_context_id")
+  orderId              String?  @map("order_id")
+  reason               String
+  requestedAt          DateTime @map("requested_at")
+  status               String   @default("requested")
+  buyerLabel           String?  @map("buyer_label")
+  buyerMemberId        String?  @map("buyer_member_id")
+  actorLabel           String   @map("actor_label")
+  actorMemberId        String?  @map("actor_member_id")
+  source               String   @default("manual")
+  /// not_official means this row is not a stock authority. It does not mean stock is zero.
+  stockAuthority       String   @default("not_official") @map("stock_authority")
+  /// none means this row never creates another purchase.
+  reorderPolicy        String   @default("none") @map("reorder_policy")
+  idempotencyKey       String?  @map("idempotency_key")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @map("updated_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  statusHistory OsPurchaseRequestStatusHistory[]
+  notes         OsPurchaseRequestNote[]
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status, requestedAt])
+  @@index([organizationId, requestingArea])
+  @@map("os_purchase_requests")
+}
+
+/// Append-only status history. Spanish labels are display-only.
+model OsPurchaseRequestStatusHistory {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  purchaseRequestId String   @map("purchase_request_id")
+  fromStatus        String?  @map("from_status")
+  toStatus          String   @map("to_status")
+  changedAt         DateTime @map("changed_at")
+  actorLabel        String   @map("actor_label")
+  actorMemberId     String?  @map("actor_member_id")
+  source            String   @default("manual")
+  note              String?
+
+  purchaseRequest OsPurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+
+  @@index([organizationId, purchaseRequestId, changedAt])
+  @@map("os_purchase_request_status_history")
+}
+
+/// Notes and evidence references. A reference is not a stock reading.
+model OsPurchaseRequestNote {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  purchaseRequestId  String   @map("purchase_request_id")
+  body               String
+  recordedAt         DateTime @map("recorded_at")
+  actorLabel         String   @map("actor_label")
+  actorMemberId      String?  @map("actor_member_id")
+  source             String   @default("manual")
+  evidenceReference  String?  @map("evidence_reference")
+
+  purchaseRequest OsPurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+
+  @@index([organizationId, purchaseRequestId, recordedAt])
+  @@map("os_purchase_request_notes")
 }

@@ -122,3 +122,23 @@ export type OrderRecord = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+/** Snapshot copied at conversion. No product-master join. Old orders have no rows. */
+export type OrderLineRecord = {
+  id: string;
+  organizationId: string;
+  orderId: string;
+  quoteId: string;
+  quoteLineId: string;
+  lineNumber: number;
+  descriptionSnapshot: string;
+  quantity: number;
+  unitLabel: string | null;
+  unitPriceCentavosSnapshot: bigint;
+  discountCentavos: bigint;
+  lineTotalCentavos: bigint;
+  productRefSnapshot: string | null;
+  provenance: 'quote_conversion_snapshot';
+  copiedAt: Date;
+  createdAt: Date;
+};

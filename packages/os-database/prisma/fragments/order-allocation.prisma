@@ -1,0 +1,31 @@
+// Finished-goods allocation fragment. Not merged into schema.prisma.
+// A receipt into Almacén de Productos Terminados is not a row here.
+// INTEGRATION (CROSS_LANE): add this back-relation on OsOrganization in schema.prisma:
+//   orderAllocations OsOrderAllocation[]
+// product_id and order_line_id are opaque. Do not foreign-key product master or os_order_lines.
+// finished_goods_receipt_id is an optional citation. Do not foreign-key production receipts.
+// Do not add a stock balance, an inventory ledger, or a delivery/fulfillment status.
+
+model OsOrderAllocation {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  productId              String   @map("product_id")
+  goodsKind              String   @default("finished") @map("goods_kind")
+  quantity               String
+  orderLineId            String   @map("order_line_id")
+  allocatedAt            DateTime @map("allocated_at")
+  recordedAt             DateTime @map("recorded_at")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("explicit_command")
+  finishedGoodsReceiptId String?  @map("finished_goods_receipt_id")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  // Several rows may cite the same order line. That is not a fulfillment status.
+  @@index([organizationId, productId, allocatedAt])
+  @@index([organizationId, orderLineId, allocatedAt])
+  @@map("os_order_allocations")
+}

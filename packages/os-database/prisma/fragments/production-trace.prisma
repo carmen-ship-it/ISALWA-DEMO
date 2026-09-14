@@ -1,0 +1,123 @@
+// Manufacturing trace fragment. Do not merge an order relation.
+// INTEGRATION (CROSS_LANE): add these back-relations on OsOrganization in schema.prisma:
+//   productionQuemas       OsProductionQuema[]
+//   productionQuemaTimes   OsProductionQuemaTime[]
+//   productionQuemaProducts OsProductionQuemaProduct[]
+//   productionTraceEntries OsProductionTraceEntry[]
+// Product id is the join key. Do not add a customer-order field or an allocation model.
+// % good and % lost are derived. Do not add those columns.
+
+/// Identity of a quema. Times and products are append-only facts. Not a customer order.
+model OsProductionQuema {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  source         String   @default("manual")
+  evidenceJson   Json     @map("evidence_json")
+  recordedAt     DateTime @map("recorded_at")
+  idempotencyKey String?  @map("idempotency_key")
+
+  organization OsOrganization           @relation(fields: [organizationId], references: [id])
+  times        OsProductionQuemaTime[]
+  products     OsProductionQuemaProduct[]
+  processRows  OsProductionTraceEntry[]
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  @@map("os_production_quemas")
+}
+
+/// Start or end of a quema. A later correction is a new row.
+model OsProductionQuemaTime {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  quemaId          String   @map("quema_id")
+  phase            String
+  at               DateTime
+  actorMemberId    String?  @map("actor_member_id")
+  actorLabel       String   @map("actor_label")
+  source           String   @default("manual")
+  occurredAt       DateTime @map("occurred_at")
+  recordedAt       DateTime @map("recorded_at")
+  evidenceJson     Json     @map("evidence_json")
+  correctsTimeId   String?  @map("corrects_time_id")
+  correctionReason String?  @map("correction_reason")
+
+  organization OsOrganization          @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema       @relation(fields: [quemaId], references: [id])
+  correctsTime OsProductionQuemaTime?  @relation("QuemaTimeCorrection", fields: [correctsTimeId], references: [id])
+  corrections  OsProductionQuemaTime[] @relation("QuemaTimeCorrection")
+
+  @@index([organizationId, quemaId, phase])
+  @@map("os_production_quema_times")
+}
+
+/// Product membership of a quema. Quantity may be null until a later append.
+model OsProductionQuemaProduct {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  quemaId          String   @map("quema_id")
+  productId        String   @map("product_id")
+  quantity         String?
+  unit             String?
+  actorMemberId    String?  @map("actor_member_id")
+  actorLabel       String   @map("actor_label")
+  source           String   @default("manual")
+  occurredAt       DateTime @map("occurred_at")
+  recordedAt       DateTime @map("recorded_at")
+  evidenceJson     Json     @map("evidence_json")
+  correctsLinkId   String?  @map("corrects_link_id")
+  correctionReason String?  @map("correction_reason")
+
+  organization OsOrganization             @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema          @relation(fields: [quemaId], references: [id])
+  correctsLink OsProductionQuemaProduct?  @relation("QuemaProductCorrection", fields: [correctsLinkId], references: [id])
+  corrections  OsProductionQuemaProduct[] @relation("QuemaProductCorrection")
+
+  @@index([organizationId, quemaId])
+  @@index([organizationId, productId])
+  @@map("os_production_quema_products")
+}
+
+/// Append-only manufacturing fact. Listo is finished_goods_receipt only, and it does not assign a customer order.
+model OsProductionTraceEntry {
+  id                     String   @id
+  organizationId         String   @map("organization_id")
+  kind                   String
+  productId              String?  @map("product_id")
+  stepKey                String?  @map("step_key")
+  quemaId                String?  @map("quema_id")
+  actorMemberId          String?  @map("actor_member_id")
+  actorLabel             String   @map("actor_label")
+  source                 String   @default("manual")
+  occurredAt             DateTime @map("occurred_at")
+  recordedAt             DateTime @map("recorded_at")
+  evidenceJson           Json     @map("evidence_json")
+  quantityLost           String?  @map("quantity_lost")
+  percentageLost         String?  @map("percentage_lost")
+  lossReason             String?  @map("loss_reason")
+  consumptionCategory    String?  @map("consumption_category")
+  consumptionDescription String?  @map("consumption_description")
+  consumptionReference   String?  @map("consumption_reference")
+  consumptionQuantity    String?  @map("consumption_quantity")
+  consumptionUnit        String?  @map("consumption_unit")
+  inventoryEffect        String?  @map("inventory_effect")
+  goodCount              Int?     @map("good_count")
+  lostCount              Int?     @map("lost_count")
+  receiptQuantity        String?  @map("receipt_quantity")
+  note                   String?
+  correctsEntryId        String?  @map("corrects_entry_id")
+  correctionReason       String?  @map("correction_reason")
+  idempotencyKey         String?  @map("idempotency_key")
+
+  organization OsOrganization           @relation(fields: [organizationId], references: [id])
+  quema        OsProductionQuema?       @relation(fields: [quemaId], references: [id])
+  correctsEntry OsProductionTraceEntry?  @relation("ProductionTraceCorrection", fields: [correctsEntryId], references: [id])
+  corrections   OsProductionTraceEntry[] @relation("ProductionTraceCorrection")
+
+  // Idempotency uniqueness is partial in SQL (null keys do not collide). Do not add a full unique here.
+  @@index([organizationId, productId])
+  @@index([organizationId, kind])
+  @@index([organizationId, correctsEntryId])
+  @@map("os_production_trace_entries")
+}

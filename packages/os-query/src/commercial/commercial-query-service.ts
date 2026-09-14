@@ -1,3 +1,4 @@
+import { toOrderLineReadModel, type OrderLineRecord } from '@isalwa/os-commercial';
 import type {
   ListOpportunitiesQuery,
   ListOrdersQuery,
@@ -153,6 +154,11 @@ export type CommercialQueryServiceDeps = {
   encodeOrderCursor: (orderNumber: string, orderId: string) => string;
   /** Required for visibility=team. Missing lookup fails closed. */
   directReports?: DirectReportLookup | null;
+  /**
+   * Canonical order-line snapshots. Missing means the read path is not wired.
+   * An empty list is a legacy order: do not invent lines from the header total.
+   */
+  listOrderLines?: (organizationId: string, orderId: string) => Promise<OrderLineRecord[]>;
 };
 
 export class CommercialQueryService {
@@ -330,8 +336,14 @@ export class CommercialQueryService {
     const model = await this.deps.projectionStore.getOrderReadModel(ctx.organizationId, orderId);
     if (!model) throw new Error('NOT_FOUND');
     if (!canViewCommercialRecord(ctx, model)) throw new Error('PERMISSION_DENIED');
+    const storedLines = this.deps.listOrderLines
+      ? await this.deps.listOrderLines(ctx.organizationId, orderId)
+      : null;
     return {
-      order: toOrderSummary(model),
+      order: {
+        ...toOrderSummary(model),
+        lines: storedLines?.map(toOrderLineReadModel) ?? null,
+      },
       freshness: await this.freshness(ctx.organizationId),
       authority: subjectAuthority(ctx, model.ownerMemberId, model.status, 'order'),
     };

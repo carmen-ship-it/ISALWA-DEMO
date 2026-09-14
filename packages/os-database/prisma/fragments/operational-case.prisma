@@ -1,0 +1,138 @@
+// Additive Prisma fragment. Not applied to schema.prisma in this lane.
+// A reported payment stays pending. A message does not confirm delivery or stock.
+// A release decision does not confirm a payment and is not a paymentConfirmed gate.
+// Payment is not required before a pedido proceeds. Official accounting stays external.
+// orderId and orderLineId are opaque. No relation to OsOrder.
+//
+// CROSS_LANE: when merging, add these fields to model OsOrganization, then paste the models below:
+//   operationalCases                  OsOperationalCase[]
+//   operationalCaseFacts              OsOperationalCaseFact[]
+//   operationalCaseFactReversals      OsOperationalCaseFactReversal[]
+//   operationalReleaseDecisions       OsOperationalReleaseDecision[]
+//   operationalReleaseDecisionReversals OsOperationalReleaseDecisionReversal[]
+
+/// One governed folder of reports for one order. Not a department workflow.
+/// Opening a case does not confirm payment, delivery, or stock.
+model OsOperationalCase {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  orderId          String   @map("order_id")
+  openedAt         DateTime @map("opened_at")
+  openedByMemberId String?  @map("opened_by_member_id")
+  openedByLabel    String   @map("opened_by_label")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  organization     OsOrganization                     @relation(fields: [organizationId], references: [id])
+  facts            OsOperationalCaseFact[]
+  releaseDecisions OsOperationalReleaseDecision[]
+
+  @@unique([organizationId, orderId])
+  @@unique([id, organizationId, orderId])
+  @@index([organizationId, orderId])
+  @@map("os_operational_cases")
+}
+
+/// A report inside a case. confirmation stays pending. Manual still needs provenance.
+/// Reversal is a separate row so this row is not rewritten.
+model OsOperationalCaseFact {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  caseId            String   @map("case_id")
+  orderId           String   @map("order_id")
+  orderLineId       String?  @map("order_line_id")
+  kind              String
+  source            String
+  actorMemberId     String?  @map("actor_member_id")
+  actorLabel        String   @map("actor_label")
+  occurredAt        DateTime @map("occurred_at")
+  recordedAt        DateTime @map("recorded_at")
+  evidenceText      String   @map("evidence_text")
+  evidenceReference String?  @map("evidence_reference")
+  confirmation      String   @default("pending")
+  payloadJson       Json     @default("{}") @map("payload_json")
+  correctsFactId    String?  @map("corrects_fact_id")
+  idempotencyKey    String?  @map("idempotency_key")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  organization    OsOrganization                  @relation(fields: [organizationId], references: [id])
+  operationalCase OsOperationalCase               @relation(fields: [caseId, organizationId, orderId], references: [id, organizationId, orderId])
+  correctsFact    OsOperationalCaseFact?          @relation("OperationalCaseFactCorrection", fields: [correctsFactId, organizationId], references: [id, organizationId])
+  corrections     OsOperationalCaseFact[]         @relation("OperationalCaseFactCorrection")
+  reversals       OsOperationalCaseFactReversal[]
+
+  @@unique([id, organizationId])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, orderId, recordedAt])
+  @@index([organizationId, caseId])
+  @@map("os_operational_case_facts")
+}
+
+/// Append-only reversal. The fact text stays as it was recorded.
+model OsOperationalCaseFactReversal {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  factId         String   @map("fact_id")
+  reason         String
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  recordedAt     DateTime @map("recorded_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization        @relation(fields: [organizationId], references: [id])
+  fact         OsOperationalCaseFact @relation(fields: [factId, organizationId], references: [id, organizationId])
+
+  @@unique([organizationId, factId])
+  @@map("os_operational_case_fact_reversals")
+}
+
+/// Operational go-ahead for one order. Not a finance confirmation and not a payment gate.
+/// payment_verified is a stated basis only. commercial_agreement covers an approved exception.
+/// There is no paymentConfirmed field.
+model OsOperationalReleaseDecision {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  caseId             String   @map("case_id")
+  orderId            String   @map("order_id")
+  state              String
+  basis              String
+  reason             String
+  source             String
+  actorMemberId      String?  @map("actor_member_id")
+  actorLabel         String   @map("actor_label")
+  decidedAt          DateTime @map("decided_at")
+  recordedAt         DateTime @map("recorded_at")
+  evidenceText       String   @map("evidence_text")
+  evidenceReference  String?  @map("evidence_reference")
+  correctsDecisionId String?  @map("corrects_decision_id")
+  idempotencyKey     String?  @map("idempotency_key")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  organization     OsOrganization                        @relation(fields: [organizationId], references: [id])
+  operationalCase  OsOperationalCase                     @relation(fields: [caseId, organizationId, orderId], references: [id, organizationId, orderId])
+  correctsDecision OsOperationalReleaseDecision?         @relation("OperationalReleaseCorrection", fields: [correctsDecisionId, organizationId], references: [id, organizationId])
+  corrections      OsOperationalReleaseDecision[]        @relation("OperationalReleaseCorrection")
+  reversals        OsOperationalReleaseDecisionReversal[]
+
+  @@unique([id, organizationId])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, orderId, recordedAt])
+  @@map("os_operational_release_decisions")
+}
+
+/// Append-only reversal. The release decision stays as it was recorded.
+model OsOperationalReleaseDecisionReversal {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  decisionId     String   @map("decision_id")
+  reason         String
+  actorMemberId  String?  @map("actor_member_id")
+  actorLabel     String   @map("actor_label")
+  recordedAt     DateTime @map("recorded_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization               @relation(fields: [organizationId], references: [id])
+  decision     OsOperationalReleaseDecision @relation(fields: [decisionId, organizationId], references: [id, organizationId])
+
+  @@unique([organizationId, decisionId])
+  @@map("os_operational_release_decision_reversals")
+}

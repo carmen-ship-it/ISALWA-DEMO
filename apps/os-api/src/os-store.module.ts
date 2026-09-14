@@ -278,15 +278,21 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_COMMERCIAL_QUERY_SERVICE,
-      useFactory: (projectionStore: OsProjectionStorePort, memberQueryStore: MemberQueryStorePort) =>
+      useFactory: (
+        projectionStore: OsProjectionStorePort,
+        memberQueryStore: MemberQueryStorePort,
+        commercialStore: OsCommercialStore,
+      ) =>
         new CommercialQueryService({
           projectionStore,
           encodeOpportunityCursor,
           encodeQuoteCursor,
           encodeOrderCursor,
           directReports: memberQueryStore,
+          listOrderLines: (organizationId, orderId) =>
+            commercialStore.listOrderLines(organizationId, orderId),
         }),
-      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE],
+      inject: [OS_PROJECTION_STORE, OS_MEMBER_QUERY_STORE, OS_COMMERCIAL_STORE],
     },
     {
       provide: OS_PARTY_TIMELINE_QUERY_SERVICE,

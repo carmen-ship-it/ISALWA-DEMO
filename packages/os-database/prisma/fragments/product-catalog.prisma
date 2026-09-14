@@ -1,0 +1,79 @@
+/// Product master fragment. Not a price list.
+/// Do not compose this into schema.prisma in the product lane.
+/// Integration adds the inverse relations on OsOrganization.
+/// Partial unique on business_code, no-delete, and immutable id live in the SQL migration.
+/// business_code is nullable. Do not invent a SKU.
+/// No price, cost, margin, tax, lead time, stock, or bill-of-materials columns.
+
+model OsCatalogProduct {
+  organizationId String    @map("organization_id")
+  id             String
+  businessCode   String?   @map("business_code")
+  name           String
+  category       String
+  description    String?
+  active         Boolean   @default(true)
+  canonicalKey   String    @map("canonical_key")
+  reviewStatus   String    @map("review_status")
+  reviewNotes    String[]  @map("review_notes")
+  deactivatedAt  DateTime? @map("deactivated_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  organization OsOrganization                @relation(fields: [organizationId], references: [id])
+  provenance   OsCatalogProductProvenance[]
+  attributes   OsCatalogProductAttribute[]
+  statusEvents OsCatalogProductStatusEvent[]
+
+  @@id([organizationId, id])
+  @@unique([organizationId, canonicalKey])
+  @@index([organizationId, active])
+  @@map("os_catalog_products")
+}
+
+model OsCatalogProductProvenance {
+  id             String  @id
+  organizationId String  @map("organization_id")
+  productId      String  @map("product_id")
+  sourceFilename String  @map("source_filename")
+  sourceSha256   String  @map("source_sha256")
+  page           Int
+  printedLabel   String? @map("printed_label")
+  role           String
+  excerpt        String
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId])
+  @@map("os_catalog_product_provenance")
+}
+
+model OsCatalogProductAttribute {
+  id             String  @id
+  organizationId String  @map("organization_id")
+  productId      String  @map("product_id")
+  attributeKey   String  @map("attribute_key")
+  attributeValue String  @map("attribute_value")
+  columnLabel    String? @map("column_label")
+  sourceFilename String  @map("source_filename")
+  page           Int
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId])
+  @@map("os_catalog_product_attributes")
+}
+
+model OsCatalogProductStatusEvent {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  active         Boolean
+  reason         String
+  recordedAt     DateTime @map("recorded_at")
+
+  product OsCatalogProduct @relation(fields: [organizationId, productId], references: [organizationId, id])
+
+  @@index([organizationId, productId, recordedAt])
+  @@map("os_catalog_product_status_events")
+}

@@ -385,6 +385,24 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/os-allocation:
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-catalog:
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/os-commercial:
     dependencies:
       '@isalwa/os-contracts':
@@ -412,6 +430,15 @@ importers:
       zod:
         specifier: ^3.24.2
         version: 3.25.76
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-customer-date:
     devDependencies:
       tsx:
         specifier: ^4.19.3
@@ -465,6 +492,25 @@ importers:
       typescript:
         specifier: ^5.8.2
         version: 5.9.3
+
+  packages/os-delivery:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
+      '@isalwa/ts-utils':
+        specifier: workspace:*
+        version: link:../ts-utils
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
 
   packages/os-domain:
     dependencies:
@@ -537,6 +583,24 @@ importers:
       '@isalwa/ts-utils':
         specifier: workspace:*
         version: link:../ts-utils
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-production:
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-purchasing:
     devDependencies:
       tsx:
         specifier: ^4.19.3

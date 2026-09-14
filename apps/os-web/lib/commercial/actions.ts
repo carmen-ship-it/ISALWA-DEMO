@@ -10,6 +10,7 @@ import { opportunityHref, orderHref, quoteHref } from '@/lib/commercial/navigati
 import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
+import { resolveAddQuoteLineDraft } from '@/lib/commercial/product-picker';
 
 async function runCommand(
   fn: (client: ReturnType<typeof createOsApiClient>) => Promise<Record<string, unknown> | undefined>,
@@ -189,23 +190,32 @@ export async function createQuoteAction(formData: FormData): Promise<CreateRedir
 export async function addQuoteLineAction(formData: FormData): Promise<CommandActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
   const quoteId = String(formData.get('quoteId') ?? '').trim();
-  const description = String(formData.get('description') ?? '').trim();
   const quantityInput = String(formData.get('quantity') ?? '').trim();
   const unitLabel = String(formData.get('unitLabel') ?? '').trim();
   const unitPriceInput = String(formData.get('unitPrice') ?? '').trim();
   const discountInput = String(formData.get('discount') ?? '').trim();
 
+  const draft = resolveAddQuoteLineDraft({
+    lineKind: String(formData.get('lineKind') ?? ''),
+    productId: String(formData.get('productId') ?? ''),
+    itemName: String(formData.get('itemName') ?? ''),
+    itemDetail: String(formData.get('itemDetail') ?? ''),
+    provenanceNote: String(formData.get('provenanceNote') ?? ''),
+  });
+  if (!draft.ok) return { ok: false, error: draft.error };
+
   const quantity = parseQuantityInput(quantityInput);
   const unitPriceCentavos = parseBobInputToCentavos(unitPriceInput);
-  if (!quoteId || !description || !quantity || !unitPriceCentavos) {
-    return { ok: false, error: 'Complete descripción, cantidad y precio unitario.' };
+  if (!quoteId || !quantity || !unitPriceCentavos) {
+    return { ok: false, error: 'Complete cantidad y precio cotizado.' };
   }
 
   const payload: Record<string, unknown> = {
     quoteId,
-    description,
+    description: draft.draft.descriptionSnapshot,
     quantity,
     unitPriceCentavos,
+    productRef: draft.draft.productRef,
   };
   if (unitLabel) payload.unitLabel = unitLabel;
   if (discountInput) {
@@ -246,7 +256,7 @@ export async function updateQuoteLineAction(formData: FormData): Promise<Command
   if (unitLabel) payload.unitLabel = unitLabel;
   if (unitPriceInput) {
     const unitPriceCentavos = parseBobInputToCentavos(unitPriceInput);
-    if (!unitPriceCentavos) return { ok: false, error: 'Precio unitario inválido.' };
+    if (!unitPriceCentavos) return { ok: false, error: 'Precio cotizado inválido.' };
     payload.unitPriceCentavos = unitPriceCentavos;
   }
   if (discountInput) {

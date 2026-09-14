@@ -109,6 +109,10 @@ function storeFor(input: {
       return 0;
     },
     async insertOrder() {},
+    async insertOrderLines() {},
+    async listOrderLines() {
+      return [];
+    },
     async updateQuote() {},
     async appendEventAndAudit(event) {
       events.push(event.eventType);

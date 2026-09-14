@@ -1,12 +1,13 @@
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
-import type { OsCommercialStore } from '@isalwa/os-commercial';
+import { ORDER_LINE_PROVENANCE, type OsCommercialStore } from '@isalwa/os-commercial';
 import type {
   CommercialAccountRecord,
   DelegationRecord,
   IdempotencyRecord,
   MemberRecord,
   OpportunityRecord,
+  OrderLineRecord,
   OrderRecord,
   PartyRecord,
   QuoteLineRecord,
@@ -307,6 +308,113 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     return (last?.lineNumber ?? 0) + 1;
   }
 
+  async insertOrderLines(records: OrderLineRecord[]): Promise<void> {
+    for (const record of records) {
+      if (record.provenance !== ORDER_LINE_PROVENANCE) {
+        throw new Error('VALIDATION_FAILED');
+      }
+      await this.db().$executeRaw`
+        INSERT INTO os_order_lines (
+          id,
+          organization_id,
+          order_id,
+          quote_id,
+          quote_line_id,
+          line_number,
+          description_snapshot,
+          quantity,
+          unit_label,
+          unit_price_centavos_snapshot,
+          discount_centavos,
+          line_total_centavos,
+          product_ref_snapshot,
+          provenance,
+          copied_at,
+          created_at
+        ) VALUES (
+          ${record.id},
+          ${record.organizationId},
+          ${record.orderId},
+          ${record.quoteId},
+          ${record.quoteLineId},
+          ${record.lineNumber},
+          ${record.descriptionSnapshot},
+          ${record.quantity},
+          ${record.unitLabel},
+          ${record.unitPriceCentavosSnapshot},
+          ${record.discountCentavos},
+          ${record.lineTotalCentavos},
+          ${record.productRefSnapshot},
+          ${record.provenance},
+          ${record.copiedAt},
+          ${record.createdAt}
+        )
+      `;
+    }
+  }
+
+  async listOrderLines(organizationId: string, orderId: string): Promise<OrderLineRecord[]> {
+    const rows = await this.db().$queryRaw<Array<{
+      id: string;
+      organizationId: string;
+      orderId: string;
+      quoteId: string;
+      quoteLineId: string;
+      lineNumber: number;
+      descriptionSnapshot: string;
+      quantity: number;
+      unitLabel: string | null;
+      unitPriceCentavosSnapshot: bigint | number | string;
+      discountCentavos: bigint | number | string;
+      lineTotalCentavos: bigint | number | string;
+      productRefSnapshot: string | null;
+      provenance: string;
+      copiedAt: Date;
+      createdAt: Date;
+    }>>`
+      SELECT
+        id,
+        organization_id AS "organizationId",
+        order_id AS "orderId",
+        quote_id AS "quoteId",
+        quote_line_id AS "quoteLineId",
+        line_number AS "lineNumber",
+        description_snapshot AS "descriptionSnapshot",
+        quantity,
+        unit_label AS "unitLabel",
+        unit_price_centavos_snapshot AS "unitPriceCentavosSnapshot",
+        discount_centavos AS "discountCentavos",
+        line_total_centavos AS "lineTotalCentavos",
+        product_ref_snapshot AS "productRefSnapshot",
+        provenance,
+        copied_at AS "copiedAt",
+        created_at AS "createdAt"
+      FROM os_order_lines
+      WHERE organization_id = ${organizationId}
+        AND order_id = ${orderId}
+        AND provenance = ${ORDER_LINE_PROVENANCE}
+      ORDER BY line_number ASC
+    `;
+    return rows.map((row) => ({
+      id: row.id,
+      organizationId: row.organizationId,
+      orderId: row.orderId,
+      quoteId: row.quoteId,
+      quoteLineId: row.quoteLineId,
+      lineNumber: row.lineNumber,
+      descriptionSnapshot: row.descriptionSnapshot,
+      quantity: row.quantity,
+      unitLabel: row.unitLabel,
+      unitPriceCentavosSnapshot: asBigInt(row.unitPriceCentavosSnapshot),
+      discountCentavos: asBigInt(row.discountCentavos),
+      lineTotalCentavos: asBigInt(row.lineTotalCentavos),
+      productRefSnapshot: row.productRefSnapshot,
+      provenance: ORDER_LINE_PROVENANCE,
+      copiedAt: row.copiedAt,
+      createdAt: row.createdAt,
+    }));
+  }
+
   async insertOrder(record: OrderRecord): Promise<void> {
     await this.db().osOrder.create({
       data: {
@@ -595,6 +703,10 @@ function mapQuoteLine(row: {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+}
+
+function asBigInt(value: bigint | number | string): bigint {
+  return typeof value === 'bigint' ? value : BigInt(value);
 }
 
 function mapOrder(row: {

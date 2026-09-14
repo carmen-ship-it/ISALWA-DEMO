@@ -1,0 +1,7 @@
+{
+  "extends": "../config-ts/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src", "../os-contracts/src/delivery.ts"]
+}

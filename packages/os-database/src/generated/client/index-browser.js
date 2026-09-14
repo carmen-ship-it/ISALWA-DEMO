@@ -745,6 +745,541 @@ exports.Prisma.OsPartyTimelineEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OsReportedOperationalFactScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  kind: 'kind',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  reportedAt: 'reportedAt',
+  reportedByMemberId: 'reportedByMemberId',
+  reportedByLabel: 'reportedByLabel',
+  source: 'source',
+  confirmation: 'confirmation',
+  activity: 'activity',
+  reversalReason: 'reversalReason',
+  sourceReference: 'sourceReference',
+  note: 'note',
+  payloadJson: 'payloadJson',
+  correctsFactId: 'correctsFactId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsCommitmentScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  partyId: 'partyId',
+  ownerMemberId: 'ownerMemberId',
+  text: 'text',
+  dueAt: 'dueAt',
+  origin: 'origin',
+  relatedSubjectType: 'relatedSubjectType',
+  relatedSubjectId: 'relatedSubjectId',
+  lifecycle: 'lifecycle',
+  createdByMemberId: 'createdByMemberId',
+  createdAt: 'createdAt',
+  fulfilledAt: 'fulfilledAt',
+  cancelledAt: 'cancelledAt',
+  provenanceSuggestionId: 'provenanceSuggestionId'
+};
+
+exports.Prisma.OsInternalNotificationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  recipientMemberId: 'recipientMemberId',
+  kind: 'kind',
+  dedupKey: 'dedupKey',
+  title: 'title',
+  body: 'body',
+  sourceRecordType: 'sourceRecordType',
+  sourceRecordId: 'sourceRecordId',
+  partyId: 'partyId',
+  channel: 'channel',
+  readAt: 'readAt',
+  resolvedAt: 'resolvedAt',
+  resolvedBecause: 'resolvedBecause',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsCatalogProductScalarFieldEnum = {
+  organizationId: 'organizationId',
+  id: 'id',
+  businessCode: 'businessCode',
+  name: 'name',
+  category: 'category',
+  description: 'description',
+  active: 'active',
+  canonicalKey: 'canonicalKey',
+  reviewStatus: 'reviewStatus',
+  reviewNotes: 'reviewNotes',
+  deactivatedAt: 'deactivatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OsCatalogProductProvenanceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  sourceFilename: 'sourceFilename',
+  sourceSha256: 'sourceSha256',
+  page: 'page',
+  printedLabel: 'printedLabel',
+  role: 'role',
+  excerpt: 'excerpt'
+};
+
+exports.Prisma.OsCatalogProductAttributeScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  attributeKey: 'attributeKey',
+  attributeValue: 'attributeValue',
+  columnLabel: 'columnLabel',
+  sourceFilename: 'sourceFilename',
+  page: 'page'
+};
+
+exports.Prisma.OsCatalogProductStatusEventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  active: 'active',
+  reason: 'reason',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.OsOrderLineScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  quoteId: 'quoteId',
+  quoteLineId: 'quoteLineId',
+  lineNumber: 'lineNumber',
+  descriptionSnapshot: 'descriptionSnapshot',
+  quantity: 'quantity',
+  unitLabel: 'unitLabel',
+  unitPriceCentavosSnapshot: 'unitPriceCentavosSnapshot',
+  discountCentavos: 'discountCentavos',
+  lineTotalCentavos: 'lineTotalCentavos',
+  productRefSnapshot: 'productRefSnapshot',
+  provenance: 'provenance',
+  copiedAt: 'copiedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsOperationalCaseScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  openedAt: 'openedAt',
+  openedByMemberId: 'openedByMemberId',
+  openedByLabel: 'openedByLabel',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsOperationalCaseFactScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  caseId: 'caseId',
+  orderId: 'orderId',
+  orderLineId: 'orderLineId',
+  kind: 'kind',
+  source: 'source',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  evidenceText: 'evidenceText',
+  evidenceReference: 'evidenceReference',
+  confirmation: 'confirmation',
+  payloadJson: 'payloadJson',
+  correctsFactId: 'correctsFactId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsOperationalCaseFactReversalScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  factId: 'factId',
+  reason: 'reason',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsOperationalReleaseDecisionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  caseId: 'caseId',
+  orderId: 'orderId',
+  state: 'state',
+  basis: 'basis',
+  reason: 'reason',
+  source: 'source',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  decidedAt: 'decidedAt',
+  recordedAt: 'recordedAt',
+  evidenceText: 'evidenceText',
+  evidenceReference: 'evidenceReference',
+  correctsDecisionId: 'correctsDecisionId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsOperationalReleaseDecisionReversalScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  decisionId: 'decisionId',
+  reason: 'reason',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsProductionQuemaScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  evidenceJson: 'evidenceJson',
+  recordedAt: 'recordedAt',
+  idempotencyKey: 'idempotencyKey'
+};
+
+exports.Prisma.OsProductionQuemaTimeScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  quemaId: 'quemaId',
+  phase: 'phase',
+  at: 'at',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  evidenceJson: 'evidenceJson',
+  correctsTimeId: 'correctsTimeId',
+  correctionReason: 'correctionReason'
+};
+
+exports.Prisma.OsProductionQuemaProductScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  quemaId: 'quemaId',
+  productId: 'productId',
+  quantity: 'quantity',
+  unit: 'unit',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  evidenceJson: 'evidenceJson',
+  correctsLinkId: 'correctsLinkId',
+  correctionReason: 'correctionReason'
+};
+
+exports.Prisma.OsProductionTraceEntryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  kind: 'kind',
+  productId: 'productId',
+  stepKey: 'stepKey',
+  quemaId: 'quemaId',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  evidenceJson: 'evidenceJson',
+  quantityLost: 'quantityLost',
+  percentageLost: 'percentageLost',
+  lossReason: 'lossReason',
+  consumptionCategory: 'consumptionCategory',
+  consumptionDescription: 'consumptionDescription',
+  consumptionReference: 'consumptionReference',
+  consumptionQuantity: 'consumptionQuantity',
+  consumptionUnit: 'consumptionUnit',
+  inventoryEffect: 'inventoryEffect',
+  goodCount: 'goodCount',
+  lostCount: 'lostCount',
+  receiptQuantity: 'receiptQuantity',
+  note: 'note',
+  correctsEntryId: 'correctsEntryId',
+  correctionReason: 'correctionReason',
+  idempotencyKey: 'idempotencyKey'
+};
+
+exports.Prisma.OsCustomerConversationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerId: 'customerId',
+  customerLabel: 'customerLabel',
+  contactLabel: 'contactLabel',
+  channel: 'channel',
+  occurredAt: 'occurredAt',
+  enteredByMemberId: 'enteredByMemberId',
+  enteredByLabel: 'enteredByLabel',
+  summary: 'summary',
+  pastedEvidence: 'pastedEvidence',
+  opportunityId: 'opportunityId',
+  quoteId: 'quoteId',
+  orderId: 'orderId',
+  customerQuestion: 'customerQuestion',
+  commitmentCandidate: 'commitmentCandidate',
+  possibleRequestedDate: 'possibleRequestedDate',
+  nextAction: 'nextAction',
+  source: 'source',
+  provenance: 'provenance',
+  advisorNumberStatus: 'advisorNumberStatus',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsWarehouseExitScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  exitedAt: 'exitedAt',
+  recordedByMemberId: 'recordedByMemberId',
+  source: 'source',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsWarehouseOutboundNoteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  warehouseExitId: 'warehouseExitId',
+  orderId: 'orderId',
+  documentKind: 'documentKind',
+  numberingPolicy: 'numberingPolicy',
+  exitedAt: 'exitedAt',
+  bornAt: 'bornAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsWarehouseOutboundNoteLineScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  outboundNoteId: 'outboundNoteId',
+  orderLineId: 'orderLineId',
+  productRef: 'productRef',
+  description: 'description',
+  quantity: 'quantity',
+  unitLabel: 'unitLabel',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsDeliveryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  deliveredAt: 'deliveredAt',
+  deliveredTo: 'deliveredTo',
+  recordedByMemberId: 'recordedByMemberId',
+  source: 'source',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsDeliveryNoteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  deliveryId: 'deliveryId',
+  orderId: 'orderId',
+  documentKind: 'documentKind',
+  numberingPolicy: 'numberingPolicy',
+  deliveredAt: 'deliveredAt',
+  bornAt: 'bornAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsDeliveryNoteLineScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  deliveryNoteId: 'deliveryNoteId',
+  orderLineId: 'orderLineId',
+  productRef: 'productRef',
+  description: 'description',
+  quantity: 'quantity',
+  unitLabel: 'unitLabel',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsDeliveryEvidenceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  role: 'role',
+  recordedByMemberId: 'recordedByMemberId',
+  reference: 'reference',
+  note: 'note',
+  paymentState: 'paymentState',
+  exceptionReason: 'exceptionReason',
+  authorizedByMemberId: 'authorizedByMemberId',
+  recipient: 'recipient',
+  signatureReference: 'signatureReference',
+  confirmedLedgerPayment: 'confirmedLedgerPayment',
+  ledgerPosting: 'ledgerPosting',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerCommittedDateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  partyId: 'partyId',
+  commercialOwnerMemberId: 'commercialOwnerMemberId',
+  committedOn: 'committedOn',
+  originalCommittedOn: 'originalCommittedOn',
+  originalReason: 'originalReason',
+  source: 'source',
+  setByMemberId: 'setByMemberId',
+  setAt: 'setAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerCommittedDateRevisionScalarFieldEnum = {
+  id: 'id',
+  committedDateId: 'committedDateId',
+  organizationId: 'organizationId',
+  previousCommittedOn: 'previousCommittedOn',
+  nextCommittedOn: 'nextCommittedOn',
+  reason: 'reason',
+  actorMemberId: 'actorMemberId',
+  source: 'source',
+  revisedAt: 'revisedAt'
+};
+
+exports.Prisma.ProductionInternalTargetDateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  maintainedByMemberId: 'maintainedByMemberId',
+  targetOn: 'targetOn',
+  originalTargetOn: 'originalTargetOn',
+  originalReason: 'originalReason',
+  source: 'source',
+  setByMemberId: 'setByMemberId',
+  setAt: 'setAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductionInternalTargetRevisionScalarFieldEnum = {
+  id: 'id',
+  targetDateId: 'targetDateId',
+  organizationId: 'organizationId',
+  previousTargetOn: 'previousTargetOn',
+  nextTargetOn: 'nextTargetOn',
+  reason: 'reason',
+  actorMemberId: 'actorMemberId',
+  source: 'source',
+  revisedAt: 'revisedAt'
+};
+
+exports.Prisma.ProductionDateIssueScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  mayAffectProductionCalendar: 'mayAffectProductionCalendar',
+  mayAffectCustomerDate: 'mayAffectCustomerDate',
+  source: 'source',
+  note: 'note',
+  recordedByMemberId: 'recordedByMemberId',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerDateInformedRecordScalarFieldEnum = {
+  id: 'id',
+  issueId: 'issueId',
+  organizationId: 'organizationId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  note: 'note',
+  recordedByMemberId: 'recordedByMemberId',
+  recordedAt: 'recordedAt',
+  notified: 'notified'
+};
+
+exports.Prisma.OsOrderAllocationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  goodsKind: 'goodsKind',
+  quantity: 'quantity',
+  orderLineId: 'orderLineId',
+  allocatedAt: 'allocatedAt',
+  recordedAt: 'recordedAt',
+  actorMemberId: 'actorMemberId',
+  actorLabel: 'actorLabel',
+  source: 'source',
+  finishedGoodsReceiptId: 'finishedGoodsReceiptId',
+  idempotencyKey: 'idempotencyKey'
+};
+
+exports.Prisma.OsPurchaseRequestScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  requestingArea: 'requestingArea',
+  requestedByLabel: 'requestedByLabel',
+  requestedByMemberId: 'requestedByMemberId',
+  description: 'description',
+  quantity: 'quantity',
+  unit: 'unit',
+  productionContextId: 'productionContextId',
+  orderId: 'orderId',
+  reason: 'reason',
+  requestedAt: 'requestedAt',
+  status: 'status',
+  buyerLabel: 'buyerLabel',
+  buyerMemberId: 'buyerMemberId',
+  actorLabel: 'actorLabel',
+  actorMemberId: 'actorMemberId',
+  source: 'source',
+  stockAuthority: 'stockAuthority',
+  reorderPolicy: 'reorderPolicy',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OsPurchaseRequestStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  purchaseRequestId: 'purchaseRequestId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  changedAt: 'changedAt',
+  actorLabel: 'actorLabel',
+  actorMemberId: 'actorMemberId',
+  source: 'source',
+  note: 'note'
+};
+
+exports.Prisma.OsPurchaseRequestNoteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  purchaseRequestId: 'purchaseRequestId',
+  body: 'body',
+  recordedAt: 'recordedAt',
+  actorLabel: 'actorLabel',
+  actorMemberId: 'actorMemberId',
+  source: 'source',
+  evidenceReference: 'evidenceReference'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -821,7 +1356,42 @@ exports.Prisma.ModelName = {
   OsQuoteReadModel: 'OsQuoteReadModel',
   OsQuoteLineReadModel: 'OsQuoteLineReadModel',
   OsOrderReadModel: 'OsOrderReadModel',
-  OsPartyTimelineEntry: 'OsPartyTimelineEntry'
+  OsPartyTimelineEntry: 'OsPartyTimelineEntry',
+  OsReportedOperationalFact: 'OsReportedOperationalFact',
+  OsCommitment: 'OsCommitment',
+  OsInternalNotification: 'OsInternalNotification',
+  OsCatalogProduct: 'OsCatalogProduct',
+  OsCatalogProductProvenance: 'OsCatalogProductProvenance',
+  OsCatalogProductAttribute: 'OsCatalogProductAttribute',
+  OsCatalogProductStatusEvent: 'OsCatalogProductStatusEvent',
+  OsOrderLine: 'OsOrderLine',
+  OsOperationalCase: 'OsOperationalCase',
+  OsOperationalCaseFact: 'OsOperationalCaseFact',
+  OsOperationalCaseFactReversal: 'OsOperationalCaseFactReversal',
+  OsOperationalReleaseDecision: 'OsOperationalReleaseDecision',
+  OsOperationalReleaseDecisionReversal: 'OsOperationalReleaseDecisionReversal',
+  OsProductionQuema: 'OsProductionQuema',
+  OsProductionQuemaTime: 'OsProductionQuemaTime',
+  OsProductionQuemaProduct: 'OsProductionQuemaProduct',
+  OsProductionTraceEntry: 'OsProductionTraceEntry',
+  OsCustomerConversation: 'OsCustomerConversation',
+  OsWarehouseExit: 'OsWarehouseExit',
+  OsWarehouseOutboundNote: 'OsWarehouseOutboundNote',
+  OsWarehouseOutboundNoteLine: 'OsWarehouseOutboundNoteLine',
+  OsDelivery: 'OsDelivery',
+  OsDeliveryNote: 'OsDeliveryNote',
+  OsDeliveryNoteLine: 'OsDeliveryNoteLine',
+  OsDeliveryEvidence: 'OsDeliveryEvidence',
+  CustomerCommittedDate: 'CustomerCommittedDate',
+  CustomerCommittedDateRevision: 'CustomerCommittedDateRevision',
+  ProductionInternalTargetDate: 'ProductionInternalTargetDate',
+  ProductionInternalTargetRevision: 'ProductionInternalTargetRevision',
+  ProductionDateIssue: 'ProductionDateIssue',
+  CustomerDateInformedRecord: 'CustomerDateInformedRecord',
+  OsOrderAllocation: 'OsOrderAllocation',
+  OsPurchaseRequest: 'OsPurchaseRequest',
+  OsPurchaseRequestStatusHistory: 'OsPurchaseRequestStatusHistory',
+  OsPurchaseRequestNote: 'OsPurchaseRequestNote'
 };
 
 /**

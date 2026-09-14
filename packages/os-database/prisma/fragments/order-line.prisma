@@ -1,0 +1,37 @@
+// CROSS_LANE: merge this model into schema.prisma. Do not replace OsOrder.
+// Also add inverse relations, or Prisma generate fails:
+//   OsOrganization.orderLines OsOrderLine[]
+//   OsOrder.lines             OsOrderLine[]
+//   OsQuote.orderLines        OsOrderLine[]
+//   OsQuoteLine.orderLines    OsOrderLine[]
+// Snapshots are not a product relation. Do not add a product-master foreign key.
+// Do not backfill historical orders from header totals.
+
+model OsOrderLine {
+  id                        String   @id
+  organizationId            String   @map("organization_id")
+  orderId                   String   @map("order_id")
+  quoteId                   String   @map("quote_id")
+  quoteLineId               String   @map("quote_line_id")
+  lineNumber                Int      @map("line_number")
+  descriptionSnapshot       String   @map("description_snapshot")
+  quantity                  Int
+  unitLabel                 String?  @map("unit_label")
+  unitPriceCentavosSnapshot BigInt   @map("unit_price_centavos_snapshot")
+  discountCentavos          BigInt   @default(0) @map("discount_centavos")
+  lineTotalCentavos         BigInt   @map("line_total_centavos")
+  productRefSnapshot        String?  @map("product_ref_snapshot")
+  provenance                String
+  copiedAt                  DateTime @map("copied_at")
+  createdAt                 DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  order        OsOrder        @relation(fields: [orderId], references: [id])
+  quote        OsQuote        @relation(fields: [quoteId], references: [id])
+  quoteLine    OsQuoteLine    @relation(fields: [quoteLineId], references: [id])
+
+  @@unique([orderId, lineNumber])
+  @@unique([orderId, quoteLineId])
+  @@index([organizationId, orderId])
+  @@map("os_order_lines")
+}

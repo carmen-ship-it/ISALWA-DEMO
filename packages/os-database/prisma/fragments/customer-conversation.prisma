@@ -1,0 +1,36 @@
+/// Manual customer conversation. Evidence the company entered. Not a live channel.
+/// Not loaded by schema.prisma. Merge this model there and add
+/// `customerConversations OsCustomerConversation[]` on OsOrganization.
+/// Do not add payment, stock, delivery, production, or discount confirmation columns.
+/// Do not add a phone column. The sales advisor corporate number is WHATSAPP_NUMBER_PENDING.
+/// opportunityId, quoteId, and orderId are opaque links. They must not update those rows.
+model OsCustomerConversation {
+  id                     String    @id
+  organizationId         String    @map("organization_id")
+  customerId             String    @map("customer_id")
+  customerLabel          String    @map("customer_label")
+  contactLabel           String?   @map("contact_label")
+  channel                String
+  occurredAt             DateTime  @map("occurred_at")
+  enteredByMemberId      String?   @map("entered_by_member_id")
+  enteredByLabel         String    @map("entered_by_label")
+  summary                String
+  pastedEvidence         String?   @map("pasted_evidence")
+  opportunityId          String?   @map("opportunity_id")
+  quoteId                String?   @map("quote_id")
+  orderId                String?   @map("order_id")
+  customerQuestion       String?   @map("customer_question")
+  commitmentCandidate    String?   @map("commitment_candidate")
+  possibleRequestedDate  DateTime? @map("possible_requested_date") @db.Date
+  nextAction             String?   @map("next_action")
+  source                 String    @default("employee_entered")
+  provenance             String    @default("company_entered")
+  advisorNumberStatus    String    @default("WHATSAPP_NUMBER_PENDING") @map("advisor_number_status")
+  createdAt              DateTime  @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, customerId, occurredAt(sort: Desc)])
+  @@index([organizationId, occurredAt(sort: Desc)])
+  @@map("os_customer_conversations")
+}

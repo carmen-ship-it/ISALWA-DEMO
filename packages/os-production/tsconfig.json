@@ -1,0 +1,9 @@
+{
+  "extends": "../config-ts/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src", "../os-contracts/src/production-trace.ts"]
+}
