@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { GuidanceNote } from '@/components/guidance/guidance-note';
 import { createOrderAction } from '@/lib/commercial/actions';
 
 type ConvertQuoteFormProps = {
@@ -30,9 +31,16 @@ export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
     <form action={action} className="space-y-6">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="quoteId" value={quoteId} />
-      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Crea un pedido desde esta cotización. Conserva el vínculo. No emite factura ni nota de entrega.
-      </p>
+      <GuidanceNote
+        kind="consejo"
+        title="Antes de convertir a pedido"
+        items={['Confirme que esta es la cotización correcta.']}
+      />
+      <GuidanceNote
+        kind="regla"
+        title="Convertir crea un pedido"
+        items={['Convertir crea un pedido desde una cotización enviada. No emite factura ni nota de entrega.']}
+      />
       <FormFeedback error={state?.error} />
       <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />
     </form>
