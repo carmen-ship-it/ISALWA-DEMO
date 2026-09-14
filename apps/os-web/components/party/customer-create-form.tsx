@@ -5,7 +5,8 @@ import { useActionState } from 'react';
 import { createCustomerAction } from '@/lib/party/actions';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
-import { GuidanceNote } from '@/components/guidance/guidance-note';
+import { GuidanceNotes } from '@/components/guidance/guidance-note';
+import { guidanceForCreateCustomer } from '@/lib/guidance/select';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
@@ -36,24 +37,12 @@ export function CustomerCreateForm({
   );
 
   if (hasMoreMatches) {
-    return (
-      <p className="text-sm text-[var(--isalwa-slate)]">
-        Hay más coincidencias. Afine la búsqueda antes de crear. No se fusiona en silencio.
-      </p>
-    );
+    return <GuidanceNotes notes={guidanceForCreateCustomer({ matchCount, hasMoreMatches: true })} />;
   }
 
   return (
     <form action={formAction} className="space-y-4">
-      <GuidanceNote
-        kind="consejo"
-        title="Antes de crear cliente"
-        items={[
-          'Busque por nombre y teléfono.',
-          'Si ya existe, no cree otro.',
-          'Un teléfono repetido no fusiona el cliente.',
-        ]}
-      />
+      <GuidanceNotes notes={guidanceForCreateCustomer({ matchCount, hasMoreMatches: false })} />
       <FormFeedback error={state?.error} />
       <input type="hidden" name="searchedQuery" value={searchedQuery} />
       <input type="hidden" name="hasMoreMatches" value="false" />

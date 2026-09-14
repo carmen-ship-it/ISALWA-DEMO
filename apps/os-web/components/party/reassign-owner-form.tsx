@@ -4,8 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useActionState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { GuidanceNotes } from '@/components/guidance/guidance-note';
 import { MemberTypeahead } from '@/components/operating/member-typeahead';
 import { reassignCommercialAccountOwnerAction } from '@/lib/commercial/actions';
+import { guidanceForReassignOwner } from '@/lib/guidance/select';
 import type { ActiveMemberOption } from '@/lib/commercial/types';
 
 type ReassignOwnerFormProps = {
@@ -38,9 +40,7 @@ export function ReassignOwnerForm({
     <form action={action} className="mt-4 space-y-3">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="commercialAccountId" value={commercialAccountId} />
-      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Cambia el responsable comercial. No cambia el aprobador ni otorga permisos.
-      </p>
+      <GuidanceNotes notes={guidanceForReassignOwner({ currentOwnerLabel })} />
       <p className="text-sm text-[var(--isalwa-slate)]">Responsable actual: {currentOwnerLabel}</p>
       <div>
         <label htmlFor="reassign-owner" className="block text-sm text-[var(--isalwa-slate)]">
