@@ -6,9 +6,9 @@ import { OS_STORE } from './os-store.module';
 import { loadTrustedMemberContextFromRequest } from './trusted-member-context';
 
 /**
- * Server read of the trusted member context. Other controllers are not
- * switched onto this object. A successful response is not proof that HTTP
- * session attachment covers the rest of the API.
+ * Server read of the trusted member context. Controllers that call
+ * resolveSession receive the same attached organization and stored scopes.
+ * This route returns the context; it does not grant from the request body.
  */
 @Controller('session')
 export class TrustedMemberContextController {
