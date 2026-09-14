@@ -74,6 +74,12 @@ export const chapter: TourChapter = {
       stateLabel: 'disponible',
       nextRoute: '/ayuda',
     },
+    {
+      stepId: 'global.listo',
+      title: 'Listo',
+      body: 'Ya conoces lo esencial. Cuando entres por primera vez a una sección, ISALWA puede mostrarte rápidamente cómo funciona. También puedes repetir cualquier recorrido desde Ayuda.',
+      stateLabel: 'disponible',
+    },
   ],
 };
 

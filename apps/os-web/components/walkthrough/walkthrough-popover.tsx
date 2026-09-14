@@ -147,7 +147,16 @@ export function WalkthroughPopover() {
       <ShellCard titleId={titleId} label="Recorrido" style={box ?? undefined}>
         {api.surface === 'page-offer' ? (
           <>
-            <p className="isalwa-kicker">{SHELL_CONTROLS.pageOfferTitle}</p>
+            <p className="isalwa-kicker">Recorrido</p>
+            <h2
+              id={titleId}
+              className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)]"
+            >
+              {SHELL_CONTROLS.pageOfferTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              Te mostramos rápidamente qué puedes hacer en esta página.
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button type="button" className="w-full sm:w-auto" onClick={api.acceptPageOffer}>
                 {SHELL_CONTROLS.viewTour}
