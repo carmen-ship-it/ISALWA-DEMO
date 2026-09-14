@@ -30,6 +30,11 @@ export type TourChapter = {
   title: string;
   routePrefix?: string;
   routePrefixes?: readonly string[];
+  /**
+   * Optional access keys. Absent means visible. Hide from replay only when a
+   * caller passes an access set that includes none of these keys.
+   */
+  roleVisibility?: readonly string[];
   steps: readonly TourStep[];
 };
 
@@ -39,11 +44,15 @@ export type TourWelcome = {
   kicker?: string;
 };
 
+export const WALKTHROUGH_RECORD_VERSION = 2;
+
 export type WalkthroughRecord = {
-  version: 1;
+  /** Record shape version. The localStorage key stays v1; this field is independent. */
+  version: typeof WALKTHROUGH_RECORD_VERSION;
+  /** Active session only. Other chapters live in chapterStates. */
   runState: TourRunState;
   chapterId: string | null;
-  /** Null means the full registered sequence, not a single page chapter. */
+  /** The one chapter this session is running. Never the full catalog. */
   scopeChapterId: string | null;
   stepId: string | null;
   learningMode: boolean;
@@ -51,6 +60,7 @@ export type WalkthroughRecord = {
   offeredPageKeys: string[];
   completedChapterIds: string[];
   welcomeClosed: boolean;
+  chapterStates: Record<string, TourRunState>;
 };
 
 export type WalkthroughEvent =
@@ -59,10 +69,10 @@ export type WalkthroughEvent =
   | { type: 'BACK'; chapterId: string | null; stepId: string }
   | { type: 'PAUSE' }
   | { type: 'CLOSE' }
-  | { type: 'DISMISS' }
+  | { type: 'DISMISS'; chapterId?: string }
   | { type: 'COMPLETE'; chapterId: string | null }
   | { type: 'REPLAY'; chapterId: string | null; stepId: string | null; scopeChapterId: string | null }
-  | { type: 'DISMISS_PAGE'; pageKey: string }
+  | { type: 'DISMISS_PAGE'; pageKey: string; chapterId?: string }
   | { type: 'MARK_PAGE_OFFERED'; pageKey: string }
   | { type: 'SET_LEARNING_MODE'; enabled: boolean }
   | { type: 'MARK_WELCOME_CLOSED' };

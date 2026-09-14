@@ -16,17 +16,22 @@ import { captureFocus, handleTourEscape, isTypingTarget, type Focusable, type To
 import {
   advanceRun,
   chapterForPathname,
+  chapterHref,
+  chapterRunState,
   flattenChapters,
+  nextIndexSkippingMissing,
   pageKeyFromPathname,
+  replayableChapters,
   shouldOfferFirstVisit,
   startRun,
   type PlannedStep,
+  type ReplayableChapter,
 } from '@/lib/walkthrough/plan';
 import { loadWalkthrough, saveWalkthrough } from '@/lib/walkthrough/persistence';
 import { getChapters, getWelcome } from '@/lib/walkthrough/registry';
 import { initialWalkthroughRecord, reduceWalkthrough } from '@/lib/walkthrough/state';
 import { hasBlockingDialog, prefersReducedMotion, routeMatches, scrollBehavior } from '@/lib/walkthrough/targeting';
-import type { TourChapter, TourWelcome, WalkthroughRecord } from '@/lib/walkthrough/types';
+import type { TourChapter, TourRunState, TourWelcome, WalkthroughRecord } from '@/lib/walkthrough/types';
 
 type AnchorState = 'idle' | 'pending' | 'ready' | 'untargeted';
 
@@ -51,6 +56,9 @@ type WalkthroughApi = {
   next: () => void;
   replay: () => void;
   startPageTour: () => void;
+  startChapter: (chapterId: string) => void;
+  replayableChapters: ReplayableChapter[];
+  chapterStates: Record<string, TourRunState>;
   resume: () => void;
   dismissPageOffer: () => void;
   acceptPageOffer: () => void;
@@ -80,6 +88,30 @@ function findVisibleTarget(target: string): HTMLElement | null {
   return null;
 }
 
+function locationReady(nextRoute: string | undefined): boolean {
+  if (!nextRoute || typeof window === 'undefined') return true;
+  const [pathAndQuery] = nextRoute.split('#');
+  const [path, query] = (pathAndQuery || '/').split('?');
+  if (!routeMatches(window.location.pathname, path || '/')) return false;
+  if (!query) return true;
+  const expected = new URLSearchParams(query);
+  const actual = new URLSearchParams(window.location.search);
+  for (const [key, value] of expected) {
+    if (actual.get(key) !== value) return false;
+  }
+  return true;
+}
+
+function stepsForChapter(chapterId: string | null): PlannedStep[] {
+  if (!chapterId) return [];
+  const chapter = getChapters().find((item) => item.chapterId === chapterId);
+  return chapter ? flattenChapters([chapter]) : [];
+}
+
+function stepsForRecord(record: WalkthroughRecord): PlannedStep[] {
+  return stepsForChapter(record.scopeChapterId ?? record.chapterId);
+}
+
 export function useWalkthrough(): WalkthroughApi {
   const value = useContext(WalkthroughContext);
   if (!value) {
@@ -88,7 +120,13 @@ export function useWalkthrough(): WalkthroughApi {
   return value;
 }
 
-export function WalkthroughProvider({ children }: { children: ReactNode }) {
+export function WalkthroughProvider({
+  children,
+  access,
+}: {
+  children: ReactNode;
+  access?: ReadonlySet<string> | readonly string[] | null;
+}) {
   const router = useRouter();
   const pathname = usePathname() || '/';
   const [record, setRecord] = useState<WalkthroughRecord>(initialWalkthroughRecord);
@@ -118,18 +156,26 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
   const chapters = getChapters();
   const welcome = getWelcome();
   const pageChapter = chapterForPathname(chapters, pathname);
-  const scopedSteps = useMemo(() => {
-    if (record.scopeChapterId) {
-      const chapter = chapters.find((item) => item.chapterId === record.scopeChapterId);
-      return chapter ? flattenChapters([chapter]) : [];
-    }
-    return flattenChapters(chapters);
-  }, [chapters, record.scopeChapterId]);
+  const scopedSteps = useMemo(
+    () => stepsForRecord(record),
+    [record.scopeChapterId, record.chapterId, chapters],
+  );
   const stepIndex = Math.max(
     0,
     scopedSteps.findIndex((item) => item.stepId === record.stepId),
   );
   const step = surface === 'step' ? (scopedSteps[stepIndex] ?? null) : null;
+  const chapterStates = useMemo(() => {
+    const states: Record<string, TourRunState> = {};
+    for (const chapter of chapters) {
+      states[chapter.chapterId] = chapterRunState(record, chapter.chapterId);
+    }
+    return states;
+  }, [chapters, record]);
+  const listedChapters = useMemo(
+    () => replayableChapters(chapters, access),
+    [access, chapters],
+  );
 
   const closeSurface = useCallback(() => {
     const opener = openerRef.current;
@@ -174,7 +220,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
         openWelcome();
         return;
       }
-      const started = startRun(recordRef.current, steps, scopeChapterId);
+      const started = startRun(recordRef.current, steps, scopeChapterId ?? steps[0]?.chapterId ?? null);
       setRecord(started);
       setForceHome(false);
       navRef.current = null;
@@ -187,18 +233,29 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     [closeSurface, openSurface, openWelcome],
   );
 
+  const startChapter = useCallback(
+    (chapterId: string) => {
+      const steps = stepsForChapter(chapterId);
+      if (steps.length === 0) return;
+      begin(steps, chapterId);
+      const href = chapterHref(chapterId);
+      if (href && !routeMatches(pathname, href)) router.push(href);
+    },
+    [begin, pathname, router],
+  );
+
   const startFromWelcome = useCallback(() => {
-    const steps = flattenChapters(getChapters());
+    const steps = stepsForChapter('global');
     if (steps.length === 0) {
-      setRecord((current) => startRun(current, [], null));
+      setRecord((current) => startRun(current, [], 'global'));
       closeSurface();
       return;
     }
-    begin(steps, null);
+    begin(steps, 'global');
   }, [begin, closeSurface]);
 
   const exploreAlone = useCallback(() => {
-    setRecord((current) => reduceWalkthrough(current, { type: 'DISMISS' }));
+    setRecord((current) => reduceWalkthrough(current, { type: 'DISMISS', chapterId: 'global' }));
     closeSurface();
   }, [closeSurface]);
 
@@ -215,7 +272,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
   const goHome = useCallback(() => {
     setForceHome(true);
     navRef.current = null;
-    const steps = flattenChapters(getChapters());
+    const steps = stepsForChapter('global');
     if (steps.length === 0) {
       router.push('/inicio');
       openWelcome();
@@ -228,7 +285,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
         type: 'START',
         chapterId: first.chapterId,
         stepId: first.stepId,
-        scopeChapterId: null,
+        scopeChapterId: 'global',
       }),
     );
     openSurface('step');
@@ -237,9 +294,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
 
   const previous = useCallback(() => {
     setForceHome(false);
-    const steps = recordRef.current.scopeChapterId
-      ? flattenChapters(getChapters().filter((item) => item.chapterId === recordRef.current.scopeChapterId))
-      : flattenChapters(getChapters());
+    const steps = stepsForRecord(recordRef.current);
     const index = steps.findIndex((item) => item.stepId === recordRef.current.stepId);
     const previousIndex = index <= 0 ? null : index - 1;
     if (previousIndex === null) return;
@@ -254,9 +309,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
   const next = useCallback(() => {
     setForceHome(false);
     const currentRecord = recordRef.current;
-    const steps = currentRecord.scopeChapterId
-      ? flattenChapters(getChapters().filter((item) => item.chapterId === currentRecord.scopeChapterId))
-      : flattenChapters(getChapters());
+    const steps = stepsForRecord(currentRecord);
     const index = steps.findIndex((item) => item.stepId === currentRecord.stepId);
     const following = index < 0 ? 0 : index + 1;
     if (following >= steps.length) {
@@ -268,14 +321,14 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
   }, [finish, openSurface]);
 
   const replay = useCallback(() => {
-    begin(flattenChapters(getChapters()), null);
-  }, [begin]);
+    startChapter('global');
+  }, [startChapter]);
 
   const startPageTour = useCallback(() => {
     const chapter = chapterForPathname(getChapters(), pathname);
     if (!chapter) return;
-    begin(flattenChapters([chapter]), chapter.chapterId);
-  }, [begin, pathname]);
+    startChapter(chapter.chapterId);
+  }, [pathname, startChapter]);
 
   const resume = useCallback(() => {
     if (recordRef.current.runState !== 'IN_PROGRESS' || !recordRef.current.stepId) return;
@@ -284,7 +337,10 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
 
   const dismissPageOffer = useCallback(() => {
     const pageKey = pageKeyFromPathname(pathname);
-    setRecord((current) => reduceWalkthrough(current, { type: 'DISMISS_PAGE', pageKey }));
+    const chapter = chapterForPathname(getChapters(), pathname);
+    setRecord((current) =>
+      reduceWalkthrough(current, { type: 'DISMISS_PAGE', pageKey, chapterId: chapter?.chapterId }),
+    );
     closeSurface();
   }, [closeSurface, pathname]);
 
@@ -294,8 +350,8 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
       openWelcome();
       return;
     }
-    begin(flattenChapters([chapter]), chapter.chapterId);
-  }, [begin, openWelcome, pathname]);
+    startChapter(chapter.chapterId);
+  }, [openWelcome, pathname, startChapter]);
 
   const setLearningMode = useCallback((enabled: boolean) => {
     setRecord((current) => reduceWalkthrough(current, { type: 'SET_LEARNING_MODE', enabled }));
@@ -334,31 +390,53 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     const reduced = prefersReducedMotion((query) => window.matchMedia(query).matches);
     const stayHome = forceHome && routeMatches(pathname, '/inicio');
 
-    const stepsInScope = () =>
-      recordRef.current.scopeChapterId
-        ? flattenChapters(getChapters().filter((item) => item.chapterId === recordRef.current.scopeChapterId))
-        : flattenChapters(getChapters());
-    const skipCurrent = () => {
-      const steps = stepsInScope();
+    const skipMissing = () => {
+      const steps = stepsForRecord(recordRef.current);
       const index = steps.findIndex((item) => item.stepId === step.stepId);
-      const following = index + 1;
-      const nextStep = steps[following];
-      if (index < 0 || !nextStep || nextStep.stepId === step.stepId) {
-        finish(recordRef.current.scopeChapterId ?? step.chapterId);
+      const following = nextIndexSkippingMissing(steps, index + 1, (target) => Boolean(findVisibleTarget(target)));
+      if (following === null) {
+        setAnchor('untargeted');
         return;
       }
       setRecord(advanceRun(recordRef.current, steps, following));
     };
 
-    if (step.nextRoute && !stayHome && !routeMatches(pathname, step.nextRoute)) {
+    const reveal = () => {
+      let attempts = 0;
+      const tick = () => {
+        if (cancelled) return;
+        if (!step.target) {
+          setAnchor('untargeted');
+          return;
+        }
+        const found = findVisibleTarget(step.target);
+        if (found) {
+          found.scrollIntoView({ behavior: scrollBehavior(reduced), block: 'center', inline: 'nearest' });
+          setAnchor('ready');
+          return;
+        }
+        attempts += 1;
+        if (attempts < 8) {
+          timer = window.setTimeout(tick, reduced ? 0 : 60);
+          return;
+        }
+        skipMissing();
+      };
+      tick();
+    };
+
+    if (step.nextRoute && !stayHome && !locationReady(step.nextRoute)) {
       if (navRef.current !== step.stepId) {
         navRef.current = step.stepId;
         router.push(step.nextRoute);
       }
       timer = window.setTimeout(() => {
         if (cancelled) return;
-        if (routeMatches(window.location.pathname, step.nextRoute)) return;
-        skipCurrent();
+        if (!locationReady(step.nextRoute)) {
+          skipMissing();
+          return;
+        }
+        reveal();
       }, 700);
       return () => {
         cancelled = true;
@@ -366,32 +444,12 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    let attempts = 0;
-    const tick = () => {
-      if (cancelled) return;
-      if (!step.target) {
-        setAnchor('untargeted');
-        return;
-      }
-      const found = findVisibleTarget(step.target);
-      if (found) {
-        found.scrollIntoView({ behavior: scrollBehavior(reduced), block: 'center', inline: 'nearest' });
-        setAnchor('ready');
-        return;
-      }
-      attempts += 1;
-      if (attempts < 8) {
-        timer = window.setTimeout(tick, reduced ? 0 : 60);
-        return;
-      }
-      skipCurrent();
-    };
-    tick();
+    reveal();
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [finish, forceHome, pathname, router, step, surface]);
+  }, [forceHome, pathname, router, step, surface]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -407,7 +465,10 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
         event.stopPropagation();
         if (surfaceRef.current === 'page-offer') {
           const pageKey = pageKeyFromPathname(window.location.pathname);
-          setRecord((current) => reduceWalkthrough(current, { type: 'DISMISS_PAGE', pageKey }));
+          const chapter = chapterForPathname(getChapters(), window.location.pathname);
+          setRecord((current) =>
+            reduceWalkthrough(current, { type: 'DISMISS_PAGE', pageKey, chapterId: chapter?.chapterId }),
+          );
         } else {
           setRecord((current) => reduceWalkthrough(current, { type: 'CLOSE' }));
         }
@@ -452,6 +513,9 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
       next,
       replay,
       startPageTour,
+      startChapter,
+      replayableChapters: listedChapters,
+      chapterStates,
       resume,
       dismissPageOffer,
       acceptPageOffer,
@@ -460,11 +524,13 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     [
       acceptPageOffer,
       anchor,
+      chapterStates,
       closeTour,
       continueLater,
       dismissPageOffer,
       exploreAlone,
       goHome,
+      listedChapters,
       next,
       openWelcome,
       pageChapter,
@@ -473,6 +539,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
       replay,
       resume,
       setLearningMode,
+      startChapter,
       startFromWelcome,
       startPageTour,
       step,

@@ -1,9 +1,9 @@
 import type { TourRunState, WalkthroughEvent, WalkthroughRecord } from './types';
-import { TOUR_RUN_STATES } from './types';
+import { TOUR_RUN_STATES, WALKTHROUGH_RECORD_VERSION } from './types';
 
 export function initialWalkthroughRecord(): WalkthroughRecord {
   return {
-    version: 1,
+    version: WALKTHROUGH_RECORD_VERSION,
     runState: 'NOT_STARTED',
     chapterId: null,
     scopeChapterId: null,
@@ -13,6 +13,7 @@ export function initialWalkthroughRecord(): WalkthroughRecord {
     offeredPageKeys: [],
     completedChapterIds: [],
     welcomeClosed: false,
+    chapterStates: {},
   };
 }
 
@@ -24,18 +25,30 @@ export function isTourRunState(value: unknown): value is TourRunState {
   return typeof value === 'string' && (TOUR_RUN_STATES as readonly string[]).includes(value);
 }
 
+function withChapterState(
+  record: WalkthroughRecord,
+  chapterId: string | null | undefined,
+  runState: TourRunState,
+): Record<string, TourRunState> {
+  if (!chapterId) return record.chapterStates;
+  return { ...record.chapterStates, [chapterId]: runState };
+}
+
 export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughEvent): WalkthroughRecord {
   switch (event.type) {
     case 'START':
-    case 'REPLAY':
+    case 'REPLAY': {
+      const scopeChapterId = event.scopeChapterId ?? event.chapterId;
       return {
         ...record,
         runState: 'IN_PROGRESS',
         chapterId: event.chapterId,
-        scopeChapterId: event.scopeChapterId,
+        scopeChapterId,
         stepId: event.stepId,
         welcomeClosed: true,
+        chapterStates: withChapterState(record, event.chapterId, 'IN_PROGRESS'),
       };
+    }
     case 'ADVANCE':
       if (event.stepId === null) {
         return {
@@ -47,6 +60,7 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
           completedChapterIds: event.chapterId
             ? unique([...record.completedChapterIds, event.chapterId])
             : record.completedChapterIds,
+          chapterStates: withChapterState(record, event.chapterId, 'COMPLETED'),
         };
       }
       return {
@@ -54,6 +68,7 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         runState: 'IN_PROGRESS',
         chapterId: event.chapterId ?? record.chapterId,
         stepId: event.stepId,
+        chapterStates: withChapterState(record, event.chapterId ?? record.chapterId, 'IN_PROGRESS'),
       };
     case 'BACK':
       return {
@@ -61,6 +76,7 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         runState: 'IN_PROGRESS',
         chapterId: event.chapterId ?? record.chapterId,
         stepId: event.stepId,
+        chapterStates: withChapterState(record, event.chapterId ?? record.chapterId, 'IN_PROGRESS'),
       };
     case 'PAUSE':
     case 'CLOSE':
@@ -68,7 +84,8 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         return { ...record, welcomeClosed: true };
       }
       return record;
-    case 'DISMISS':
+    case 'DISMISS': {
+      const chapterId = event.chapterId ?? record.scopeChapterId ?? record.chapterId ?? 'global';
       return {
         ...record,
         runState: 'DISMISSED',
@@ -77,7 +94,9 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         stepId: null,
         learningMode: false,
         welcomeClosed: true,
+        chapterStates: withChapterState(record, chapterId, 'DISMISSED'),
       };
+    }
     case 'COMPLETE':
       return {
         ...record,
@@ -87,6 +106,7 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         completedChapterIds: event.chapterId
           ? unique([...record.completedChapterIds, event.chapterId])
           : record.completedChapterIds,
+        chapterStates: withChapterState(record, event.chapterId, 'COMPLETED'),
       };
     case 'DISMISS_PAGE':
       return {
@@ -94,6 +114,7 @@ export function reduceWalkthrough(record: WalkthroughRecord, event: WalkthroughE
         dismissedPageKeys: unique([...record.dismissedPageKeys, event.pageKey]),
         offeredPageKeys: unique([...record.offeredPageKeys, event.pageKey]),
         welcomeClosed: event.pageKey === 'inicio' ? true : record.welcomeClosed,
+        chapterStates: withChapterState(record, event.chapterId, 'DISMISSED'),
       };
     case 'MARK_PAGE_OFFERED':
       return {

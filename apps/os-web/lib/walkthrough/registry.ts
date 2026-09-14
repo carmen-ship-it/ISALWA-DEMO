@@ -48,12 +48,16 @@ export function normalizeChapter(input: unknown, fallbackId?: string): TourChapt
   const routePrefixes = Array.isArray(chapter.routePrefixes)
     ? chapter.routePrefixes.filter((item): item is string => typeof item === 'string')
     : undefined;
+  const roleVisibility = Array.isArray(chapter.roleVisibility)
+    ? chapter.roleVisibility.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : undefined;
   return {
     chapterId,
     title,
     steps,
     ...(routePrefix ? { routePrefix } : {}),
     ...(routePrefixes && routePrefixes.length > 0 ? { routePrefixes } : {}),
+    ...(roleVisibility && roleVisibility.length > 0 ? { roleVisibility } : {}),
   };
 }
 

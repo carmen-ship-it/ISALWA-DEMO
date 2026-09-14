@@ -46,10 +46,15 @@ export {
 export {
   advanceRun,
   chapterForPathname,
+  chapterHref,
+  chapterRunState,
   emptyChapterRun,
   flattenChapters,
+  nextIndexSkippingMissing,
   pageKeyFromPathname,
+  replayableChapters,
   shouldOfferFirstVisit,
   startRun,
 } from './plan';
+export type { ReplayableChapter } from './plan';
 export { loadWalkthroughContent } from './content';
