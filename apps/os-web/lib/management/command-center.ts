@@ -32,6 +32,7 @@ export type CommandCenterDecision = {
 /**
  * Company exception queue. Other tenants are dropped before the count.
  * people.admin and system.admin do not open this queue.
+ * The count is a tenant gate, not a figure on the Gerente home.
  */
 export function managementCommandCenter(input: {
   session: RoleSession | null | undefined;

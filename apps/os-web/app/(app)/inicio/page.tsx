@@ -215,13 +215,10 @@ export default async function InicioPage() {
 
     const showLenses = leadership.team.kind === 'ready' || leadership.org.kind === 'ready';
     const greeting = greetingLine(shellContext?.givenName);
-    const operatingHomes = await loadOperatingHomes(client, {
-      ownQuotes: [...quotesDraft, ...quotesSubmitted],
-      teamQuotes: [...(teamData?.quotesDraft ?? []), ...(teamData?.quotesSubmitted ?? [])],
-      ownWork: upcomingRows,
-      teamWork: teamData?.followUps ?? [],
-      attention: visibleAttention,
-    });
+    const operatingHomes = await loadOperatingHomes(client);
+    const showOperatingLens =
+      operatingHomes.status === 'ready' &&
+      (operatingHomes.businessHomes.length > 0 || operatingHomes.systemControls !== null);
 
     return (
       <PageContainer label={t('pages.inicio.title')}>
@@ -253,8 +250,10 @@ export default async function InicioPage() {
         ) : null}
 
         <div className="min-w-0 space-y-10">
-          <OperatingHomes model={operatingHomes} />
-
+          {showOperatingLens ? (
+            <OperatingHomes model={operatingHomes} />
+          ) : (
+            <>
           <InicioAttentionPanel
             items={visibleAttention}
             subjects={attentionSubjects}
@@ -382,6 +381,8 @@ export default async function InicioPage() {
               ) : null}
             </section>
           ) : null}
+            </>
+          )}
         </div>
       </PageContainer>
     );

@@ -12,6 +12,7 @@ import {
   type PaymentExceptionRecord,
   type QueueRecord,
 } from '@/lib/roles/homes';
+import { AGENT_0_CAPABILITY_WIRE, loadOperatingHomes } from '@/lib/roles/load-operating-homes';
 import { NO_RECORD } from '@/lib/roles/queues';
 import type { RoleSession } from '@/lib/roles/access';
 import { roleNavigationRequests } from '@/lib/navigation/requests/roles';
@@ -337,6 +338,27 @@ describe('tenant boundary for search, attention, and exception counts', () => {
     assert.equal(composeOperatingHomes({ session: session(['management.org.read'], null) }).denial, 'missing-organization');
   });
 
+  it('fails closed until loadMemberCapabilities exists and does not read role keys', async () => {
+    const loader = readFileSync(resolve(__dirname, 'load-operating-homes.ts'), 'utf8');
+    const view = readFileSync(resolve(__dirname, '../../components/management/operating-homes.tsx'), 'utf8');
+    assert.equal(AGENT_0_CAPABILITY_WIRE, 'loadMemberCapabilities');
+    assert.match(loader, /loadMemberCapabilities/);
+    assert.doesNotMatch(loader, /loadActorRoleKeys|roleKeys|grantedScopes/);
+    assert.doesNotMatch(view, /grantedScopes/);
+    assert.doesNotMatch(view, /'use client'/);
+    const closed = await loadOperatingHomes({
+      async getAuthenticatedSession() {
+        throw new Error('must not read the session');
+      },
+      async getMember() {
+        throw new Error('must not read role keys');
+      },
+    });
+    assert.equal(closed.denial, 'capabilities-unavailable');
+    assert.equal(closed.businessHomes.length, 0);
+    assert.equal(closed.systemControls, null);
+  });
+
   it('does not leak another tenant in a command-palette suggestion', () => {
     const hits = authorizedOpsSearchHits(gerente, catalog);
     const leaked = hits.filter(
@@ -393,5 +415,145 @@ describe('tenant boundary for search, attention, and exception counts', () => {
     });
     assert.equal(deniedCount.count, null);
     assert.deepEqual(deniedCount.items, []);
+  });
+});
+
+describe('distinct operating lenses', () => {
+  function queueIds(id: string, scopes: readonly string[], records: QueueRecord[] = []) {
+    const model = composeOperatingHomes({
+      session: session(scopes),
+      records,
+      exceptions: [
+        {
+          id: 'ex-local-fg',
+          organizationId: ORG,
+          exceptionId: 'finished-goods-awaiting-allocation',
+          subject: 'Pieza local',
+          href: '/trabajo/w-1',
+        },
+        {
+          id: 'ex-foreign-fg',
+          organizationId: OTHER,
+          exceptionId: 'finished-goods-awaiting-allocation',
+          subject: 'Pieza ajena',
+          href: '/trabajo/w-9',
+        },
+        {
+          id: 'ex-quema',
+          organizationId: ORG,
+          exceptionId: 'active-quemas',
+          subject: 'Quema local',
+          href: null,
+        },
+      ],
+    });
+    const home = homeById(model, id);
+    return {
+      model,
+      home,
+      ids: home?.queues.map((queue) => queue.id) ?? [],
+      titles: home?.queues.map((queue) => queue.title) ?? [],
+      itemIds: home?.queues.flatMap((queue) => queue.items.map((item) => item.id)) ?? [],
+    };
+  }
+
+  it('gives each commercial lens its own work, not a shared dashboard', () => {
+    const asesor = queueIds('asesor', ['commercial.customer.create']);
+    const jefe = queueIds('jefe', ['commercial.team.read']);
+    const gerente = queueIds('gerente', ['management.org.read']);
+    assert.deepEqual(asesor.ids, [
+      'asesor-customers',
+      'asesor-follow-up',
+      'asesor-quote',
+      'asesor-orders',
+      'asesor-communication',
+      'asesor-date',
+      'asesor-approval',
+      'asesor-order',
+    ]);
+    assert.deepEqual(jefe.ids, [
+      'jefe-clients',
+      'jefe-opportunities',
+      'jefe-quote',
+      'jefe-orders',
+      'jefe-follow-up',
+      'jefe-approval',
+      'jefe-date',
+    ]);
+    assert.ok(gerente.ids.includes('gerente-blockers'));
+    assert.ok(gerente.ids.includes('gerente-special-orders'));
+    assert.ok(gerente.ids.includes('gerente-partial'));
+    assert.ok(gerente.ids.includes('gerente-decisions'));
+    assert.ok(gerente.ids.includes('gerente-changes'));
+    assert.equal(asesor.ids.some((id) => jefe.ids.includes(id)), false);
+    assert.equal(asesor.home?.actions.some((entry) => entry.href === '/cotizaciones'), true);
+    assert.equal(jefe.home?.description.includes('No administra'), true);
+    assert.equal(businessHomeHasSystemControls(jefe.home ?? null), false);
+    assert.equal(asesor.home?.queues.find((queue) => queue.id === 'asesor-communication')?.unavailable, 'No disponible. Esta lista no está cargada para esta empresa.');
+    assert.equal(asesor.home?.queues.find((queue) => queue.id === 'asesor-communication')?.deskHref, '/mensajes');
+    assert.equal(asesor.itemIds.includes('ex-local-fg'), false);
+  });
+
+  it('keeps the technical panel off Gerente and off management.org.read', () => {
+    const gerente = queueIds('gerente', ['management.org.read', 'commercial.org.read']);
+    assert.equal(gerente.model.systemControls, null);
+    assert.equal(businessHomeHasSystemControls(gerente.home ?? null), false);
+    assert.equal(gerente.titles.includes('Quemas activas'), false);
+    assert.equal(JSON.stringify(gerente.home).includes('integration'), false);
+    assert.equal(JSON.stringify(gerente.home).includes('/administracion'), false);
+    assert.deepEqual(gerente.itemIds, ['ex-local-fg']);
+    assert.equal(gerente.itemIds.includes('ex-foreign-fg'), false);
+    assert.equal(gerente.itemIds.includes('ex-quema'), false);
+    const technical = composeOperatingHomes({ session: session(['system.admin']) });
+    assert.equal(homeById(technical, 'gerente'), null);
+    assert.equal(technical.systemControls?.separateFromBusinessHome, true);
+    assert.equal(technical.systemControls?.includesIntegrationHealth, false);
+    assert.equal(technical.systemControls?.href, '/administracion');
+    const access = technical.systemControls?.controls.find((control) => control.id === 'access');
+    const integration = technical.systemControls?.controls.find((control) => control.id === 'integration');
+    const health = technical.systemControls?.controls.find((control) => control.id === 'health');
+    assert.equal(access?.href, '/administracion/accesos');
+    assert.equal(integration?.href, null);
+    assert.match(integration?.unavailable ?? '', /No disponible/);
+    assert.equal(health?.href, null);
+    assert.equal(composeOperatingHomes({ session: session(['people.admin']) }).systemControls, null);
+  });
+
+  it('links department stages by route and does not invent a ledger', () => {
+    const model = composeOperatingHomes({
+      session: session([
+        'purchasing.operational.record',
+        'finance.operational.record',
+        'operations.coordinator.record',
+        'production.operational.record',
+        'warehouse.finished_goods.receive',
+      ]),
+    });
+    const compras = homeById(model, 'compras');
+    assert.deepEqual(compras?.queues.map((queue) => queue.title), [
+      'Solicitado',
+      'Cotizándose',
+      'Pedido y Preparándose',
+      'Entregado',
+    ]);
+    assert.equal(compras?.queues.every((queue) => queue.items.length === 0 && queue.deskHref === '/compras'), true);
+    assert.equal(compras?.nextAction?.href, '/compras');
+    const contabilidad = homeById(model, 'contabilidad');
+    assert.match(contabilidad?.description ?? '', /libro/);
+    assert.match(contabilidad?.description ?? '', /SKU/);
+    assert.equal(contabilidad?.queues.every((queue) => queue.unavailable !== null && queue.items.length === 0), true);
+    assert.equal(contabilidad?.queues.find((queue) => queue.id === 'contabilidad-sku')?.deskHref, '/productos');
+    const auxiliar = homeById(model, 'auxiliar');
+    assert.deepEqual(auxiliar?.queues.map((queue) => queue.title), [
+      'Cruces entre áreas',
+      'Registro de decisiones',
+      'Responsables',
+      'Fechas de compromiso',
+    ]);
+    assert.equal(auxiliar?.queues.find((queue) => queue.id === 'auxiliar-owners')?.deskHref, null);
+    assert.equal(auxiliar?.queues.find((queue) => queue.id === 'auxiliar-owners')?.items.length, 0);
+    assert.equal(homeById(model, 'produccion')?.nextAction?.href, '/produccion');
+    assert.equal(homeById(model, 'almacen')?.nextAction?.href, '/almacen');
+    assert.doesNotMatch(JSON.stringify(model.businessHomes), /PurchaseRequestPanel|ledger|asiento/);
   });
 });

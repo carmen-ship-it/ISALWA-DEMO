@@ -24,7 +24,10 @@ const MOUNTED_DESK = [
   '/trabajo',
   '/aprobaciones',
   '/productos',
+  '/mensajes',
   '/administracion',
+  '/administracion/accesos',
+  '/administracion/capacidades',
 ] as const;
 
 export function pathnameOnly(href: string | null | undefined): string | null {
