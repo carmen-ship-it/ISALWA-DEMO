@@ -50,7 +50,7 @@ export function MapExperience({
       <MapLayerControls activeLayer={layer} onChange={setLayer} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:max-w-sm">
+        <div className="w-full sm:max-w-sm" data-tour="map-search">
           <label htmlFor="mapa-search" className="text-xs font-medium text-[var(--isalwa-slate)]">
             Buscar en la lista
           </label>
@@ -64,7 +64,7 @@ export function MapExperience({
             autoComplete="off"
           />
         </div>
-        <div className="flex gap-2 md:hidden" role="tablist" aria-label="Vista móvil del mapa">
+        <div className="flex gap-2 md:hidden" role="tablist" aria-label="Vista móvil del mapa" data-tour="map-toggle">
           <Chip active={mobilePane === 'map'} onClick={() => setMobilePane('map')} aria-pressed={mobilePane === 'map'}>
             Mapa
           </Chip>

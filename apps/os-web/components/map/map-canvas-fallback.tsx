@@ -51,18 +51,18 @@ export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvas
       <div className="relative z-[1] flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
         <p className="isalwa-kicker">Santa Cruz · geografía comercial</p>
         <h2 className="mt-3 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)] md:text-3xl">
-          El dinero tiene geografía
+          Vista geográfica en preparación
         </h2>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {plottableCount === 0
-            ? 'Ningún cliente visible tiene coordenadas para colocar. La lista (Mapa / Lista en móvil) muestra procedencia y fichas — sin inventar pines ni calles.'
-            : `${plottableCount} de ${total} clientes ya tienen coordenadas listas. El lienzo de teselas espera una decisión de proveedor; hasta entonces la lista es la verdad operativa.`}
+          La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.
         </p>
+        {plottableCount > 0 || total > 0 ? (
+          <p className="mt-2 max-w-md text-xs leading-relaxed text-[var(--isalwa-slate)]">
+            {plottableCount} de {total} clientes con coordenadas listas para el lienzo.
+          </p>
+        ) : null}
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <StatusPill tone="manual">{provider.label}</StatusPill>
-          {plottableCount > 0 ? (
-            <StatusPill tone="info">{`${plottableCount} listos para el lienzo`}</StatusPill>
-          ) : null}
         </div>
         <p className="mt-3 max-w-sm text-xs leading-relaxed text-[var(--isalwa-slate)]">
           {provider.detail}

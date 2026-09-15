@@ -18,8 +18,8 @@ export function MapQuickViewCompact({ row, ownerLabel, onCloseHref }: MapQuickVi
   const locationLabel = row.hasCoordinates
     ? 'Coordenadas registradas'
     : row.hasProvenance
-      ? 'Solo enlace de procedencia'
-      : 'Sin ubicación en mapa';
+      ? 'Ubicación registrada — coordenadas pendientes'
+      : 'Sin ubicación registrada';
 
   return (
     <aside
