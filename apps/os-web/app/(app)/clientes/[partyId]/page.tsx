@@ -455,9 +455,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             />
             <CommercialSectionState
               outcome={opportunities}
-              emptyTitle="Sin oportunidades todavía"
+              emptyTitle="Todavía no hay oportunidades activas para este cliente"
               emptyDescription="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
-              emptyExample="Cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
+              emptyExample="Un cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
               emptyAction={
                 <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
                   Nueva oportunidad
@@ -477,9 +477,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             <SectionHeader title="Cotizaciones" />
             <CommercialSectionState
               outcome={quotes}
-              emptyTitle="Sin cotizaciones todavía"
+              emptyTitle="Todavía no hay cotizaciones activas"
               emptyDescription="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
-              emptyExample="Sin cotizaciones todavía es esperado si aún no hay oportunidad con borrador o envío."
+              emptyExample="Todavía no hay cotizaciones es esperado si aún no hay oportunidad con borrador o envío."
             >
               {(list) => (
                 <>

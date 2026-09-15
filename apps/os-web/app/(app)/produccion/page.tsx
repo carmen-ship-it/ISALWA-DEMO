@@ -5,6 +5,9 @@ import { ServiceUnavailableState } from '@/components/states/app-states';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { PRODUCTION_PAGE_COPY, PRODUCTION_STEP_LABELS } from '@/lib/production/copy';
 
+/** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const PRODUCCION_SAVE_TARGET = 'produccion-save';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -17,7 +20,7 @@ export default async function ProduccionPage() {
   const identity = await loadProductionIdentity();
 
   return (
-    <PageContainer label="Producción">
+    <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
       <PageHeader
         kicker={PRODUCTION_PAGE_COPY.kicker}
         title={PRODUCTION_PAGE_COPY.title}

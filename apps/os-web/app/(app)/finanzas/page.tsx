@@ -7,6 +7,9 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { FINANCE_DESK_COPY, resolveFinancePageAccess } from '@/lib/finance';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 
+/** CROSS_LANE: add 'financeProvenance' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const FINANCE_PROVENANCE_TARGET = 'finance-provenance';
+
 /**
  * Operational finance desk for Contabilidad.
  * Unlocks with finance.operational.record only.
@@ -16,7 +19,7 @@ export default async function FinanzasPage() {
   const access = await loadFinanceAccess();
 
   return (
-    <PageContainer label={FINANCE_DESK_COPY.title}>
+    <PageContainer label={FINANCE_DESK_COPY.title} data-tour={FINANCE_PROVENANCE_TARGET}>
       <PageHeader
         kicker={FINANCE_DESK_COPY.kicker}
         title={FINANCE_DESK_COPY.title}

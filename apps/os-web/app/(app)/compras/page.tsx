@@ -4,6 +4,9 @@ import { PageHeader } from '@/components/shell/page-header';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
 
+/** CROSS_LANE: add 'comprasFilter' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const COMPRAS_FILTER_TARGET = 'compras-filter';
+
 type ComprasPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -20,7 +23,7 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const queue = await loadComprasQueue({ q, buyer: one(query.buyer), estado });
 
   return (
-    <PageContainer label={COMPRAS_COPY.title}>
+    <PageContainer label={COMPRAS_COPY.title} data-tour={COMPRAS_FILTER_TARGET}>
       <PageHeader
         kicker={COMPRAS_COPY.kicker}
         title={COMPRAS_COPY.title}
