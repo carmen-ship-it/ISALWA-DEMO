@@ -47,34 +47,38 @@ export function IntroWelcome() {
       aria-modal="false"
       aria-labelledby="intro-welcome-title"
     >
-      <Panel
+      <div
         ref={panelRef}
-        padded
         tabIndex={-1}
-        className="w-full max-w-md animate-[fadeIn_var(--isalwa-motion-base)_var(--isalwa-ease-out)] bg-white shadow-[var(--isalwa-shadow-floating)] focus:outline-none"
+        className="w-full max-w-md focus:outline-none"
       >
-        <h1
-          id="intro-welcome-title"
-          className="font-[var(--isalwa-font-display)] text-xl font-medium italic text-[var(--isalwa-kiln)]"
+        <Panel
+          padded
+          className="animate-[fadeIn_var(--isalwa-motion-base)_var(--isalwa-ease-out)] bg-white shadow-[var(--isalwa-shadow-floating)]"
         >
-          {copy.title}
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
-          {copy.body}
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {copy.secondary}
-        </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Button type="button" onClick={() => api.startIntro()}>
-            {copy.primary}
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => api.skipIntro()}>
-            {copy.skip}
-          </Button>
-        </div>
-        <p className="mt-4 text-xs text-[var(--isalwa-slate)]">{copy.footer}</p>
-      </Panel>
+          <h1
+            id="intro-welcome-title"
+            className="font-[var(--isalwa-font-display)] text-xl font-medium italic text-[var(--isalwa-kiln)]"
+          >
+            {copy.title}
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+            {copy.body}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {copy.secondary}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button type="button" onClick={() => api.startIntro()}>
+              {copy.primary}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => api.skipIntro()}>
+              {copy.skip}
+            </Button>
+          </div>
+          <p className="mt-4 text-xs text-[var(--isalwa-slate)]">{copy.footer}</p>
+        </Panel>
+      </div>
     </div>
   );
 }

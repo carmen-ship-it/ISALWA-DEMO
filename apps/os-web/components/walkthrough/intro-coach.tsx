@@ -77,13 +77,8 @@ function getMapCoverage(): { withCoords: number; total: number } | null {
   return null;
 }
 
-function isMapProviderBlocked(): boolean {
-  return document.querySelector('[data-map-provider-blocked]') !== null;
-}
-
 function StepContent({ stepId }: { stepId: IntroStepId }) {
   const coverage = stepId === 'mapa' ? getMapCoverage() : null;
-  const providerBlocked = stepId === 'mapa' ? isMapProviderBlocked() : false;
 
   switch (stepId) {
     case 'inicio':
@@ -125,7 +120,8 @@ function StepContent({ stepId }: { stepId: IntroStepId }) {
     case 'nextAction':
       return (
         <>
-          <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+          <h3 className="font-medium text-[var(--isalwa-kiln)]">{INTRO_COPY.nextAction.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
             {INTRO_COPY.nextAction.body}
           </p>
           {!document.querySelector('[data-tour="cliente360-next-action"]') && (
@@ -136,32 +132,26 @@ function StepContent({ stepId }: { stepId: IntroStepId }) {
         </>
       );
 
-    case 'mapa':
-      if (providerBlocked) {
-        return (
-          <>
-            <h3 className="font-medium text-[var(--isalwa-kiln)]">
-              {INTRO_COPY.mapa.providerBlocked.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
-              {INTRO_COPY.mapa.providerBlocked.body}
-            </p>
-          </>
-        );
-      }
+    case 'mapa': {
+      const coverageText = coverage
+        ? INTRO_COPY.mapa.bodyTemplate(coverage.withCoords, coverage.total)
+        : INTRO_COPY.mapa.bodyFallback;
       return (
         <>
           <h3 className="font-medium text-[var(--isalwa-kiln)]">{INTRO_COPY.mapa.title}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
-            {coverage
-              ? INTRO_COPY.mapa.bodyTemplate(coverage.withCoords, coverage.total)
-              : INTRO_COPY.mapa.bodyFallback}
-          </p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">{coverageText}</p>
           <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
             {INTRO_COPY.mapa.secondary}
           </p>
+          <h4 className="mt-4 font-medium text-[var(--isalwa-kiln)]">
+            {INTRO_COPY.mapa.providerBlocked.title}
+          </h4>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {INTRO_COPY.mapa.providerBlocked.body}
+          </p>
         </>
       );
+    }
 
     case 'ayuda':
       return (
@@ -335,12 +325,15 @@ export function IntroCoach() {
       className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 md:bottom-4 md:left-auto md:right-4 md:w-[min(100vw-2rem,22rem)]"
       data-tour={TOUR_TARGET.introCoach}
     >
-      <Panel
+      <div
         ref={panelRef}
-        padded
         role="region"
         aria-labelledby={titleId}
         className="pointer-events-auto max-h-[min(50vh,calc(100dvh-6rem))] overflow-auto rounded-t-[var(--isalwa-radius-panel)] rounded-b-none shadow-[var(--isalwa-shadow-floating)] md:max-h-[min(70vh,calc(100dvh-5.5rem))] md:rounded-[var(--isalwa-radius-panel)]"
+      >
+      <Panel
+        padded
+        className="rounded-inherit border-0 shadow-none"
       >
         <div className="flex items-start justify-between gap-3">
           <p id={titleId} className="isalwa-kicker">
@@ -386,6 +379,7 @@ export function IntroCoach() {
           </button>
         </div>
       </Panel>
+      </div>
     </div>
   );
 }

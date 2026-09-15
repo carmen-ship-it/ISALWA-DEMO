@@ -37,9 +37,11 @@ export function GuidePanel() {
 
   if (!api?.ready || api.journeys.length === 0) return null;
 
-  // Don't show legacy panel during first-use intro (IntroCoach handles it)
-  const inIntroMode = api.record.welcomeSeen && !api.record.introCompleted && !api.record.introSkipped;
-  if (inIntroMode) return null;
+  // Legacy multi-journey panel must not compete with welcome or first-use coach
+  // (especially on mobile /mapa). Only show after intro is finished or skipped,
+  // and only when the user has revealed it.
+  if (!api.record.welcomeSeen) return null;
+  if (!api.record.introCompleted && !api.record.introSkipped) return null;
 
   if (api.record.panelHidden) {
     return (

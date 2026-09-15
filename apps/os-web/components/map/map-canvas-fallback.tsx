@@ -18,6 +18,7 @@ export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvas
       role="img"
       aria-label="Lienzo de mapa en espera — sin proveedor conectado"
       data-map-canvas="waiting"
+      data-map-provider-blocked=""
     >
       {/* Soft territory wash — no streets, heat, or pins */}
       <div
@@ -71,9 +72,7 @@ export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvas
 
       <div className="relative z-[1] flex flex-wrap items-center justify-between gap-2 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-white)_88%,var(--isalwa-porcelain))] px-3 py-2.5 text-[10px] text-[var(--isalwa-slate)] backdrop-blur-sm">
         <span>Territorio en espera · Sin calles · Sin calor · Sin pines inventados</span>
-        <span className="font-[family-name:var(--isalwa-font-mono)]">
-          {provider.engine ? `${provider.engine} · no conectado` : 'sin motor · decisión pendiente'}
-        </span>
+        <span>Proveedor geográfico no conectado</span>
       </div>
     </div>
   );

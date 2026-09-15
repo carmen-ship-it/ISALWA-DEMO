@@ -120,7 +120,7 @@ describe('modo guiado', () => {
     const cleared = resetGuide();
     assert.equal(cleared.stopIndex, 0);
     assert.deepEqual(cleared.completedJourneyIds, []);
-    assert.equal(cleared.panelHidden, false);
+    assert.equal(cleared.panelHidden, true);
   });
 
   it('Continuar records the next stop and then the next journey on a real route', () => {
@@ -264,7 +264,7 @@ describe('modo guiado', () => {
       }),
     });
     const loaded = loadGuide(store);
-    assert.equal(loaded.panelHidden, false);
+    assert.equal(loaded.panelHidden, true);
     assert.equal(resumeTooltipOverlay(store.getItem(LEGACY_WALKTHROUGH_STORAGE_KEY)), null);
     assert.equal(store.getItem(GUIDE_STORAGE_KEY), null);
 

@@ -47,15 +47,16 @@ export const INTRO_COPY = {
     body: 'Cliente 360 reúne contacto, ubicación, responsable, actividad y las distintas cosas que puedan ir ocurriendo con esta relación.',
     secondary: 'A medida que ISALWA se use, aquí también aparecerán oportunidades, cotizaciones, pedidos, trabajo y decisiones relacionadas con el cliente.',
     emptySections: {
-      opportunities: 'Todavía no hay oportunidades.',
-      quotes: 'Todavía no hay cotizaciones.',
-      orders: 'Todavía no hay pedidos.',
+      opportunities: 'Todavía no hay oportunidades activas para este cliente.',
+      quotes: 'Todavía no hay cotizaciones activas.',
+      orders: 'Todavía no hay pedidos activos para este cliente.',
       work: 'Todavía no hay trabajo registrado.',
     },
     cta: 'Siguiente',
   },
   /** Step 4: Next action */
   nextAction: {
+    title: '¿Y ahora qué?',
     body: 'ISALWA intenta ayudarte a encontrar el siguiente paso, no solo mostrarte información.',
     noAction: 'No hay una acción pendiente identificada en este momento.',
     cta: 'Ver mapa',
@@ -63,11 +64,11 @@ export const INTRO_COPY = {
   /** Step 5: Mapa */
   mapa: {
     title: 'Entiende dónde están tus clientes y qué información todavía falta',
-    /** Dynamic: "{withCoords} de {total} clientes activos tienen coordenadas." */
     bodyTemplate: (withCoords: number, total: number) =>
-      `${withCoords} de ${total} clientes activos tienen coordenadas.`,
-    bodyFallback: 'El mapa muestra clientes con coordenadas confirmadas.',
-    secondary: 'Los demás clientes siguen disponibles en la lista si existe información de ubicación registrada, pero ISALWA no inventa un punto en el mapa cuando no tiene coordenadas confirmadas.',
+      `Hoy ISALWA tiene coordenadas confirmadas para ${withCoords} de ${total} clientes.`,
+    bodyFallback: 'Hoy ISALWA muestra la cobertura de ubicación a partir de coordenadas confirmadas.',
+    secondary:
+      'Los demás clientes siguen disponibles en la lista si existe información de ubicación registrada, pero ISALWA no inventa un punto en el mapa cuando no tiene coordenadas confirmadas.',
     providerBlocked: {
       title: 'Vista geográfica en preparación',
       body: 'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',

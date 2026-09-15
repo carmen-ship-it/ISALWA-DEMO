@@ -45,7 +45,7 @@ export function initialGuideRecord(): GuideRecord {
     currentJourneyId: JOURNEYS[0]?.id ?? null,
     stopIndex: 0,
     completedJourneyIds: [],
-    panelHidden: false,
+    panelHidden: true,
     welcomeSeen: false,
     introCompleted: false,
     introSkipped: false,
@@ -82,11 +82,17 @@ export function currentJourney(record: GuideRecord, journeys: readonly Journey[]
  */
 export function resumeGuide(record: GuideRecord, _pathname: string): GuideRecord {
   return {
-    version: 1,
+    version: 2,
     currentJourneyId: record.currentJourneyId,
     stopIndex: record.stopIndex,
     completedJourneyIds: [...record.completedJourneyIds],
     panelHidden: record.panelHidden,
+    welcomeSeen: record.welcomeSeen,
+    introCompleted: record.introCompleted,
+    introSkipped: record.introSkipped,
+    introStepIndex: record.introStepIndex,
+    learningModeEnabled: record.learningModeEnabled,
+    pageTourSeen: { ...record.pageTourSeen },
   };
 }
 
@@ -315,7 +321,10 @@ export function collectGuideCopy(): string[] {
     INTRO_COPY.ayuda.finalSecondary,
     INTRO_COPY.ayuda.cta,
     ...INTRO_COPY.ayuda.affordances,
-    ...Object.values(INTRO_COPY.cliente360.emptySections),
+    INTRO_COPY.cliente360.emptySections.opportunities,
+    INTRO_COPY.cliente360.emptySections.quotes,
+    INTRO_COPY.cliente360.emptySections.orders,
+    INTRO_COPY.cliente360.emptySections.work,
     LEARNING_MODE_COPY.label,
     LEARNING_MODE_COPY.description,
     LEARNING_MODE_COPY.secondary,
