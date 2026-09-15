@@ -123,10 +123,10 @@ describe('a11y helpers', () => {
 
 describe('shared state components', () => {
   it('wires alert variants and surface states to vocabulary helpers', () => {
-    assert.match(appAlertSource, /info.*warn.*blocked.*manual.*pending/s);
+    assert.match(appAlertSource, /info[\s\S]*warn[\s\S]*blocked[\s\S]*manual[\s\S]*pending/);
     assert.match(appAlertSource, /statusToneForSemantic/);
     assert.match(appAlertSource, /data-alert-variant/);
-    assert.match(surfaceStateSource, /loading.*empty.*error.*zero-result/s);
+    assert.match(surfaceStateSource, /loading[\s\S]*empty[\s\S]*error[\s\S]*zero-result/);
     assert.match(surfaceStateSource, /aria-busy="true"/);
     assert.match(appStatesSource, /statusToneForSemantic/);
     assert.match(appStatesSource, /data-surface-state="loading-shell"/);

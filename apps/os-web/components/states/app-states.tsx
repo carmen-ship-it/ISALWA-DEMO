@@ -4,10 +4,14 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Button, EmptyState, Skeleton, StatusPill } from '@isalwa/ui';
 import { EndSessionButton } from '@/components/auth/end-session-button';
-import { statusLabelForSemantic, statusToneForSemantic } from '@/lib/a11y/status-vocabulary';
+import {
+  statusLabelForSemantic,
+  statusToneForSemantic,
+  type StatusSemantic,
+} from '@/lib/a11y/status-vocabulary';
 import { t } from '@/lib/i18n/es';
 
-type AccessSemantic = 'warn' | 'info' | 'blocked' | 'neutral';
+type AccessSemantic = StatusSemantic;
 
 function AccessState({
   title,
