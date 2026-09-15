@@ -56,6 +56,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
         showAdmin={shell.showAdmin}
         canCreateCustomer={shell.canCreateCustomer}
         actorKey={shell.actorKey}
+        grantedScopes={shell.grantedScopes}
         capabilities={shell.capabilities}
       >
         {children}

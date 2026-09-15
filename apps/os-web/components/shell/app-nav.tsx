@@ -16,11 +16,17 @@ import {
 import { cx } from '@isalwa/ui';
 import {
   filterNavByAccess,
+  groupNavItems,
   HIDDEN_PRIMARY_NAV_IDS,
   isNavItemDisabled,
   PRIMARY_NAV,
   type NavItem,
 } from '@/lib/navigation/nav-config';
+import {
+  labelForNavItem,
+  roleNavPresentation,
+  type RoleNavPresentation,
+} from '@/lib/navigation/role-nav-labels';
 import { t } from '@/lib/i18n/es';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -38,6 +44,8 @@ const ICONS = {
 
 type AppNavProps = {
   showAdmin: boolean;
+  /** Trusted scopes for display labeling only — never used to hide nav. */
+  grantedScopes?: readonly string[];
   /** Kept for shell API stability; future capability nav is intentionally not rendered. */
   capabilities?: unknown;
   mobile?: boolean;
@@ -47,57 +55,84 @@ type AppNavProps = {
 function NavLink({
   item,
   active,
+  label,
+  emphasized,
   onNavigate,
 }: {
   item: NavItem;
   active: boolean;
+  label: string;
+  emphasized: boolean;
   onNavigate?: () => void;
 }) {
   const Icon = ICONS[item.icon];
-  const label = t(item.labelKey);
 
   const className = cx(
     'isalwa-t-fast flex items-center gap-3 rounded-[var(--isalwa-radius-control)] px-3.5 py-3 text-sm outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
     active
       ? 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,var(--isalwa-white))] font-medium text-[var(--isalwa-glaze)]'
-      : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
-  );
-
-  const content = (
-    <>
-      <Icon aria-hidden size={18} strokeWidth={1.5} />
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-    </>
+      : emphasized
+        ? 'font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)]'
+        : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
   );
 
   return (
     <Link href={item.href} className={className} aria-current={active ? 'page' : undefined} onClick={onNavigate}>
-      {content}
+      <Icon aria-hidden size={18} strokeWidth={1.5} />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {emphasized && !active ? (
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--isalwa-glaze)]"
+          title="Su área"
+        />
+      ) : null}
     </Link>
   );
 }
 
 const HIDDEN_NAV_IDS = new Set<string>(HIDDEN_PRIMARY_NAV_IDS);
 
-export function AppNav({ showAdmin, mobile, onNavigate }: AppNavProps) {
+export function AppNav({ showAdmin, grantedScopes = [], mobile, onNavigate }: AppNavProps) {
   const pathname = usePathname();
+  const presentation: RoleNavPresentation = roleNavPresentation(grantedScopes);
+  const emphasized = new Set(presentation.emphasizedIds);
   const items = filterNavByAccess(PRIMARY_NAV, { showAdmin }).filter(
     (item) => !HIDDEN_NAV_IDS.has(item.id) && !isNavItemDisabled(item) && Boolean(item.href),
   );
+  const sections = groupNavItems(items);
 
   return (
     <nav
       aria-label={t('nav.mainNav')}
       data-tour={TOUR_TARGET.navPrimary}
-      className={mobile ? 'flex flex-col gap-1 px-4 py-5' : 'flex flex-col gap-1'}
+      className={mobile ? 'flex flex-col gap-5 px-4 py-5' : 'flex flex-col gap-5'}
     >
-      {items.map((item) => (
-        <NavLink
-          key={item.id}
-          item={item}
-          active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
-          onNavigate={onNavigate}
-        />
+      {!mobile && presentation.focusLabel ? (
+        <p className="isalwa-kicker px-3.5">{presentation.focusLabel}</p>
+      ) : null}
+      {sections.map((section) => (
+        <div key={section.group} className="flex flex-col gap-1">
+          {section.label ? (
+            <p className="px-3.5 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
+              {section.label}
+            </p>
+          ) : null}
+          {section.items.map((item) => {
+            const defaultLabel = t(item.labelKey);
+            const label = labelForNavItem(item.id, defaultLabel, presentation);
+            return (
+              <NavLink
+                key={item.id}
+                item={item}
+                label={label}
+                emphasized={emphasized.has(item.id)}
+                active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                onNavigate={onNavigate}
+              />
+            );
+          })}
+        </div>
       ))}
     </nav>
   );

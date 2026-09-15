@@ -12,4 +12,5 @@ export const PRODUCTOS_NAV_REQUEST: NavItem = {
   labelKey: 'nav.productos',
   icon: 'fileText',
   accessClass: 'VISIBLE+ACTIVE',
+  group: 'operaciones',
 };
