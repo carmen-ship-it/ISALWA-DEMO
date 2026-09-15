@@ -8,6 +8,9 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { formatTimestamp } from '@/lib/commercial/labels';
+
+/** CROSS_LANE: add 'approvalActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const APPROVAL_ACTIONS_TARGET = 'approval-actions';
 import { orderHref, quoteHref } from '@/lib/commercial/navigation';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
@@ -90,7 +93,7 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
               La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.
             </p>
             {canDecide || approval.status !== 'pending' ? (
-              <div className="mt-6">
+              <div className="mt-6" data-tour={APPROVAL_ACTIONS_TARGET}>
                 <ApprovalDecisionForm
                   partyId={subjectLink?.partyId}
                   subjectType={approval.subjectType}

@@ -8,6 +8,9 @@ import { Button, SearchField } from '@isalwa/ui';
 import { FILTERABLE_ROLE_KEYS, formatPartyRole } from '@/lib/party/labels';
 import { clientesSearchHref } from '@/lib/party/navigation';
 
+/** CROSS_LANE: add 'clientesSearch' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const CLIENTES_SEARCH_TARGET = 'clientes-search';
+
 type PartySearchFormProps = {
   initialQuery?: string;
   initialRoleKey?: string;
@@ -63,7 +66,7 @@ export function PartySearchForm({
   const hasFilters = Boolean(initialQuery || initialRoleKey || initialStatus);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour={CLIENTES_SEARCH_TARGET}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="min-w-0 flex-1">
           <label

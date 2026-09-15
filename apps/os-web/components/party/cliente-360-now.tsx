@@ -1,8 +1,13 @@
 import Link from 'next/link';
 import { InsightCard } from '@isalwa/ui';
 import { CLIENTE_360_COPY, type Cliente360Composition } from '@/lib/party/next-action';
+import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
+
+/** CROSS_LANE: add 'cliente360Identity' and 'cliente360NextAction' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const CLIENTE360_IDENTITY_TARGET = 'cliente360-identity';
+const CLIENTE360_NEXT_ACTION_TARGET = 'cliente360-next-action';
 
 type Cliente360NowProps = {
   composition: Cliente360Composition;
@@ -17,8 +22,8 @@ export function Cliente360Now({ composition, compact = false }: Cliente360NowPro
   const { nextAction, location, primaryContact, latestActivity } = composition;
 
   return (
-    <section aria-label="Qué hacer con este cliente" className={compact ? 'space-y-4' : 'space-y-6'}>
-      <div>
+    <section aria-label="Qué hacer con este cliente" className={compact ? 'space-y-4' : 'space-y-6'} data-tour={CLIENTE360_IDENTITY_TARGET}>
+      <div data-tour={CLIENTE360_NEXT_ACTION_TARGET}>
         <p className="isalwa-section-label">{CLIENTE_360_COPY.now}</p>
         <InsightCard className="mt-2">{nextAction.statement}</InsightCard>
         {nextAction.dueText ? (

@@ -38,8 +38,8 @@ export default async function MensajesPage() {
     <PageContainer label="Mensajes" data-tour={TOUR_TARGET.messagesFuture}>
       <PageHeader
         kicker="Mensajes"
-        title="Conversaciones con clientes"
-        description="El canal automático aún no está conectado. Puede dejar un registro manual de lo hablado."
+        title="Mensajes todavía no está conectado"
+        description="El canal automático de WhatsApp no está habilitado todavía. Puede dejar un registro manual de lo hablado."
         action={<StatusPill tone="demo">Canal no conectado</StatusPill>}
       />
 

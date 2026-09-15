@@ -4,11 +4,14 @@ import { PageHeader } from '@/components/shell/page-header';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
 
+/** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
+const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
+
 export default async function AlmacenPage() {
   const access = await loadAlmacenAccess();
 
   return (
-    <PageContainer label={WAREHOUSE_TASK_COPY.title}>
+    <PageContainer label={WAREHOUSE_TASK_COPY.title} data-tour={ALMACEN_ACTIONS_TARGET}>
       <PageHeader
         kicker={WAREHOUSE_TASK_COPY.kicker}
         title={WAREHOUSE_TASK_COPY.title}
