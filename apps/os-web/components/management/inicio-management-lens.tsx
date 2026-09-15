@@ -10,8 +10,14 @@ function cardLine(card: ManagementExceptionCard): string {
   return [card.waitingOn, card.handledBy, card.attention].filter(Boolean).join(' · ');
 }
 
+/**
+ * Management exceptions as one command surface — not an equal-weight card grid.
+ * Owner lane leads; waiting / stalled sit as subordinate strips beneath.
+ */
 export function InicioManagementLens({ model }: InicioManagementLensProps) {
   const cards = model.canReadOrg ? model.cards : null;
+  const ownerLane = model.lanes.find((lane) => lane.id === 'owner');
+  const secondaryLanes = model.lanes.filter((lane) => lane.id !== 'owner');
 
   return (
     <section aria-label={t('pages.inicio.managementTitle')} className="min-w-0 space-y-4">
@@ -25,55 +31,72 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
         </p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-3">
-        {model.lanes.map((lane) => {
-          const labels = model.labels.filter((item) => item.lane === lane.id);
-          return (
-            <PageSection key={lane.id} card className="min-w-0 p-5 md:p-6" aria-label={lane.label}>
-              <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{lane.label}</h3>
-              {lane.id === 'owner' ? (
-                cards && cards.length > 0 ? (
-                  <ul className="mt-3 space-y-2">
-                    {cards.map((card) => (
-                      <li key={card.id} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                        {card.handledBy}
-                      </li>
-                    ))}
+      <PageSection
+        card
+        className="min-w-0 overflow-hidden p-0 shadow-[var(--isalwa-shadow-soft)]"
+        aria-label={t('pages.inicio.managementTitle')}
+      >
+        {ownerLane ? (
+          <div className="bg-[color-mix(in_srgb,var(--isalwa-glaze)_4%,white)] px-5 py-5 md:px-6 md:py-6">
+            <p className="isalwa-section-label">{ownerLane.label}</p>
+            {cards && cards.length > 0 ? (
+              <ul className="mt-3 space-y-2">
+                {cards.map((card) => (
+                  <li key={card.id} className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+                    {card.handledBy}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+                {model.ownerEmpty}
+              </p>
+            )}
+          </div>
+        ) : null}
+
+        {secondaryLanes.length > 0 ? (
+          <div className="grid min-w-0 grid-cols-1 divide-y divide-[var(--isalwa-mist)] border-t border-[var(--isalwa-mist)] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            {secondaryLanes.map((lane) => {
+              const labels = model.labels.filter((item) => item.lane === lane.id);
+              return (
+                <div key={lane.id} className="min-w-0 px-5 py-5 md:px-6 md:py-6" aria-label={lane.label}>
+                  <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{lane.label}</h3>
+                  <ul className="mt-3 space-y-3">
+                    {labels.map((item) => {
+                      const recorded = cards?.filter((card) => card.exceptionId === item.id) ?? [];
+                      return (
+                        <li key={item.id}>
+                          <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{item.label}</p>
+                          {recorded.length > 0 ? (
+                            <ul className="mt-1 space-y-1">
+                              {recorded.map((card) => (
+                                <li
+                                  key={card.id}
+                                  className="text-sm leading-relaxed text-[var(--isalwa-slate)]"
+                                >
+                                  {cardLine(card)}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p
+                              className="mt-0.5 text-sm leading-relaxed text-[var(--isalwa-slate)]"
+                              role="status"
+                            >
+                              {model.noRecord}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
-                ) : (
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-                    {model.ownerEmpty}
-                  </p>
-                )
-              ) : (
-                <ul className="mt-3 space-y-3">
-                  {labels.map((item) => {
-                    const recorded = cards?.filter((card) => card.exceptionId === item.id) ?? [];
-                    return (
-                      <li key={item.id}>
-                        <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{item.label}</p>
-                        {recorded.length > 0 ? (
-                          <ul className="mt-1 space-y-1">
-                            {recorded.map((card) => (
-                              <li key={card.id} className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                                {cardLine(card)}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="mt-0.5 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-                            {model.noRecord}
-                          </p>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </PageSection>
-          );
-        })}
-      </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </PageSection>
 
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
         {model.canReadOrg ? model.emptyMessage : model.orgFiguresHidden}

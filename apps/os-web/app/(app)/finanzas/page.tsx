@@ -21,12 +21,7 @@ export default async function FinanzasPage() {
         kicker={FINANCE_DESK_COPY.kicker}
         title={FINANCE_DESK_COPY.title}
         description={FINANCE_DESK_COPY.intro}
-        action={
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="manual">Dato manual</StatusPill>
-            <StatusPill tone="neutral">No es libro contable</StatusPill>
-          </div>
-        }
+        action={<StatusPill tone="manual">Dato manual</StatusPill>}
       />
       {access.status === 'ready' ? (
         <FinanceOperationalDesk

@@ -13,7 +13,7 @@ export function GuidanceNote({ note }: GuidanceNoteProps) {
       data-guidance-kind={view.kind}
       data-guidance-role={view.role}
       data-tour={view.tour}
-      className="max-w-xl rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] px-4 py-3"
+      className="max-w-xl rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-4 py-3 shadow-[var(--isalwa-shadow-soft)]"
     >
       <StatusPill tone={view.tone}>{view.label}</StatusPill>
       <p className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">{view.title}</p>

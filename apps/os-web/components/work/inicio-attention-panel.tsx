@@ -72,8 +72,17 @@ export function InicioAttentionPanel({
   if (groups.length === 0 && extraGroups.length === 0) return null;
 
   return (
-    <PageSection card className="p-2.5 md:p-3" aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
-      <SectionHeader title={t('pages.inicio.attention')} className="mb-1.5" />
+    <PageSection
+      card
+      className="border-[color-mix(in_srgb,var(--isalwa-glaze)_14%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
+      aria-label={t('pages.inicio.attention')}
+      data-tour={TOUR_TARGET.homeAttention}
+    >
+      <SectionHeader
+        kicker="Ahora"
+        title={t('pages.inicio.attention')}
+        className="mb-2"
+      />
       <div>
         {groups.map((group, index) => (
           <div
