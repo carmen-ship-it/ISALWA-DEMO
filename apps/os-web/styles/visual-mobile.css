@@ -1,0 +1,103 @@
+/**
+ * Agent 6 — responsive / mobile operating utilities.
+ * Kept out of globals.css so Agent 1 (shell/canvas) can own that file without merge collisions.
+ * Import from app/layout.tsx only.
+ *
+ * Measured on hosted 16f8242 (gerente):
+ *   phone/tablet header ≈ 65px; laptop+ header ≈ 77px (lg:py-4).
+ * Tailwind top-14 (56px) therefore slides under the shell header when sticky engages.
+ */
+
+:root {
+  --isalwa-shell-header-offset: 4.0625rem; /* 65px */
+  --isalwa-shell-header-offset-lg: 4.8125rem; /* 77px */
+  --isalwa-mobile-drawer-z: 50; /* above sticky header z-40 */
+  --isalwa-sticky-under-shell-z: 20;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --isalwa-shell-header-offset: var(--isalwa-shell-header-offset-lg);
+  }
+}
+
+/**
+ * Prefer this class on page sticky identity/action strips under the shell header.
+ * Equivalent intent to historical `sticky top-14`, with a measured offset.
+ */
+.isalwa-sticky-under-shell {
+  position: sticky;
+  top: var(--isalwa-shell-header-offset);
+  z-index: var(--isalwa-sticky-under-shell-z);
+}
+
+/**
+ * Bridge: existing `sticky top-14` strips (Cliente 360, commercial bars, nav)
+ * until page owners switch to `.isalwa-sticky-under-shell`.
+ */
+.sticky.top-14 {
+  top: var(--isalwa-shell-header-offset);
+}
+
+/**
+ * Bottom sticky action rails (ops forms) — keep primary CTAs above the home indicator.
+ */
+.isalwa-sticky-bottom-safe,
+.sticky.bottom-0 {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/**
+ * Mobile nav drawer must paint above the sticky shell header (z-40).
+ * Hosted audit: drawer z-30 left drawer title chrome under the header; shell X remained visible.
+ */
+div.fixed.inset-0.z-30:has(#mobile-nav) {
+  z-index: var(--isalwa-mobile-drawer-z);
+}
+
+#mobile-nav {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+/**
+ * Toast / floating corner chrome — clear home indicator without colliding with bottom sticky rails.
+ */
+.isalwa-toast-region-safe {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (max-width: 389px) {
+  .isalwa-toast-region-safe {
+    left: max(1rem, env(safe-area-inset-left));
+    right: max(1rem, env(safe-area-inset-right));
+    width: auto;
+  }
+}
+
+/**
+ * Horizontal overflow guard for operating desks at phone floor — clip page chrome only,
+ * not nested drawers/popovers (those are fixed/absolute outside this wrapper).
+ */
+.isalwa-operating-width {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/**
+ * Compact laptop band (1280) + 125% zoom (≈1024 CSS px): keep page padding from eating CTAs.
+ */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .isalwa-page {
+    padding-inline: var(--isalwa-space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isalwa-sticky-under-shell,
+  .sticky.top-14,
+  .isalwa-sticky-bottom-safe,
+  .sticky.bottom-0 {
+    scroll-margin-top: 0;
+  }
+}

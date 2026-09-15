@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Newsreader, IBM_Plex_Mono } from 'next/font/google';
-import './globals.css';
+import './globals.css';import '../styles/visual-mobile.css';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],

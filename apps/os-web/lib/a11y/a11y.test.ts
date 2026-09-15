@@ -5,9 +5,12 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
   BREAKPOINTS,
+  SHELL_HEADER_OFFSET_LG_PX,
+  SHELL_HEADER_OFFSET_PX,
   VIEWPORT_MAX_PX,
   VIEWPORT_MIN_PX,
   isWithinOperatingWidth,
+  shellHeaderOffsetPx,
 } from './breakpoints';
 import { FOCUS_RING_CLASS, withFocusRing } from './focus';
 import { motionMs, prefersReducedMotion } from './motion';
@@ -24,12 +27,15 @@ import { es, t } from '../i18n/es';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const globalsCss = readFileSync(resolve(here, '../../app/globals.css'), 'utf8');
+const visualMobileCss = readFileSync(resolve(here, '../../styles/visual-mobile.css'), 'utf8');
+const layoutSource = readFileSync(resolve(here, '../../app/layout.tsx'), 'utf8');
 const appAlertSource = readFileSync(resolve(here, '../../components/states/app-alert.tsx'), 'utf8');
 const surfaceStateSource = readFileSync(
   resolve(here, '../../components/states/surface-state.tsx'),
   'utf8',
 );
 const appStatesSource = readFileSync(resolve(here, '../../components/states/app-states.tsx'), 'utf8');
+const appToastSource = readFileSync(resolve(here, '../../components/states/app-toast.tsx'), 'utf8');
 
 const ENGINEERING_JARGON =
   /\b(Party|AuthIdentity|OrganizationMember|outbox|tenant|schema|payload|endpoint|null|undefined|stack|trace|capability registry|work item id)\b/i;
@@ -108,10 +114,24 @@ describe('a11y helpers', () => {
     assert.equal(VIEWPORT_MIN_PX, 390);
     assert.equal(VIEWPORT_MAX_PX, 1440);
     assert.equal(BREAKPOINTS.phone, 390);
+    assert.equal(BREAKPOINTS.laptopCompact, 1280);
     assert.equal(isWithinOperatingWidth(390), true);
     assert.equal(isWithinOperatingWidth(1440), true);
     assert.equal(isWithinOperatingWidth(389), false);
     assert.equal(isWithinOperatingWidth(1441), false);
+  });
+
+  it('keeps mobile sticky/drawer utilities out of globals (Agent 1 owns canvas)', () => {
+    assert.match(layoutSource, /styles\/visual-mobile\.css/);
+    assert.match(visualMobileCss, /--isalwa-shell-header-offset/);
+    assert.match(visualMobileCss, /\.isalwa-sticky-under-shell/);
+    assert.match(visualMobileCss, /#mobile-nav/);
+    assert.match(visualMobileCss, /isalwa-toast-region-safe/);
+    assert.equal(SHELL_HEADER_OFFSET_PX, 65);
+    assert.equal(SHELL_HEADER_OFFSET_LG_PX, 77);
+    assert.equal(shellHeaderOffsetPx(390), 65);
+    assert.equal(shellHeaderOffsetPx(1024), 77);
+    assert.match(appToastSource, /isalwa-toast-region-safe/);
   });
 
   it('collapses JS motion when reduced motion is preferred', () => {
