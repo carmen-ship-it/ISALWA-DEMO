@@ -223,6 +223,74 @@ describe('resolveTrustedMemberContext', () => {
     assert.deepEqual(result.context.grantedScopes, [COMMERCIAL_TEAM_READ_SCOPE]);
   });
 
+  it('keeps an active additional grant and drops ended or wrong-tenant grants', async () => {
+    const result = await resolveTrustedMemberContext(
+      reader({
+        identities: [identity()],
+        members: [member()],
+        roles: [
+          role('sales_rep'),
+          role(COMMERCIAL_TEAM_READ_SCOPE),
+          role(MANAGEMENT_ORG_READ_SCOPE, { endedAt: new Date('2026-05-01T00:00:00.000Z') }),
+          role(FINANCE_OPERATIONAL_RECORD_SCOPE, { organizationId: FOREIGN }),
+        ],
+        delegations: [
+          {
+            delegateMemberId: 'mem-a',
+            organizationId: ORG,
+            scopes: [COORDINATION_DECISION_CAPABILITY],
+            startsAt: PAST,
+            expiresAt: FUTURE,
+            revokedAt: null,
+            delegatorMemberId: 'mem-mgr',
+          },
+          {
+            delegateMemberId: 'mem-a',
+            organizationId: FOREIGN,
+            scopes: [WAREHOUSE_FINISHED_GOODS_ALLOCATE_SCOPE],
+            startsAt: PAST,
+            expiresAt: FUTURE,
+            revokedAt: null,
+            delegatorMemberId: 'mem-foreign',
+          },
+        ],
+      }),
+      claimed(),
+    );
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.deepEqual(result.context.grantedScopes, [
+      COMMERCIAL_TEAM_READ_SCOPE,
+      COORDINATION_DECISION_CAPABILITY,
+      'sales_rep',
+    ]);
+  });
+
+  it('each planned role session contains exact intended scopes', async () => {
+    const { V1_PLANNED_ASSIGNMENTS } = await import('@isalwa/os-contracts');
+    for (const planned of V1_PLANNED_ASSIGNMENTS) {
+      const result = await resolveTrustedMemberContext(
+        reader({
+          identities: [identity()],
+          members: [member()],
+          roles: planned.intendedCapabilities.map((scope) => role(scope)),
+        }),
+        claimed({
+          cargo: planned.functionLabel,
+          title: planned.functionLabel,
+          grantedScopes: [PEOPLE_ADMIN_SCOPE, 'system.admin'],
+        }),
+      );
+      assert.equal(result.ok, true, planned.functionId);
+      if (!result.ok) return;
+      assert.deepEqual(
+        result.context.grantedScopes,
+        [...planned.intendedCapabilities].sort(),
+        planned.functionId,
+      );
+    }
+  });
+
   it('does not keep an ended assignment', async () => {
     const result = await resolveTrustedMemberContext(
       reader({

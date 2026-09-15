@@ -145,12 +145,17 @@ export function coordinationFactsForSession(
   return [];
 }
 
-/** Member scopes are not on the web session. Title is not consulted. */
+/**
+ * Legacy stub. Hosted grants come from loadMemberCapabilities →
+ * GET /session/authorization. Cargo, title, and display label grant nothing.
+ */
 export function coordinationGrantedCapabilitiesForSession(_input: {
   memberId?: string | null;
   displayLabel?: string | null;
   cargo?: string | null;
   title?: string | null;
+  grantedCapabilities?: readonly string[] | null;
 }): readonly string[] {
+  void _input;
   return [];
 }

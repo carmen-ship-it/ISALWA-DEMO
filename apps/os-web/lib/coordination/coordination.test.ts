@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import {
   COORDINATION_DECISION_CAPABILITY,
@@ -123,5 +124,17 @@ describe('coordination page model', () => {
     assert.equal(model.canRecord, false);
     assert.equal(model.committee.items.length, 0);
     assert.equal(JSON.stringify(model).includes(secretTitle), false);
+  });
+});
+
+describe('coordination page loader', () => {
+  it('loads hosted scopes through loadMemberCapabilities, not the dev session alone', () => {
+    const source = readFileSync(new URL('./load.ts', import.meta.url), 'utf8');
+    assert.match(source, /loadMemberCapabilities/);
+    assert.match(source, /grantedCapabilities:\s*context\.grantedScopes/);
+    assert.doesNotMatch(source, /devSession\?\.organizationId/);
+    assert.doesNotMatch(source, /coordinationGrantedCapabilitiesForSession/);
+    assert.doesNotMatch(source, /getAuthenticatedSession/);
+    assert.doesNotMatch(source, /getMember\(/);
   });
 });

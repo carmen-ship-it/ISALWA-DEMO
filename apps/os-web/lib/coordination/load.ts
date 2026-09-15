@@ -1,34 +1,46 @@
 import { getServerWebSession } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import {
   buildCoordinationPageModel,
   coordinationFactsForSession,
-  coordinationGrantedCapabilitiesForSession,
   type CoordinationPageModel,
 } from '@/lib/coordination/page-model';
 
 /**
- * The page shows only facts a caller passed. This seam returns none.
- * CROSS_LANE: pass factual triggers here. Do not invent a case, and do not
- * read another tenant to fill an empty committee.
+ * Hydrates Coordinación from the trusted member context.
+ *
+ * Dev cookie and Supabase cookie both go through loadMemberCapabilities →
+ * GET /session/authorization. getServerWebSession supplies display label only.
+ * Cargo, title, and /session/me roleKeys are not grant sources.
  */
 export async function loadCoordinationPage(): Promise<CoordinationPageModel> {
   const web = await getServerWebSession();
-  const dev = web?.devSession;
-  const organizationId = dev?.organizationId ?? null;
-  const actorMemberId = dev?.memberId ?? null;
-  const actorLabel = dev?.displayLabel?.trim() || (web?.mode === 'supabase' ? web.email ?? null : null);
+  const actorLabel =
+    web?.displayLabel?.trim() ||
+    (web?.mode === 'supabase' ? web.email?.trim() || null : null);
+
+  const context = await loadMemberCapabilities();
+  if (!context) {
+    return buildCoordinationPageModel({
+      session: {
+        organizationId: null,
+        actorMemberId: null,
+        actorLabel,
+        grantedCapabilities: [],
+      },
+      matters: [],
+      decisions: [],
+    });
+  }
 
   return buildCoordinationPageModel({
     session: {
-      organizationId,
-      actorMemberId,
+      organizationId: context.organizationId,
+      actorMemberId: context.memberId,
       actorLabel,
-      grantedCapabilities: coordinationGrantedCapabilitiesForSession({
-        memberId: actorMemberId,
-        displayLabel: actorLabel,
-      }),
+      grantedCapabilities: context.grantedScopes,
     },
-    matters: coordinationFactsForSession(organizationId),
+    matters: coordinationFactsForSession(context.organizationId),
     decisions: [],
   });
 }
