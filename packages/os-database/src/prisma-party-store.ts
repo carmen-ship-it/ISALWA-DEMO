@@ -19,9 +19,19 @@ import type {
 } from '@isalwa/os-party';
 import type { OsPrismaClient } from './client';
 import { Prisma } from './generated/client';
+import {
+  OS_INTERACTIVE_TX,
+  type OsInteractiveTxOptions,
+} from './prisma-interactive-tx';
 
 export class PrismaOsPartyStore implements OsPartyStore {
   private tx?: Prisma.TransactionClient;
+  /** Test-only: fail once inside appendEventAndAudit (scoped into the active tx). */
+  testFailNextAppend = false;
+  /** Test-only: delay inside appendEventAndAudit before writes (ms). */
+  testAppendDelayMs = 0;
+  /** Test-only: override interactive tx options (latency regression). */
+  interactiveTxOptions?: OsInteractiveTxOptions;
 
   constructor(private readonly prisma: OsPrismaClient) {}
 
@@ -29,12 +39,31 @@ export class PrismaOsPartyStore implements OsPartyStore {
     return this.tx ?? this.prisma;
   }
 
+  private resolveInteractiveTxOptions(): OsInteractiveTxOptions {
+    return this.interactiveTxOptions ?? OS_INTERACTIVE_TX;
+  }
+
   async runInTransaction<T>(fn: (store: OsPartyStore) => Promise<T>): Promise<T> {
-    return this.prisma.$transaction(async (tx) => {
-      const scoped = new PrismaOsPartyStore(this.prisma);
-      scoped.tx = tx;
-      return fn(scoped);
-    });
+    const failNextAppend = this.testFailNextAppend;
+    const appendDelayMs = this.testAppendDelayMs;
+    const txOptions = this.resolveInteractiveTxOptions();
+    return this.prisma.$transaction(
+      async (tx) => {
+        const scoped = new PrismaOsPartyStore(this.prisma);
+        scoped.tx = tx;
+        scoped.testFailNextAppend = failNextAppend;
+        scoped.testAppendDelayMs = appendDelayMs;
+        try {
+          return await fn(scoped);
+        } finally {
+          scoped.tx = undefined;
+          if (failNextAppend) {
+            this.testFailNextAppend = scoped.testFailNextAppend;
+          }
+        }
+      },
+      { maxWait: txOptions.maxWait, timeout: txOptions.timeout },
+    );
   }
 
   async getMemberInOrg(organizationId: string, memberId: string): Promise<MemberRecord | null> {
@@ -548,12 +577,21 @@ export class PrismaOsPartyStore implements OsPartyStore {
     });
   }
 
-  private async runBatch(ops: Array<Prisma.PrismaPromise<unknown>>): Promise<void> {
+  /**
+   * Batch writes. Outside an interactive tx, Prisma's sequential batch API is used.
+   * Inside an interactive tx, factories are invoked one-at-a-time so tx-bound
+   * PrismaPromises are never preconstructed concurrently (Prisma forbids that).
+   */
+  private async runSequential(
+    ops: Array<() => Prisma.PrismaPromise<unknown>>,
+  ): Promise<void> {
     if (this.tx) {
-      for (const op of ops) await op;
+      for (const op of ops) {
+        await op();
+      }
       return;
     }
-    await this.prisma.$transaction(ops);
+    await this.prisma.$transaction(ops.map((op) => op()));
   }
 
   async appendEventAndAudit(
@@ -561,54 +599,64 @@ export class PrismaOsPartyStore implements OsPartyStore {
     outbox: StoredOutboxMessage,
     audit: StoredAuditLog,
   ): Promise<void> {
-    await this.runBatch([
-      this.db().osBusinessEvent.create({
-        data: {
-          id: event.id,
-          organizationId: event.organizationId,
-          eventType: event.eventType,
-          occurredAt: event.occurredAt,
-          recordedAt: event.recordedAt,
-          actorMemberId: event.actorMemberId,
-          authorizationContext: event.authorizationContext as Prisma.InputJsonValue | undefined,
-          primaryEntityType: event.primaryEntityType,
-          primaryEntityId: event.primaryEntityId,
-          payloadJson: (event.payload ?? undefined) as Prisma.InputJsonValue | undefined,
-          provenance: event.provenance ?? 'command',
-          correlationId: event.correlationId,
-          idempotencyKey: event.idempotencyKey,
-          dataOrigin: event.dataOrigin ?? 'production',
-          capabilityKey: event.capabilityKey,
-        },
-      }),
-      this.db().osOutboxMessage.create({
-        data: {
-          id: outbox.id,
-          organizationId: outbox.organizationId,
-          eventId: outbox.eventId,
-          payloadJson: outbox.payloadJson as Prisma.InputJsonValue,
-          status: outbox.status,
-          attemptCount: outbox.attemptCount,
-          nextAttemptAt: outbox.nextAttemptAt,
-          lastError: outbox.lastError,
-          createdAt: outbox.createdAt,
-          publishedAt: outbox.publishedAt,
-        },
-      }),
-      this.db().osAuditLog.create({
-        data: {
-          id: audit.id,
-          organizationId: audit.organizationId,
-          actorMemberId: audit.actorMemberId,
-          action: audit.action,
-          resourceType: audit.resourceType,
-          resourceId: audit.resourceId,
-          beforeJson: (audit.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
-          afterJson: (audit.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
-          correlationId: audit.correlationId,
-          createdAt: audit.createdAt,
-        },
-      }),
+    if (this.testFailNextAppend) {
+      this.testFailNextAppend = false;
+      throw new Error('TEST_APPEND_FAIL');
+    }
+    if (this.testAppendDelayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.testAppendDelayMs));
+    }
+    await this.runSequential([
+      () =>
+        this.db().osBusinessEvent.create({
+          data: {
+            id: event.id,
+            organizationId: event.organizationId,
+            eventType: event.eventType,
+            occurredAt: event.occurredAt,
+            recordedAt: event.recordedAt,
+            actorMemberId: event.actorMemberId,
+            authorizationContext: event.authorizationContext as Prisma.InputJsonValue | undefined,
+            primaryEntityType: event.primaryEntityType,
+            primaryEntityId: event.primaryEntityId,
+            payloadJson: (event.payload ?? undefined) as Prisma.InputJsonValue | undefined,
+            provenance: event.provenance ?? 'command',
+            correlationId: event.correlationId,
+            idempotencyKey: event.idempotencyKey,
+            dataOrigin: event.dataOrigin ?? 'production',
+            capabilityKey: event.capabilityKey,
+          },
+        }),
+      () =>
+        this.db().osOutboxMessage.create({
+          data: {
+            id: outbox.id,
+            organizationId: outbox.organizationId,
+            eventId: outbox.eventId,
+            payloadJson: outbox.payloadJson as Prisma.InputJsonValue,
+            status: outbox.status,
+            attemptCount: outbox.attemptCount,
+            nextAttemptAt: outbox.nextAttemptAt,
+            lastError: outbox.lastError,
+            createdAt: outbox.createdAt,
+            publishedAt: outbox.publishedAt,
+          },
+        }),
+      () =>
+        this.db().osAuditLog.create({
+          data: {
+            id: audit.id,
+            organizationId: audit.organizationId,
+            actorMemberId: audit.actorMemberId,
+            action: audit.action,
+            resourceType: audit.resourceType,
+            resourceId: audit.resourceId,
+            beforeJson: (audit.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
+            afterJson: (audit.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
+            correlationId: audit.correlationId,
+            createdAt: audit.createdAt,
+          },
+        }),
     ]);
   }
 

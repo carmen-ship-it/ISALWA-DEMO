@@ -316,3 +316,255 @@ describePrisma('partygraph prisma integration', () => {
     );
   });
 });
+
+describePrisma('partygraph interactive transaction hardening', () => {
+  let prisma: NonNullable<ReturnType<typeof getOsPrisma>>;
+  let workforceStore: PrismaOsWorkforceStore;
+  let partyStore: PrismaOsPartyStore;
+  let svc: PartyCommandService;
+
+  before(async () => {
+    prisma = getOsPrisma()!;
+    workforceStore = new PrismaOsWorkforceStore(prisma);
+    partyStore = new PrismaOsPartyStore(prisma);
+    svc = new PartyCommandService(partyStore);
+  });
+
+  function ctx(
+    orgId: string,
+    memberId: string,
+    personId: string,
+    authId: string,
+  ): RequestContext {
+    return {
+      organizationId: orgId,
+      actorMemberId: memberId,
+      personId,
+      authIdentityId: authId,
+      correlationId: `corr-tx-${Date.now()}-${Math.random()}`,
+      effectiveAt: new Date(),
+    };
+  }
+
+  async function counts(organizationId: string) {
+    const [parties, roles, accounts, events, audits, outbox] = await Promise.all([
+      prisma.osParty.count({ where: { organizationId } }),
+      prisma.osPartyRoleAssignment.count({ where: { organizationId } }),
+      prisma.osCommercialAccount.count({ where: { organizationId } }),
+      prisma.osBusinessEvent.count({ where: { organizationId } }),
+      prisma.osAuditLog.count({ where: { organizationId } }),
+      prisma.osOutboxMessage.count({ where: { organizationId } }),
+    ]);
+    return { parties, roles, accounts, events, audits, outbox };
+  }
+
+  it('CreateParty commits party role commercial event audit outbox atomically', async () => {
+    const org = await workforceStore.seedOrganization('Tx Hard Org', `txh-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txh-md-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const before = await counts(org.id);
+    const result = await svc.execute(
+      'CreateParty',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      {
+        partyKind: 'organization',
+        displayName: 'Tx Cliente',
+        legalName: 'Tx Cliente S.R.L.',
+        fiscalIdentity: { nit: `TX-${Date.now()}`, razonSocial: 'Tx Cliente S.R.L.' },
+        initialRoleKey: 'customer',
+        createCommercialAccount: true,
+      },
+    );
+    const partyId = String(result.data.partyId);
+    const after = await counts(org.id);
+    assert.equal(after.parties, before.parties + 1);
+    assert.equal(after.roles, before.roles + 1);
+    assert.equal(after.accounts, before.accounts + 1);
+    assert.ok(after.events >= before.events + 1);
+    assert.ok(after.audits >= before.audits + 1);
+    assert.ok(after.outbox >= before.outbox + 1);
+    assert.ok(await partyStore.getCommercialAccountForParty(org.id, partyId));
+    const createdEvent = await prisma.osBusinessEvent.findFirst({
+      where: { organizationId: org.id, primaryEntityId: partyId, eventType: 'party.created' },
+    });
+    assert.ok(createdEvent);
+    const audit = await prisma.osAuditLog.findFirst({
+      where: { organizationId: org.id, resourceId: partyId },
+    });
+    assert.ok(audit);
+    const outbox = await prisma.osOutboxMessage.findFirst({
+      where: { organizationId: org.id, eventId: createdEvent!.id },
+    });
+    assert.ok(outbox);
+  });
+
+  it('rolls back Party/role/account/event/audit/outbox when append fails', async () => {
+    const org = await workforceStore.seedOrganization('Tx Fail Org', `txf-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txf-md-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const before = await counts(org.id);
+    partyStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'CreateParty',
+          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+          {
+            partyKind: 'organization',
+            displayName: 'Should Roll Back',
+            legalName: 'Should Roll Back SRL',
+            fiscalIdentity: { nit: `FAIL-${Date.now()}`, razonSocial: 'Should Roll Back SRL' },
+            initialRoleKey: 'customer',
+            createCommercialAccount: true,
+          },
+        ),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    assert.equal(partyStore.testFailNextAppend, false);
+    const after = await counts(org.id);
+    assert.deepEqual(after, before);
+  });
+
+  it('latency regression: delay above old 5s default still succeeds with new timeout', async () => {
+    const org = await workforceStore.seedOrganization('Tx Latency Org', `txl-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txl-md-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    // Controlled Prisma lifetime: delay exceeds historical 5s default; config keeps 8s budget.
+    partyStore.interactiveTxOptions = { maxWait: 2_000, timeout: 8_000 };
+    partyStore.testAppendDelayMs = 5_500;
+    const before = await counts(org.id);
+    const result = await svc.execute(
+      'CreateParty',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      {
+        partyKind: 'organization',
+        displayName: 'Latency Ok',
+        legalName: 'Latency Ok SRL',
+        initialRoleKey: 'customer',
+        createCommercialAccount: true,
+      },
+    );
+    assert.ok(result.data.partyId);
+    const after = await counts(org.id);
+    assert.equal(after.parties, before.parties + 1);
+    assert.ok(after.events >= before.events + 1);
+    assert.ok(after.audits >= before.audits + 1);
+    assert.ok(after.outbox >= before.outbox + 1);
+    partyStore.interactiveTxOptions = undefined;
+    partyStore.testAppendDelayMs = 0;
+  });
+
+  it('latency regression: delay beyond configured timeout leaves no partial rows', async () => {
+    const org = await workforceStore.seedOrganization('Tx Timeout Org', `txt-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txt-md-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    partyStore.interactiveTxOptions = { maxWait: 2_000, timeout: 1_200 };
+    partyStore.testAppendDelayMs = 2_000;
+    const before = await counts(org.id);
+    await assert.rejects(() =>
+      svc.execute(
+        'CreateParty',
+        ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+        {
+          partyKind: 'organization',
+          displayName: 'Timeout Partial',
+          legalName: 'Timeout Partial SRL',
+          initialRoleKey: 'customer',
+          createCommercialAccount: true,
+        },
+      ),
+    );
+    const after = await counts(org.id);
+    assert.deepEqual(after, before);
+    partyStore.interactiveTxOptions = undefined;
+    partyStore.testAppendDelayMs = 0;
+  });
+
+  it('after failed CreateParty, same store instance succeeds without stale tx client', async () => {
+    const org = await workforceStore.seedOrganization('Tx Reuse Org', `txr-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txr-md-${Date.now()}@o.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const c = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    partyStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        svc.execute('CreateParty', c, {
+          partyKind: 'organization',
+          displayName: 'Fail First',
+          initialRoleKey: 'customer',
+          createCommercialAccount: true,
+        }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    const result = await svc.execute('CreateParty', c, {
+      partyKind: 'organization',
+      displayName: 'Succeed Second',
+      legalName: 'Succeed Second SRL',
+      initialRoleKey: 'customer',
+      createCommercialAccount: true,
+    });
+    assert.ok(result.data.partyId);
+    const party = await partyStore.getPartyInOrg(org.id, String(result.data.partyId));
+    assert.ok(party);
+    assert.equal(party?.displayName, 'Succeed Second');
+  });
+
+  it('CreateParty still requires master_data.admin; Asesor scopes are denied', async () => {
+    const org = await workforceStore.seedOrganization('Tx Auth Org', `txa-${Date.now()}`);
+    const asesor = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txa-asesor-${Date.now()}@o.bo`,
+      'Synth',
+      'Asesor',
+      'commercial.customer.create',
+    );
+    await workforceStore.insertRoleAssignment({
+      id: `txa-q-${Date.now()}`,
+      organizationId: org.id,
+      memberId: asesor.member.id,
+      roleKey: 'commercial.quote.convert.own',
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'CreateParty',
+          ctx(org.id, asesor.member.id, asesor.person.id, asesor.auth.id),
+          {
+            partyKind: 'organization',
+            displayName: 'Denied Asesor',
+            initialRoleKey: 'customer',
+            createCommercialAccount: true,
+          },
+        ),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    assert.equal(await prisma.osParty.count({ where: { organizationId: org.id } }), 0);
+  });
+});
