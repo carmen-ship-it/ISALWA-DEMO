@@ -15,7 +15,7 @@ export function ShellBreadcrumbs() {
   if (trail.crumbs.length === 0) return null;
 
   return (
-    <div className="border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-2.5 lg:px-8">
+    <div className="border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-canvas)] px-4 py-2.5 lg:px-8">
       <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
         {trail.back ? (
           <Link

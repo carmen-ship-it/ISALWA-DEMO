@@ -10,6 +10,9 @@ const sans = Plus_Jakarta_Sans({
 
 const display = Newsreader({
   subsets: ['latin'],
+  // Titles use italic Newsreader; without this style the face silently falls
+  // back to Times New Roman / Georgia and the product reads as system chrome.
+  style: ['normal', 'italic'],
   variable: '--font-isalwa-display',
   display: 'swap',
 });
@@ -27,9 +30,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // next/font CSS variables must live on <html> (same element as :root remaps).
+  // Putting them only on <body> made `:root { --isalwa-font-*: var(--font-*) }`
+  // resolve as invalid → Tailwind’s system/Arial stack won silently.
   return (
-    <html lang="es-BO">
-      <body className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="es-BO" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+      <body>
         <style>{`
           :root {
             --isalwa-font-sans: var(--font-isalwa-sans), "Segoe UI", sans-serif;
