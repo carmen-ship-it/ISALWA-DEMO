@@ -13,12 +13,20 @@ Dedicated synthetic identity **inside** org `w2-roles-acceptance-v1` only:
 | Field | Value |
 |---|---|
 | Email | `w2.fixture-seed@isalwa.demo` |
-| Scopes | `master_data.admin` only |
-| Purpose | Construct Party / opportunity / quote for acceptance |
+| Scopes | `master_data.admin` + `commercial.account.reassign` |
+| Purpose | CreateParty + reassign CommercialAccount ownership to Asesor |
 | Business persona? | **No** — not Asesor/Jefe/Gerente/…/Owner under test |
 
+**Ownership rule:** FixtureSeed must not remain the permanent owner of CommercialAccount / Opportunity / Quote. Asesor (`w2.asesor@isalwa.demo`) owns those records so Asesor can open Opp/Quote detail and convert their own submitted quote under existing policy.
+
+- CreateParty → FixtureSeed (`master_data.admin`)
+- ReassignCommercialAccountOwner → FixtureSeed (`commercial.account.reassign`) → Asesor
+- CreateOpportunity / CreateQuote / AddQuoteLine / SubmitQuote → Asesor session (`member_active`) when missing
+- Existing wrong-owner rows → AssignOpportunityOwner (canonical) + quote owner write-model patch (no AssignQuoteOwner command); IDs kept
+- Idempotent rerun is a no-op when Asesor already owns
+
 Live customer create remains `master_data.admin` → `CreateParty`.  
-Asesor keeps `commercial.customer.create` + `commercial.quote.convert.own` (planned-forward; **not** wired to CreateParty in this tooling pass).
+Asesor keeps `commercial.customer.create` + `commercial.quote.convert.own` (planned-forward; **not** wired to CreateParty in this tooling pass). Asesor is **not** granted seed scopes.
 
 **Backlog (do not implement in fixture recovery):** decide whether to introduce governed `CreateCustomer` requiring `commercial.customer.create`, or remove/redefine that planned scope.
 

@@ -15,7 +15,7 @@ Authority rule: cargo/title grant **nothing**. Explicit assignment only.
 
 Emails (exact business personas): `w2.asesor|jefe|gerente|produccion|almacen|compras|contabilidad|coordinacion|owner@isalwa.demo`
 
-Fixture seed (setup only, **not** under acceptance): `w2.fixture-seed@isalwa.demo` → `master_data.admin` only.
+Fixture seed (setup only, **not** under acceptance): `w2.fixture-seed@isalwa.demo` → `master_data.admin` + `commercial.account.reassign`. Creates Party; CommercialAccount/Opportunity/Quote ownership ends on Asesor (not permanent FixtureSeed owner).
 
 ## Planned synthetic fixtures
 
@@ -42,7 +42,7 @@ Use a **synthetic tenant** distinct from the seven real imported customers.
 | Quote (1 line, submitted) | 1 |
 | Order / production / warehouse / purchasing / finance / coordination / work / approvals | 0 |
 
-Setup uses the fixture seed actor. Role acceptance still uses the nine business users.
+Setup: FixtureSeed CreateParty + account reassign; Asesor owns Opp/Quote. Role acceptance still uses the nine business users.
 
 ## Backlog — `commercial.customer.create`
 

@@ -25,8 +25,17 @@ export const WAVE2_SYNTH_PARTY_LEGAL_NAME = 'SYNTH Wave2 Cliente S.R.L.' as cons
 export const WAVE2_FIXTURE_SEED_EMAIL = 'w2.fixture-seed@isalwa.demo' as const;
 export const WAVE2_FIXTURE_SEED_GIVEN_NAME = 'Synth' as const;
 export const WAVE2_FIXTURE_SEED_FAMILY_NAME = 'FixtureSeed' as const;
-/** Least privilege for CreateParty (+ member_active commercial seed commands). */
-export const WAVE2_FIXTURE_SEED_SCOPES = ['master_data.admin'] as const;
+/**
+ * Fixture-setup-only scopes (not a business persona under acceptance):
+ * - master_data.admin → CreateParty
+ * - commercial.account.reassign → move CommercialAccount ownership to Asesor
+ * Opportunity/Quote writes use Asesor's existing member_active authority so
+ * Asesor owns them permanently (no permanent FixtureSeed commercial owner).
+ */
+export const WAVE2_FIXTURE_SEED_SCOPES = [
+  'master_data.admin',
+  'commercial.account.reassign',
+] as const;
 
 export type Wave2FixtureSeedEmail = typeof WAVE2_FIXTURE_SEED_EMAIL;
 
