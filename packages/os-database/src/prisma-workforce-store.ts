@@ -15,6 +15,10 @@ import type {
 } from '@isalwa/os-workforce';
 import type { OsPrismaClient } from './client';
 import { Prisma } from './generated/client';
+import {
+  OS_INTERACTIVE_TX,
+  type OsInteractiveTxOptions,
+} from './prisma-interactive-tx';
 
 function mapMember(row: {
   id: string;
@@ -43,6 +47,10 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
 
   /** Integration test hook — simulates outbox append failure inside transaction. */
   testFailNextAppend = false;
+  /** Test-only: delay inside appendEventAndAudit before writes (ms). */
+  testAppendDelayMs = 0;
+  /** Test-only: override interactive tx options (latency regression). */
+  interactiveTxOptions?: OsInteractiveTxOptions;
 
   constructor(private readonly prisma: OsPrismaClient) {}
 
@@ -50,20 +58,31 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     return this.tx ?? this.prisma;
   }
 
+  private resolveInteractiveTxOptions(): OsInteractiveTxOptions {
+    return this.interactiveTxOptions ?? OS_INTERACTIVE_TX;
+  }
+
   async runInTransaction<T>(fn: (store: OsWorkforceStore) => Promise<T>): Promise<T> {
     const failNextAppend = this.testFailNextAppend;
-    return this.prisma.$transaction(async (tx) => {
-      const scoped = new PrismaOsWorkforceStore(this.prisma);
-      scoped.tx = tx;
-      scoped.testFailNextAppend = failNextAppend;
-      try {
-        return await fn(scoped);
-      } finally {
-        if (failNextAppend) {
-          this.testFailNextAppend = scoped.testFailNextAppend;
+    const appendDelayMs = this.testAppendDelayMs;
+    const txOptions = this.resolveInteractiveTxOptions();
+    return this.prisma.$transaction(
+      async (tx) => {
+        const scoped = new PrismaOsWorkforceStore(this.prisma);
+        scoped.tx = tx;
+        scoped.testFailNextAppend = failNextAppend;
+        scoped.testAppendDelayMs = appendDelayMs;
+        try {
+          return await fn(scoped);
+        } finally {
+          scoped.tx = undefined;
+          if (failNextAppend) {
+            this.testFailNextAppend = scoped.testFailNextAppend;
+          }
         }
-      }
-    });
+      },
+      { maxWait: txOptions.maxWait, timeout: txOptions.timeout },
+    );
   }
 
   async getMember(memberId: string): Promise<MemberRecord | null> {
@@ -411,12 +430,21 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
     });
   }
 
-  private async runBatch(ops: Array<Prisma.PrismaPromise<unknown>>): Promise<void> {
+  /**
+   * Batch writes. Outside an interactive tx, Prisma's sequential batch API is used.
+   * Inside an interactive tx, factories are invoked one-at-a-time so tx-bound
+   * PrismaPromises are never preconstructed concurrently (Prisma forbids that).
+   */
+  private async runSequential(
+    ops: Array<() => Prisma.PrismaPromise<unknown>>,
+  ): Promise<void> {
     if (this.tx) {
-      for (const op of ops) await op;
+      for (const op of ops) {
+        await op();
+      }
       return;
     }
-    await this.prisma.$transaction(ops);
+    await this.prisma.$transaction(ops.map((op) => op()));
   }
 
   async appendEventAndAudit(
@@ -428,54 +456,60 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       this.testFailNextAppend = false;
       throw new Error('TEST_APPEND_FAIL');
     }
-    await this.runBatch([
-      this.db().osBusinessEvent.create({
-        data: {
-          id: event.id,
-          organizationId: event.organizationId,
-          eventType: event.eventType,
-          occurredAt: event.occurredAt,
-          recordedAt: event.recordedAt,
-          actorMemberId: event.actorMemberId,
-          authorizationContext: event.authorizationContext as Prisma.InputJsonValue | undefined,
-          primaryEntityType: event.primaryEntityType,
-          primaryEntityId: event.primaryEntityId,
-          payloadJson: (event.payload ?? undefined) as Prisma.InputJsonValue | undefined,
-          provenance: event.provenance ?? 'command',
-          correlationId: event.correlationId,
-          idempotencyKey: event.idempotencyKey,
-          dataOrigin: event.dataOrigin ?? 'production',
-          capabilityKey: event.capabilityKey,
-        },
-      }),
-      this.db().osOutboxMessage.create({
-        data: {
-          id: outbox.id,
-          organizationId: outbox.organizationId,
-          eventId: outbox.eventId,
-          payloadJson: outbox.payloadJson as Prisma.InputJsonValue,
-          status: outbox.status,
-          attemptCount: outbox.attemptCount,
-          nextAttemptAt: outbox.nextAttemptAt,
-          lastError: outbox.lastError,
-          createdAt: outbox.createdAt,
-          publishedAt: outbox.publishedAt,
-        },
-      }),
-      this.db().osAuditLog.create({
-        data: {
-          id: audit.id,
-          organizationId: audit.organizationId,
-          actorMemberId: audit.actorMemberId,
-          action: audit.action,
-          resourceType: audit.resourceType,
-          resourceId: audit.resourceId,
-          beforeJson: (audit.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
-          afterJson: (audit.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
-          correlationId: audit.correlationId,
-          createdAt: audit.createdAt,
-        },
-      }),
+    if (this.testAppendDelayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.testAppendDelayMs));
+    }
+    await this.runSequential([
+      () =>
+        this.db().osBusinessEvent.create({
+          data: {
+            id: event.id,
+            organizationId: event.organizationId,
+            eventType: event.eventType,
+            occurredAt: event.occurredAt,
+            recordedAt: event.recordedAt,
+            actorMemberId: event.actorMemberId,
+            authorizationContext: event.authorizationContext as Prisma.InputJsonValue | undefined,
+            primaryEntityType: event.primaryEntityType,
+            primaryEntityId: event.primaryEntityId,
+            payloadJson: (event.payload ?? undefined) as Prisma.InputJsonValue | undefined,
+            provenance: event.provenance ?? 'command',
+            correlationId: event.correlationId,
+            idempotencyKey: event.idempotencyKey,
+            dataOrigin: event.dataOrigin ?? 'production',
+            capabilityKey: event.capabilityKey,
+          },
+        }),
+      () =>
+        this.db().osOutboxMessage.create({
+          data: {
+            id: outbox.id,
+            organizationId: outbox.organizationId,
+            eventId: outbox.eventId,
+            payloadJson: outbox.payloadJson as Prisma.InputJsonValue,
+            status: outbox.status,
+            attemptCount: outbox.attemptCount,
+            nextAttemptAt: outbox.nextAttemptAt,
+            lastError: outbox.lastError,
+            createdAt: outbox.createdAt,
+            publishedAt: outbox.publishedAt,
+          },
+        }),
+      () =>
+        this.db().osAuditLog.create({
+          data: {
+            id: audit.id,
+            organizationId: audit.organizationId,
+            actorMemberId: audit.actorMemberId,
+            action: audit.action,
+            resourceType: audit.resourceType,
+            resourceId: audit.resourceId,
+            beforeJson: (audit.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
+            afterJson: (audit.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
+            correlationId: audit.correlationId,
+            createdAt: audit.createdAt,
+          },
+        }),
     ]);
   }
 
@@ -527,18 +561,20 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
   async seedOrganization(legalName: string, slug: string): Promise<OrganizationRecord> {
     const orgId = createId();
     const deptId = createId();
-    await this.runBatch([
-      this.db().osOrganization.create({
-        data: { id: orgId, legalName, slug, status: 'active' },
-      }),
-      this.db().osDepartment.create({
-        data: {
-          id: deptId,
-          organizationId: orgId,
-          name: 'General',
-          code: 'general',
-        },
-      }),
+    await this.runSequential([
+      () =>
+        this.db().osOrganization.create({
+          data: { id: orgId, legalName, slug, status: 'active' },
+        }),
+      () =>
+        this.db().osDepartment.create({
+          data: {
+            id: deptId,
+            organizationId: orgId,
+            name: 'General',
+            code: 'general',
+          },
+        }),
     ]);
     return { id: orgId, legalName, slug, status: 'active' };
   }
@@ -580,42 +616,46 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       activatedAt: new Date(),
       revokedAt: null,
     };
-    await this.runBatch([
-      this.db().osPerson.create({
-        data: { id: personId, givenName, familyName, version: 0 },
-      }),
-      this.db().osOrganizationMember.create({
-        data: {
-          id: memberId,
-          organizationId: orgId,
-          personId,
-          employmentStatus: 'active',
-          accessStatus: 'active',
-          employmentStartedAt: new Date(),
-          employmentEndedAt: null,
-          version: 0,
-        },
-      }),
-      this.db().osAuthIdentity.create({
-        data: {
-          id: authId,
-          personId,
-          provider: 'local-dev',
-          providerSubject: `subject:${email}`,
-          email,
-          status: 'active',
-          activatedAt: new Date(),
-        },
-      }),
-      this.db().osRoleAssignment.create({
-        data: {
-          id: roleId,
-          organizationId: orgId,
-          memberId,
-          roleKey: 'people.admin',
-          effectiveAt: new Date('2020-01-01'),
-        },
-      }),
+    await this.runSequential([
+      () =>
+        this.db().osPerson.create({
+          data: { id: personId, givenName, familyName, version: 0 },
+        }),
+      () =>
+        this.db().osOrganizationMember.create({
+          data: {
+            id: memberId,
+            organizationId: orgId,
+            personId,
+            employmentStatus: 'active',
+            accessStatus: 'active',
+            employmentStartedAt: new Date(),
+            employmentEndedAt: null,
+            version: 0,
+          },
+        }),
+      () =>
+        this.db().osAuthIdentity.create({
+          data: {
+            id: authId,
+            personId,
+            provider: 'local-dev',
+            providerSubject: `subject:${email}`,
+            email,
+            status: 'active',
+            activatedAt: new Date(),
+          },
+        }),
+      () =>
+        this.db().osRoleAssignment.create({
+          data: {
+            id: roleId,
+            organizationId: orgId,
+            memberId,
+            roleKey: 'people.admin',
+            effectiveAt: new Date('2020-01-01'),
+          },
+        }),
     ]);
     return { person, member, auth };
   }
