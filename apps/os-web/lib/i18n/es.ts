@@ -188,6 +188,17 @@ export const es = {
       kicker: 'Configuración',
       placeholder: 'Equipo, relaciones y configuración operativa de su empresa.',
     },
+    mapa: {
+      title: 'Mapa',
+      kicker: 'Ubicación',
+      description:
+        'Solo coordenadas ya registradas. Un enlace de Maps no coloca al cliente en el mapa y no se resuelve un enlace compartido.',
+      clientesLink: 'Clientes',
+      dataHealth: 'Salud de datos',
+      partialNote: 'No incluye todos los clientes.',
+      noFacts: 'La lista aún no trae hechos para revisar salud de datos.',
+      noIssues: 'No hay observaciones en los clientes visibles.',
+    },
   },
 } as const;
 
