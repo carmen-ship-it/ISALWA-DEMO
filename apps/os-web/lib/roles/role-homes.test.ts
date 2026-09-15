@@ -162,7 +162,7 @@ describe('role homes', () => {
     assert.equal(JSON.stringify(gerente).includes('integration'), false);
     assert.equal(model.systemControls?.separateFromBusinessHome, true);
     assert.equal(model.systemControls?.includesIntegrationHealth, false);
-    assert.equal(model.systemControls?.href, '/administracion');
+    assert.equal(model.systemControls?.href, '/sistema');
     assert.equal(homeById(composeOperatingHomes({ session: session(['system.admin']) }), 'gerente'), null);
     assert.equal(homeById(composeOperatingHomes({ session: session(['people.admin']) }), 'jefe'), null);
     assert.equal(

@@ -11,4 +11,5 @@ export const PRODUCTOS_NAV_REQUEST: NavItem = {
   href: '/productos',
   labelKey: 'nav.productos',
   icon: 'fileText',
+  accessClass: 'VISIBLE+ACTIVE',
 };

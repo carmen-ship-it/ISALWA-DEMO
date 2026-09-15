@@ -109,7 +109,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-4 sm:gap-4 lg:px-8">
+        <header className="sticky top-0 z-40 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-4 py-4 sm:gap-4 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               ref={menuButtonRef}
