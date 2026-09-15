@@ -102,7 +102,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
             description={emptyDescription(view, filteredByParty, controls)}
             example={
               view === 'mine' && !filteredByParty && !controls.q && !controls.focus
-                ? 'Un seguimiento con responsable y fecha permanece aquí hasta que lo complete.'
+                ? 'Un seguimiento con responsable y fecha permanece aquí hasta que lo complete. Si la cola está vacía, no falta un listado — aún no hay trabajo abierto a su nombre.'
                 : undefined
             }
             action={

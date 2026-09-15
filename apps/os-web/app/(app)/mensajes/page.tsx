@@ -1,6 +1,7 @@
 import { ManualConversationPanel, type ManualConversationActor } from '@/components/conversations/manual-conversation-panel';
 import { CapabilityLockedState } from '@/components/states/app-states';
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { PageHeader } from '@/components/shell/page-header';
 import { CAPABILITY_PRESENTATION } from '@/lib/capabilities/presentation';
 import { resolveNavItemFromCapabilities } from '@/lib/capabilities/resolve-nav';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -34,9 +35,25 @@ export default async function MensajesPage() {
   }
 
   return (
-    <PageContainer label="Mensajes" className="flex min-h-[50vh] flex-col items-center gap-10 py-8" data-tour={TOUR_TARGET.messagesFuture}>
-      <CapabilityLockedState message={message} />
-      <ManualConversationPanel actor={actor} />
+    <PageContainer label="Mensajes" data-tour={TOUR_TARGET.messagesFuture}>
+      <PageHeader
+        kicker="Mensajes"
+        title="Conversaciones con clientes"
+        description="El canal automático aún no está conectado. Puede dejar un registro manual de lo hablado."
+        action={<StatusPill tone="demo">Canal no conectado</StatusPill>}
+      />
+
+      <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+        <div className="min-w-0">
+          <CapabilityLockedState message={message} />
+        </div>
+        <PageSection
+          card
+          className="min-w-0 bg-[color-mix(in_srgb,var(--isalwa-porcelain)_35%,white)] p-5 shadow-[var(--isalwa-shadow-resting)] md:p-7"
+        >
+          <ManualConversationPanel actor={actor} />
+        </PageSection>
+      </div>
     </PageContainer>
   );
 }

@@ -77,82 +77,97 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
 
         <StaleProjectionBanner freshness={freshness} />
 
-        <PageSection card className="bg-white p-8 md:p-10">
-          <dl className="grid gap-8 sm:grid-cols-2">
-            <div>
-              <dt className="isalwa-section-label">Solicitado por</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {memberLabel(memberLabels, approval.requestedByMemberId)}
-              </dd>
-            </div>
-            <div>
-              <dt className="isalwa-section-label">Aprobador</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {memberLabel(memberLabels, approval.approverMemberId)}
-              </dd>
-            </div>
-            {subject ? (
-              <div>
-                <dt className="isalwa-section-label">Asunto</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{subject}</dd>
-              </div>
-            ) : null}
-            {customerName && customerName !== 'Cliente' ? (
-              <div>
-                <dt className="isalwa-section-label">Cliente</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{customerName}</dd>
-              </div>
-            ) : null}
-            {subjectLink ? (
-              <div>
-                <dt className="isalwa-section-label">Registro</dt>
-                <dd className="mt-2">
-                  <Link href={subjectLink.href} className={accentLinkClass}>
-                    {subjectLink.label}
-                  </Link>
-                </dd>
-              </div>
-            ) : null}
-            {approval.workItemId ? (
-              <div>
-                <dt className="isalwa-section-label">Trabajo vinculado</dt>
-                <dd className="mt-2">
-                  <Link href={workItemHref(approval.workItemId)} className={accentLinkClass}>
-                    Ver trabajo
-                  </Link>
-                </dd>
-              </div>
-            ) : null}
-            {decidedAt ? (
-              <div>
-                <dt className="isalwa-section-label">Decidida</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{decidedAt}</dd>
-              </div>
-            ) : null}
-            {approval.decisionReason ? (
-              <div className="sm:col-span-2">
-                <dt className="isalwa-section-label">Motivo</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{approval.decisionReason}</dd>
-              </div>
-            ) : null}
-          </dl>
-
-          {canDecide || approval.status !== 'pending' ? (
-            <div className="sticky bottom-0 z-10 mt-10 -mx-8 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-8 py-4 backdrop-blur-md md:-mx-10 md:px-10">
-              <ApprovalDecisionForm
-                partyId={subjectLink?.partyId}
-                subjectType={approval.subjectType}
-                subjectId={approval.subjectId}
-                approvalRequestId={approval.approvalRequestId}
-                locked={!canDecide || approval.status !== 'pending'}
-              />
-            </div>
-          ) : (
-            <p className="mt-10 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-              Solo el aprobador asignado puede decidir. Usted puede revisar el contexto.
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+          <PageSection
+            card
+            className="order-2 border-[color-mix(in_srgb,var(--isalwa-glaze)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_35%,white)] p-6 shadow-[var(--isalwa-shadow-resting)] lg:order-1 md:p-8"
+          >
+            <p className="isalwa-kicker">Su decisión</p>
+            <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+              {approval.status === 'pending' ? 'Aprobar o rechazar' : 'Decisión registrada'}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.
             </p>
-          )}
-        </PageSection>
+            {canDecide || approval.status !== 'pending' ? (
+              <div className="mt-6">
+                <ApprovalDecisionForm
+                  partyId={subjectLink?.partyId}
+                  subjectType={approval.subjectType}
+                  subjectId={approval.subjectId}
+                  approvalRequestId={approval.approvalRequestId}
+                  locked={!canDecide || approval.status !== 'pending'}
+                />
+              </div>
+            ) : (
+              <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+                Solo el aprobador asignado puede decidir. Usted puede revisar el contexto.
+              </p>
+            )}
+          </PageSection>
+
+          <PageSection card className="order-1 p-6 shadow-[var(--isalwa-shadow-soft)] lg:order-2 md:p-8">
+            <p className="isalwa-section-label">Contexto</p>
+            <dl className="mt-4 grid gap-5 sm:grid-cols-2">
+              <div>
+                <dt className="isalwa-section-label">Solicitado por</dt>
+                <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
+                  {memberLabel(memberLabels, approval.requestedByMemberId)}
+                </dd>
+              </div>
+              <div>
+                <dt className="isalwa-section-label">Aprobador</dt>
+                <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
+                  {memberLabel(memberLabels, approval.approverMemberId)}
+                </dd>
+              </div>
+              {subject ? (
+                <div>
+                  <dt className="isalwa-section-label">Asunto</dt>
+                  <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{subject}</dd>
+                </div>
+              ) : null}
+              {customerName && customerName !== 'Cliente' ? (
+                <div>
+                  <dt className="isalwa-section-label">Cliente</dt>
+                  <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{customerName}</dd>
+                </div>
+              ) : null}
+              {subjectLink ? (
+                <div>
+                  <dt className="isalwa-section-label">Registro</dt>
+                  <dd className="mt-1.5">
+                    <Link href={subjectLink.href} className={accentLinkClass}>
+                      {subjectLink.label}
+                    </Link>
+                  </dd>
+                </div>
+              ) : null}
+              {approval.workItemId ? (
+                <div>
+                  <dt className="isalwa-section-label">Trabajo vinculado</dt>
+                  <dd className="mt-1.5">
+                    <Link href={workItemHref(approval.workItemId)} className={accentLinkClass}>
+                      Ver trabajo
+                    </Link>
+                  </dd>
+                </div>
+              ) : null}
+              {decidedAt ? (
+                <div>
+                  <dt className="isalwa-section-label">Decidida</dt>
+                  <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{decidedAt}</dd>
+                </div>
+              ) : null}
+              {approval.decisionReason ? (
+                <div className="sm:col-span-2">
+                  <dt className="isalwa-section-label">Motivo</dt>
+                  <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{approval.decisionReason}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </PageSection>
+        </div>
       </PageContainer>
     );
   } catch (err) {

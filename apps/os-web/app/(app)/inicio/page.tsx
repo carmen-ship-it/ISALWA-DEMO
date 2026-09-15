@@ -255,15 +255,18 @@ export default async function InicioPage() {
         <div className="min-w-0 space-y-10">
           <OperatingHomes model={operatingHomes} />
 
-          <InicioAttentionPanel
-            items={visibleAttention}
-            subjects={attentionSubjects}
-            unavailable={attentionResult === 'unavailable'}
-            hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
-            quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
-          />
+          <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_28%,white)] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
+            <p className="isalwa-kicker">Centro de mando</p>
+            <InicioAttentionPanel
+              items={visibleAttention}
+              subjects={attentionSubjects}
+              unavailable={attentionResult === 'unavailable'}
+              hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
+              quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
+            />
 
-          <InicioManagementLens model={management} />
+            <InicioManagementLens model={management} />
+          </div>
 
           {upcomingRows.length > 0 ? (
             <section aria-label="Próximos" className="min-w-0 space-y-3">

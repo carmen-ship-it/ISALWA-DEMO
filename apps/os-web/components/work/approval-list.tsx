@@ -32,8 +32,8 @@ export function ApprovalList({
       {items.map((approval) => {
         const subject = subjects?.get(approval.approvalRequestId) ?? APPROVAL_ROW_SUBJECT_FALLBACK;
         const meta = [
+          'Pendiente de su decisión',
           `Solicitado por ${memberLabel(memberLabels, approval.requestedByMemberId)}`,
-          `Aprobador: ${memberLabel(memberLabels, approval.approverMemberId)}`,
         ].join(' · ');
 
         return (

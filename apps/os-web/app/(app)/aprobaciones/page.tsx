@@ -73,10 +73,17 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
           <EmptyState
             title={t('states.emptyAprobaciones')}
             description="Cuando alguien solicite su aprobación, la verá aquí para decidir."
+            example="Una cotización o pedido que requiere su sí o no aparece aquí — no es un listado para editar registros."
           />
         ) : (
           <>
-            <PageSection card className="overflow-hidden bg-white p-0">
+            <p className="mb-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              Elija una solicitud para decidir. La decisión no crea un pedido.
+            </p>
+            <PageSection
+              card
+              className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
+            >
               <ApprovalList items={pending} memberLabels={memberLabels} subjects={subjects} />
             </PageSection>
             {result.meta.hasMore && result.meta.nextCursor ? (

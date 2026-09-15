@@ -17,29 +17,44 @@ export default function AyudaPage() {
         title="Cómo trabajamos"
         description="Reglas ya vigentes en ISALWA. No sustituyen una autorización ni un dato que aún no existe."
       />
-      <div data-guide-replay="ayuda">
-        <WalkthroughHelpPanel />
-      </div>
-      <div className="mb-8 space-y-8">
-        {workflows.map((section) => (
-          <section key={section.id} aria-labelledby={`guidance-${section.id}`}>
-            <h2 id={`guidance-${section.id}`} className="isalwa-section-label">
-              {section.title}
-            </h2>
-            <div className="mt-3">
-              <GuidanceNotes notes={section.notes} />
-            </div>
-          </section>
-        ))}
-      </div>
-      {standing ? (
-        <PageSection>
-          <SectionHeader title={standing.title} />
-          <div className="mt-4">
-            <GuidanceNotes notes={standing.notes} />
+
+      <div className="space-y-8">
+        <div
+          className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_72%,white)] p-1 shadow-[var(--isalwa-shadow-soft)]"
+          data-guide-replay="ayuda"
+        >
+          <div className="rounded-[calc(var(--isalwa-radius-panel)-2px)] bg-white/90 [&_[data-guide-replay]]:mb-0">
+            <WalkthroughHelpPanel />
           </div>
-        </PageSection>
-      ) : null}
+        </div>
+
+        <div className="space-y-6">
+          {workflows.map((section) => (
+            <PageSection
+              key={section.id}
+              card
+              className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+              aria-labelledby={`guidance-${section.id}`}
+            >
+              <h2 id={`guidance-${section.id}`} className="isalwa-section-label">
+                {section.title}
+              </h2>
+              <div className="mt-4">
+                <GuidanceNotes notes={section.notes} />
+              </div>
+            </PageSection>
+          ))}
+        </div>
+
+        {standing ? (
+          <PageSection card className="p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6">
+            <SectionHeader title={standing.title} />
+            <div className="mt-4">
+              <GuidanceNotes notes={standing.notes} />
+            </div>
+          </PageSection>
+        ) : null}
+      </div>
     </PageContainer>
   );
 }

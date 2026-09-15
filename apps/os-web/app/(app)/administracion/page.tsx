@@ -36,8 +36,11 @@ export default async function AdministracionPage() {
       <div className="mt-10 space-y-8">
         <AdminSectionCards />
 
-        <PageSection card className="p-8">
-          <SectionHeader title="Equipo y accesos" />
+        <PageSection
+          card
+          className="bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-6 shadow-[var(--isalwa-shadow-soft)] md:p-8"
+        >
+          <SectionHeader kicker="Personas" title="Equipo y accesos" />
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Desde{' '}
             <Link href={equipoHref()} className="font-medium text-[var(--isalwa-glaze)] hover:underline">
