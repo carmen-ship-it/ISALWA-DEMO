@@ -366,3 +366,375 @@ describePrisma('commercial prisma integration', () => {
     );
   });
 });
+
+describePrisma('commercial interactive transaction hardening', () => {
+  let prisma: NonNullable<ReturnType<typeof getOsPrisma>>;
+  let workforceStore: PrismaOsWorkforceStore;
+  let partyStore: PrismaOsPartyStore;
+  let commercialStore: PrismaOsCommercialStore;
+  let partySvc: PartyCommandService;
+  let commercialSvc: CommercialCommandService;
+
+  before(async () => {
+    prisma = getOsPrisma()!;
+    workforceStore = new PrismaOsWorkforceStore(prisma);
+    partyStore = new PrismaOsPartyStore(prisma);
+    commercialStore = new PrismaOsCommercialStore(prisma);
+    partySvc = new PartyCommandService(partyStore);
+    commercialSvc = new CommercialCommandService(commercialStore);
+  });
+
+  function ctx(
+    orgId: string,
+    memberId: string,
+    personId: string,
+    authId: string,
+  ): RequestContext {
+    return {
+      organizationId: orgId,
+      actorMemberId: memberId,
+      personId,
+      authIdentityId: authId,
+      correlationId: createId(),
+      effectiveAt: new Date('2026-08-24T12:00:00Z'),
+    };
+  }
+
+  async function seedSalesMember(orgId: string, email: string) {
+    const personId = createId();
+    const memberId = createId();
+    const authId = createId();
+    await prisma.osPerson.create({
+      data: { id: personId, givenName: 'Sales', familyName: 'Rep' },
+    });
+    await prisma.osOrganizationMember.create({
+      data: {
+        id: memberId,
+        organizationId: orgId,
+        personId,
+        employmentStatus: 'active',
+        accessStatus: 'active',
+        employmentStartedAt: new Date(),
+        version: 0,
+      },
+    });
+    await prisma.osAuthIdentity.create({
+      data: {
+        id: authId,
+        personId,
+        provider: 'local-dev',
+        providerSubject: `subject:${email}`,
+        email,
+        status: 'active',
+        activatedAt: new Date(),
+      },
+    });
+    await prisma.osRoleAssignment.create({
+      data: {
+        id: createId(),
+        organizationId: orgId,
+        memberId,
+        roleKey: 'sales_rep',
+        effectiveAt: new Date('2020-01-01'),
+      },
+    });
+    return { memberId, personId, authId };
+  }
+
+  async function seedCustomerParty(
+    orgId: string,
+    adminCtx: RequestContext,
+    displayName: string,
+  ) {
+    const created = await partySvc.execute(
+      'CreateParty',
+      adminCtx,
+      {
+        partyKind: 'organization',
+        displayName,
+        initialRoleKey: 'customer',
+        createCommercialAccount: true,
+      },
+      `party-${createId()}`,
+    );
+    return String(created.data.partyId);
+  }
+
+  async function counts(organizationId: string) {
+    const [opportunities, quotes, events, audits, outbox] = await Promise.all([
+      prisma.osOpportunity.count({ where: { organizationId } }),
+      prisma.osQuote.count({ where: { organizationId } }),
+      prisma.osBusinessEvent.count({ where: { organizationId } }),
+      prisma.osAuditLog.count({ where: { organizationId } }),
+      prisma.osOutboxMessage.count({ where: { organizationId } }),
+    ]);
+    return { opportunities, quotes, events, audits, outbox };
+  }
+
+  async function seedOrgWithSalesAndParty(label: string) {
+    const org = await workforceStore.seedOrganization(label, `${label}-${createId()}`);
+    const mdAdmin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `md-${createId()}@tx.bo`,
+      'MD',
+      'Admin',
+      'master_data.admin',
+    );
+    const sales = await seedSalesMember(org.id, `sales-${createId()}@tx.bo`);
+    const adminCtx = ctx(org.id, mdAdmin.member.id, mdAdmin.person.id, mdAdmin.auth.id);
+    const salesCtx = ctx(org.id, sales.memberId, sales.personId, sales.authId);
+    const partyId = await seedCustomerParty(org.id, adminCtx, `${label} Client`);
+    return { org, sales, salesCtx, partyId };
+  }
+
+  it('CreateOpportunity and CreateQuote commit entity event audit outbox atomically', async () => {
+    const { org, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Atomic');
+    const before = await counts(org.id);
+
+    const opp = await commercialSvc.execute(
+      'CreateOpportunity',
+      salesCtx,
+      { partyId, title: 'Tx Opportunity' },
+    );
+    const opportunityId = String(opp.data.opportunityId);
+    const mid = await counts(org.id);
+    assert.equal(mid.opportunities, before.opportunities + 1);
+    assert.ok(mid.events >= before.events + 1);
+    assert.ok(mid.audits >= before.audits + 1);
+    assert.ok(mid.outbox >= before.outbox + 1);
+    const oppEvent = await prisma.osBusinessEvent.findFirst({
+      where: {
+        organizationId: org.id,
+        primaryEntityId: opportunityId,
+        eventType: 'opportunity.created',
+      },
+    });
+    assert.ok(oppEvent);
+    assert.ok(
+      await prisma.osOutboxMessage.findFirst({
+        where: { organizationId: org.id, eventId: oppEvent!.id },
+      }),
+    );
+    assert.ok(
+      await prisma.osAuditLog.findFirst({
+        where: { organizationId: org.id, resourceId: opportunityId },
+      }),
+    );
+
+    const quote = await commercialSvc.execute(
+      'CreateQuote',
+      salesCtx,
+      { partyId, opportunityId },
+    );
+    const quoteId = String(quote.data.quoteId);
+    const after = await counts(org.id);
+    assert.equal(after.quotes, before.quotes + 1);
+    assert.ok(after.events >= mid.events + 1);
+    assert.ok(after.audits >= mid.audits + 1);
+    assert.ok(after.outbox >= mid.outbox + 1);
+    const quoteEvent = await prisma.osBusinessEvent.findFirst({
+      where: {
+        organizationId: org.id,
+        primaryEntityId: quoteId,
+        eventType: 'quote.created',
+      },
+    });
+    assert.ok(quoteEvent);
+    assert.ok(
+      await prisma.osOutboxMessage.findFirst({
+        where: { organizationId: org.id, eventId: quoteEvent!.id },
+      }),
+    );
+    assert.ok(
+      await prisma.osAuditLog.findFirst({
+        where: { organizationId: org.id, resourceId: quoteId },
+      }),
+    );
+  });
+
+  it('rolls back Opportunity/Quote/event/audit/outbox when append fails', async () => {
+    const { org, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Fail');
+    const before = await counts(org.id);
+
+    commercialStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        commercialSvc.execute('CreateOpportunity', salesCtx, {
+          partyId,
+          title: 'Should Roll Back Opp',
+        }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    assert.equal(commercialStore.testFailNextAppend, false);
+    assert.deepEqual(await counts(org.id), before);
+
+    commercialStore.testFailNextAppend = true;
+    await assert.rejects(
+      () => commercialSvc.execute('CreateQuote', salesCtx, { partyId }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    assert.equal(commercialStore.testFailNextAppend, false);
+    assert.deepEqual(await counts(org.id), before);
+  });
+
+  it('latency regression: delay above old 5s default still succeeds with new timeout', async () => {
+    const { org, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Latency');
+    commercialStore.interactiveTxOptions = { maxWait: 2_000, timeout: 8_000 };
+    commercialStore.testAppendDelayMs = 5_500;
+    const before = await counts(org.id);
+    const opp = await commercialSvc.execute('CreateOpportunity', salesCtx, {
+      partyId,
+      title: 'Latency Ok Opp',
+    });
+    assert.ok(opp.data.opportunityId);
+    const quote = await commercialSvc.execute('CreateQuote', salesCtx, {
+      partyId,
+      opportunityId: String(opp.data.opportunityId),
+    });
+    assert.ok(quote.data.quoteId);
+    const after = await counts(org.id);
+    assert.equal(after.opportunities, before.opportunities + 1);
+    assert.equal(after.quotes, before.quotes + 1);
+    assert.ok(after.events >= before.events + 2);
+    assert.ok(after.audits >= before.audits + 2);
+    assert.ok(after.outbox >= before.outbox + 2);
+    commercialStore.interactiveTxOptions = undefined;
+    commercialStore.testAppendDelayMs = 0;
+  });
+
+  it('latency regression: delay beyond configured timeout leaves no partial rows', async () => {
+    const { org, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Timeout');
+    commercialStore.interactiveTxOptions = { maxWait: 2_000, timeout: 1_200 };
+    commercialStore.testAppendDelayMs = 2_000;
+    const before = await counts(org.id);
+    await assert.rejects(() =>
+      commercialSvc.execute('CreateOpportunity', salesCtx, {
+        partyId,
+        title: 'Timeout Partial Opp',
+      }),
+    );
+    assert.deepEqual(await counts(org.id), before);
+    await assert.rejects(() => commercialSvc.execute('CreateQuote', salesCtx, { partyId }));
+    assert.deepEqual(await counts(org.id), before);
+    commercialStore.interactiveTxOptions = undefined;
+    commercialStore.testAppendDelayMs = 0;
+  });
+
+  it('after failed commercial command, same store instance succeeds without stale tx client', async () => {
+    const { org, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Reuse');
+    commercialStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        commercialSvc.execute('CreateOpportunity', salesCtx, {
+          partyId,
+          title: 'Fail First Opp',
+        }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    const opp = await commercialSvc.execute('CreateOpportunity', salesCtx, {
+      partyId,
+      title: 'Succeed Second Opp',
+    });
+    assert.ok(opp.data.opportunityId);
+    const storedOpp = await commercialStore.getOpportunityInOrg(
+      org.id,
+      String(opp.data.opportunityId),
+    );
+    assert.equal(storedOpp?.title, 'Succeed Second Opp');
+
+    commercialStore.testFailNextAppend = true;
+    await assert.rejects(
+      () => commercialSvc.execute('CreateQuote', salesCtx, { partyId }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    const quote = await commercialSvc.execute('CreateQuote', salesCtx, {
+      partyId,
+      opportunityId: String(opp.data.opportunityId),
+    });
+    assert.ok(quote.data.quoteId);
+    const storedQuote = await commercialStore.getQuoteInOrg(org.id, String(quote.data.quoteId));
+    assert.ok(storedQuote);
+    assert.equal(storedQuote?.opportunityId, String(opp.data.opportunityId));
+  });
+
+  it('tenant isolation unchanged: foreign party CreateOpportunity/CreateQuote still NOT_FOUND', async () => {
+    const orgA = await workforceStore.seedOrganization('Tx Tenant A', `txa-${createId()}`);
+    const orgB = await workforceStore.seedOrganization('Tx Tenant B', `txb-${createId()}`);
+    const adminA = await workforceStore.seedScopedAdminMember(
+      orgA.id,
+      `mda-${createId()}@txa.bo`,
+      'A',
+      'Admin',
+      'master_data.admin',
+    );
+    const adminB = await workforceStore.seedScopedAdminMember(
+      orgB.id,
+      `mdb-${createId()}@txb.bo`,
+      'B',
+      'Admin',
+      'master_data.admin',
+    );
+    const salesA = await seedSalesMember(orgA.id, `sa-${createId()}@txa.bo`);
+    const partyB = await seedCustomerParty(
+      orgB.id,
+      ctx(orgB.id, adminB.member.id, adminB.person.id, adminB.auth.id),
+      'Foreign Client',
+    );
+    const salesCtxA = ctx(orgA.id, salesA.memberId, salesA.personId, salesA.authId);
+    const beforeA = await counts(orgA.id);
+
+    await assert.rejects(
+      () =>
+        commercialSvc.execute('CreateOpportunity', salesCtxA, {
+          partyId: partyB,
+          title: 'Cross tenant',
+        }),
+      (err: Error) => err.message === 'NOT_FOUND',
+    );
+    await assert.rejects(
+      () => commercialSvc.execute('CreateQuote', salesCtxA, { partyId: partyB }),
+      (err: Error) => err.message === 'NOT_FOUND',
+    );
+    assert.deepEqual(await counts(orgA.id), beforeA);
+    void adminA;
+  });
+
+  it('authority unchanged: suspended member denied; non-owner UpdateOpportunity denied', async () => {
+    const { org, sales, salesCtx, partyId } = await seedOrgWithSalesAndParty('Tx Auth');
+    const opp = await commercialSvc.execute('CreateOpportunity', salesCtx, {
+      partyId,
+      title: 'Owned Opp',
+    });
+    const opportunityId = String(opp.data.opportunityId);
+
+    const other = await seedSalesMember(org.id, `other-${createId()}@tx.bo`);
+    const otherCtx = ctx(org.id, other.memberId, other.personId, other.authId);
+    await assert.rejects(
+      () =>
+        commercialSvc.execute('UpdateOpportunity', otherCtx, {
+          opportunityId,
+          title: 'Hijack',
+        }),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    const unchanged = await commercialStore.getOpportunityInOrg(org.id, opportunityId);
+    assert.equal(unchanged?.title, 'Owned Opp');
+
+    await prisma.osOrganizationMember.update({
+      where: { id: sales.memberId },
+      data: { accessStatus: 'suspended' },
+    });
+    await assert.rejects(
+      () =>
+        commercialSvc.execute('CreateOpportunity', salesCtx, {
+          partyId,
+          title: 'Suspended blocked',
+        }),
+      (err: Error) => err.message === 'ACCESS_REVOKED',
+    );
+    await assert.rejects(
+      () => commercialSvc.execute('CreateQuote', salesCtx, { partyId }),
+      (err: Error) => err.message === 'ACCESS_REVOKED',
+    );
+  });
+});
