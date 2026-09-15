@@ -7,6 +7,7 @@ import {
   scopesFromAssignment,
   systemControlsAllowed,
 } from '@/lib/roles/access';
+import { SYSTEM_CONTROLS_HREF } from '@/lib/roles/system-controls';
 
 export type RoleNavRequest = {
   id: string;
@@ -44,7 +45,7 @@ export function roleNavigationRequests(
   if (systemControlsAllowed(scopes)) {
     requests.push({
       id: 'system-controls',
-      href: '/administracion',
+      href: SYSTEM_CONTROLS_HREF,
       label: 'Controles del sistema',
     });
   }

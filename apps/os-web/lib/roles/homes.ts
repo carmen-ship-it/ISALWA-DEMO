@@ -22,6 +22,7 @@ import {
   queueItem,
   type QueueItem,
 } from '@/lib/roles/queues';
+import { SYSTEM_CONTROLS_HREF } from '@/lib/roles/system-controls';
 
 export type QueueKind =
   | 'follow-up'
@@ -244,7 +245,7 @@ export function systemControlsFor(grantedScopes: readonly string[]): SystemContr
   return {
     id: 'system-controls',
     label: 'Controles del sistema',
-    href: '/administracion',
+    href: SYSTEM_CONTROLS_HREF,
     separateFromBusinessHome: true,
     includesIntegrationHealth: false,
   };
@@ -290,7 +291,7 @@ export function homeById(model: OperatingHomesModel, id: string): RoleHome | nul
 export function businessHomeHasSystemControls(home: RoleHome | null): boolean {
   if (!home) return false;
   const text = JSON.stringify(home);
-  return /system\.admin|integration\.admin|integraci[oó]n|controles del sistema|\/administracion/i.test(
+  return /system\.admin|integration\.admin|integraci[oó]n|controles del sistema|\/administracion|\/sistema/i.test(
     text,
   );
 }

@@ -39,7 +39,7 @@ export function GuidePanel() {
 
   if (api.record.panelHidden) {
     return (
-      <div className="pointer-events-none fixed bottom-4 right-4 z-30">
+      <div className="pointer-events-none fixed bottom-4 right-4 z-20">
         <Button
           type="button"
           variant="secondary"
@@ -65,13 +65,13 @@ export function GuidePanel() {
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-30 w-[min(100vw-2rem,22rem)]">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-20 w-[min(100vw-2rem,22rem)]">
       <Panel
         padded
         data-guide-panel=""
         role="region"
         aria-labelledby={titleId}
-        className="pointer-events-auto max-h-[70vh] overflow-auto"
+        className="pointer-events-auto max-h-[min(70vh,calc(100dvh-5.5rem))] overflow-auto"
       >
         <div className="flex items-start justify-between gap-3">
           <div>

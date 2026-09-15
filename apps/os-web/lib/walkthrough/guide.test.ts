@@ -272,4 +272,16 @@ describe('modo guiado', () => {
     const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
     assert.doesNotMatch(shell, /WalkthroughPopover|walkthrough-popover|aria-modal/);
   });
+
+  it('keeps guide below the shell header so mobile logout stays reachable', () => {
+    const panel = readFileSync(join(here, '../../components/walkthrough/guide-panel.tsx'), 'utf8');
+    const shell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
+    assert.match(panel, /fixed bottom-4 right-4 z-20/);
+    assert.match(panel, /max-h-\[min\(70vh,calc\(100dvh-5\.5rem\)\)\]/);
+    assert.match(panel, /aria-label=\{GUIDE_CHROME\.closeLabel\}/);
+    assert.match(panel, /handleGuideEscape/);
+    assert.match(shell, /sticky top-0 z-40/);
+    assert.match(shell, /signOutAction/);
+    assert.match(shell, /t\('account\.signOut'\)/);
+  });
 });
