@@ -359,31 +359,37 @@ async function main(): Promise<void> {
   const partySvc = new PartyCommandService(partyStore);
   const commercialSvc = new CommercialCommandService(commercialStore);
 
-  let org = await prisma.osOrganization.findFirst({
+  // Use orgId only — Prisma OsOrganization ≠ OrganizationRecord from seedOrganization.
+  const existingOrg = await prisma.osOrganization.findFirst({
     where: { legalName: WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME },
     orderBy: { createdAt: 'desc' },
+    select: { id: true },
   });
 
+  let orgId: string;
   let orgCreated = false;
-  if (!org) {
+  if (!existingOrg) {
     const bySlug = await prisma.osOrganization.findFirst({
       where: { slug: WAVE2_ROLE_FIXTURE_ORG_SLUG },
+      select: { id: true },
     });
     if (bySlug) {
       assertNotRealTenant(bySlug.id, realTenantIds);
       throw new Error('FIXTURE_ORG_SLUG_COLLISION_UNEXPECTED_LEGAL_NAME');
     }
-    org = await workforceStore.seedOrganization(
+    const seeded = await workforceStore.seedOrganization(
       WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME,
       WAVE2_ROLE_FIXTURE_ORG_SLUG,
     );
+    orgId = seeded.id;
     orgCreated = true;
-    log(`ORG_CREATED id=${org.id}`);
+    log(`ORG_CREATED id=${orgId}`);
   } else {
-    log(`ORG_REUSED id=${org.id}`);
+    orgId = existingOrg.id;
+    log(`ORG_REUSED id=${orgId}`);
   }
 
-  assertNotRealTenant(org.id, realTenantIds);
+  assertNotRealTenant(orgId, realTenantIds);
 
   const passwords: Record<string, string> = existsSync(passwordPath)
     ? (JSON.parse(readFileSync(passwordPath, 'utf8')) as Record<string, string>)
@@ -409,7 +415,7 @@ async function main(): Promise<void> {
     );
 
     const ensured = await ensureOrgMemberIdentity({
-      orgId: org.id,
+      orgId: orgId,
       email: identity.email,
       givenName: identity.givenName,
       familyName: identity.familyName,
@@ -419,7 +425,7 @@ async function main(): Promise<void> {
     });
 
     const finalCaps = await reconcileMemberScopes({
-      orgId: org.id,
+      orgId: orgId,
       memberId: ensured.memberId,
       wanted: planned.intendedCapabilities,
       workforceStore,
@@ -468,7 +474,7 @@ async function main(): Promise<void> {
     seedPassword,
   );
   const seedEnsured = await ensureOrgMemberIdentity({
-    orgId: org.id,
+    orgId: orgId,
     email: seedSpec.email,
     givenName: seedSpec.givenName,
     familyName: seedSpec.familyName,
@@ -477,7 +483,7 @@ async function main(): Promise<void> {
     prisma,
   });
   const seedCaps = await reconcileMemberScopes({
-    orgId: org.id,
+    orgId: orgId,
     memberId: seedEnsured.memberId,
     wanted: WAVE2_FIXTURE_SEED_SCOPES,
     workforceStore,
@@ -507,7 +513,7 @@ async function main(): Promise<void> {
 
   let party = await prisma.osParty.findFirst({
     where: {
-      organizationId: org.id,
+      organizationId: orgId,
       legalName: WAVE2_SYNTH_PARTY_LEGAL_NAME,
     },
   });
@@ -519,7 +525,7 @@ async function main(): Promise<void> {
   if (!partyId) {
     // Setup authority ≠ role-under-test. Seed actor holds master_data.admin only.
     const session = ctx(
-      org.id,
+      orgId,
       seedActor.memberId,
       seedActor.personId,
       seedActor.authIdentityId,
@@ -563,11 +569,11 @@ async function main(): Promise<void> {
     commercialCreated = true;
   } else {
     const opp = await prisma.osOpportunity.findFirst({
-      where: { organizationId: org.id, partyId },
+      where: { organizationId: orgId, partyId },
       orderBy: { createdAt: 'asc' },
     });
     const quote = await prisma.osQuote.findFirst({
-      where: { organizationId: org.id, partyId },
+      where: { organizationId: orgId, partyId },
       orderBy: { createdAt: 'asc' },
     });
     opportunityId = opp?.id ?? null;
@@ -608,7 +614,7 @@ async function main(): Promise<void> {
     migrationCountBefore,
     migrationCountAfter,
     expectedMigrationCount: EXPECTED_MIGRATION_COUNT,
-    organizationId: org.id,
+    organizationId: orgId,
     organizationLegalName: WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME,
     organizationSlug: WAVE2_ROLE_FIXTURE_ORG_SLUG,
     organizationCreated: orgCreated,
@@ -684,7 +690,7 @@ async function main(): Promise<void> {
       ok: true,
       fixtureToolSha,
       hostedAppSha: HOSTED_APP_SHA,
-      organizationId: org.id,
+      organizationId: orgId,
       roleCount: roles.length,
       seedActorMemberId: seedActor.memberId,
       partyId,
