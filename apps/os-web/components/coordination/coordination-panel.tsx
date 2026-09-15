@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { EmptyState, Panel, SectionHeader, StatusPill, Timeline } from '@isalwa/ui';
 import { CoordinationDecisionForm } from '@/components/coordination/coordination-decision-form';
 import { CoordinationItemCard } from '@/components/coordination/coordination-item-card';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import type { CoordinationPageModel } from '@/lib/coordination/page-model';
 import {
   COORDINATION_DECISION_CAPABILITY,
@@ -31,7 +32,7 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
   }
 
   return (
-    <div className="space-y-6">
+    <OpsDeskSurface className="space-y-6">
       <Panel padded>
         <SectionHeader
           kicker="Comité"
@@ -51,7 +52,11 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
           propósito.
         </p>
         {model.committee.items.length === 0 ? (
-          <EmptyState title={model.emptyTitle} description={model.emptyDescription} />
+          <EmptyState
+            title={model.emptyTitle}
+            description={model.emptyDescription}
+            example="Cuando un caso cruce áreas y necesite decisión, aparecerá aquí. No se inventan asuntos de comité."
+          />
         ) : (
           <div>
             {model.committee.items.map((item) => (
@@ -110,6 +115,6 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
             : null}
         </Panel>
       ) : null}
-    </div>
+    </OpsDeskSurface>
   );
 }

@@ -107,7 +107,7 @@ type LedgerSeed = {
 const DENIAL_MESSAGE: Record<ProductionDenial, string> = {
   session_org_required: 'Falta la organización de la sesión. No se anota nada.',
   cross_tenant: 'Ese registro no pertenece a esta organización.',
-  unauthorized_role: 'Hace falta la capacidad production.entry.member. El cargo no autoriza.',
+  unauthorized_role: 'Hace falta el permiso de planta. El cargo no autoriza.',
   search_leakage: 'La búsqueda no incluye otra organización.',
   aggregate_leakage: 'El resumen no mezcla otra organización.',
   invalid: 'No se pudo anotar. Revise los datos de planta.',

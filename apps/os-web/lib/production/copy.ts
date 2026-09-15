@@ -55,8 +55,9 @@ export const PRODUCTION_PAGE_COPY = {
   savedReceipt: 'Anotado. Este ingreso no asigna un pedido.',
   savedConsumption: 'Anotado. No descuenta stock. El stock no es oficial.',
   permission:
-    'Para anotar hace falta la capacidad production.entry.member asignada al miembro. El cargo no autoriza.',
-  reviewPermission: 'Para revisar hace falta la capacidad production.review.member. No se hereda del cargo ni de la anotación.',
+    'Para anotar hace falta el permiso de planta asignado a su cuenta. El cargo solo no autoriza.',
+  reviewPermission:
+    'Para revisar hace falta el permiso de revisión de planta. No se hereda del cargo ni de la anotación.',
   scopesUnconfirmed:
     'Esta sesión no trae las capacidades del miembro. No se anota ni se mezcla con otra organización.',
   noSessionOrg: 'Falta la organización de la sesión. No se anota nada.',
@@ -73,7 +74,7 @@ export const PRODUCTION_PAGE_COPY = {
 export const PRODUCTION_DENIAL_COPY = {
   session_org_required: 'Falta la organización de la sesión. No se anota nada.',
   cross_tenant: 'Ese registro no pertenece a esta organización.',
-  unauthorized_role: 'Hace falta la capacidad production.entry.member. El cargo no autoriza.',
+  unauthorized_role: 'Hace falta el permiso de planta. El cargo no autoriza.',
   search_leakage: 'La búsqueda no incluye otra organización.',
   aggregate_leakage: 'El resumen no mezcla otra organización.',
   invalid: 'No se pudo anotar. Revise los datos de planta.',

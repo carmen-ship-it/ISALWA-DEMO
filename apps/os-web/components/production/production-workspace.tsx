@@ -42,6 +42,7 @@ import {
 import { productionInternalDateFact } from '@/lib/production/dates';
 import { searchProductIds, type CatalogProductId } from '@/lib/production/product-search';
 import { FINISHED_GOODS_WAREHOUSE_LABEL } from '@isalwa/os-contracts';
+import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 
 type TabId = 'planta' | 'quemas' | 'perdida' | 'consumo' | 'listo';
 
@@ -55,6 +56,25 @@ const TABS: Array<{ id: TabId; label: string }> = [
 
 const fieldClass = 'isalwa-field mt-1 w-full';
 
+/** User-facing permission chrome — no engineering capability keys. */
+const PERMISSION_CHROME = {
+  annotate:
+    'Para anotar hace falta el permiso de planta asignado a su cuenta. El cargo solo no autoriza.',
+  review:
+    'Para revisar hace falta el permiso de revisión de planta. No se hereda del cargo ni de la anotación.',
+  unauthorized: 'Hace falta el permiso de planta. El cargo no autoriza.',
+} as const;
+
+function staffFacingDenial(denial: string | undefined, fallback?: string): string | undefined {
+  if (denial === 'unauthorized_role') return PERMISSION_CHROME.unauthorized;
+  if (fallback && /\bproduction\.(entry|review)\.member\b/.test(fallback)) {
+    return PERMISSION_CHROME.unauthorized;
+  }
+  if (fallback && /\b[a-z]+\.[a-z_]+\.[a-z_]+\b/.test(fallback)) {
+    return PERMISSION_CHROME.unauthorized;
+  }
+  return fallback;
+}
 export type ProductionWorkspaceProps = {
   status: 'ready' | 'loading' | 'error' | 'permission';
   organizationId: string | null;
@@ -151,8 +171,8 @@ export function ProductionWorkspace({
     if (!canEnter) {
       setFeedback({
         tone: 'error',
-        title: scopesConfirmed ? PRODUCTION_PAGE_COPY.permission : PRODUCTION_PAGE_COPY.scopesUnconfirmed,
-        detail: PRODUCTION_DENIAL_COPY.unauthorized_role,
+        title: scopesConfirmed ? PERMISSION_CHROME.annotate : PRODUCTION_PAGE_COPY.scopesUnconfirmed,
+        detail: PERMISSION_CHROME.unauthorized,
       });
       return;
     }
@@ -263,10 +283,15 @@ export function ProductionWorkspace({
     }
 
     if (!result.ok) {
-      const denial = result.denial && result.denial in PRODUCTION_DENIAL_COPY
-        ? PRODUCTION_DENIAL_COPY[result.denial as keyof typeof PRODUCTION_DENIAL_COPY]
-        : result.message;
-      setFeedback({ tone: 'error', title: 'No se anotó.', detail: denial });
+      const mapped =
+        result.denial && result.denial in PRODUCTION_DENIAL_COPY
+          ? PRODUCTION_DENIAL_COPY[result.denial as keyof typeof PRODUCTION_DENIAL_COPY]
+          : result.message;
+      setFeedback({
+        tone: 'error',
+        title: 'No se anotó.',
+        detail: staffFacingDenial(result.denial, mapped),
+      });
       return;
     }
 
@@ -300,9 +325,13 @@ export function ProductionWorkspace({
 
   if (status === 'permission' || !organizationId) {
     return (
-      <PageSection card className="mt-6 p-6">
-        <FeedbackNote tone="info" title={PRODUCTION_PAGE_COPY.noSessionOrg} detail={PRODUCTION_PAGE_COPY.permission} />
-      </PageSection>
+      <OpsDeskSurface className="mt-6 space-y-4" data-production-boundary="permission">
+        <EmptyPanel
+          title={PRODUCTION_PAGE_COPY.noSessionOrg}
+          description={PERMISSION_CHROME.annotate}
+          example="Cuando la sesión traiga la empresa y el permiso de planta, podrá anotar pasos aquí."
+        />
+      </OpsDeskSurface>
     );
   }
 
@@ -312,8 +341,8 @@ export function ProductionWorkspace({
   void revision;
 
   return (
-    <div className="mt-6">
-      <ActionBar sticky className="mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]">
+    <OpsDeskSurface className="mt-6 space-y-4" data-production-boundary="ready">
+      <ActionBar sticky className="mb-0 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Producto</p>
           <SearchField
@@ -368,11 +397,11 @@ export function ProductionWorkspace({
       )}
 
       {!scopesConfirmed || !canEnter ? (
-        <div className="mb-4">
+        <div className="mb-0">
           <FeedbackNote
             tone="info"
-            title={scopesConfirmed ? PRODUCTION_PAGE_COPY.permission : PRODUCTION_PAGE_COPY.scopesUnconfirmed}
-            detail={canReview ? PRODUCTION_PAGE_COPY.reviewPermission : PRODUCTION_PAGE_COPY.permission}
+            title={scopesConfirmed ? PERMISSION_CHROME.annotate : PRODUCTION_PAGE_COPY.scopesUnconfirmed}
+            detail={canReview ? PERMISSION_CHROME.review : PERMISSION_CHROME.annotate}
           />
         </div>
       ) : null}
@@ -395,7 +424,7 @@ export function ProductionWorkspace({
         ))}
       </div>
 
-      <ActionBar className="mb-4 justify-end rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
+      <ActionBar className="mb-0 justify-end rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_90%,white)] px-4 py-3">
         <Button type="button" onClick={openDrawer}>
           Anotar
         </Button>
@@ -416,7 +445,13 @@ export function ProductionWorkspace({
           <SectionHeader title="Quemas" />
           <p className="text-sm text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.quemaNotParent}</p>
           {quemas.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--isalwa-slate)]">Sin quema en esta organización.</p>
+            <EmptyPanel
+              compact
+              className="mt-3 text-left"
+              title="Sin quema en esta organización"
+              description="La cola vacía es intencional. No se inventan quemas ni cantidades."
+              example="Abra una quema desde Anotar cuando la planta reúna productos reales."
+            />
           ) : (
             quemas.map((quema) => (
               <div key={quema.id} className="mt-3">
@@ -478,7 +513,11 @@ export function ProductionWorkspace({
         />
         <p className="mb-3 text-sm text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.listoMeaning} {PRODUCTION_PAGE_COPY.receiptDoesNotAssign}</p>
         {!canRead || entries.length === 0 ? (
-          <EmptyPanel compact title={PRODUCTION_PAGE_COPY.emptyTitle} description={PRODUCTION_PAGE_COPY.emptyDescription} />
+          <EmptyPanel
+            title={PRODUCTION_PAGE_COPY.emptyTitle}
+            description={PRODUCTION_PAGE_COPY.emptyDescription}
+            example="Elija un paso, escriba el identificador del producto y pulse Anotar. Un vacío no es cero de stock."
+          />
         ) : (
           <div>
             {entries.map((entry) => (
@@ -619,14 +658,14 @@ export function ProductionWorkspace({
               <input className={fieldClass} type="datetime-local" value={draft.occurredAt} onChange={(event) => patch({ occurredAt: event.target.value })} />
             </label>
           </div>
-          <div className="sticky bottom-0 z-10 -mx-4 mt-4 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-4 py-3 backdrop-blur-md">
+          <div className={`${OPS_STICKY_ACTION_CLASS} -mx-4 mt-4 px-4 py-3`}>
             <Button type="submit" disabled={!canEnter}>
               Guardar
             </Button>
           </div>
         </form>
       </ContextDrawer>
-    </div>
+    </OpsDeskSurface>
   );
 }
 
