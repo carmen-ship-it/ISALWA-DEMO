@@ -1,3 +1,5 @@
+import { elapsedAge } from '@/lib/time/elapsed';
+
 export const UNRECOGNIZED_STATUS_LABEL = 'Estado no reconocido';
 
 export function formatOpportunityStatus(status: string): string {
@@ -85,4 +87,15 @@ export function formatTimestamp(iso: string | null): string | null {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(date);
+}
+
+/**
+ * Human age for list rows. Falls back to the exact timestamp when the age is under a minute.
+ * Detail pages should keep formatTimestamp.
+ */
+export function formatListAge(iso: string | null, asOf = new Date()): string | null {
+  if (!iso) return null;
+  const age = elapsedAge(iso, asOf);
+  if (age) return age.phrase;
+  return formatTimestamp(iso);
 }

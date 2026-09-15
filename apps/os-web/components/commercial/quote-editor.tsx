@@ -15,6 +15,7 @@ import {
 import { formatCentavos } from '@/lib/commercial/money';
 import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
+import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { QuoteProductPicker } from '@/components/commercial/quote-product-picker';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
@@ -304,7 +305,7 @@ export function QuoteEditor({
         </form>
       </PageSection>
 
-      <PageSection card className="bg-white p-8 md:p-10">
+      <PageSection id="enviar-cotizacion" card className="scroll-mt-32 bg-white p-8 md:p-10">
         <h2 className={documentTitleClass}>Enviar cotización</h2>
         <FormFeedback error={submitState.error} success={submitState.success} />
         <form action={submitAction} className="mt-8 space-y-4">
@@ -326,6 +327,18 @@ export function QuoteEditor({
           <CommandSubmitButton label="Cancelar cotización" pendingLabel="Cancelando…" variant="danger" />
         </form>
       </PageSection>
+
+      <CommercialStickyBar className="mt-2">
+        <p className="text-sm text-[var(--isalwa-slate)]">
+          Total: {formatCentavos(quote.totalCentavos, quote.currency)}
+        </p>
+        <a
+          href="#enviar-cotizacion"
+          className="isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+        >
+          Ir a enviar
+        </a>
+      </CommercialStickyBar>
     </div>
   );
 }

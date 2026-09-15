@@ -11,9 +11,15 @@ import { guidanceForConvertQuote } from '@/lib/guidance/select';
 type ConvertQuoteFormProps = {
   partyId: string;
   quoteId: string;
+  /** Stored quote status only. Used for guidance copy — not to invent authority. */
+  quoteStatus?: string;
 };
 
-export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
+export function ConvertQuoteForm({
+  partyId,
+  quoteId,
+  quoteStatus = 'accepted',
+}: ConvertQuoteFormProps) {
   const router = useRouter();
   const [state, action] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
@@ -32,7 +38,7 @@ export function ConvertQuoteForm({ partyId, quoteId }: ConvertQuoteFormProps) {
     <form action={action} className="space-y-6">
       <input type="hidden" name="partyId" value={partyId} />
       <input type="hidden" name="quoteId" value={quoteId} />
-      <GuidanceNotes notes={guidanceForConvertQuote({ quoteStatus: 'submitted' })} />
+      <GuidanceNotes notes={guidanceForConvertQuote({ quoteStatus })} />
       <FormFeedback error={state?.error} />
       <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />
     </form>

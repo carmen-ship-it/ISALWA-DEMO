@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
+import { Cliente360Sticky } from '@/components/cliente/cliente-360-sticky';
 import { ManualOperationsPanel } from '@/components/operations/manual-operations-panel';
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
@@ -48,7 +49,7 @@ type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
 };
 
-const sectionClass = 'scroll-mt-32 p-8';
+const sectionClass = 'scroll-mt-40 p-8';
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
@@ -83,8 +84,13 @@ function CustomerCompactHeader({
     phone,
   ].filter((fact): fact is string => Boolean(fact));
 
+  const showNext =
+    nextAction &&
+    nextAction.kind !== 'insufficient' &&
+    nextAction.statement.trim().length > 0;
+
   return (
-    <div className="mb-6 flex flex-col gap-2 border-b border-[var(--isalwa-mist)] pb-4">
+    <div className="flex flex-col gap-2 py-3">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -109,15 +115,22 @@ function CustomerCompactHeader({
           </Link>
         </div>
       </div>
-      {nextAction?.kind === 'recorded_follow_up' && nextAction.href ? (
+      {showNext ? (
         <p className="text-sm text-[var(--isalwa-kiln)]">
           <span className="font-medium">{FOLLOW_UP_COPY.nextAction}</span>
           {' · '}
-          <Link href={nextAction.href} className={linkClass}>
-            {nextAction.statement}
-          </Link>
+          {nextAction.href ? (
+            <Link href={nextAction.href} className={linkClass}>
+              {nextAction.statement}
+            </Link>
+          ) : (
+            <span>{nextAction.statement}</span>
+          )}
           {nextAction.dueText ? (
             <span className="text-[var(--isalwa-slate)]"> · {nextAction.dueText}</span>
+          ) : null}
+          {nextAction.overdue ? (
+            <span className="text-[var(--isalwa-slate)]"> · Vencido</span>
           ) : null}
         </p>
       ) : null}
@@ -169,7 +182,7 @@ function IdentityLetterhead({
     : null;
 
   return (
-    <div id="resumen" className="scroll-mt-32 space-y-8 bg-white">
+    <div id="resumen" className="scroll-mt-40 space-y-8 bg-white">
       <Cliente360Now composition={composition} />
       <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
         {party.legalName ? (
@@ -302,22 +315,25 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
         />
 
         {data.staleFreshness ? (
-          <div className="mb-8">
+          <div className="mb-6">
             <StaleProjectionBanner stale />
           </div>
         ) : null}
 
-        <CustomerCompactHeader
-          displayName={displayName}
-          status={party.status}
-          ownerLabel={composition.owner.assigned ? composition.owner.label : null}
-          hasCoordinates={composition.location.state === 'coordinates'}
-          contactName={composition.primaryContact.name}
-          phone={composition.primaryContact.phone}
-          maps={composition.location.provenance}
-          partyId={partyId}
-          nextAction={composition.nextAction}
-        />
+        <Cliente360Sticky>
+          <CustomerCompactHeader
+            displayName={displayName}
+            status={party.status}
+            ownerLabel={composition.owner.assigned ? composition.owner.label : null}
+            hasCoordinates={composition.location.state === 'coordinates'}
+            contactName={composition.primaryContact.name}
+            phone={composition.primaryContact.phone}
+            maps={composition.location.provenance}
+            partyId={partyId}
+            nextAction={composition.nextAction}
+          />
+          <Cliente360Nav partyId={partyId} embedded />
+        </Cliente360Sticky>
 
         <IdentityLetterhead
           party={party}
@@ -341,8 +357,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             />
           </PageSection>
         ) : null}
-
-        <Cliente360Nav partyId={partyId} />
 
         <div className="mt-10 min-w-0 space-y-12">
           <PageSection id="contactos" card className={sectionClass}>

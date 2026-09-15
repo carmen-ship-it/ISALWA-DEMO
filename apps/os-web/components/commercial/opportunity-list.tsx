@@ -2,13 +2,14 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
 import {
+  formatListAge,
   formatOpportunityStatus,
   presentStage,
-  formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
-import { opportunityHref } from '@/lib/commercial/navigation';
+import { opportunityHref, newQuoteHref } from '@/lib/commercial/navigation';
+import { opportunityNextStep } from '@/lib/commercial/next-step';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -23,6 +24,13 @@ export function OpportunityList({ partyId, items, memberLabels }: OpportunityLis
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
       {items.map((item) => {
         const value = formatOptionalCentavos(item.expectedValueCentavos ?? undefined, 'BOB');
+        const age = formatListAge(item.createdAt);
+        const next = opportunityNextStep({
+          status: item.status,
+          partyId,
+          opportunityId: item.opportunityId,
+          newQuoteHref: newQuoteHref(partyId, item.opportunityId),
+        });
         return (
           <ListRow key={item.opportunityId} as="li" className="px-1 py-1">
             <div className="rounded-[var(--isalwa-radius-control)] px-3 py-3">
@@ -51,12 +59,26 @@ export function OpportunityList({ partyId, items, memberLabels }: OpportunityLis
                     ) : null}
                     <div>
                       <dt className="sr-only">Creada</dt>
-                      <dd>Creada: {formatTimestamp(item.createdAt)}</dd>
+                      <dd>Creada: {age ?? '—'}</dd>
                     </div>
                     {item.closedAt ? (
                       <div>
                         <dt className="sr-only">Cierre</dt>
-                        <dd>Cerrada: {formatTimestamp(item.closedAt)}</dd>
+                        <dd>Cerrada: {formatListAge(item.closedAt) ?? '—'}</dd>
+                      </div>
+                    ) : null}
+                    {next && !next.waiting && next.hrefLabel ? (
+                      <div className="sm:col-span-2">
+                        <dt className="sr-only">Próximo paso</dt>
+                        <dd>
+                          Próximo paso:{' '}
+                          <Link
+                            href={next.href ?? opportunityHref(partyId, item.opportunityId)}
+                            className="isalwa-t-fast text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                          >
+                            {next.hrefLabel}
+                          </Link>
+                        </dd>
                       </div>
                     ) : null}
                   </dl>

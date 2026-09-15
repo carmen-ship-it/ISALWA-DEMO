@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { CommercialPath } from '@/components/commercial/commercial-path';
+import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { OpportunityActionsPanel } from '@/components/commercial/opportunity-actions-panel';
+import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -15,6 +18,7 @@ import {
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { newQuoteHref } from '@/lib/commercial/navigation';
+import { opportunityNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -41,9 +45,23 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
     const memberLabels = await resolveMemberLabels(client, [opportunity.ownerMemberId]);
     const value = formatOptionalCentavos(opportunity.expectedValueCentavos ?? undefined, 'BOB');
     const isOpen = opportunity.status === 'open';
+    const createQuoteHref = newQuoteHref(partyId, opportunityId);
+    const nextStep = opportunityNextStep({
+      status: opportunity.status,
+      partyId,
+      opportunityId,
+      newQuoteHref: createQuoteHref,
+    });
 
     return (
       <PageContainer label={opportunity.title}>
+        <CommercialPath
+          crumbs={[
+            { label: customerName, href: partyHref(partyId) },
+            { label: 'Oportunidad' },
+            { label: opportunity.title },
+          ]}
+        />
         <PageHeader
           kicker="Oportunidad"
           title={opportunity.title}
@@ -56,19 +74,13 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
         />
 
         <StaleProjectionBanner freshness={freshness} />
+        <RecordNextStep step={nextStep} />
 
         <PageSection card className="bg-white p-8 md:p-10">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <StatusPill tone={statusTone(opportunity.status)}>
               {formatOpportunityStatus(opportunity.status)}
             </StatusPill>
-            {isOpen ? (
-              <Link href={newQuoteHref(partyId, opportunityId)}>
-                <Button type="button" variant="primary">
-                  Nueva cotización
-                </Button>
-              </Link>
-            ) : null}
           </div>
 
           <dl className="mt-10 grid gap-8 sm:grid-cols-2">
@@ -112,6 +124,17 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
             ) : null}
           </dl>
         </PageSection>
+
+        {isOpen ? (
+          <CommercialStickyBar className="mt-6">
+            <p className="text-sm text-[var(--isalwa-slate)]">Oportunidad abierta</p>
+            <Link href={createQuoteHref}>
+              <Button type="button" variant="primary">
+                Nueva cotización
+              </Button>
+            </Link>
+          </CommercialStickyBar>
+        ) : null}
 
         <OpportunityActionsPanel
           partyId={partyId}
