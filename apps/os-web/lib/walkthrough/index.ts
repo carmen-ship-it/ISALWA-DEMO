@@ -14,8 +14,10 @@ export {
   INTRO_COPY,
   LEARNING_MODE_COPY,
   PAGE_MICRO_TOURS,
+  PAGE_TOUR_ROUTES,
   canViewMicroTour,
   getMicroTourForPage,
+  pageIdFromPathname,
   progressLabel,
   replayLabel,
 } from './copy';
@@ -24,6 +26,7 @@ export { findPageHeading, handleGuideEscape, restoreHeadingFocus } from './focus
 export type { GuideDoc, GuideFocusable } from './focus';
 export {
   advanceIntro,
+  clearPageTourSeen,
   collectGuideCopy,
   continueGuide,
   currentJourney,

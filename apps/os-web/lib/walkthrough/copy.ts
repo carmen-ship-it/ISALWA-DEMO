@@ -122,64 +122,80 @@ export const PAGE_MICRO_TOURS: readonly MicroTour[] = [
   {
     pageId: 'produccion',
     roleKeys: ['org.admin', 'operations', 'sales_manager'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Producción', body: 'Esta pantalla agrupa el trabajo pendiente de producción sin afirmar flujo final.' },
-      { body: 'Lo que aparece aquí depende de lo que ya esté registrado. Si no hay trabajo, no se inventa.' },
+      { target: 'produccion-save', body: 'Aquí se registran movimientos operativos de producción.' },
+      { body: 'Esta acción guarda un registro operativo; no reemplaza un sistema industrial especializado.' },
+      { body: 'Aquí puedes revisar quién registró qué y cuándo.' },
     ],
   },
   {
     pageId: 'almacen',
     roleKeys: ['org.admin', 'operations', 'sales_manager'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Almacén', body: 'El almacén muestra existencias conocidas y asignaciones pendientes.' },
-      { body: 'Asignar no es recibir. Salida de almacén es diferente a entrega.' },
+      { target: 'almacen-actions', body: 'Aquí puedes registrar recepción, asignación y salida según tu acceso.' },
+      { body: 'ISALWA conserva el responsable y el momento del registro.' },
+      { body: 'Estos registros no deben presentarse como inventario contable oficial si esa fuente todavía no forma parte de ISALWA.' },
     ],
   },
   {
     pageId: 'compras',
     roleKeys: ['org.admin', 'operations'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Compras', body: 'Compras registra necesidades identificadas y pedidos a proveedores.' },
-      { body: 'Esta sección depende de permisos y datos existentes.' },
+      { target: 'compras-filter', body: 'Esta es la cola de compras.' },
+      { body: 'Puedes filtrar por estado y ver qué requiere atención.' },
+      { body: 'Esta vista organiza trabajo de compras; no representa inventario oficial.' },
     ],
   },
   {
     pageId: 'coordinacion',
     roleKeys: ['org.admin', 'operations', 'sales_manager'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Coordinación', body: 'Coordinación reúne decisiones pendientes y seguimientos.' },
-      { body: 'Una decisión registrada no es lo mismo que una aprobación formal.' },
+      { target: 'coordination-history', body: 'Aquí se preservan decisiones importantes.' },
+      { body: 'Una decisión puede guardar quién decidió, cuándo y el motivo cuando fue proporcionado.' },
+      { body: 'ISALWA nunca inventa la razón de una decisión.' },
     ],
   },
   {
     pageId: 'finanzas',
     roleKeys: ['org.admin', 'finance.admin'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Finanzas', body: 'Esta sección muestra información financiera según tu acceso.' },
-      { body: 'Los montos dependen de datos reales registrados, no de proyecciones inventadas.' },
+      { target: 'finance-provenance', body: 'Aquí se registra información financiera operativa o reportada.' },
+      { body: 'ISALWA no reemplaza la contabilidad ni el sistema fiscal oficial.' },
+      { body: 'Que un cliente indique “ya pagué” no significa que el pago esté confirmado.' },
     ],
   },
   {
     pageId: 'aprobaciones',
     roleKeys: ['org.admin', 'sales_manager', 'operations'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Aprobaciones', body: 'Las aprobaciones pendientes aparecen aquí si tienes autoridad para decidir.' },
-      { body: 'Aprobar tiene consecuencias. No es solo cambiar un estado.' },
+      { target: 'approval-actions', body: 'Aquí aparecen decisiones que requieren aprobación.' },
+      { body: 'Aprobar registra una decisión.' },
+      { body: 'Aprobar no crea automáticamente un pedido.' },
+    ],
+  },
+  {
+    pageId: 'aprobaciones-readonly',
+    roleKeys: [],
+    triggerWhenEmpty: true,
+    steps: [
+      { body: 'Aquí aparecen decisiones que requieren aprobación.' },
+      { body: 'Puedes revisar el estado; las acciones de aprobar o rechazar solo aparecen si tu acceso lo permite.' },
     ],
   },
   {
     pageId: 'entregas',
     roleKeys: ['org.admin', 'operations', 'sales_manager'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Entregas', body: 'Esta pantalla muestra entregas programadas y pendientes.' },
-      { body: 'Una salida de almacén no es lo mismo que una entrega confirmada al cliente.' },
+      { body: 'Esta vista muestra entregas con el contexto de cliente y pedido cuando está disponible.' },
+      { body: 'Revisa estado, responsable y, si existe, ubicación o timing registrados.' },
+      { body: 'No implica un proveedor logístico activo mientras esa integración no exista.' },
     ],
   },
   {
@@ -187,56 +203,95 @@ export const PAGE_MICRO_TOURS: readonly MicroTour[] = [
     roleKeys: [],
     triggerWhenEmpty: true,
     steps: [
-      { title: 'Productos', body: 'El catálogo de productos disponibles para cotizar y vender.' },
-      { body: 'Solo aparecen productos ya registrados. ISALWA no inventa un catálogo.' },
+      { body: 'Aquí está la información de productos disponible en ISALWA.' },
+      { body: 'Usa búsqueda y estado cuando estén presentes en esta vista.' },
+      { body: 'No implica stock contable oficial si esa fuente todavía no forma parte de ISALWA.' },
     ],
   },
   {
     pageId: 'trabajo',
     roleKeys: [],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Trabajo', body: 'Tu trabajo pendiente y seguimientos aparecen aquí.' },
-      { body: 'Lo que ves depende de lo que te han asignado o lo que has creado.' },
+      { body: 'Aquí puedes buscar, filtrar y ordenar trabajo según los controles disponibles.' },
+      { body: 'Revisa responsable, estado, vencimiento o antigüedad cuando aparezcan.' },
+      { body: 'El siguiente paso solo se muestra cuando ISALWA puede determinarlo.' },
     ],
   },
   {
     pageId: 'oportunidades',
     roleKeys: ['org.admin', 'sales_rep', 'sales_manager', 'commercial.team.read', 'commercial.org.read'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Oportunidades', body: 'Las oportunidades comerciales activas de la empresa.' },
-      { body: 'Una oportunidad no es una cotización ni un pedido. Es el inicio del proceso.' },
+      { body: 'Una oportunidad representa una posibilidad comercial que el equipo está trabajando.' },
     ],
   },
   {
     pageId: 'cotizaciones',
     roleKeys: ['org.admin', 'sales_rep', 'sales_manager', 'commercial.team.read', 'commercial.org.read'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Cotizaciones', body: 'Las cotizaciones en proceso o enviadas al cliente.' },
-      { body: 'Un borrador no es lo mismo que una cotización enviada. Un envío no es un pedido.' },
+      { body: 'Una cotización puede mostrar número, cliente, responsable, estado, monto y PDF según lo disponible.' },
+      { body: 'Aprobar registra la decisión. No crea un pedido automáticamente.' },
+      { body: 'Convertir a pedido crea el pedido cuando la cotización y tu acceso lo permiten.' },
     ],
   },
   {
     pageId: 'pedidos',
     roleKeys: ['org.admin', 'sales_rep', 'sales_manager', 'commercial.team.read', 'commercial.org.read', 'operations'],
-    triggerWhenEmpty: false,
+    triggerWhenEmpty: true,
     steps: [
-      { title: 'Pedidos', body: 'Pedidos confirmados de clientes.' },
-      { body: 'Un pedido existe cuando una cotización fue convertida. No antes.' },
+      { body: 'Los pedidos muestran el estado operativo actual registrado en ISALWA.' },
+      { body: 'No se afirma integración logística o financiera si esa conexión no existe.' },
     ],
   },
 ] as const;
+
+/** Route prefix → page micro-tour id. */
+export const PAGE_TOUR_ROUTES: ReadonlyArray<{ prefix: string; pageId: string }> = [
+  { prefix: '/produccion', pageId: 'produccion' },
+  { prefix: '/almacen', pageId: 'almacen' },
+  { prefix: '/compras', pageId: 'compras' },
+  { prefix: '/coordinacion', pageId: 'coordinacion' },
+  { prefix: '/finanzas', pageId: 'finanzas' },
+  { prefix: '/aprobaciones', pageId: 'aprobaciones' },
+  { prefix: '/entregas', pageId: 'entregas' },
+  { prefix: '/productos', pageId: 'productos' },
+  { prefix: '/trabajo', pageId: 'trabajo' },
+  { prefix: '/oportunidades', pageId: 'oportunidades' },
+  { prefix: '/cotizaciones', pageId: 'cotizaciones' },
+  { prefix: '/pedidos', pageId: 'pedidos' },
+];
+
+export function pageIdFromPathname(pathname: string): string | null {
+  for (const entry of PAGE_TOUR_ROUTES) {
+    if (pathname === entry.prefix || pathname.startsWith(`${entry.prefix}/`)) {
+      return entry.pageId;
+    }
+  }
+  return null;
+}
 
 export function getMicroTourForPage(pageId: string): MicroTour | null {
   return PAGE_MICRO_TOURS.find((tour) => tour.pageId === pageId) ?? null;
 }
 
-export function canViewMicroTour(tour: MicroTour, viewerRoleKeys: readonly string[]): boolean {
+export function canViewMicroTour(
+  tour: MicroTour,
+  viewerRoleKeys: readonly string[],
+  openHrefs: readonly string[] = [],
+): boolean {
   if (tour.roleKeys.length === 0) return true;
   if (viewerRoleKeys.includes('org.admin')) return true;
-  return tour.roleKeys.some((key) => viewerRoleKeys.includes(key));
+  if (viewerRoleKeys.length > 0) {
+    return tour.roleKeys.some((key) => viewerRoleKeys.includes(key));
+  }
+  // When role keys are not injected, treat reachable nav as access proof.
+  const route = PAGE_TOUR_ROUTES.find((entry) => entry.pageId === tour.pageId);
+  if (!route) return false;
+  return openHrefs.some(
+    (href) => href === route.prefix || href.startsWith(`${route.prefix}/`) || href.startsWith(route.prefix),
+  );
 }
 
 export function progressLabel(index: number, total: number): string {

@@ -15,6 +15,7 @@ import {
   advanceIntro,
   continueGuide,
   dismissGuide,
+  clearPageTourSeen,
   hasSeenPageTour,
   markPageTourSeen,
   replayFromAyuda,
@@ -56,6 +57,7 @@ type GuideContextValue = {
   setLearningMode: (enabled: boolean) => void;
   // Page micro-tours
   markPageTourSeen: (pageId: string) => void;
+  clearPageTourSeen: (pageId: string) => void;
   hasSeenPageTour: (pageId: string) => boolean;
 };
 
@@ -149,6 +151,7 @@ export function GuideProvider({
       setLearningMode: (enabled: boolean) => commit(setLearningMode(record, enabled)),
       // Page micro-tours
       markPageTourSeen: (pageId: string) => commit(markPageTourSeen(record, pageId)),
+      clearPageTourSeen: (pageId: string) => commit(clearPageTourSeen(record, pageId)),
       hasSeenPageTour: (pageId: string) => hasSeenPageTour(record, pageId),
     }),
     [commit, journeys, ready, record, viewerRoleKeys],

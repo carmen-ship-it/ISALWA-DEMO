@@ -220,6 +220,18 @@ export function hasSeenPageTour(record: GuideRecord, pageId: string): boolean {
   return record.pageTourSeen[pageId] === true;
 }
 
+export function clearPageTourSeen(record: GuideRecord, pageId: string): GuideRecord {
+  const next = { ...record.pageTourSeen };
+  delete next[pageId];
+  // Also clear readonly sibling for approvals replay
+  if (pageId === 'aprobaciones') delete next['aprobaciones-readonly'];
+  if (pageId === 'aprobaciones-readonly') delete next['aprobaciones'];
+  return {
+    ...record,
+    pageTourSeen: next,
+  };
+}
+
 export function continueGuide(
   record: GuideRecord,
   journeys: readonly Journey[] = JOURNEYS,
