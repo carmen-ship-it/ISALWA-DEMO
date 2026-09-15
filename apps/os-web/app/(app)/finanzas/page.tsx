@@ -1,4 +1,4 @@
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
 import { FinanceOperationalDesk } from '@/components/finance/finance-operational-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { OsApiError } from '@/lib/api/os-api-errors';
@@ -21,6 +21,12 @@ export default async function FinanzasPage() {
         kicker={FINANCE_DESK_COPY.kicker}
         title={FINANCE_DESK_COPY.title}
         description={FINANCE_DESK_COPY.intro}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone="manual">Dato manual</StatusPill>
+            <StatusPill tone="neutral">No es libro contable</StatusPill>
+          </div>
+        }
       />
       {access.status === 'ready' ? (
         <FinanceOperationalDesk

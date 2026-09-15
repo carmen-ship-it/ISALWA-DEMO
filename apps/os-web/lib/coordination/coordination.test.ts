@@ -26,7 +26,7 @@ describe('coordination page model', () => {
     assert.equal(model.committee.meetingRequired, false);
     assert.equal(model.emptyTitle, 'No hay nada que necesite una decisión de comité.');
     assert.equal(model.openDecisions.length, 0);
-    assert.equal(COORDINATION_RECORD_BUTTON, 'REGISTRAR DECISIÓN');
+    assert.equal(COORDINATION_RECORD_BUTTON, 'Registrar decisión');
   });
 
   it('does not infer the capability from a job title', () => {

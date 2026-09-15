@@ -28,11 +28,12 @@ const EXACT_STEPS = [
 describe('production workspace page', () => {
   it('uses the Spanish step names and does not treat a pedido as the parent of a quema', () => {
     assert.match(page, /ProductionWorkspace/);
+    assert.match(page, /PRODUCTION_STEP_LABELS/);
     assert.match(join(root, 'app/(app)/produccion/page.tsx'), /produccion\/page\.tsx$/);
     assert.equal(page.includes('clientes/') && page.includes('/pedidos/'), false);
     for (const label of EXACT_STEPS) {
-      assert.equal(page.includes(label), true, label);
       assert.equal(PRODUCTION_STEP_LABELS.includes(label), true, label);
+      assert.equal(surface.includes(label), true, label);
     }
     assert.equal(page.includes('Una quema no es un pedido y no pertenece a un pedido.'), true);
     assert.equal(page.includes('Un ingreso al Almacén de Productos Terminados no asigna un pedido.'), true);

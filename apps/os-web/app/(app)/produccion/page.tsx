@@ -1,4 +1,4 @@
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
 import { ProductionWorkspace } from '@/components/production/production-workspace';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
@@ -22,23 +22,27 @@ export default async function ProduccionPage() {
         kicker={PRODUCTION_PAGE_COPY.kicker}
         title={PRODUCTION_PAGE_COPY.title}
         description={PRODUCTION_PAGE_COPY.intro}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone="neutral">No es pedido</StatusPill>
+            <StatusPill tone="manual">Anotación de planta</StatusPill>
+          </div>
+        }
       />
       <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios identificadores de producto.
+        Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios identificadores de
+        producto.
       </p>
-      <ol className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--isalwa-kiln)]">
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Un ingreso al Almacén de Productos Terminados no asigna un pedido.
+      </p>
+      <ol className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--isalwa-kiln)]" aria-label="Pasos de planta">
         {PRODUCTION_STEP_LABELS.map((label, index) => (
           <li key={label}>
             <span className="text-[var(--isalwa-slate)]">{index + 1}.</span> {label}
           </li>
         ))}
       </ol>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un ingreso al Almacén de Productos Terminados no asigna un pedido.
-      </p>
-      <p className="mt-2 max-w-2xl text-sm text-[var(--isalwa-slate)]">
-        Laboratorio (preparación de materia prima y esmalte). Molienda. Colaje. Secado. Pulido. Esmaltado. Carga y Limpieza. Horno. Resane. Clasificación. Almacén de Productos Terminados.
-      </p>
       {identity.status === 'error' ? (
         <div className="mt-8">
           <ServiceUnavailableState />

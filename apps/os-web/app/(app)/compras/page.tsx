@@ -1,4 +1,4 @@
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
@@ -15,7 +15,9 @@ function one(value: string | string[] | undefined): string | null {
 
 export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const query = await searchParams;
-  const queue = await loadComprasQueue({ q: one(query.q), buyer: one(query.buyer) });
+  const q = one(query.q);
+  const estado = one(query.estado);
+  const queue = await loadComprasQueue({ q, buyer: one(query.buyer), estado });
 
   return (
     <PageContainer label={COMPRAS_COPY.title}>
@@ -23,6 +25,11 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
         kicker={COMPRAS_COPY.kicker}
         title={COMPRAS_COPY.title}
         description={COMPRAS_COPY.description}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone="manual">No es inventario</StatusPill>
+          </div>
+        }
       />
       {queue.state === 'ready' ? (
         <PurchaseRequestPanel
@@ -30,6 +37,8 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
           items={queue.items}
           count={queue.count}
           buyerSuggestions={queue.buyerSuggestions}
+          query={q}
+          statusFilter={estado}
         />
       ) : (
         <PurchaseRequestPanel state={queue.state} />

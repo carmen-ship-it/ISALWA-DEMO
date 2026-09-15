@@ -94,26 +94,16 @@ export function WarehouseDesk({
 
 function BoundaryNotes() {
   return (
-    <PageSection card className="bg-white p-8 md:p-10">
-      <SectionHeader
-        kicker={WAREHOUSE_TASK_COPY.kicker}
-        title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-            {WAREHOUSE_TASK_COPY.title}
-          </h2>
-        }
-        action={
-          <>
-            <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
-            <StatusPill tone="neutral">No es entrega</StatusPill>
-          </>
-        }
-      />
-      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.intro}</p>
-      <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+    <PageSection card className="bg-white p-6 md:p-8">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
+        <StatusPill tone="neutral">No es entrega</StatusPill>
+        <StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.notFulfillment}</StatusPill>
+      </div>
+      <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {WAREHOUSE_TASK_COPY.receiptDoesNotAllocate}
       </p>
-      <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {WAREHOUSE_TASK_COPY.partialAllowed}
       </p>
     </PageSection>
@@ -251,7 +241,9 @@ function AllocateSection({
           <p id="warehouse-quantity-hint" className="text-sm text-[var(--isalwa-slate)]">
             {WAREHOUSE_TASK_COPY.partialAllowed}
           </p>
-          <Button type="submit">Asignar al pedido</Button>
+          <div className="sticky bottom-0 z-10 -mx-2 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-2 py-3 backdrop-blur-md">
+            <Button type="submit">Asignar al pedido</Button>
+          </div>
         </form>
       ) : !canAllocate ? (
         <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.permissionRole}</p>
@@ -382,7 +374,7 @@ function CorrectionForm({
         Motivo
         <input className={fieldClass} value={reason} onChange={(event) => setReason(event.target.value)} />
       </label>
-      <Button type="submit" variant="secondary" size="sm">
+      <Button type="submit" variant="secondary" size="sm" className="sticky bottom-0">
         Registrar corrección
       </Button>
     </form>

@@ -185,7 +185,7 @@ export function ProductionWorkspace({
         correctionReason: null,
       });
       result = saved.ok ? { ok: true } : { ok: false, message: saved.message, denial: saved.denial };
-    } else     if (tab === 'quemas' && !draft.quemaId) {
+    } else if (tab === 'quemas' && !draft.quemaId) {
       const startedAt = toIso(draft.startedAt);
       if (!startedAt) {
         setFeedback({ tone: 'error', title: 'Escriba el inicio de la quema.' });
@@ -395,11 +395,11 @@ export function ProductionWorkspace({
         ))}
       </div>
 
-      <div className="mb-4 flex justify-end">
+      <ActionBar className="mb-4 justify-end rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
         <Button type="button" onClick={openDrawer}>
           Anotar
         </Button>
-      </div>
+      </ActionBar>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <PageSection card className="p-4">
@@ -518,108 +518,112 @@ export function ProductionWorkspace({
 
       <ContextDrawer open={drawerOpen} title="Una anotación" onClose={closeDrawer}>
         <form
-          className="space-y-3"
+          className="flex min-h-full flex-col"
           onSubmit={(event) => {
             event.preventDefault();
             save();
           }}
         >
-          <p className="text-sm text-[var(--isalwa-slate)]">
-            {productId || 'Sin identificador'} · {stepLabel}
-          </p>
-          {tab === 'quemas' ? (
-            <>
+          <div className="min-h-0 flex-1 space-y-3">
+            <p className="text-sm text-[var(--isalwa-slate)]">
+              {productId || 'Sin identificador'} · {stepLabel}
+            </p>
+            {tab === 'quemas' ? (
+              <>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Inicio
+                  <input className={fieldClass} type="datetime-local" value={draft.startedAt} onChange={(event) => patch({ startedAt: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Fin
+                  <input className={fieldClass} type="datetime-local" value={draft.endedAt} onChange={(event) => patch({ endedAt: event.target.value })} />
+                </label>
+                <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.quemaNotParent} {PRODUCTION_PAGE_COPY.quantityPending}</p>
+              </>
+            ) : null}
+            {tab === 'perdida' ? (
+              <>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Cantidad
+                  <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Porcentaje
+                  <input className={fieldClass} inputMode="decimal" value={draft.percentage} onChange={(event) => patch({ percentage: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Motivo
+                  <input className={fieldClass} value={draft.reason} onChange={(event) => patch({ reason: event.target.value })} />
+                </label>
+                <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.correctionHint}</p>
+              </>
+            ) : null}
+            {tab === 'consumo' ? (
+              <>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Categoría
+                  <select className={fieldClass} value={draft.category} onChange={(event) => patch({ category: event.target.value as typeof draft.category })}>
+                    {CONSUMPTION_LABELS.map((item) => (
+                      <option key={item.key} value={item.key}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Descripción
+                  <input className={fieldClass} value={draft.description} onChange={(event) => patch({ description: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Cantidad
+                  <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Unidad
+                  <input className={fieldClass} value={draft.unit} onChange={(event) => patch({ unit: event.target.value })} />
+                </label>
+                <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.stockNotOfficial}</p>
+              </>
+            ) : null}
+            {tab === 'listo' ? (
+              <>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Cantidad
+                  <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
+                </label>
+                <p className="text-sm text-[var(--isalwa-kiln)]">{FINISHED_GOODS_WAREHOUSE_LABEL}</p>
+                <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.receiptDoesNotAssign}</p>
+              </>
+            ) : null}
+            {tab === 'planta' && stepKey === 'clasificacion' ? (
+              <>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Piezas buenas
+                  <input className={fieldClass} inputMode="numeric" value={draft.goodCount} onChange={(event) => patch({ goodCount: event.target.value })} />
+                </label>
+                <label className="block text-sm text-[var(--isalwa-kiln)]">
+                  Piezas perdidas
+                  <input className={fieldClass} inputMode="numeric" value={draft.lostCount} onChange={(event) => patch({ lostCount: event.target.value })} />
+                </label>
+                <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.qualityMissing}</p>
+              </>
+            ) : null}
+            {tab === 'planta' && stepKey !== 'clasificacion' ? (
               <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Inicio
-                <input className={fieldClass} type="datetime-local" value={draft.startedAt} onChange={(event) => patch({ startedAt: event.target.value })} />
+                Nota
+                <input className={fieldClass} value={draft.note} onChange={(event) => patch({ note: event.target.value })} />
               </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Fin
-                <input className={fieldClass} type="datetime-local" value={draft.endedAt} onChange={(event) => patch({ endedAt: event.target.value })} />
-              </label>
-              <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.quemaNotParent} {PRODUCTION_PAGE_COPY.quantityPending}</p>
-            </>
-          ) : null}
-          {tab === 'perdida' ? (
-            <>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Cantidad
-                <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Porcentaje
-                <input className={fieldClass} inputMode="decimal" value={draft.percentage} onChange={(event) => patch({ percentage: event.target.value })} />
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Motivo
-                <input className={fieldClass} value={draft.reason} onChange={(event) => patch({ reason: event.target.value })} />
-              </label>
-              <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.correctionHint}</p>
-            </>
-          ) : null}
-          {tab === 'consumo' ? (
-            <>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Categoría
-                <select className={fieldClass} value={draft.category} onChange={(event) => patch({ category: event.target.value as typeof draft.category })}>
-                  {CONSUMPTION_LABELS.map((item) => (
-                    <option key={item.key} value={item.key}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Descripción
-                <input className={fieldClass} value={draft.description} onChange={(event) => patch({ description: event.target.value })} />
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Cantidad
-                <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Unidad
-                <input className={fieldClass} value={draft.unit} onChange={(event) => patch({ unit: event.target.value })} />
-              </label>
-              <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.stockNotOfficial}</p>
-            </>
-          ) : null}
-          {tab === 'listo' ? (
-            <>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Cantidad
-                <input ref={quantityRef} className={fieldClass} inputMode="decimal" value={draft.quantity} onChange={(event) => patch({ quantity: event.target.value })} />
-              </label>
-              <p className="text-sm text-[var(--isalwa-kiln)]">{FINISHED_GOODS_WAREHOUSE_LABEL}</p>
-              <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.receiptDoesNotAssign}</p>
-            </>
-          ) : null}
-          {tab === 'planta' && stepKey === 'clasificacion' ? (
-            <>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Piezas buenas
-                <input className={fieldClass} inputMode="numeric" value={draft.goodCount} onChange={(event) => patch({ goodCount: event.target.value })} />
-              </label>
-              <label className="block text-sm text-[var(--isalwa-kiln)]">
-                Piezas perdidas
-                <input className={fieldClass} inputMode="numeric" value={draft.lostCount} onChange={(event) => patch({ lostCount: event.target.value })} />
-              </label>
-              <p className="text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.qualityMissing}</p>
-            </>
-          ) : null}
-          {tab === 'planta' && stepKey !== 'clasificacion' ? (
+            ) : null}
             <label className="block text-sm text-[var(--isalwa-kiln)]">
-              Nota
-              <input className={fieldClass} value={draft.note} onChange={(event) => patch({ note: event.target.value })} />
+              Ocurrió
+              <input className={fieldClass} type="datetime-local" value={draft.occurredAt} onChange={(event) => patch({ occurredAt: event.target.value })} />
             </label>
-          ) : null}
-          <label className="block text-sm text-[var(--isalwa-kiln)]">
-            Ocurrió
-            <input className={fieldClass} type="datetime-local" value={draft.occurredAt} onChange={(event) => patch({ occurredAt: event.target.value })} />
-          </label>
-          <Button type="submit" disabled={!canEnter}>
-            Guardar
-          </Button>
+          </div>
+          <div className="sticky bottom-0 z-10 -mx-4 mt-4 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-4 py-3 backdrop-blur-md">
+            <Button type="submit" disabled={!canEnter}>
+              Guardar
+            </Button>
+          </div>
         </form>
       </ContextDrawer>
     </div>

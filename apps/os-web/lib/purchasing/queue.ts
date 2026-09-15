@@ -3,6 +3,7 @@ import {
   PURCHASE_REQUEST_HAPPY_PATH,
   PURCHASE_REQUEST_STATUS_LABELS,
   countPurchaseRequests,
+  isPurchaseRequestStatus,
   purchaseRequestNextActionLabel,
   readPurchaseRequestQueue,
   searchPurchaseRequests,
@@ -148,6 +149,7 @@ export function buildComprasQueue(input: {
   candidates: readonly PurchaseBuyerCandidate[];
   query?: string | null;
   buyerQuery?: string | null;
+  statusFilter?: string | null;
   targetOrganizationId?: string | null;
   asOf?: Date;
   failed?: boolean;
@@ -173,11 +175,16 @@ export function buildComprasQueue(input: {
   );
   if (!suggestions.ok) return { state: 'permission', reason: suggestions.reason };
 
+  const status = input.statusFilter?.trim() ?? '';
+  const filtered = status && isPurchaseRequestStatus(status)
+    ? listed.requests.filter((request) => request.status === status)
+    : listed.requests;
+
   return {
     state: 'ready',
     organizationId: access.organizationId,
     count: counted.count,
-    items: listed.requests.map((request) => toComprasQueueItem(request, input.asOf)),
+    items: filtered.map((request) => toComprasQueueItem(request, input.asOf)),
     buyerSuggestions: suggestions.labels,
   };
 }

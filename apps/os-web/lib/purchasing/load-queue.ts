@@ -12,6 +12,7 @@ import { comprasRepository } from '@/lib/purchasing/repository';
 export async function loadComprasQueue(query?: {
   q?: string | null;
   buyer?: string | null;
+  estado?: string | null;
 }): Promise<ComprasQueueModel> {
   try {
     const auth = await getServerOsAuthContext();
@@ -32,6 +33,7 @@ export async function loadComprasQueue(query?: {
       candidates: comprasRepository.candidates(),
       query: query?.q,
       buyerQuery: query?.buyer,
+      statusFilter: query?.estado,
     });
   } catch {
     return { state: 'error', reason: 'load_failed' };

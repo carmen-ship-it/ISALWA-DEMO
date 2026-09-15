@@ -96,4 +96,29 @@ describe('Compras queue', () => {
     assert.match(panel, /Cancelado/);
     assert.doesNotMatch(panel, /faltante|shortage|proveedor|punto de reorden/i);
   });
+
+  it('filters the visible queue by estado without changing tenant count', () => {
+    const allowed = buildComprasQueue({
+      session: buyer,
+      requests: records,
+      candidates: [],
+      statusFilter: 'solicitado',
+    });
+    assert.equal(allowed.state, 'ready');
+    if (allowed.state !== 'ready') return;
+    assert.equal(allowed.count, 1);
+    assert.equal(allowed.items.length, 1);
+    assert.equal(allowed.items[0]?.status, 'solicitado');
+
+    const empty = buildComprasQueue({
+      session: buyer,
+      requests: records,
+      candidates: [],
+      statusFilter: 'entregado',
+    });
+    assert.equal(empty.state, 'ready');
+    if (empty.state !== 'ready') return;
+    assert.equal(empty.count, 1);
+    assert.equal(empty.items.length, 0);
+  });
 });
