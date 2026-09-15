@@ -34,8 +34,10 @@
  *   — nine business personas only; fixture seed actor uses ephemeral password
  *
  * Fixture seed actor (not a business persona under acceptance):
- *   w2.fixture-seed@isalwa.demo with master_data.admin only
- *   Creates synthetic Party / opportunity / quote. Asesor scopes stay planned-only.
+ *   w2.fixture-seed@isalwa.demo with master_data.admin + commercial.account.reassign
+ *   Creates synthetic Party; reassigns CommercialAccount to Asesor.
+ *   Opportunity / Quote are created (or ownership reconciled) so Asesor owns them.
+ *   Asesor scopes stay planned-only — no extra seed authority on Asesor.
  *
  * Run (allowlisted IP, after FIXTURE_EXECUTION_READY):
  *   corepack pnpm run fixture:wave2-roles:prepare
@@ -76,10 +78,16 @@ import {
   STAGING_DATABASE_NAME,
 } from './staging-wave2-role-fixtures-guards';
 import {
+  CommercialProjectionConsumer,
+  replayCommercialProjectionForOrg,
+} from '@isalwa/os-query';
+import { PrismaOsProjectionStore } from './prisma-projection-store';
+import {
   assertAsesorDeniedCreateParty,
   assertCommercialSeedActorEmail,
   expectedWave2FixtureCounts,
   fixtureSeedActorSpec,
+  planSynthCommercialOwnership,
   reconcileActiveGrants,
 } from './staging-wave2-role-fixtures-lib';
 
@@ -511,6 +519,14 @@ async function main(): Promise<void> {
     `SEED_ACTOR_${seedActor.reused ? 'REUSED' : 'CREATED'} member=${seedActor.memberId} scopes=${seedActor.scopes.join(',')}`,
   );
 
+  const seedSession = ctx(
+    orgId,
+    seedActor.memberId,
+    seedActor.personId,
+    seedActor.authIdentityId,
+  );
+  const asesorSession = ctx(orgId, asesor.memberId, asesor.personId, asesor.authIdentityId);
+
   let party = await prisma.osParty.findFirst({
     where: {
       organizationId: orgId,
@@ -521,16 +537,11 @@ async function main(): Promise<void> {
   let opportunityId: string | null = null;
   let quoteId: string | null = null;
   let commercialCreated = false;
+  let ownershipReconciled = false;
 
   if (!partyId) {
-    // Setup authority ≠ role-under-test. Seed actor holds master_data.admin only.
-    const session = ctx(
-      orgId,
-      seedActor.memberId,
-      seedActor.personId,
-      seedActor.authIdentityId,
-    );
-    const createdParty = await partySvc.execute('CreateParty', session, {
+    // Setup authority ≠ role-under-test. Seed actor holds CreateParty only.
+    const createdParty = await partySvc.execute('CreateParty', seedSession, {
       displayName: 'SYNTH Wave2 Cliente',
       partyKind: 'organization',
       legalName: WAVE2_SYNTH_PARTY_LEGAL_NAME,
@@ -540,45 +551,154 @@ async function main(): Promise<void> {
     });
     partyId = String(createdParty.data.partyId);
     log(`PARTY_CREATED partyId=${partyId} via=fixture-seed-actor`);
+  } else {
+    log(`PARTY_REUSED partyId=${partyId}`);
+  }
 
-    const opp = await commercialSvc.execute('CreateOpportunity', session, {
+  // CommercialAccount ownership → Asesor (canonical reassign; seed holds reassign scope).
+  const account = await commercialStore.getCommercialAccountForParty(orgId, partyId);
+  if (!account) {
+    throw new Error(`SYNTH_COMMERCIAL_ACCOUNT_MISSING:${partyId}`);
+  }
+
+  let oppRow = await prisma.osOpportunity.findFirst({
+    where: { organizationId: orgId, partyId },
+    orderBy: { createdAt: 'asc' },
+  });
+  let quoteRow = await prisma.osQuote.findFirst({
+    where: { organizationId: orgId, partyId },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const ownershipPlan = planSynthCommercialOwnership({
+    targetOwnerMemberId: asesor.memberId,
+    accountOwnerMemberId: account.ownerMemberId,
+    opportunityOwnerMemberId: oppRow?.ownerMemberId,
+    quoteOwnerMemberId: quoteRow?.ownerMemberId,
+  });
+
+  if (ownershipPlan.reassignAccount) {
+    await commercialSvc.execute('ReassignCommercialAccountOwner', seedSession, {
+      commercialAccountId: account.id,
+      ownerMemberId: asesor.memberId,
+    });
+    ownershipReconciled = true;
+    log(`ACCOUNT_OWNER_REASSIGNED accountId=${account.id} owner=${asesor.memberId}`);
+  }
+
+  if (!oppRow) {
+    // Asesor creates → Asesor owns (member_active; no extra Asesor seed scopes).
+    const opp = await commercialSvc.execute('CreateOpportunity', asesorSession, {
       partyId,
       title: 'SYNTH Wave2 — oportunidad mínima',
       stage: 'propuesta',
       expectedValueCentavos: 150000,
     });
     opportunityId = String(opp.data.opportunityId);
-    log(`OPPORTUNITY_CREATED opportunityId=${opportunityId}`);
+    commercialCreated = true;
+    log(`OPPORTUNITY_CREATED opportunityId=${opportunityId} owner=${asesor.memberId}`);
+  } else {
+    opportunityId = oppRow.id;
+    if (ownershipPlan.assignOpportunity) {
+      if (oppRow.status !== 'open') {
+        throw new Error(`SYNTH_OPPORTUNITY_NOT_OPEN_FOR_OWNER_ASSIGN:${oppRow.id}:${oppRow.status}`);
+      }
+      if (oppRow.ownerMemberId === seedActor.memberId) {
+        await commercialSvc.execute('AssignOpportunityOwner', seedSession, {
+          opportunityId: oppRow.id,
+          ownerMemberId: asesor.memberId,
+        });
+        log(`OPPORTUNITY_OWNER_ASSIGNED opportunityId=${oppRow.id} owner=${asesor.memberId}`);
+      } else {
+        // Prefer keep id over recreate when prior owner is neither seed nor Asesor.
+        await prisma.osOpportunity.update({
+          where: { id: oppRow.id },
+          data: {
+            ownerMemberId: asesor.memberId,
+            version: { increment: 1 },
+            updatedAt: new Date(),
+          },
+        });
+        log(`OPPORTUNITY_OWNER_PATCHED opportunityId=${oppRow.id} owner=${asesor.memberId}`);
+      }
+      ownershipReconciled = true;
+    } else {
+      log(`OPPORTUNITY_REUSED opportunityId=${opportunityId}`);
+    }
+  }
 
-    const quote = await commercialSvc.execute('CreateQuote', session, {
+  if (!quoteRow) {
+    if (!opportunityId) throw new Error('SYNTH_OPPORTUNITY_REQUIRED_FOR_QUOTE');
+    const quote = await commercialSvc.execute('CreateQuote', asesorSession, {
       partyId,
       opportunityId,
       currency: 'BOB',
       notes: 'SYNTH Wave2 quote — acceptance only',
     });
     quoteId = String(quote.data.quoteId);
-    await commercialSvc.execute('AddQuoteLine', session, {
+    await commercialSvc.execute('AddQuoteLine', asesorSession, {
       quoteId,
       description: 'SYNTH pieza cerámica',
       quantity: 4,
       unitLabel: 'pza',
       unitPriceCentavos: 22000,
     });
-    await commercialSvc.execute('SubmitQuote', session, { quoteId });
-    log(`QUOTE_SUBMITTED quoteId=${quoteId}`);
+    await commercialSvc.execute('SubmitQuote', asesorSession, { quoteId });
     commercialCreated = true;
+    log(`QUOTE_SUBMITTED quoteId=${quoteId} owner=${asesor.memberId}`);
   } else {
-    const opp = await prisma.osOpportunity.findFirst({
-      where: { organizationId: orgId, partyId },
-      orderBy: { createdAt: 'asc' },
-    });
-    const quote = await prisma.osQuote.findFirst({
-      where: { organizationId: orgId, partyId },
-      orderBy: { createdAt: 'asc' },
-    });
-    opportunityId = opp?.id ?? null;
-    quoteId = quote?.id ?? null;
-    log(`COMMERCIAL_REUSED partyId=${partyId}`);
+    quoteId = quoteRow.id;
+    if (ownershipPlan.patchQuoteOwner) {
+      // No AssignQuoteOwner command — reconcile write-model owner; keep quote id.
+      await prisma.osQuote.update({
+        where: { id: quoteRow.id },
+        data: {
+          ownerMemberId: asesor.memberId,
+          version: { increment: 1 },
+          updatedAt: new Date(),
+        },
+      });
+      ownershipReconciled = true;
+      log(`QUOTE_OWNER_PATCHED quoteId=${quoteRow.id} owner=${asesor.memberId}`);
+    } else {
+      log(`QUOTE_REUSED quoteId=${quoteId}`);
+    }
+  }
+
+  // Refresh commercial read models so Asesor detail reads match write ownership.
+  const projectionStore = new PrismaOsProjectionStore(prisma);
+  const commercialConsumer = new CommercialProjectionConsumer({
+    projectionStore,
+    commercialStore,
+  });
+  const { replayed } = await replayCommercialProjectionForOrg(
+    { projectionStore, commercialStore },
+    orgId,
+    commercialConsumer,
+  );
+  log(`COMMERCIAL_PROJECTION_REPLAYED events=${replayed}`);
+
+  // Post-condition: Asesor owns account / opp / quote (no permanent FixtureSeed owner).
+  const accountAfter = await commercialStore.getCommercialAccountForParty(orgId, partyId);
+  oppRow = await prisma.osOpportunity.findFirst({
+    where: { organizationId: orgId, id: opportunityId! },
+  });
+  quoteRow = await prisma.osQuote.findFirst({
+    where: { organizationId: orgId, id: quoteId! },
+  });
+  if (!accountAfter || accountAfter.ownerMemberId !== asesor.memberId) {
+    throw new Error(
+      `SYNTH_ACCOUNT_OWNER_NOT_ASESOR:${accountAfter?.ownerMemberId ?? 'missing'}`,
+    );
+  }
+  if (!oppRow || oppRow.ownerMemberId !== asesor.memberId) {
+    throw new Error(`SYNTH_OPPORTUNITY_OWNER_NOT_ASESOR:${oppRow?.ownerMemberId ?? 'missing'}`);
+  }
+  if (!quoteRow || quoteRow.ownerMemberId !== asesor.memberId) {
+    throw new Error(`SYNTH_QUOTE_OWNER_NOT_ASESOR:${quoteRow?.ownerMemberId ?? 'missing'}`);
+  }
+  if (seedActor.memberId === asesor.memberId) {
+    throw new Error('SYNTH_SEED_ACTOR_MUST_NOT_BE_ASESOR');
   }
 
   const expectedCounts = expectedWave2FixtureCounts();
@@ -645,7 +765,12 @@ async function main(): Promise<void> {
     approvalIds: [] as string[],
     commercialCreated,
     commercialReused: !commercialCreated,
+    commercialOwnershipReconciled: ownershipReconciled,
+    commercialOwnedByMemberId: asesor.memberId,
+    commercialOwnedByFunctionId: 'asesor-comercial',
     commercialSeededBy: 'fixture-seed-actor',
+    commercialOwnershipNote:
+      'Party via FixtureSeed; CommercialAccount reassigned to Asesor; Opp/Quote owned by Asesor (create or reconcile). FixtureSeed is never the permanent commercial owner.',
     roles: roles.map((r) => ({
       functionId: r.functionId,
       functionLabel: r.functionLabel,

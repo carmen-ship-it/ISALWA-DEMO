@@ -2,7 +2,7 @@
  * Pure helpers for Wave 2 staging role fixtures (tooling only).
  * No network I/O. Safe to unit-test without a live database.
  */
-import { V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
+import { canConvertQuoteToOrder, V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
 import {
   WAVE2_FIXTURE_SEED_EMAIL,
   WAVE2_FIXTURE_SEED_FAMILY_NAME,
@@ -80,7 +80,7 @@ export function fixtureSeedActorSpec(): FixtureSeedActorSpec {
   };
 }
 
-/** Commercial CreateParty / opp / quote session must use the fixture seed actor. */
+/** CreateParty setup session must use the fixture seed actor (not Asesor). */
 export function assertCommercialSeedActorEmail(email: string): void {
   if (email.trim().toLowerCase() !== WAVE2_FIXTURE_SEED_EMAIL) {
     throw new Error(`COMMERCIAL_SEED_MUST_USE_FIXTURE_ACTOR:${email}`);
@@ -104,7 +104,91 @@ export function assertAsesorDeniedCreateParty(capabilities: readonly string[]): 
   if (capabilities.includes('master_data.admin')) {
     throw new Error('ASESOR_MUST_NOT_HOLD_MASTER_DATA_ADMIN');
   }
+  if (capabilities.includes('commercial.account.reassign')) {
+    throw new Error('ASESOR_MUST_NOT_HOLD_ACCOUNT_REASSIGN');
+  }
   if (!capabilities.includes('commercial.customer.create')) {
     throw new Error('ASESOR_MISSING_PLANNED_CUSTOMER_CREATE_SCOPE');
   }
+}
+
+export type SynthCommercialOwnershipPlan = {
+  reassignAccount: boolean;
+  assignOpportunity: boolean;
+  /** No AssignQuoteOwner command — fixture tooling patches write-model owner only. */
+  patchQuoteOwner: boolean;
+};
+
+/**
+ * Prefer reconcile over delete/recreate: only schedule ownership moves when the
+ * current owner is not the target Asesor member.
+ */
+export function planSynthCommercialOwnership(input: {
+  targetOwnerMemberId: string;
+  accountOwnerMemberId: string | null | undefined;
+  opportunityOwnerMemberId: string | null | undefined;
+  quoteOwnerMemberId: string | null | undefined;
+}): SynthCommercialOwnershipPlan {
+  const target = input.targetOwnerMemberId.trim();
+  if (!target) throw new Error('SYNTH_OWNERSHIP_TARGET_REQUIRED');
+  return {
+    reassignAccount:
+      input.accountOwnerMemberId != null &&
+      input.accountOwnerMemberId !== '' &&
+      input.accountOwnerMemberId !== target,
+    assignOpportunity:
+      input.opportunityOwnerMemberId != null &&
+      input.opportunityOwnerMemberId !== '' &&
+      input.opportunityOwnerMemberId !== target,
+    patchQuoteOwner:
+      input.quoteOwnerMemberId != null &&
+      input.quoteOwnerMemberId !== '' &&
+      input.quoteOwnerMemberId !== target,
+  };
+}
+
+/**
+ * Acceptance predicates for Asesor-owned synth commercial rows.
+ * Mirrors os-query ownership visibility + CreateOrder convert gate (unchanged policy).
+ */
+export function assertAsesorOwnsSynthCommercialProof(input: {
+  organizationId: string;
+  asesorMemberId: string;
+  unrelatedMemberId: string;
+  ownerMemberId: string;
+  quoteStatus: string;
+  asesorScopes: readonly string[];
+}): {
+  asesorCanView: boolean;
+  unrelatedCanView: boolean;
+  asesorCanConvertOwnSubmitted: boolean;
+  convertOwnScopeAloneDoesNotAuthorizeForeign: boolean;
+  createPartyStillDenied: boolean;
+} {
+  // Same rule as canViewCommercialRecord for non-people.admin members.
+  const asesorCanView =
+    input.ownerMemberId === input.asesorMemberId && input.organizationId.trim().length > 0;
+  const unrelatedCanView = input.ownerMemberId === input.unrelatedMemberId;
+
+  const asesorCanConvertOwnSubmitted =
+    input.quoteStatus === 'submitted' &&
+    canConvertQuoteToOrder({
+      actorMemberId: input.asesorMemberId,
+      grantedScopes: input.asesorScopes,
+      quoteOwnerMemberId: input.ownerMemberId,
+    });
+
+  const convertOwnScopeAloneDoesNotAuthorizeForeign = !canConvertQuoteToOrder({
+    actorMemberId: input.unrelatedMemberId,
+    grantedScopes: ['commercial.quote.convert.own'],
+    quoteOwnerMemberId: input.ownerMemberId,
+  });
+
+  return {
+    asesorCanView,
+    unrelatedCanView,
+    asesorCanConvertOwnSubmitted,
+    convertOwnScopeAloneDoesNotAuthorizeForeign,
+    createPartyStillDenied: !input.asesorScopes.includes('master_data.admin'),
+  };
 }

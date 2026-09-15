@@ -32,11 +32,13 @@ import {
 } from './staging-wave2-role-fixtures-guards';
 import {
   assertAsesorDeniedCreateParty,
+  assertAsesorOwnsSynthCommercialProof,
   assertBusinessRoleLacksFixtureSeedScopes,
   assertCommercialSeedActorEmail,
   expectedWave2FixtureCounts,
   fixtureSeedActorSpec,
   plannedActiveGrantCount,
+  planSynthCommercialOwnership,
   reconcileActiveGrants,
 } from './staging-wave2-role-fixtures-lib';
 
@@ -230,13 +232,16 @@ describe('staging-wave2-role-fixtures guards', () => {
 });
 
 describe('staging-wave2-role-fixtures seed actor + recovery', () => {
-  it('seed actor is fixture-only with master_data.admin least privilege', () => {
+  it('seed actor is fixture-only with CreateParty + account reassign scopes', () => {
     const spec = fixtureSeedActorSpec();
     assert.equal(spec.email, WAVE2_FIXTURE_SEED_EMAIL);
     assert.equal(spec.isBusinessRole, false);
     assert.equal(spec.purpose, 'fixture-setup-only');
-    assert.deepEqual([...spec.scopes], ['master_data.admin']);
-    assert.deepEqual([...WAVE2_FIXTURE_SEED_SCOPES], ['master_data.admin']);
+    assert.deepEqual([...spec.scopes], ['master_data.admin', 'commercial.account.reassign']);
+    assert.deepEqual([...WAVE2_FIXTURE_SEED_SCOPES], [
+      'master_data.admin',
+      'commercial.account.reassign',
+    ]);
     assert.equal(spec.scopes.includes('system.admin'), false);
     assert.equal(spec.scopes.includes('people.admin'), false);
     assert.equal(spec.scopes.includes('management.org.read'), false);
@@ -248,7 +253,7 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
     assert.equal(counts.plannedActiveGrants, 15);
     assert.equal(plannedActiveGrantCount(), 15);
     assert.equal(counts.seedActors, 1);
-    assert.equal(counts.seedScopes, 1);
+    assert.equal(counts.seedScopes, 2);
     assert.equal(counts.parties, 1);
     assert.equal(counts.opportunities, 1);
     assert.equal(counts.quotes, 1);
@@ -264,7 +269,6 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
   });
 
   it('partial-state recovery: grant reconcile reuses active keys and grants only missing', () => {
-    // Simulates: 9 identities + 15 grants exist; no seed actor scopes yet on a new member.
     const partialBusiness = reconcileActiveGrants(
       ['commercial.customer.create', 'commercial.quote.convert.own'],
       ['commercial.customer.create', 'commercial.quote.convert.own'],
@@ -276,17 +280,26 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
       'commercial.quote.convert.own',
     ]);
 
-    const missingSeed = reconcileActiveGrants([], ['master_data.admin']);
-    assert.deepEqual(missingSeed.toGrant, ['master_data.admin']);
+    const missingSeed = reconcileActiveGrants([], [...WAVE2_FIXTURE_SEED_SCOPES]);
+    assert.deepEqual(missingSeed.toGrant, [
+      'commercial.account.reassign',
+      'master_data.admin',
+    ]);
     assert.deepEqual(missingSeed.toEnd, []);
     assert.deepEqual(missingSeed.alreadyActive, []);
   });
 
   it('idempotent second run: reconcile is a no-op when complete', () => {
-    const seedDone = reconcileActiveGrants(['master_data.admin'], ['master_data.admin']);
+    const seedDone = reconcileActiveGrants(
+      [...WAVE2_FIXTURE_SEED_SCOPES],
+      [...WAVE2_FIXTURE_SEED_SCOPES],
+    );
     assert.deepEqual(seedDone.toGrant, []);
     assert.deepEqual(seedDone.toEnd, []);
-    assert.deepEqual(seedDone.alreadyActive, ['master_data.admin']);
+    assert.deepEqual(seedDone.alreadyActive, [
+      'commercial.account.reassign',
+      'master_data.admin',
+    ]);
 
     for (const planned of V1_PLANNED_ASSIGNMENTS) {
       const again = reconcileActiveGrants(
@@ -308,7 +321,7 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
     assert.deepEqual(drifted.toGrant, ['commercial.quote.convert.own']);
   });
 
-  it('commercial seed must use fixture seed actor email, never Asesor', () => {
+  it('CreateParty seed must use fixture seed actor email, never Asesor', () => {
     assert.doesNotThrow(() => assertCommercialSeedActorEmail(WAVE2_FIXTURE_SEED_EMAIL));
     assert.throws(
       () => assertCommercialSeedActorEmail('w2.asesor@isalwa.demo'),
@@ -320,14 +333,72 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
     );
   });
 
-  it('fixture source routes CreateParty through seed actor, not Asesor', () => {
+  it('ownership reconcile prefers keep-id moves over recreate', () => {
+    const asesor = 'asesor-member';
+    const seed = 'seed-member';
+    assert.deepEqual(
+      planSynthCommercialOwnership({
+        targetOwnerMemberId: asesor,
+        accountOwnerMemberId: seed,
+        opportunityOwnerMemberId: seed,
+        quoteOwnerMemberId: seed,
+      }),
+      { reassignAccount: true, assignOpportunity: true, patchQuoteOwner: true },
+    );
+    assert.deepEqual(
+      planSynthCommercialOwnership({
+        targetOwnerMemberId: asesor,
+        accountOwnerMemberId: asesor,
+        opportunityOwnerMemberId: asesor,
+        quoteOwnerMemberId: asesor,
+      }),
+      { reassignAccount: false, assignOpportunity: false, patchQuoteOwner: false },
+    );
+  });
+
+  it('fixture source: CreateParty via seed; Opp/Quote owned by Asesor', () => {
     const src = readFileSync(join(__dirname, 'staging-wave2-role-fixtures.ts'), 'utf8');
     assert.match(src, /WAVE2_FIXTURE_SEED_EMAIL|fixtureSeedActorSpec/);
     assert.match(src, /via=fixture-seed-actor/);
     assert.match(src, /seedActor\.memberId/);
-    assert.equal(src.includes('asesor.memberId, asesor.personId, asesor.authIdentityId'), false);
+    assert.match(src, /asesorSession/);
+    assert.match(src, /CreateOpportunity',\s*asesorSession/);
+    assert.match(src, /CreateQuote',\s*asesorSession/);
+    assert.match(src, /ReassignCommercialAccountOwner/);
+    assert.match(src, /AssignOpportunityOwner/);
+    assert.match(src, /QUOTE_OWNER_PATCHED/);
+    assert.match(src, /commercialOwnedByFunctionId: 'asesor-comercial'/);
     assert.match(src, /commercialSeededBy: 'fixture-seed-actor'/);
     assert.match(src, /PLANNED_FORWARD_UNWIRED/);
+    assert.match(src, /SYNTH_ACCOUNT_OWNER_NOT_ASESOR/);
+  });
+
+  it('Asesor owns synth proof: view own, deny unrelated, convert own submitted, create=NO', () => {
+    const asesorCaps = [...plannedCapabilitiesFor('asesor-comercial')];
+    const proof = assertAsesorOwnsSynthCommercialProof({
+      organizationId: '01M2JKF77TXMJNDTKNCYNHH9G5',
+      asesorMemberId: 'e6f13fdc-fb46-4382-b0d3-599a6d4a0676',
+      unrelatedMemberId: 'c202b296-574b-492c-b46e-2f8387b23805',
+      ownerMemberId: 'e6f13fdc-fb46-4382-b0d3-599a6d4a0676',
+      quoteStatus: 'submitted',
+      asesorScopes: asesorCaps,
+    });
+    assert.equal(proof.asesorCanView, true);
+    assert.equal(proof.unrelatedCanView, false);
+    assert.equal(proof.asesorCanConvertOwnSubmitted, true);
+    assert.equal(proof.convertOwnScopeAloneDoesNotAuthorizeForeign, true);
+    assert.equal(proof.createPartyStillDenied, true);
+
+    const seedOwned = assertAsesorOwnsSynthCommercialProof({
+      organizationId: '01M2JKF77TXMJNDTKNCYNHH9G5',
+      asesorMemberId: 'e6f13fdc-fb46-4382-b0d3-599a6d4a0676',
+      unrelatedMemberId: 'c202b296-574b-492c-b46e-2f8387b23805',
+      ownerMemberId: 'f9b83fae-cdf5-427b-bff8-a27c1aa3052a',
+      quoteStatus: 'submitted',
+      asesorScopes: asesorCaps,
+    });
+    assert.equal(seedOwned.asesorCanView, false);
+    assert.equal(seedOwned.asesorCanConvertOwnSubmitted, false);
   });
 });
 
@@ -343,7 +414,11 @@ describe('staging-wave2-role-fixtures authorization truth', () => {
   it('people.admin does not imply CreateParty', () => {
     assert.equal(memberHasScope(snap(['people.admin']), 'master_data.admin'), false);
     assert.throws(
-      () => assertBusinessRoleLacksFixtureSeedScopes('people-admin-probe', ['people.admin', 'master_data.admin']),
+      () =>
+        assertBusinessRoleLacksFixtureSeedScopes('people-admin-probe', [
+          'people.admin',
+          'master_data.admin',
+        ]),
       /BUSINESS_ROLE_MUST_NOT_HOLD_SEED_SCOPE/,
     );
   });
@@ -353,12 +428,19 @@ describe('staging-wave2-role-fixtures authorization truth', () => {
     assert.equal(memberHasScope(snap([]), 'master_data.admin'), false);
   });
 
-  it('fixture seed actor can CreateParty; commercial seed commands are member_active', () => {
+  it('fixture seed actor can CreateParty; Asesor commercial commands stay member_active', () => {
     assert.equal(memberHasScope(snap([...WAVE2_FIXTURE_SEED_SCOPES]), 'master_data.admin'), true);
+    assert.equal(
+      memberHasScope(snap([...WAVE2_FIXTURE_SEED_SCOPES]), 'commercial.account.reassign'),
+      true,
+    );
     assert.equal(COMMAND_REQUIRED_SCOPES.CreateOpportunity, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.CreateQuote, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.AddQuoteLine, 'member_active');
     assert.equal(COMMAND_REQUIRED_SCOPES.SubmitQuote, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.AssignOpportunityOwner, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.ReassignCommercialAccountOwner, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.CreateOrder, 'member_active');
   });
 
   it('tenant isolation: real tenant id refused; synth org id allowed against real set', () => {
