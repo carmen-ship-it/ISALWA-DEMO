@@ -1,12 +1,13 @@
-import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { buildComprasQueue, type ComprasQueueModel } from '@/lib/purchasing/queue';
 import { comprasRepository } from '@/lib/purchasing/repository';
 
 /**
  * Loads the session tenant's purchasing queue.
- * The session view has no cargo grant. A missing purchasing role is permission, not an empty leak.
- * CROSS_LANE: member scope assignment is not on the session view. Do not infer it from a title.
+ * Grants come only from GET /session/authorization via loadMemberCapabilities.
+ * Cargo/title and identity-only /session/me are not grant sources.
+ * CROSS_LANE: a hosted persistence adapter is not owned here. Do not invent rows.
  */
 export async function loadComprasQueue(query?: {
   q?: string | null;
@@ -15,12 +16,18 @@ export async function loadComprasQueue(query?: {
   try {
     const auth = await getServerOsAuthContext();
     if (!auth) return { state: 'permission', reason: 'session_org_required' };
-    const client = createOsApiClient(auth);
-    const session = await client.getAuthenticatedSession();
-    const organizationId = session.organizationId?.trim() ?? '';
-    if (!organizationId) return { state: 'permission', reason: 'session_org_required' };
+    const context = await loadMemberCapabilities();
+    if (!context) return { state: 'permission', reason: 'session_org_required' };
+
+    // Keep local process rows tenant-scoped; role map is optional when scopes grant queue.
+    const remembered = comprasRepository.sessionFor(context.organizationId);
     return buildComprasQueue({
-      session: comprasRepository.sessionFor(organizationId),
+      session: {
+        organizationId: context.organizationId,
+        role: remembered.role,
+        grantedScopes: context.grantedScopes,
+        actorLabel: null,
+      },
       requests: comprasRepository.requests(),
       candidates: comprasRepository.candidates(),
       query: query?.q,
