@@ -70,7 +70,7 @@ function NavLink({
   const className = cx(
     'isalwa-t-fast flex items-center gap-3 rounded-[var(--isalwa-radius-control)] px-3.5 py-3 text-sm outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
     active
-      ? 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,var(--isalwa-white))] font-medium text-[var(--isalwa-glaze)]'
+      ? 'border-l-[3px] border-l-[var(--isalwa-glaze)] bg-[color-mix(in_srgb,var(--isalwa-glaze)_14%,var(--isalwa-porcelain))] font-semibold text-[var(--isalwa-glaze-deep)] pl-[calc(0.875rem-3px)]'
       : emphasized
         ? 'font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)]'
         : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',

@@ -131,6 +131,8 @@ describe('shell sticky contract', () => {
     const pageHeader = readFileSync(resolve(here, '../../components/shell/page-header.tsx'), 'utf8');
     assert.match(shell, /lg:sticky lg:top-0/);
     assert.match(shell, /sticky top-0 z-40/);
+    assert.match(shell, /isalwa-glass-light/);
+    assert.match(shell, /isalwa-surface-canvas/);
     assert.match(shell, /role="dialog"/);
     assert.match(shell, /aria-modal="true"/);
     assert.doesNotMatch(breadcrumbs, /className="[^"]*sticky/);

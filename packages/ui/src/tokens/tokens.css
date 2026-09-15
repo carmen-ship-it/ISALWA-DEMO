@@ -43,6 +43,22 @@
   --isalwa-font-display: "Newsreader", "Georgia", serif;
   --isalwa-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  /* Operating canvas behind white working surfaces (cards/panels). Host apps
+     may remap; never leave the page at pure --isalwa-white. */
+  --isalwa-surface-canvas: var(--isalwa-porcelain);
+
+  /* Button hierarchy — primary fills action; secondary stays outlined white.
+     Hosts (os-web) remap --isalwa-action to navy; keep these aliases so
+     Button and action links share one vocabulary. */
+  --isalwa-btn-primary-bg: var(--isalwa-action);
+  --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
+  --isalwa-btn-primary-fg: var(--isalwa-white);
+  --isalwa-btn-secondary-bg: var(--isalwa-white);
+  --isalwa-btn-secondary-bg-hover: var(--isalwa-porcelain);
+  --isalwa-btn-secondary-fg: var(--isalwa-kiln);
+  --isalwa-btn-secondary-border: var(--isalwa-mist);
+  --isalwa-btn-secondary-border-hover: var(--isalwa-glaze);
+
   --isalwa-text-2xs: 11px;
   --isalwa-text-xs: 12px;
   --isalwa-text-sm: 13px;

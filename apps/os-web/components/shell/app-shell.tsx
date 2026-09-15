@@ -124,8 +124,8 @@ export function AppShell({
 
   return (
     <ShellIdentityContext.Provider value={givenName}>
-      <div className="min-h-screen bg-[var(--isalwa-white)] lg:grid lg:grid-cols-[17.5rem_1fr]">
-        {/* Desktop rail — sticky for orientation; not duplicated as page sticky headers. */}
+      <div className="min-h-screen bg-[var(--isalwa-surface-canvas)] lg:grid lg:grid-cols-[17.5rem_1fr]">
+        {/* Desktop rail — kiln/beige porcelain; sticky for orientation. */}
         <aside className="hidden border-r border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto">
           <div className="px-6 pb-4 pt-8">
             <Link
@@ -147,7 +147,7 @@ export function AppShell({
 
         <div className="flex min-h-screen min-w-0 flex-col">
           {/* Top chrome — sticky so search/account stay reachable above content scroll. */}
-          <header className="sticky top-0 z-40 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-white)_92%,transparent)] px-4 py-3 backdrop-blur-md sm:gap-4 lg:px-8 lg:py-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <header className="isalwa-glass-light sticky top-0 z-40 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-glass-light-border)] px-4 py-3 sm:gap-4 lg:px-8 lg:py-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 ref={menuButtonRef}

@@ -22,15 +22,32 @@ body {
   --isalwa-info: #7eadc8;
   --isalwa-action: #1a3352;
   --isalwa-action-deep: #12263d;
-  --isalwa-surface-hero: none;
-  --isalwa-surface-app: none;
+  /* Soft porcelain/mist operating canvas — never pure white behind white cards. */
+  --isalwa-surface-canvas: var(--isalwa-porcelain);
+  --isalwa-surface-hero: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--isalwa-mist) 55%, var(--isalwa-porcelain)) 0%,
+    var(--isalwa-porcelain) 48%,
+    color-mix(in srgb, var(--isalwa-copper) 5%, var(--isalwa-porcelain)) 100%
+  );
+  --isalwa-surface-app: var(--isalwa-surface-hero);
   --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
+  /* Primary = filled navy action; secondary = white/outlined on porcelain. */
+  --isalwa-btn-primary-bg: var(--isalwa-action);
+  --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
+  --isalwa-btn-primary-fg: var(--isalwa-white);
+  --isalwa-btn-secondary-bg: var(--isalwa-white);
+  --isalwa-btn-secondary-bg-hover: var(--isalwa-porcelain);
+  --isalwa-btn-secondary-fg: var(--isalwa-kiln);
+  --isalwa-btn-secondary-border: var(--isalwa-mist);
+  --isalwa-btn-secondary-border-hover: var(--isalwa-glaze);
 }
 
 body {
   margin: 0;
-  background: var(--isalwa-white);
-  background-image: none;
+  background-color: var(--isalwa-surface-canvas);
+  background-image: var(--isalwa-surface-app);
+  background-attachment: fixed;
   color: var(--isalwa-kiln);
   font-family: var(--isalwa-font-sans);
   font-size: var(--isalwa-text-base);
@@ -53,13 +70,13 @@ a.isalwa-action-link,
 a.isalwa-action-link:hover,
 a.isalwa-action-link:focus,
 a.isalwa-action-link:active {
-  color: var(--isalwa-white);
-  background-color: var(--isalwa-action);
+  color: var(--isalwa-btn-primary-fg);
+  background-color: var(--isalwa-btn-primary-bg);
 }
 
 a.isalwa-action-link:hover,
 a.isalwa-action-link:active {
-  background-color: var(--isalwa-action-deep);
+  background-color: var(--isalwa-btn-primary-bg-hover);
 }
 
 .isalwa-page {

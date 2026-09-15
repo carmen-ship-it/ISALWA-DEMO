@@ -39,7 +39,7 @@ export function PageSection({ children, className, card, ...rest }: PageSectionP
     <section
       className={cx(
         card &&
-          'overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-soft)]',
+          'overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-card-resting)]',
         className,
       )}
       {...rest}
