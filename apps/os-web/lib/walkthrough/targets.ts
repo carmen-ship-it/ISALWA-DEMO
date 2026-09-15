@@ -21,6 +21,17 @@ export const TOUR_TARGET = {
   mapCoverage: 'map-coverage',
   manualDraft: 'manual-draft',
   messagesFuture: 'messages-future',
+  // First-use intro targets
+  clientesSearch: 'clientes-search',
+  clientesList: 'clientes-list',
+  cliente360Identity: 'cliente360-identity',
+  cliente360NextAction: 'cliente360-next-action',
+  mapSearch: 'map-search',
+  helpReplay: 'help-replay',
+  helpLearningMode: 'help-learning-mode',
+  helpGlossary: 'help-glossary',
+  helpAccess: 'help-access',
+  introCoach: 'intro-coach',
 } as const;
 
 export type TourTargetId = (typeof TOUR_TARGET)[keyof typeof TOUR_TARGET];

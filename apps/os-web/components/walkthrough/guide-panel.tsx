@@ -37,6 +37,10 @@ export function GuidePanel() {
 
   if (!api?.ready || api.journeys.length === 0) return null;
 
+  // Don't show legacy panel during first-use intro (IntroCoach handles it)
+  const inIntroMode = api.record.welcomeSeen && !api.record.introCompleted && !api.record.introSkipped;
+  if (inIntroMode) return null;
+
   if (api.record.panelHidden) {
     return (
       <div className="pointer-events-none fixed bottom-4 right-4 z-20">

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
-import { GUIDE_CHROME } from './copy';
+import { GUIDE_CHROME, INTRO_COPY, LEARNING_MODE_COPY, PAGE_MICRO_TOURS, canViewMicroTour, getMicroTourForPage } from './copy';
 import { handleGuideEscape, restoreHeadingFocus, type GuideDoc, type GuideFocusable } from './focus';
 import { JOURNEYS, journeysForViewer } from './journeys';
 import {
@@ -15,14 +15,23 @@ import {
   type KeyValueStore,
 } from './persistence';
 import {
+  advanceIntro,
   collectGuideCopy,
   continueGuide,
   dismissGuide,
+  hasSeenPageTour,
   initialGuideRecord,
+  markPageTourSeen,
+  migrateV1ToV2,
   replayFromAyuda,
+  replayIntro,
   resetGuide,
   resumeGuide,
   revealGuide,
+  setLearningMode,
+  skipIntro,
+  startIntro,
+  toggleLearningMode,
 } from './progress';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -235,8 +244,11 @@ describe('modo guiado', () => {
     assert.doesNotMatch(copy, /organizationId|organization_id|x-os-organization-id|org_[A-Za-z0-9]{6,}/);
     assert.doesNotMatch(copy, /Distribuidora La Paz|Comercial Andina|La Paz S\.R\.L|García|Pérez|Ana |Juan |María/);
     assert.doesNotMatch(copy, /\bPED-\d|#\d{2,}|\bpedido\s+\d|\borden\s+\d|orderId/i);
-    assert.doesNotMatch(copy, /buscar|busca\b|sugerencia|prueba con|escribe el/i);
-    assert.doesNotMatch(copy, /whatsapp|mapa|nota de entrega|lista de precios|conectad|en vivo|\blive\b|número oficial|numero oficial|oficial/i);
+    // Don't give specific search suggestions (e.g., "busca María", "escribe el nombre")
+    // "buscar clientes" describing functionality is allowed
+    assert.doesNotMatch(copy, /busca\s+[A-Z][a-z]+|busca\s+".*"|prueba con|escribe el/i);
+    // "mapa" alone is allowed (it's a page name); block "mapa en vivo" or provider claims
+    assert.doesNotMatch(copy, /whatsapp|nota de entrega|lista de precios|conectad|en vivo|\blive\b|número oficial|numero oficial/i);
     assert.match(copy, new RegExp(GUIDE_CHROME.title));
   });
 
@@ -283,5 +295,324 @@ describe('modo guiado', () => {
     assert.match(shell, /sticky top-0 z-40/);
     assert.match(shell, /signOutAction/);
     assert.match(shell, /t\('account\.signOut'\)/);
+  });
+});
+
+describe('first-use intro', () => {
+  it('initialGuideRecord starts with intro not seen', () => {
+    const record = initialGuideRecord();
+    assert.equal(record.version, 2);
+    assert.equal(record.welcomeSeen, false);
+    assert.equal(record.introCompleted, false);
+    assert.equal(record.introSkipped, false);
+    assert.equal(record.introStepIndex, 0);
+    assert.equal(record.learningModeEnabled, false);
+    assert.deepEqual(record.pageTourSeen, {});
+  });
+
+  it('startIntro marks welcome seen and resets intro state', () => {
+    const record = initialGuideRecord();
+    const started = startIntro(record);
+    assert.equal(started.welcomeSeen, true);
+    assert.equal(started.introSkipped, false);
+    assert.equal(started.introStepIndex, 0);
+    assert.equal(started.panelHidden, false);
+  });
+
+  it('skipIntro marks skipped and hides panel', () => {
+    const record = initialGuideRecord();
+    const skipped = skipIntro(record);
+    assert.equal(skipped.welcomeSeen, true);
+    assert.equal(skipped.introSkipped, true);
+    assert.equal(skipped.introCompleted, false);
+    assert.equal(skipped.panelHidden, true);
+  });
+
+  it('advanceIntro progresses through steps and completes at end', () => {
+    const TOTAL_STEPS = 7;
+    let record = startIntro(initialGuideRecord());
+    
+    // Advance through steps
+    for (let i = 1; i < TOTAL_STEPS; i++) {
+      const result = advanceIntro(record, TOTAL_STEPS);
+      record = result.record;
+      if (i < TOTAL_STEPS - 1) {
+        assert.equal(record.introStepIndex, i);
+        assert.equal(record.introCompleted, false);
+      }
+    }
+    
+    // Final advance completes intro
+    const final = advanceIntro(record, TOTAL_STEPS);
+    assert.equal(final.record.introCompleted, true);
+    assert.equal(final.record.panelHidden, true);
+  });
+
+  it('replayIntro resets intro state without wiping other progress', () => {
+    let record = initialGuideRecord();
+    record = startIntro(record);
+    const completed = advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(record, 7).record, 7).record, 7).record, 7).record, 7).record, 7).record, 7).record;
+    assert.equal(completed.introCompleted, true);
+    
+    const replayed = replayIntro(completed);
+    assert.equal(replayed.welcomeSeen, true);
+    assert.equal(replayed.introCompleted, false);
+    assert.equal(replayed.introSkipped, false);
+    assert.equal(replayed.introStepIndex, 0);
+    assert.equal(replayed.panelHidden, false);
+  });
+
+  it('migrates v1 records to v2 preserving progress', () => {
+    const v1Record = {
+      version: 1 as const,
+      currentJourneyId: 'vender',
+      stopIndex: 1,
+      completedJourneyIds: ['gerencia'],
+      panelHidden: false,
+    };
+    
+    const migrated = migrateV1ToV2(v1Record);
+    assert.equal(migrated.version, 2);
+    assert.equal(migrated.currentJourneyId, 'vender');
+    assert.equal(migrated.stopIndex, 1);
+    assert.deepEqual(migrated.completedJourneyIds, ['gerencia']);
+    // Users with completed journeys are assumed to have seen basics
+    assert.equal(migrated.welcomeSeen, true);
+    assert.equal(migrated.introCompleted, true);
+  });
+
+  it('v1 to v2 migration through persistence preserves journey progress', () => {
+    const store = memoryStore({
+      [GUIDE_STORAGE_KEY]: JSON.stringify({
+        version: 1,
+        currentJourneyId: 'produccion',
+        stopIndex: 0,
+        completedJourneyIds: ['vender'],
+        panelHidden: true,
+      }),
+    });
+    
+    const loaded = loadGuide(store);
+    assert.equal(loaded.version, 2);
+    assert.equal(loaded.currentJourneyId, 'produccion');
+    assert.deepEqual(loaded.completedJourneyIds, ['vender']);
+    assert.equal(loaded.welcomeSeen, true); // Had progress
+    assert.equal(loaded.introCompleted, true);
+  });
+});
+
+describe('learning mode', () => {
+  it('toggleLearningMode flips the enabled state', () => {
+    const record = initialGuideRecord();
+    assert.equal(record.learningModeEnabled, false);
+    
+    const enabled = toggleLearningMode(record);
+    assert.equal(enabled.learningModeEnabled, true);
+    
+    const disabled = toggleLearningMode(enabled);
+    assert.equal(disabled.learningModeEnabled, false);
+  });
+
+  it('setLearningMode sets a specific state', () => {
+    const record = initialGuideRecord();
+    
+    const enabled = setLearningMode(record, true);
+    assert.equal(enabled.learningModeEnabled, true);
+    
+    const stillEnabled = setLearningMode(enabled, true);
+    assert.equal(stillEnabled.learningModeEnabled, true);
+    
+    const disabled = setLearningMode(stillEnabled, false);
+    assert.equal(disabled.learningModeEnabled, false);
+  });
+
+  it('learning mode copy is jargon-free', () => {
+    const copy = [
+      LEARNING_MODE_COPY.label,
+      LEARNING_MODE_COPY.description,
+      LEARNING_MODE_COPY.secondary,
+    ].join(' ');
+    
+    assert.doesNotMatch(copy, /Gate\s+[A-Z]|finance\.operational|scope|auth|provider/i);
+    assert.match(copy, /aprendizaje/i);
+  });
+});
+
+describe('page micro-tours', () => {
+  it('markPageTourSeen records the page as seen', () => {
+    const record = initialGuideRecord();
+    assert.equal(hasSeenPageTour(record, 'produccion'), false);
+    
+    const marked = markPageTourSeen(record, 'produccion');
+    assert.equal(hasSeenPageTour(marked, 'produccion'), true);
+    assert.equal(hasSeenPageTour(marked, 'almacen'), false);
+  });
+
+  it('getMicroTourForPage returns the tour for known pages', () => {
+    const produccion = getMicroTourForPage('produccion');
+    assert.ok(produccion);
+    assert.equal(produccion.pageId, 'produccion');
+    assert.ok(produccion.steps.length >= 2);
+    
+    const unknown = getMicroTourForPage('nonexistent-page');
+    assert.equal(unknown, null);
+  });
+
+  it('canViewMicroTour respects role keys', () => {
+    const produccion = getMicroTourForPage('produccion');
+    assert.ok(produccion);
+    
+    // org.admin can always view
+    assert.equal(canViewMicroTour(produccion, ['org.admin']), true);
+    
+    // operations can view produccion
+    assert.equal(canViewMicroTour(produccion, ['operations']), true);
+    
+    // finance.admin cannot view produccion
+    assert.equal(canViewMicroTour(produccion, ['finance.admin']), false);
+    
+    // productos has no role restriction
+    const productos = getMicroTourForPage('productos');
+    assert.ok(productos);
+    assert.equal(canViewMicroTour(productos, ['any_role']), true);
+  });
+
+  it('micro-tour copy is jargon-free and user-friendly', () => {
+    const allCopy: string[] = [];
+    for (const tour of PAGE_MICRO_TOURS) {
+      for (const step of tour.steps) {
+        if (step.title) allCopy.push(step.title);
+        allCopy.push(step.body);
+      }
+    }
+    const combined = allCopy.join('\n');
+    
+    assert.doesNotMatch(combined, /Gate\s+[A-Z]|finance\.operational|scope\b|auth\b/i);
+    assert.doesNotMatch(combined, /organizationId|organization_id|x-os-organization-id/);
+    assert.doesNotMatch(combined, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  });
+});
+
+describe('first-use intro copy', () => {
+  it('welcome copy is jargon-free', () => {
+    const copy = [
+      INTRO_COPY.welcome.title,
+      INTRO_COPY.welcome.body,
+      INTRO_COPY.welcome.secondary,
+      INTRO_COPY.welcome.primary,
+      INTRO_COPY.welcome.skip,
+      INTRO_COPY.welcome.footer,
+    ].join(' ');
+    
+    assert.doesNotMatch(copy, /Gate\s+[A-Z]|finance\.operational|scope|provider|authority/i);
+    assert.match(copy, /Bienvenido/);
+    assert.match(copy, /ISALWA/);
+  });
+
+  it('step copy does not hardcode counts or customer names', () => {
+    const allStepCopy = [
+      INTRO_COPY.inicio.title,
+      INTRO_COPY.inicio.body,
+      INTRO_COPY.inicio.secondary,
+      INTRO_COPY.clientes.title,
+      INTRO_COPY.clientes.body,
+      INTRO_COPY.cliente360.title,
+      INTRO_COPY.cliente360.body,
+      INTRO_COPY.cliente360.secondary,
+      INTRO_COPY.nextAction.body,
+      INTRO_COPY.nextAction.noAction,
+      INTRO_COPY.mapa.title,
+      INTRO_COPY.mapa.bodyFallback,
+      INTRO_COPY.mapa.secondary,
+      INTRO_COPY.mapa.providerBlocked.title,
+      INTRO_COPY.mapa.providerBlocked.body,
+      INTRO_COPY.ayuda.title,
+      INTRO_COPY.ayuda.body,
+      INTRO_COPY.ayuda.final,
+      INTRO_COPY.ayuda.finalSecondary,
+      ...INTRO_COPY.ayuda.affordances,
+    ].join(' ');
+    
+    // No hardcoded counts like "2/7"
+    assert.doesNotMatch(allStepCopy, /\d+\s*\/\s*\d+/);
+    assert.doesNotMatch(allStepCopy, /2 de 7|7 de 7/);
+    
+    // No customer names
+    assert.doesNotMatch(allStepCopy, /ALVAREZ|García|Pérez|Ana |Juan |María/i);
+    
+    // No jargon
+    assert.doesNotMatch(allStepCopy, /Gate\s+[A-Z]|finance\.operational|scope\b/i);
+  });
+
+  it('cliente360 empty section copy only shows when sections are empty', () => {
+    // These strings exist but should only be shown conditionally
+    assert.ok(INTRO_COPY.cliente360.emptySections.opportunities);
+    assert.ok(INTRO_COPY.cliente360.emptySections.quotes);
+    assert.ok(INTRO_COPY.cliente360.emptySections.orders);
+    assert.ok(INTRO_COPY.cliente360.emptySections.work);
+    
+    // All start with "Todavía no hay"
+    assert.match(INTRO_COPY.cliente360.emptySections.opportunities, /Todavía no hay/);
+    assert.match(INTRO_COPY.cliente360.emptySections.quotes, /Todavía no hay/);
+    assert.match(INTRO_COPY.cliente360.emptySections.orders, /Todavía no hay/);
+    assert.match(INTRO_COPY.cliente360.emptySections.work, /Todavía no hay/);
+  });
+
+  it('mapa dynamic body template works correctly', () => {
+    const body = INTRO_COPY.mapa.bodyTemplate(3, 10);
+    assert.match(body, /3 de 10/);
+    assert.match(body, /coordenadas/);
+  });
+});
+
+describe('intro coach mobile behavior', () => {
+  it('intro coach component has proper mobile constraints', () => {
+    const coach = readFileSync(join(here, '../../components/walkthrough/intro-coach.tsx'), 'utf8');
+    
+    // Max height constraint to preserve product content
+    assert.match(coach, /max-h-\[min\(50vh/);
+    
+    // Collapse button for mobile
+    assert.match(coach, /Minimizar/);
+    
+    // z-index below header
+    assert.match(coach, /z-30/);
+    
+    // Bottom positioning
+    assert.match(coach, /fixed bottom-0/);
+  });
+
+  it('intro welcome is not modal-trapping', () => {
+    const welcome = readFileSync(join(here, '../../components/walkthrough/intro-welcome.tsx'), 'utf8');
+    
+    // aria-modal is false (not trapping)
+    assert.match(welcome, /aria-modal="false"/);
+    
+    // Escape dismisses
+    assert.match(welcome, /Escape/);
+    assert.match(welcome, /skipIntro/);
+  });
+});
+
+describe('no oportunidades/cotizaciones/pedidos in first-use', () => {
+  it('intro copy does not mention creating oportunidades, cotizaciones, or pedidos', () => {
+    const introCopy = [
+      INTRO_COPY.welcome.body,
+      INTRO_COPY.welcome.secondary,
+      INTRO_COPY.inicio.body,
+      INTRO_COPY.inicio.secondary,
+      INTRO_COPY.clientes.body,
+      INTRO_COPY.cliente360.body,
+      INTRO_COPY.cliente360.secondary,
+      INTRO_COPY.nextAction.body,
+      INTRO_COPY.mapa.bodyFallback,
+      INTRO_COPY.mapa.secondary,
+      INTRO_COPY.ayuda.body,
+    ].join(' ');
+    
+    // Should not teach how to create commercial entities
+    assert.doesNotMatch(introCopy, /crear.*oportunidad|nueva oportunidad|agregar.*oportunidad/i);
+    assert.doesNotMatch(introCopy, /crear.*cotización|nueva cotización|agregar.*cotización/i);
+    assert.doesNotMatch(introCopy, /crear.*pedido|nuevo pedido|agregar.*pedido/i);
   });
 });

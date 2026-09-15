@@ -121,7 +121,7 @@ function CustomerCompactHeader({
         </div>
       </div>
       {showNext ? (
-        <p className="text-sm text-[var(--isalwa-kiln)]">
+        <p className="text-sm text-[var(--isalwa-kiln)]" data-tour="cliente360-next-action">
           <span className="font-medium">{FOLLOW_UP_COPY.nextAction}</span>
           {' · '}
           {nextAction.href ? (
@@ -190,6 +190,7 @@ function IdentityLetterhead({
     <div
       id="resumen"
       className="scroll-mt-40 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-6 shadow-[var(--isalwa-shadow-soft)] md:p-8"
+      data-tour="cliente360-identity"
     >
       <Cliente360Now composition={composition} />
       <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">

@@ -75,7 +75,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           }
         />
 
-        <div className={`commercial-toolbar ${commercialToolbarClass}`}>
+        <div className={`commercial-toolbar ${commercialToolbarClass}`} data-tour="clientes-search">
           <PartySearchForm initialQuery={q} initialRoleKey={roleKey} initialStatus={status} />
         </div>
         <p className="mt-3 text-sm">
@@ -92,7 +92,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           ) : (
             <>
               <PageSection card className={`mt-4 p-0 ${commercialWorkSurfaceClass}`}>
-                <div className="commercial-operating-list">
+                <div className="commercial-operating-list" data-tour="clientes-list">
                   <PartyList
                     items={result.items}
                     listPath="/clientes"

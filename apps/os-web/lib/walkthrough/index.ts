@@ -9,19 +9,39 @@ export {
   journeysForViewer,
 } from './journeys';
 export type { BranchRoute, GuideStop, GuideViewer, Journey, StopKind } from './journeys';
-export { GUIDE_CHROME, progressLabel, replayLabel } from './copy';
+export {
+  GUIDE_CHROME,
+  INTRO_COPY,
+  LEARNING_MODE_COPY,
+  PAGE_MICRO_TOURS,
+  canViewMicroTour,
+  getMicroTourForPage,
+  progressLabel,
+  replayLabel,
+} from './copy';
+export type { MicroTour, MicroTourStep } from './copy';
 export { findPageHeading, handleGuideEscape, restoreHeadingFocus } from './focus';
 export type { GuideDoc, GuideFocusable } from './focus';
 export {
+  advanceIntro,
+  collectGuideCopy,
   continueGuide,
   currentJourney,
   dismissGuide,
+  hasSeenPageTour,
   initialGuideRecord,
+  markPageTourSeen,
+  migrateV1ToV2,
   replayFromAyuda,
+  replayIntro,
   resetGuide,
   resumeGuide,
   revealGuide,
-  collectGuideCopy,
+  setIntroStep,
+  setLearningMode,
+  skipIntro,
+  startIntro,
+  toggleLearningMode,
 } from './progress';
 export type { ContinueOutcome, GuideRecord } from './progress';
 export {
