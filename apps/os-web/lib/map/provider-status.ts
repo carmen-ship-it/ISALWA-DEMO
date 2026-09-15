@@ -43,9 +43,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mapbox' && token) {
     return {
       kind: 'token_present_unwired',
-      label: 'Lienzo en espera',
+      label: 'Vista geográfica en preparación',
       detail:
-        'Hay un token de mapa en el entorno, pero el lienzo no se conecta solo. La mesa de ubicación sigue con cobertura y lista — sin comprar ni activar un proveedor en silencio.',
+        'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
       engine: 'mapbox',
       tokenPresent: true,
     };
@@ -54,9 +54,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mapbox' && !token) {
     return {
       kind: 'unavailable',
-      label: 'Lienzo en espera',
+      label: 'Vista geográfica en preparación',
       detail:
-        'Se pidió Mapbox sin token público. Se usa la lista honesta. No se inventan coordenadas ni se compra un plan.',
+        'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
       engine: null,
       tokenPresent: false,
     };
@@ -65,9 +65,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mock') {
     return {
       kind: 'mock_unwired',
-      label: 'Lienzo en espera',
+      label: 'Vista geográfica en preparación',
       detail:
-        'El motor mock (MapLibre) existe en el contrato de proveedores, pero os-web no carga el lienzo todavía. Cobertura y lista muestran solo hechos ya registrados.',
+        'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
       engine: 'maplibre',
       tokenPresent: false,
     };
@@ -75,9 +75,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
 
   return {
     kind: 'unavailable',
-    label: 'Lienzo en espera',
+    label: 'Vista geográfica en preparación',
     detail:
-      'El mapa de teselas se conectará cuando haya una decisión explícita de proveedor. Hasta entonces esta mesa es intencional: cobertura, lista y ficha — sin coordenadas inventadas ni mapa de calor.',
+      'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
     engine: null,
     tokenPresent: false,
   };

@@ -8,14 +8,15 @@ describe('map provider status', () => {
     const status = resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' });
     assert.equal(status.kind, 'unavailable');
     assert.equal(status.tokenPresent, false);
-    assert.match(status.detail, /No se inventan coordenadas|No se compra/);
+    assert.match(status.detail, /Vista geográfica en preparación|proveedor geográfico|ubicación ya está organizada/i);
   });
 
   it('reports token present without wiring the canvas', () => {
     const status = resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' });
     assert.equal(status.kind, 'token_present_unwired');
     assert.equal(status.tokenPresent, true);
-    assert.match(status.detail, /no se conecta solo|No se compra|sin comprar/i);
+    assert.match(status.detail, /proveedor geográfico|ubicación ya está organizada/i);
+    assert.doesNotMatch(status.detail, /teselas|MapLibre|error|failed/i);
   });
 
   it('keeps mock unwired without purchasing', () => {
@@ -52,7 +53,7 @@ describe('copy contracts — no fake streets or provider-error wording', () => {
     }
   });
 
-  it('provider label is consistent "Lienzo en espera" for unwired state', () => {
+  it('provider label uses intentional preparation copy for unwired state', () => {
     const statuses = [
       resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null }),
       resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' }),
@@ -60,7 +61,7 @@ describe('copy contracts — no fake streets or provider-error wording', () => {
       resolveMapProviderStatus({ mapsProvider: 'mock', mapboxToken: null }),
     ];
     for (const status of statuses) {
-      assert.equal(status.label, 'Lienzo en espera');
+      assert.equal(status.label, 'Vista geográfica en preparación');
     }
   });
 
@@ -76,10 +77,10 @@ describe('copy contracts — no fake streets or provider-error wording', () => {
     }
   });
 
-  it('provider detail mentions waiting for provider decision, not error', () => {
+  it('provider detail uses intentional preparation language, not error', () => {
     const defaultStatus = resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null });
-    assert.match(defaultStatus.detail, /decisión.*proveedor|proveedor.*decisión/i);
-    assert.doesNotMatch(defaultStatus.detail, /error|fallo|broken/i);
+    assert.match(defaultStatus.detail, /proveedor geográfico|visualización completa/i);
+    assert.doesNotMatch(defaultStatus.detail, /error|fallo|broken|teselas|MapLibre|Mapbox/i);
   });
 
   it('layer registry forbids future layers from being truth-available', () => {
