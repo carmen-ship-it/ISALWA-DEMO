@@ -1,7 +1,8 @@
 import { OperatingRow, StatusPill } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
-import { formatOpportunityStatus, formatStage, statusTone } from '@/lib/commercial/labels';
-import { opportunityHref } from '@/lib/commercial/navigation';
+import { formatListAge, formatOpportunityStatus, formatStage, statusTone } from '@/lib/commercial/labels';
+import { newQuoteHref, opportunityHref } from '@/lib/commercial/navigation';
+import { opportunityNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -35,12 +36,27 @@ export function OpportunityOrgList({
           const customer = partyLabel(partyLabels, item.partyId);
           const owner = memberLabel(memberLabels, item.ownerMemberId);
           const stage = formatStage(item.stage).trim();
+          const age = formatListAge(item.createdAt);
+          const next = opportunityNextStep({
+            status: item.status,
+            partyId: item.partyId,
+            opportunityId: item.opportunityId,
+            newQuoteHref: newQuoteHref(item.partyId, item.opportunityId),
+          });
           return (
             <li key={item.opportunityId}>
               <OperatingRow
                 href={opportunityHref(item.partyId, item.opportunityId)}
                 subject={item.title}
-                meta={metaLine([customer, stage, owner ? `Responsable: ${owner}` : null]) || undefined}
+                meta={
+                  metaLine([
+                    customer,
+                    stage,
+                    owner ? `Responsable: ${owner}` : null,
+                    age,
+                    next && !next.waiting && next.hrefLabel ? `Próximo: ${next.hrefLabel}` : null,
+                  ]) || undefined
+                }
                 status={
                   <StatusPill tone={statusTone(item.status)}>
                     {formatOpportunityStatus(item.status)}

@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  formatListAge,
+  formatOpportunityStatus,
+  formatQuoteStatus,
+  formatRecordStatus,
+  formatTimestamp,
+} from '@/lib/commercial/labels';
+import {
   inicioEmptyCtas,
   isInicioCommerciallyEmpty,
   shouldShowInicioApprovalsSection,
@@ -15,6 +22,7 @@ import {
   opportunityHref,
   quoteHref,
 } from '@/lib/commercial/navigation';
+import { COMMERCIAL_NEXT_STEP_LABEL, quoteNextStep } from '@/lib/commercial/next-step';
 import { sampleOpportunity, sampleQuote } from '@/lib/commercial/fixtures';
 import {
   filterNavByAccess,
@@ -218,5 +226,37 @@ describe('inicio commercial home', () => {
     assert.equal(t('pages.inicio.quotesSubmitted'), 'Cotizaciones enviadas');
     assert.equal(t('pages.inicio.work'), 'Trabajo abierto');
     assert.equal(t('pages.inicio.approvals'), 'Aprobaciones');
+  });
+});
+
+describe('commercial polish helpers', () => {
+  it('keeps status vocabulary consistent across record kinds', () => {
+    assert.equal(formatQuoteStatus('submitted'), 'Enviada');
+    assert.equal(formatRecordStatus('submitted', 'quote'), 'Enviada');
+    assert.equal(formatOpportunityStatus('open'), 'Abierta');
+    assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próximo paso');
+  });
+
+  it('uses human age on list rows and exact time on detail stamps', () => {
+    const asOf = new Date('2026-09-15T18:00:00.000Z');
+    const threeHoursAgo = new Date(asOf.getTime() - 3 * 3_600_000).toISOString();
+    assert.equal(formatListAge(threeHoursAgo, asOf), 'hace 3 h');
+    assert.match(formatTimestamp(threeHoursAgo) ?? '', /\d/);
+  });
+
+  it('derives quote next step without inventing a pedido on submit', () => {
+    const step = quoteNextStep({
+      status: 'submitted',
+      partyId: sampleQuote.partyId,
+      quoteId: sampleQuote.quoteId,
+      canConvertToOrder: false,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: true,
+      followUpHref: '/clientes/party-1#trabajo',
+    });
+    assert.match(step?.statement ?? '', /enviada/i);
+    assert.doesNotMatch(step?.statement ?? '', /creó un pedido|convertir/i);
   });
 });

@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
+import { CommercialPath } from '@/components/commercial/commercial-path';
+import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
+import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { PageHeader } from '@/components/shell/page-header';
 import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -20,7 +23,8 @@ import {
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
-import { opportunityHref, orderHref } from '@/lib/commercial/navigation';
+import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
+import { quoteNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
@@ -81,9 +85,35 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       }
     }
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
+    const hasPendingApproval = approvals.some((row) => row.status === 'pending');
+    const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
+    const nextStep = quoteNextStep({
+      status: quote.status,
+      partyId,
+      quoteId: quote.quoteId,
+      canConvertToOrder: authority?.canConvertToOrder === true,
+      relatedOrderHref: relatedOrder ? orderHref(partyId, relatedOrder.orderId) : null,
+      relatedOrderLabel: relatedOrder?.orderNumber ?? null,
+      hasPendingApproval,
+      canRegisterFollowUp: followUpAllowed,
+      followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
+    });
+    const pathCrumbs = [
+      { label: customerName, href: partyHref(partyId) },
+      ...(quote.opportunityId
+        ? [
+            {
+              label: opportunityTitle ?? 'Oportunidad',
+              href: opportunityHref(partyId, quote.opportunityId),
+            },
+          ]
+        : []),
+      { label: quote.quoteNumber },
+    ];
 
     return (
       <PageContainer label={quote.quoteNumber}>
+        <CommercialPath crumbs={pathCrumbs} />
         <PageHeader
           kicker="Cotización"
           title={quote.quoteNumber}
@@ -96,6 +126,16 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         />
 
         <StaleProjectionBanner freshness={freshness} />
+        <RecordNextStep step={nextStep} />
+
+        {authority?.canConvertToOrder ? (
+          <CommercialStickyBar className="mb-6">
+            <p className="text-sm text-[var(--isalwa-slate)]">Cotización aceptada</p>
+            <a href="#convertir-pedido" className={documentLinkClass}>
+              Ir a convertir a pedido
+            </a>
+          </CommercialStickyBar>
+        ) : null}
 
         <PageSection card className="bg-white p-8 md:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
@@ -243,7 +283,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           )}
         </PageSection>
 
-        {canRegisterQuoteFollowUp(quote.status) ? (
+        {followUpAllowed ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
             <SectionHeader title={FOLLOW_UP_COPY.section} />
             <div className="mt-6">
@@ -253,7 +293,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         ) : null}
 
         {authority?.canConvertToOrder ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+          <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
             <SectionHeader
               title={
                 <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
@@ -262,7 +302,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               }
             />
             <div className="mt-6">
-              <ConvertQuoteForm partyId={partyId} quoteId={quote.quoteId} />
+              <ConvertQuoteForm partyId={partyId} quoteId={quote.quoteId} quoteStatus={quote.status} />
             </div>
           </PageSection>
         ) : null}
@@ -286,7 +326,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         ) : null}
 
         {quote.status === 'submitted' || approvals.length > 0 ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+          <PageSection id="aprobacion" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
             <SectionHeader
               title={
                 <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">

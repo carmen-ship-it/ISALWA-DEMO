@@ -18,9 +18,11 @@ const SECTIONS = [
 
 type Cliente360NavProps = {
   partyId: string;
+  /** When nested under Cliente360Sticky, drop the own sticky chrome. */
+  embedded?: boolean;
 };
 
-export function Cliente360Nav({ partyId }: Cliente360NavProps) {
+export function Cliente360Nav({ partyId, embedded = false }: Cliente360NavProps) {
   const [activeId, setActiveId] = useState<string>('resumen');
 
   useEffect(() => {
@@ -36,7 +38,11 @@ export function Cliente360Nav({ partyId }: Cliente360NavProps) {
   return (
     <nav
       aria-label="Secciones del cliente"
-      className="sticky top-14 z-10 mt-10 max-w-full border-b border-[var(--isalwa-mist)] bg-white"
+      className={
+        embedded
+          ? 'max-w-full'
+          : 'sticky top-14 z-10 mt-10 max-w-full border-b border-[var(--isalwa-mist)] bg-white'
+      }
     >
       <div className="overflow-x-auto overscroll-x-contain">
         <ul className="flex w-max">

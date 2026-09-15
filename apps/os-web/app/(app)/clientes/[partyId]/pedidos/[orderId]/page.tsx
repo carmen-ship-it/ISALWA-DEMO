@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
+import { CommercialPath } from '@/components/commercial/commercial-path';
 import { OrderLines } from '@/components/commercial/order-lines';
+import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
@@ -18,6 +20,7 @@ import {
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
+import { orderNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
@@ -107,6 +110,20 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
     return (
       <PageContainer label={order.orderNumber}>
+        <CommercialPath
+          crumbs={[
+            { label: customerName, href: partyHref(partyId) },
+            ...(order.quoteId
+              ? [
+                  {
+                    label: sourceQuoteNumber ?? 'Cotización',
+                    href: quoteHref(partyId, order.quoteId),
+                  },
+                ]
+              : []),
+            { label: order.orderNumber },
+          ]}
+        />
         <PageHeader
           kicker="Pedido"
           title={order.orderNumber}
@@ -119,6 +136,14 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         />
 
         <StaleProjectionBanner freshness={freshness} />
+        <RecordNextStep
+          step={orderNextStep({
+            status: order.status,
+            partyId,
+            orderId: order.orderId,
+            customerHref: partyHref(partyId),
+          })}
+        />
 
         <PedidoOperatingSummary view={operating} />
 

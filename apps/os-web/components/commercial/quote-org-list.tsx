@@ -1,6 +1,6 @@
 import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
 import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
-import { formatQuoteStatus, formatTimestamp, statusTone } from '@/lib/commercial/labels';
+import { formatListAge, formatQuoteStatus, statusTone } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
@@ -58,7 +58,7 @@ export function QuoteOrgList({
         .map((item) => {
           const customer = partyLabel(partyLabels, item.partyId);
           const owner = memberLabel(memberLabels, item.ownerMemberId);
-          const dateLabel = formatTimestamp(item.submittedAt ?? item.createdAt);
+          const dateLabel = formatListAge(item.submittedAt ?? item.createdAt);
           const detailHref = quoteHref(item.partyId, item.quoteId);
           const meta = metaLine([
             customer,

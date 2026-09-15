@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { OrderSummaryReadModel } from '@isalwa/os-contracts';
 import {
+  formatListAge,
   formatOrderStatus,
-  formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
@@ -27,7 +27,7 @@ export function OrderList({ partyId, items, memberLabels }: OrderListProps) {
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Pedidos" data-tour={TOUR_TARGET.orderList}>
       {items.map((item) => {
-        const createdAt = formatTimestamp(item.createdAt);
+        const createdAt = formatListAge(item.createdAt);
         return (
           <ListRow key={item.orderId} as="li" className="px-1 py-2">
             <div className="bg-white px-4 py-5">
@@ -67,7 +67,7 @@ export function OrderList({ partyId, items, memberLabels }: OrderListProps) {
                     {item.cancelledAt ? (
                       <div>
                         <dt className="sr-only">Cancelado</dt>
-                        <dd>Cancelado: {formatTimestamp(item.cancelledAt)}</dd>
+                        <dd>Cancelado: {formatListAge(item.cancelledAt) ?? '—'}</dd>
                       </div>
                     ) : null}
                   </dl>

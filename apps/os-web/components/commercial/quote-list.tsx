@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
 import {
+  formatListAge,
   formatQuoteStatus,
-  formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
@@ -55,18 +55,18 @@ export function QuoteList({ partyId, items, memberLabels }: QuoteListProps) {
                   ) : null}
                   <div>
                     <dt className="sr-only">Creada</dt>
-                    <dd>Creada: {formatTimestamp(item.createdAt)}</dd>
+                    <dd>Creada: {formatListAge(item.createdAt) ?? '—'}</dd>
                   </div>
                   {item.submittedAt ? (
                     <div>
                       <dt className="sr-only">Enviada</dt>
-                      <dd>Enviada: {formatTimestamp(item.submittedAt)}</dd>
+                      <dd>Enviada: {formatListAge(item.submittedAt) ?? '—'}</dd>
                     </div>
                   ) : null}
                   {item.cancelledAt ? (
                     <div>
                       <dt className="sr-only">Cancelada</dt>
-                      <dd>Cancelada: {formatTimestamp(item.cancelledAt)}</dd>
+                      <dd>Cancelada: {formatListAge(item.cancelledAt) ?? '—'}</dd>
                     </div>
                   ) : null}
                 </dl>
