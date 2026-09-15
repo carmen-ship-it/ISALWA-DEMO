@@ -68,7 +68,7 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
       key: 'action:customer',
       kind: 'action',
       label: 'Agregar cliente',
-      detail: 'Datos maestros',
+      detail: 'Nuevo registro',
       href: '/clientes/nuevo',
     });
   }

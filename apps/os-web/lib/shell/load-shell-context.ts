@@ -3,7 +3,7 @@ import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
-import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import { actorCanMutateMasterData, loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { usableGivenName } from '@/lib/shell/greeting';
 
 const PERMISSION_DENIAL_CODES = new Set([
@@ -19,6 +19,8 @@ export type ShellContext = {
   showAdmin: boolean;
   canCreateCustomer: boolean;
   actorKey: string | null;
+  /** Trusted scopes for display labeling only — never used to hide shell nav. */
+  grantedScopes: string[];
   osAccess: 'ok' | 'revoked' | 'unavailable' | 'unauthorized' | 'denied';
   capabilities: CapabilityStateReadModel[];
 };
@@ -38,6 +40,7 @@ function shell(
     showAdmin: false,
     canCreateCustomer: false,
     actorKey: null,
+    grantedScopes: [],
     osAccess,
     capabilities: [],
   };
@@ -80,6 +83,7 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
   let canCreateCustomer = false;
   let actorKey: string | null = null;
   let givenName: string | null = null;
+  let grantedScopes: string[] = [];
   let capabilities: CapabilityStateReadModel[] = [];
 
   try {
@@ -99,6 +103,12 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
       canCreateCustomer = await actorCanMutateMasterData(client);
     } catch {
       canCreateCustomer = false;
+    }
+
+    try {
+      grantedScopes = await loadActorRoleKeys(client);
+    } catch {
+      grantedScopes = [];
     }
 
     try {
@@ -126,6 +136,7 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
     showAdmin,
     canCreateCustomer,
     actorKey,
+    grantedScopes,
     osAccess,
     capabilities,
   };
