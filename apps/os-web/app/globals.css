@@ -112,6 +112,42 @@ a.isalwa-action-link:active {
     box-shadow var(--isalwa-motion-fast) var(--isalwa-ease-out);
 }
 
+/*
+ * Shared focus cue for interactive chrome that is not already a @isalwa/ui Button.
+ * Prefer class `isalwa-focus-ring` from lib/a11y/focus — keep the ring glaze, never invent a second system.
+ */
+.isalwa-focus-ring:focus-visible,
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[role='button']:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
+/* Operating width band used in polish QA: 390px phone floor → 1440px desk ceiling. */
+.isalwa-operating-width {
+  width: 100%;
+  max-width: min(100%, 1440px);
+  margin-inline: auto;
+}
+
+@media (max-width: 389px) {
+  .isalwa-operating-width {
+    padding-inline: var(--isalwa-space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isalwa-t-fast,
+  .isalwa-focus-ring {
+    transition: none !important;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
