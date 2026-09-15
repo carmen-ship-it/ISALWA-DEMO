@@ -72,7 +72,8 @@ pnpm --filter @isalwa/os-web typecheck
 | `/clientes` | Party search list (`GET /v1/parties`) |
 | `/clientes/[partyId]` | Canonical party detail read-only |
 | `/administracion` | Admin placeholder; server 403 if not `people.admin` |
-| `/finanzas`, `/mensajes` | Locked capability states |
+| `/finanzas` | Operational finance desk (`finance.operational.record`); product `finance` stays LOCKED |
+| `/mensajes` | Locked capability state |
 
 ## Work / approval read surfaces (UI-3)
 

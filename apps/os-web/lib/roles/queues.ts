@@ -16,6 +16,7 @@ const MOUNTED_DESK = [
   '/produccion',
   '/almacen',
   '/compras',
+  '/finanzas',
   '/entregas',
   '/coordinacion',
   '/clientes',

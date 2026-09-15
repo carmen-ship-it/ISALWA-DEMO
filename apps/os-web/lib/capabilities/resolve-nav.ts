@@ -28,7 +28,7 @@ export function resolveFutureNavItems(
     items.push({
       id: key,
       href: presentation.route,
-      labelKey: key === 'finance' ? 'nav.finanzas' : 'nav.mensajes',
+      labelKey: key === 'messaging' ? 'nav.mensajes' : presentation.label,
       icon: presentation.navIcon,
       state: capabilityNavState(capability.state),
       badge: capabilityNavBadge(capability.state),

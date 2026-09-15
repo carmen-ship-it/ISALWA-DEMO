@@ -179,7 +179,7 @@ export const DEPARTMENT_LENSES = [
     kicker: 'Contabilidad',
     title: 'Qué espera el registro operativo',
     description: 'No es un libro contable. Solo el siguiente paso operativo.',
-    href: '/entregas',
+    href: '/finanzas',
     action: 'Abrir el registro operativo',
     scopes: [FINANCE_OPERATIONAL_RECORD_SCOPE],
   },
