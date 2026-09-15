@@ -1,4 +1,5 @@
 import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
 
 /**
@@ -95,7 +96,8 @@ function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
       {items.length === 0 ? (
         <EmptyState
           title="Sin movimientos todavía"
-          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden."
+          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden. Un vacío es intencional: no hay registro interno aún."
+          example="Registre primero una salida de almacén; la nota de entrega al cliente es otro hecho."
         />
       ) : (
         <Timeline
@@ -146,22 +148,31 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         <EmptyState
           title="No tiene permiso para ver este registro de entrega."
           description="Este es un registro interno de entrega. No reclama un número oficial."
+          example="Con el permiso de entregas en la sesión, verá salidas y notas internas de esta empresa."
         />
       </div>
     );
   }
 
   return (
-    <div className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
+    <OpsDeskSurface className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
       <div className="flex flex-wrap gap-2">
         <StatusPill tone="neutral">Sin número oficial</StatusPill>
         <StatusPill tone="neutral">No es factura</StatusPill>
         <StatusPill tone="manual">No confirma pago en el libro</StatusPill>
       </div>
 
+      {warehouseExits.length === 0 && deliveries.length === 0 ? (
+        <EmptyState
+          title="Todavía no hay entregas registradas"
+          description="La empresa aún no tiene salidas de almacén ni notas de entrega internas. No se inventan movimientos."
+          example="Cuando almacén registre una salida, aparecerá en la cronología y en la sección de salida."
+        />
+      ) : null}
+
       <Chronology warehouseExits={warehouseExits} deliveries={deliveries} />
 
-      <PageSection card className="bg-white p-6 md:p-8">
+      <PageSection card className="p-6 md:p-8">
         <SectionHeader
           kicker="Entrega"
           title={
@@ -179,7 +190,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           <EmptyState
             className="mt-8"
             title="Todavía no hay salida de almacén"
-            description="Una salida de almacén no crea la nota de entrega."
+            description="Una salida de almacén no crea la nota de entrega. El vacío significa que aún no se registró una salida real."
+            example="Cuando salga mercadería del almacén, anótela aquí. No use esta pantalla para inventar stock."
           />
         ) : (
           <ul className="mt-8 space-y-8" aria-label="Salidas de almacén">
@@ -210,7 +222,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         )}
       </PageSection>
 
-      <PageSection card className="bg-white p-6 md:p-8">
+      <PageSection card className="p-6 md:p-8">
         <SectionHeader
           kicker="Entrega"
           title={
@@ -228,7 +240,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           <EmptyState
             className="mt-8"
             title="Todavía no hay una entrega registrada."
-            description="La nota de entrega se crea solo cuando la mercadería llega al cliente final."
+            description="La nota de entrega se crea solo cuando la mercadería llega al cliente final. Un vacío no inventa llegada ni número oficial."
+            example="Después de una salida de almacén, registre la llegada al cliente aquí — no en el pedido."
           />
         ) : (
           <ul className="mt-8 space-y-10" aria-label="Entregas al cliente">
@@ -307,6 +320,6 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           </ul>
         )}
       </PageSection>
-    </div>
+    </OpsDeskSurface>
   );
 }

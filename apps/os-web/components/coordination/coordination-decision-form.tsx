@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { Button } from '@isalwa/ui';
+import { OPS_STICKY_ACTION_CLASS } from '@/components/production/ops-desk-surface';
 import { COORDINATION_RECORD_BUTTON } from '@/lib/coordination/page-model';
 import {
   recordCoordinationDecision,
@@ -124,7 +125,7 @@ export function CoordinationDecisionForm({
         <p className="text-xs text-[var(--isalwa-slate)]">Caso vinculado: {linkedCaseId}</p>
       ) : null}
       {reason ? <p className="text-sm text-[var(--isalwa-danger)]">{reason}</p> : null}
-      <div className="sticky bottom-0 z-10 -mx-1 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-1 py-3 backdrop-blur-md">
+      <div className={`${OPS_STICKY_ACTION_CLASS} -mx-1 px-1 py-3`}>
         <Button type="submit">{mode === 'resolve' ? 'Registrar resolución' : COORDINATION_RECORD_BUTTON}</Button>
       </div>
     </form>
@@ -132,7 +133,7 @@ export function CoordinationDecisionForm({
 }
 
 function denialCopy(reason: string): string {
-  if (reason === 'unauthorized_role') return 'El cargo no otorga esta capacidad.';
+  if (reason === 'unauthorized_role') return 'El cargo no otorga este permiso.';
   if (reason === 'missing_session_org') return 'Falta la organización de la sesión.';
   if (reason === 'cross_tenant') return 'Esa decisión es de otra organización.';
   if (reason === 'decision_required') return 'Escriba la decisión.';

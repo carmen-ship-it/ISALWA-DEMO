@@ -16,7 +16,9 @@ export default function ProductosPage() {
           </div>
         }
       />
-      <ProductCatalogPreview />
+      <div className="mt-2 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,transparent)] p-1 md:p-2">
+        <ProductCatalogPreview />
+      </div>
     </PageContainer>
   );
 }

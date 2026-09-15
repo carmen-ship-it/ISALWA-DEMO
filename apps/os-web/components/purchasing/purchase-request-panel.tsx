@@ -12,6 +12,7 @@ import {
   StatusPill,
 } from '@isalwa/ui';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import {
   COMPRAS_COPY,
   type ComprasQueueItem,
@@ -64,7 +65,8 @@ export function PurchaseRequestPanel({
   onStop,
 }: PurchaseRequestPanelProps) {
   return (
-    <PageSection card className="bg-white p-6 md:p-8" aria-label={COMPRAS_COPY.title}>
+    <OpsDeskSurface>
+      <PageSection card className="p-6 md:p-8" aria-label={COMPRAS_COPY.title}>
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill tone="manual">No es inventario</StatusPill>
         <StatusPill tone="neutral">No prueba falta de stock</StatusPill>
@@ -87,6 +89,7 @@ export function PurchaseRequestPanel({
       </p>
       <div className="mt-8">{renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}</div>
     </PageSection>
+    </OpsDeskSurface>
   );
 }
 
@@ -151,7 +154,7 @@ function QueueList({
     <div>
       <ActionBar
         sticky
-        className="mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white"
+        className="mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]"
       >
         <form method="get" action="/compras" className="flex w-full flex-wrap items-end gap-3" role="search">
           <div className="min-w-[12rem] flex-1">
@@ -183,7 +186,7 @@ function QueueList({
               ))}
             </select>
           </div>
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" size="sm">
             Filtrar
           </Button>
           {filterActive ? (
@@ -210,6 +213,11 @@ function QueueList({
             filterActive
               ? 'Pruebe otro estado o quite los filtros. La cola no inventa pedidos.'
               : COMPRAS_COPY.emptyDescription
+          }
+          example={
+            filterActive
+              ? 'Quitar filtros muestra toda la cola de esta empresa.'
+              : 'Cuando un área pida un ítem, aparecerá aquí para la encargada de compras.'
           }
         />
       ) : (

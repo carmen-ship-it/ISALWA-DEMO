@@ -1,4 +1,5 @@
 import { EmptyState, ListRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { formatTimestamp } from '@/lib/commercial/labels';
 import { displayQualityRatio } from '@/lib/production/quality-display';
 
@@ -80,7 +81,8 @@ export function ProductionPanel({ productId, records, quemas = [] }: ProductionP
   );
 
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label={PRODUCTION_PANEL_COPY.title}>
+    <OpsDeskSurface>
+    <PageSection card className="p-8 md:p-10" aria-label={PRODUCTION_PANEL_COPY.title}>
       <SectionHeader
         kicker={PRODUCTION_PANEL_COPY.kicker}
         title={
@@ -116,6 +118,7 @@ export function ProductionPanel({ productId, records, quemas = [] }: ProductionP
           <EmptyState
             title={PRODUCTION_PANEL_COPY.emptyTitle}
             description={PRODUCTION_PANEL_COPY.emptyDescription}
+            example="Cuando planta anote pasos reales para este producto, aparecerán en esta lista. No se inventan registros."
           />
         </div>
       ) : (
@@ -204,5 +207,6 @@ export function ProductionPanel({ productId, records, quemas = [] }: ProductionP
         Consumo: {PRODUCTION_PANEL_COPY.categories}. {PRODUCTION_PANEL_COPY.consumptionNote}
       </p>
     </PageSection>
+    </OpsDeskSurface>
   );
 }

@@ -11,6 +11,7 @@ import {
   StatusPill,
 } from '@isalwa/ui';
 import { SearchableSelect } from '@/components/experience/searchable-select';
+import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import {
   WAREHOUSE_EXIT_HREF,
@@ -74,13 +75,13 @@ export function WarehouseDesk({
     view.waiting.length === 0 && view.pedidos.length === 0 && view.allocations.length === 0;
 
   return (
-    <div className="space-y-8" data-warehouse-boundary="allocation" data-warehouse-status="ready">
+    <OpsDeskSurface className="space-y-6" data-warehouse-boundary="allocation" data-warehouse-status="ready">
       <BoundaryNotes />
       {empty ? (
         <EmptyState
-          title={WAREHOUSE_TASK_COPY.emptyWaiting}
-          description={`${WAREHOUSE_TASK_COPY.receiptDoesNotAllocate} ${WAREHOUSE_TASK_COPY.unknownAvailability}`}
-          example={WAREHOUSE_TASK_COPY.partialAllowed}
+          title="Todavía no hay producto para asignar"
+          description="Cuando haya ingreso a Almacén de Productos Terminados y pedidos de esta empresa, aparecerán aquí. Un vacío no es cero de stock ni un error de pantalla."
+          example="Espere un Listo de planta o un pedido real. No se inventan cantidades ni asignaciones."
         />
       ) : null}
       <WaitingSection view={view} />
@@ -88,13 +89,13 @@ export function WarehouseDesk({
       <RemainsSection view={view} />
       <HistorySection view={view} canAllocate={canAllocate} onCorrect={onCorrect} />
       <ExitNote />
-    </div>
+    </OpsDeskSurface>
   );
 }
 
 function BoundaryNotes() {
   return (
-    <PageSection card className="bg-white p-6 md:p-8">
+    <PageSection card className="p-6 md:p-8">
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
         <StatusPill tone="neutral">No es entrega</StatusPill>
@@ -112,10 +113,14 @@ function BoundaryNotes() {
 
 function WaitingSection({ view }: { view: WarehouseTaskView }) {
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
+    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.waiting} />
       {view.waiting.length === 0 ? (
-        <EmptyState title={WAREHOUSE_TASK_COPY.emptyWaiting} description={WAREHOUSE_TASK_COPY.unknownAvailability} />
+        <EmptyState
+          title={WAREHOUSE_TASK_COPY.emptyWaiting}
+          description={`${WAREHOUSE_TASK_COPY.unknownAvailability} ${WAREHOUSE_TASK_COPY.receiptDoesNotAllocate}`}
+          example="Cuando planta registre Listo, el producto aparecerá en esta lista para asignar."
+        />
       ) : (
         <ul>
           {view.waiting.map((row) => (
@@ -174,7 +179,7 @@ function AllocateSection({
   );
 
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
+    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.allocatable} />
       {view.allocatable.length === 0 ? (
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.unknownAvailability}</p>
@@ -241,16 +246,23 @@ function AllocateSection({
           <p id="warehouse-quantity-hint" className="text-sm text-[var(--isalwa-slate)]">
             {WAREHOUSE_TASK_COPY.partialAllowed}
           </p>
-          <div className="sticky bottom-0 z-10 -mx-2 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-2 py-3 backdrop-blur-md">
+          <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
             <Button type="submit">Asignar al pedido</Button>
           </div>
         </form>
       ) : !canAllocate ? (
         <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.permissionRole}</p>
       ) : choosable.length === 0 || pedidos.length === 0 ? (
-        <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {view.pedidos.length === 0 ? WAREHOUSE_TASK_COPY.emptyPedidos : WAREHOUSE_TASK_COPY.unknownAvailability}
-        </p>
+        <EmptyState
+          className="mt-6"
+          title={view.pedidos.length === 0 ? WAREHOUSE_TASK_COPY.emptyPedidos : WAREHOUSE_TASK_COPY.emptyWaiting}
+          description={
+            view.pedidos.length === 0
+              ? 'Los pedidos de esta empresa aparecerán cuando existan. No se inventan líneas ni cantidades.'
+              : WAREHOUSE_TASK_COPY.unknownAvailability
+          }
+          example="Si falta producto terminado, espere Listo en Producción. Si faltan pedidos, espere carga comercial."
+        />
       ) : null}
     </PageSection>
   );
@@ -258,10 +270,14 @@ function AllocateSection({
 
 function RemainsSection({ view }: { view: WarehouseTaskView }) {
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.remains}>
+    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.remains}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.remains} />
       {view.remains.length === 0 ? (
-        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.noRemainderRecorded}</p>
+        <EmptyState
+          title="Sin remanente registrado"
+          description={WAREHOUSE_TASK_COPY.noRemainderRecorded}
+          example="Cuando haya una asignación parcial, aquí se verá lo que queda de la línea."
+        />
       ) : (
         <ul>
           {view.remains.map((row) => (
@@ -293,7 +309,7 @@ function HistorySection({
 }) {
   if (view.allocations.length === 0 && view.corrections.length === 0) return null;
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label="Asignaciones">
+    <PageSection card className="p-8 md:p-10" aria-label="Asignaciones">
       <SectionHeader
         kicker={WAREHOUSE_TASK_COPY.kicker}
         title="Asignaciones"
@@ -383,7 +399,7 @@ function CorrectionForm({
 
 function ExitNote() {
   return (
-    <PageSection card className="bg-white p-8 md:p-10">
+    <PageSection card className="p-8 md:p-10">
       <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.exitNote}</p>
       <Link href={WAREHOUSE_EXIT_HREF} className="mt-4 inline-flex">
         <Button type="button" variant="secondary">
@@ -404,8 +420,12 @@ function WarehousePermission({ denial }: { denial: WarehouseDenialReason }) {
           ? WAREHOUSE_TASK_COPY.permissionNoSession
           : WAREHOUSE_TASK_COPY.permissionRole;
   return (
-    <div data-warehouse-status="denied" role="alert">
-      <EmptyState title={WAREHOUSE_TASK_COPY.permissionTitle} description={description} />
+    <OpsDeskSurface data-warehouse-status="denied" role="alert">
+      <EmptyState
+        title={WAREHOUSE_TASK_COPY.permissionTitle}
+        description={description}
+        example="Con el permiso de almacén confirmado en la sesión, podrá asignar producto terminado a pedidos."
+      />
       <div className="mt-6 max-w-xl space-y-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
         <p>{WAREHOUSE_TASK_COPY.waiting}: {WAREHOUSE_TASK_COPY.emptyWaiting}</p>
         <p>{WAREHOUSE_TASK_COPY.allocatable}: {WAREHOUSE_TASK_COPY.unknownAvailability}</p>
@@ -420,6 +440,6 @@ function WarehousePermission({ denial }: { denial: WarehouseDenialReason }) {
           </Button>
         </Link>
       </div>
-    </div>
+    </OpsDeskSurface>
   );
 }
