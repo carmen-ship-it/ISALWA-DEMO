@@ -176,3 +176,211 @@ describePrisma('workforce transactional completion', () => {
     );
   });
 });
+
+describePrisma('workforce interactive transaction hardening', () => {
+  let store: PrismaOsWorkforceStore;
+  let svc: WorkforceCommandService;
+  let prisma: NonNullable<ReturnType<typeof getOsPrisma>>;
+
+  before(async () => {
+    prisma = getOsPrisma()!;
+    store = new PrismaOsWorkforceStore(prisma);
+    svc = new WorkforceCommandService(store, new LocalAuthProviderPort());
+  });
+
+  async function seedAdminOrg() {
+    const org = await store.seedOrganization('Tx Hard Org', `txh-${createId()}`);
+    const admin = await store.seedAdminMember(
+      org.id,
+      `admin-${createId()}@txh.bo`,
+      'Admin',
+      'User',
+    );
+    return { org, admin };
+  }
+
+  async function inviteAndActivate(
+    orgId: string,
+    admin: Awaited<ReturnType<typeof store.seedAdminMember>>,
+  ) {
+    const invited = await svc.execute(
+      'InviteMember',
+      ctx(orgId, admin.member.id, admin.person.id, admin.auth.id),
+      {
+        email: `emp-${createId()}@txh.bo`,
+        givenName: 'Emp',
+        familyName: 'User',
+        roleKey: 'sales_rep',
+      },
+    );
+    const memberId = invited.data.memberId as string;
+    await svc.execute('ActivateMember', ctx(orgId, memberId, '', ''), {
+      memberId,
+      providerSubject: `subject:${memberId}`,
+    });
+    return memberId;
+  }
+
+  async function counts(organizationId: string) {
+    const [roles, events, audits, outbox, idem] = await Promise.all([
+      prisma.osRoleAssignment.count({ where: { organizationId } }),
+      prisma.osBusinessEvent.count({ where: { organizationId } }),
+      prisma.osAuditLog.count({ where: { organizationId } }),
+      prisma.osOutboxMessage.count({ where: { organizationId } }),
+      prisma.osIdempotencyKey.count({ where: { organizationId } }),
+    ]);
+    return { roles, events, audits, outbox, idem };
+  }
+
+  it('ChangeRole commits role event audit outbox atomically', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const before = await counts(org.id);
+
+    await svc.execute('ChangeRole', session, { memberId, roleKey: 'sales_manager' });
+
+    const after = await counts(org.id);
+    assert.ok(after.roles >= before.roles);
+    assert.equal(after.events, before.events + 1);
+    assert.equal(after.audits, before.audits + 1);
+    assert.equal(after.outbox, before.outbox + 1);
+    const event = await prisma.osBusinessEvent.findFirst({
+      where: { organizationId: org.id, eventType: 'member.role.changed' },
+      orderBy: { recordedAt: 'desc' },
+    });
+    assert.ok(event);
+    const audit = await prisma.osAuditLog.findFirst({
+      where: { organizationId: org.id, resourceId: memberId },
+      orderBy: { createdAt: 'desc' },
+    });
+    assert.ok(audit);
+    const outbox = await prisma.osOutboxMessage.findFirst({
+      where: { organizationId: org.id, eventId: event!.id },
+    });
+    assert.ok(outbox);
+  });
+
+  it('rolls back role/event/audit/outbox when append fails', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    const before = await counts(org.id);
+    const rolesBefore = (await store.listRoleAssignmentsForMember(memberId)).map((r) => ({
+      roleKey: r.roleKey,
+      endedAt: r.endedAt?.toISOString() ?? null,
+    }));
+
+    store.testFailNextAppend = true;
+    await assert.rejects(
+      () => svc.execute('ChangeRole', session, { memberId, roleKey: 'ops_manager' }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+    assert.equal(store.testFailNextAppend, false);
+
+    const after = await counts(org.id);
+    assert.deepEqual(after, before);
+    const rolesAfter = (await store.listRoleAssignmentsForMember(memberId)).map((r) => ({
+      roleKey: r.roleKey,
+      endedAt: r.endedAt?.toISOString() ?? null,
+    }));
+    assert.deepEqual(rolesAfter, rolesBefore);
+  });
+
+  it('latency regression: delay above old 5s default still succeeds with new timeout', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    // Controlled Prisma lifetime: delay exceeds historical 5s default; config keeps 8s budget.
+    store.interactiveTxOptions = { maxWait: 2_000, timeout: 8_000 };
+    store.testAppendDelayMs = 5_500;
+    const before = await counts(org.id);
+
+    await svc.execute('ChangeRole', session, { memberId, roleKey: 'sales_manager' });
+
+    const after = await counts(org.id);
+    assert.equal(after.events, before.events + 1);
+    assert.equal(after.audits, before.audits + 1);
+    assert.equal(after.outbox, before.outbox + 1);
+    store.interactiveTxOptions = undefined;
+    store.testAppendDelayMs = 0;
+  });
+
+  it('latency regression: delay beyond configured timeout leaves no partial rows', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    store.interactiveTxOptions = { maxWait: 2_000, timeout: 1_200 };
+    store.testAppendDelayMs = 2_000;
+    const before = await counts(org.id);
+    const rolesBefore = (await store.listRoleAssignmentsForMember(memberId)).map((r) => ({
+      roleKey: r.roleKey,
+      endedAt: r.endedAt?.toISOString() ?? null,
+    }));
+
+    await assert.rejects(() =>
+      svc.execute('ChangeRole', session, { memberId, roleKey: 'ops_manager' }),
+    );
+
+    const after = await counts(org.id);
+    assert.deepEqual(after, before);
+    const rolesAfter = (await store.listRoleAssignmentsForMember(memberId)).map((r) => ({
+      roleKey: r.roleKey,
+      endedAt: r.endedAt?.toISOString() ?? null,
+    }));
+    assert.deepEqual(rolesAfter, rolesBefore);
+    store.interactiveTxOptions = undefined;
+    store.testAppendDelayMs = 0;
+  });
+
+  it('after failed ChangeRole, same store instance succeeds without stale tx client', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const session = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+
+    store.testFailNextAppend = true;
+    await assert.rejects(
+      () => svc.execute('ChangeRole', session, { memberId, roleKey: 'ops_manager' }),
+      (err: Error) => err.message === 'TEST_APPEND_FAIL',
+    );
+
+    await svc.execute('ChangeRole', session, { memberId, roleKey: 'sales_manager' });
+    const roles = await store.listRoleAssignmentsForMember(memberId);
+    assert.ok(roles.some((r) => r.roleKey === 'sales_manager' && r.endedAt == null));
+  });
+
+  it('ChangeRole still requires people.admin; sales_rep is denied', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const member = await store.getMemberInOrg(org.id, memberId);
+    assert.ok(member);
+    const auth = await store.findAuthIdentityByPersonAndStatus(member!.personId, 'active');
+    assert.ok(auth);
+
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'ChangeRole',
+          ctx(org.id, memberId, member!.personId, auth!.id),
+          { memberId, roleKey: 'sales_manager' },
+        ),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+  });
+
+  it('cross-tenant ChangeRole rejected (tenant isolation)', async () => {
+    const { org, admin } = await seedAdminOrg();
+    const memberId = await inviteAndActivate(org.id, admin);
+    const orgB = await store.seedOrganization('Other Hard', `txh-b-${createId()}`);
+
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'ChangeRole',
+          ctx(orgB.id, admin.member.id, admin.person.id, admin.auth.id),
+          { memberId, roleKey: 'sales_manager' },
+        ),
+      /TENANT_FORBIDDEN/,
+    );
+  });
+});
