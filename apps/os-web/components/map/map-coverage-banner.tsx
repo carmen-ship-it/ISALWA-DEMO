@@ -1,4 +1,4 @@
-import { StatusPill } from '@isalwa/ui';
+import { StatGroup, StatusPill } from '@isalwa/ui';
 import type { MapCoverageHonesty } from '@/lib/map/build-view-model';
 import type { MapProviderStatus } from '@/lib/map/provider-status';
 import { MAP_COVERAGE_LIMIT } from '@/lib/party/data-health';
@@ -17,25 +17,42 @@ export function MapCoverageBanner({ coverage, provider, partial }: MapCoverageBa
 
   return (
     <section
-      className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white/90 p-4 shadow-[var(--isalwa-shadow-resting)]"
+      className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)] p-4 shadow-[var(--isalwa-shadow-resting)] md:p-5"
       data-tour={TOUR_TARGET.mapCoverage}
       aria-label="Cobertura de ubicación"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <StatusPill tone="info">{provider.label}</StatusPill>
+        <StatusPill tone="manual">{provider.label}</StatusPill>
         {coverage.honesty ? (
-          <p className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+          <p className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)] md:text-2xl">
             {coverage.honesty}
           </p>
         ) : null}
       </div>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+
+      <StatGroup
+        className="mt-4"
+        items={[
+          {
+            label: 'Con coordenadas',
+            value: coverage.withCoordinates,
+            tone: 'var(--isalwa-glaze)',
+          },
+          {
+            label: 'Solo enlace',
+            value: coverage.provenanceOnly,
+            tone: 'var(--isalwa-kiln)',
+          },
+          {
+            label: 'Cartera leída',
+            value: coverage.total,
+          },
+        ]}
+      />
+
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {honesty && !coverage.honesty ? <span>{honesty} </span> : null}
-        {coverage.sentence && coverage.honesty ? (
-          <span>
-            {coverage.sentence}.{' '}
-          </span>
-        ) : null}
+        {coverage.sentence && coverage.honesty ? <span>{coverage.sentence}. </span> : null}
         {partial ? <span>Esta lectura no incluye todos los clientes. </span> : null}
         {coverage.provenanceOnly > 0 ? (
           <span>

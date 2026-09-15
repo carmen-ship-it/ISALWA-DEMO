@@ -43,9 +43,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mapbox' && token) {
     return {
       kind: 'token_present_unwired',
-      label: 'Proveedor no conectado',
+      label: 'Lienzo en espera',
       detail:
-        'Hay un token de mapa en el entorno, pero el lienzo no se conecta solo. No se compra ni se activa un proveedor en silencio.',
+        'Hay un token de mapa en el entorno, pero el lienzo no se conecta solo. La mesa de ubicación sigue con cobertura y lista — sin comprar ni activar un proveedor en silencio.',
       engine: 'mapbox',
       tokenPresent: true,
     };
@@ -54,7 +54,7 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mapbox' && !token) {
     return {
       kind: 'unavailable',
-      label: 'Sin proveedor de mapa',
+      label: 'Lienzo en espera',
       detail:
         'Se pidió Mapbox sin token público. Se usa la lista honesta. No se inventan coordenadas ni se compra un plan.',
       engine: null,
@@ -65,9 +65,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
   if (provider === 'mock') {
     return {
       kind: 'mock_unwired',
-      label: 'Mapa de teselas no conectado',
+      label: 'Lienzo en espera',
       detail:
-        'El motor mock (MapLibre) existe en el contrato de proveedores, pero os-web no carga el lienzo todavía. La lista muestra solo hechos ya registrados.',
+        'El motor mock (MapLibre) existe en el contrato de proveedores, pero os-web no carga el lienzo todavía. Cobertura y lista muestran solo hechos ya registrados.',
       engine: 'maplibre',
       tokenPresent: false,
     };
@@ -75,9 +75,9 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
 
   return {
     kind: 'unavailable',
-    label: 'Sin proveedor de mapa',
+    label: 'Lienzo en espera',
     detail:
-      'El mapa de teselas se conectará cuando haya una decisión explícita de proveedor. No se inventan coordenadas ni un mapa de calor.',
+      'El mapa de teselas se conectará cuando haya una decisión explícita de proveedor. Hasta entonces esta mesa es intencional: cobertura, lista y ficha — sin coordenadas inventadas ni mapa de calor.',
     engine: null,
     tokenPresent: false,
   };

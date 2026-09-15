@@ -192,7 +192,7 @@ export const es = {
       title: 'Mapa',
       kicker: 'Ubicación',
       description:
-        'Solo coordenadas ya registradas. Un enlace de Maps no coloca al cliente en el mapa y no se resuelve un enlace compartido.',
+        'Mesa de ubicación con cobertura honesta. Solo coordenadas ya registradas; un enlace de Maps no coloca al cliente ni se geocodifica. El lienzo de teselas espera decisión de proveedor.',
       clientesLink: 'Clientes',
       dataHealth: 'Salud de datos',
       partialNote: 'No incluye todos los clientes.',

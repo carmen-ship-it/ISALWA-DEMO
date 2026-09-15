@@ -34,7 +34,12 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
 
   return (
-    <PageContainer label={t('pages.mapa.title')}>
+    <PageContainer
+      label={t('pages.mapa.title')}
+      data-page="mapa"
+      data-nav-active="mapa"
+      data-nav-hint="mapa"
+    >
       <PageHeader
         kicker={t('pages.mapa.kicker')}
         title={t('pages.mapa.title')}

@@ -44,7 +44,7 @@ export function MapExperience({
       : null;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" data-map-desk="location">
       <MapCoverageBanner coverage={model.coverage} provider={provider} partial={model.partial} />
 
       <MapLayerControls activeLayer={layer} onChange={setLayer} />
@@ -59,7 +59,7 @@ export function MapExperience({
             name="q"
             placeholder="Nombre o teléfono"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event: { target: { value: string } }) => setQuery(event.target.value)}
             className="mt-1.5 w-full"
             autoComplete="off"
           />
@@ -74,7 +74,7 @@ export function MapExperience({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(288px,0.9fr)]">
         <div className={mobilePane === 'map' ? 'block' : 'hidden md:block'}>
           <MapCanvasFallback
             provider={provider}
@@ -91,7 +91,8 @@ export function MapExperience({
               onCloseHref={hrefWithoutPanel('/mapa', listQuery)}
             />
           ) : null}
-          <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)]">
+          <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)] md:p-5">
+            <p className="isalwa-kicker mb-3">Cartera · lectura honesta</p>
             <MapCustomerLists
               plottable={model.plottable}
               provenanceOnly={model.provenanceOnly}

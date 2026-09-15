@@ -35,7 +35,7 @@ describe('map provider status', () => {
     const status = resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' });
     assert.equal(status.kind, 'token_present_unwired');
     assert.equal(status.tokenPresent, true);
-    assert.match(status.detail, /no se conecta solo|No se compra/);
+    assert.match(status.detail, /no se conecta solo|No se compra|sin comprar/i);
   });
 
   it('keeps mock unwired without purchasing', () => {
