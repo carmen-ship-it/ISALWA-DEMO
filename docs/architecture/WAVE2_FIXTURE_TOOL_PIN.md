@@ -1,7 +1,7 @@
 # Wave 2 fixture tool pin (not the hosted app)
 
 **HOSTED_APP_SHA** (live staging API+web): `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**FIXTURE_TOOL_SHA**: *(set on commit)*
+**FIXTURE_TOOL_SHA**: `2506f4f4731cfa333c7c61b8d59ca6599280711c`
 
 These are different. Do not treat the fixture tool commit as a redeploy of the hosted app.
 
