@@ -1,81 +1,69 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { MapExperience } from '@/components/map/map-experience';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries, mapCoverage } from '@/lib/party/data-health';
-import { partyHref } from '@/lib/party/navigation';
-import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { parseListQuery, parsePanel } from '@/lib/lists/url-state';
+import { buildMapDeskViewModel, resolveMapProviderStatus } from '@/lib/map';
+import { t } from '@/lib/i18n/es';
+import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries } from '@/lib/party/data-health';
+import { resolveMemberLabels } from '@/lib/work/member-resolver';
 
-export default async function MapaPage() {
+type MapaPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function MapaPage({ searchParams }: MapaPageProps) {
+  const params = await searchParams;
+  const listQuery = parseListQuery(params);
+  const panel = parsePanel(listQuery.panel);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
   const result = await client.searchParties({ status: 'active', limit: 100 });
-  const coverage = mapCoverage(result.items);
-  const withCoordinates = result.items.filter((item) => item.hasCoordinates === true);
+  const model = buildMapDeskViewModel(result.items, { partial: result.meta.hasMore });
+  const provider = resolveMapProviderStatus();
   const issues = dataHealthFromSummaries(result.items);
-  const partial = result.meta.hasMore;
+
+  const ownerIds = result.items
+    .map((item) => item.commercialOwnerMemberId)
+    .filter((id): id is string => Boolean(id));
+  const memberLabels =
+    ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
 
   return (
-    <PageContainer label="Mapa">
+    <PageContainer label={t('pages.mapa.title')}>
       <PageHeader
-        kicker="Ubicación"
-        title="Mapa"
-        description="Solo coordenadas ya registradas. Un enlace de Maps no coloca al cliente en el mapa y no se resuelve un enlace compartido."
+        kicker={t('pages.mapa.kicker')}
+        title={t('pages.mapa.title')}
+        description={t('pages.mapa.description')}
         action={
           <Link href="/clientes" className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-            Clientes
+            {t('pages.mapa.clientesLink')}
           </Link>
         }
       />
 
-      <PageSection data-tour={TOUR_TARGET.mapCoverage}>
-        <StatusPill tone="info">Sin proveedor de mapa</StatusPill>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {coverage.sentence ?? 'La lista aún no trae hechos de ubicación.'}
-          {partial ? ' Esta lectura no incluye todos los clientes.' : null}{' '}
-          {coverage.limit}{' '}
-          {coverage.provenanceOnly > 0
-            ? `${coverage.provenanceOnly} ${coverage.provenanceOnly === 1 ? 'cliente tiene solo un enlace y no se coloca' : 'clientes tienen solo un enlace y no se colocan'} en el mapa. `
-            : null}
-          El mapa de teselas se conectará cuando haya un proveedor. No se inventan coordenadas ni un mapa de calor.
-        </p>
-      </PageSection>
-
-      <PageSection className="mt-8">
-        <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Disponibles en mapa</h2>
-        {withCoordinates.length === 0 ? (
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Ningún cliente visible tiene coordenadas.</p>
-        ) : (
-          <ul className="mt-3 divide-y divide-[var(--isalwa-mist)]">
-            {withCoordinates.map((item) => (
-              <li key={item.partyId} className="py-3">
-                <Link href={partyHref(item.partyId)} className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                  {item.displayName}
-                </Link>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Ubicación disponible</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </PageSection>
+      <MapExperience
+        model={model}
+        provider={provider}
+        listQuery={listQuery}
+        selectedPartyId={panel?.kind === 'party' ? panel.id : null}
+        memberLabels={memberLabels}
+      />
 
       <PageSection className="mt-8" aria-label="Salud de datos">
-        <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Salud de datos</h2>
+        <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">{t('pages.mapa.dataHealth')}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {DATA_HEALTH_BOUNDARY}
-          {partial ? ' No incluye todos los clientes.' : null}
+          {model.partial ? ` ${t('pages.mapa.partialNote')}` : null}
         </p>
-        {coverage.sentence === null ? (
-          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
-            La lista aún no trae hechos para revisar salud de datos.
-          </p>
+        {!model.coverage.factsPresent ? (
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">{t('pages.mapa.noFacts')}</p>
         ) : issues.length === 0 ? (
-          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
-            No hay observaciones en los clientes visibles.
-          </p>
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">{t('pages.mapa.noIssues')}</p>
         ) : (
           <ul className="mt-3 space-y-4">
             {issues.map((issue) => (
