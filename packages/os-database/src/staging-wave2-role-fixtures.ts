@@ -31,6 +31,11 @@
  *
  * Receipt (no secrets): ~/.isalwa-secrets/isalwa-os-staging-wave2-role-fixtures.json
  * Passwords (local only, never in receipt): …-wave2-role-passwords.json
+ *   — nine business personas only; fixture seed actor uses ephemeral password
+ *
+ * Fixture seed actor (not a business persona under acceptance):
+ *   w2.fixture-seed@isalwa.demo with master_data.admin only
+ *   Creates synthetic Party / opportunity / quote. Asesor scopes stay planned-only.
  *
  * Run (allowlisted IP, after FIXTURE_EXECUTION_READY):
  *   corepack pnpm run fixture:wave2-roles:prepare
@@ -56,17 +61,27 @@ import {
   WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME,
   WAVE2_ROLE_FIXTURE_ORG_SLUG,
   WAVE2_SYNTH_PARTY_LEGAL_NAME,
+  WAVE2_FIXTURE_SEED_EMAIL,
+  WAVE2_FIXTURE_SEED_SCOPES,
   ROLE_EMAILS,
   assertPreConnectGuards,
   assertStagingDatabaseName,
   assertMigrationCount,
   assertNotRealTenant,
   assertSyntheticEmailAllowed,
+  assertFixtureToolEmailAllowed,
   assertCapabilitiesMatchPlanned,
   requireEnvFrom,
   EXPECTED_MIGRATION_COUNT,
   STAGING_DATABASE_NAME,
 } from './staging-wave2-role-fixtures-guards';
+import {
+  assertAsesorDeniedCreateParty,
+  assertCommercialSeedActorEmail,
+  expectedWave2FixtureCounts,
+  fixtureSeedActorSpec,
+  reconcileActiveGrants,
+} from './staging-wave2-role-fixtures-lib';
 
 function log(line: string): void {
   const safe = line
@@ -103,7 +118,7 @@ async function ensureSupabaseUser(email: string, password: string): Promise<{
   id: string;
   created: boolean;
 }> {
-  assertSyntheticEmailAllowed(email);
+  assertFixtureToolEmailAllowed(email);
   const list = await adminFetch(`/auth/v1/admin/users?page=1&per_page=200`);
   if (!list.ok) throw new Error(`ADMIN_LIST_USERS_FAILED:${list.status}`);
   const body = (await list.json()) as { users?: Array<{ id: string; email?: string }> };
@@ -160,6 +175,144 @@ type RoleUserReceipt = {
   created: boolean;
   reused: boolean;
 };
+
+type SeedActorReceipt = {
+  email: string;
+  memberId: string;
+  personId: string;
+  authIdentityId: string;
+  supabaseUserId: string;
+  scopes: readonly string[];
+  purpose: 'fixture-setup-only';
+  isBusinessRole: false;
+  created: boolean;
+  reused: boolean;
+};
+
+async function ensureOrgMemberIdentity(args: {
+  orgId: string;
+  email: string;
+  givenName: string;
+  familyName: string;
+  supabaseUserId: string;
+  workforceStore: PrismaOsWorkforceStore;
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>;
+}): Promise<{
+  personId: string;
+  memberId: string;
+  authId: string;
+  created: boolean;
+}> {
+  const { orgId, email, givenName, familyName, supabaseUserId, workforceStore, prisma } = args;
+  assertFixtureToolEmailAllowed(email);
+
+  const existingAuth = await prisma.osAuthIdentity.findFirst({
+    where: {
+      provider: 'supabase',
+      providerSubject: supabaseUserId,
+    },
+  });
+
+  let personId = existingAuth?.personId ?? randomUUID();
+  let memberId: string;
+  let authId = existingAuth?.id ?? randomUUID();
+  let created = false;
+
+  const existingMember = await prisma.osOrganizationMember.findFirst({
+    where: { organizationId: orgId, personId },
+  });
+
+  if (!existingAuth) {
+    await workforceStore.insertPerson({
+      id: personId,
+      givenName,
+      familyName,
+      version: 0,
+    });
+    memberId = randomUUID();
+    await workforceStore.insertMember({
+      id: memberId,
+      organizationId: orgId,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date(),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    await workforceStore.insertAuthIdentity({
+      id: authId,
+      personId,
+      provider: 'supabase',
+      providerSubject: supabaseUserId,
+      email,
+      status: 'active',
+      invitedAt: null,
+      activatedAt: new Date(),
+      revokedAt: null,
+    });
+    created = true;
+  } else if (!existingMember) {
+    memberId = randomUUID();
+    await workforceStore.insertMember({
+      id: memberId,
+      organizationId: orgId,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date(),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    created = true;
+  } else {
+    memberId = existingMember.id;
+  }
+
+  return { personId, memberId, authId, created };
+}
+
+async function reconcileMemberScopes(args: {
+  orgId: string;
+  memberId: string;
+  wanted: readonly string[];
+  workforceStore: PrismaOsWorkforceStore;
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>;
+}): Promise<string[]> {
+  const { orgId, memberId, wanted, workforceStore, prisma } = args;
+  const current = await prisma.osRoleAssignment.findMany({
+    where: { organizationId: orgId, memberId, endedAt: null },
+  });
+  const plan = reconcileActiveGrants(
+    current.map((r) => r.roleKey),
+    wanted,
+  );
+  for (const roleKey of plan.toEnd) {
+    const row = current.find((r) => r.roleKey === roleKey);
+    if (!row) continue;
+    await prisma.osRoleAssignment.update({
+      where: { id: row.id },
+      data: { endedAt: new Date() },
+    });
+    log(`ROLE_ENDED member=${memberId} roleKey=${roleKey}`);
+  }
+  for (const roleKey of plan.toGrant) {
+    await workforceStore.insertRoleAssignment({
+      id: randomUUID(),
+      organizationId: orgId,
+      memberId,
+      roleKey,
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
+    log(`ROLE_GRANTED member=${memberId} roleKey=${roleKey}`);
+  }
+  return (
+    await prisma.osRoleAssignment.findMany({
+      where: { organizationId: orgId, memberId, endedAt: null },
+    })
+  ).map((r) => r.roleKey);
+}
 
 async function main(): Promise<void> {
   // 1–4: env, confirm, supabase ref, database URL host (no writes)
@@ -238,7 +391,7 @@ async function main(): Promise<void> {
 
   const roles: RoleUserReceipt[] = [];
 
-  // 9: fixture writes — synthetic org only
+  // 9: fixture writes — synthetic org only (nine business personas)
   for (const planned of V1_PLANNED_ASSIGNMENTS) {
     const identity = ROLE_EMAILS[planned.functionId];
     assertSyntheticEmailAllowed(identity.email);
@@ -255,130 +408,102 @@ async function main(): Promise<void> {
       password,
     );
 
-    const existingAuth = await prisma.osAuthIdentity.findFirst({
-      where: {
-        provider: 'supabase',
-        providerSubject: supabaseUserId,
-      },
+    const ensured = await ensureOrgMemberIdentity({
+      orgId: org.id,
+      email: identity.email,
+      givenName: identity.givenName,
+      familyName: identity.familyName,
+      supabaseUserId,
+      workforceStore,
+      prisma,
     });
 
-    let personId = existingAuth?.personId ?? randomUUID();
-    let memberId: string;
-    let authId = existingAuth?.id ?? randomUUID();
-    let created = false;
-
-    const existingMember = await prisma.osOrganizationMember.findFirst({
-      where: { organizationId: org.id, personId },
+    const finalCaps = await reconcileMemberScopes({
+      orgId: org.id,
+      memberId: ensured.memberId,
+      wanted: planned.intendedCapabilities,
+      workforceStore,
+      prisma,
     });
-
-    if (!existingAuth) {
-      await workforceStore.insertPerson({
-        id: personId,
-        givenName: identity.givenName,
-        familyName: identity.familyName,
-        version: 0,
-      });
-      memberId = randomUUID();
-      await workforceStore.insertMember({
-        id: memberId,
-        organizationId: org.id,
-        personId,
-        employmentStatus: 'active',
-        accessStatus: 'active',
-        employmentStartedAt: new Date(),
-        employmentEndedAt: null,
-        version: 0,
-      });
-      await workforceStore.insertAuthIdentity({
-        id: authId,
-        personId,
-        provider: 'supabase',
-        providerSubject: supabaseUserId,
-        email: identity.email,
-        status: 'active',
-        invitedAt: null,
-        activatedAt: new Date(),
-        revokedAt: null,
-      });
-      created = true;
-    } else if (!existingMember) {
-      memberId = randomUUID();
-      await workforceStore.insertMember({
-        id: memberId,
-        organizationId: org.id,
-        personId,
-        employmentStatus: 'active',
-        accessStatus: 'active',
-        employmentStartedAt: new Date(),
-        employmentEndedAt: null,
-        version: 0,
-      });
-      created = true;
-    } else {
-      memberId = existingMember.id;
-    }
-
-    const wanted = new Set(planned.intendedCapabilities);
-    const current = await prisma.osRoleAssignment.findMany({
-      where: { organizationId: org.id, memberId, endedAt: null },
-    });
-    for (const row of current) {
-      if (!wanted.has(row.roleKey)) {
-        await prisma.osRoleAssignment.update({
-          where: { id: row.id },
-          data: { endedAt: new Date() },
-        });
-        log(`ROLE_ENDED member=${memberId} roleKey=${row.roleKey}`);
-      }
-    }
-    const activeKeys = new Set(
-      (
-        await prisma.osRoleAssignment.findMany({
-          where: { organizationId: org.id, memberId, endedAt: null },
-        })
-      ).map((r) => r.roleKey),
-    );
-    for (const roleKey of planned.intendedCapabilities) {
-      if (activeKeys.has(roleKey)) continue;
-      await workforceStore.insertRoleAssignment({
-        id: randomUUID(),
-        organizationId: org.id,
-        memberId,
-        roleKey,
-        effectiveAt: new Date('2020-01-01'),
-        endedAt: null,
-      });
-      log(`ROLE_GRANTED member=${memberId} roleKey=${roleKey}`);
-    }
-
-    const finalCaps = (
-      await prisma.osRoleAssignment.findMany({
-        where: { organizationId: org.id, memberId, endedAt: null },
-      })
-    ).map((r) => r.roleKey);
     assertCapabilitiesMatchPlanned(planned.functionId, finalCaps);
+    if (planned.functionId === 'asesor-comercial') {
+      assertAsesorDeniedCreateParty(finalCaps);
+    }
 
     roles.push({
       functionId: planned.functionId,
       functionLabel: planned.functionLabel,
       intendedProfileId: planned.intendedProfileId,
       email: identity.email,
-      memberId,
-      personId,
-      authIdentityId: authId,
+      memberId: ensured.memberId,
+      personId: ensured.personId,
+      authIdentityId: ensured.authId,
       supabaseUserId,
       capabilities: planned.intendedCapabilities,
-      created: created || supabaseCreated,
-      reused: !(created || supabaseCreated),
+      created: ensured.created || supabaseCreated,
+      reused: !(ensured.created || supabaseCreated),
     });
   }
 
+  // Password file: nine business personas only (seed actor uses ephemeral password).
+  for (const email of Object.keys(passwords)) {
+    if (email === WAVE2_FIXTURE_SEED_EMAIL) {
+      delete passwords[email];
+    }
+  }
   writeFileSync(passwordPath, JSON.stringify(passwords, null, 2), { mode: 0o600 });
   chmodSync(passwordPath, 0o600);
   log(`PASSWORDS_FILE=${passwordPath}`);
 
   const asesor = roles.find((r) => r.functionId === 'asesor-comercial');
   if (!asesor) throw new Error('ASESOR_MISSING');
+  assertAsesorDeniedCreateParty(asesor.capabilities);
+
+  // Fixture seed actor (not a business persona): CreateParty authority only.
+  const seedSpec = fixtureSeedActorSpec();
+  assertCommercialSeedActorEmail(seedSpec.email);
+  const seedPassword = `W2-fixture-seed-${randomBytes(12).toString('base64url')}!9`;
+  const { id: seedSupabaseUserId, created: seedSupabaseCreated } = await ensureSupabaseUser(
+    seedSpec.email,
+    seedPassword,
+  );
+  const seedEnsured = await ensureOrgMemberIdentity({
+    orgId: org.id,
+    email: seedSpec.email,
+    givenName: seedSpec.givenName,
+    familyName: seedSpec.familyName,
+    supabaseUserId: seedSupabaseUserId,
+    workforceStore,
+    prisma,
+  });
+  const seedCaps = await reconcileMemberScopes({
+    orgId: org.id,
+    memberId: seedEnsured.memberId,
+    wanted: WAVE2_FIXTURE_SEED_SCOPES,
+    workforceStore,
+    prisma,
+  });
+  if (
+    seedCaps.length !== WAVE2_FIXTURE_SEED_SCOPES.length ||
+    !WAVE2_FIXTURE_SEED_SCOPES.every((s) => seedCaps.includes(s))
+  ) {
+    throw new Error(`SEED_ACTOR_SCOPE_MISMATCH:${seedCaps.join(',')}`);
+  }
+  const seedActor: SeedActorReceipt = {
+    email: seedSpec.email,
+    memberId: seedEnsured.memberId,
+    personId: seedEnsured.personId,
+    authIdentityId: seedEnsured.authId,
+    supabaseUserId: seedSupabaseUserId,
+    scopes: WAVE2_FIXTURE_SEED_SCOPES,
+    purpose: 'fixture-setup-only',
+    isBusinessRole: false,
+    created: seedEnsured.created || seedSupabaseCreated,
+    reused: !(seedEnsured.created || seedSupabaseCreated),
+  };
+  log(
+    `SEED_ACTOR_${seedActor.reused ? 'REUSED' : 'CREATED'} member=${seedActor.memberId} scopes=${seedActor.scopes.join(',')}`,
+  );
 
   let party = await prisma.osParty.findFirst({
     where: {
@@ -392,7 +517,13 @@ async function main(): Promise<void> {
   let commercialCreated = false;
 
   if (!partyId) {
-    const session = ctx(org.id, asesor.memberId, asesor.personId, asesor.authIdentityId);
+    // Setup authority ≠ role-under-test. Seed actor holds master_data.admin only.
+    const session = ctx(
+      org.id,
+      seedActor.memberId,
+      seedActor.personId,
+      seedActor.authIdentityId,
+    );
     const createdParty = await partySvc.execute('CreateParty', session, {
       displayName: 'SYNTH Wave2 Cliente',
       partyKind: 'organization',
@@ -402,7 +533,7 @@ async function main(): Promise<void> {
       createCommercialAccount: true,
     });
     partyId = String(createdParty.data.partyId);
-    log(`PARTY_CREATED partyId=${partyId}`);
+    log(`PARTY_CREATED partyId=${partyId} via=fixture-seed-actor`);
 
     const opp = await commercialSvc.execute('CreateOpportunity', session, {
       partyId,
@@ -444,6 +575,11 @@ async function main(): Promise<void> {
     log(`COMMERCIAL_REUSED partyId=${partyId}`);
   }
 
+  const expectedCounts = expectedWave2FixtureCounts();
+  if (roles.length !== expectedCounts.businessRoles) {
+    throw new Error(`UNEXPECTED_BUSINESS_ROLE_COUNT:${roles.length}`);
+  }
+
   const supabase = createClient(supabaseUrl, requireEnvFrom(process.env, 'SUPABASE_ANON_KEY'), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -477,11 +613,33 @@ async function main(): Promise<void> {
     organizationSlug: WAVE2_ROLE_FIXTURE_ORG_SLUG,
     organizationCreated: orgCreated,
     organizationReused: !orgCreated,
+    expectedCounts,
+    seedActor: {
+      email: seedActor.email,
+      memberId: seedActor.memberId,
+      personId: seedActor.personId,
+      authIdentityId: seedActor.authIdentityId,
+      supabaseUserId: seedActor.supabaseUserId,
+      scopes: [...seedActor.scopes],
+      purpose: seedActor.purpose,
+      isBusinessRole: false,
+      created: seedActor.created,
+      reused: seedActor.reused,
+    },
     partyId,
     opportunityId,
     quoteId,
+    orderId: null,
+    productionFixtureIds: [] as string[],
+    warehouseFixtureIds: [] as string[],
+    purchasingFixtureIds: [] as string[],
+    financeFactIds: [] as string[],
+    coordinationIds: [] as string[],
+    workIds: [] as string[],
+    approvalIds: [] as string[],
     commercialCreated,
     commercialReused: !commercialCreated,
+    commercialSeededBy: 'fixture-seed-actor',
     roles: roles.map((r) => ({
       functionId: r.functionId,
       functionLabel: r.functionLabel,
@@ -502,11 +660,17 @@ async function main(): Promise<void> {
       'production.review.member',
       'people.admin',
     ],
+    backlog: {
+      commercialCustomerCreate:
+        'PLANNED_FORWARD_UNWIRED — live CreateParty remains master_data.admin; decide CreateCustomer path or redefine scope later',
+    },
     cleanupIdentifiers: {
       organizationLegalName: WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME,
       organizationSlug: WAVE2_ROLE_FIXTURE_ORG_SLUG,
       partyLegalName: WAVE2_SYNTH_PARTY_LEGAL_NAME,
-      emails: roles.map((r) => r.email),
+      emails: [...roles.map((r) => r.email), seedActor.email],
+      businessEmails: roles.map((r) => r.email),
+      seedEmail: seedActor.email,
     },
     realCustomerTenantMutations: 'NONE',
     supabaseProjectRef: projectRef,
@@ -522,7 +686,10 @@ async function main(): Promise<void> {
       hostedAppSha: HOSTED_APP_SHA,
       organizationId: org.id,
       roleCount: roles.length,
+      seedActorMemberId: seedActor.memberId,
       partyId,
+      opportunityId,
+      quoteId,
       migrationCountAfter,
       realCustomerTenantMutations: 'NONE',
     }),

@@ -18,6 +18,18 @@ export const WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME =
 export const WAVE2_ROLE_FIXTURE_ORG_SLUG = 'w2-roles-acceptance-v1' as const;
 export const WAVE2_SYNTH_PARTY_LEGAL_NAME = 'SYNTH Wave2 Cliente S.R.L.' as const;
 
+/**
+ * Fixture-setup-only identity. Not a Wave 2 business persona under acceptance.
+ * Holds only the scopes required to construct synthetic Party/commercial setup.
+ */
+export const WAVE2_FIXTURE_SEED_EMAIL = 'w2.fixture-seed@isalwa.demo' as const;
+export const WAVE2_FIXTURE_SEED_GIVEN_NAME = 'Synth' as const;
+export const WAVE2_FIXTURE_SEED_FAMILY_NAME = 'FixtureSeed' as const;
+/** Least privilege for CreateParty (+ member_active commercial seed commands). */
+export const WAVE2_FIXTURE_SEED_SCOPES = ['master_data.admin'] as const;
+
+export type Wave2FixtureSeedEmail = typeof WAVE2_FIXTURE_SEED_EMAIL;
+
 export const ALLOWED_SYNTHETIC_EMAILS = [
   'w2.asesor@isalwa.demo',
   'w2.jefe@isalwa.demo',
@@ -31,6 +43,12 @@ export const ALLOWED_SYNTHETIC_EMAILS = [
 ] as const;
 
 export type AllowedSyntheticEmail = (typeof ALLOWED_SYNTHETIC_EMAILS)[number];
+
+/** Business roles (9) + dedicated fixture seed actor (1). */
+export const ALLOWED_FIXTURE_TOOL_EMAILS = [
+  ...ALLOWED_SYNTHETIC_EMAILS,
+  WAVE2_FIXTURE_SEED_EMAIL,
+] as const;
 
 export const ROLE_EMAILS: Record<
   V1PlannedFunctionId,
@@ -168,16 +186,36 @@ export function assertNotRealTenant(
   }
 }
 
-export function assertSyntheticEmailAllowed(email: string): void {
-  const normalized = email.trim().toLowerCase();
-  if (!(ALLOWED_SYNTHETIC_EMAILS as readonly string[]).includes(normalized)) {
-    throw new Error(`UNEXPECTED_SYNTHETIC_EMAIL:${email}`);
-  }
+function assertDemoEmailShape(email: string, normalized: string): void {
   if (!normalized.endsWith('@isalwa.demo')) {
     throw new Error(`UNEXPECTED_EMAIL_DOMAIN:${email}`);
   }
   if (normalized.includes('isalwa.com.bo')) {
     throw new Error(`REFUSING_REAL_DOMAIN_EMAIL:${email}`);
+  }
+}
+
+/** Exactly the nine Wave 2 business personas (not the fixture seed actor). */
+export function assertSyntheticEmailAllowed(email: string): void {
+  const normalized = email.trim().toLowerCase();
+  if (!(ALLOWED_SYNTHETIC_EMAILS as readonly string[]).includes(normalized)) {
+    throw new Error(`UNEXPECTED_SYNTHETIC_EMAIL:${email}`);
+  }
+  assertDemoEmailShape(email, normalized);
+}
+
+/** Business persona OR dedicated fixture seed actor. */
+export function assertFixtureToolEmailAllowed(email: string): void {
+  const normalized = email.trim().toLowerCase();
+  if (!(ALLOWED_FIXTURE_TOOL_EMAILS as readonly string[]).includes(normalized)) {
+    throw new Error(`UNEXPECTED_FIXTURE_TOOL_EMAIL:${email}`);
+  }
+  assertDemoEmailShape(email, normalized);
+}
+
+export function assertIsFixtureSeedEmail(email: string): void {
+  if (email.trim().toLowerCase() !== WAVE2_FIXTURE_SEED_EMAIL) {
+    throw new Error(`EXPECTED_FIXTURE_SEED_EMAIL:${email}`);
   }
 }
 

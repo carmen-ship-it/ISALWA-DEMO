@@ -1,9 +1,37 @@
 # Wave 2 fixture tool pin (not the hosted app)
 
 **HOSTED_APP_SHA** (live staging API+web): `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**FIXTURE_TOOL_SHA**: `2506f4f4731cfa333c7c61b8d59ca6599280711c`
+**FIXTURE_TOOL_SHA**: _(set after commit — see git log for fixture seed-actor repair)_
 
 These are different. Do not treat the fixture tool commit as a redeploy of the hosted app.
+
+## Fixture seed actor (setup only)
+
+Dedicated synthetic identity **inside** org `w2-roles-acceptance-v1` only:
+
+| Field | Value |
+|---|---|
+| Email | `w2.fixture-seed@isalwa.demo` |
+| Scopes | `master_data.admin` only |
+| Purpose | Construct Party / opportunity / quote for acceptance |
+| Business persona? | **No** — not Asesor/Jefe/Gerente/…/Owner under test |
+
+Live customer create remains `master_data.admin` → `CreateParty`.  
+Asesor keeps `commercial.customer.create` + `commercial.quote.convert.own` (planned-forward; **not** wired to CreateParty in this tooling pass).
+
+**Backlog (do not implement in fixture recovery):** decide whether to introduce governed `CreateCustomer` requiring `commercial.customer.create`, or remove/redefine that planned scope.
+
+## Expected synthetic counts
+
+| Entity | Count |
+|---|---|
+| Business roles / emails | 9 |
+| Planned active grants | 15 |
+| Fixture seed actors | 1 |
+| Parties | 1 |
+| Opportunities | 1 |
+| Quotes (+ 1 line, submitted) | 1 |
+| Orders / production / warehouse / purchasing / finance / coordination / work / approvals | 0 (not in this fixture plan) |
 
 ## Clean-room package manager
 
@@ -18,6 +46,7 @@ Note: a nested bare `pnpm` fails with `sh: pnpm: command not found` when only Co
 
 1. Missing gitignored `dist/` → need prepare/build  
 2. Nested bare `pnpm` in prepare → `sh: pnpm: command not found` when only Corepack provides pnpm  
+3. Asesor used for `CreateParty` → PERMISSION_DENIED → fixed by fixture seed actor
 
 ## Clean-room prerequisite
 
@@ -60,5 +89,5 @@ corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wa
 # or: corepack pnpm run fixture:wave2-roles
 ```
 
-Identities: exactly nine `w2.*@isalwa.demo` emails (see guards).  
-Capabilities: `V1_PLANNED_ASSIGNMENTS` only.
+Identities: exactly nine `w2.*@isalwa.demo` **business** emails + one fixture-seed email.  
+Business capabilities: `V1_PLANNED_ASSIGNMENTS` only (unchanged).

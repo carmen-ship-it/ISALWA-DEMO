@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
+import { COMMAND_REQUIRED_SCOPES, V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
+import { memberHasScope, type MemberAccessSnapshot } from '@isalwa/os-domain';
 import {
+  ALLOWED_FIXTURE_TOOL_EMAILS,
   ALLOWED_SYNTHETIC_EMAILS,
   EXPECTED_MIGRATION_COUNT,
   HOSTED_APP_SHA,
@@ -9,7 +13,11 @@ import {
   STAGING_DATABASE_HOST_MARKER,
   STAGING_DATABASE_NAME,
   STAGING_SUPABASE_PROJECT_REF,
+  WAVE2_FIXTURE_SEED_EMAIL,
+  WAVE2_FIXTURE_SEED_SCOPES,
   assertCapabilitiesMatchPlanned,
+  assertFixtureToolEmailAllowed,
+  assertIsFixtureSeedEmail,
   assertMigrationCount,
   assertNotRealTenant,
   assertPreConnectGuards,
@@ -22,6 +30,15 @@ import {
   assertSyntheticEmailAllowed,
   plannedCapabilitiesFor,
 } from './staging-wave2-role-fixtures-guards';
+import {
+  assertAsesorDeniedCreateParty,
+  assertBusinessRoleLacksFixtureSeedScopes,
+  assertCommercialSeedActorEmail,
+  expectedWave2FixtureCounts,
+  fixtureSeedActorSpec,
+  plannedActiveGrantCount,
+  reconcileActiveGrants,
+} from './staging-wave2-role-fixtures-lib';
 
 const validEnv = {
   OS_DATABASE_URL: `postgresql://u:p@${STAGING_DATABASE_HOST_MARKER}.virginia-postgres.render.com:5432/${STAGING_DATABASE_NAME}`,
@@ -30,6 +47,16 @@ const validEnv = {
   SUPABASE_SERVICE_ROLE_KEY: 'service-test',
   STAGING_FIXTURE_CONFIRM: '1',
 };
+
+function snap(scopes: string[]): MemberAccessSnapshot {
+  return {
+    memberId: 'm1',
+    organizationId: '01M2JKF77TXMJNDTKNCYNHH9G5',
+    accessStatus: 'active',
+    roleKeys: scopes,
+    delegatedScopes: [],
+  };
+}
 
 describe('staging-wave2-role-fixtures guards', () => {
   it('A: missing STAGING_FIXTURE_CONFIRM => fail', () => {
@@ -52,16 +79,16 @@ describe('staging-wave2-role-fixtures guards', () => {
   });
 
   it('A3: package exports point at gitignored dist (clean-room needs prepare)', () => {
-    // Documents root cause of MODULE_NOT_FOUND for @isalwa/ts-utils in fresh worktrees.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pkg = require('../../ts-utils/package.json') as { main?: string; exports?: { '.': { default?: string } } };
+    const pkg = require('../../ts-utils/package.json') as {
+      main?: string;
+      exports?: { '.': { default?: string } };
+    };
     assert.equal(pkg.main, './dist/index.js');
     assert.equal(pkg.exports?.['.']?.default, './dist/index.js');
   });
 
   it('A4: fixture prepare script must not nest bare pnpm', () => {
-    const { readFileSync } = require('node:fs') as typeof import('node:fs');
-    const { join } = require('node:path') as typeof import('node:path');
     const root = JSON.parse(
       readFileSync(join(__dirname, '../../../package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
@@ -134,18 +161,27 @@ describe('staging-wave2-role-fixtures guards', () => {
     const real = new Set(['01REALTENANT']);
     assert.throws(() => assertNotRealTenant('01REALTENANT', real), /REFUSING_TO_MUTATE_REAL_STAGING_TENANT/);
     assert.doesNotThrow(() => assertNotRealTenant('01SYNTH', real));
+    assert.doesNotThrow(() => assertNotRealTenant('01M2JKF77TXMJNDTKNCYNHH9G5', real));
   });
 
-  it('G: unexpected email/domain => fail', () => {
+  it('G: unexpected email/domain => fail; seed email not a business persona', () => {
     assert.throws(() => assertSyntheticEmailAllowed('isa@isalwa.com.bo'), /UNEXPECTED_SYNTHETIC_EMAIL/);
     assert.throws(() => assertSyntheticEmailAllowed('w2.asesor@other.demo'), /UNEXPECTED_SYNTHETIC_EMAIL/);
     assert.throws(() => assertSyntheticEmailAllowed('carmen.staging@isalwa.demo'), /UNEXPECTED_SYNTHETIC_EMAIL/);
+    assert.throws(
+      () => assertSyntheticEmailAllowed(WAVE2_FIXTURE_SEED_EMAIL),
+      /UNEXPECTED_SYNTHETIC_EMAIL/,
+    );
     for (const email of ALLOWED_SYNTHETIC_EMAILS) {
       assert.doesNotThrow(() => assertSyntheticEmailAllowed(email));
     }
+    assert.doesNotThrow(() => assertFixtureToolEmailAllowed(WAVE2_FIXTURE_SEED_EMAIL));
+    assert.doesNotThrow(() => assertIsFixtureSeedEmail(WAVE2_FIXTURE_SEED_EMAIL));
+    assert.throws(() => assertIsFixtureSeedEmail('w2.asesor@isalwa.demo'), /EXPECTED_FIXTURE_SEED_EMAIL/);
+    assert.equal(ALLOWED_FIXTURE_TOOL_EMAILS.length, 10);
   });
 
-  it('H: exact 9-role assignment set', () => {
+  it('H: exact 9-role assignment set; seed actor not in V1 map', () => {
     assert.equal(V1_PLANNED_ASSIGNMENTS.length, 9);
     assert.equal(ALLOWED_SYNTHETIC_EMAILS.length, 9);
     assert.doesNotThrow(() => assertRoleEmailMapBounded());
@@ -159,6 +195,10 @@ describe('staging-wave2-role-fixtures guards', () => {
         [...planned.intendedCapabilities],
       );
       assert.ok(ROLE_EMAILS[planned.functionId].email.startsWith('w2.'));
+      assertBusinessRoleLacksFixtureSeedScopes(
+        planned.functionId,
+        planned.intendedCapabilities,
+      );
     }
 
     assert.deepEqual([...plannedCapabilitiesFor('asesor-comercial')].sort(), [
@@ -180,12 +220,154 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.throws(() => assertMigrationCount(28), /UNEXPECTED_MIGRATION_COUNT:28/);
     assert.doesNotThrow(() => assertMigrationCount(29));
     assert.doesNotThrow(() => assertStagingFixtureConfirm(validEnv));
-    // Pre-connect is pure and re-runnable (idempotent guard path)
     assertPreConnectGuards(validEnv);
     assertPreConnectGuards(validEnv);
   });
 
   it('auxiliar email is w2.coordinacion@isalwa.demo', () => {
     assert.equal(ROLE_EMAILS['auxiliar-coordinacion'].email, 'w2.coordinacion@isalwa.demo');
+  });
+});
+
+describe('staging-wave2-role-fixtures seed actor + recovery', () => {
+  it('seed actor is fixture-only with master_data.admin least privilege', () => {
+    const spec = fixtureSeedActorSpec();
+    assert.equal(spec.email, WAVE2_FIXTURE_SEED_EMAIL);
+    assert.equal(spec.isBusinessRole, false);
+    assert.equal(spec.purpose, 'fixture-setup-only');
+    assert.deepEqual([...spec.scopes], ['master_data.admin']);
+    assert.deepEqual([...WAVE2_FIXTURE_SEED_SCOPES], ['master_data.admin']);
+    assert.equal(spec.scopes.includes('system.admin'), false);
+    assert.equal(spec.scopes.includes('people.admin'), false);
+    assert.equal(spec.scopes.includes('management.org.read'), false);
+  });
+
+  it('expected fixture counts match intended commercial-only setup', () => {
+    const counts = expectedWave2FixtureCounts();
+    assert.equal(counts.businessRoles, 9);
+    assert.equal(counts.plannedActiveGrants, 15);
+    assert.equal(plannedActiveGrantCount(), 15);
+    assert.equal(counts.seedActors, 1);
+    assert.equal(counts.seedScopes, 1);
+    assert.equal(counts.parties, 1);
+    assert.equal(counts.opportunities, 1);
+    assert.equal(counts.quotes, 1);
+    assert.equal(counts.quoteLines, 1);
+    assert.equal(counts.orders, 0);
+    assert.equal(counts.productionRecords, 0);
+    assert.equal(counts.warehouseRecords, 0);
+    assert.equal(counts.purchasingRecords, 0);
+    assert.equal(counts.financeFacts, 0);
+    assert.equal(counts.coordinationRecords, 0);
+    assert.equal(counts.workItems, 0);
+    assert.equal(counts.approvals, 0);
+  });
+
+  it('partial-state recovery: grant reconcile reuses active keys and grants only missing', () => {
+    // Simulates: 9 identities + 15 grants exist; no seed actor scopes yet on a new member.
+    const partialBusiness = reconcileActiveGrants(
+      ['commercial.customer.create', 'commercial.quote.convert.own'],
+      ['commercial.customer.create', 'commercial.quote.convert.own'],
+    );
+    assert.deepEqual(partialBusiness.toGrant, []);
+    assert.deepEqual(partialBusiness.toEnd, []);
+    assert.deepEqual(partialBusiness.alreadyActive, [
+      'commercial.customer.create',
+      'commercial.quote.convert.own',
+    ]);
+
+    const missingSeed = reconcileActiveGrants([], ['master_data.admin']);
+    assert.deepEqual(missingSeed.toGrant, ['master_data.admin']);
+    assert.deepEqual(missingSeed.toEnd, []);
+    assert.deepEqual(missingSeed.alreadyActive, []);
+  });
+
+  it('idempotent second run: reconcile is a no-op when complete', () => {
+    const seedDone = reconcileActiveGrants(['master_data.admin'], ['master_data.admin']);
+    assert.deepEqual(seedDone.toGrant, []);
+    assert.deepEqual(seedDone.toEnd, []);
+    assert.deepEqual(seedDone.alreadyActive, ['master_data.admin']);
+
+    for (const planned of V1_PLANNED_ASSIGNMENTS) {
+      const again = reconcileActiveGrants(
+        planned.intendedCapabilities,
+        planned.intendedCapabilities,
+      );
+      assert.deepEqual(again.toGrant, []);
+      assert.deepEqual(again.toEnd, []);
+    }
+    assert.equal(plannedActiveGrantCount(), 15);
+  });
+
+  it('idempotent grant reconcile ends drift without duplicating', () => {
+    const drifted = reconcileActiveGrants(
+      ['commercial.customer.create', 'master_data.admin', 'people.admin'],
+      ['commercial.customer.create', 'commercial.quote.convert.own'],
+    );
+    assert.deepEqual(drifted.toEnd, ['master_data.admin', 'people.admin']);
+    assert.deepEqual(drifted.toGrant, ['commercial.quote.convert.own']);
+  });
+
+  it('commercial seed must use fixture seed actor email, never Asesor', () => {
+    assert.doesNotThrow(() => assertCommercialSeedActorEmail(WAVE2_FIXTURE_SEED_EMAIL));
+    assert.throws(
+      () => assertCommercialSeedActorEmail('w2.asesor@isalwa.demo'),
+      /COMMERCIAL_SEED_MUST_USE_FIXTURE_ACTOR/,
+    );
+    assert.throws(
+      () => assertCommercialSeedActorEmail('w2.owner@isalwa.demo'),
+      /COMMERCIAL_SEED_MUST_USE_FIXTURE_ACTOR/,
+    );
+  });
+
+  it('fixture source routes CreateParty through seed actor, not Asesor', () => {
+    const src = readFileSync(join(__dirname, 'staging-wave2-role-fixtures.ts'), 'utf8');
+    assert.match(src, /WAVE2_FIXTURE_SEED_EMAIL|fixtureSeedActorSpec/);
+    assert.match(src, /via=fixture-seed-actor/);
+    assert.match(src, /seedActor\.memberId/);
+    assert.equal(src.includes('asesor.memberId, asesor.personId, asesor.authIdentityId'), false);
+    assert.match(src, /commercialSeededBy: 'fixture-seed-actor'/);
+    assert.match(src, /PLANNED_FORWARD_UNWIRED/);
+  });
+});
+
+describe('staging-wave2-role-fixtures authorization truth', () => {
+  it('CreateParty requires master_data.admin; Asesor scopes do not satisfy', () => {
+    assert.equal(COMMAND_REQUIRED_SCOPES.CreateParty, 'master_data.admin');
+    const asesorCaps = [...plannedCapabilitiesFor('asesor-comercial')];
+    assertAsesorDeniedCreateParty(asesorCaps);
+    assert.equal(memberHasScope(snap(asesorCaps), 'master_data.admin'), false);
+    assert.equal(memberHasScope(snap(['master_data.admin']), 'master_data.admin'), true);
+  });
+
+  it('people.admin does not imply CreateParty', () => {
+    assert.equal(memberHasScope(snap(['people.admin']), 'master_data.admin'), false);
+    assert.throws(
+      () => assertBusinessRoleLacksFixtureSeedScopes('people-admin-probe', ['people.admin', 'master_data.admin']),
+      /BUSINESS_ROLE_MUST_NOT_HOLD_SEED_SCOPE/,
+    );
+  });
+
+  it('cargo/title grants nothing toward CreateParty', () => {
+    assert.equal(memberHasScope(snap(['asesor', 'Asesor Comercial']), 'master_data.admin'), false);
+    assert.equal(memberHasScope(snap([]), 'master_data.admin'), false);
+  });
+
+  it('fixture seed actor can CreateParty; commercial seed commands are member_active', () => {
+    assert.equal(memberHasScope(snap([...WAVE2_FIXTURE_SEED_SCOPES]), 'master_data.admin'), true);
+    assert.equal(COMMAND_REQUIRED_SCOPES.CreateOpportunity, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.CreateQuote, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.AddQuoteLine, 'member_active');
+    assert.equal(COMMAND_REQUIRED_SCOPES.SubmitQuote, 'member_active');
+  });
+
+  it('tenant isolation: real tenant id refused; synth org id allowed against real set', () => {
+    const realSevenOrg = '01M2DV9F0V5DXS4G89AKF4D5SR';
+    const synthOrg = '01M2JKF77TXMJNDTKNCYNHH9G5';
+    assert.throws(
+      () => assertNotRealTenant(realSevenOrg, new Set([realSevenOrg])),
+      /REFUSING_TO_MUTATE_REAL_STAGING_TENANT/,
+    );
+    assert.doesNotThrow(() => assertNotRealTenant(synthOrg, new Set([realSevenOrg])));
   });
 });
