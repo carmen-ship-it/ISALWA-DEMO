@@ -127,6 +127,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
       produccion: 'VISIBLE+ACTIVE',
       almacen: 'VISIBLE+ACTIVE',
       compras: 'VISIBLE+ACTIVE',
+      finanzas: 'VISIBLE+ACTIVE',
       entregas: 'VISIBLE+ACTIVE',
       coordinacion: 'VISIBLE+ACTIVE',
       aprobaciones: 'VISIBLE+ACTIVE',
@@ -135,7 +136,6 @@ describe('PRIMARY_NAV authority classification audit', () => {
     assert.deepEqual(
       FUTURE_NAV.map((item) => ({ id: item.id, accessClass: item.accessClass, state: item.state })),
       [
-        { id: 'finanzas', accessClass: 'FUTURE', state: 'locked' },
         { id: 'mensajes', accessClass: 'FUTURE', state: 'locked' },
       ],
     );
@@ -150,6 +150,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
       'produccion',
       'almacen',
       'compras',
+      'finanzas',
       'entregas',
       'coordinacion',
       'aprobaciones',

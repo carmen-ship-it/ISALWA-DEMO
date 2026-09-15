@@ -225,9 +225,7 @@ describe('finance operational desk access', () => {
     assert.match(queues, /'\/finanzas'/);
     assert.match(caps, /finance\.operational\.record/);
     assert.match(presentation, /capabilityKey: 'finance'|finance:/);
-    assert.doesNotMatch(
-      presentation,
-      /finance:\s*\{[^}]*route:\s*'\/finanzas'/s,
-    );
+    assert.doesNotMatch(presentation, /route:\s*'\/finanzas'/);
+    assert.match(presentation, /implemented:\s*false/);
   });
 });
