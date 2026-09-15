@@ -1,9 +1,7 @@
 import { PageContainer } from '@isalwa/ui';
 import { WarehouseDesk } from '@/components/warehouse/warehouse-desk';
 import { PageHeader } from '@/components/shell/page-header';
-import { OsApiError } from '@/lib/api/os-api-errors';
-import { createOsApiClient } from '@/lib/api/os-api-client';
-import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
 
 export default async function AlmacenPage() {
@@ -28,27 +26,24 @@ export default async function AlmacenPage() {
 
 async function loadAlmacenAccess() {
   try {
-    const auth = await getServerOsAuthContext();
-    if (!auth) {
+    // Grants come only from GET /session/authorization. A missing list stays
+    // permission_unconfirmed — never treat session/me as a grant source.
+    const context = await loadMemberCapabilities();
+    if (!context) {
       return resolveWarehousePageAccess({ session: null, grantedScopes: null });
     }
-    const client = createOsApiClient(auth);
-    const session = await client.getAuthenticatedSession();
     return resolveWarehousePageAccess({
       session: {
-        organizationId: session.organizationId,
-        memberId: session.memberId,
-        accessStatus: session.accessStatus,
+        organizationId: context.organizationId,
+        memberId: context.memberId,
+        accessStatus: context.accessStatus,
         actorLabel: null,
-        grantedScopes: null,
+        grantedScopes: context.grantedScopes,
       },
-      grantedScopes: null,
+      grantedScopes: context.grantedScopes,
       facts: { receipts: null, pedidos: [] },
     });
-  } catch (error) {
-    if (error instanceof OsApiError && (error.kind === 'unauthorized' || error.kind === 'forbidden')) {
-      return resolveWarehousePageAccess({ session: null, grantedScopes: null });
-    }
+  } catch {
     return { status: 'error' as const };
   }
 }

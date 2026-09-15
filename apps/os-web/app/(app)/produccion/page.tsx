@@ -2,8 +2,7 @@ import { PageContainer } from '@isalwa/ui';
 import { ProductionWorkspace } from '@/components/production/production-workspace';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
-import { createOsApiClient } from '@/lib/api/os-api-client';
-import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { PRODUCTION_PAGE_COPY, PRODUCTION_STEP_LABELS } from '@/lib/production/copy';
 
 export const dynamic = 'force-dynamic';
@@ -71,8 +70,10 @@ async function loadProductionIdentity(): Promise<{
   scopesConfirmed: boolean;
 }> {
   try {
-    const auth = await getServerOsAuthContext();
-    if (!auth) {
+    // Grants come only from GET /session/authorization via loadMemberCapabilities.
+    // getAuthenticatedSession / member.roleKeys are not a second grant source.
+    const context = await loadMemberCapabilities();
+    if (!context) {
       return {
         status: 'permission',
         organizationId: null,
@@ -82,16 +83,13 @@ async function loadProductionIdentity(): Promise<{
         scopesConfirmed: false,
       };
     }
-    const session = await createOsApiClient(auth).getAuthenticatedSession();
-    const organizationId = session.organizationId?.trim() || null;
-    const memberId = session.memberId?.trim() || null;
     return {
-      status: organizationId && memberId ? 'ready' : 'permission',
-      organizationId,
-      memberId,
+      status: 'ready',
+      organizationId: context.organizationId,
+      memberId: context.memberId,
       actorLabel: 'Operación de planta',
-      grantedScopes: [],
-      scopesConfirmed: false,
+      grantedScopes: context.grantedScopes,
+      scopesConfirmed: true,
     };
   } catch {
     return {

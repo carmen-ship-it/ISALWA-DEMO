@@ -22,6 +22,7 @@ const LISTED_SCOPES = [
   'warehouse.outbound.record',
   'operations.coordinator.record',
   'purchasing.operational.record',
+  'finance.operational.record',
   'delivery.record',
   'management.org.read',
   'commercial.exception.authorize',
@@ -132,11 +133,7 @@ describe('decideCapability', () => {
   });
 
   it('does not treat people.admin as a manager or operating shortcut', () => {
-    const blocked = [
-      ...LISTED_SCOPES,
-      'finance.operational.record',
-    ];
-    for (const required of blocked) {
+    for (const required of LISTED_SCOPES) {
       assert.equal(
         decideCapability(input({ grantedScopes: ['people.admin'], requiredScope: required })),
         'ROLE_FORBIDDEN',
