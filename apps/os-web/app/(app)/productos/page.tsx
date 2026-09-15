@@ -1,4 +1,4 @@
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
 import { ProductCatalogPreview } from '@/components/catalog/product-catalog-preview';
 import { PageHeader } from '@/components/shell/page-header';
 
@@ -8,7 +8,13 @@ export default function ProductosPage() {
       <PageHeader
         kicker="Catálogo"
         title="Productos"
-        description="Candidatos leídos de los catálogos. No es una lista de precios mientras no exista un precio de origen."
+        description="Candidatos leídos de los catálogos. Revise nombre y detalle. No hay stock inventado aquí."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone="manual">Vista previa</StatusPill>
+            <StatusPill tone="neutral">No es lista de precios</StatusPill>
+          </div>
+        }
       />
       <ProductCatalogPreview />
     </PageContainer>

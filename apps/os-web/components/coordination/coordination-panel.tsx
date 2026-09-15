@@ -10,6 +10,7 @@ import {
   type CoordinationLedger,
   type RecordedCoordinationDecision,
 } from '@isalwa/os-contracts';
+import { formatTimestamp } from '@/lib/commercial/labels';
 
 export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
   const [ledger, setLedger] = useState<CoordinationLedger>(model.ledger);
@@ -32,9 +33,22 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
   return (
     <div className="space-y-6">
       <Panel padded>
-        <SectionHeader kicker="Comité" title="Asuntos que necesitan una decisión" />
+        <SectionHeader
+          kicker="Comité"
+          title="Asuntos que necesitan una decisión"
+          action={
+            openDecisions.length > 0 ? (
+              <StatusPill tone="warning">
+                {openDecisions.length === 1 ? '1 abierta' : `${openDecisions.length} abiertas`}
+              </StatusPill>
+            ) : (
+              <StatusPill tone="neutral">Sin abiertas</StatusPill>
+            )
+          }
+        />
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No es un calendario de reuniones. Si no hay un asunto que cruce áreas, no hay nada que decidir.
+          Solo lo que cruza áreas. Si no hay un asunto que necesite decisión, la cola queda vacía a
+          propósito.
         </p>
         {model.committee.items.length === 0 ? (
           <EmptyState title={model.emptyTitle} description={model.emptyDescription} />
@@ -65,7 +79,14 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
             items={own.map((row) => ({
               id: row.id,
               label: row.decision,
-              meta: row.ownerLabel ?? row.actorLabel,
+              meta: (
+                <span className="text-sm text-[var(--isalwa-slate)]">
+                  {row.kind === 'resolved' ? 'Resuelta' : 'Abierta'}
+                  {' · '}
+                  {row.ownerLabel ?? row.actorLabel}
+                  {row.occurredAt ? ` · ${formatTimestamp(row.occurredAt) ?? row.occurredAt}` : ''}
+                </span>
+              ),
               body: row.notes,
             }))}
           />
@@ -73,7 +94,7 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
             ? openDecisions.map((row) => (
                 <div key={row.id} className="mt-4">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <StatusPill tone="info">Abierta</StatusPill>
+                    <StatusPill tone="warning">Pendiente</StatusPill>
                     <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.decision}</p>
                   </div>
                   <CoordinationDecisionForm

@@ -15,7 +15,7 @@ import {
   type CoordinationSession,
 } from '@isalwa/os-contracts';
 
-export const COORDINATION_RECORD_BUTTON = 'REGISTRAR DECISIÓN';
+export const COORDINATION_RECORD_BUTTON = 'Registrar decisión';
 
 /**
  * Explicit assignment only. Cargo and title are ignored.

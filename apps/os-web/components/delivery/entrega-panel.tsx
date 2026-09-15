@@ -90,10 +90,13 @@ function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
         Cronología
       </h2>
       <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.
+        Un pedido puede entregarse en partes. La cantidad guardada no declara el pedido como cumplido.
       </p>
       {items.length === 0 ? (
-        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">Sin movimientos en la cronología.</p>
+        <EmptyState
+          title="Sin movimientos todavía"
+          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden."
+        />
       ) : (
         <Timeline
           items={items.map((item) => ({
@@ -150,12 +153,15 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
   return (
     <div className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
-      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Este es un registro interno de entrega. No reclama un número oficial.
-      </p>
+      <div className="flex flex-wrap gap-2">
+        <StatusPill tone="neutral">Sin número oficial</StatusPill>
+        <StatusPill tone="neutral">No es factura</StatusPill>
+        <StatusPill tone="manual">No confirma pago en el libro</StatusPill>
+      </div>
+
       <Chronology warehouseExits={warehouseExits} deliveries={deliveries} />
 
-      <PageSection card className="bg-white p-8 md:p-10">
+      <PageSection card className="bg-white p-6 md:p-8">
         <SectionHeader
           kicker="Entrega"
           title={
@@ -166,16 +172,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           action={<StatusPill tone="info">No es entrega</StatusPill>}
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No se asigna un número generado. La política de numeración no está definida.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.
+          Registra que la mercadería salió del almacén. No es la nota de entrega al cliente. No se
+          genera un número aquí; una referencia impresa externa puede anotarse como origen.
         </p>
         {warehouseExits.length === 0 ? (
           <EmptyState
@@ -212,7 +210,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         )}
       </PageSection>
 
-      <PageSection card className="bg-white p-8 md:p-10">
+      <PageSection card className="bg-white p-6 md:p-8">
         <SectionHeader
           kicker="Entrega"
           title={
@@ -222,42 +220,10 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           }
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de entrega se crea solo cuando la mercadería llega al cliente final.
+          Se crea solo cuando la mercadería llega al cliente. Un pedido o una salida de almacén no la
+          emiten. El pago no es requisito. Una excepción autorizada no es un pago confirmado en el
+          libro.
         </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Un pedido no la emite. Una salida de almacén tampoco.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de entrega no puede ser anterior a la entrega.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No se asigna un número generado. La política de numeración no está definida.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No es una factura y no calcula impuesto.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          El pago no es requisito para registrar la entrega.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Una excepción autorizada no es un pago confirmado en el libro.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La coordinación, el pago, la salida de almacén y la confirmación de entrega son evidencias distintas. No se mezclan en un solo actor.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          No hay un método de firma. Solo se puede anotar una referencia de evidencia.
-        </p>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.
-        </p>
-
         {deliveries.length === 0 ? (
           <EmptyState
             className="mt-8"
@@ -280,9 +246,6 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                       <StatusPill tone="manual">Sin confirmación de pago</StatusPill>
                     )}
                   </div>
-                  <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-kiln)]">
-                    Entrega registrada. La nota existe porque la mercadería llegó al cliente final.
-                  </p>
                   <dl className="grid gap-6 sm:grid-cols-2">
                     <div>
                       <dt className="isalwa-section-label">Entregada</dt>

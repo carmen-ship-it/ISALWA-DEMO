@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { EmptyState, PageSection, StatusPill } from '@isalwa/ui';
+import { ActionBar, EmptyState, PageSection, StatusPill } from '@isalwa/ui';
 import { ManualPaymentForm } from '@/components/operations/manual-payment-form';
 import { ReportedFactProvenance } from '@/components/operations/reported-fact-provenance';
 import {
@@ -121,12 +121,15 @@ function ReadyDesk(props: {
 
   return (
     <div data-finance-status="ready" className="space-y-8">
-      <PageSection card className="max-w-2xl space-y-3 p-8">
+      <ActionBar sticky className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill tone="manual">Dato manual</StatusPill>
           <StatusPill tone="warning">Pendiente de confirmar</StatusPill>
           <StatusPill tone="neutral">No es libro contable</StatusPill>
         </div>
+      </ActionBar>
+
+      <PageSection card className="max-w-2xl space-y-3 p-6 md:p-8">
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
           {FINANCE_DESK_COPY.boundaryOfficial}
         </p>
@@ -141,7 +144,7 @@ function ReadyDesk(props: {
         </p>
       </PageSection>
 
-      <PageSection card className="max-w-xl space-y-4 p-8">
+      <PageSection card className="max-w-xl space-y-4 p-6 md:p-8">
         <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">
           {FINANCE_DESK_COPY.subjectIntro}
         </h2>
@@ -201,7 +204,10 @@ function ReadyDesk(props: {
         )}
 
         {facts.length === 0 ? (
-          <EmptyState title={FINANCE_DESK_COPY.emptyFacts} />
+          <EmptyState
+            title={FINANCE_DESK_COPY.emptyFacts}
+            description="Indique el pedido o cliente y registre un pago reportado. Queda pendiente de confirmar."
+          />
         ) : (
           facts.map((fact) => (
             <ReportedFactProvenance
@@ -213,14 +219,16 @@ function ReadyDesk(props: {
         )}
 
         {canShowForm ? (
-          <ManualPaymentForm
-            organizationId={props.organizationId}
-            subjectType={subjectType}
-            subjectId={trimmedSubjectId}
-            subjectLabel={subjectLabel.trim() || trimmedSubjectId}
-            reportedByLabel={props.actorLabel}
-            onRecorded={onRecorded}
-          />
+          <div className="[&_button[type=submit]]:sticky [&_button[type=submit]]:bottom-3 [&_button[type=submit]]:z-10 [&_button[type=submit]]:shadow-[var(--isalwa-shadow-resting)]">
+            <ManualPaymentForm
+              organizationId={props.organizationId}
+              subjectType={subjectType}
+              subjectId={trimmedSubjectId}
+              subjectLabel={subjectLabel.trim() || trimmedSubjectId}
+              reportedByLabel={props.actorLabel}
+              onRecorded={onRecorded}
+            />
+          </div>
         ) : null}
       </PageSection>
     </div>

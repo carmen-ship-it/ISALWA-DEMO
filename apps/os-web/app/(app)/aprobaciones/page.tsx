@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
-import { EmptyState, PageContainer, PageSection } from '@isalwa/ui';
+import { EmptyState, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { ApprovalList } from '@/components/work/approval-list';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -53,8 +53,17 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
           title={t('pages.aprobaciones.title')}
           description={
             pending.length === 0
-              ? undefined
+              ? 'Cuando alguien solicite su aprobación, la verá aquí para decidir.'
               : 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.'
+          }
+          action={
+            pending.length > 0 ? (
+              <StatusPill tone="warning">
+                {pending.length === 1 ? '1 pendiente' : `${pending.length} pendientes`}
+              </StatusPill>
+            ) : (
+              <StatusPill tone="neutral">Sin pendientes</StatusPill>
+            )
           }
         />
 

@@ -124,7 +124,9 @@ export function CoordinationDecisionForm({
         <p className="text-xs text-[var(--isalwa-slate)]">Caso vinculado: {linkedCaseId}</p>
       ) : null}
       {reason ? <p className="text-sm text-[var(--isalwa-danger)]">{reason}</p> : null}
-      <Button type="submit">{mode === 'resolve' ? 'Registrar resolución' : COORDINATION_RECORD_BUTTON}</Button>
+      <div className="sticky bottom-0 z-10 -mx-1 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-1 py-3 backdrop-blur-md">
+        <Button type="submit">{mode === 'resolve' ? 'Registrar resolución' : COORDINATION_RECORD_BUTTON}</Button>
+      </div>
     </form>
   );
 }

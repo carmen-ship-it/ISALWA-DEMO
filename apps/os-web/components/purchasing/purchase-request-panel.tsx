@@ -1,12 +1,23 @@
 'use client';
 
-import { Button, EmptyState, OperatingRow, PageSection, SearchField, Skeleton, StatusPill } from '@isalwa/ui';
+import Link from 'next/link';
+import {
+  ActionBar,
+  Button,
+  EmptyState,
+  OperatingRow,
+  PageSection,
+  SearchField,
+  Skeleton,
+  StatusPill,
+} from '@isalwa/ui';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import {
   COMPRAS_COPY,
   type ComprasQueueItem,
   type ComprasQueueState,
 } from '@/lib/purchasing/queue';
+import { PURCHASE_REQUEST_STATUS_LABELS, type PurchaseRequestStatus } from '@isalwa/os-contracts';
 
 /**
  * Mounted on /compras. A purchase request is not inventory and does not prove there is no stock.
@@ -15,19 +26,30 @@ import {
 
 const HAPPY_PATH = ['Solicitado', 'Cotizándose', 'Pedido y Preparándose', 'Entregado'] as const;
 
+const STATUS_FILTERS: Array<{ value: ''; label: string } | { value: PurchaseRequestStatus; label: string }> = [
+  { value: '', label: 'Todos' },
+  { value: 'solicitado', label: PURCHASE_REQUEST_STATUS_LABELS.solicitado },
+  { value: 'cotizandose', label: PURCHASE_REQUEST_STATUS_LABELS.cotizandose },
+  { value: 'pedido_preparandose', label: PURCHASE_REQUEST_STATUS_LABELS.pedido_preparandose },
+  { value: 'entregado', label: PURCHASE_REQUEST_STATUS_LABELS.entregado },
+  { value: 'cancelled', label: PURCHASE_REQUEST_STATUS_LABELS.cancelled },
+];
+
 type PurchaseRequestPanelProps = {
   state: ComprasQueueState;
   items?: ComprasQueueItem[];
   count?: number;
   buyerSuggestions?: string[];
+  query?: string | null;
+  statusFilter?: string | null;
   onAdvance?: (id: string, status: string) => void;
   onStop?: (id: string) => void;
 };
 
-function statusTone(status: ComprasQueueItem['status']): 'info' | 'warning' | 'manual' | 'neutral' {
+function statusTone(status: ComprasQueueItem['status']): 'info' | 'warning' | 'success' | 'neutral' {
   if (status === 'cotizandose' || status === 'pedido_preparandose') return 'warning';
   if (status === 'cancelled') return 'neutral';
-  if (status === 'entregado') return 'manual';
+  if (status === 'entregado') return 'success';
   return 'info';
 }
 
@@ -36,25 +58,34 @@ export function PurchaseRequestPanel({
   items = [],
   count = 0,
   buyerSuggestions = [],
+  query = null,
+  statusFilter = null,
   onAdvance,
   onStop,
 }: PurchaseRequestPanelProps) {
   return (
-    <PageSection card className="bg-white p-8 md:p-10" aria-label={COMPRAS_COPY.title}>
-      <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un pedido de compra no prueba que no haya stock. No es inventario y no genera una recompra automática.
+    <PageSection card className="bg-white p-6 md:p-8" aria-label={COMPRAS_COPY.title}>
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusPill tone="manual">No es inventario</StatusPill>
+        <StatusPill tone="neutral">No prueba falta de stock</StatusPill>
+      </div>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Un pedido de compra no prueba que no haya stock. No genera una recompra automática.
       </p>
-      <ol className="mt-6 flex flex-wrap gap-2" aria-label="Pasos de la compra">
+      <p className="mt-3 text-xs font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">
+        Camino habitual
+      </p>
+      <ol className="mt-2 flex flex-wrap gap-2" aria-label="Pasos de la compra">
         {HAPPY_PATH.map((label) => (
           <li key={label}>
             <StatusPill tone="info">{label}</StatusPill>
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
         Cancelado no es un paso. Solo detiene un pedido equivocado.
       </p>
-      <div className="mt-8">{renderState(state, items, count, buyerSuggestions, onAdvance, onStop)}</div>
+      <div className="mt-8">{renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}</div>
     </PageSection>
   );
 }
@@ -64,6 +95,8 @@ function renderState(
   items: ComprasQueueItem[],
   count: number,
   buyerSuggestions: string[],
+  query: string | null,
+  statusFilter: string | null,
   onAdvance?: (id: string, status: string) => void,
   onStop?: (id: string) => void,
 ) {
@@ -76,9 +109,7 @@ function renderState(
     );
   }
   if (state === 'error') {
-    return (
-      <ServiceUnavailableState />
-    );
+    return <ServiceUnavailableState />;
   }
   if (state === 'permission') {
     return <AccessDeniedState />;
@@ -88,6 +119,8 @@ function renderState(
       items={items}
       count={count}
       buyerSuggestions={buyerSuggestions}
+      query={query}
+      statusFilter={statusFilter}
       onAdvance={onAdvance}
       onStop={onStop}
     />
@@ -98,25 +131,71 @@ function QueueList({
   items,
   count,
   buyerSuggestions,
+  query,
+  statusFilter,
   onAdvance,
   onStop,
 }: {
   items: ComprasQueueItem[];
   count: number;
   buyerSuggestions: string[];
+  query: string | null;
+  statusFilter: string | null;
   onAdvance?: (id: string, status: string) => void;
   onStop?: (id: string) => void;
 }) {
+  const filterActive = Boolean(query?.trim() || statusFilter);
+  const clearHref = '/compras';
+
   return (
     <div>
-      <form method="get" action="/compras" className="mb-4 max-w-md" role="search">
-        <label htmlFor="compras-search" className="isalwa-section-label">
-          Buscar en esta empresa
-        </label>
-        <SearchField id="compras-search" name="q" placeholder="Ítem, área o quien pide" className="mt-1.5" />
-      </form>
+      <ActionBar
+        sticky
+        className="mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white"
+      >
+        <form method="get" action="/compras" className="flex w-full flex-wrap items-end gap-3" role="search">
+          <div className="min-w-[12rem] flex-1">
+            <label htmlFor="compras-search" className="isalwa-section-label">
+              Buscar
+            </label>
+            <SearchField
+              id="compras-search"
+              name="q"
+              defaultValue={query ?? ''}
+              placeholder="Ítem, área o quien pide"
+              className="mt-1.5"
+            />
+          </div>
+          <div className="min-w-[10rem]">
+            <label htmlFor="compras-status" className="isalwa-section-label">
+              Estado
+            </label>
+            <select
+              id="compras-status"
+              name="estado"
+              defaultValue={statusFilter ?? ''}
+              className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+            >
+              {STATUS_FILTERS.map((option) => (
+                <option key={option.value || 'all'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button type="submit" variant="secondary" size="sm">
+            Filtrar
+          </Button>
+          {filterActive ? (
+            <Link href={clearHref} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+              Quitar filtros
+            </Link>
+          ) : null}
+        </form>
+      </ActionBar>
       <p className="text-sm text-[var(--isalwa-kiln)]">
         {COMPRAS_COPY.countLabel} · {count}
+        {filterActive ? ` · mostrando ${items.length}` : null}
       </p>
       {buyerSuggestions.length > 0 ? (
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
@@ -126,8 +205,12 @@ function QueueList({
       {items.length === 0 ? (
         <EmptyState
           className="mt-6"
-          title={COMPRAS_COPY.emptyTitle}
-          description={COMPRAS_COPY.emptyDescription}
+          title={filterActive ? 'Ningún pedido coincide con el filtro' : COMPRAS_COPY.emptyTitle}
+          description={
+            filterActive
+              ? 'Pruebe otro estado o quite los filtros. La cola no inventa pedidos.'
+              : COMPRAS_COPY.emptyDescription
+          }
         />
       ) : (
         <ul className="mt-4" aria-label={COMPRAS_COPY.title}>

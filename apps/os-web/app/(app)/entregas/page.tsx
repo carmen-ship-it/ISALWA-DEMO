@@ -1,4 +1,4 @@
-import { PageContainer } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
@@ -12,7 +12,13 @@ export default async function EntregasPage() {
       <PageHeader
         kicker="Entrega"
         title="Entregas"
-        description="Este es un registro interno de entrega. No reclama un número oficial."
+        description="Registro interno de salida y entrega. No reclama un número oficial."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone="neutral">Sin número oficial</StatusPill>
+            <StatusPill tone="manual">Registro interno</StatusPill>
+          </div>
+        }
       />
       <EntregaPanel status={status} warehouseExits={[]} deliveries={[]} />
     </PageContainer>

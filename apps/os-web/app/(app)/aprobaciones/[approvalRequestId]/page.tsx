@@ -64,20 +64,21 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
           title={title}
           description="La decisión no crea un pedido."
           action={
-            <Link href="/aprobaciones" className={accentLinkClass}>
-              Volver
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusPill tone={statusToneForApproval(approval.status)}>
+                {formatApprovalStatus(approval.status)}
+              </StatusPill>
+              <Link href="/aprobaciones" className={accentLinkClass}>
+                Volver
+              </Link>
+            </div>
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
 
         <PageSection card className="bg-white p-8 md:p-10">
-          <StatusPill tone={statusToneForApproval(approval.status)}>
-            {formatApprovalStatus(approval.status)}
-          </StatusPill>
-
-          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
+          <dl className="grid gap-8 sm:grid-cols-2">
             <div>
               <dt className="isalwa-section-label">Solicitado por</dt>
               <dd className="mt-2 text-[var(--isalwa-kiln)]">
@@ -94,6 +95,12 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
               <div>
                 <dt className="isalwa-section-label">Asunto</dt>
                 <dd className="mt-2 text-[var(--isalwa-kiln)]">{subject}</dd>
+              </div>
+            ) : null}
+            {customerName && customerName !== 'Cliente' ? (
+              <div>
+                <dt className="isalwa-section-label">Cliente</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{customerName}</dd>
               </div>
             ) : null}
             {subjectLink ? (
@@ -131,14 +138,20 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
           </dl>
 
           {canDecide || approval.status !== 'pending' ? (
-            <ApprovalDecisionForm
-              partyId={subjectLink?.partyId}
-              subjectType={approval.subjectType}
-              subjectId={approval.subjectId}
-              approvalRequestId={approval.approvalRequestId}
-              locked={!canDecide || approval.status !== 'pending'}
-            />
-          ) : null}
+            <div className="sticky bottom-0 z-10 mt-10 -mx-8 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-8 py-4 backdrop-blur-md md:-mx-10 md:px-10">
+              <ApprovalDecisionForm
+                partyId={subjectLink?.partyId}
+                subjectType={approval.subjectType}
+                subjectId={approval.subjectId}
+                approvalRequestId={approval.approvalRequestId}
+                locked={!canDecide || approval.status !== 'pending'}
+              />
+            </div>
+          ) : (
+            <p className="mt-10 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+              Solo el aprobador asignado puede decidir. Usted puede revisar el contexto.
+            </p>
+          )}
         </PageSection>
       </PageContainer>
     );
