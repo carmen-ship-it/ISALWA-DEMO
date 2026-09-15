@@ -5,6 +5,7 @@ import { PartyCommandService } from '@isalwa/os-party';
 import { WorkCommandService } from '@isalwa/os-work';
 import { WorkforceCommandService, LocalAuthProviderPort } from '@isalwa/os-workforce';
 import type { RequestContext } from '@isalwa/os-contracts';
+import { createId } from '@isalwa/ts-utils';
 
 const describePrisma = process.env.OS_DATABASE_URL ? describe : describe.skip;
 
@@ -296,5 +297,240 @@ describePrisma('work prisma integration', () => {
         ),
       (err: Error) => err.message === 'TENANT_FORBIDDEN',
     );
+  });
+
+  async function workCounts(organizationId: string) {
+    const [workItems, ownership, events, audits, outbox] = await Promise.all([
+      prisma.osWorkItem.count({ where: { organizationId } }),
+      prisma.osWorkItemOwnershipHistory.count({ where: { organizationId } }),
+      prisma.osBusinessEvent.count({ where: { organizationId } }),
+      prisma.osAuditLog.count({ where: { organizationId } }),
+      prisma.osOutboxMessage.count({ where: { organizationId } }),
+    ]);
+    return { workItems, ownership, events, audits, outbox };
+  }
+
+  it('CreateWorkItem commits work ownership event audit outbox atomically', async () => {
+    const org = await workforceStore.seedOrganization('Tx Hard Work', `txhw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txhw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    const before = await workCounts(org.id);
+    const result = await workSvc.execute(
+      'CreateWorkItem',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { title: 'Tx Work Item', ownerMemberId: admin.member.id, priority: 'normal' },
+    );
+    const workItemId = String(result.data.workItemId);
+    const after = await workCounts(org.id);
+    assert.equal(after.workItems, before.workItems + 1);
+    assert.equal(after.ownership, before.ownership + 1);
+    assert.ok(after.events >= before.events + 1);
+    assert.ok(after.audits >= before.audits + 1);
+    assert.ok(after.outbox >= before.outbox + 1);
+    const createdEvent = await prisma.osBusinessEvent.findFirst({
+      where: { organizationId: org.id, primaryEntityId: workItemId, eventType: 'work.created' },
+    });
+    assert.ok(createdEvent);
+    const audit = await prisma.osAuditLog.findFirst({
+      where: { organizationId: org.id, resourceId: workItemId },
+    });
+    assert.ok(audit);
+    const outbox = await prisma.osOutboxMessage.findFirst({
+      where: { organizationId: org.id, eventId: createdEvent!.id },
+    });
+    assert.ok(outbox);
+  });
+
+  it('rolls back work/ownership/event/audit/outbox when append fails', async () => {
+    const org = await workforceStore.seedOrganization('Tx Fail Work', `txfw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txfw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    const before = await workCounts(org.id);
+    workStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        workSvc.execute(
+          'CreateWorkItem',
+          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+          { title: 'Should Roll Back', ownerMemberId: admin.member.id },
+        ),
+      (err: Error) => err.message === 'OUTBOX_APPEND_FAILED',
+    );
+    assert.equal(workStore.testFailNextAppend, false);
+    const after = await workCounts(org.id);
+    assert.deepEqual(after, before);
+  });
+
+  it('latency regression: delay above old 5s default still succeeds with new timeout', async () => {
+    const org = await workforceStore.seedOrganization('Tx Latency Work', `txlw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txlw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    // Controlled Prisma lifetime: delay exceeds historical 5s default; config keeps 8s budget.
+    workStore.interactiveTxOptions = { maxWait: 2_000, timeout: 8_000 };
+    workStore.testAppendDelayMs = 5_500;
+    const before = await workCounts(org.id);
+    const result = await workSvc.execute(
+      'CreateWorkItem',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { title: 'Latency Ok', ownerMemberId: admin.member.id },
+    );
+    assert.ok(result.data.workItemId);
+    const after = await workCounts(org.id);
+    assert.equal(after.workItems, before.workItems + 1);
+    assert.ok(after.events >= before.events + 1);
+    assert.ok(after.audits >= before.audits + 1);
+    assert.ok(after.outbox >= before.outbox + 1);
+    workStore.interactiveTxOptions = undefined;
+    workStore.testAppendDelayMs = 0;
+  });
+
+  it('latency regression: delay beyond configured timeout leaves no partial rows', async () => {
+    const org = await workforceStore.seedOrganization('Tx Timeout Work', `txtw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txtw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    workStore.interactiveTxOptions = { maxWait: 2_000, timeout: 1_200 };
+    workStore.testAppendDelayMs = 2_000;
+    const before = await workCounts(org.id);
+    await assert.rejects(() =>
+      workSvc.execute(
+        'CreateWorkItem',
+        ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+        { title: 'Timeout Partial', ownerMemberId: admin.member.id },
+      ),
+    );
+    const after = await workCounts(org.id);
+    assert.deepEqual(after, before);
+    workStore.interactiveTxOptions = undefined;
+    workStore.testAppendDelayMs = 0;
+  });
+
+  it('after failed CreateWorkItem, same store instance succeeds without stale tx client', async () => {
+    const org = await workforceStore.seedOrganization('Tx Reuse Work', `txrw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txrw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    const c = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
+    workStore.testFailNextAppend = true;
+    await assert.rejects(
+      () =>
+        workSvc.execute('CreateWorkItem', c, {
+          title: 'Fail First',
+          ownerMemberId: admin.member.id,
+        }),
+      (err: Error) => err.message === 'OUTBOX_APPEND_FAILED',
+    );
+    const result = await workSvc.execute('CreateWorkItem', c, {
+      title: 'Succeed Second',
+      ownerMemberId: admin.member.id,
+    });
+    assert.ok(result.data.workItemId);
+    const work = await workStore.getWorkItemInOrg(org.id, String(result.data.workItemId));
+    assert.ok(work);
+    assert.equal(work?.title, 'Succeed Second');
+  });
+
+  it('ReassignWork still requires people.admin; non-admin scopes are denied', async () => {
+    const org = await workforceStore.seedOrganization('Tx Auth Work', `txaw-${Date.now()}`);
+    const admin = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txaw-adm-${Date.now()}@o.bo`,
+      'Ad',
+      'Min',
+      'people.admin',
+    );
+    const owner = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txaw-own-${Date.now()}@o.bo`,
+      'Ow',
+      'Ner',
+      'member_active',
+    );
+    const next = await workforceStore.seedScopedAdminMember(
+      org.id,
+      `txaw-nxt-${Date.now()}@o.bo`,
+      'Ne',
+      'Xt',
+      'member_active',
+    );
+    const personId = createId();
+    const memberId = createId();
+    const authId = createId();
+    await workforceStore.insertPerson({
+      id: personId,
+      givenName: 'Plain',
+      familyName: 'Member',
+      version: 0,
+    });
+    await workforceStore.insertMember({
+      id: memberId,
+      organizationId: org.id,
+      personId,
+      employmentStatus: 'active',
+      accessStatus: 'active',
+      employmentStartedAt: new Date(),
+      employmentEndedAt: null,
+      version: 0,
+    });
+    await workforceStore.insertAuthIdentity({
+      id: authId,
+      personId,
+      provider: 'local-dev',
+      providerSubject: `subject:plain-${Date.now()}@o.bo`,
+      email: `plain-${Date.now()}@o.bo`,
+      status: 'active',
+      invitedAt: null,
+      activatedAt: new Date(),
+      revokedAt: null,
+    });
+    await workforceStore.insertRoleAssignment({
+      id: createId(),
+      organizationId: org.id,
+      memberId,
+      roleKey: 'sales_rep',
+      effectiveAt: new Date('2020-01-01'),
+      endedAt: null,
+    });
+
+    const created = await workSvc.execute(
+      'CreateWorkItem',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { title: 'Auth Guard', ownerMemberId: owner.member.id },
+    );
+    const workItemId = String(created.data.workItemId);
+    await assert.rejects(
+      () =>
+        workSvc.execute(
+          'ReassignWork',
+          ctx(org.id, memberId, personId, authId),
+          { workItemId, newOwnerMemberId: next.member.id, reason: 'denied' },
+        ),
+      (err: Error) => err.message === 'PERMISSION_DENIED',
+    );
+    const work = await workStore.getWorkItemInOrg(org.id, workItemId);
+    assert.equal(work?.ownerMemberId, owner.member.id);
   });
 });
