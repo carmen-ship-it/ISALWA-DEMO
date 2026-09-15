@@ -78,8 +78,9 @@ export function AppToastRegion({
     <div
       aria-label={label}
       className={cx(
-        'pointer-events-none fixed bottom-4 right-4 z-40 flex w-[min(100vw-2rem,24rem)] flex-col gap-2',
-        'max-[389px]:left-4 max-[389px]:right-4 max-[389px]:w-auto',
+        'pointer-events-none fixed z-40 flex w-[min(100vw-2rem,24rem)] flex-col gap-2',
+        'isalwa-toast-region-safe',
+        'max-[389px]:w-auto',
         className,
       )}
     >

@@ -1,8 +1,11 @@
 export {
   BREAKPOINTS,
+  SHELL_HEADER_OFFSET_LG_PX,
+  SHELL_HEADER_OFFSET_PX,
   VIEWPORT_MAX_PX,
   VIEWPORT_MIN_PX,
   isWithinOperatingWidth,
+  shellHeaderOffsetPx,
   type BreakpointName,
 } from './breakpoints';
 export { FOCUS_RING_CLASS, withFocusRing } from './focus';
