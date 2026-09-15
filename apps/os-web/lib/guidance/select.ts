@@ -1,5 +1,7 @@
 import { OWNER_ABSENT_LABEL } from '@/lib/party/customer-self-service';
 import {
+  ACCESS_EXPLANATION,
+  AI_FUTURE_UNWIRED,
   APPROVE_DOES_NOT_CREATE_ORDER,
   ASSIGN_OWNER_CHECKLIST,
   CARGO_IS_NOT_AUTHORITY,
@@ -10,6 +12,8 @@ import {
   CREATE_CUSTOMER_REVIEW_MATCHES,
   CREATE_QUOTE_CHECKLIST,
   CREATE_QUOTE_CONSEQUENCE,
+  EMPLOYEE_ADMIN_HELP,
+  GLOSSARY_SHORT,
   REASSIGN_OWNER_CHECKLIST,
   REASSIGN_OWNER_CONSEQUENCE,
   SEARCH_CUSTOMER_CHECKLIST,
@@ -18,6 +22,7 @@ import {
   SEND_QUOTE_DOES_NOT_GRANT_APPROVAL,
   SEND_QUOTE_NEEDS_LINES,
   STANDING_RULES,
+  WHATSAPP_UNWIRED,
 } from './catalog';
 import { reportedPaymentGuidance } from './reported-payment';
 import type { GuidanceNoteModel } from './model';
@@ -105,6 +110,11 @@ export function guidanceForReassignOwner(situation: ReassignOwnerSituation): rea
 export function ayudaSections(): readonly GuidanceSection[] {
   return [
     {
+      id: 'access-explanation',
+      title: 'Tu acceso',
+      notes: [ACCESS_EXPLANATION],
+    },
+    {
       id: 'before-create-customer',
       title: 'Antes de crear cliente',
       notes: guidanceForCreateCustomer({ matchCount: 0, hasMoreMatches: false }),
@@ -135,9 +145,36 @@ export function ayudaSections(): readonly GuidanceSection[] {
       notes: guidanceForReassignOwner({ currentOwnerLabel: 'Miembro asignado' }),
     },
     {
+      id: 'glossary-short',
+      title: 'Glosario breve',
+      notes: [GLOSSARY_SHORT],
+    },
+    {
+      id: 'whatsapp-unwired',
+      title: 'Mensajes',
+      notes: [WHATSAPP_UNWIRED],
+    },
+    {
+      id: 'ai-future-unwired',
+      title: 'Asistencia de IA',
+      notes: [AI_FUTURE_UNWIRED],
+    },
+    {
       id: 'standing-rules',
       title: 'Reglas',
       notes: STANDING_RULES,
     },
   ];
+}
+
+/**
+ * Employee admin help section. Display only for authorized admins.
+ * Core may gate display based on existing admin patterns.
+ */
+export function employeeAdminHelpSection(): GuidanceSection {
+  return {
+    id: 'employee-admin-help',
+    title: 'Administración de empleados',
+    notes: [EMPLOYEE_ADMIN_HELP],
+  };
 }

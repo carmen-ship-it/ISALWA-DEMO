@@ -11,7 +11,18 @@ export { claimsCargoAuthority, guidanceNote, guidanceNoteView, guidanceText, gui
 export type { GuidanceNoteModel, GuidanceNoteView } from './model';
 export { reportedPaymentGuidance } from './reported-payment';
 export {
+  // Ayuda page catalog entries (export for core to compose)
+  ACCESS_EXPLANATION,
+  AI_FUTURE_UNWIRED,
+  EMPLOYEE_ADMIN_HELP,
+  EMPTY_NEXT_ACTION,
+  GLOSSARY_SHORT,
+  LEARNING_MODE_LABELS,
+  WHATSAPP_UNWIRED,
+} from './catalog';
+export {
   ayudaSections,
+  employeeAdminHelpSection,
   guidanceForConvertQuote,
   guidanceForCreateCustomer,
   guidanceForCreateQuote,

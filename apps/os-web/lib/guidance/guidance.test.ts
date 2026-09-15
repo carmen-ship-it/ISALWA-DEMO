@@ -11,6 +11,7 @@ import { claimsCargoAuthority, guidanceNoteView, guidanceText, guidanceViolation
 import { reportedPaymentGuidance } from './reported-payment';
 import {
   ayudaSections,
+  employeeAdminHelpSection,
   guidanceForConvertQuote,
   guidanceForCreateCustomer,
   guidanceForCreateQuote,
@@ -18,6 +19,7 @@ import {
   guidanceForSearchCustomer,
   guidanceForSendQuote,
 } from './select';
+import { EMPTY_NEXT_ACTION, LEARNING_MODE_LABELS } from './catalog';
 import type { GuidanceNoteModel } from './model';
 
 function readUi(relativePath: string): string {
@@ -174,6 +176,88 @@ describe('ayuda and copy guards', () => {
         if (note.kind === 'regla') assert.equal(view.role, 'consequence');
       }
     }
+  });
+
+  it('includes access explanation with exact required copy', () => {
+    const sections = ayudaSections();
+    const accessSection = sections.find((s) => s.id === 'access-explanation');
+    assert.ok(accessSection, 'access-explanation section should exist');
+    const text = guidanceText(accessSection.notes);
+    assert.match(text, /Cada persona tiene su propio acceso/);
+    assert.match(text, /Lo que puedes ver o cambiar depende de los permisos que tengas asignados/);
+    assert.match(text, /Tu cargo no te da permisos automáticamente/);
+    assert.match(text, /Ver algo no siempre significa que puedes modificarlo/);
+    assert.match(text, /No compartas tu cuenta con otra persona/);
+  });
+
+  it('includes WhatsApp/Mensajes unwired section with honest copy', () => {
+    const sections = ayudaSections();
+    const whatsappSection = sections.find((s) => s.id === 'whatsapp-unwired');
+    assert.ok(whatsappSection, 'whatsapp-unwired section should exist');
+    const text = guidanceText(whatsappSection.notes);
+    assert.match(text, /Mensajes todavía no está conectado/);
+    assert.match(text, /podrá reunir conversaciones y compromisos/);
+    assert.match(text, /Un mensaje es evidencia, no necesariamente una verdad confirmada/);
+    // Title says "no está conectado" (negative) — ensure no affirmative live claims
+    assert.doesNotMatch(text, /\benvía mensajes\b|\brecibe mensajes\b/i);
+    assert.doesNotMatch(text, /ya está conectado/i);
+  });
+
+  it('includes AI future section without implying live', () => {
+    const sections = ayudaSections();
+    const aiSection = sections.find((s) => s.id === 'ai-future-unwired');
+    assert.ok(aiSection, 'ai-future-unwired section should exist');
+    const text = guidanceText(aiSection.notes);
+    assert.match(text, /La IA podrá ayudar a resumir, explicar, preparar y sugerir próximos pasos/);
+    assert.match(text, /La IA no aprueba, no confirma pagos, no cambia precios y no otorga permisos/);
+    // Should use future tense, not imply live
+    assert.match(text, /podrá/);
+    assert.doesNotMatch(text, /está habilitado|ya puede/i);
+  });
+
+  it('includes glossary short with key terms', () => {
+    const sections = ayudaSections();
+    const glossarySection = sections.find((s) => s.id === 'glossary-short');
+    assert.ok(glossarySection, 'glossary-short section should exist');
+    const text = guidanceText(glossarySection.notes);
+    assert.match(text, /Cliente 360/);
+    assert.match(text, /Responsable/);
+    assert.match(text, /Oportunidad/);
+    assert.match(text, /Cotización/);
+    assert.match(text, /Pedido/);
+    assert.match(text, /Aprobación/);
+    assert.match(text, /Dato manual/);
+    assert.match(text, /Pendiente de confirmar/);
+    assert.match(text, /Ubicación registrada/);
+    // Should not use jargon
+    assert.doesNotMatch(text, /Supabase|AuthIdentity|scope|capability/i);
+  });
+
+  it('exports learning mode labels for walkthrough core', () => {
+    assert.equal(LEARNING_MODE_LABELS.consejo, 'Consejo');
+    assert.equal(LEARNING_MODE_LABELS.quéSignificaEsto, '¿Qué significa esto?');
+    assert.equal(LEARNING_MODE_LABELS.porQuéVeoEsto, '¿Por qué veo esto?');
+    assert.equal(LEARNING_MODE_LABELS.quéHagoAhora, '¿Qué hago ahora?');
+  });
+
+  it('exports deterministic empty next-action message', () => {
+    assert.equal(EMPTY_NEXT_ACTION, 'No hay una acción pendiente identificada en este momento.');
+  });
+
+  it('provides employee admin help for authorized admins', () => {
+    const section = employeeAdminHelpSection();
+    assert.equal(section.id, 'employee-admin-help');
+    const text = guidanceText(section.notes);
+    assert.match(text, /Invitar/);
+    assert.match(text, /Estado/);
+    assert.match(text, /Activar/);
+    assert.match(text, /Suspender/);
+    assert.match(text, /Reactivar/);
+    assert.match(text, /Terminar/);
+    assert.match(text, /Rol/);
+    assert.match(text, /Cada empleado crea su propia contraseña/);
+    // Should not use jargon
+    assert.doesNotMatch(text, /Supabase|AuthIdentity|scope|capability/i);
   });
 });
 

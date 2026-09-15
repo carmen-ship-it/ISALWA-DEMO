@@ -3,6 +3,9 @@ import { FINANCE_OPERATIONAL_RECORD_SCOPE } from '@isalwa/os-contracts';
 /**
  * Operational finance desk copy. Not official accounting, not a ledger,
  * and not an Ingresos panel. Payment claim ≠ confirmed.
+ *
+ * User-facing strings must never interpolate scope keys like finance.operational.record.
+ * The scopeRequired constant exists for code/test use ONLY; it must never render in UI.
  */
 export const FINANCE_DESK_COPY = {
   kicker: 'Registro operativo',
@@ -17,10 +20,10 @@ export const FINANCE_DESK_COPY = {
   noIngresos:
     'No hay panel de Ingresos aquí. Sin fuente autoritativa no se muestra cobranza como hecha.',
   permissionTitle: 'Sin permiso para el registro operativo',
-  permissionRole: `Hace falta la capacidad ${FINANCE_OPERATIONAL_RECORD_SCOPE}. El cargo o el título no autorizan.`,
+  permissionRole: 'No tienes permiso para registrar información financiera operativa.',
   permissionSession: 'Hace falta una sesión activa de esta empresa. Otra empresa no se ve aquí.',
   permissionUnconfirmed:
-    'No se pudo confirmar la capacidad asignada. Sin lista de alcances no se abre el escritorio.',
+    'No se pudo confirmar el permiso asignado. Sin confirmación de permisos no se abre el escritorio.',
   subjectIntro: 'Indique el pedido o cliente al que corresponde el reporte. El dato no confirma el pago.',
   subjectType: 'Tipo de sujeto',
   subjectId: 'Identificador',
@@ -29,6 +32,7 @@ export const FINANCE_DESK_COPY = {
   subjectOrder: 'Pedido',
   subjectQuote: 'Cotización',
   emptyFacts: 'Todavía no hay pagos reportados en esta sesión.',
+  /** Internal constant for code/tests. Must NEVER render in UI. */
   scopeRequired: FINANCE_OPERATIONAL_RECORD_SCOPE,
 } as const;
 

@@ -203,6 +203,30 @@ describe('finance operational desk access', () => {
     assert.match(FINANCE_DESK_COPY.noIngresos, /No hay panel de Ingresos/i);
   });
 
+  it('user-facing permission copy never exposes scope keys or jargon', () => {
+    // User-facing strings that render in UI (not scopeRequired which is internal)
+    const userFacingStrings = [
+      FINANCE_DESK_COPY.permissionTitle,
+      FINANCE_DESK_COPY.permissionRole,
+      FINANCE_DESK_COPY.permissionSession,
+      FINANCE_DESK_COPY.permissionUnconfirmed,
+    ].join('\n');
+
+    // Must not contain scope keys like finance.operational.record
+    assert.doesNotMatch(userFacingStrings, /\bfinance\.operational\.record\b/);
+    assert.doesNotMatch(userFacingStrings, /\.operational\.record\b/);
+    // Must not contain jargon words
+    assert.doesNotMatch(userFacingStrings, /\bcapacidad\b/i);
+    assert.doesNotMatch(userFacingStrings, /\balcances\b/i);
+    assert.doesNotMatch(userFacingStrings, /\bscope\b/i);
+    assert.doesNotMatch(userFacingStrings, /\bcapability\b/i);
+    // Verify expected human-friendly copy exists
+    assert.match(FINANCE_DESK_COPY.permissionRole, /No tienes permiso para registrar información financiera operativa/);
+    assert.match(FINANCE_DESK_COPY.permissionUnconfirmed, /No se pudo confirmar el permiso asignado/);
+    // Verify scopeRequired is still available for internal code use
+    assert.equal(FINANCE_DESK_COPY.scopeRequired, FINANCE_OPERATIONAL_RECORD_SCOPE);
+  });
+
   it('page and nav wire operational desk without activating product finance', () => {
     const page = readFileSync(resolve(__dirname, '../../app/(app)/finanzas/page.tsx'), 'utf8');
     const presentation = readFileSync(

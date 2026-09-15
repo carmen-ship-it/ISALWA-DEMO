@@ -173,3 +173,110 @@ export const STANDING_RULES: readonly GuidanceNoteModel[] = [
     ],
   }),
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Access explanation (for Ayuda page)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const ACCESS_EXPLANATION = guidanceNote({
+  id: 'access-explanation',
+  kind: 'regla',
+  title: 'Tu acceso',
+  items: [
+    'Cada persona tiene su propio acceso.',
+    'Lo que puedes ver o cambiar depende de los permisos que tengas asignados.',
+    'Tu cargo no te da permisos automáticamente.',
+    'Ver algo no siempre significa que puedes modificarlo.',
+    'No compartas tu cuenta con otra persona.',
+  ],
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WhatsApp / Mensajes (unwired placeholder)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const WHATSAPP_UNWIRED = guidanceNote({
+  id: 'whatsapp-unwired',
+  kind: 'regla',
+  title: 'Mensajes todavía no está conectado',
+  items: [
+    'Más adelante, esta área podrá reunir conversaciones y compromisos relacionados con clientes cuando se conecte el servicio correspondiente.',
+    'Un mensaje es evidencia, no necesariamente una verdad confirmada.',
+  ],
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI honest future (unwired placeholder)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const AI_FUTURE_UNWIRED = guidanceNote({
+  id: 'ai-future-unwired',
+  kind: 'regla',
+  title: 'Asistencia de IA',
+  items: [
+    'La IA podrá ayudar a resumir, explicar, preparar y sugerir próximos pasos.',
+    'La IA no aprueba, no confirma pagos, no cambia precios y no otorga permisos.',
+  ],
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Glossary short entries (for Ayuda page)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const GLOSSARY_SHORT = guidanceNote({
+  id: 'glossary-short',
+  kind: 'consejo',
+  title: 'Glosario breve',
+  items: [
+    'Cliente 360 — vista unificada del cliente: datos, oportunidades, cotizaciones, pedidos.',
+    'Responsable — el miembro asignado a una cuenta u oportunidad.',
+    'Oportunidad — un posible negocio antes de convertirse en cotización.',
+    'Cotización — propuesta de precios y condiciones para el cliente.',
+    'Pedido — compromiso confirmado a partir de una cotización enviada.',
+    'Aprobación — decisión registrada que autoriza avanzar.',
+    'Dato manual — información cargada manualmente, no sincronizada de otra fuente.',
+    'Pendiente de confirmar — aún no validado por la empresa.',
+    'Ubicación registrada — lugar guardado en el sistema, no necesariamente verificado.',
+  ],
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Employee admin help (for authorized admins)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const EMPLOYEE_ADMIN_HELP = guidanceNote({
+  id: 'employee-admin-help',
+  kind: 'consejo',
+  title: 'Administración de empleados',
+  items: [
+    'Invitar — envía una invitación al empleado para que cree su cuenta.',
+    'Estado — indica si el empleado está activo, suspendido o terminado.',
+    'Activar — habilita el acceso de un empleado.',
+    'Suspender — desactiva temporalmente el acceso sin eliminar la cuenta.',
+    'Reactivar — restaura el acceso de un empleado suspendido.',
+    'Terminar — finaliza la relación laboral y desactiva el acceso.',
+    'Rol — define qué permisos tiene el empleado.',
+    'Cada empleado crea su propia contraseña.',
+  ],
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Learning Mode contextual helper labels (exports for walkthrough core)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Contextual helper label strings for Learning Mode.
+ * Walkthrough core imports these to display in-context tips.
+ */
+export const LEARNING_MODE_LABELS = {
+  consejo: 'Consejo',
+  quéSignificaEsto: '¿Qué significa esto?',
+  porQuéVeoEsto: '¿Por qué veo esto?',
+  quéHagoAhora: '¿Qué hago ahora?',
+} as const;
+
+/**
+ * Deterministic empty next-action message.
+ * Displayed when no pending action is identified.
+ */
+export const EMPTY_NEXT_ACTION = 'No hay una acción pendiente identificada en este momento.' as const;
