@@ -1,5 +1,6 @@
 import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
 import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
+import '@/components/commercial/commercial-surfaces.css';
 import { formatListAge, formatQuoteStatus, statusTone } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
@@ -48,7 +49,11 @@ export function QuoteOrgList({
   selectedQuoteId,
 }: QuoteOrgListProps) {
   return (
-    <ul className="min-w-0" aria-label="Cotizaciones" data-tour={TOUR_TARGET.quoteList}>
+    <ul
+      className="commercial-operating-list min-w-0"
+      aria-label="Cotizaciones"
+      data-tour={TOUR_TARGET.quoteList}
+    >
       {items
         .filter(
           (item) =>

@@ -1,0 +1,45 @@
+/**
+ * Commercial list row separation — strengthens OperatingRow hairlines on white desks.
+ */
+.commercial-operating-list .isalwa-operating-row {
+  border-bottom-color: color-mix(in srgb, var(--isalwa-mist) 92%, var(--isalwa-kiln));
+  background: var(--isalwa-white);
+}
+
+.commercial-operating-list > li:nth-child(even) .isalwa-operating-row,
+.commercial-operating-list > .isalwa-operating-row:nth-child(even) {
+  background: color-mix(in srgb, var(--isalwa-porcelain) 42%, white);
+}
+
+.commercial-operating-list > li:hover .isalwa-operating-row,
+.commercial-operating-list .isalwa-operating-row:hover {
+  background: color-mix(in srgb, var(--isalwa-glaze) 5%, white);
+}
+
+.commercial-operating-list .isalwa-operating-row[data-selected='true'] {
+  background: color-mix(in srgb, var(--isalwa-glaze) 9%, white);
+}
+
+.commercial-operating-list > li:last-child .isalwa-operating-row,
+.commercial-operating-list .isalwa-operating-row:last-child {
+  border-bottom-width: 0;
+}
+
+.commercial-empty-nest {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--isalwa-porcelain) 82%, white);
+}
+
+/**
+ * Navy primary submit inside commercial toolbars.
+ * Matches Trabajo ListSearchForm when @isalwa/ui Button utilities are not emitted.
+ */
+.commercial-toolbar button[type='submit'] {
+  border-color: var(--isalwa-kiln);
+  background-color: var(--isalwa-kiln);
+  color: #fff;
+}
+
+.commercial-toolbar button[type='submit']:hover {
+  opacity: 0.95;
+}

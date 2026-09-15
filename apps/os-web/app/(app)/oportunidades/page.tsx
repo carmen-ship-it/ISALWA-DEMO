@@ -1,6 +1,14 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageContainer, PageSection, SearchField, cx } from '@isalwa/ui';
+import { EmptyState, PageSection, SearchField, cx } from '@isalwa/ui';
+import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
+import {
+  commercialPrimaryButtonClass,
+  commercialPrimaryLinkClass,
+  commercialToolbarClass,
+  commercialWorkSurfaceClass,
+} from '@/components/commercial/commercial-surfaces';
+import '@/components/commercial/commercial-surfaces.css';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -103,82 +111,85 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
         : null;
 
     return (
-      <PageContainer label={t('pages.oportunidades.title')}>
+      <CommercialPageFrame label={t('pages.oportunidades.title')}>
         <PageHeader
           kicker={t('pages.oportunidades.kicker')}
           title={t('pages.oportunidades.title')}
           description={visible.length === 0 ? undefined : t('pages.oportunidades.description')}
         />
 
-        <form
-          key={`${status}:${listState.q ?? ''}:${listState.view ?? ''}:${stage ?? ''}`}
-          method="get"
-          action={LIST_PATH}
-          className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end"
-        >
-          <input type="hidden" name="status" value={status} />
-          {listState.view ? <input type="hidden" name="view" value={listState.view} /> : null}
-          {stage ? <input type="hidden" name="stage" value={stage} /> : null}
-          <div className="min-w-0 flex-1">
-            <label
-              htmlFor="oportunidades-q"
-              className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
-            >
+        <div className={`commercial-toolbar ${commercialToolbarClass}`}>
+          <form
+            key={`${status}:${listState.q ?? ''}:${listState.view ?? ''}:${stage ?? ''}`}
+            method="get"
+            action={LIST_PATH}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <input type="hidden" name="status" value={status} />
+            {listState.view ? <input type="hidden" name="view" value={listState.view} /> : null}
+            {stage ? <input type="hidden" name="stage" value={stage} /> : null}
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="oportunidades-q"
+                className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
+              >
+                Buscar
+              </label>
+              <SearchField
+                id="oportunidades-q"
+                name="q"
+                defaultValue={listState.q ?? ''}
+                placeholder="Título"
+                autoComplete="off"
+              />
+            </div>
+            <button type="submit" className={commercialPrimaryButtonClass}>
               Buscar
-            </label>
-            <SearchField
-              id="oportunidades-q"
-              name="q"
-              defaultValue={listState.q ?? ''}
-              placeholder="Título"
-              autoComplete="off"
-            />
-          </div>
-          <Button type="submit" variant="primary" className="shrink-0">
-            Buscar
-          </Button>
-          {hasQuery ? (
-            <Link
-              href={withExactStage(
-                listHref(LIST_PATH, { status, view: listState.view }, ['q', 'cursor', 'panel']),
-                stage,
-              )}
-              className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-            >
-              Limpiar
-            </Link>
-          ) : null}
-        </form>
-
-        <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="Filtro de oportunidades">
-          {OPPORTUNITY_LIST_STATUSES.map((option) => {
-            const active = option === status;
-            return (
+            </button>
+            {hasQuery ? (
               <Link
-                key={option}
                 href={withExactStage(
-                  listHref(LIST_PATH, { ...listState, status: option }, ['cursor', 'panel']),
+                  listHref(LIST_PATH, { status, view: listState.view }, ['q', 'cursor', 'panel']),
                   stage,
                 )}
-                role="tab"
-                aria-selected={active}
-                className={tabClass(active)}
+                className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
               >
-                {formatOpportunityStatus(option)}
+                Limpiar
               </Link>
-            );
-          })}
+            ) : null}
+          </form>
+
+          <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Filtro de oportunidades">
+            {OPPORTUNITY_LIST_STATUSES.map((option) => {
+              const active = option === status;
+              return (
+                <Link
+                  key={option}
+                  href={withExactStage(
+                    listHref(LIST_PATH, { ...listState, status: option }, ['cursor', 'panel']),
+                    stage,
+                  )}
+                  role="tab"
+                  aria-selected={active}
+                  className={tabClass(active)}
+                >
+                  {formatOpportunityStatus(option)}
+                </Link>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+            {stage
+              ? `Etapa exacta: ${formatStage(stage)}. No es un filtro de pipeline.`
+              : 'La etapa se muestra como se registró.'}
+          </p>
         </div>
-        <p className="mb-6 text-sm text-[var(--isalwa-slate)]">
-          {stage
-            ? `Etapa exacta: ${formatStage(stage)}. No es un filtro de pipeline.`
-            : 'La etapa se muestra como se registró.'}
-        </p>
 
         <StaleProjectionBanner freshness={result.freshness} />
 
         {visible.length === 0 ? (
           <EmptyState
+            className="commercial-empty-nest"
             title={
               hasQuery
                 ? 'Sin resultados'
@@ -187,16 +198,19 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
                   : 'Sin oportunidades'
             }
             description={emptyDescription(status, hasQuery, stage)}
+            example={
+              status === 'open' && !hasQuery && !stage
+                ? 'Un cliente activo puede no tener oportunidades todavía. Ábralo y registre la primera desde allí.'
+                : undefined
+            }
             action={
-              <Link href="/clientes" className="inline-flex">
-                <Button type="button" variant="primary">
-                  {t('states.goToClientes')}
-                </Button>
+              <Link href="/clientes" className={commercialPrimaryLinkClass}>
+                {t('states.goToClientes')}
               </Link>
             }
           />
         ) : (
-          <PageSection card className="p-2 md:p-3">
+          <PageSection card className={`p-0 ${commercialWorkSurfaceClass}`}>
             <OpportunityOrgList
               items={visible}
               memberLabels={memberLabels}
@@ -215,17 +229,17 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
             </Link>
           </div>
         ) : null}
-      </PageContainer>
+      </CommercialPageFrame>
     );
   } catch (err) {
     return (
-      <PageContainer label={t('pages.oportunidades.title')}>
+      <CommercialPageFrame label={t('pages.oportunidades.title')}>
         <PageHeader
           kicker={t('pages.oportunidades.kicker')}
           title={t('pages.oportunidades.title')}
         />
         <QuerySurfaceState error={classifyQueryError(err)} />
-      </PageContainer>
+      </CommercialPageFrame>
     );
   }
 }

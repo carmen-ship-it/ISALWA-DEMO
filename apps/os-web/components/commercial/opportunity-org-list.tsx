@@ -1,5 +1,6 @@
 import { OperatingRow, StatusPill } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
+import '@/components/commercial/commercial-surfaces.css';
 import { formatListAge, formatOpportunityStatus, formatStage, statusTone } from '@/lib/commercial/labels';
 import { newQuoteHref, opportunityHref } from '@/lib/commercial/navigation';
 import { opportunityNextStep } from '@/lib/commercial/next-step';
@@ -25,7 +26,11 @@ export function OpportunityOrgList({
   partyLabels,
 }: OpportunityOrgListProps) {
   return (
-    <ul className="min-w-0" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
+    <ul
+      className="commercial-operating-list min-w-0"
+      aria-label="Oportunidades"
+      data-tour={TOUR_TARGET.opportunityList}
+    >
       {items
         .filter(
           (item) =>

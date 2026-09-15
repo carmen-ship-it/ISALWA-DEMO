@@ -10,7 +10,7 @@ type Cliente360StickyProps = {
  */
 export function Cliente360Sticky({ children }: Cliente360StickyProps) {
   return (
-    <div className="sticky top-14 z-20 -mx-1 mb-8 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-1 backdrop-blur-md">
+    <div className="sticky top-14 z-20 -mx-1 mb-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-3 shadow-[var(--isalwa-shadow-soft)] backdrop-blur-md md:px-4">
       {children}
     </div>
   );
