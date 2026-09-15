@@ -59,6 +59,26 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.equal(pkg.exports?.['.']?.default, './dist/index.js');
   });
 
+  it('A4: fixture prepare script must not nest bare pnpm', () => {
+    const { readFileSync } = require('node:fs') as typeof import('node:fs');
+    const { join } = require('node:path') as typeof import('node:path');
+    const root = JSON.parse(
+      readFileSync(join(__dirname, '../../../package.json'), 'utf8'),
+    ) as { scripts: Record<string, string> };
+    const prepare = root.scripts['fixture:wave2-roles:prepare'] ?? '';
+    const full = root.scripts['fixture:wave2-roles'] ?? '';
+    assert.ok(prepare.length > 0, 'prepare script missing');
+    assert.equal(/^pnpm(\s|$)/.test(prepare), false, 'prepare must not start with bare pnpm');
+    assert.match(prepare, /\bcorepack\s+pnpm\b/, 'prepare must use corepack pnpm');
+    assert.equal(/^pnpm(\s|$)/.test(full), false, 'full fixture script must not start with bare pnpm');
+    assert.match(full, /\bcorepack\s+pnpm\b/, 'full fixture script must use corepack pnpm');
+    for (const chunk of `${prepare} && ${full}`.split('&&').map((s) => s.trim())) {
+      if (/^pnpm(\s|$)/.test(chunk)) {
+        assert.fail(`bare pnpm fragment: ${chunk}`);
+      }
+    }
+  });
+
   it('B: wrong DB name => fail before writes', () => {
     assert.throws(() => assertStagingDatabaseName('isalwa_os_production'), /UNEXPECTED_DATABASE_NAME/);
     assert.throws(() => assertStagingDatabaseName('postgres'), /UNEXPECTED_DATABASE_NAME/);

@@ -1,31 +1,38 @@
 # Wave 2 fixture tool pin (not the hosted app)
 
 **HOSTED_APP_SHA** (live staging API+web): `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**FIXTURE_TOOL_SHA**: `86c8264757f4e102828a7258cb5512ff95cbe196`
+**FIXTURE_TOOL_SHA**: *(set on commit)*
 
 These are different. Do not treat the fixture tool commit as a redeploy of the hosted app.
 
-## Clean-room failure root cause (fixed by prepare)
+## Clean-room package manager
 
-Workspace packages such as `@isalwa/ts-utils` declare `main`/`exports` → `./dist/index.js`.  
-`dist/` is **gitignored**, so a fresh worktree after `pnpm install --frozen-lockfile` links the package but **has no build output**. Node then fails with:
+Governed path uses **Corepack** only (`packageManager: pnpm@9.15.4`).  
+Do **not** install a global `pnpm` binary.
 
-`MODULE_NOT_FOUND` … `node_modules/@isalwa/ts-utils/dist/index.js`
+`fixture:wave2-roles:prepare` invokes **`corepack pnpm`** (not bare `pnpm`), so it respects `packageManager: pnpm@9.15.4` without a global pnpm install.
 
-This is **not** a Node 24 incompatibility (`engines.node: ">=22"`; CI uses 22).
+Note: a nested bare `pnpm` fails with `sh: pnpm: command not found` when only Corepack provides pnpm. Local `turbo run build` also fails in that environment because turbo still looks up the package-manager binary.
+
+## Clean-room failure history
+
+1. Missing gitignored `dist/` → need prepare/build  
+2. Nested bare `pnpm` in prepare → `sh: pnpm: command not found` when only Corepack provides pnpm  
 
 ## Clean-room prerequisite
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm run fixture:wave2-roles:prepare   # builds @isalwa/os-database^... (incl. ts-utils)
+corepack pnpm install --frozen-lockfile
+corepack pnpm run fixture:wave2-roles:prepare
 ```
 
 Smoke without secrets (must print `STAGING_FIXTURE_CONFIRM_REQUIRED` and exit 1):
 
 ```bash
-pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
+corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
 ```
+
+`command -v pnpm` may be empty; that is OK.
 
 ## Guards (fail closed before writes)
 
@@ -42,15 +49,15 @@ pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-
 ## Run later (authorized staging pass only)
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm run fixture:wave2-roles:prepare
+corepack pnpm install --frozen-lockfile
+corepack pnpm run fixture:wave2-roles:prepare
 export OS_DATABASE_URL=…   # staging external URL only
 export SUPABASE_URL=https://qbpxuywtoycjpitxoblo.supabase.co
 export SUPABASE_ANON_KEY=…
 export SUPABASE_SERVICE_ROLE_KEY=…
 export STAGING_FIXTURE_CONFIRM=1
-pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
-# or: pnpm run fixture:wave2-roles
+corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
+# or: corepack pnpm run fixture:wave2-roles
 ```
 
 Identities: exactly nine `w2.*@isalwa.demo` emails (see guards).  

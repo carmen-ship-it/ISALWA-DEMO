@@ -15,8 +15,9 @@
  * 9. fixture writes
  *
  * Clean-room prerequisite (workspace packages export dist/, which is gitignored):
- *   pnpm install --frozen-lockfile
- *   pnpm run fixture:wave2-roles:prepare
+ *   corepack pnpm install --frozen-lockfile
+ *   corepack pnpm run fixture:wave2-roles:prepare
+ * Prepare uses `corepack pnpm` (not a nested bare `pnpm` binary).
  *
  * Required env:
  *   OS_DATABASE_URL
@@ -32,8 +33,8 @@
  * Passwords (local only, never in receipt): …-wave2-role-passwords.json
  *
  * Run (allowlisted IP, after FIXTURE_EXECUTION_READY):
- *   pnpm run fixture:wave2-roles:prepare
- *   STAGING_FIXTURE_CONFIRM=1 pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
+ *   corepack pnpm run fixture:wave2-roles:prepare
+ *   STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-wave2-role-fixtures.ts
  */
 import { mkdirSync, writeFileSync, chmodSync, existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
