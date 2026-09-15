@@ -1,6 +1,14 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageContainer, PageSection, SearchField, cx } from '@isalwa/ui';
+import { Button, EmptyState, PageSection, SearchField, cx } from '@isalwa/ui';
+import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
+import {
+  commercialPrimaryButtonClass,
+  commercialPrimaryLinkClass,
+  commercialToolbarClass,
+  commercialWorkSurfaceClass,
+} from '@/components/commercial/commercial-surfaces';
+import '@/components/commercial/commercial-surfaces.css';
 import { QuoteQuickView } from '@/components/operating/quote-quick-view';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -113,78 +121,84 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
         : null;
 
     return (
-      <PageContainer label={t('pages.cotizaciones.title')}>
+      <CommercialPageFrame label={t('pages.cotizaciones.title')}>
         <PageHeader
           kicker={t('pages.cotizaciones.kicker')}
           title={t('pages.cotizaciones.title')}
           description={visible.length === 0 ? undefined : t('pages.cotizaciones.description')}
         />
 
-        <form
-          key={`${status}:${listState.q ?? ''}:${listState.view ?? ''}`}
-          method="get"
-          action={LIST_PATH}
-          className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end"
-        >
-          <input type="hidden" name="status" value={status} />
-          {listState.view ? <input type="hidden" name="view" value={listState.view} /> : null}
-          <div className="min-w-0 flex-1">
-            <label
-              htmlFor="cotizaciones-q"
-              className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
-            >
-              Buscar
-            </label>
-            <SearchField
-              id="cotizaciones-q"
-              name="q"
-              defaultValue={listState.q ?? ''}
-              placeholder="Número de cotización"
-              autoComplete="off"
-            />
-          </div>
-          <Button type="submit" variant="primary" className="shrink-0">
-            Buscar
-          </Button>
-          {hasQuery ? (
-            <Link
-              href={clearSearchHref(status, listState.view)}
-              className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-            >
-              Limpiar
-            </Link>
-          ) : null}
-        </form>
-
-        <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Filtro de cotizaciones">
-          {filters.map((filter) => {
-            const active = filter.status === status;
-            return (
-              <Link
-                key={filter.status}
-                href={workingHref({ ...listState, status: filter.status }, ['cursor', 'panel'])}
-                role="tab"
-                aria-selected={active}
-                className={tabClass(active)}
+        <div className={`commercial-toolbar ${commercialToolbarClass}`}>
+          <form
+            key={`${status}:${listState.q ?? ''}:${listState.view ?? ''}`}
+            method="get"
+            action={LIST_PATH}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <input type="hidden" name="status" value={status} />
+            {listState.view ? <input type="hidden" name="view" value={listState.view} /> : null}
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="cotizaciones-q"
+                className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
               >
-                {filter.label}
+                Buscar
+              </label>
+              <SearchField
+                id="cotizaciones-q"
+                name="q"
+                defaultValue={listState.q ?? ''}
+                placeholder="Número de cotización"
+                autoComplete="off"
+              />
+            </div>
+            <button type="submit" className={commercialPrimaryButtonClass}>
+              Buscar
+            </button>
+            {hasQuery ? (
+              <Link
+                href={clearSearchHref(status, listState.view)}
+                className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+              >
+                Limpiar
               </Link>
-            );
-          })}
+            ) : null}
+          </form>
+
+          <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Filtro de cotizaciones">
+            {filters.map((filter) => {
+              const active = filter.status === status;
+              return (
+                <Link
+                  key={filter.status}
+                  href={workingHref({ ...listState, status: filter.status }, ['cursor', 'panel'])}
+                  role="tab"
+                  aria-selected={active}
+                  className={tabClass(active)}
+                >
+                  {filter.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         <StaleProjectionBanner freshness={result.freshness} />
 
         {visible.length === 0 ? (
           <EmptyState
+            className="commercial-empty-nest"
             title={hasQuery ? 'Sin resultados' : t('states.emptyCotizaciones')}
             description={emptyDescription(status, hasQuery)}
+            example={
+              status === 'draft' && !hasQuery
+                ? 'Un cliente activo puede no tener cotizaciones todavía. La primera nace desde una oportunidad.'
+                : undefined
+            }
             action={
               <div className="flex flex-wrap gap-3">
-                <Link href="/clientes" className="inline-flex">
-                  <Button type="button" variant="primary">
-                    {t('states.goToClientes')}
-                  </Button>
+                <Link href="/clientes" className={commercialPrimaryLinkClass}>
+                  {t('states.goToClientes')}
                 </Link>
                 <Link href="/oportunidades" className="inline-flex">
                   <Button type="button" variant="secondary">
@@ -195,7 +209,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
             }
           />
         ) : (
-          <PageSection card className="p-2 md:p-3">
+          <PageSection card className={`p-0 ${commercialWorkSurfaceClass}`}>
             <QuoteOrgList
               items={visible}
               memberLabels={memberLabels}
@@ -227,14 +241,14 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
             closeHref={hrefWithoutPanel(LIST_PATH, listState)}
           />
         ) : null}
-      </PageContainer>
+      </CommercialPageFrame>
     );
   } catch (err) {
     return (
-      <PageContainer label={t('pages.cotizaciones.title')}>
+      <CommercialPageFrame label={t('pages.cotizaciones.title')}>
         <PageHeader kicker={t('pages.cotizaciones.kicker')} title={t('pages.cotizaciones.title')} />
         <QuerySurfaceState error={classifyQueryError(err)} />
-      </PageContainer>
+      </CommercialPageFrame>
     );
   }
 }

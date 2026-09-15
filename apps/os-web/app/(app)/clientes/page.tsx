@@ -1,6 +1,13 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { PageContainer, PageSection } from '@isalwa/ui';
+import { PageSection } from '@isalwa/ui';
+import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
+import {
+  commercialPrimaryLinkClass,
+  commercialToolbarClass,
+  commercialWorkSurfaceClass,
+} from '@/components/commercial/commercial-surfaces';
+import '@/components/commercial/commercial-surfaces.css';
 import { CustomerQuickView } from '@/components/operating/customer-quick-view';
 import { PartyList } from '@/components/party/party-list';
 import { PartyEmptySearch } from '@/components/party/party-placeholders';
@@ -20,9 +27,6 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 type ClientesPageProps = {
   searchParams: Promise<PartySearchParams & { panel?: string | string[] }>;
 };
-
-const addCustomerClass =
-  'isalwa-action-link isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] px-4 text-sm font-medium focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
@@ -57,21 +61,23 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     const addHref = canAddCustomer ? newCustomerHref(q) : undefined;
 
     return (
-      <PageContainer label="Clientes" className="min-w-0">
+      <CommercialPageFrame label="Clientes">
         <PageHeader
           kicker="Relaciones"
           title="Clientes"
           description="Busque empresas y contactos. Una misma empresa puede tener varias relaciones comerciales."
           action={
             addHref ? (
-              <Link href={addHref} className={addCustomerClass}>
+              <Link href={addHref} className={commercialPrimaryLinkClass}>
                 Agregar cliente
               </Link>
             ) : undefined
           }
         />
 
-        <PartySearchForm initialQuery={q} initialRoleKey={roleKey} initialStatus={status} />
+        <div className={`commercial-toolbar ${commercialToolbarClass}`}>
+          <PartySearchForm initialQuery={q} initialRoleKey={roleKey} initialStatus={status} />
+        </div>
         <p className="mt-3 text-sm">
           <Link href="/mapa" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
             Mapa y salud de datos
@@ -85,13 +91,15 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <PartyEmptySearch hasQuery={hasSearchCriteria} addCustomerHref={addHref} />
           ) : (
             <>
-              <PageSection card className="mt-4 p-0">
-                <PartyList
-                  items={result.items}
-                  listPath="/clientes"
-                  listQuery={listQuery}
-                  memberLabels={memberLabels}
-                />
+              <PageSection card className={`mt-4 p-0 ${commercialWorkSurfaceClass}`}>
+                <div className="commercial-operating-list">
+                  <PartyList
+                    items={result.items}
+                    listPath="/clientes"
+                    listQuery={listQuery}
+                    memberLabels={memberLabels}
+                  />
+                </div>
               </PageSection>
 
               {result.meta.hasMore && result.meta.nextCursor ? (
@@ -124,14 +132,14 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             />
           </Suspense>
         ) : null}
-      </PageContainer>
+      </CommercialPageFrame>
     );
   } catch (err) {
     return (
-      <PageContainer label="Clientes">
+      <CommercialPageFrame label="Clientes">
         <PageHeader kicker="Relaciones" title="Clientes" />
         <QuerySurfaceState error={classifyQueryError(err)} />
-      </PageContainer>
+      </CommercialPageFrame>
     );
   }
 }

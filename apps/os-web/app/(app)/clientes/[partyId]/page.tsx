@@ -1,13 +1,16 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { EmptyState, ListRow, PageSection, SectionHeader } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
 import { Cliente360Sticky } from '@/components/cliente/cliente-360-sticky';
-import { ManualOperationsPanel } from '@/components/operations/manual-operations-panel';
+import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
+import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-surfaces';
+import '@/components/commercial/commercial-surfaces.css';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { QuoteList } from '@/components/commercial/quote-list';
+import { ManualOperationsPanel } from '@/components/operations/manual-operations-panel';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { CommercialOwnerLine } from '@/components/party/commercial-owner-line';
 import { CustomerEditForms } from '@/components/party/customer-edit-forms';
@@ -51,6 +54,8 @@ type PartyDetailPageProps = {
 
 const sectionClass = 'scroll-mt-40 p-8';
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
+const secondaryActionClass =
+  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
   return detail.roles.map((role) => role.roleKey);
@@ -107,10 +112,10 @@ function CustomerCompactHeader({
               {maps.label}
             </a>
           ) : null}
-          <Link href={newOpportunityHref(partyId)} className={linkClass}>
+          <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
             Nueva oportunidad
           </Link>
-          <Link href={clienteSectionHref(partyId, 'trabajo')} className={linkClass}>
+          <Link href={clienteSectionHref(partyId, 'trabajo')} className={secondaryActionClass}>
             {FOLLOW_UP_COPY.action}
           </Link>
         </div>
@@ -140,7 +145,7 @@ function CustomerCompactHeader({
 
 function CustomerNotFound() {
   return (
-    <PageContainer label="Cliente">
+    <CommercialPageFrame label="Cliente">
       <PageHeader
         kicker="Cliente"
         title="Cliente no disponible"
@@ -153,7 +158,7 @@ function CustomerNotFound() {
       <p className="max-w-md text-sm leading-relaxed text-[var(--isalwa-slate)]">
         No se encontró este cliente o no está disponible.
       </p>
-    </PageContainer>
+    </CommercialPageFrame>
   );
 }
 
@@ -182,7 +187,10 @@ function IdentityLetterhead({
     : null;
 
   return (
-    <div id="resumen" className="scroll-mt-40 space-y-8 bg-white">
+    <div
+      id="resumen"
+      className="scroll-mt-40 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-6 shadow-[var(--isalwa-shadow-soft)] md:p-8"
+    >
       <Cliente360Now composition={composition} />
       <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
         {party.legalName ? (
@@ -302,7 +310,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     const manualOrganizationId = party.organizationId.trim();
 
     return (
-      <PageContainer label={displayName} className="min-w-0" data-tour={TOUR_TARGET.customer360}>
+      <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
         <PageHeader
           kicker="Cliente"
           title={displayName}
@@ -440,7 +448,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             <SectionHeader
               title="Oportunidades"
               action={
-                <Link href={newOpportunityHref(partyId)} className={linkClass}>
+                <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
                   Nueva oportunidad
                 </Link>
               }
@@ -449,6 +457,12 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               outcome={opportunities}
               emptyTitle="Sin oportunidades todavía"
               emptyDescription="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
+              emptyExample="Cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
+              emptyAction={
+                <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
+                  Nueva oportunidad
+                </Link>
+              }
             >
               {(list) => (
                 <>
@@ -465,6 +479,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               outcome={quotes}
               emptyTitle="Sin cotizaciones todavía"
               emptyDescription="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
+              emptyExample="Sin cotizaciones todavía es esperado si aún no hay oportunidad con borrador o envío."
             >
               {(list) => (
                 <>
@@ -481,6 +496,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               outcome={orders}
               emptyTitle="Sin pedidos todavía"
               emptyDescription="Cuando se registren pedidos para esta empresa, aparecerán aquí."
+              emptyExample="Un cliente activo puede no tener pedidos. El vacío es intencional hasta que exista una cotización convertida."
             >
               {(list) => (
                 <>
@@ -533,16 +549,16 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             </CommercialSectionState>
           </PageSection>
         </div>
-      </PageContainer>
+      </CommercialPageFrame>
     );
   } catch (err) {
     if (err instanceof OsApiError && err.kind === 'not_found') {
       return <CustomerNotFound />;
     }
     return (
-      <PageContainer label="Cliente">
+      <CommercialPageFrame label="Cliente">
         <QuerySurfaceState error={classifyQueryError(err)} />
-      </PageContainer>
+      </CommercialPageFrame>
     );
   }
 }
