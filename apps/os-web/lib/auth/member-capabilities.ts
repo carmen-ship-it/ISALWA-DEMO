@@ -34,6 +34,7 @@ export const SESSION_CAPABILITY_SCOPES = [
   'warehouse.outbound.record',
   'operations.coordinator.record',
   'purchasing.operational.record',
+  'finance.operational.record',
   'delivery.record',
   'management.org.read',
   'commercial.exception.authorize',

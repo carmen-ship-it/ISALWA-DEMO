@@ -41,6 +41,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { id: 'produccion', href: '/produccion', labelKey: 'nav.produccion', icon: 'briefcase' },
   { id: 'almacen', href: '/almacen', labelKey: 'nav.almacen', icon: 'briefcase' },
   { id: 'compras', href: '/compras', labelKey: 'nav.compras', icon: 'wallet' },
+  { id: 'finanzas', href: '/finanzas', labelKey: 'nav.finanzas', icon: 'wallet' },
   { id: 'entregas', href: '/entregas', labelKey: 'nav.entregas', icon: 'briefcase' },
   { id: 'coordinacion', href: '/coordinacion', labelKey: 'nav.coordinacion', icon: 'check' },
   { id: 'aprobaciones', href: '/aprobaciones', labelKey: 'nav.aprobaciones', icon: 'check' },
@@ -55,16 +56,10 @@ export const PRIMARY_NAV: NavItem[] = [
 
 /**
  * Capability-locked surfaces — kept for direct-route gating only.
- * Intentionally omitted from primary nav until product enables them.
+ * Product messaging stays here. /finanzas is the operational desk gated by
+ * finance.operational.record, not by product capability finance=ACTIVE.
  */
 export const FUTURE_NAV: NavItem[] = [
-  {
-    id: 'finanzas',
-    href: '/finanzas',
-    labelKey: 'nav.finanzas',
-    icon: 'wallet',
-    state: 'locked',
-  },
   {
     id: 'mensajes',
     href: '/mensajes',
@@ -75,7 +70,7 @@ export const FUTURE_NAV: NavItem[] = [
 ];
 
 /** Ids that must never appear in the primary shell nav for now. */
-export const HIDDEN_PRIMARY_NAV_IDS = ['finanzas', 'mensajes'] as const;
+export const HIDDEN_PRIMARY_NAV_IDS = ['mensajes'] as const;
 
 const HIDDEN_PRIMARY_NAV_ID_SET = new Set<string>(HIDDEN_PRIMARY_NAV_IDS);
 

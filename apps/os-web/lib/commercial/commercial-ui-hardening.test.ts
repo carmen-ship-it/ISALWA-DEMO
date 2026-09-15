@@ -39,6 +39,7 @@ describe('commercial-first primary nav', () => {
         'produccion',
         'almacen',
         'compras',
+        'finanzas',
         'entregas',
         'coordinacion',
         'aprobaciones',
@@ -58,6 +59,7 @@ describe('commercial-first primary nav', () => {
       'produccion',
       'almacen',
       'compras',
+      'finanzas',
       'entregas',
       'coordinacion',
       'aprobaciones',
@@ -73,6 +75,7 @@ describe('commercial-first primary nav', () => {
       'produccion',
       'almacen',
       'compras',
+      'finanzas',
       'entregas',
       'coordinacion',
       'aprobaciones',
@@ -85,14 +88,16 @@ describe('commercial-first primary nav', () => {
     );
   });
 
-  it('keeps Finanzas and Mensajes out of primary nav', () => {
+  it('keeps Mensajes out of primary nav; Finanzas is the operational desk', () => {
     const primaryIds = new Set(PRIMARY_NAV.map((item) => item.id));
+    assert.equal(primaryIds.has('finanzas'), true);
+    assert.equal(primaryIds.has('mensajes'), false);
     for (const id of HIDDEN_PRIMARY_NAV_IDS) {
       assert.equal(primaryIds.has(id), false);
     }
     assert.deepEqual(
       FUTURE_NAV.map((item) => item.id),
-      ['finanzas', 'mensajes'],
+      ['mensajes'],
     );
   });
 

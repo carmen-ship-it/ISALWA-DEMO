@@ -100,28 +100,36 @@ describe('UI-1 capability state from backend', () => {
     assert.equal(capabilityNavBadge('NOT_CONFIGURED'), 'NO CONFIGURADO');
   });
 
-  it('finance route remains locked when backend says LOCKED', () => {
+  it('product finance stays LOCKED and is not bound to the operational /finanzas desk', () => {
+    const finance = sampleCapabilityStates.find((row) => row.capabilityKey === 'finance');
+    assert.equal(finance?.state, 'LOCKED');
+    assert.equal(finance?.implemented, false);
     const resolved = resolveNavItemFromCapabilities('/finanzas', sampleCapabilityStates);
-    assert.equal(resolved.enabled, false);
-    assert.ok(resolved.message);
+    // Operational desk is gated by finance.operational.record, not product finance=ACTIVE.
+    assert.equal(resolved.enabled, true);
+    assert.equal(resolved.message, null);
+    assert.equal(findPresentationByRoute('/finanzas'), null);
   });
 
   it('capability state does not imply user permission', () => {
-    const resolved = resolveNavItemFromCapabilities('/finanzas', sampleCapabilityStates);
     assert.equal(isCapabilityRouteEnabled('ACTIVE'), true);
-    assert.equal(resolved.enabled, false);
+    assert.equal(isCapabilityRouteEnabled('LOCKED'), false);
+    const finance = sampleCapabilityStates.find((row) => row.capabilityKey === 'finance');
+    assert.equal(finance?.state === 'ACTIVE', false);
   });
 
   it('builds future nav from backend capabilities not static state', () => {
     const items = resolveFutureNavItems(sampleCapabilityStates);
     const finance = items.find((i) => i.id === 'finance');
-    assert.equal(finance?.state, 'locked');
-    assert.equal(finance?.badge, 'BLOQUEADO');
+    const messaging = items.find((i) => i.id === 'messaging');
+    assert.equal(finance, undefined);
+    assert.equal(messaging?.state, 'locked');
+    assert.equal(messaging?.badge, 'NO CONFIGURADO');
   });
 
   it('presentation metadata has no authority state field', () => {
-    const presentation = findPresentationByRoute('/finanzas');
-    assert.equal(presentation?.label, 'Finanzas');
+    const presentation = findPresentationByRoute('/mensajes');
+    assert.equal(presentation?.label, 'Mensajes');
     assert.equal('state' in (presentation ?? {}), false);
   });
 });

@@ -10,11 +10,14 @@ export type CapabilityPresentation = {
 };
 
 export const CAPABILITY_PRESENTATION: Record<string, CapabilityPresentation> = {
+  /**
+   * Official finance / ledger module. Stays LOCKED.
+   * No route binding: Contabilidad uses /finanzas via finance.operational.record.
+   */
   finance: {
-    label: 'Finanzas',
-    route: '/finanzas',
-    employeeMessage: 'Finanzas aún no está habilitada para su empresa.',
-    navIcon: 'wallet',
+    label: 'Finanzas oficiales',
+    employeeMessage:
+      'La contabilidad oficial aún no está habilitada. El registro operativo de pagos reportados usa otra capacidad.',
   },
   messaging: {
     label: 'Mensajes',
