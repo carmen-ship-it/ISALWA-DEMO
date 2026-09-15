@@ -224,8 +224,12 @@ describe('finance operational desk access', () => {
     assert.match(access, /FINANCE_OPERATIONAL_RECORD_SCOPE/);
     assert.match(queues, /'\/finanzas'/);
     assert.match(caps, /finance\.operational\.record/);
-    assert.match(presentation, /capabilityKey: 'finance'|finance:/);
-    assert.doesNotMatch(presentation, /route:\s*'\/finanzas'/);
-    assert.match(presentation, /implemented:\s*false/);
+    assert.match(presentation, /Finanzas oficiales/);
+    // Official finance capability must not bind the Contabilidad ops desk route.
+    assert.match(presentation, /No route binding: Contabilidad uses \/finanzas/);
+    assert.doesNotMatch(
+      presentation,
+      /finance:\s*\{[\s\S]*?route:\s*'\/finanzas'/,
+    );
   });
 });
