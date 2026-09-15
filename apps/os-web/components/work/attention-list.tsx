@@ -5,6 +5,7 @@ import {
   approvalAgeLabelForAttention,
   dueTodayLabelForAttention,
 } from '@/lib/work/aging/attention';
+import type { ListDensity } from '@/lib/productivity/list-controls';
 import {
   attentionStatusTone,
   attentionStoredDueLabel,
@@ -18,6 +19,7 @@ type AttentionListProps = {
   items: AttentionItemReadModel[];
   subjects?: Map<string, string>;
   compact?: boolean;
+  density?: ListDensity;
   asOf?: Date;
   dueTodayByWorkId?: ReadonlyMap<string, string>;
   approvalAges?: ReadonlyMap<string, string>;
@@ -27,11 +29,13 @@ export function AttentionList({
   items,
   subjects,
   compact = false,
+  density,
   asOf,
   dueTodayByWorkId,
   approvalAges,
 }: AttentionListProps) {
   const clock = asOf ?? new Date();
+  const rowDensity = density ?? (compact ? 'compact' : 'comfortable');
   return (
     <ul className="min-w-0" aria-label="Elementos que requieren atención">
       {items.map((item) => {
@@ -56,7 +60,7 @@ export function AttentionList({
         return (
           <li key={item.attentionKey}>
             <OperatingRow
-              className="py-tight !py-1"
+              density={rowDensity}
               href={href ?? undefined}
               subject={
                 <>
@@ -79,14 +83,22 @@ export function AttentionList({
 }
 
 /** Extra factual rows. No status pill, so a label is not shown as a new work state. */
-export function FactualDueList({ facts, label }: { facts: readonly AgingFact[]; label: string }) {
+export function FactualDueList({
+  facts,
+  label,
+  density = 'compact',
+}: {
+  facts: readonly AgingFact[];
+  label: string;
+  density?: ListDensity;
+}) {
   if (facts.length === 0) return null;
   return (
     <ul className="min-w-0" aria-label={label}>
       {facts.map((fact) => (
         <li key={fact.key}>
           <OperatingRow
-            className="py-tight !py-1"
+            density={density}
             href={fact.href ?? undefined}
             subject={fact.subject}
             meta={fact.label}

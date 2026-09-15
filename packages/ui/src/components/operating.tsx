@@ -20,6 +20,8 @@ import {
   type FocusNode,
 } from './quick-view-focus';
 
+export type OperatingRowDensity = 'compact' | 'comfortable';
+
 export type OperatingRowProps = {
   subject: ReactNode;
   meta?: ReactNode;
@@ -27,6 +29,7 @@ export type OperatingRowProps = {
   actions?: ReactNode;
   href?: string;
   selected?: boolean;
+  density?: OperatingRowDensity;
   className?: string;
 };
 
@@ -41,6 +44,7 @@ export function OperatingRow({
   actions,
   href,
   selected = false,
+  density = 'compact',
   className,
 }: OperatingRowProps) {
   const body = (
@@ -62,8 +66,10 @@ export function OperatingRow({
   return (
     <div
       data-selected={selected ? 'true' : undefined}
+      data-density={density}
       className={cx(
-        'isalwa-operating-row group flex min-h-11 items-center gap-3 border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] px-3 py-1.5 last:border-b-0',
+        'isalwa-operating-row group flex items-center gap-3 border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] px-3 last:border-b-0',
+        density === 'comfortable' ? 'min-h-14 py-2.5' : 'min-h-11 py-1.5',
         selected && 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_8%,white)]',
         className,
       )}
@@ -89,6 +95,37 @@ export type OverflowItem = {
   href?: string;
   onSelect?: () => void;
 };
+
+export type OperatingListHeaderProps = {
+  columns: Array<{ id: string; label: string; className?: string }>;
+  className?: string;
+};
+
+/** Sticky column labels for a scrolling operating list. */
+export function OperatingListHeader({ columns, className }: OperatingListHeaderProps) {
+  return (
+    <div
+      role="row"
+      className={cx(
+        'sticky top-0 z-[1] flex items-center gap-3 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-3 py-2 backdrop-blur-md',
+        className,
+      )}
+    >
+      {columns.map((column) => (
+        <span
+          key={column.id}
+          role="columnheader"
+          className={cx(
+            'text-[10px] font-semibold tracking-[0.1em] text-[var(--isalwa-slate)] uppercase',
+            column.className,
+          )}
+        >
+          {column.label}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export type OverflowMenuProps = {
   label?: string;

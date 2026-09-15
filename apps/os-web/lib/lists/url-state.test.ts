@@ -8,18 +8,24 @@ import {
 } from './url-state';
 
 describe('list URL state', () => {
-  it('round-trips search, filters, view, and cursor', () => {
+  it('round-trips search, filters, view, sort, density, focus, and cursor', () => {
     const state = parseListQuery({
       q: ' import ',
       status: 'submitted',
       view: 'overdue',
       cursor: 'abc',
       panel: 'party:01PART',
+      sort: 'priority',
+      density: 'comfortable',
+      focus: 'approval',
     });
     assert.equal(state.q, 'import');
+    assert.equal(state.sort, 'priority');
+    assert.equal(state.density, 'comfortable');
+    assert.equal(state.focus, 'approval');
     assert.equal(
       listHref('/cotizaciones', state),
-      '/cotizaciones?q=import&status=submitted&view=overdue&cursor=abc&panel=party%3A01PART',
+      '/cotizaciones?q=import&status=submitted&view=overdue&cursor=abc&panel=party%3A01PART&sort=priority&density=comfortable&focus=approval',
     );
   });
 

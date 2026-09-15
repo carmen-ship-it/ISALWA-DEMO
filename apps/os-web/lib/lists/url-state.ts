@@ -8,6 +8,12 @@ export type ListQueryState = {
   panel?: string;
   subjectType?: string;
   subjectId?: string;
+  /** Presentation order for the loaded page. Not a store orderBy. */
+  sort?: string;
+  /** Row spacing preference. */
+  density?: string;
+  /** Client lens on the loaded page (e.g. approval). Not an authority gate. */
+  focus?: string;
 };
 
 const LIST_KEYS = [
@@ -20,6 +26,9 @@ const LIST_KEYS = [
   'panel',
   'subjectType',
   'subjectId',
+  'sort',
+  'density',
+  'focus',
 ] as const;
 
 export function parseListQuery(

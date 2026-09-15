@@ -13,7 +13,18 @@ const SAVED_VIEWS_PREFIX = 'isalwa-os-saved-views-v1';
 const PIN_LIMIT = 6;
 
 const ALLOWED_PATHS = new Set(['/clientes', '/cotizaciones', '/oportunidades', '/trabajo', '/aprobaciones']);
-const ALLOWED_KEYS = new Set(['q', 'status', 'view', 'visibility', 'roleKey', 'subjectType', 'subjectId']);
+const ALLOWED_KEYS = new Set([
+  'q',
+  'status',
+  'view',
+  'visibility',
+  'roleKey',
+  'subjectType',
+  'subjectId',
+  'sort',
+  'density',
+  'focus',
+]);
 
 export const BUILT_IN_SAVED_VIEWS: readonly SavedView[] = [
   {

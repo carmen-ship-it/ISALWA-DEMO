@@ -64,12 +64,15 @@ export type {
 } from './components/icons';
 export {
   OperatingRow,
+  OperatingListHeader,
   OverflowMenu,
   ContextDrawer,
   FeedbackNote,
 } from './components/operating';
 export type {
   OperatingRowProps,
+  OperatingRowDensity,
+  OperatingListHeaderProps,
   OverflowItem,
   OverflowMenuProps,
   ContextDrawerProps,

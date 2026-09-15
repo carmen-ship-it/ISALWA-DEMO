@@ -1,6 +1,8 @@
 import { OperatingRow, StatusPill } from '@isalwa/ui';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
+import { OperatingListFrame } from '@/components/lists/operating-list-frame';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
+import type { ListDensity } from '@/lib/productivity/list-controls';
 import { formatWorkDueLine } from '@/lib/work/due-order';
 import { followUpStatusLabel, FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import {
@@ -20,6 +22,8 @@ type WorkListProps = {
   presentation?: 'work' | 'follow-up';
   /** Leadership lists omit approval state. They do not grant approval authority. */
   showApproval?: boolean;
+  density?: ListDensity;
+  showHeader?: boolean;
 };
 
 function partyCustomer(work: WorkSummaryReadModel, partyLabels?: PartyLabelMap): string | null {
@@ -35,12 +39,18 @@ export function WorkList({
   partyLabels,
   presentation = 'work',
   showApproval = true,
+  density = 'compact',
+  showHeader = false,
 }: WorkListProps) {
   const followUp = presentation === 'follow-up';
   const visible = items.filter((work) => !isEngineeringFixtureCopy(work.title));
 
-  return (
-    <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]" aria-label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'} data-tour={TOUR_TARGET.workList}>
+  const list = (
+    <ul
+      className="min-w-0 divide-y divide-[var(--isalwa-mist)]"
+      aria-label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'}
+      data-tour={TOUR_TARGET.workList}
+    >
       {visible.map((work) => {
         const due = formatWorkDueLine(work, {
           caption: followUp ? FOLLOW_UP_COPY.due : 'Vence',
@@ -52,7 +62,9 @@ export function WorkList({
           subjectType: work.subjectType,
           customerName: customer,
         });
-        if (!displayTitle || displayTitle === 'Vencido' || isEngineeringFixtureCopy(displayTitle)) return null;
+        if (!displayTitle || displayTitle === 'Vencido' || isEngineeringFixtureCopy(displayTitle)) {
+          return null;
+        }
 
         const owner = memberLabel(memberLabels, work.ownerMemberId);
         const statusLabel = followUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
@@ -71,6 +83,7 @@ export function WorkList({
           <li key={work.workItemId} className="list-none">
             <OperatingRow
               href={workItemHref(work.workItemId)}
+              density={density}
               subject={
                 <>
                   <span className="sr-only">
@@ -86,5 +99,13 @@ export function WorkList({
         );
       })}
     </ul>
+  );
+
+  if (!showHeader) return list;
+
+  return (
+    <OperatingListFrame density={density} label={followUp ? 'Lista de seguimientos' : 'Cola de trabajo'}>
+      {list}
+    </OperatingListFrame>
   );
 }
