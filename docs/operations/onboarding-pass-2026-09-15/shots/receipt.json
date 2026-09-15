@@ -1,0 +1,16 @@
+{
+  "shaExpected": "a05e74294e76bb028f60f5398d0a5ae26aa6d0c6",
+  "baseUrl": "https://os-web-staging.onrender.com",
+  "capturedAt": "2026-09-15T21:05:24.772Z",
+  "email": "carmen.staging@isalwa.demo",
+  "files": 12,
+  "notes": [
+    {
+      "mapCoverageText": "Lienzo en espera2 de 7 tienen coordenadasCon coordenadas2Solo enlace5Cartera leída72 de 7 clientes con ubicación disponible en mapa. 5 clientes tienen solo un enlace y no se colocan en el mapa. Un enlace de Maps no cuenta como ubicación. No se inventan coordenadas ni se geocodifica. El mapa de teselas se conectará cuando haya una decisión explícita de proveedor. Hasta entonces esta mesa es intencional: cobertura, lista y ficha — sin coordenadas inventadas ni mapa de calor."
+    },
+    {
+      "financeHasScopeKey": false,
+      "financeDenialSnippet": "No tienes permiso para registrar información financiera operativa."
+    }
+  ]
+}

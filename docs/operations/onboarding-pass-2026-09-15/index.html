@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISALWA — Onboarding pass 2026-09-15</title>
+  <style>
+    :root {
+      --porcelain: #f7f5f1;
+      --kiln: #1b2430;
+      --glaze: #2f5d7c;
+      --slate: #5c6570;
+      --mist: #e4e0d8;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+      background: var(--porcelain);
+      color: var(--kiln);
+      line-height: 1.45;
+    }
+    header {
+      padding: 2rem 1.5rem 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: Newsreader, Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2rem;
+      margin: 0.25rem 0 0.5rem;
+    }
+    .kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+      color: var(--glaze);
+      font-weight: 600;
+    }
+    .meta {
+      color: var(--slate);
+      font-size: 0.9rem;
+      max-width: 48rem;
+    }
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+      padding: 1rem 1.5rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    figure {
+      margin: 0;
+      background: var(--white);
+      border: 1px solid var(--mist);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(27, 36, 48, 0.06);
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #ddd;
+    }
+    figcaption {
+      padding: 0.75rem 1rem 1rem;
+      font-size: 0.85rem;
+      color: var(--slate);
+    }
+    figcaption strong {
+      display: block;
+      color: var(--kiln);
+      margin-bottom: 0.2rem;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: #e8f0f5;
+      color: var(--glaze);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="kicker">Review artifact</p>
+    <h1>Onboarding pass — hosted proof</h1>
+    <p class="meta">
+      Base SHA <code>780a54eb7aca8ad1eada519e530fd1052753dc4c</code> ·
+      Final SHA recorded in <code>shots/receipt.json</code> ·
+      Hosted <a href="https://os-web-staging.onrender.com">os-web-staging.onrender.com</a>
+    </p>
+    <p class="meta">
+      First-use: Bienvenida → Inicio → Clientes → Cliente 360 → ¿Y ahora qué? → Mapa → Ayuda.
+      No fake pipeline. Map coverage dynamic. Finance jargon removed from UI.
+    </p>
+  </header>
+  <main class="grid">
+    <figure>
+      <img src="shots/01-welcome-1440.png" alt="Welcome desktop" />
+      <figcaption><strong>1. Welcome desktop</strong>Bienvenido a ISALWA · skippable</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/01-welcome-390.png" alt="Welcome mobile" />
+      <figcaption><strong>2. Welcome mobile 390</strong>Dismissible immediately</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/02-inicio-coach-1440.png" alt="Inicio coach" />
+      <figcaption><strong>3. Inicio coach</strong>Este es tu punto de partida</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/03-clientes-coach-1440.png" alt="Clientes coach" />
+      <figcaption><strong>4. Clientes coach</strong>Real tenant list</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/04-cliente360-coach-1440.png" alt="Cliente 360 coach" />
+      <figcaption><strong>5. Cliente 360</strong>Preferred COMERCIAL ALVAREZ when present<span class="badge">Real data</span></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/05-mapa-coach-1440.png" alt="Map coach desktop" />
+      <figcaption><strong>6. Mapa coach desktop</strong>Dynamic coverage + provider-wait copy</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/05-mapa-coach-390.png" alt="Map coach mobile" />
+      <figcaption><strong>7. Mapa coach mobile 390</strong>Docked card · controls reachable<span class="badge">Mobile fix</span></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/07-ayuda-1440.png" alt="Ayuda replay" />
+      <figcaption><strong>8. Ayuda / replay</strong>Repetir · Modo aprendizaje · accesos</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/08-learning-on-1440.png" alt="Learning Mode ON" />
+      <figcaption><strong>9. Learning Mode ON</strong></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/09-learning-off-1440.png" alt="Learning Mode OFF" />
+      <figcaption><strong>10. Learning Mode OFF</strong></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/10-produccion-1440.png" alt="Producción micro-tour" />
+      <figcaption><strong>11. Producción</strong>Page micro-tour when authorized</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/06-finanzas-1440.png" alt="Finanzas denial" />
+      <figcaption><strong>12. Finanzas</strong>Human denial · no scope key<span class="badge">Jargon removed</span></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/10-aprobaciones-1440.png" alt="Aprobaciones" />
+      <figcaption><strong>13. Aprobaciones</strong>Role-aware micro-tour</figcaption>
+    </figure>
+  </main>
+</body>
+</html>
