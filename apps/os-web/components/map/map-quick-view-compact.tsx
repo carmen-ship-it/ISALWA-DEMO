@@ -23,12 +23,13 @@ export function MapQuickViewCompact({ row, ownerLabel, onCloseHref }: MapQuickVi
 
   return (
     <aside
-      className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-lift)]"
+      className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-4 shadow-[var(--isalwa-shadow-lift)]"
       aria-label="Vista rápida del mapa"
+      data-map-quick-view="compact"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs text-[var(--isalwa-slate)]">Vista rápida</p>
+          <p className="isalwa-kicker">Vista rápida</p>
           <h3 className="mt-1 truncate font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]">
             {row.displayName}
           </h3>
@@ -41,7 +42,7 @@ export function MapQuickViewCompact({ row, ownerLabel, onCloseHref }: MapQuickVi
         </Link>
       </div>
 
-      <dl className="mt-4 space-y-3 text-sm">
+      <dl className="mt-4 space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white p-3 text-sm">
         <div>
           <dt className="text-xs text-[var(--isalwa-slate)]">Responsable</dt>
           <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{ownerLabel ?? 'Sin responsable asignado'}</dd>

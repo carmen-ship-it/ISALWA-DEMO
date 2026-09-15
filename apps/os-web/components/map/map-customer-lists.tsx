@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { StatusPill } from '@isalwa/ui';
+import { ListRow, StatusPill } from '@isalwa/ui';
 import type { MapCustomerRow } from '@/lib/map/build-view-model';
 import { panelHref, type ListQueryState } from '@/lib/lists/url-state';
 import { partyHref } from '@/lib/party/navigation';
@@ -22,6 +22,12 @@ function ownerLabel(
   return memberLabels?.get(row.commercialOwnerMemberId) ?? null;
 }
 
+function railFor(row: MapCustomerRow): string {
+  if (row.hasCoordinates) return 'var(--isalwa-glaze)';
+  if (row.hasProvenance) return 'color-mix(in srgb, var(--isalwa-kiln) 45%, var(--isalwa-mist))';
+  return 'var(--isalwa-mist)';
+}
+
 function CustomerRow({
   row,
   selected,
@@ -36,12 +42,16 @@ function CustomerRow({
   const owner = ownerLabel(row, memberLabels);
   const href = panelHref('/mapa', listQuery, `party:${row.partyId}`);
   return (
-    <li
-      className={`border-t border-[var(--isalwa-mist)] first:border-t-0 ${
-        selected ? 'bg-[var(--isalwa-porcelain)]' : ''
-      }`}
+    <ListRow
+      as="li"
+      railColor={railFor(row)}
+      className={
+        selected
+          ? 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_8%,var(--isalwa-porcelain))]'
+          : 'bg-transparent'
+      }
     >
-      <div className="flex items-start justify-between gap-3 py-3">
+      <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
         <div className="min-w-0">
           <Link
             href={href}
@@ -51,7 +61,11 @@ function CustomerRow({
             {row.displayName}
           </Link>
           <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-            {[owner ? `Resp. ${owner}` : null, row.primaryPhone, row.hasCoordinates ? 'Con coordenadas' : null]
+            {[
+              owner ? `Resp. ${owner}` : null,
+              row.primaryPhone,
+              row.hasCoordinates ? 'Con coordenadas' : row.hasProvenance ? 'Solo enlace' : null,
+            ]
               .filter(Boolean)
               .join(' · ') || 'Sin teléfono ni responsable en esta lectura'}
           </p>
@@ -63,7 +77,7 @@ function CustomerRow({
           Ficha
         </Link>
       </div>
-    </li>
+    </ListRow>
   );
 }
 
@@ -95,11 +109,11 @@ export function MapCustomerLists({
           <StatusPill tone="info">{plottableFiltered.length}</StatusPill>
         </div>
         {plottableFiltered.length === 0 ? (
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+          <p className="mt-2 rounded-[var(--isalwa-radius-control)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_80%,white)] px-3 py-2.5 text-sm text-[var(--isalwa-slate)]">
             Ningún cliente visible tiene coordenadas. No se inventan pines.
           </p>
         ) : (
-          <ul className="mt-1">
+          <ul className="mt-2 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
             {plottableFiltered.map((row) => (
               <CustomerRow
                 key={row.partyId}
@@ -122,9 +136,11 @@ export function MapCustomerLists({
           Un enlace de Maps es procedencia. No coloca al cliente en el mapa y no se geocodifica.
         </p>
         {provenanceFiltered.length === 0 ? (
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Nadie en esta lectura tiene solo un enlace.</p>
+          <p className="mt-2 rounded-[var(--isalwa-radius-control)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_80%,white)] px-3 py-2.5 text-sm text-[var(--isalwa-slate)]">
+            Nadie en esta lectura tiene solo un enlace.
+          </p>
         ) : (
-          <ul className="mt-1">
+          <ul className="mt-2 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
             {provenanceFiltered.map((row) => (
               <CustomerRow
                 key={row.partyId}
@@ -144,7 +160,7 @@ export function MapCustomerLists({
             <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Sin ubicación registrada</h2>
             <StatusPill tone="warning">{noLocationFiltered.length}</StatusPill>
           </div>
-          <ul className="mt-1">
+          <ul className="mt-2 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
             {noLocationFiltered.map((row) => (
               <CustomerRow
                 key={row.partyId}
