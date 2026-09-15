@@ -4,7 +4,7 @@
 
 ## Integrated pre-rerun SHA
 
-**`0875f06a53fee03fa11ab499f1b8b529b9966ed5`** (`wave2/prerun-tx-integrate`)
+**`a9c528acc2ce0060a629074c3002758a689e4896`** (`wave2/prerun-tx-integrate`)
 
 Contains (ancestors):
 

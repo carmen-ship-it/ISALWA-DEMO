@@ -1,7 +1,7 @@
 # Wave 2 fixture tool pin (not the hosted app)
 
 **HOSTED_APP_SHA** (live staging API+web): `ef7eeabdea5f8f4449ba706caa1a323435d96fcc`  
-**FIXTURE_TOOL_SHA**: `0875f06a53fee03fa11ab499f1b8b529b9966ed5`  
+**FIXTURE_TOOL_SHA**: `a9c528acc2ce0060a629074c3002758a689e4896`  
 (Pre-rerun integrate: fixture seed-actor + Party/Workforce/Commercial/Work TX harden + fixture tsc fix. See `WAVE2_PRERUN_TX_INTEGRATE_PIN.md`.)
 
 These are different. Do not treat the fixture tool commit as a redeploy of the hosted app.
