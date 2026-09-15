@@ -19,6 +19,8 @@ export const TOUR_TARGET = {
   help: 'help',
   learningMode: 'learning-mode',
   mapCoverage: 'map-coverage',
+  mapSearch: 'map-search',
+  mapToggle: 'map-toggle',
   manualDraft: 'manual-draft',
   messagesFuture: 'messages-future',
 } as const;

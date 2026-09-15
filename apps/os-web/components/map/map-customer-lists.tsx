@@ -64,7 +64,7 @@ function CustomerRow({
             {[
               owner ? `Resp. ${owner}` : null,
               row.primaryPhone,
-              row.hasCoordinates ? 'Con coordenadas' : row.hasProvenance ? 'Solo enlace' : null,
+              row.hasCoordinates ? 'Con coordenadas' : row.hasProvenance ? 'Coordenadas pendientes' : null,
             ]
               .filter(Boolean)
               .join(' · ') || 'Sin teléfono ni responsable en esta lectura'}
@@ -127,13 +127,13 @@ export function MapCustomerLists({
         )}
       </section>
 
-      <section aria-label="Solo enlace de procedencia">
+      <section aria-label="Ubicación registrada — coordenadas pendientes">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Solo enlace (sin coordenadas)</h2>
+          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Ubicación registrada — coordenadas pendientes</h2>
           <StatusPill tone="manual">{provenanceFiltered.length}</StatusPill>
         </div>
         <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-          Un enlace de Maps es procedencia. No coloca al cliente en el mapa y no se geocodifica.
+          Enlace de procedencia presente (e.g. Google Maps). No coloca al cliente en el mapa sin geocodificación.
         </p>
         {provenanceFiltered.length === 0 ? (
           <p className="mt-2 rounded-[var(--isalwa-radius-control)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_80%,white)] px-3 py-2.5 text-sm text-[var(--isalwa-slate)]">

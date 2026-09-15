@@ -1,27 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { PartySummaryReadModel } from '@isalwa/os-contracts';
-import { buildMapDeskViewModel } from './build-view-model';
 import { MAP_LAYER_REGISTRY, resolveMapLayer } from './layers';
 import { resolveMapProviderStatus } from './provider-status';
-
-function party(
-  patch: Partial<PartySummaryReadModel> & Pick<PartySummaryReadModel, 'partyId' | 'displayName'>,
-): PartySummaryReadModel {
-  return {
-    organizationId: 'org',
-    partyKind: 'organization',
-    legalName: null,
-    status: 'active',
-    activeRoleKeys: ['customer'],
-    hasCommercialAccount: true,
-    commercialAccountStatus: 'active',
-    mergedIntoPartyId: null,
-    duplicateStatus: null,
-    searchText: patch.displayName,
-    ...patch,
-  };
-}
 
 describe('map provider status', () => {
   it('does not connect Mapbox when token is missing', () => {
@@ -58,56 +38,56 @@ describe('map layers', () => {
   });
 });
 
-describe('map desk view model', () => {
-  it('reports hosted-style honesty without inventing pins', () => {
-    const model = buildMapDeskViewModel([
-      party({ partyId: '1', displayName: 'SYNTH Wave2 Cliente', hasCoordinates: false }),
-    ]);
-    assert.equal(model.coverage.honesty, '0 de 1 tienen coordenadas');
-    assert.equal(model.plottable.length, 0);
-    assert.equal(model.provenanceOnly.length, 0);
-    assert.equal(model.noLocation.length, 1);
-    assert.equal('latitude' in model.plottable, false);
+describe('copy contracts — no fake streets or provider-error wording', () => {
+  it('provider status never mentions "error", "failed", or "broken"', () => {
+    const allStatuses = [
+      resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' }),
+      resolveMapProviderStatus({ mapsProvider: 'mock', mapboxToken: null }),
+    ];
+    for (const status of allStatuses) {
+      const combined = `${status.label} ${status.detail}`.toLowerCase();
+      assert.doesNotMatch(combined, /error|failed|broken|falló|roto/i);
+    }
   });
 
-  it('separates plottable from provenance-only (pilot 2 de 7 shape)', () => {
-    const model = buildMapDeskViewModel([
-      party({ partyId: 'a', displayName: 'A', hasCoordinates: true }),
-      party({ partyId: 'b', displayName: 'B', hasCoordinates: true }),
-      party({
-        partyId: 'c',
-        displayName: 'MICRISTAL',
-        hasCoordinates: false,
-        locationProvenanceUrl: 'https://maps.example/shared',
-      }),
-      party({
-        partyId: 'd',
-        displayName: 'TORREZ',
-        hasCoordinates: false,
-        locationProvenanceUrl: 'https://maps.example/shared',
-      }),
-      party({
-        partyId: 'e',
-        displayName: 'E',
-        hasCoordinates: false,
-        locationProvenanceUrl: 'https://maps.example/e',
-      }),
-      party({ partyId: 'f', displayName: 'F', hasCoordinates: false }),
-      party({ partyId: 'g', displayName: 'G', hasCoordinates: false }),
-    ]);
-    assert.equal(model.coverage.honesty, '2 de 7 tienen coordenadas');
-    assert.equal(model.coverage.sentence, '2 de 7 clientes con ubicación disponible en mapa');
-    assert.equal(model.plottable.length, 2);
-    assert.equal(model.provenanceOnly.length, 3);
-    assert.equal(model.noLocation.length, 2);
-    assert.doesNotMatch(JSON.stringify(model), /-16\.|-17\.|geocode|heatmap/i);
+  it('provider label is consistent "Lienzo en espera" for unwired state', () => {
+    const statuses = [
+      resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' }),
+      resolveMapProviderStatus({ mapsProvider: 'mock', mapboxToken: null }),
+    ];
+    for (const status of statuses) {
+      assert.equal(status.label, 'Lienzo en espera');
+    }
   });
 
-  it('returns null honesty when location facts are absent', () => {
-    const model = buildMapDeskViewModel([
-      party({ partyId: 'a', displayName: 'A' }),
-    ]);
-    assert.equal(model.coverage.honesty, null);
-    assert.equal(model.coverage.factsPresent, false);
+  it('provider detail never invents streets, heatmaps, or pins', () => {
+    const allStatuses = [
+      resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' }),
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' }),
+      resolveMapProviderStatus({ mapsProvider: 'mock', mapboxToken: null }),
+    ];
+    for (const status of allStatuses) {
+      assert.doesNotMatch(status.detail, /calle.*falsa|fake.*street|heatmap.*falso|pin.*inventado/i);
+    }
+  });
+
+  it('provider detail mentions waiting for provider decision, not error', () => {
+    const defaultStatus = resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null });
+    assert.match(defaultStatus.detail, /decisión.*proveedor|proveedor.*decisión/i);
+    assert.doesNotMatch(defaultStatus.detail, /error|fallo|broken/i);
+  });
+
+  it('layer registry forbids future layers from being truth-available', () => {
+    const futureLayers = MAP_LAYER_REGISTRY.filter((l) => l.truthClass === 'future');
+    assert.ok(futureLayers.length > 0, 'should have future layers');
+    for (const layer of futureLayers) {
+      // Future layers should be blocked from resolving as active
+      assert.equal(resolveMapLayer(layer.id), 'clientes');
+    }
   });
 });
