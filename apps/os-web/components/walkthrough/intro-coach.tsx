@@ -303,8 +303,11 @@ export function IntroCoach() {
 
   const stepId = stepDef.id as IntroStepId;
   const progress = progressLabel(api.record.introStepIndex, INTRO_TOTAL_STEPS);
+  const routeStep = getStepForRoute(pathname);
+  const onIntroRoute = routeStep === api.record.introStepIndex;
 
-  if (collapsed) {
+  // Off the intro path (e.g. user opened Finanzas mid-tour): compact resume only
+  if (!onIntroRoute || collapsed) {
     return (
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-30 md:bottom-4 md:left-auto md:right-4 md:w-auto">
         <Button
@@ -312,7 +315,15 @@ export function IntroCoach() {
           variant="secondary"
           size="sm"
           className="pointer-events-auto w-full rounded-none shadow-[var(--isalwa-shadow-soft)] md:w-auto md:rounded-[var(--isalwa-radius-control)]"
-          onClick={() => setCollapsed(false)}
+          onClick={() => {
+            setCollapsed(false);
+            if (stepId === 'inicio') router.push('/inicio');
+            else if (stepId === 'clientes') router.push('/clientes');
+            else if (stepId === 'cliente360' || stepId === 'nextAction') {
+              if (!pathname.startsWith('/clientes/')) router.push('/clientes');
+            } else if (stepId === 'mapa') router.push('/mapa');
+            else if (stepId === 'ayuda') router.push('/ayuda');
+          }}
         >
           Continuar recorrido ({progress})
         </Button>
