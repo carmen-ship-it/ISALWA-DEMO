@@ -72,21 +72,22 @@ export function InicioAttentionPanel({
   if (groups.length === 0 && extraGroups.length === 0) return null;
 
   return (
-    <PageSection card className="p-3 md:p-4" aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
-      <SectionHeader title={t('pages.inicio.attention')} className="mb-2" />
+    <PageSection card className="p-2.5 md:p-3" aria-label={t('pages.inicio.attention')} data-tour={TOUR_TARGET.homeAttention}>
+      <SectionHeader title={t('pages.inicio.attention')} className="mb-1.5" />
       <div>
         {groups.map((group, index) => (
           <div
             key={group.id}
-            className={index === 0 ? undefined : 'mt-4 border-t border-[var(--isalwa-mist)] pt-4'}
+            className={index === 0 ? undefined : 'mt-3 border-t border-[var(--isalwa-mist)] pt-3'}
           >
-            <h3 className="mb-1 text-xs font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
+            <h3 className="mb-0.5 text-[10px] font-semibold tracking-[0.1em] text-[var(--isalwa-slate)] uppercase">
               {group.title}
             </h3>
             <AttentionList
               items={group.items}
               subjects={subjects}
               compact
+              density="compact"
               asOf={clock}
               dueTodayByWorkId={dueTodayByWorkId}
               approvalAges={approvalAges}
@@ -99,18 +100,18 @@ export function InicioAttentionPanel({
             className={
               groups.length === 0 && index === 0
                 ? undefined
-                : 'mt-4 border-t border-[var(--isalwa-mist)] pt-4'
+                : 'mt-3 border-t border-[var(--isalwa-mist)] pt-3'
             }
           >
-            <h3 className="mb-1 text-xs font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
+            <h3 className="mb-0.5 text-[10px] font-semibold tracking-[0.1em] text-[var(--isalwa-slate)] uppercase">
               {group.title}
             </h3>
-            <FactualDueList facts={group.facts} label={group.title} />
+            <FactualDueList facts={group.facts} label={group.title} density="compact" />
           </div>
         ))}
       </div>
       {hasMore ? (
-        <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+        <p className="mt-2.5 text-sm text-[var(--isalwa-slate)]">
           {t('pages.inicio.attentionMore')}{' '}
           <Link href="/trabajo" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
             {t('states.viewWork')}

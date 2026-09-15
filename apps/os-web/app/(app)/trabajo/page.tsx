@@ -3,6 +3,7 @@ import { Button, EmptyState, PageContainer, PageSection, cx } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
+import { TrabajoListToolbar } from '@/components/work/trabajo-list-toolbar';
 import { WorkList } from '@/components/work/work-list';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -10,7 +11,10 @@ import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
 import { partyHref } from '@/lib/party/navigation';
-import { sortOpenWorkByDue } from '@/lib/work/due-order';
+import {
+  presentWorkPage,
+  readListControls,
+} from '@/lib/productivity/list-controls';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -29,6 +33,7 @@ const tabClass =
 export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   const query = parseListQuery(await searchParams);
   const view = parseTrabajoView(query.view);
+  const controls = readListControls(query);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -40,6 +45,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
     view: view === 'mine' ? undefined : view,
     subjectType: filteredByParty ? subjectType : undefined,
     subjectId: filteredByParty ? subjectId : undefined,
+    q: controls.q,
+    sort: controls.sort === 'due' ? undefined : controls.sort,
+    density: controls.density === 'compact' ? undefined : controls.density,
+    focus: controls.focus,
   };
   const visibility = view === 'team' || view === 'org' ? view : undefined;
 
@@ -51,9 +60,11 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       ...(visibility ? { visibility } : {}),
       ...(query.cursor ? { cursor: query.cursor } : {}),
       ...(filteredByParty ? { subjectType, subjectId } : {}),
+      ...(controls.q ? { q: controls.q } : {}),
     });
-    const items = (view === 'mine' ? sortOpenWorkByDue(result.items) : result.items).filter(
-      (item) => !isEngineeringFixtureCopy(item.title),
+    const items = presentWorkPage(
+      result.items.filter((item) => !isEngineeringFixtureCopy(item.title)),
+      controls,
     );
     const memberLabels = await resolveMemberLabels(
       client,
@@ -81,19 +92,21 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
 
         <TrabajoViewTabs active={view} state={listState} showRequestedLens />
 
+        <TrabajoListToolbar state={listState} controls={controls} />
+
         <StaleProjectionBanner freshness={result.freshness} />
 
         {items.length === 0 ? (
           <EmptyState
-            title={emptyTitle(view, filteredByParty)}
-            description={emptyDescription(view, filteredByParty)}
+            title={emptyTitle(view, filteredByParty, controls)}
+            description={emptyDescription(view, filteredByParty, controls)}
             example={
-              view === 'mine' && !filteredByParty
+              view === 'mine' && !filteredByParty && !controls.q && !controls.focus
                 ? 'Un seguimiento con responsable y fecha permanece aquí hasta que lo complete.'
                 : undefined
             }
             action={
-              view === 'mine' && !filteredByParty ? (
+              view === 'mine' && !filteredByParty && !controls.q && !controls.focus ? (
                 <Link href="/clientes" className="inline-flex">
                   <Button type="button" variant="primary">
                     {t('states.goToClientes')}
@@ -105,7 +118,13 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         ) : (
           <>
             <PageSection card className="overflow-hidden p-0">
-              <WorkList items={items} memberLabels={memberLabels} partyLabels={partyLabels} />
+              <WorkList
+                items={items}
+                memberLabels={memberLabels}
+                partyLabels={partyLabels}
+                density={controls.density}
+                showHeader
+              />
             </PageSection>
             {result.meta.hasMore && result.meta.nextCursor ? (
               <div className="mt-6 flex justify-center">
@@ -154,7 +173,7 @@ function TrabajoViewTabs({
   if (showRequestedLens && active === 'org') tabs.push({ id: 'org', label: 'Empresa' });
 
   return (
-    <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Vista de trabajo">
+    <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Vista de trabajo">
       {tabs.map((tab) => {
         const selected = tab.id === active;
         return (
@@ -198,14 +217,26 @@ function pageDescription(view: TrabajoView, filteredByParty: boolean): string {
   return 'Cola de trabajo abierto, con responsable, cliente y fecha.';
 }
 
-function emptyTitle(view: TrabajoView, filteredByParty: boolean): string {
+function emptyTitle(
+  view: TrabajoView,
+  filteredByParty: boolean,
+  controls: ReturnType<typeof readListControls>,
+): string {
+  if (controls.q || controls.focus) return 'Ningún trabajo coincide con estos filtros.';
   if (view === 'overdue') return 'No tiene trabajo vencido en este momento.';
   if (view === 'team' || view === 'org') return 'No hay trabajo abierto en esta vista.';
   if (filteredByParty) return 'No tiene trabajo pendiente en este momento.';
   return 'No tiene trabajo pendiente en este momento.';
 }
 
-function emptyDescription(view: TrabajoView, filteredByParty: boolean): string {
+function emptyDescription(
+  view: TrabajoView,
+  filteredByParty: boolean,
+  controls: ReturnType<typeof readListControls>,
+): string {
+  if (controls.q || controls.focus) {
+    return 'Pruebe limpiar la búsqueda o el enfoque. La vista y el cliente filtrado se mantienen.';
+  }
   if (view === 'overdue') {
     return filteredByParty
       ? 'Este cliente no tiene trabajo abierto vencido.'

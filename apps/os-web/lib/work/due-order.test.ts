@@ -236,9 +236,11 @@ describe('CC-3 surfaces stay scoped', () => {
     const page = readAppFile('app/(app)/trabajo/page.tsx');
     const order = readAppFile('lib/work/due-order.ts');
     const grouping = readAppFile('lib/work/inicio-attention.ts');
+    const controls = readAppFile('lib/productivity/list-controls.ts');
 
     assert.match(page, /listWorkItems\(\{[\s\S]*status:\s*'open'/);
-    assert.match(page, /sortOpenWorkByDue\(result\.items\)/);
+    assert.match(page, /presentWorkPage\(/);
+    assert.match(controls, /sortOpenWorkByDue\(next,/);
     assert.doesNotMatch(page, /ownerMemberId\s*:/);
     assert.doesNotMatch(page, /orderBy|sortBy|ReassignWork|name="ownerMemberId"/);
 

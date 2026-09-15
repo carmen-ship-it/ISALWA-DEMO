@@ -82,6 +82,10 @@ describe('saved views', () => {
   it('opens existing lists and rejects a new query key, map, or report', () => {
     assert.equal(canonicalViewHref('/cotizaciones?status=submitted'), '/cotizaciones?status=submitted');
     assert.equal(canonicalViewHref('/trabajo?view=overdue&cursor=abc'), '/trabajo?view=overdue');
+    assert.equal(
+      canonicalViewHref('/trabajo?q=seguimiento&sort=priority&density=comfortable&focus=approval'),
+      '/trabajo?q=seguimiento&sort=priority&density=comfortable&focus=approval',
+    );
     assert.equal(canonicalViewHref('/mapa'), null);
     assert.equal(canonicalViewHref('/clientes?ownerMemberId=mem-1'), '/clientes');
     assert.equal(canonicalViewHref('https://example.com/clientes'), null);
