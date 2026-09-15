@@ -26,16 +26,18 @@ describe('Wave 2 operational polish', () => {
 
   it('keeps sticky Guardar / Registrar actions on long operational forms', () => {
     const production = read('components/production/production-workspace.tsx');
+    const stickyClass = read('components/production/ops-desk-surface.tsx');
     const warehouse = read('components/warehouse/warehouse-desk.tsx');
     const coordination = read('components/coordination/coordination-decision-form.tsx');
     const finance = read('components/finance/finance-operational-desk.tsx');
-    const approvals = read('app/(app)/aprobaciones/[approvalRequestId]/page.tsx');
+    const approvals = read('components/commercial/commercial-approval-panel.tsx');
 
-    assert.match(production, /sticky bottom-0[\s\S]*Guardar/);
-    assert.match(warehouse, /sticky bottom-0[\s\S]*Asignar al pedido/);
-    assert.match(coordination, /sticky bottom-0[\s\S]*COORDINATION_RECORD_BUTTON/);
+    assert.match(stickyClass, /sticky bottom-0/);
+    assert.match(production, /OPS_STICKY_ACTION_CLASS[\s\S]*Guardar/);
+    assert.match(warehouse, /OPS_STICKY_ACTION_CLASS[\s\S]*Asignar al pedido/);
+    assert.match(coordination, /OPS_STICKY_ACTION_CLASS[\s\S]*COORDINATION_RECORD_BUTTON/);
     assert.match(finance, /button\[type=submit\]\]:sticky/);
-    assert.match(approvals, /sticky bottom-0[\s\S]*ApprovalDecisionForm/);
+    assert.match(approvals, /OPS_STICKY_ACTION_CLASS[\s\S]*Aprobar/);
   });
 
   it('shows honest empty / manual / non-ledger provenance on operational desks', () => {

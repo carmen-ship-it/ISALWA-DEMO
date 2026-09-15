@@ -6,6 +6,7 @@ export const es = {
   nav: {
     inicio: 'Inicio',
     clientes: 'Clientes',
+    mapa: 'Mapa',
     oportunidades: 'Oportunidades',
     cotizaciones: 'Cotizaciones',
     trabajo: 'Trabajo',

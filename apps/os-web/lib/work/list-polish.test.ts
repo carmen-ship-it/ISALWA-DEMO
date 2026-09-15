@@ -33,7 +33,7 @@ describe('trabajo list polish surfaces', () => {
   it('keeps inicio attention denser without changing attention rules', () => {
     const panel = read('components/work/inicio-attention-panel.tsx');
     assert.match(panel, /density="compact"/);
-    assert.match(panel, /p-2\.5 md:p-3/);
+    assert.match(panel, /p-3 shadow-\[var\(--isalwa-shadow-resting\)\] md:p-4/);
     assert.doesNotMatch(panel, /due soon|priorityScore|agingDays/);
   });
 });

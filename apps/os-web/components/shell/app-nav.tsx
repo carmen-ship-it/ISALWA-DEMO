@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   FileText,
   Home,
+  MapPin,
   MessageSquare,
   Settings,
   Target,
@@ -40,6 +41,7 @@ const ICONS = {
   settings: Settings,
   wallet: Wallet,
   message: MessageSquare,
+  map: MapPin,
 } as const;
 
 type AppNavProps = {

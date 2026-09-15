@@ -26,7 +26,7 @@ describe('visual system — canvas + chrome', () => {
     const globals = readFileSync(resolve(root, 'app/globals.css'), 'utf8');
     assert.match(globals, /--isalwa-surface-canvas:\s*var\(--isalwa-porcelain\)/);
     assert.match(globals, /background-color:\s*var\(--isalwa-surface-canvas\)/);
-    assert.doesNotMatch(globals, /body\s*\{[^}]*background:\s*var\(--isalwa-white\)/s);
+    assert.equal(/body\s*\{[^}]*background:\s*var\(--isalwa-white\)/.test(globals), false);
   });
 
   it('keeps shell canvas porcelain and sticky header on glass-light', () => {

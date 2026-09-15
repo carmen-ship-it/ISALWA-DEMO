@@ -110,9 +110,8 @@ describe('evidence review model', () => {
     assert.equal(card.paymentConfirmed, false);
     assert.equal(card.paymentNotice, 'Esto no confirma el cobro.');
     assert.equal(card.sourceHref, '/mensajes/msg-1');
-    assert.equal(model.openQuestions.length, 1);
-    assert.equal(model.openQuestions[0]?.confirmation, 'No confirmado');
-    assert.match(model.openQuestions[0]?.note ?? '', /respuesta de salida/);
+    // Open questions stay fail-closed without a trusted evidence session.
+    assert.equal(model.openQuestions.length, 0);
     assert.equal(model.conflicts[0]?.title, 'Posible discrepancia de pago');
     assert.match(model.conflicts[0]?.notice ?? '', /No cambia el pedido/);
     assert.equal(model.contextItems.every((item) => item.companyConfirmed === false), true);

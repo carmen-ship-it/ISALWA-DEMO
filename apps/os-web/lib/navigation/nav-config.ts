@@ -41,7 +41,8 @@ export type NavItem = {
     | 'check'
     | 'settings'
     | 'wallet'
-    | 'message';
+    | 'message'
+    | 'map';
   /** When set, item is shown but not navigable — honest locked/future state. */
   state?: NavItemState;
   /** Requires server-side admin probe (people.admin). */
@@ -70,6 +71,14 @@ export const PRIMARY_NAV: NavItem[] = [
     href: '/clientes',
     labelKey: 'nav.clientes',
     icon: 'users',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'comercial',
+  },
+  {
+    id: 'mapa',
+    href: '/mapa',
+    labelKey: 'nav.mapa',
+    icon: 'map',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'comercial',
   },

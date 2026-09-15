@@ -40,6 +40,7 @@ describe('commercial-first primary nav', () => {
       [
         'inicio',
         'clientes',
+        'mapa',
         'oportunidades',
         'cotizaciones',
         'trabajo',
@@ -60,6 +61,7 @@ describe('commercial-first primary nav', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: true }), [
       'inicio',
       'clientes',
+      'mapa',
       'oportunidades',
       'cotizaciones',
       'trabajo',
@@ -76,6 +78,7 @@ describe('commercial-first primary nav', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
       'clientes',
+      'mapa',
       'oportunidades',
       'cotizaciones',
       'trabajo',
@@ -112,6 +115,7 @@ describe('commercial-first primary nav', () => {
   it('labels primary items in Spanish', () => {
     assert.equal(t('nav.oportunidades'), 'Oportunidades');
     assert.equal(t('nav.cotizaciones'), 'Cotizaciones');
+    assert.equal(t('nav.mapa'), 'Mapa');
     assert.equal(t('nav.finanzas'), 'Finanzas');
     assert.equal(t('nav.mensajes'), 'Mensajes');
   });

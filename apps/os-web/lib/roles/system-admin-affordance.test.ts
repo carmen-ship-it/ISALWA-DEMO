@@ -120,6 +120,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
     assert.deepEqual(byId, {
       inicio: 'VISIBLE+ACTIVE',
       clientes: 'VISIBLE+ACTIVE',
+      mapa: 'VISIBLE+ACTIVE',
       oportunidades: 'VISIBLE+ACTIVE',
       cotizaciones: 'VISIBLE+ACTIVE',
       trabajo: 'VISIBLE+ACTIVE',
@@ -143,6 +144,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
       'clientes',
+      'mapa',
       'oportunidades',
       'cotizaciones',
       'trabajo',

@@ -65,6 +65,7 @@ describe('role-aware nav labeling (no authority change)', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
       'clientes',
+      'mapa',
       'oportunidades',
       'cotizaciones',
       'trabajo',

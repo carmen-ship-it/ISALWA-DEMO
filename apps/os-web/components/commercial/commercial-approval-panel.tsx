@@ -6,6 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { Button, StatusPill } from '@isalwa/ui';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { OPS_STICKY_ACTION_CLASS } from '@/components/production/ops-desk-surface';
 import {
   decideCommercialApprovalAction,
   requestCommercialApprovalAction,
@@ -197,7 +198,7 @@ function ApprovalDecisionFields({
 }: ApprovalDecisionFormProps & { action: (formData: FormData) => void }) {
   if (locked) {
     return (
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className={`${OPS_STICKY_ACTION_CLASS} mt-6 flex flex-wrap gap-3 px-1 py-3`}>
         <Button type="button" variant="primary" disabled>
           Aprobar
         </Button>
@@ -221,7 +222,7 @@ function ApprovalDecisionFields({
         Motivo
         <input className={fieldClass} name="reason" maxLength={500} />
       </label>
-      <div className="flex flex-wrap gap-3">
+      <div className={`${OPS_STICKY_ACTION_CLASS} -mx-1 flex flex-wrap gap-3 px-1 py-3`}>
         <DecisionButton label="Aprobar" decision="Approve" variant="primary" />
         <DecisionButton label="Rechazar" decision="Reject" variant="danger" />
       </div>
