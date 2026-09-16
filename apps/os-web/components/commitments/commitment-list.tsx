@@ -50,7 +50,7 @@ function formatFulfilledAt(value: string | null): string | null {
 
 export function CommitmentList({
   items,
-  memberLabels = {},
+  memberLabels = new Map(),
   partyLabel = null,
   asOf = new Date(),
   showOrigin = true,
