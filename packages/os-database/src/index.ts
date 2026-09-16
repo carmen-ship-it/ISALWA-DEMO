@@ -11,6 +11,27 @@ export { PrismaOsWorkStore } from './prisma-work-store';
 export { PrismaOsCommercialStore } from './prisma-commercial-store';
 export { PrismaOsImportStore } from './prisma-import-store';
 export {
+  PrismaOsCommitmentStore,
+  type CommitmentRecord,
+  type OsCommitmentStore,
+} from './prisma-commitment-store';
+export {
+  PrismaOsIssueStore,
+  type IssueRecord,
+  type IssueReferenceRecord,
+  type IssueJournalEntryRecord,
+  type IssueWorkLinkRecord,
+  type IssueRelationRecord,
+  type IssueResolutionCycleRecord,
+  type IssueOwnershipHistoryRecord,
+  type OsIssueStore,
+} from './prisma-issue-store';
+export {
+  PrismaOsProductFeedbackStore,
+  type ProductFeedbackRecord,
+  type OsProductFeedbackStore,
+} from './prisma-product-feedback-store';
+export {
   PrismaOsProjectionStore,
   encodePartySearchCursor,
 } from './prisma-projection-store';

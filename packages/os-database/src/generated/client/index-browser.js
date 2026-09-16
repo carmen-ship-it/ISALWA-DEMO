@@ -780,6 +780,7 @@ exports.Prisma.OsCommitmentScalarFieldEnum = {
   createdByMemberId: 'createdByMemberId',
   createdAt: 'createdAt',
   fulfilledAt: 'fulfilledAt',
+  fulfilledByMemberId: 'fulfilledByMemberId',
   cancelledAt: 'cancelledAt',
   provenanceSuggestionId: 'provenanceSuggestionId'
 };
@@ -1379,6 +1380,112 @@ exports.Prisma.OsCoordinationDecisionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.OsIssueScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  version: 'version',
+  status: 'status',
+  title: 'title',
+  description: 'description',
+  reportedByMemberId: 'reportedByMemberId',
+  reportedAt: 'reportedAt',
+  currentOwnerMemberId: 'currentOwnerMemberId',
+  confirmedCause: 'confirmedCause',
+  confirmedCauseByMemberId: 'confirmedCauseByMemberId',
+  confirmedCauseAt: 'confirmedCauseAt',
+  resolution: 'resolution',
+  resolvedByMemberId: 'resolvedByMemberId',
+  resolvedAt: 'resolvedAt',
+  outcome: 'outcome',
+  outcomeRecordedByMemberId: 'outcomeRecordedByMemberId',
+  outcomeRecordedAt: 'outcomeRecordedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OsIssueReferenceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  issueId: 'issueId',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  createdAt: 'createdAt',
+  createdByMemberId: 'createdByMemberId'
+};
+
+exports.Prisma.OsIssueJournalEntryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  issueId: 'issueId',
+  entryType: 'entryType',
+  content: 'content',
+  authorMemberId: 'authorMemberId',
+  recordedAt: 'recordedAt',
+  provenance: 'provenance'
+};
+
+exports.Prisma.OsIssueWorkLinkScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  issueId: 'issueId',
+  workItemId: 'workItemId',
+  linkedByMemberId: 'linkedByMemberId',
+  linkedAt: 'linkedAt'
+};
+
+exports.Prisma.OsIssueRelationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  fromIssueId: 'fromIssueId',
+  toIssueId: 'toIssueId',
+  relationType: 'relationType',
+  createdByMemberId: 'createdByMemberId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsIssueResolutionCycleScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  issueId: 'issueId',
+  cycleIndex: 'cycleIndex',
+  confirmedCause: 'confirmedCause',
+  confirmedCauseByMemberId: 'confirmedCauseByMemberId',
+  confirmedCauseAt: 'confirmedCauseAt',
+  resolution: 'resolution',
+  resolvedByMemberId: 'resolvedByMemberId',
+  resolvedAt: 'resolvedAt',
+  outcome: 'outcome',
+  outcomeRecordedByMemberId: 'outcomeRecordedByMemberId',
+  outcomeRecordedAt: 'outcomeRecordedAt',
+  closedAt: 'closedAt',
+  closedByMemberId: 'closedByMemberId',
+  reopenedAt: 'reopenedAt',
+  reopenedByMemberId: 'reopenedByMemberId',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.OsProductFeedbackScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  memberId: 'memberId',
+  route: 'route',
+  message: 'message',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OsIssueOwnershipHistoryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  issueId: 'issueId',
+  fromMemberId: 'fromMemberId',
+  toMemberId: 'toMemberId',
+  changedByMemberId: 'changedByMemberId',
+  changedAt: 'changedAt',
+  reason: 'reason'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1496,7 +1603,15 @@ exports.Prisma.ModelName = {
   OsPriceEntry: 'OsPriceEntry',
   OsSpecialOrderClassification: 'OsSpecialOrderClassification',
   OsCustomerCoverageGrant: 'OsCustomerCoverageGrant',
-  OsCoordinationDecision: 'OsCoordinationDecision'
+  OsCoordinationDecision: 'OsCoordinationDecision',
+  OsIssue: 'OsIssue',
+  OsIssueReference: 'OsIssueReference',
+  OsIssueJournalEntry: 'OsIssueJournalEntry',
+  OsIssueWorkLink: 'OsIssueWorkLink',
+  OsIssueRelation: 'OsIssueRelation',
+  OsIssueResolutionCycle: 'OsIssueResolutionCycle',
+  OsProductFeedback: 'OsProductFeedback',
+  OsIssueOwnershipHistory: 'OsIssueOwnershipHistory'
 };
 
 /**

@@ -95,6 +95,15 @@ model OsOrganization {
   coordinationDecisions       OsCoordinationDecision[]
   customerCoverageGrants      OsCustomerCoverageGrant[]
 
+  issues                OsIssue[]
+  issueReferences       OsIssueReference[]
+  issueJournalEntries   OsIssueJournalEntry[]
+  issueWorkLinks        OsIssueWorkLink[]
+  issueRelations        OsIssueRelation[]
+  issueResolutionCycles OsIssueResolutionCycle[]
+  productFeedback       OsProductFeedback[]
+  issueOwnershipHistory OsIssueOwnershipHistory[]
+
   @@map("os_organizations")
 }
 
@@ -1081,6 +1090,7 @@ model OsCommitment {
   createdByMemberId      String    @map("created_by_member_id")
   createdAt              DateTime  @default(now()) @map("created_at")
   fulfilledAt            DateTime? @map("fulfilled_at")
+  fulfilledByMemberId    String?   @map("fulfilled_by_member_id")
   cancelledAt            DateTime? @map("cancelled_at")
   provenanceSuggestionId String?   @map("provenance_suggestion_id")
 
@@ -2008,4 +2018,179 @@ model OsCoordinationDecision {
   @@index([organizationId, occurredAt])
   @@index([organizationId, kind])
   @@map("os_coordination_decisions")
+}
+
+// Issue Memory models. Wave B addition.
+
+/// Central issue record. Status lifecycle is open → [investigating → confirmed] → resolved → closed.
+/// Reopening creates a new resolution cycle row.
+model OsIssue {
+  id                        String    @id
+  organizationId            String    @map("organization_id")
+  version                   Int       @default(0)
+  status                    String
+  title                     String?
+  description               String
+  reportedByMemberId        String    @map("reported_by_member_id")
+  reportedAt                DateTime  @map("reported_at")
+  currentOwnerMemberId      String?   @map("current_owner_member_id")
+  confirmedCause            String?   @map("confirmed_cause")
+  confirmedCauseByMemberId  String?   @map("confirmed_cause_by_member_id")
+  confirmedCauseAt          DateTime? @map("confirmed_cause_at")
+  resolution                String?
+  resolvedByMemberId        String?   @map("resolved_by_member_id")
+  resolvedAt                DateTime? @map("resolved_at")
+  outcome                   String?
+  outcomeRecordedByMemberId String?   @map("outcome_recorded_by_member_id")
+  outcomeRecordedAt         DateTime? @map("outcome_recorded_at")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  organization     OsOrganization            @relation(fields: [organizationId], references: [id])
+  references       OsIssueReference[]
+  journalEntries   OsIssueJournalEntry[]
+  workLinks        OsIssueWorkLink[]
+  relationsFrom    OsIssueRelation[]         @relation("IssueRelationFrom")
+  relationsTo      OsIssueRelation[]         @relation("IssueRelationTo")
+  resolutionCycles OsIssueResolutionCycle[]
+  ownershipHistory OsIssueOwnershipHistory[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, currentOwnerMemberId])
+  @@index([organizationId, reportedByMemberId])
+  @@index([organizationId, createdAt])
+  @@map("os_issues")
+}
+
+/// External entity reference linked to an issue (order, party, quote, etc.).
+model OsIssueReference {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  issueId           String   @map("issue_id")
+  referenceType     String   @map("reference_type")
+  referenceId       String   @map("reference_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  createdByMemberId String   @map("created_by_member_id")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@unique([organizationId, issueId, referenceType, referenceId])
+  @@index([organizationId, referenceType, referenceId])
+  @@map("os_issue_references")
+}
+
+/// Append-only journal entry for issue activity (comments, status changes, etc.).
+model OsIssueJournalEntry {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  issueId        String   @map("issue_id")
+  entryType      String   @map("entry_type")
+  content        String
+  authorMemberId String   @map("author_member_id")
+  recordedAt     DateTime @map("recorded_at")
+  provenance     String?
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@index([issueId, recordedAt])
+  @@map("os_issue_journal_entries")
+}
+
+/// Links an issue to a work item (task).
+model OsIssueWorkLink {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  issueId          String   @map("issue_id")
+  workItemId       String   @map("work_item_id")
+  linkedByMemberId String   @map("linked_by_member_id")
+  linkedAt         DateTime @map("linked_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@unique([organizationId, issueId, workItemId])
+  @@map("os_issue_work_links")
+}
+
+/// Issue-to-issue relationship (blocks, duplicates, relates_to, etc.).
+model OsIssueRelation {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  fromIssueId       String   @map("from_issue_id")
+  toIssueId         String   @map("to_issue_id")
+  relationType      String   @map("relation_type")
+  createdByMemberId String   @map("created_by_member_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  fromIssue    OsIssue        @relation("IssueRelationFrom", fields: [fromIssueId], references: [id])
+  toIssue      OsIssue        @relation("IssueRelationTo", fields: [toIssueId], references: [id])
+
+  @@unique([organizationId, fromIssueId, toIssueId, relationType])
+  @@map("os_issue_relations")
+}
+
+/// Append-only resolution cycle for reopen/resolve history.
+model OsIssueResolutionCycle {
+  id                        String    @id
+  organizationId            String    @map("organization_id")
+  issueId                   String    @map("issue_id")
+  cycleIndex                Int       @map("cycle_index")
+  confirmedCause            String?   @map("confirmed_cause")
+  confirmedCauseByMemberId  String?   @map("confirmed_cause_by_member_id")
+  confirmedCauseAt          DateTime? @map("confirmed_cause_at")
+  resolution                String?
+  resolvedByMemberId        String?   @map("resolved_by_member_id")
+  resolvedAt                DateTime? @map("resolved_at")
+  outcome                   String?
+  outcomeRecordedByMemberId String?   @map("outcome_recorded_by_member_id")
+  outcomeRecordedAt         DateTime? @map("outcome_recorded_at")
+  closedAt                  DateTime? @map("closed_at")
+  closedByMemberId          String?   @map("closed_by_member_id")
+  reopenedAt                DateTime? @map("reopened_at")
+  reopenedByMemberId        String?   @map("reopened_by_member_id")
+  recordedAt                DateTime  @map("recorded_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@index([issueId, cycleIndex])
+  @@map("os_issue_resolution_cycles")
+}
+
+/// In-app product feedback submitted by members.
+model OsProductFeedback {
+  id             String   @id
+  organizationId String   @map("organization_id")
+  memberId       String   @map("member_id")
+  route          String
+  message        String
+  entityType     String?  @map("entity_type")
+  entityId       String?  @map("entity_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@map("os_product_feedback")
+}
+
+/// Audit trail for issue ownership changes.
+model OsIssueOwnershipHistory {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  issueId           String   @map("issue_id")
+  fromMemberId      String?  @map("from_member_id")
+  toMemberId        String   @map("to_member_id")
+  changedByMemberId String   @map("changed_by_member_id")
+  changedAt         DateTime @map("changed_at")
+  reason            String?
+
+  organization OsOrganization @relation(fields: [organizationId], references: [id])
+  issue        OsIssue        @relation(fields: [issueId], references: [id])
+
+  @@index([issueId, changedAt])
+  @@map("os_issue_ownership_history")
 }
