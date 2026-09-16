@@ -1,11 +1,18 @@
 import { initialGuideRecord, migrateV1ToV2, type GuideRecord } from './progress';
 
 /**
- * Browser-local UI state for Modo guiado.
- * Not a tenant record. Do not send this to an API or attach an organization id.
- * Key name stays v1 for storage continuity; version field inside determines schema.
+ * Browser-local UI state for Modo guiado / first-use intro.
+ * Not a tenant record. Do not send this to an API.
+ * Do not store authorization data here.
+ *
+ * Keys are member-scoped: `${GUIDE_STORAGE_KEY_PREFIX}:${orgId:memberId}`.
+ * The bare prefix key is legacy (browser-global) and must never be read or written —
+ * that leaked completed intro across authenticated members on the same browser profile.
  */
-export const GUIDE_STORAGE_KEY = 'isalwa.os-web.guide.v1';
+export const GUIDE_STORAGE_KEY_PREFIX = 'isalwa.os-web.guide.v1';
+
+/** @deprecated Bare key — never use for load/save. Kept for tests that assert abandonment. */
+export const GUIDE_STORAGE_KEY = GUIDE_STORAGE_KEY_PREFIX;
 
 /** Previous tooltip catalog. Never resumed as an overlay. */
 export const LEGACY_WALKTHROUGH_STORAGE_KEY = 'isalwa.os-web.walkthrough.v1';
@@ -14,6 +21,18 @@ export type KeyValueStore = {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
 };
+
+/**
+ * Trusted scope from the authenticated shell actorKey (org + member).
+ * Empty/null → no persistence (in-memory only) so we never fall back to a shared key.
+ */
+export function guideStorageKey(storageScope: string | null | undefined): string | null {
+  const scope = storageScope?.trim() ?? '';
+  if (!scope) return null;
+  // Reject accidental reuse of the bare prefix as a "scope".
+  if (scope === GUIDE_STORAGE_KEY_PREFIX) return null;
+  return `${GUIDE_STORAGE_KEY_PREFIX}:${scope}`;
+}
 
 function stringList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -36,7 +55,7 @@ export function parseGuideRecord(raw: string | null): GuideRecord {
   try {
     const data = JSON.parse(raw) as Record<string, unknown> | null;
     if (!data) return initialGuideRecord();
-    
+
     // Migrate v1 to v2 preserving existing progress
     if (data.version === 1) {
       return migrateV1ToV2({
@@ -47,7 +66,7 @@ export function parseGuideRecord(raw: string | null): GuideRecord {
         panelHidden: data.panelHidden === true,
       });
     }
-    
+
     // Parse v2 record
     if (data.version !== 2) return initialGuideRecord();
     return {
@@ -68,15 +87,26 @@ export function parseGuideRecord(raw: string | null): GuideRecord {
   }
 }
 
-export function loadGuide(store: KeyValueStore): GuideRecord {
+export function loadGuide(
+  store: KeyValueStore,
+  storageScope: string | null | undefined,
+): GuideRecord {
+  const key = guideStorageKey(storageScope);
+  if (!key) return initialGuideRecord();
   try {
-    return parseGuideRecord(store.getItem(GUIDE_STORAGE_KEY));
+    return parseGuideRecord(store.getItem(key));
   } catch {
     return initialGuideRecord();
   }
 }
 
-export function saveGuide(store: KeyValueStore, record: GuideRecord): void {
+export function saveGuide(
+  store: KeyValueStore,
+  record: GuideRecord,
+  storageScope: string | null | undefined,
+): void {
+  const key = guideStorageKey(storageScope);
+  if (!key) return;
   const payload: GuideRecord = {
     version: 2,
     currentJourneyId: record.currentJourneyId,
@@ -91,7 +121,7 @@ export function saveGuide(store: KeyValueStore, record: GuideRecord): void {
     pageTourSeen: { ...record.pageTourSeen },
   };
   try {
-    store.setItem(GUIDE_STORAGE_KEY, JSON.stringify(payload));
+    store.setItem(key, JSON.stringify(payload));
   } catch {
     // Private mode or a full disk. The in-memory record still holds this view.
   }

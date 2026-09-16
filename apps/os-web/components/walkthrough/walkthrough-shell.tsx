@@ -24,12 +24,15 @@ import { MicroTourCoach } from './micro-tour-coach';
 export function WalkthroughShell({
   children,
   viewer,
+  storageScopeKey = null,
 }: {
   children: ReactNode;
   viewer?: GuideViewer;
+  /** Trusted shell actorKey — scopes onboarding localStorage per member. */
+  storageScopeKey?: string | null;
 }) {
   return (
-    <GuideProvider viewer={viewer}>
+    <GuideProvider viewer={viewer} storageScopeKey={storageScopeKey}>
       {children}
       <IntroWelcome />
       <IntroCoach />

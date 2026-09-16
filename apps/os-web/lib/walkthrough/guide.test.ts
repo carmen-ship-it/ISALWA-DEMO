@@ -8,7 +8,9 @@ import { handleGuideEscape, restoreHeadingFocus, type GuideDoc, type GuideFocusa
 import { JOURNEYS, journeysForViewer } from './journeys';
 import {
   GUIDE_STORAGE_KEY,
+  GUIDE_STORAGE_KEY_PREFIX,
   LEGACY_WALKTHROUGH_STORAGE_KEY,
+  guideStorageKey,
   loadGuide,
   resumeTooltipOverlay,
   saveGuide,
@@ -252,7 +254,14 @@ describe('modo guiado', () => {
     assert.match(copy, new RegExp(GUIDE_CHROME.title));
   });
 
-  it('keeps progress in local UI state and does not resume the old tooltip overlay', () => {
+  it('keeps progress in member-scoped local UI state and does not resume the old tooltip overlay', () => {
+    const memberA = '01ORG:01MEM_A';
+    const memberB = '01ORG:01MEM_B';
+    const keyA = guideStorageKey(memberA);
+    assert.ok(keyA);
+    assert.equal(keyA.startsWith(`${GUIDE_STORAGE_KEY_PREFIX}:`), true);
+    assert.notEqual(keyA, GUIDE_STORAGE_KEY);
+
     const store = memoryStore({
       [LEGACY_WALKTHROUGH_STORAGE_KEY]: JSON.stringify({
         version: 2,
@@ -262,27 +271,82 @@ describe('modo guiado', () => {
         stepId: 'home-attention',
         organizationId: 'org_should_not_load',
       }),
+      // Legacy browser-global key must be ignored (cross-member leak vector).
+      [GUIDE_STORAGE_KEY]: JSON.stringify({
+        version: 2,
+        currentJourneyId: 'vender',
+        stopIndex: 2,
+        completedJourneyIds: ['gerencia'],
+        panelHidden: false,
+        welcomeSeen: true,
+        introCompleted: true,
+        introSkipped: false,
+        introStepIndex: 6,
+        learningModeEnabled: false,
+        pageTourSeen: { clientes: true },
+      }),
     });
-    const loaded = loadGuide(store);
-    assert.equal(loaded.panelHidden, true);
+
+    // Without a member scope: never read/write the bare key.
+    const unscope = loadGuide(store, null);
+    assert.equal(unscope.introCompleted, false);
+    assert.equal(unscope.welcomeSeen, false);
+    saveGuide(store, { ...initialGuideRecord(), introCompleted: true, welcomeSeen: true }, null);
+    assert.equal(store.getItem(GUIDE_STORAGE_KEY), store.dump()[GUIDE_STORAGE_KEY]);
+
+    // Member A starts fresh despite legacy global completion.
+    const loadedA = loadGuide(store, memberA);
+    assert.equal(loadedA.panelHidden, true);
+    assert.equal(loadedA.introCompleted, false);
     assert.equal(resumeTooltipOverlay(store.getItem(LEGACY_WALKTHROUGH_STORAGE_KEY)), null);
-    assert.equal(store.getItem(GUIDE_STORAGE_KEY), null);
 
     const advanced = continueGuide(initialGuideRecord());
-    saveGuide(store, dismissGuide(advanced.record));
-    const saved = JSON.parse(store.getItem(GUIDE_STORAGE_KEY) ?? '{}') as Record<string, unknown>;
-    assert.equal(saved.panelHidden, true);
-    assert.equal(saved.currentJourneyId, advanced.record.currentJourneyId);
-    assert.equal(saved.stopIndex, advanced.record.stopIndex);
-    assert.equal('organizationId' in saved, false);
-    assert.equal('customerName' in saved, false);
-    assert.equal('orderNumber' in saved, false);
-    assert.equal('learningMode' in saved, false);
+    const completedA = {
+      ...dismissGuide(advanced.record),
+      welcomeSeen: true,
+      introCompleted: true,
+    };
+    saveGuide(store, completedA, memberA);
+    const savedA = JSON.parse(store.getItem(keyA!) ?? '{}') as Record<string, unknown>;
+    assert.equal(savedA.panelHidden, true);
+    assert.equal(savedA.introCompleted, true);
+    assert.equal(savedA.currentJourneyId, advanced.record.currentJourneyId);
+    assert.equal(savedA.stopIndex, advanced.record.stopIndex);
+    assert.equal('organizationId' in savedA, false);
+    assert.equal('customerName' in savedA, false);
+    assert.equal('orderNumber' in savedA, false);
+    assert.equal('learningMode' in savedA, false);
+    assert.equal('memberId' in savedA, false);
+
+    // Same browser, Member B must not inherit Member A's intro.
+    const loadedB = loadGuide(store, memberB);
+    assert.equal(loadedB.introCompleted, false);
+    assert.equal(loadedB.welcomeSeen, false);
+    assert.equal(store.getItem(guideStorageKey(memberB)!), null);
 
     const persistence = readFileSync(join(here, 'persistence.ts'), 'utf8');
-    assert.doesNotMatch(persistence, /fetch\(|organizationId|supabase/);
+    assert.doesNotMatch(persistence, /fetch\(|supabase/);
+    assert.doesNotMatch(persistence, /\borganizationId\b/);
     const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
     assert.doesNotMatch(shell, /WalkthroughPopover|walkthrough-popover|aria-modal/);
+    assert.match(shell, /storageScopeKey/);
+    const provider = readFileSync(join(here, '../../components/walkthrough/guide-provider.tsx'), 'utf8');
+    assert.match(provider, /storageScopeKey/);
+    const appShell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
+    assert.match(appShell, /storageScopeKey=\{actorKey\}/);
+  });
+
+  it('isolates guide keys across authenticated members on one browser profile', () => {
+    const store = memoryStore();
+    const a = 'tenantX:memberA';
+    const b = 'tenantX:memberB';
+    saveGuide(store, { ...initialGuideRecord(), welcomeSeen: true, introCompleted: true }, a);
+    saveGuide(store, { ...initialGuideRecord(), welcomeSeen: true, introSkipped: true }, b);
+    assert.equal(loadGuide(store, a).introCompleted, true);
+    assert.equal(loadGuide(store, a).introSkipped, false);
+    assert.equal(loadGuide(store, b).introCompleted, false);
+    assert.equal(loadGuide(store, b).introSkipped, true);
+    assert.notEqual(guideStorageKey(a), guideStorageKey(b));
   });
 
   it('keeps guide below the shell header so mobile logout stays reachable', () => {
@@ -382,8 +446,10 @@ describe('first-use intro', () => {
   });
 
   it('v1 to v2 migration through persistence preserves journey progress', () => {
+    const memberScope = '01ORG:01MEM';
+    const key = guideStorageKey(memberScope)!;
     const store = memoryStore({
-      [GUIDE_STORAGE_KEY]: JSON.stringify({
+      [key]: JSON.stringify({
         version: 1,
         currentJourneyId: 'produccion',
         stopIndex: 0,
@@ -391,8 +457,8 @@ describe('first-use intro', () => {
         panelHidden: true,
       }),
     });
-    
-    const loaded = loadGuide(store);
+
+    const loaded = loadGuide(store, memberScope);
     assert.equal(loaded.version, 2);
     assert.equal(loaded.currentJourneyId, 'produccion');
     assert.deepEqual(loaded.completedJourneyIds, ['vender']);

@@ -254,7 +254,7 @@ export function AppShell({
           ) : null}
 
           <div className="min-w-0 flex-1">
-            <WalkthroughShell>{children}</WalkthroughShell>
+            <WalkthroughShell storageScopeKey={actorKey}>{children}</WalkthroughShell>
           </div>
         </div>
       </div>

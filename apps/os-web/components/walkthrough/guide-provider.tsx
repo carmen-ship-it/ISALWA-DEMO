@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -63,28 +64,29 @@ type GuideContextValue = {
 
 const GuideContext = createContext<GuideContextValue | null>(null);
 
-function persist(record: GuideRecord) {
-  if (typeof window === 'undefined') return;
-  saveGuide(window.localStorage, record);
-}
-
 export function GuideProvider({
   children,
   viewer,
+  /** Trusted shell actorKey (`orgId:memberId`). Required for member-isolated persistence. */
+  storageScopeKey = null,
 }: {
   children: ReactNode;
   viewer?: GuideViewer;
+  storageScopeKey?: string | null;
 }) {
+  const scopeRef = useRef(storageScopeKey);
+  scopeRef.current = storageScopeKey;
+
   const [record, setRecord] = useState<GuideRecord>(() => initialGuideRecord());
   const [ready, setReady] = useState(false);
   const [openHrefs, setOpenHrefs] = useState<readonly string[] | undefined>(viewer?.openHrefs);
 
   useEffect(() => {
-    const loaded = loadGuide(window.localStorage);
+    const loaded = loadGuide(window.localStorage, storageScopeKey);
     const pathname = window.location?.pathname ?? '/';
     setRecord(resumeGuide(loaded, pathname));
     setReady(true);
-  }, []);
+  }, [storageScopeKey]);
 
   useEffect(() => {
     if (viewer?.openHrefs) {
@@ -104,6 +106,11 @@ export function GuideProvider({
 
   const viewerRoleKeys = useMemo(() => viewer?.roleKeys ?? [], [viewer?.roleKeys]);
 
+  const persist = useCallback((next: GuideRecord) => {
+    if (typeof window === 'undefined') return;
+    saveGuide(window.localStorage, next, scopeRef.current);
+  }, []);
+
   useEffect(() => {
     if (!ready || journeys.length === 0) return;
     if (journeys.some((journey) => journey.id === record.currentJourneyId)) return;
@@ -114,12 +121,15 @@ export function GuideProvider({
     };
     setRecord(next);
     persist(next);
-  }, [journeys, ready, record]);
+  }, [journeys, ready, record, persist]);
 
-  const commit = useCallback((next: GuideRecord) => {
-    setRecord(next);
-    persist(next);
-  }, []);
+  const commit = useCallback(
+    (next: GuideRecord) => {
+      setRecord(next);
+      persist(next);
+    },
+    [persist],
+  );
 
   const value = useMemo<GuideContextValue>(
     () => ({

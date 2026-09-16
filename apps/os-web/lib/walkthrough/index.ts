@@ -49,7 +49,9 @@ export {
 export type { ContinueOutcome, GuideRecord } from './progress';
 export {
   GUIDE_STORAGE_KEY,
+  GUIDE_STORAGE_KEY_PREFIX,
   LEGACY_WALKTHROUGH_STORAGE_KEY,
+  guideStorageKey,
   loadGuide,
   parseGuideRecord,
   resumeTooltipOverlay,
