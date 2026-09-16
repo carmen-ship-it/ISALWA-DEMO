@@ -322,6 +322,16 @@ export class WorkCommandService {
       { status: 'completed', completedAt: ctx.effectiveAt, version: work.version + 1 },
       work.version,
     );
+    await store.insertOwnershipHistory({
+      id: createId(),
+      organizationId: ctx.organizationId,
+      workItemId,
+      fromMemberId: work.ownerMemberId,
+      toMemberId: work.ownerMemberId,
+      changedByMemberId: ctx.actorMemberId,
+      reason: 'completed',
+      changedAt: ctx.effectiveAt,
+    });
 
     return this.emit(ctx, store, 'work.completed', 'work_item', workItemId, { workItemId });
   }
@@ -343,6 +353,16 @@ export class WorkCommandService {
       { status: 'cancelled', cancelledAt: ctx.effectiveAt, version: work.version + 1 },
       work.version,
     );
+    await store.insertOwnershipHistory({
+      id: createId(),
+      organizationId: ctx.organizationId,
+      workItemId,
+      fromMemberId: work.ownerMemberId,
+      toMemberId: work.ownerMemberId,
+      changedByMemberId: ctx.actorMemberId,
+      reason: payload.reason ? `cancelled:${String(payload.reason)}` : 'cancelled',
+      changedAt: ctx.effectiveAt,
+    });
 
     return this.emit(ctx, store, 'work.cancelled', 'work_item', workItemId, {
       workItemId,

@@ -10,6 +10,7 @@ import { partyHref } from '@/lib/party/navigation';
 import { followUpOwnerFromAuthenticatedSession } from '@/lib/auth/session-identity';
 import {
   buildCompleteWorkPayload,
+  buildCancelWorkPayload,
   buildCreateFollowUpPayload,
   FOLLOW_UP_COPY,
   presentClientFollowUp,
@@ -112,6 +113,26 @@ export async function completeFollowUpAction(formData: FormData): Promise<{ ok: 
   const workItemId = String(formData.get('workItemId') ?? '').trim();
   const partyId = String(formData.get('partyId') ?? '').trim();
   const built = buildCompleteWorkPayload(workItemId);
+  if (!built.ok) return built;
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  try {
+    await client.executeWorkCommand(built.command, built.payload, createId());
+    revalidateFollowUpSurfaces(partyId || undefined, workItemId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+export async function cancelFollowUpAction(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+  const workItemId = String(formData.get('workItemId') ?? '').trim();
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '');
+  const built = buildCancelWorkPayload(workItemId, reason);
   if (!built.ok) return built;
 
   const auth = await getServerOsAuthContext();

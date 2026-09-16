@@ -7,7 +7,11 @@ export type WorkCommandResult = {
 };
 
 /** Commands this follow-up slice may call. Existing work commands only. */
-export const FOLLOW_UP_UI_COMMANDS = ['CreateWorkItem', 'CompleteWork'] as const satisfies readonly WorkCommandName[];
+export const FOLLOW_UP_UI_COMMANDS = [
+  'CreateWorkItem',
+  'CompleteWork',
+  'CancelWorkItem',
+] as const satisfies readonly WorkCommandName[];
 
 export type FollowUpUiCommand = (typeof FOLLOW_UP_UI_COMMANDS)[number];
 

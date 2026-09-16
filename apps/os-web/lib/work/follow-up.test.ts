@@ -5,6 +5,7 @@ import { describe, it } from 'node:test';
 import {
   CreateWorkItemPayloadSchema,
   CompleteWorkPayloadSchema,
+  CancelWorkItemPayloadSchema,
   WORK_COMMAND_NAMES,
 } from '@isalwa/os-contracts';
 import { FOLLOW_UP_UI_COMMANDS, followUpCommandPath } from '@/lib/work/command-types';
@@ -13,6 +14,7 @@ import { sampleWork } from '@/lib/work/fixtures';
 import {
   FOLLOW_UP_COPY,
   bindFollowUpOwner,
+  buildCancelWorkPayload,
   buildCompleteWorkPayload,
   buildCreateFollowUpPayload,
   dueAtInputToIso,
@@ -208,14 +210,36 @@ describe('CC-2 CompleteWork', () => {
   });
 });
 
+describe('CC-2 CancelWorkItem', () => {
+  it('invokes the existing CancelWorkItem command without inventing a reschedule', () => {
+    const bare = buildCancelWorkPayload('work-1');
+    assert.equal(bare.ok, true);
+    if (!bare.ok) return;
+    assert.equal(bare.command, 'CancelWorkItem');
+    assert.equal(followUpCommandPath(bare.command), '/commands/CancelWorkItem');
+    assert.deepEqual(bare.payload, { workItemId: 'work-1' });
+    assert.equal(CancelWorkItemPayloadSchema.safeParse(bare.payload).success, true);
+    assert.equal('dueAt' in bare.payload, false);
+
+    const withReason = buildCancelWorkPayload('work-1', '  Cliente no responde  ');
+    assert.equal(withReason.ok, true);
+    if (!withReason.ok) return;
+    assert.deepEqual(withReason.payload, { workItemId: 'work-1', reason: 'Cliente no responde' });
+    assert.equal(CancelWorkItemPayloadSchema.safeParse(withReason.payload).success, true);
+
+    const missing = buildCancelWorkPayload('   ');
+    assert.equal(missing.ok, false);
+  });
+});
+
 describe('CC-2 boundaries', () => {
   it('uses existing work commands only — no new API or schema', () => {
-    assert.deepEqual(FOLLOW_UP_UI_COMMANDS, ['CreateWorkItem', 'CompleteWork']);
+    assert.deepEqual(FOLLOW_UP_UI_COMMANDS, ['CreateWorkItem', 'CompleteWork', 'CancelWorkItem']);
     for (const command of FOLLOW_UP_UI_COMMANDS) {
       assert.equal(WORK_COMMAND_NAMES.includes(command), true);
       assert.match(followUpCommandPath(command), /^\/commands\//);
     }
-    const blocked = ['ReassignWork', 'CancelWorkItem', 'Approve', 'Reject', 'RequestApproval'];
+    const blocked = ['ReassignWork', 'Approve', 'Reject', 'RequestApproval'];
     for (const command of blocked) {
       assert.equal((FOLLOW_UP_UI_COMMANDS as readonly string[]).includes(command), false);
     }
@@ -238,8 +262,9 @@ describe('CC-2 boundaries', () => {
 
     const actions = readFileSync(resolve('lib/work/actions.ts'), 'utf8');
     assert.doesNotMatch(actions, /executeWorkCommand\('ReassignWork'/);
-    assert.doesNotMatch(actions, /executeWorkCommand\('CancelWorkItem'/);
     assert.doesNotMatch(actions, /executeWorkCommand\('Approve'/);
+    assert.match(actions, /cancelFollowUpAction/);
+    assert.match(actions, /buildCancelWorkPayload/);
     assert.doesNotMatch(actions, /listAttention/);
     assert.match(actions, /getAuthenticatedSession/);
     assert.match(actions, /followUpOwnerFromAuthenticatedSession/);
