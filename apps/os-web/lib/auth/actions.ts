@@ -1,6 +1,6 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
@@ -15,6 +15,12 @@ import { createServerSupabaseClient } from '@/lib/auth/supabase/server';
 import { t } from '@/lib/i18n/es';
 import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
 import { QA_VIEW_COOKIE_NAME } from '@/lib/qa/constants';
+import {
+  PASSWORD_RESET_COPY,
+  buildPasswordResetRedirectUrl,
+  isValidResetEmail,
+  validateNewPassword,
+} from '@/lib/auth/password-reset';
 
 export type WebSession = {
   mode: 'supabase' | 'dev';
@@ -321,4 +327,80 @@ export async function getServerOsAuthContext(options?: { skipQaView?: boolean })
   const store = await cookies();
   const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
   return qaViewCookie ? { ...base, qaViewCookie } : base;
+}
+
+
+export async function requestPasswordResetAction(
+  formData: FormData,
+): Promise<{ error?: string; ok?: true }> {
+  const email = String(formData.get('email') ?? '').trim();
+  if (!isValidResetEmail(email)) {
+    return { error: 'Ingrese un correo válido.' };
+  }
+
+  if (getOsAuthMode() !== 'supabase' || !isSupabaseConfigured()) {
+    return { error: PASSWORD_RESET_COPY.forgotMisconfigured };
+  }
+
+  const headerStore = await headers();
+  const redirectTo = buildPasswordResetRedirectUrl({
+    configuredOrigin: process.env.NEXT_PUBLIC_OS_WEB_ORIGIN,
+    host: headerStore.get('x-forwarded-host') ?? headerStore.get('host'),
+    proto: headerStore.get('x-forwarded-proto'),
+  });
+  if (!redirectTo) {
+    return { error: PASSWORD_RESET_COPY.forgotMisconfigured };
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) {
+      // Fail closed for operators; do not reveal whether the mailbox exists.
+      return { error: PASSWORD_RESET_COPY.forgotUnavailable };
+    }
+    // Always the same success copy (enumeration-safe).
+    return { ok: true };
+  } catch {
+    return { error: PASSWORD_RESET_COPY.forgotUnavailable };
+  }
+}
+
+export async function updatePasswordFromResetAction(
+  formData: FormData,
+): Promise<{ error?: string; ok?: true }> {
+  const password = String(formData.get('password') ?? '');
+  const confirm = String(formData.get('confirm') ?? '');
+  const validationError = validateNewPassword(password, confirm);
+  if (validationError) {
+    return { error: validationError };
+  }
+
+  if (getOsAuthMode() !== 'supabase' || !isSupabaseConfigured()) {
+    return { error: PASSWORD_RESET_COPY.resetUnavailable };
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: PASSWORD_RESET_COPY.resetOpenLink };
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      return { error: PASSWORD_RESET_COPY.resetSetFailed };
+    }
+
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Password already updated; clearing session is best-effort.
+    }
+    return { ok: true };
+  } catch {
+    return { error: PASSWORD_RESET_COPY.resetUnavailable };
+  }
 }

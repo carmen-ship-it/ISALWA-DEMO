@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useTransition, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Panel } from '@isalwa/ui';
 import { devBootstrapAction, signInAction } from '@/lib/auth/actions';
 import { getOsAuthMode } from '@/lib/auth/config';
 import { t } from '@/lib/i18n/es';
+import { PASSWORD_RESET_COPY } from '@/lib/auth/password-reset';
 import { safeInternalPath } from '@/lib/shell/safe-next';
 
 export function LoginForm() {
@@ -103,6 +105,14 @@ export function LoginForm() {
           <Button type="submit" variant="primary" className="w-full" disabled={pending}>
             {t('login.submit')}
           </Button>
+          <p className="text-center text-sm">
+            <Link
+              href="/auth/forgot-password"
+              className="font-medium text-[var(--isalwa-glaze)] underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--isalwa-glaze)]"
+            >
+              {PASSWORD_RESET_COPY.loginForgotLink}
+            </Link>
+          </p>
         </form>
       )}
 
