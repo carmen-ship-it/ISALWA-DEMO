@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import { HttpException } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import type { Request } from 'express';
 import type { AuthIdentityRecord, MemberRecord, RoleAssignmentRecord } from '@isalwa/os-workforce';
 import type { AiAssistInput, AiAssistResult } from '@isalwa/providers';
 import { MockAiProvider } from '@isalwa/providers';
 import { AiController, __aiGovernanceTestSeams } from './ai.controller';
+import { OS_ISSUE_STORE, OS_STORE } from './os-store.module';
 
 const ORG = 'org-a';
 const PAST = new Date('2026-01-01T00:00:00.000Z');
@@ -353,5 +355,18 @@ describe('AiController assist', () => {
     assert.equal(joined.includes('SECRET_OTHER_TENANT'), false);
     assert.equal(joined.includes('issue-secret'), false);
     assert.ok(result.evidenceRefs.every((ref) => ref.id !== 'issue-secret'));
+  });
+
+  it('boots in Nest with only store tokens (no third constructor dep)', async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [AiController],
+      providers: [
+        { provide: OS_STORE, useValue: {} },
+        { provide: OS_ISSUE_STORE, useValue: {} },
+      ],
+    }).compile();
+    const controller = moduleRef.get(AiController);
+    assert.ok(controller);
+    await moduleRef.close();
   });
 });

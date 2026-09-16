@@ -60,15 +60,15 @@ const usageLedger = new AiUsageLedger(governance);
 
 @Controller('ai')
 export class AiController {
-  private aiProvider: AiProvider;
+  // Initialize at declaration so Nest emitDecoratorMetadata does not treat this
+  // field as a third constructor dependency (hosted boot crash on 46b8537).
+  private aiProvider: AiProvider = createAiProviderFromEnv();
   private readonly config = governance;
 
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
-  ) {
-    this.aiProvider = createAiProviderFromEnv();
-  }
+  ) {}
 
   /** Test seam — never call from product code. */
   replaceAiProviderForTest(provider: AiProvider): void {
