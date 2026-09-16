@@ -13,7 +13,7 @@
 
 | Field | Value |
 |---|---|
-| Completion tip | *(filled at commit)* |
+| Completion tip | `d5a12f1c9d3b102a2c1f358b0878b121c9bfbb8f` |
 | Prior feature commit | `40a400372c95017405637e2788321c2fe8d8560f` |
 | Base (pre-lane) | `2c931b48fc2ef7370972c75872de066c8bf5c34b` |
 
