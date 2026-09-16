@@ -97,6 +97,13 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
       href: '/clientes',
       pick: 'customer-follow-up',
     },
+    {
+      key: 'action:report-issue',
+      kind: 'action',
+      label: 'Reportar problema',
+      detail: 'Nueva incidencia',
+      href: '/incidencias/reportar',
+    },
   );
   if (access.canInvite) {
     items.push({

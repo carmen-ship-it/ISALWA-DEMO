@@ -1,0 +1,361 @@
+import Link from 'next/link';
+import { Button, PageContainer, PageSection, SectionHeader, StatusPill, Timeline, EmptyState } from '@isalwa/ui';
+import type { TimelineItem } from '@isalwa/ui';
+import { PageHeader } from '@/components/shell/page-header';
+import { QuerySurfaceState } from '@/components/work/query-surface-state';
+import { AccessDeniedState } from '@/components/states/app-states';
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
+import {
+  ISSUE_COPY,
+  formatIssueStatus,
+  formatJournalType,
+  formatReferenceType,
+  formatRelationType,
+  statusToneForIssue,
+} from '@/lib/issue/labels';
+import { issueHref, issueListHref } from '@/lib/issue/navigation';
+import { resolveMemberLabels, memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { workItemHref } from '@/lib/work/navigation';
+import { classifyQueryError } from '@/lib/work/query-errors';
+import type { IssueDetail, IssueJournalEntry, IssueReference, IssueRelation } from '@/lib/issue/types';
+
+type IssueDetailPageProps = {
+  params: Promise<{ issueId: string }>;
+};
+
+function formatTimestamp(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('es', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '—';
+  }
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('es', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return '—';
+  }
+}
+
+function issueTitle(issue: IssueDetail): string {
+  if (issue.title?.trim()) return issue.title.trim();
+  const desc = issue.description.trim();
+  return desc.length > 80 ? `${desc.slice(0, 77)}…` : desc;
+}
+
+function journalToTimeline(
+  entries: IssueJournalEntry[],
+  memberLabels: MemberLabelMap,
+): TimelineItem[] {
+  return entries.map((entry) => ({
+    id: entry.entryId,
+    label: formatJournalType(entry.entryType),
+    meta: `${memberLabel(memberLabels, entry.createdByMemberId)} · ${formatTimestamp(entry.createdAt)}`,
+    body: entry.content,
+  }));
+}
+
+function ReferenceList({ references }: { references: IssueReference[] }) {
+  if (references.length === 0) return null;
+
+  return (
+    <ul className="space-y-2">
+      {references.map((ref, idx) => (
+        <li key={`${ref.referenceType}-${ref.referenceId}-${idx}`}>
+          <span className="text-[var(--isalwa-slate)]">{formatReferenceType(ref.referenceType)}</span>
+          {ref.label ? (
+            <span className="ml-2 text-[var(--isalwa-kiln)]">{ref.label}</span>
+          ) : (
+            <span className="ml-2 text-[var(--isalwa-slate)]">{ref.referenceId}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function RelatedIssuesList({ relations }: { relations: IssueRelation[] }) {
+  if (relations.length === 0) return null;
+
+  return (
+    <ul className="space-y-2">
+      {relations.map((rel, idx) => (
+        <li key={`${rel.relationType}-${rel.relatedIssueId}-${idx}`}>
+          <span className="text-[var(--isalwa-slate)]">{formatRelationType(rel.relationType)}:</span>
+          <Link
+            href={issueHref(rel.relatedIssueId)}
+            className="ml-2 text-[var(--isalwa-glaze)] hover:underline"
+          >
+            Ver incidencia
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function LinkedWorkList({ workItemIds }: { workItemIds: string[] }) {
+  if (workItemIds.length === 0) return null;
+
+  return (
+    <ul className="space-y-2">
+      {workItemIds.map((id) => (
+        <li key={id}>
+          <Link href={workItemHref(id)} className="text-[var(--isalwa-glaze)] hover:underline">
+            Ver trabajo
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default async function IssueDetailPage({ params }: IssueDetailPageProps) {
+  const { issueId } = await params;
+  const auth = await getServerOsAuthContext();
+  if (!auth) return null;
+
+  const client = createOsApiClient(auth);
+
+  try {
+    const { issue } = await client.getIssue(issueId);
+    const memberIds = [
+      issue.reporterMemberId,
+      issue.ownerMemberId,
+      ...issue.journal.map((e) => e.createdByMemberId),
+    ].filter((id): id is string => Boolean(id));
+    const memberLabels = await resolveMemberLabels(client, memberIds);
+
+    const possibleCauses = issue.journal.filter((e) => e.entryType === 'possible_cause');
+    const otherJournal = issue.journal.filter((e) => e.entryType !== 'possible_cause');
+
+    return (
+      <PageContainer label={issueTitle(issue)}>
+        <PageHeader
+          kicker={ISSUE_COPY.detailKicker}
+          title={issueTitle(issue)}
+          action={
+            <Link href={issueListHref()}>
+              <Button type="button" variant="secondary">
+                Volver a incidencias
+              </Button>
+            </Link>
+          }
+        />
+
+        {/* Status and key dates */}
+        <PageSection card className="p-6 md:p-8">
+          <div className="flex flex-wrap gap-2">
+            <StatusPill tone={statusToneForIssue(issue.status)}>
+              {formatIssueStatus(issue.status)}
+            </StatusPill>
+          </div>
+
+          <dl className="mt-8 grid gap-6 sm:grid-cols-2">
+            {/* What happened */}
+            <div className="sm:col-span-2">
+              <dt className="isalwa-section-label">{ISSUE_COPY.whatHappened}</dt>
+              <dd className="mt-2 whitespace-pre-wrap text-[var(--isalwa-kiln)]">
+                {issue.description}
+              </dd>
+            </div>
+
+            {/* Reporter */}
+            <div>
+              <dt className="isalwa-section-label">{ISSUE_COPY.reporter}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {memberLabel(memberLabels, issue.reporterMemberId)}
+              </dd>
+            </div>
+
+            {/* Date reported */}
+            <div>
+              <dt className="isalwa-section-label">{ISSUE_COPY.dateLabel}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {formatTimestamp(issue.createdAt)}
+              </dd>
+            </div>
+
+            {/* Owner */}
+            <div>
+              <dt className="isalwa-section-label">{ISSUE_COPY.owner}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {issue.ownerMemberId
+                  ? memberLabel(memberLabels, issue.ownerMemberId)
+                  : ISSUE_COPY.noOwner}
+              </dd>
+            </div>
+
+            {/* Context references */}
+            {issue.references.length > 0 ? (
+              <div>
+                <dt className="isalwa-section-label">{ISSUE_COPY.contextLabel}</dt>
+                <dd className="mt-2">
+                  <ReferenceList references={issue.references} />
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </PageSection>
+
+        {/* Investigation section */}
+        <PageSection card className="mt-6 p-6 md:p-8">
+          <SectionHeader title={ISSUE_COPY.investigation} />
+
+          {/* Possible causes */}
+          {possibleCauses.length > 0 ? (
+            <div className="mb-6">
+              <h3 className="isalwa-section-label mb-3">{ISSUE_COPY.possibleCauses}</h3>
+              <ul className="space-y-3">
+                {possibleCauses.map((entry) => (
+                  <li
+                    key={entry.entryId}
+                    className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-3"
+                  >
+                    <p className="text-[var(--isalwa-kiln)]">{entry.content}</p>
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                      {memberLabel(memberLabels, entry.createdByMemberId)} · {formatTimestamp(entry.createdAt)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {/* Confirmed cause */}
+          <div className="mb-6">
+            <h3 className="isalwa-section-label mb-2">{ISSUE_COPY.cause}</h3>
+            <p className="text-[var(--isalwa-kiln)]">
+              {issue.confirmedCause ?? ISSUE_COPY.noCause}
+            </p>
+          </div>
+
+          {/* Journal timeline */}
+          {otherJournal.length > 0 ? (
+            <div>
+              <h3 className="isalwa-section-label mb-3">Diario de investigación</h3>
+              <Timeline items={journalToTimeline(otherJournal, memberLabels)} />
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--isalwa-slate)]">
+              No hay entradas de investigación todavía.
+            </p>
+          )}
+        </PageSection>
+
+        {/* Resolution section */}
+        <PageSection card className="mt-6 p-6 md:p-8">
+          <SectionHeader title={ISSUE_COPY.resolution} />
+
+          <dl className="grid gap-6 sm:grid-cols-2">
+            <div>
+              <dt className="isalwa-section-label">{ISSUE_COPY.resolution}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {issue.resolution ?? ISSUE_COPY.noResolution}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="isalwa-section-label">{ISSUE_COPY.outcome}</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {issue.outcome ?? ISSUE_COPY.noOutcome}
+              </dd>
+            </div>
+
+            {issue.resolvedAt ? (
+              <div>
+                <dt className="isalwa-section-label">Resuelto</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                  {formatDate(issue.resolvedAt)}
+                </dd>
+              </div>
+            ) : null}
+
+            {issue.closedAt ? (
+              <div>
+                <dt className="isalwa-section-label">Cerrado</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                  {formatDate(issue.closedAt)}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </PageSection>
+
+        {/* Linked work */}
+        {issue.linkedWorkItems.length > 0 ? (
+          <PageSection card className="mt-6 p-6 md:p-8">
+            <SectionHeader title={ISSUE_COPY.linkedWork} />
+            <LinkedWorkList workItemIds={issue.linkedWorkItems} />
+          </PageSection>
+        ) : null}
+
+        {/* Related issues */}
+        {issue.relations.length > 0 ? (
+          <PageSection card className="mt-6 p-6 md:p-8">
+            <SectionHeader title={ISSUE_COPY.relatedIssues} />
+            <RelatedIssuesList relations={issue.relations} />
+          </PageSection>
+        ) : null}
+      </PageContainer>
+    );
+  } catch (err) {
+    if (err instanceof OsApiError && err.kind === 'not_found') {
+      return (
+        <PageContainer label="Incidencia">
+          <PageHeader
+            kicker={ISSUE_COPY.detailKicker}
+            title="Incidencia no encontrada"
+            action={
+              <Link href={issueListHref()}>
+                <Button type="button" variant="secondary">
+                  Volver a incidencias
+                </Button>
+              </Link>
+            }
+          />
+          <EmptyState
+            title="No se encontró esta incidencia"
+            description="La incidencia solicitada no existe o no está disponible."
+          />
+        </PageContainer>
+      );
+    }
+    if (err instanceof OsApiError && err.kind === 'forbidden') {
+      return (
+        <PageContainer label="Incidencia">
+          <PageHeader
+            kicker={ISSUE_COPY.detailKicker}
+            title="Incidencia"
+          />
+          <AccessDeniedState />
+        </PageContainer>
+      );
+    }
+    return (
+      <PageContainer label="Incidencia">
+        <PageHeader
+          kicker={ISSUE_COPY.detailKicker}
+          title="Incidencia"
+        />
+        <QuerySurfaceState error={classifyQueryError(err)} />
+      </PageContainer>
+    );
+  }
+}

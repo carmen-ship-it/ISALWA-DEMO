@@ -17,6 +17,8 @@ import type {
   OwnedQuoteRecord,
   PendingApprovalForMemberRecord,
   ActiveCustomerCoverageRecord,
+  OwnedIssueRecord,
+  OpenCommitmentRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -39,6 +41,8 @@ export type {
   OwnedOrderRecord,
   PendingApprovalForMemberRecord,
   ActiveCustomerCoverageRecord,
+  OwnedIssueRecord,
+  OpenCommitmentRecord,
   IdempotencyRecord,
 } from './store-types';
 
@@ -277,6 +281,22 @@ export class MemoryOsStore implements OsWorkforceStore {
       }
     }
     return out;
+  }
+
+  async listActiveOwnedIssuesForMember(
+    _organizationId: string,
+    _memberId: string,
+  ): Promise<{ id: string; organizationId: string; ownerMemberId: string; title: string | null; status: string }[]> {
+    // Memory store doesn't track issues — return empty for termination impact
+    return [];
+  }
+
+  async listOpenCommitmentsForOwner(
+    _organizationId: string,
+    _memberId: string,
+  ): Promise<{ id: string; organizationId: string; ownerMemberId: string; text: string; lifecycle: string }[]> {
+    // Memory store doesn't track commitments — return empty for termination impact
+    return [];
   }
 
   async listDelegationsInvolvingMember(

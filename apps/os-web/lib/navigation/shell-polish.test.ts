@@ -77,6 +77,7 @@ describe('role-aware nav labeling (no authority change)', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'incidencias',
     ]);
   });
 

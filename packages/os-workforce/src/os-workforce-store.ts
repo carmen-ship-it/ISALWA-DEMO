@@ -13,6 +13,8 @@ import type {
   OwnedQuoteRecord,
   PendingApprovalForMemberRecord,
   ActiveCustomerCoverageRecord,
+  OwnedIssueRecord,
+  OpenCommitmentRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -110,6 +112,22 @@ export interface OsWorkforceStore {
     memberId: string,
     asOf: Date,
   ): Promise<ActiveCustomerCoverageRecord[]>;
+  /**
+   * Issues owned by the member that are not closed or resolved.
+   * Used for termination continuity check.
+   */
+  listActiveOwnedIssuesForMember(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedIssueRecord[]>;
+  /**
+   * Open commitments owned by the member (lifecycle = open).
+   * Used for termination continuity check.
+   */
+  listOpenCommitmentsForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OpenCommitmentRecord[]>;
   /** All delegations where the member is delegator or delegate (includes revoked). */
   listDelegationsInvolvingMember(
     organizationId: string,

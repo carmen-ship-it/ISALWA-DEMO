@@ -18,6 +18,7 @@ export const es = {
     compras: 'Compras',
     entregas: 'Entregas',
     coordinacion: 'Coordinación',
+    incidencias: 'Incidencias',
     finanzas: 'Finanzas',
     mensajes: 'Mensajes',
     openMenu: 'Abrir menú',

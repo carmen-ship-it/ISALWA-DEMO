@@ -15,6 +15,8 @@ export type TerminationImpactLookup = Pick<
   | 'listActiveDirectReportAssignments'
   | 'listActiveDelegationsInvolvingMember'
   | 'listActiveCustomerCoverageInvolvingMember'
+  | 'listActiveOwnedIssuesForMember'
+  | 'listOpenCommitmentsForOwner'
 >;
 
 export type { TerminationImpactCategoryKey };
@@ -50,6 +52,8 @@ const CATEGORY_LABELS: Record<TerminationImpactCategoryKey, string> = {
   active_delegations: 'Delegaciones activas',
   primary_customer_coverage: 'Clientes bajo su responsabilidad',
   acting_customer_coverage: 'Cobertura temporal activa',
+  owned_issues: 'Problemas asignados',
+  open_commitments: 'Compromisos pendientes',
 };
 
 const COVERAGE_FOUNDATION_GAP =
@@ -99,6 +103,8 @@ export async function collectTerminationImpact(
     directReports,
     delegations,
     coverage,
+    ownedIssues,
+    openCommitments,
   ] = await Promise.all([
     store.listOpenWorkItemsForMember(organizationId, memberId),
     store.listActiveCommercialAccountsForOwner(organizationId, memberId),
@@ -109,6 +115,8 @@ export async function collectTerminationImpact(
     store.listActiveDirectReportAssignments(organizationId, memberId, asOf),
     store.listActiveDelegationsInvolvingMember(organizationId, memberId, asOf),
     store.listActiveCustomerCoverageInvolvingMember(organizationId, memberId, asOf),
+    store.listActiveOwnedIssuesForMember(organizationId, memberId),
+    store.listOpenCommitmentsForOwner(organizationId, memberId),
   ]);
 
   const primaryCoverage = coverage.filter((c) => c.role === 'primary');
@@ -176,6 +184,20 @@ export async function collectTerminationImpact(
         summary: `Cobertura temporal · ${coverageCustomerLabel(c.customerDisplayName, c.customerPartyId)}`,
       })),
       actingCoverage.length > 0 ? [COVERAGE_FOUNDATION_GAP] : undefined,
+    ),
+    category(
+      'owned_issues',
+      ownedIssues.map((i) => ({
+        id: i.id,
+        summary: i.title ?? `Problema ${i.id.slice(0, 8)}`,
+      })),
+    ),
+    category(
+      'open_commitments',
+      openCommitments.map((c) => ({
+        id: c.id,
+        summary: c.text.length > 60 ? `${c.text.slice(0, 57)}...` : c.text,
+      })),
     ),
   ];
 

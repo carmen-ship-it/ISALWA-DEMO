@@ -15,6 +15,9 @@ import { OpportunitiesController, OrdersController, QuotesController } from './c
 import { CapabilitiesController } from './capabilities.controller';
 import { OperationsController } from './operations.controller';
 import { CommitmentsController } from './commitments.controller';
+import { IssuesController } from './issues.controller';
+import { ProductFeedbackController } from './product-feedback.controller';
+import { MemoryController } from './memory.controller';
 import { OsStoreModule } from './os-store.module';
 import { isDevBootstrapEnabled } from './env-validation';
 
@@ -40,6 +43,9 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     QuotesController,
     OrdersController,
     CommitmentsController,
+    IssuesController,
+    ProductFeedbackController,
+    MemoryController,
     ...devControllers,
   ],
 })

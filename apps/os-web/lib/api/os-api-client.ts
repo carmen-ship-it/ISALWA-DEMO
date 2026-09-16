@@ -37,6 +37,15 @@ import type {
   QuoteDetailResponse,
   QuoteListResponse,
 } from '@/lib/commercial/types';
+import type {
+  IssueCommandName,
+  ProductFeedbackCommandName,
+} from '@isalwa/os-contracts';
+import type {
+  IssueListResponse,
+  IssueDetailResponse,
+  IssueCommandResult,
+} from '@/lib/issue/types';
 
 export type OsAuthContext =
   | { mode: 'supabase'; accessToken: string; organizationId?: string }
@@ -330,6 +339,38 @@ export function createOsApiClient(auth: OsAuthContext) {
         throw err;
       }
     },
+    // ─────────────────────────────────────────────────────────────────────────
+    // Issue domain
+    // ─────────────────────────────────────────────────────────────────────────
+    listIssues: (query?: Record<string, string | number | boolean>) =>
+      request<IssueListResponse>('/issues', { method: 'GET', query }),
+    getIssue: (issueId: string) =>
+      request<IssueDetailResponse>(`/issues/${encodeURIComponent(issueId)}`),
+    executeIssueCommand: <T extends IssueCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<IssueCommandResult>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
+    // ─────────────────────────────────────────────────────────────────────────
+    // Product feedback
+    // ─────────────────────────────────────────────────────────────────────────
+    submitProductFeedback: <T extends ProductFeedbackCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<{ ok: boolean; data: Record<string, unknown> }>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
   };
 }
 

@@ -21,6 +21,8 @@ import {
   COMMERCIAL_COMMAND_NAMES,
   IMPORT_COMMAND_NAMES,
   COMMITMENT_COMMAND_NAMES,
+  ISSUE_COMMAND_NAMES,
+  PRODUCT_FEEDBACK_COMMAND_NAMES,
   type PartyCommandName,
   type LocationCommandName,
   type ImportCommandName,
@@ -28,13 +30,18 @@ import {
   type WorkforceCommandName,
   type CommercialCommandName,
   type CommitmentCommandName,
+  type IssueCommandName,
+  type ProductFeedbackCommandName,
 } from '@isalwa/os-contracts';
 import type { LocationCommandService, PartyCommandService } from '@isalwa/os-party';
 import type { ImportCommandService } from '@isalwa/os-import';
 import type { WorkCommandService } from '@isalwa/os-work';
 import type { CommercialCommandService } from '@isalwa/os-commercial';
 import type { CommitmentCommandService } from '@isalwa/os-commitment';
+import type { IssueCommandService } from '@isalwa/os-issue';
 import type { OsWorkforceStore, WorkforceCommandService } from '@isalwa/os-workforce';
+import type { OsProductFeedbackStore } from '@isalwa/os-database';
+import { createId } from '@isalwa/ts-utils';
 import { resolveSession } from './os-session';
 import {
   OS_COMMAND_SERVICE,
@@ -45,6 +52,8 @@ import {
   OS_WORK_COMMAND_SERVICE,
   OS_COMMERCIAL_COMMAND_SERVICE,
   OS_COMMITMENT_COMMAND_SERVICE,
+  OS_ISSUE_COMMAND_SERVICE,
+  OS_PRODUCT_FEEDBACK_STORE,
 } from './os-store.module';
 
 function mapError(err: unknown): HttpException {
@@ -92,6 +101,14 @@ function isCommitmentCommand(command: OsCommandName): command is CommitmentComma
   return (COMMITMENT_COMMAND_NAMES as readonly string[]).includes(command);
 }
 
+function isIssueCommand(command: OsCommandName): command is IssueCommandName {
+  return (ISSUE_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
+function isProductFeedbackCommand(command: OsCommandName): command is ProductFeedbackCommandName {
+  return (PRODUCT_FEEDBACK_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
 @Controller('commands')
 export class CommandsController {
   constructor(
@@ -102,6 +119,8 @@ export class CommandsController {
     @Inject(OS_WORK_COMMAND_SERVICE) private readonly workCommands: WorkCommandService,
     @Inject(OS_COMMERCIAL_COMMAND_SERVICE) private readonly commercialCommands: CommercialCommandService,
     @Inject(OS_COMMITMENT_COMMAND_SERVICE) private readonly commitmentCommands: CommitmentCommandService,
+    @Inject(OS_ISSUE_COMMAND_SERVICE) private readonly issueCommands: IssueCommandService,
+    @Inject(OS_PRODUCT_FEEDBACK_STORE) private readonly feedbackStore: OsProductFeedbackStore,
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
   ) {}
 
@@ -179,6 +198,34 @@ export class CommandsController {
           parsed.data as Record<string, unknown>,
           idempotencyKey,
         );
+      }
+      if (isIssueCommand(command)) {
+        return await this.issueCommands.execute(
+          command,
+          session,
+          parsed.data as Record<string, unknown>,
+          idempotencyKey,
+        );
+      }
+      if (isProductFeedbackCommand(command)) {
+        // SubmitProductFeedback — member_active
+        const payload = parsed.data as { content: string; category?: string; productRef?: string };
+        const feedbackId = createId();
+        await this.feedbackStore.insertFeedback({
+          id: feedbackId,
+          organizationId: session.organizationId,
+          memberId: session.actorMemberId,
+          route: payload.productRef ?? '',
+          message: payload.content,
+          entityType: payload.category ?? null,
+          entityId: null,
+          createdAt: session.effectiveAt,
+        });
+        return {
+          commandId: feedbackId,
+          correlationId: session.correlationId,
+          data: { feedbackId },
+        };
       }
       throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
     } catch (err) {

@@ -176,6 +176,9 @@ importers:
       '@isalwa/os-import':
         specifier: workspace:*
         version: link:../../packages/os-import
+      '@isalwa/os-issue':
+        specifier: workspace:*
+        version: link:../../packages/os-issue
       '@isalwa/os-party':
         specifier: workspace:*
         version: link:../../packages/os-party

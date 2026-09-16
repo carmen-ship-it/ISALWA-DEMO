@@ -42,7 +42,8 @@ export type NavItem = {
     | 'settings'
     | 'wallet'
     | 'message'
-    | 'map';
+    | 'map'
+    | 'alertCircle';
   /** When set, item is shown but not navigable — honest locked/future state. */
   state?: NavItemState;
   /** Requires server-side admin probe (people.admin). */
@@ -170,6 +171,14 @@ export const PRIMARY_NAV: NavItem[] = [
     href: '/aprobaciones',
     labelKey: 'nav.aprobaciones',
     icon: 'check',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'decisiones',
+  },
+  {
+    id: 'incidencias',
+    href: '/incidencias',
+    labelKey: 'nav.incidencias',
+    icon: 'alertCircle',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'decisiones',
   },

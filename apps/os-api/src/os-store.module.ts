@@ -9,6 +9,8 @@ import {
   PrismaOsCommercialStore,
   PrismaOsImportStore,
   PrismaOsCommitmentStore,
+  PrismaOsIssueStore,
+  PrismaOsProductFeedbackStore,
   PrismaMemberQueryStore,
   encodePartySearchCursor,
 } from '@isalwa/os-database';
@@ -25,7 +27,10 @@ import { WorkCommandService, type OsWorkStore } from '@isalwa/os-work';
 import { CommercialCommandService, type OsCommercialStore } from '@isalwa/os-commercial';
 import { ImportCommandService, type OsImportStore } from '@isalwa/os-import';
 import { CommitmentCommandService, type OsCommitmentStore } from '@isalwa/os-commitment';
+import { IssueCommandService, type OsIssueStore } from '@isalwa/os-issue';
 import type { OsOutboxStorePort } from '@isalwa/os-events';
+import { IssueStoreAdapter } from './issue-store-adapter';
+import { CommitmentStoreAdapter } from './commitment-store-adapter';
 import { OutboxWorkerHost, OutboxRecoveryService } from '@isalwa/os-events';
 import {
   PartyProjectionConsumer,
@@ -70,6 +75,9 @@ export const OS_IMPORT_STORE = Symbol('OS_IMPORT_STORE');
 export const OS_IMPORT_COMMAND_SERVICE = Symbol('OS_IMPORT_COMMAND_SERVICE');
 export const OS_COMMITMENT_STORE = Symbol('OS_COMMITMENT_STORE');
 export const OS_COMMITMENT_COMMAND_SERVICE = Symbol('OS_COMMITMENT_COMMAND_SERVICE');
+export const OS_ISSUE_STORE = Symbol('OS_ISSUE_STORE');
+export const OS_ISSUE_COMMAND_SERVICE = Symbol('OS_ISSUE_COMMAND_SERVICE');
+export const OS_PRODUCT_FEEDBACK_STORE = Symbol('OS_PRODUCT_FEEDBACK_STORE');
 export const OS_PARTY_QUERY_SERVICE = Symbol('OS_PARTY_QUERY_SERVICE');
 export const OS_WORK_QUERY_SERVICE = Symbol('OS_WORK_QUERY_SERVICE');
 export const OS_APPROVAL_QUERY_SERVICE = Symbol('OS_APPROVAL_QUERY_SERVICE');
@@ -178,7 +186,7 @@ function createImportStore(): OsImportStore {
   throw new Error('Import lane requires Postgres store');
 }
 
-function createCommitmentStore(): OsCommitmentStore {
+function createCommitmentStore() {
   const prisma = getOsPrisma();
   if (prisma) {
     return new PrismaOsCommitmentStore(prisma);
@@ -187,6 +195,28 @@ function createCommitmentStore(): OsCommitmentStore {
     throw new Error('OS_DATABASE_URL required in production');
   }
   throw new Error('Commitment lane requires Postgres store');
+}
+
+function createIssueStore() {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaOsIssueStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Issue lane requires Postgres store');
+}
+
+function createProductFeedbackStore() {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaOsProductFeedbackStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Product feedback requires Postgres store');
 }
 
 function createMemberQueryStore(): MemberQueryStorePort {
@@ -209,6 +239,8 @@ function createMemberQueryStore(): MemberQueryStorePort {
     { provide: OS_COMMERCIAL_STORE, useFactory: createCommercialStore },
     { provide: OS_IMPORT_STORE, useFactory: createImportStore },
     { provide: OS_COMMITMENT_STORE, useFactory: createCommitmentStore },
+    { provide: OS_ISSUE_STORE, useFactory: createIssueStore },
+    { provide: OS_PRODUCT_FEEDBACK_STORE, useFactory: createProductFeedbackStore },
     { provide: OS_PROJECTION_STORE, useFactory: createProjectionStore },
     { provide: OS_OUTBOX_STORE, useFactory: createOutboxStore },
     {
@@ -254,8 +286,30 @@ function createMemberQueryStore(): MemberQueryStorePort {
     },
     {
       provide: OS_COMMITMENT_COMMAND_SERVICE,
-      useFactory: (store: OsCommitmentStore) => new CommitmentCommandService(store),
-      inject: [OS_COMMITMENT_STORE],
+      useFactory: (
+        prismaCommitmentStore: PrismaOsCommitmentStore,
+        workforceStore: OsWorkforceStore,
+        partyStore: OsPartyStore,
+      ) => {
+        const adapter = new CommitmentStoreAdapter(
+          prismaCommitmentStore,
+          workforceStore,
+          partyStore,
+        );
+        return new CommitmentCommandService(adapter);
+      },
+      inject: [OS_COMMITMENT_STORE, OS_STORE, OS_PARTY_STORE],
+    },
+    {
+      provide: OS_ISSUE_COMMAND_SERVICE,
+      useFactory: (
+        prismaIssueStore: PrismaOsIssueStore,
+        workforceStore: OsWorkforceStore,
+      ) => {
+        const adapter = new IssueStoreAdapter(prismaIssueStore, workforceStore);
+        return new IssueCommandService(adapter);
+      },
+      inject: [OS_ISSUE_STORE, OS_STORE],
     },
     {
       provide: OS_PARTY_QUERY_SERVICE,
@@ -425,6 +479,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_COMMERCIAL_COMMAND_SERVICE,
     OS_COMMITMENT_STORE,
     OS_COMMITMENT_COMMAND_SERVICE,
+    OS_ISSUE_STORE,
+    OS_ISSUE_COMMAND_SERVICE,
+    OS_PRODUCT_FEEDBACK_STORE,
     OS_PARTY_QUERY_SERVICE,
     OS_WORK_QUERY_SERVICE,
     OS_APPROVAL_QUERY_SERVICE,

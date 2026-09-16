@@ -52,6 +52,7 @@ describe('commercial-first primary nav', () => {
         'entregas',
         'coordinacion',
         'aprobaciones',
+        'incidencias',
         'administracion',
       ],
     );
@@ -73,6 +74,7 @@ describe('commercial-first primary nav', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'incidencias',
       'administracion',
     ]);
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
@@ -90,6 +92,7 @@ describe('commercial-first primary nav', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'incidencias',
     ]);
     assert.equal(
       filterNavByAccess(PRIMARY_NAV, { showAdmin: false }).some(

@@ -19,6 +19,8 @@ import type {
   OwnedQuoteRecord,
   PendingApprovalForMemberRecord,
   ActiveCustomerCoverageRecord,
+  OwnedIssueRecord,
+  OpenCommitmentRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -412,6 +414,60 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       }
     }
     return out;
+  }
+
+  async listActiveOwnedIssuesForMember(
+    organizationId: string,
+    memberId: string,
+  ): Promise<{ id: string; organizationId: string; ownerMemberId: string; title: string | null; status: string }[]> {
+    const rows = await this.db().osIssue.findMany({
+      where: {
+        organizationId,
+        currentOwnerMemberId: memberId,
+        status: { notIn: ['closed', 'resolved'] },
+      },
+      select: {
+        id: true,
+        organizationId: true,
+        currentOwnerMemberId: true,
+        title: true,
+        status: true,
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      organizationId: r.organizationId,
+      ownerMemberId: r.currentOwnerMemberId ?? memberId, // Should always exist due to where clause
+      title: r.title,
+      status: r.status,
+    }));
+  }
+
+  async listOpenCommitmentsForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<{ id: string; organizationId: string; ownerMemberId: string; text: string; lifecycle: string }[]> {
+    const rows = await this.db().osCommitment.findMany({
+      where: {
+        organizationId,
+        ownerMemberId: memberId,
+        lifecycle: 'open',
+      },
+      select: {
+        id: true,
+        organizationId: true,
+        ownerMemberId: true,
+        text: true,
+        lifecycle: true,
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      organizationId: r.organizationId,
+      ownerMemberId: r.ownerMemberId,
+      text: r.text,
+      lifecycle: r.lifecycle,
+    }));
   }
 
   async listDelegationsInvolvingMember(

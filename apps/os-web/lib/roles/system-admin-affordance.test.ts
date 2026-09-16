@@ -132,6 +132,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
       entregas: 'VISIBLE+ACTIVE',
       coordinacion: 'VISIBLE+ACTIVE',
       aprobaciones: 'VISIBLE+ACTIVE',
+      incidencias: 'VISIBLE+ACTIVE',
       administracion: 'HIDDEN',
     });
     assert.deepEqual(
@@ -156,6 +157,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'incidencias',
     ]);
   });
 });

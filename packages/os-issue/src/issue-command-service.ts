@@ -27,7 +27,7 @@ import {
   assertMemberActive,
   assertTenantMatch,
   computeEffectiveScopes,
-  memberHasScope,
+  memberHasGrantedScope,
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import {
@@ -88,14 +88,14 @@ export class IssueCommandService {
     if (!snap) throw new Error('AUTH_REQUIRED');
     assertMemberActive(snap);
     const required = COMMAND_REQUIRED_SCOPES[command];
-    if (required && required !== 'member_active' && !memberHasScope(snap, required)) {
+    if (required && required !== 'member_active' && !memberHasGrantedScope(snap, required)) {
       throw new Error('PERMISSION_DENIED');
     }
     return snap;
   }
 
   private hasIssueManageScope(snap: MemberAccessSnapshot): boolean {
-    return memberHasScope(snap, ISSUE_MANAGE_SCOPE);
+    return memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
   }
 
   async execute(

@@ -159,3 +159,21 @@ export type IdempotencyRecord = {
   resultJson: Record<string, unknown>;
   expiresAt: Date;
 };
+
+/** Issue owned by a member that is not closed/resolved. */
+export type OwnedIssueRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  title: string | null;
+  status: string;
+};
+
+/** Open commitment owned by a member (lifecycle = open). */
+export type OpenCommitmentRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  text: string;
+  lifecycle: string;
+};

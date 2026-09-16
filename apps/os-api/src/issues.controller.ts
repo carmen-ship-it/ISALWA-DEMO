@@ -1,0 +1,318 @@
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Param,
+  Query,
+  Req,
+} from '@nestjs/common';
+import type { Request } from 'express';
+import type { OsWorkforceStore } from '@isalwa/os-workforce';
+import type { OsIssueStore, IssueRecord, IssueJournalEntryRecord } from '@isalwa/os-database';
+import type { IssueStatus } from '@isalwa/os-contracts';
+import {
+  computeEffectiveScopes,
+  memberHasGrantedScope,
+  assertMemberActive,
+  type MemberAccessSnapshot,
+} from '@isalwa/os-domain';
+import { ISSUE_MANAGE_SCOPE } from '@isalwa/os-contracts';
+import { resolveSession } from './os-session';
+import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
+
+type IssueSummary = {
+  id: string;
+  organizationId: string;
+  title: string | null;
+  description: string;
+  status: IssueStatus;
+  reportedByMemberId: string;
+  ownerMemberId: string | null;
+  reportedAt: string;
+  resolvedAt: string | null;
+  version: number;
+};
+
+function toSummary(record: IssueRecord): IssueSummary {
+  return {
+    id: record.id,
+    organizationId: record.organizationId,
+    title: record.title,
+    description: record.description,
+    status: record.status as IssueStatus,
+    reportedByMemberId: record.reportedByMemberId,
+    ownerMemberId: record.currentOwnerMemberId,
+    reportedAt: record.reportedAt.toISOString(),
+    resolvedAt: record.resolvedAt?.toISOString() ?? null,
+    version: record.version,
+  };
+}
+
+type IssueView = 'open' | 'assigned_to_me' | 'reported_by_me' | 'resolved' | 'all';
+
+@Controller('v1/issues')
+export class IssuesController {
+  constructor(
+    @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
+    @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
+  ) {}
+
+  private async getAccessSnapshot(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<MemberAccessSnapshot | null> {
+    const member = await this.workforceStore.getMemberInOrg(organizationId, memberId);
+    if (!member) return null;
+    const roles = await this.workforceStore.listRoleAssignmentsForMember(memberId, organizationId);
+    const delegations = await this.workforceStore.listDelegationsForDelegate(memberId, organizationId);
+    return {
+      memberId: member.id,
+      organizationId: member.organizationId,
+      accessStatus: member.accessStatus,
+      roleKeys: computeEffectiveScopes(
+        roles.map((r) => ({ roleKey: r.roleKey, effectiveAt: r.effectiveAt, endedAt: r.endedAt })),
+        delegations.map((d) => ({
+          scopes: d.scopes,
+          startsAt: d.startsAt,
+          expiresAt: d.expiresAt,
+          revokedAt: d.revokedAt,
+          delegatorMemberId: d.delegatorMemberId,
+        })),
+        asOf,
+      ),
+      delegatedScopes: [],
+    };
+  }
+
+  private canReadIssue(
+    snap: MemberAccessSnapshot,
+    issue: IssueRecord,
+  ): boolean {
+    // Reporter always can read
+    if (issue.reportedByMemberId === snap.memberId) return true;
+    // Owner always can read
+    if (issue.currentOwnerMemberId === snap.memberId) return true;
+    // issue.manage scope can read all
+    if (memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE)) return true;
+    return false;
+  }
+
+  @Get()
+  async listIssues(
+    @Req() req: Request,
+    @Query('view') view: IssueView = 'open',
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ): Promise<{ items: IssueSummary[]; total: number }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const snap = await this.getAccessSnapshot(
+        session.organizationId,
+        session.actorMemberId,
+        session.effectiveAt,
+      );
+      if (!snap) throw new Error('AUTH_REQUIRED');
+      assertMemberActive(snap);
+
+      let records: IssueRecord[] = [];
+      const hasManageScope = memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
+
+      switch (view) {
+        case 'assigned_to_me':
+          records = await this.issueStore.listIssuesByOwner(
+            session.organizationId,
+            session.actorMemberId,
+          );
+          break;
+        case 'reported_by_me':
+          records = await this.issueStore.listIssuesByReporter(
+            session.organizationId,
+            session.actorMemberId,
+          );
+          break;
+        case 'resolved':
+          if (!hasManageScope) {
+            // Non-managers only see their own resolved issues
+            const owned = await this.issueStore.listIssuesByOwner(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const reported = await this.issueStore.listIssuesByReporter(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const combined = new Map<string, IssueRecord>();
+            [...owned, ...reported].forEach((i) => combined.set(i.id, i));
+            records = Array.from(combined.values()).filter((i) => i.status === 'resolved');
+          } else {
+            records = await this.issueStore.listIssuesByStatus(session.organizationId, 'resolved');
+          }
+          break;
+        case 'all':
+          if (!hasManageScope) {
+            // Non-managers see only their own issues
+            const owned = await this.issueStore.listIssuesByOwner(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const reported = await this.issueStore.listIssuesByReporter(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const combined = new Map<string, IssueRecord>();
+            [...owned, ...reported].forEach((i) => combined.set(i.id, i));
+            records = Array.from(combined.values());
+          } else {
+            // Managers see all statuses
+            const statuses = ['reported', 'triaged', 'in_progress', 'resolved', 'closed', 'reopened'];
+            const allRecords: IssueRecord[] = [];
+            for (const s of statuses) {
+              const batch = await this.issueStore.listIssuesByStatus(session.organizationId, s);
+              allRecords.push(...batch);
+            }
+            records = allRecords;
+          }
+          break;
+        case 'open':
+        default:
+          // Open issues
+          if (!hasManageScope) {
+            // Non-managers see only their assigned or reported open issues
+            const owned = await this.issueStore.listIssuesByOwner(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const reported = await this.issueStore.listIssuesByReporter(
+              session.organizationId,
+              session.actorMemberId,
+            );
+            const combined = new Map<string, IssueRecord>();
+            [...owned, ...reported].forEach((i) => combined.set(i.id, i));
+            records = Array.from(combined.values()).filter(
+              (i) => i.status !== 'resolved' && i.status !== 'closed',
+            );
+          } else {
+            const statuses = ['reported', 'triaged', 'in_progress', 'reopened'];
+            const openRecords: IssueRecord[] = [];
+            for (const s of statuses) {
+              const batch = await this.issueStore.listIssuesByStatus(session.organizationId, s);
+              openRecords.push(...batch);
+            }
+            records = openRecords;
+          }
+          break;
+      }
+
+      // Sort by reportedAt desc
+      records.sort((a, b) => b.reportedAt.getTime() - a.reportedAt.getTime());
+
+      const total = records.length;
+      const offsetNum = offset ? parseInt(offset, 10) : 0;
+      const limitNum = limit ? parseInt(limit, 10) : 50;
+      const paginated = records.slice(offsetNum, offsetNum + limitNum);
+
+      return { items: paginated.map(toSummary), total };
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  @Get(':issueId')
+  async getIssue(
+    @Param('issueId') issueId: string,
+    @Req() req: Request,
+  ): Promise<IssueSummary> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const snap = await this.getAccessSnapshot(
+        session.organizationId,
+        session.actorMemberId,
+        session.effectiveAt,
+      );
+      if (!snap) throw new Error('AUTH_REQUIRED');
+      assertMemberActive(snap);
+
+      const issue = await this.issueStore.getIssueInOrg(session.organizationId, issueId);
+      if (!issue) throw new Error('NOT_FOUND');
+
+      if (!this.canReadIssue(snap, issue)) {
+        throw new Error('NOT_FOUND'); // Return 404 for unauthorized reads (don't leak existence)
+      }
+
+      return toSummary(issue);
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  @Get(':issueId/precedents')
+  async getIssuePrecedents(
+    @Param('issueId') issueId: string,
+    @Req() req: Request,
+  ): Promise<{ items: IssueSummary[] }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const snap = await this.getAccessSnapshot(
+        session.organizationId,
+        session.actorMemberId,
+        session.effectiveAt,
+      );
+      if (!snap) throw new Error('AUTH_REQUIRED');
+      assertMemberActive(snap);
+
+      const issue = await this.issueStore.getIssueInOrg(session.organizationId, issueId);
+      if (!issue) throw new Error('NOT_FOUND');
+
+      if (!this.canReadIssue(snap, issue)) {
+        throw new Error('NOT_FOUND');
+      }
+
+      // Get related issues (antecedentes)
+      const fromRelations = await this.issueStore.listRelationsFromIssue(
+        session.organizationId,
+        issueId,
+      );
+      const toRelations = await this.issueStore.listRelationsToIssue(
+        session.organizationId,
+        issueId,
+      );
+
+      // Collect related issue IDs
+      const relatedIds = new Set<string>();
+      fromRelations.forEach((r) => relatedIds.add(r.toIssueId));
+      toRelations.forEach((r) => relatedIds.add(r.fromIssueId));
+
+      // Fetch related issues and filter by read permission
+      const relatedIssues: IssueRecord[] = [];
+      for (const relatedId of relatedIds) {
+        const related = await this.issueStore.getIssueInOrg(session.organizationId, relatedId);
+        if (related && this.canReadIssue(snap, related)) {
+          relatedIssues.push(related);
+        }
+      }
+
+      return { items: relatedIssues.map(toSummary) };
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  private toHttp(err: unknown): HttpException {
+    if (err instanceof HttpException) return err;
+    const code = err instanceof Error ? err.message : 'INTERNAL_ERROR';
+    const status =
+      code === 'AUTH_REQUIRED'
+        ? HttpStatus.UNAUTHORIZED
+        : code === 'TENANT_FORBIDDEN' || code === 'PERMISSION_DENIED' || code === 'ACCESS_REVOKED'
+          ? HttpStatus.FORBIDDEN
+          : code === 'NOT_FOUND'
+            ? HttpStatus.NOT_FOUND
+            : code === 'VALIDATION_FAILED'
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.INTERNAL_SERVER_ERROR;
+    return new HttpException({ code }, status);
+  }
+}

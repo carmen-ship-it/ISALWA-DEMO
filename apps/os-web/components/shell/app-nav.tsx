@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  AlertCircle,
   Briefcase,
   CheckCircle2,
   FileText,
@@ -42,6 +43,7 @@ const ICONS = {
   wallet: Wallet,
   message: MessageSquare,
   map: MapPin,
+  alertCircle: AlertCircle,
 } as const;
 
 type AppNavProps = {

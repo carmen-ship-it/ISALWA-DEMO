@@ -70,8 +70,8 @@ describe('IssueCommandService', () => {
 
       const refs = await store.listIssueReferences(ORG, result.data.issueId as string);
       assert.equal(refs.length, 1);
-      assert.equal(refs[0].referenceType, 'order');
-      assert.equal(refs[0].referenceId, 'order-123');
+      assert.equal(refs[0]!.referenceType, 'order');
+      assert.equal(refs[0]!.referenceId, 'order-123');
     });
 
     it('emits issue.reported event', async () => {
@@ -80,7 +80,7 @@ describe('IssueCommandService', () => {
       });
 
       assert.equal(store.events.length, 1);
-      assert.equal(store.events[0].eventType, 'issue.reported');
+      assert.equal(store.events[0]!.eventType, 'issue.reported');
     });
   });
 
@@ -223,8 +223,8 @@ describe('IssueCommandService', () => {
 
       const entries = await store.listJournalEntries(ORG, reported.data.issueId as string);
       assert.equal(entries.length, 1);
-      assert.equal(entries[0].entryType, 'observation');
-      assert.equal(entries[0].content, 'Noticed the widget fails on Tuesdays');
+      assert.equal(entries[0]!.entryType, 'observation');
+      assert.equal(entries[0]!.content, 'Noticed the widget fails on Tuesdays');
     });
   });
 
@@ -269,7 +269,7 @@ describe('IssueCommandService', () => {
 
       const links = await store.listWorkLinks(ORG, reported.data.issueId as string);
       assert.equal(links.length, 1);
-      assert.equal(links[0].workItemId, 'work-123');
+      assert.equal(links[0]!.workItemId, 'work-123');
     });
 
     it('rejects non-existent work item', async () => {
@@ -409,8 +409,8 @@ describe('IssueCommandService', () => {
 
       const relations = await store.listIssueRelations(ORG, issue1.data.issueId as string);
       assert.equal(relations.length, 1);
-      assert.equal(relations[0].relatedIssueId, issue2.data.issueId);
-      assert.equal(relations[0].relationType, 'related');
+      assert.equal(relations[0]!.relatedIssueId, issue2.data.issueId);
+      assert.equal(relations[0]!.relationType, 'related');
     });
   });
 
