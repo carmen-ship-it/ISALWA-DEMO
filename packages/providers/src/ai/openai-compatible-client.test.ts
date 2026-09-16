@@ -49,7 +49,7 @@ describe('OpenAI-compatible chat request body', () => {
   it('chatViaOpenAICompatible posts max_completion_tokens for luna', async () => {
     const originalFetch = globalThis.fetch;
     let captured: { url?: string; body?: Record<string, unknown> } = {};
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    globalThis.fetch = (async (input, init) => {
       captured = {
         url: String(input),
         body: JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>,
@@ -84,7 +84,7 @@ describe('OpenAI-compatible chat request body', () => {
   it('chatViaOpenAICompatible posts max_tokens for gpt-4o-mini', async () => {
     const originalFetch = globalThis.fetch;
     let capturedBody: Record<string, unknown> = {};
-    globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    globalThis.fetch = (async (_input, init) => {
       capturedBody = JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>;
       return new Response(
         JSON.stringify({
