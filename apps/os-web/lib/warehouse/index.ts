@@ -23,3 +23,7 @@ export { WarehouseAllocationDesk } from './desk';
 export type { WarehouseActorSession, WarehouseDenial, WarehouseFacts } from './desk';
 export { resolveWarehousePageAccess } from './page-access';
 export type { WarehousePageAccess } from './page-access';
+export {
+  loadWarehousePedidosFromOrders,
+  mapOrderDetailToWarehousePedidos,
+} from './load-pedidos';

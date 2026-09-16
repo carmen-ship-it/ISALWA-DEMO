@@ -352,6 +352,20 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<OrderListResponse>('/orders', { method: 'GET', query }),
     getOrder: (orderId: string) =>
       request<OrderDetailResponse>(`/orders/${encodeURIComponent(orderId)}`),
+    listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
+      request<{
+        sourceState: string;
+        code: string | null;
+        count: number;
+        items: unknown[];
+      }>('/fulfillment/warehouse-exits', { method: 'GET', query }),
+    listDeliveries: (query?: Record<string, string | number | boolean>) =>
+      request<{
+        sourceState: string;
+        code: string | null;
+        count: number;
+        items: unknown[];
+      }>('/fulfillment/deliveries', { method: 'GET', query }),
     listPartyTimeline: (partyId: string, query?: Record<string, string | number | boolean>) =>
       request<PartyTimelineResponse>(
         `/parties/${encodeURIComponent(partyId)}/timeline`,

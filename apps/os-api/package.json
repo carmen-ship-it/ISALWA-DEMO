@@ -23,6 +23,7 @@
     "@isalwa/os-import": "workspace:*",
     "@isalwa/os-commitment": "workspace:*",
     "@isalwa/os-issue": "workspace:*",
+    "@isalwa/os-read-fulfillment": "workspace:*",
     "@isalwa/os-workforce": "workspace:*",
     "@isalwa/providers": "workspace:*",
     "@isalwa/ts-utils": "workspace:*",

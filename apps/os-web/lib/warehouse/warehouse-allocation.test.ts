@@ -563,6 +563,8 @@ describe('warehouse surface copy', () => {
     assert.equal(loading.includes('WAREHOUSE_TASK_COPY.loading'), true);
     assert.equal(error.includes('data-warehouse-status="error"'), true);
     assert.equal(page.includes('resolveWarehousePageAccess'), true);
+    assert.equal(page.includes('loadWarehousePedidosFromOrders'), true);
+    assert.equal(page.includes('pedidos: []'), false);
     assert.equal(page.includes('schema.prisma'), false);
   });
 });

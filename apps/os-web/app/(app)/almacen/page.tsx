@@ -1,7 +1,10 @@
 import { PageContainer, StatusPill } from '@isalwa/ui';
 import { WarehouseDesk } from '@/components/warehouse/warehouse-desk';
 import { PageHeader } from '@/components/shell/page-header';
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { loadWarehousePedidosFromOrders } from '@/lib/warehouse/load-pedidos';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
@@ -41,6 +44,15 @@ async function loadAlmacenAccess() {
     if (!context) {
       return resolveWarehousePageAccess({ session: null, grantedScopes: null });
     }
+
+    // Pedido facts come from tenant OsOrder/OsOrderLine via existing commercial reads.
+    // Empty is honest when there are no open orders or lines were never recorded.
+    let pedidos: Awaited<ReturnType<typeof loadWarehousePedidosFromOrders>> = [];
+    const auth = await getServerOsAuthContext();
+    if (auth) {
+      pedidos = await loadWarehousePedidosFromOrders(createOsApiClient(auth));
+    }
+
     return resolveWarehousePageAccess({
       session: {
         organizationId: context.organizationId,
@@ -50,7 +62,7 @@ async function loadAlmacenAccess() {
         grantedScopes: context.grantedScopes,
       },
       grantedScopes: context.grantedScopes,
-      facts: { receipts: null, pedidos: [] },
+      facts: { receipts: null, pedidos },
     });
   } catch {
     return { status: 'error' as const };

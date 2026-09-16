@@ -21,6 +21,7 @@ import { MemoryController } from './memory.controller';
 import { AiController } from './ai.controller';
 import { AuditController } from './audit.controller';
 import { QaController } from './qa.controller';
+import { FulfillmentController } from './fulfillment.controller';
 import { OsStoreModule } from './os-store.module';
 import { isDevBootstrapEnabled } from './env-validation';
 
@@ -51,6 +52,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     MemoryController,
     AiController,
     AuditController,
+    FulfillmentController,
     QaController,
     ...devControllers,
   ],

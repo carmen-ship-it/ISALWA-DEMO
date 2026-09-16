@@ -185,6 +185,9 @@ importers:
       '@isalwa/os-query':
         specifier: workspace:*
         version: link:../../packages/os-query
+      '@isalwa/os-read-fulfillment':
+        specifier: workspace:*
+        version: link:../../packages/os-read-fulfillment
       '@isalwa/os-request-session':
         specifier: workspace:*
         version: link:../../packages/os-request-session
