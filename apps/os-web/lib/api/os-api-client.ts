@@ -376,6 +376,78 @@ export function createOsApiClient(auth: OsAuthContext) {
         count: number;
         items: unknown[];
       }>('/fulfillment/deliveries', { method: 'GET', query }),
+    listDeliveryOperationalOrders: () =>
+      request<{
+        items: Array<{
+          orderId: string;
+          orderNumber: string;
+          partyId: string;
+          customerName: string;
+          status: string;
+          lines: Array<{
+            orderLineId: string;
+            description: string;
+            quantity: number;
+            unitLabel: string | null;
+            productRef: string | null;
+          }>;
+        }>;
+      }>('/delivery-ops/orders', { method: 'GET' }),
+    getDeliveryOperationalDocuments: (orderId: string) =>
+      request<{
+        notes: Array<{
+          id: string;
+          internalDocumentRef: string;
+          status: 'issued' | 'reversed';
+          recipient: string;
+          deliveredBy: string;
+          receivedBy: string | null;
+          observations: string | null;
+          bornAt: string;
+          lines: Array<{
+            orderLineId: string;
+            description: string;
+            quantity: number;
+            unitLabel: string | null;
+            productRef: string | null;
+          }>;
+        }>;
+        timeline: Array<{
+          id: string;
+          eventType: string;
+          occurredAt: string;
+          label: string;
+          detail: string;
+        }>;
+      }>(`/delivery-ops/orders/${encodeURIComponent(orderId)}/documents`, { method: 'GET' }),
+    listDeliveryNotesForOrder: (orderId: string) =>
+      request<{
+        notes: Array<{
+          id: string;
+          internalDocumentRef?: string;
+          status: 'issued' | 'reversed';
+          recipient: string;
+          deliveredBy: string;
+          receivedBy: string | null;
+          observations: string | null;
+          bornAt: string;
+          lines: Array<{
+            orderLineId?: string;
+            description: string;
+            quantity: number;
+            unitLabel: string | null;
+            productRef?: string | null;
+          }>;
+        }>;
+        timeline: Array<{
+          id: string;
+          eventType: string;
+          occurredAt: string;
+          label?: string;
+          detail?: string;
+          payload?: Record<string, unknown>;
+        }>;
+      }>('/delivery-notes', { method: 'GET', query: { orderId } }),
     listPartyTimeline: (partyId: string, query?: Record<string, string | number | boolean>) =>
       request<PartyTimelineResponse>(
         `/parties/${encodeURIComponent(partyId)}/timeline`,

@@ -93,6 +93,11 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       order.status === 'open' &&
       Boolean(actorMemberId) &&
       (canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes));
+    const canCreateNote = order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(scopes);
+    const canRecordSalida =
+      order.status === 'open' && Boolean(actorMemberId) && canRecordWarehouseOutbound(scopes);
+    const canRecordEntrega =
+      order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(scopes);
     const operating = buildPedidoOperatingView({
       order: {
         organizationId: order.organizationId,
@@ -323,6 +328,9 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           notes={deliveryNotes}
           timeline={deliveryTimeline}
           canMutate={canMutateDelivery}
+          canCreateNote={canCreateNote}
+          canRecordSalida={canRecordSalida}
+          canRecordEntrega={canRecordEntrega}
         />
 
         {order.status === 'open' || approvals.length > 0 ? (

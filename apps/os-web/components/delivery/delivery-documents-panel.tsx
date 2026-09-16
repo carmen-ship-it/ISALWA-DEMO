@@ -48,6 +48,10 @@ export type DeliveryDocumentsPanelProps = {
   notes: DeliveryNoteView[];
   timeline: DeliveryTimelineItemView[];
   canMutate: boolean;
+  /** Defaults to canMutate when omitted. */
+  canCreateNote?: boolean;
+  canRecordSalida?: boolean;
+  canRecordEntrega?: boolean;
 };
 
 function formatWhen(iso: string): string {
@@ -64,7 +68,14 @@ export function DeliveryDocumentsPanel({
   notes,
   timeline,
   canMutate,
+  canCreateNote,
+  canRecordSalida,
+  canRecordEntrega,
 }: DeliveryDocumentsPanelProps) {
+  const allowNote = canCreateNote ?? canMutate;
+  const allowSalida = canRecordSalida ?? canMutate;
+  const allowEntrega = canRecordEntrega ?? canMutate;
+  const allowAnyWrite = allowNote || allowSalida || allowEntrega;
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
@@ -145,7 +156,7 @@ export function DeliveryDocumentsPanel({
                     }))
                   }
                   className="w-20 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-2 py-1"
-                  disabled={!canMutate || pending}
+                  disabled={!allowAnyWrite || pending}
                 />
                 <span>de {line.quantity}{line.unitLabel ? ` ${line.unitLabel}` : ''}</span>
               </label>
@@ -154,7 +165,7 @@ export function DeliveryDocumentsPanel({
         </ul>
       )}
 
-      {canMutate && actorMemberId ? (
+      {allowNote && actorMemberId ? (
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <label className="text-sm text-[var(--isalwa-slate)]">
             Destinatario
@@ -194,90 +205,100 @@ export function DeliveryDocumentsPanel({
       ) : null}
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Button
-          type="button"
-          disabled={!canMutate || pending || !actorMemberId}
-          onClick={() =>
-            run(() =>
-              createNotaDeEntregaAction({
-                partyId,
-                orderId,
-                recipient,
-                deliveredBy,
-                observations: observations || null,
-                quantities: quantityPayload,
-              }),
-            )
-          }
-        >
-          {ENTREGA_PANEL_COPY.createNota}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={!canMutate || pending || !actorMemberId}
-          onClick={() =>
-            run(() =>
-              recordSalidaAction({
-                partyId,
-                orderId,
-                deliveryNoteId: selectedNoteId || null,
-                quantities: quantityPayload,
-                notes: observations || null,
-              }),
-            )
-          }
-        >
-          {ENTREGA_PANEL_COPY.recordSalida}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={!canMutate || pending || !actorMemberId || !receivedBy.trim()}
-          onClick={() =>
-            run(() =>
-              recordEntregaAction({
-                partyId,
-                orderId,
-                receivedBy,
-                deliveryNoteId: selectedNoteId || null,
-                quantities: quantityPayload,
-                notes: observations || null,
-              }),
-            )
-          }
-        >
-          {ENTREGA_PANEL_COPY.recordEntrega}
-        </Button>
+        {allowNote ? (
+          <Button
+            type="button"
+            disabled={!allowNote || pending || !actorMemberId}
+            onClick={() =>
+              run(() =>
+                createNotaDeEntregaAction({
+                  partyId,
+                  orderId,
+                  recipient,
+                  deliveredBy,
+                  observations: observations || null,
+                  quantities: quantityPayload,
+                }),
+              )
+            }
+          >
+            {ENTREGA_PANEL_COPY.createNota}
+          </Button>
+        ) : null}
+        {allowSalida ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={!allowSalida || pending || !actorMemberId}
+            onClick={() =>
+              run(() =>
+                recordSalidaAction({
+                  partyId,
+                  orderId,
+                  deliveryNoteId: selectedNoteId || null,
+                  quantities: quantityPayload,
+                  notes: observations || null,
+                }),
+              )
+            }
+          >
+            {ENTREGA_PANEL_COPY.recordSalida}
+          </Button>
+        ) : null}
+        {allowEntrega ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={!allowEntrega || pending || !actorMemberId || !receivedBy.trim()}
+            onClick={() =>
+              run(() =>
+                recordEntregaAction({
+                  partyId,
+                  orderId,
+                  receivedBy,
+                  deliveryNoteId: selectedNoteId || null,
+                  quantities: quantityPayload,
+                  notes: observations || null,
+                }),
+              )
+            }
+          >
+            {ENTREGA_PANEL_COPY.recordEntrega}
+          </Button>
+        ) : null}
       </div>
 
-      {issuedNotes.length > 0 ? (
+      {allowEntrega || issuedNotes.length > 0 ? (
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <label className="text-sm text-[var(--isalwa-slate)]">
-            Nota vinculada (opcional)
-            <select
-              value={selectedNoteId}
-              onChange={(e) => setSelectedNoteId(e.target.value)}
-              className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
-              disabled={pending}
-            >
-              <option value="">Sin nota</option>
-              {issuedNotes.map((note) => (
-                <option key={note.id} value={note.id}>
-                  {note.internalDocumentRef}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm text-[var(--isalwa-slate)]">
-            Recibido por (para registrar entrega)
-            <input
-              value={receivedBy}
-              onChange={(e) => setReceivedBy(e.target.value)}
-              className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
-              disabled={pending}
-            />
-          </label>
+          {issuedNotes.length > 0 ? (
+            <label className="text-sm text-[var(--isalwa-slate)]">
+              Nota vinculada (opcional)
+              <select
+                value={selectedNoteId}
+                onChange={(e) => setSelectedNoteId(e.target.value)}
+                className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
+                disabled={pending}
+              >
+                <option value="">Sin nota</option>
+                {issuedNotes.map((note) => (
+                  <option key={note.id} value={note.id}>
+                    {note.internalDocumentRef}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {allowEntrega ? (
+            <label className="text-sm text-[var(--isalwa-slate)]">
+              Recibido por (para registrar entrega)
+              <input
+                value={receivedBy}
+                onChange={(e) => setReceivedBy(e.target.value)}
+                className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
+                disabled={pending}
+              />
+            </label>
+          ) : null}
         </div>
       ) : null}
 

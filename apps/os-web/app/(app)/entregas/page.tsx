@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-operational-write-desk';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
 import {
   OWNER_REVIEW_V1_COPY,
@@ -9,10 +10,14 @@ import { PageHeader } from '@/components/shell/page-header';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
-import { orderHref } from '@/lib/commercial/navigation';
 import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
 
-export default async function EntregasPage() {
+export default async function EntregasPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ orderId?: string }>;
+}) {
+  const params = searchParams ? await searchParams : undefined;
   const view = await loadEntregaPage();
   const panelStatus =
     view.status === 'ready' || view.status === 'empty' ? 'ready' : view.status;
@@ -47,6 +52,7 @@ export default async function EntregasPage() {
           <EventWorkOfferPanel offer={deliveryOffer} />
         </div>
       ) : null}
+      <EntregaOperationalWriteDesk selectedOrderId={params?.orderId ?? null} />
       <LinkedOrdersSection orders={view.linkedOrders} />
       <EntregaPanel
         status={panelStatus}
@@ -85,13 +91,13 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
             <ListRow key={order.orderId} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                <p className="mt-1 font-mono text-xs text-[var(--isalwa-slate)]">{order.orderId}</p>
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Pedido abierto</p>
               </div>
               <Link
-                href={orderHref(order.partyId, order.orderId)}
+                href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
                 className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
               >
-                Abrir pedido
+                Registrar en Entregas
               </Link>
             </ListRow>
           ))}

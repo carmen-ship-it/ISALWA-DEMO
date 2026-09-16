@@ -32,6 +32,7 @@ async function runDeliveryCommand(
   try {
     await client.post(`/commands/${commandName}`, payload, createId());
     revalidatePath(orderHref(partyId, orderId));
+    revalidatePath('/entregas');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
