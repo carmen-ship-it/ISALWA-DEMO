@@ -192,4 +192,5 @@ Redeploy tip `f58ac12` (lane B) — deploy gate blocked in this agent session af
 | [Lane B dossier](85feddac-e740-4ff0-b319-31d56cd98e3d) | Already merged earlier |
 | [Lane D Work Attention](4b59c147-f810-4e22-a1ab-80ce6a578ebf) | **Merged** into tip |
 | [Lane B Pedido timeline+docs](18db1f43-1622-4f85-9959-1e1009af8c0b) | **Integrated** (libs + Pedido dossier/timeline projection; kept CT Entregas panel) |
+| [Hosted BV after entregas ops desk](1caa15de-a7e0-4215-98df-c988d511d9a2) @ `095bb7f` | **Independent verifier PASS** — corroborates CT BV; note `NE-PILOT-01M2P6A78QJM86A28KA8D690HJ`; FG receive still UNPROVEN |
 

@@ -1,0 +1,90 @@
+{
+  "at": "2026-09-16T22:45:00.000Z",
+  "role": "VERIFIER",
+  "expectedSha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "realOrg": "01M2DV9F0V5DXS4G89AKF4D5SR",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaProof": {
+    "expected": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+    "web": {
+      "service": "srv-dajddb67bikc73bl42q0",
+      "dep": "dep-dalhglu1egvs73ekihhg",
+      "status": "live",
+      "sha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+      "finishedAt": "2026-09-16T22:32:54.539366Z"
+    },
+    "api": {
+      "service": "srv-dajd64gae00c739gpk20",
+      "dep": "dep-dalhgm65vjqs73fe2j7g",
+      "status": "live",
+      "sha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+      "finishedAt": "2026-09-16T22:31:44.80611Z"
+    },
+    "sameSha": true,
+    "surfaceEvidence": "data-entrega-ops-desk='1' on hosted /entregas"
+  },
+  "healthCheck": {
+    "health": {"status": "ok", "service": "os-api", "check": "liveness"},
+    "ready": {"status": "ready", "authMode": "supabase", "devBootstrapEnabled": false}
+  },
+  "deliveryRecordGrant": {
+    "applied": true,
+    "target": "w2.coordinacion@isalwa.demo",
+    "scope": "delivery.record",
+    "migrationCountUpdated": "31→33"
+  },
+  "walk": {
+    "A_asesor": {
+      "persona": "w2.asesor@isalwa.demo",
+      "pedidoAccessed": "O-000001",
+      "deliveryPanelVisible": true,
+      "crearNotaVisible": false,
+      "result": "PASS - scope-gated (no delivery.record)"
+    },
+    "B_coordinacion": {
+      "persona": "w2.coordinacion@isalwa.demo",
+      "entregasDeskVisible": true,
+      "crearNotaEnabled": true,
+      "deliveryNoteCreated": "NE-PILOT-01M2P6A78QJM86A28KA8D690HJ",
+      "notePersisted": true,
+      "pdfAvailable": true,
+      "entregaRegistered": "timeline confirmed",
+      "result": "PASS - full delivery write"
+    },
+    "C_almacen": {
+      "persona": "w2.almacen@isalwa.demo",
+      "entregasDeskVisible": true,
+      "crearNotaEnabled": false,
+      "salidaAvailable": "timeline confirmed",
+      "commercialPedidoDenied": true,
+      "denialMessage": "Sin permiso para esta sección - Esta vista está bloqueada para su cuenta",
+      "result": "PASS - outbound only, commercial-read blocked"
+    },
+    "D_contabilidad": {
+      "persona": "w2.contabilidad@isalwa.demo",
+      "entregasDeskVisible": "permission denied",
+      "deliveryWriteControls": false,
+      "warehouseControls": false,
+      "mutationPossible": false,
+      "result": "PASS - finance-only, no ops access"
+    }
+  },
+  "score": {
+    "SAME_SHA": "PASS",
+    "ENTREGAS_OPS_DESK": "BROWSER_VERIFIED",
+    "DELIVERY_NOTE_CREATE": "BROWSER_VERIFIED",
+    "SALIDA": "BROWSER_VERIFIED",
+    "ENTREGA": "BROWSER_VERIFIED",
+    "DELIVERY_NOTE_PDF": "BROWSER_VERIFIED",
+    "FINISHED_GOODS_RECEIVE": "UNPROVEN",
+    "NO_COMMERCIAL_SHORTCUT": "PASS",
+    "CONTAB_DENIED": "PASS",
+    "REAL_SEVEN_UNMUTATED": "PASS"
+  },
+  "residuals": [
+    "FINISHED_GOODS_RECEIVE not re-walked in this pass (UI visible, permission message shown)"
+  ]
+}
