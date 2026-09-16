@@ -28,6 +28,8 @@ const FOREIGN_SECRET = 'cliente-org-b-secreto';
 type OrderRow = {
   id: string;
   organizationId: string;
+  partyId: string;
+  orderNumber: string;
   status: string;
   lines: Array<{
     id: string;
@@ -83,6 +85,8 @@ function fakePrisma(seed?: {
     {
       id: 'order-a',
       organizationId: 'org-a',
+      partyId: 'party-a',
+      orderNumber: 'PED-A',
       status: 'open',
       lines: [
         {
@@ -97,6 +101,8 @@ function fakePrisma(seed?: {
     {
       id: 'order-b',
       organizationId: 'org-b',
+      partyId: 'party-b',
+      orderNumber: 'PED-B',
       status: 'open',
       lines: [
         {
@@ -213,6 +219,7 @@ function fakePrisma(seed?: {
           id: String(data.id),
           organizationId: String(data.organizationId),
           orderId: String(data.orderId),
+          deliveryNoteId: (data.deliveryNoteId as string | null) ?? null,
           deliveredAt: asIso(data.deliveredAt),
           deliveredTo: (data.deliveredTo as string | null) ?? null,
           recordedByMemberId: String(data.recordedByMemberId),
@@ -237,7 +244,7 @@ function fakePrisma(seed?: {
         return row
           ? {
               ...row,
-              deliveredAt: new Date(row.deliveredAt),
+              deliveredAt: row.deliveredAt ? new Date(row.deliveredAt) : null,
               bornAt: new Date(row.bornAt),
               createdAt: new Date(row.createdAt),
             }
@@ -251,23 +258,45 @@ function fakePrisma(seed?: {
           )
           .map((row) => ({
             ...row,
-            deliveredAt: new Date(row.deliveredAt),
+            deliveredAt: row.deliveredAt ? new Date(row.deliveredAt) : null,
             bornAt: new Date(row.bornAt),
             createdAt: new Date(row.createdAt),
           }));
+      },
+      async update(args) {
+        const where = args.where as { id: string; organizationId?: string };
+        const data = args.data as Record<string, unknown>;
+        const idx = notes.findIndex((n) => n.id === where.id);
+        if (idx < 0) throw new Error('NOT_FOUND');
+        notes[idx] = { ...notes[idx], ...(data as Partial<DeliveryNoteRecord>) } as DeliveryNoteRecord;
+        if (data.deliveredAt) notes[idx].deliveredAt = asIso(data.deliveredAt);
+        return { ...notes[idx], deliveredAt: notes[idx].deliveredAt ? new Date(notes[idx].deliveredAt) : null, bornAt: new Date(notes[idx].bornAt), createdAt: new Date(notes[idx].createdAt) };
       },
       async create(args) {
         const data = args.data as Record<string, unknown>;
         const row: DeliveryNoteRecord = {
           id: String(data.id),
           organizationId: String(data.organizationId),
-          deliveryId: String(data.deliveryId),
+          deliveryId: (data.deliveryId as string | null) ?? null,
           orderId: String(data.orderId),
+          partyId: String(data.partyId ?? 'party-a'),
           documentKind: 'nota_de_entrega',
-          numberingPolicy: 'unknown',
+          numberingPolicy: (data.numberingPolicy as 'provisional_internal' | 'unknown') ?? 'provisional_internal',
           noteNumber: null,
+          internalDocumentRef: String(data.internalDocumentRef ?? `NE-PILOT-${data.id}`),
+          displayDocumentNumber: (data.displayDocumentNumber as string | null) ?? null,
           externalDocumentNumber: (data.externalDocumentNumber as string | null) ?? null,
-          deliveredAt: asIso(data.deliveredAt),
+          status: (data.status as 'issued' | 'reversed') ?? 'issued',
+          recipient: String(data.recipient ?? '—'),
+          deliveredBy: String(data.deliveredBy ?? '—'),
+          receivedBy: (data.receivedBy as string | null) ?? null,
+          observations: (data.observations as string | null) ?? null,
+          locationId: (data.locationId as string | null) ?? null,
+          createdByMemberId: String(data.createdByMemberId ?? 'member-a'),
+          correctsNoteId: (data.correctsNoteId as string | null) ?? null,
+          supersedesNoteId: (data.supersedesNoteId as string | null) ?? null,
+          correctionReason: (data.correctionReason as string | null) ?? null,
+          deliveredAt: data.deliveredAt ? asIso(data.deliveredAt) : null,
           bornAt: asIso(data.bornAt),
           claimsInvoice: false,
           claimsTax: false,
@@ -276,7 +305,7 @@ function fakePrisma(seed?: {
         notes.push(row);
         return {
           ...row,
-          deliveredAt: new Date(row.deliveredAt),
+          deliveredAt: row.deliveredAt ? new Date(row.deliveredAt) : null,
           bornAt: new Date(row.bornAt),
           createdAt: new Date(row.createdAt),
         };
@@ -372,6 +401,7 @@ function fakePrisma(seed?: {
           id: String(data.id),
           organizationId: String(data.organizationId),
           orderId: String(data.orderId),
+          deliveryNoteId: (data.deliveryNoteId as string | null) ?? null,
           exitedAt: data.exitedAt as Date | string,
           recordedByMemberId: String(data.recordedByMemberId),
           source: String(data.source),
@@ -468,31 +498,44 @@ describe('createPrismaDeliveryStore', () => {
     assert.equal(store.migrationApplied, false);
   });
 
-  it('persists partial and multiple customer deliveries with note born at delivery', async () => {
+  it('persists customer delivery without auto-creating a nota; CreateNota creates provisional note', async () => {
     const prisma = fakePrisma();
     const store = createPrismaDeliveryStore(prisma);
     const service = new DeliveryCommandService(store);
 
+    const nota = await service.createNotaDeEntrega(ctx(), {
+      orderId: 'order-a',
+      recipient: 'Local',
+      deliveredBy: 'Chofer',
+      recordedBy: 'member-a',
+      source: 'employee_recorded',
+      quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+    });
+    assert.equal(nota.documentKind, 'nota_de_entrega');
+    assert.equal(nota.numberingPolicy, 'provisional_internal');
+    assert.match(nota.internalDocumentRef, /^NE-PILOT-/);
+    assert.equal(nota.receivedBy, null);
+    assert.equal(prisma.notes.length, 1);
+    assert.equal(prisma.lines.length, 1);
+
     const first = await service.recordCustomerDelivery(ctx(), {
       orderId: 'order-a',
       deliveredAt: DELIVERED_AT,
+      deliveredTo: 'Local',
       recordedBy: 'member-a',
       source: 'employee_recorded',
       externalDocumentNumber: '007189',
       quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+      deliveryNoteId: nota.deliveryNoteId,
     });
-    assert.equal(first.documentKind, 'nota_de_entrega');
-    assert.equal(first.noteNumber, null);
-    assert.equal(first.externalDocumentNumber, '007189');
-    assert.equal(first.bornAt, DELIVERED_AT);
+    assert.equal(first.documentKind, null);
+    assert.equal(first.deliveryNoteId, nota.deliveryNoteId);
     assert.equal(first.deliveredAt, DELIVERED_AT);
     assert.equal(first.claimsInvoice, false);
     assert.equal(first.lineCount, 1);
     assert.equal(prisma.deliveries.length, 1);
     assert.equal(prisma.notes.length, 1);
-    assert.equal(prisma.lines.length, 1);
-    assert.equal(prisma.notes[0]?.externalDocumentNumber, '007189');
-    assert.equal(prisma.notes[0]?.bornAt, DELIVERED_AT);
+    assert.equal(prisma.notes[0]?.receivedBy, 'Local');
 
     const second = await service.recordCustomerDelivery(ctx(), {
       orderId: 'order-a',
@@ -503,25 +546,25 @@ describe('createPrismaDeliveryStore', () => {
     });
     assert.equal(second.lineCount, 1);
     assert.equal(prisma.deliveries.length, 2);
-    assert.equal(prisma.notes.length, 2);
+    assert.equal(prisma.notes.length, 1);
     assert.equal(store.liveWrite.customerDelivery, 'prisma_port');
   });
 
-  it('does not invent a note number and rejects a note that would predate delivery', async () => {
+  it('does not invent a note number and refuses silent create-before-delivery helper', async () => {
     const prisma = fakePrisma();
     const store = createPrismaDeliveryStore(prisma);
     const service = new DeliveryCommandService(store);
-    assert.throws(() => service.createNoteBeforeDelivery(), /DELIVERY_REQUIRED/);
+    assert.throws(() => service.createNoteBeforeDelivery(), /USE_CREATE_NOTA/);
 
-    const result = await service.recordCustomerDelivery(ctx(), {
+    const result = await service.createNotaDeEntrega(ctx(), {
       orderId: 'order-a',
-      deliveredAt: DELIVERED_AT,
+      recipient: 'Local',
+      deliveredBy: 'Chofer',
       recordedBy: 'member-a',
       source: 'employee_recorded',
-      externalDocumentNumber: '007189',
     });
     assert.equal(result.noteNumber, null);
-    assert.equal(result.numberingPolicy, 'unknown');
+    assert.equal(result.numberingPolicy, 'provisional_internal');
     assert.equal(prisma.notes[0]?.noteNumber, null);
   });
 

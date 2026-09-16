@@ -1,12 +1,13 @@
+/**
+ * Entrega panel. Mounted on /entregas.
+ * Warehouse exit and customer delivery stay in separate sections.
+ * Nota de entrega is a human-created operational document (provisional numbering).
+ */
+
+import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
 import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
-
-/**
- * Entrega panel. Mounted on /entregas. Not mounted on the pedido page.
- * Numbering stays unknown. This is an internal record, not an official number.
- * Warehouse exit and customer delivery stay in separate sections.
- */
 
 export type EntregaLineView = {
   description: string;
@@ -156,6 +157,11 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
   return (
     <OpsDeskSurface className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
+      <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {ENTREGA_PANEL_COPY.beforeDelivery} {ENTREGA_PANEL_COPY.warehouseDistinct}{' '}
+        {ENTREGA_PANEL_COPY.numberingUnknown} {ENTREGA_PANEL_COPY.notInvoice}{' '}
+        {ENTREGA_PANEL_COPY.internalRecord} {ENTREGA_PANEL_COPY.provisionalDisclaimer}
+      </p>
       <div className="flex flex-wrap gap-2">
         <StatusPill tone="neutral">Sin número oficial</StatusPill>
         <StatusPill tone="neutral">No es factura</StatusPill>
@@ -235,15 +241,16 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           }
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Se crea solo cuando la mercadería llega al cliente. Un pedido o una salida de almacén no la
-          emiten. El pago no es requisito. Una excepción autorizada no es un pago confirmado en el
-          libro.
+          La nota de entrega es un documento operativo creado por una persona desde el pedido. No es
+          factura y no tiene significado fiscal. Un pedido no la emite sola. Una salida de almacén
+          tampoco crea la nota. El pago no es requisito. Una excepción autorizada no es un pago
+          confirmado en el libro.
         </p>
         {deliveries.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
             <EmptyState
               title="Todavía no hay una entrega registrada."
-              description="La nota de entrega se crea solo cuando la mercadería llega al cliente final. Un vacío no inventa llegada ni número oficial."
+              description="La nota de entrega puede crearse desde el pedido. Este panel muestra salidas y entregas al cliente. Un vacío no inventa llegada ni número oficial."
               example="El registro definitivo de llegada se formalizará después de validar el flujo con la empresa."
             />
           </div>

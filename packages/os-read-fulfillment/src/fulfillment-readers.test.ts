@@ -399,15 +399,15 @@ describe('delivery reader', () => {
     assert.equal(JSON.stringify(result).includes('whatsapp'), false);
   });
 
-  it('refuses a delivery note that predates the delivery', async () => {
+  it('allows a delivery note that was created before the delivery', async () => {
     const { db, readers } = service();
     db.deliveryNotes[0]!.bornAt = BEFORE;
     const result = await readers.readDeliveries(company(), { id: 'del-a' });
-    assert.equal(result.sourceState, 'ERROR');
-    assert.equal(result.code, 'NOTE_PREDATES_DELIVERY');
-    if (!('violations' in result)) return;
-    assert.equal(result.violations[0]?.bornAt, BEFORE.toISOString());
-    assert.equal('count' in result, false);
+    assert.equal(result.sourceState, 'AVAILABLE');
+    if (result.sourceState !== 'AVAILABLE') return;
+    assert.ok(result.rows[0]?.deliveryNote);
+    assert.equal(result.rows[0]?.deliveryNote?.bornAt, BEFORE.toISOString());
+    assert.equal(result.code, null);
   });
 
   it('does not unlock on delivery.record or commercial.team.read', async () => {

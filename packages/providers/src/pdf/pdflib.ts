@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { PdfProvider } from '../types/index';
 import type { QuotePdfDocument, QuotePdfRenderInput } from './quote-pdf-document';
+import type { DeliveryNotePdfDocument, DeliveryNotePdfRenderInput } from './delivery-note-pdf-document';
 
 /** A4 points */
 const PAGE_WIDTH = 595.28;
@@ -62,8 +63,125 @@ export class PdfLibPdfProvider implements PdfProvider {
     return this.renderHtmlFallback(input.quoteNumber, input.html ?? '');
   }
 
+  async renderDeliveryNotePdf(input: DeliveryNotePdfRenderInput): Promise<Uint8Array> {
+    return this.renderDeliveryNoteDocument(input.document);
+  }
+
   async health() {
     return 'up' as const;
+  }
+
+  private async renderDeliveryNoteDocument(doc: DeliveryNotePdfDocument): Promise<Uint8Array> {
+    const pdf = await PDFDocument.create();
+    const regular = await pdf.embedFont(StandardFonts.Helvetica);
+    const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+    let page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    let y = PAGE_HEIGHT - MARGIN_TOP;
+
+    const ensureSpace = (needed: number) => {
+      if (y - needed < MARGIN_BOTTOM) {
+        this.drawDeliveryFooter(page, regular, doc.internalDocumentRef);
+        page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+        y = PAGE_HEIGHT - MARGIN_TOP;
+      }
+    };
+
+    page.drawText(doc.brandName || 'ISALWA', { x: MARGIN_X, y, size: 18, font: bold, color: KILN });
+    y -= 16;
+    if (doc.organizationLegalName?.trim()) {
+      page.drawText(doc.organizationLegalName.trim(), { x: MARGIN_X, y, size: 9, font: regular, color: SLATE });
+      y -= 14;
+    }
+    page.drawText(doc.documentTitle, { x: MARGIN_X, y, size: 14, font: bold, color: INK });
+    y -= 18;
+    page.drawText(`Ref. provisional: ${doc.internalDocumentRef}`, {
+      x: MARGIN_X,
+      y,
+      size: 10,
+      font: regular,
+      color: SLATE,
+    });
+    y -= 14;
+    if (doc.displayDocumentNumber?.trim()) {
+      page.drawText(`N° de visualización: ${doc.displayDocumentNumber.trim()}`, {
+        x: MARGIN_X,
+        y,
+        size: 9,
+        font: regular,
+        color: MIST,
+      });
+      y -= 14;
+    }
+    page.drawText(`Fecha: ${doc.issuedAtLabel}`, { x: MARGIN_X, y, size: 9, font: regular, color: SLATE });
+    y -= 20;
+
+    const fields: Array<[string, string]> = [
+      ['Cliente', doc.customerName],
+      ['Pedido', doc.orderRef],
+      ['Destinatario', doc.recipient],
+      ['Entregado por', doc.deliveredBy],
+      ['Recibido por', doc.receivedBy?.trim() || '—'],
+    ];
+    for (const [label, value] of fields) {
+      ensureSpace(28);
+      page.drawText(label, { x: MARGIN_X, y, size: 8, font: bold, color: MIST });
+      y -= 12;
+      page.drawText(value, { x: MARGIN_X, y, size: 10, font: regular, color: INK });
+      y -= 16;
+    }
+
+    y -= 8;
+    ensureSpace(24);
+    page.drawText('Cant.', { x: MARGIN_X, y, size: 8, font: bold, color: MIST });
+    page.drawText('Descripción', { x: MARGIN_X + 48, y, size: 8, font: bold, color: MIST });
+    y -= 14;
+    page.drawLine({
+      start: { x: MARGIN_X, y: y + 8 },
+      end: { x: PAGE_WIDTH - MARGIN_X, y: y + 8 },
+      thickness: 0.5,
+      color: RULE,
+    });
+
+    if (doc.lines.length === 0) {
+      ensureSpace(16);
+      page.drawText('Sin líneas', { x: MARGIN_X + 48, y, size: 9, font: regular, color: MIST });
+      y -= 16;
+    } else {
+      for (const line of doc.lines) {
+        const label = line.unitLabel ? `${line.description} (${line.unitLabel})` : line.description;
+        const detailLines = wrap(label, regular, 9, CONTENT_WIDTH - 48);
+        const rowHeight = Math.max(14, detailLines.length * 12);
+        ensureSpace(rowHeight + 6);
+        page.drawText(String(line.quantity), { x: MARGIN_X, y, size: 9, font: regular, color: INK });
+        detailLines.forEach((text, i) => {
+          page.drawText(text, { x: MARGIN_X + 48, y: y - i * 12, size: 9, font: regular, color: INK });
+        });
+        y -= rowHeight + 4;
+      }
+    }
+
+    if (doc.observations?.trim()) {
+      y -= 16;
+      ensureSpace(28);
+      page.drawText('Observaciones', { x: MARGIN_X, y, size: 8, font: bold, color: MIST });
+      y -= 12;
+      for (const noteLine of wrap(doc.observations.trim(), regular, 9, CONTENT_WIDTH)) {
+        ensureSpace(12);
+        page.drawText(noteLine, { x: MARGIN_X, y, size: 9, font: regular, color: SLATE });
+        y -= 12;
+      }
+    }
+
+    y -= 20;
+    ensureSpace(36);
+    for (const line of wrap(doc.numberingDisclaimer, regular, 8, CONTENT_WIDTH)) {
+      ensureSpace(11);
+      page.drawText(line, { x: MARGIN_X, y, size: 8, font: regular, color: MIST });
+      y -= 11;
+    }
+
+    this.drawDeliveryFooter(page, regular, doc.internalDocumentRef);
+    return pdf.save();
   }
 
   private async renderDocument(doc: QuotePdfDocument): Promise<Uint8Array> {
@@ -305,6 +423,16 @@ export class PdfLibPdfProvider implements PdfProvider {
 
   private drawFooter(page: PDFPage, font: PDFFont, quoteNumber: string) {
     page.drawText(`ISALWA · Cotización ${quoteNumber}`, {
+      x: MARGIN_X,
+      y: MARGIN_BOTTOM - 16,
+      size: 7,
+      font,
+      color: MIST,
+    });
+  }
+
+  private drawDeliveryFooter(page: PDFPage, font: PDFFont, internalDocumentRef: string) {
+    page.drawText(`ISALWA · Nota de entrega ${internalDocumentRef} · provisional`, {
       x: MARGIN_X,
       y: MARGIN_BOTTOM - 16,
       size: 7,

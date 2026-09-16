@@ -348,6 +348,16 @@ export function createOsApiClient(auth: OsAuthContext) {
         filename: binary.filename ?? `cotizacion-${quoteId}.pdf`,
       };
     },
+    getDeliveryNotePdf: async (deliveryNoteId: string) => {
+      const binary = await requestBinary(`/delivery-notes/${encodeURIComponent(deliveryNoteId)}/pdf`, {
+        method: 'GET',
+      });
+      return {
+        bytes: binary.bytes,
+        contentType: binary.contentType || 'application/pdf',
+        filename: binary.filename ?? `nota-entrega-${deliveryNoteId}.pdf`,
+      };
+    },
     listOrders: (query?: Record<string, string | number | boolean>) =>
       request<OrderListResponse>('/orders', { method: 'GET', query }),
     getOrder: (orderId: string) =>

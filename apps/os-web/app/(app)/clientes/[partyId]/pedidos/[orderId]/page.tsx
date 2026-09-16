@@ -4,6 +4,7 @@ import { CommercialApprovalPanel } from '@/components/commercial/commercial-appr
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { OrderLines } from '@/components/commercial/order-lines';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
+import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
@@ -107,6 +108,78 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       customerDate: null,
       productionDate: null,
     });
+
+    let deliveryNotes: Array<{
+      id: string;
+      internalDocumentRef: string;
+      status: 'issued' | 'reversed';
+      recipient: string;
+      deliveredBy: string;
+      receivedBy: string | null;
+      observations: string | null;
+      bornAt: string;
+      lines: Array<{
+        orderLineId: string;
+        description: string;
+        quantity: number;
+        unitLabel: string | null;
+        productRef: string | null;
+      }>;
+    }> = [];
+    let deliveryTimeline: Array<{
+      id: string;
+      eventType: string;
+      occurredAt: string;
+      label: string;
+      detail: string;
+    }> = [];
+    try {
+      const docs = await client.get<{
+        notes: Array<{
+          id: string;
+          internalDocumentRef: string;
+          status: 'issued' | 'reversed';
+          recipient: string;
+          deliveredBy: string;
+          receivedBy: string | null;
+          observations: string | null;
+          bornAt: string;
+          lines: Array<{
+            orderLineId: string;
+            description: string;
+            quantity: number;
+            unitLabel: string | null;
+            productRef: string | null;
+          }>;
+        }>;
+        timeline: Array<{
+          id: string;
+          eventType: string;
+          occurredAt: string;
+          payload?: Record<string, unknown>;
+        }>;
+      }>('/delivery-notes', { orderId: order.orderId });
+      deliveryNotes = docs.notes ?? [];
+      deliveryTimeline = (docs.timeline ?? []).map((event) => ({
+        id: event.id,
+        eventType: event.eventType,
+        occurredAt: event.occurredAt,
+        label:
+          event.eventType === 'delivery_note.created'
+            ? 'Nota de entrega creada'
+            : event.eventType === 'warehouse_exit.recorded'
+              ? 'Salida de almacén'
+              : event.eventType === 'customer_delivery.recorded'
+                ? 'Entrega al cliente'
+                : event.eventType === 'delivery_note.corrected'
+                  ? 'Nota corregida'
+                  : event.eventType,
+        detail: event.eventType,
+      }));
+    } catch {
+      deliveryNotes = [];
+      deliveryTimeline = [];
+    }
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -219,6 +292,24 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             <OrderLines currency={order.currency} lines={order.lines} />
           </PageSection>
         ) : null}
+
+        <DeliveryDocumentsPanel
+          partyId={partyId}
+          orderId={order.orderId}
+          orderNumber={order.orderNumber}
+          customerName={customerName}
+          actorMemberId={actorMemberId}
+          orderLines={order.lines.map((line) => ({
+            orderLineId: line.orderLineId,
+            description: line.description,
+            quantity: line.quantity,
+            unitLabel: line.unitLabel ?? null,
+            productRef: line.productRef ?? null,
+          }))}
+          notes={deliveryNotes}
+          timeline={deliveryTimeline}
+          canMutate={order.status === 'open' && Boolean(actorMemberId)}
+        />
 
         {order.status === 'open' || approvals.length > 0 ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">

@@ -55,6 +55,8 @@ class LeakyOrderStore extends CountingStore {
       return {
         id: 'order-b',
         organizationId: 'org-b',
+        partyId: 'party-b',
+        orderNumber: 'PED-B',
         status: 'open',
         lines: null,
         notes: FOREIGN_SECRET,
@@ -69,6 +71,7 @@ class LeakyOrderStore extends CountingStore {
         id: 'delivery-b',
         organizationId: 'org-b',
         orderId: 'order-b',
+        deliveryNoteId: null,
         deliveredAt: '2026-09-14T14:00:00.000Z',
         deliveredTo: FOREIGN_SECRET,
         recordedByMemberId: 'member-b',
@@ -86,6 +89,7 @@ class LeakyOrderStore extends CountingStore {
         id: 'exit-b',
         organizationId: 'org-b',
         orderId: 'order-b',
+        deliveryNoteId: null,
         exitedAt: '2026-09-14T13:00:00.000Z',
         recordedByMemberId: 'member-b',
         source: 'employee_recorded',
@@ -104,8 +108,22 @@ function seed(store: MemoryDeliveryStore, scopes: readonly string[]) {
     accessStatus: 'active',
     grantedScopes: scopes,
   });
-  store.putOrder({ id: 'order-a', organizationId: 'org-a', status: 'open', lines: null });
-  store.putOrder({ id: 'order-b', organizationId: 'org-b', status: 'open', lines: null });
+  store.putOrder({
+    id: 'order-a',
+    organizationId: 'org-a',
+    partyId: 'party-a',
+    orderNumber: 'PED-A',
+    status: 'open',
+    lines: null,
+  });
+  store.putOrder({
+    id: 'order-b',
+    organizationId: 'org-b',
+    partyId: 'party-b',
+    orderNumber: 'PED-B',
+    status: 'open',
+    lines: null,
+  });
 }
 
 function ctx(actorMemberId = 'member-a') {
@@ -129,6 +147,7 @@ describe('delivery writes prove the session organization before insert', () => {
       id: 'exit-foreign',
       organizationId: 'org-b',
       orderId: 'order-b',
+      deliveryNoteId: null,
       exitedAt: '2026-09-14T13:00:00.000Z',
       recordedByMemberId: 'member-b',
       source: 'employee_recorded',

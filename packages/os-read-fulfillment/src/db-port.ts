@@ -57,11 +57,11 @@ export type DeliveryRow = {
 export type DeliveryNoteRow = {
   id: string;
   organizationId: string;
-  deliveryId: string;
+  deliveryId: string | null;
   orderId: string;
   documentKind: string;
   numberingPolicy: string | null;
-  deliveredAt: Date;
+  deliveredAt: Date | null;
   bornAt: Date;
   createdAt: Date;
 };

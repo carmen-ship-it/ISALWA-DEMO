@@ -1,4 +1,5 @@
 import { OS_COMMERCIAL_EVENT_TYPES } from './commercial-events';
+import { OS_DELIVERY_EVENT_TYPES } from './delivery';
 import { OS_PARTY_EVENT_TYPES } from './party-events';
 import { OS_WORK_EVENT_TYPES } from './work-events';
 
@@ -8,6 +9,7 @@ export const PARTY_TIMELINE_EVENT_TYPES = [
   'contact.updated',
   ...OS_COMMERCIAL_EVENT_TYPES,
   ...OS_WORK_EVENT_TYPES,
+  ...OS_DELIVERY_EVENT_TYPES,
 ] as const;
 
 export type PartyTimelineEventType = (typeof PARTY_TIMELINE_EVENT_TYPES)[number];

@@ -43,6 +43,8 @@ type CreateMany = (args: { data: Record<string, unknown>[] }) => Promise<unknown
 type OrderRow = {
   id: string;
   organizationId: string;
+  partyId: string;
+  orderNumber: string;
   status: string;
   lines?: Array<{
     id: string;
@@ -76,6 +78,7 @@ type ExitRow = {
   id: string;
   organizationId: string;
   orderId: string;
+  deliveryNoteId: string | null;
   exitedAt: Date | string;
   recordedByMemberId: string;
   source: string;
@@ -100,6 +103,7 @@ type DeliveryRow = {
   id: string;
   organizationId: string;
   orderId: string;
+  deliveryNoteId: string | null;
   deliveredAt: Date | string;
   deliveredTo: string | null;
   recordedByMemberId: string;
@@ -111,12 +115,25 @@ type DeliveryRow = {
 type DeliveryNoteRow = {
   id: string;
   organizationId: string;
-  deliveryId: string;
+  deliveryId: string | null;
   orderId: string;
+  partyId: string;
   documentKind: string;
   numberingPolicy: string;
+  internalDocumentRef: string;
+  displayDocumentNumber: string | null;
   externalDocumentNumber: string | null;
-  deliveredAt: Date | string;
+  status: string;
+  recipient: string;
+  deliveredBy: string;
+  receivedBy: string | null;
+  observations: string | null;
+  locationId: string | null;
+  createdByMemberId: string;
+  correctsNoteId: string | null;
+  supersedesNoteId: string | null;
+  correctionReason: string | null;
+  deliveredAt: Date | string | null;
   bornAt: Date | string;
   createdAt: Date | string;
 };
@@ -181,6 +198,7 @@ export type DeliveryPrismaPort = {
     findFirst: FindFirst<DeliveryNoteRow>;
     findMany: FindMany<DeliveryNoteRow>;
     create: Create<DeliveryNoteRow>;
+    update?: (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => Promise<DeliveryNoteRow>;
   };
   osDeliveryNoteLine: {
     findMany: FindMany<LineRow>;
@@ -235,6 +253,7 @@ function mapDelivery(row: DeliveryRow): DeliveryRecord {
     id: row.id,
     organizationId: row.organizationId,
     orderId: row.orderId,
+    deliveryNoteId: row.deliveryNoteId ?? null,
     deliveredAt: asIso(row.deliveredAt),
     deliveredTo: row.deliveredTo,
     recordedByMemberId: row.recordedByMemberId,
@@ -250,11 +269,25 @@ function mapDeliveryNote(row: DeliveryNoteRow): DeliveryNoteRecord {
     organizationId: row.organizationId,
     deliveryId: row.deliveryId,
     orderId: row.orderId,
+    partyId: row.partyId,
     documentKind: 'nota_de_entrega',
-    numberingPolicy: 'unknown',
+    numberingPolicy:
+      row.numberingPolicy === 'provisional_internal' ? 'provisional_internal' : 'unknown',
     noteNumber: null,
+    internalDocumentRef: row.internalDocumentRef,
+    displayDocumentNumber: row.displayDocumentNumber,
     externalDocumentNumber: row.externalDocumentNumber,
-    deliveredAt: asIso(row.deliveredAt),
+    status: row.status === 'reversed' ? 'reversed' : 'issued',
+    recipient: row.recipient,
+    deliveredBy: row.deliveredBy,
+    receivedBy: row.receivedBy,
+    observations: row.observations,
+    locationId: row.locationId,
+    createdByMemberId: row.createdByMemberId,
+    correctsNoteId: row.correctsNoteId,
+    supersedesNoteId: row.supersedesNoteId,
+    correctionReason: row.correctionReason,
+    deliveredAt: row.deliveredAt ? asIso(row.deliveredAt) : null,
     bornAt: asIso(row.bornAt),
     claimsInvoice: false,
     claimsTax: false,
@@ -267,6 +300,7 @@ function mapExit(row: ExitRow): WarehouseExitRecord {
     id: row.id,
     organizationId: row.organizationId,
     orderId: row.orderId,
+    deliveryNoteId: row.deliveryNoteId ?? null,
     exitedAt: asIso(row.exitedAt),
     recordedByMemberId: row.recordedByMemberId,
     source: 'employee_recorded',
@@ -380,6 +414,8 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
       const snapshot: OrderSnapshot = {
         id: row.id,
         organizationId: row.organizationId,
+        partyId: row.partyId,
+        orderNumber: row.orderNumber ?? null,
         status: row.status,
         lines,
       };
@@ -428,6 +464,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
           id: row.id,
           organizationId: row.organizationId,
           orderId: row.orderId,
+          deliveryNoteId: row.deliveryNoteId,
           exitedAt: asDate(row.exitedAt),
           recordedByMemberId: row.recordedByMemberId,
           source: row.source,
@@ -477,6 +514,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
           id: row.id,
           organizationId: row.organizationId,
           orderId: row.orderId,
+          deliveryNoteId: row.deliveryNoteId,
           deliveredAt: asDate(row.deliveredAt),
           deliveredTo: row.deliveredTo,
           recordedByMemberId: row.recordedByMemberId,
@@ -494,14 +532,53 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
           organizationId: row.organizationId,
           deliveryId: row.deliveryId,
           orderId: row.orderId,
+          partyId: row.partyId,
           documentKind: row.documentKind,
           numberingPolicy: row.numberingPolicy,
+          internalDocumentRef: row.internalDocumentRef,
+          displayDocumentNumber: row.displayDocumentNumber,
           externalDocumentNumber: row.externalDocumentNumber,
-          deliveredAt: asDate(row.deliveredAt),
+          status: row.status,
+          recipient: row.recipient,
+          deliveredBy: row.deliveredBy,
+          receivedBy: row.receivedBy,
+          observations: row.observations,
+          locationId: row.locationId,
+          createdByMemberId: row.createdByMemberId,
+          correctsNoteId: row.correctsNoteId,
+          supersedesNoteId: row.supersedesNoteId,
+          correctionReason: row.correctionReason,
+          deliveredAt: row.deliveredAt ? asDate(row.deliveredAt) : null,
           bornAt: asDate(row.bornAt),
           createdAt: asDate(row.createdAt),
         },
       });
+    },
+
+    async updateDeliveryNote(row) {
+      if (!prisma.osDeliveryNote.update) throw new Error('NOT_FOUND');
+      await prisma.osDeliveryNote.update({
+        where: { id: row.id, organizationId: row.organizationId },
+        data: {
+          deliveryId: row.deliveryId,
+          status: row.status,
+          receivedBy: row.receivedBy,
+          deliveredAt: row.deliveredAt ? asDate(row.deliveredAt) : null,
+          observations: row.observations,
+          displayDocumentNumber: row.displayDocumentNumber,
+          correctsNoteId: row.correctsNoteId,
+          supersedesNoteId: row.supersedesNoteId,
+          correctionReason: row.correctionReason,
+        },
+      });
+    },
+
+    async appendDomainEvent(_row) {
+      // Domain events are recorded in-process for memory tests; hosted outbox wiring is Control Tower.
+    },
+
+    async listDomainEvents() {
+      return [];
     },
 
     async insertDeliveryNoteLines(rows) {

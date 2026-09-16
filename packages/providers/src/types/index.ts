@@ -1,11 +1,18 @@
 import type { AiAssistInput, AiAssistResult } from '../ai/types';
 import type { QuotePdfRenderInput } from '../pdf/quote-pdf-document';
+import type { DeliveryNotePdfRenderInput } from '../pdf/delivery-note-pdf-document';
 
 export type {
   QuotePdfDocument,
   QuotePdfLine,
   QuotePdfRenderInput,
 } from '../pdf/quote-pdf-document';
+
+export type {
+  DeliveryNotePdfDocument,
+  DeliveryNotePdfLine,
+  DeliveryNotePdfRenderInput,
+} from '../pdf/delivery-note-pdf-document';
 
 export type ProviderName =
   | 'mock'
@@ -78,6 +85,7 @@ export interface SearchProvider {
 export interface PdfProvider {
   readonly info: ProviderInfo;
   renderQuotePdf(input: QuotePdfRenderInput): Promise<Uint8Array>;
+  renderDeliveryNotePdf(input: DeliveryNotePdfRenderInput): Promise<Uint8Array>;
   health(): Promise<'up' | 'degraded' | 'down'>;
 }
 

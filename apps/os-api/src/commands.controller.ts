@@ -23,6 +23,7 @@ import {
   COMMITMENT_COMMAND_NAMES,
   ISSUE_COMMAND_NAMES,
   PRODUCT_FEEDBACK_COMMAND_NAMES,
+  DELIVERY_COMMAND_NAMES,
   type PartyCommandName,
   type LocationCommandName,
   type ImportCommandName,
@@ -32,6 +33,7 @@ import {
   type CommitmentCommandName,
   type IssueCommandName,
   type ProductFeedbackCommandName,
+  type DeliveryCommandName,
 } from '@isalwa/os-contracts';
 import type { LocationCommandService, PartyCommandService } from '@isalwa/os-party';
 import type { ImportCommandService } from '@isalwa/os-import';
@@ -39,6 +41,7 @@ import type { WorkCommandService } from '@isalwa/os-work';
 import type { CommercialCommandService } from '@isalwa/os-commercial';
 import type { CommitmentCommandService } from '@isalwa/os-commitment';
 import type { IssueCommandService } from '@isalwa/os-issue';
+import type { DeliveryCommandService } from '@isalwa/os-delivery';
 import type { OsWorkforceStore, WorkforceCommandService } from '@isalwa/os-workforce';
 import type { OsProductFeedbackStore } from '@isalwa/os-database';
 import { createId } from '@isalwa/ts-utils';
@@ -54,6 +57,7 @@ import {
   OS_COMMITMENT_COMMAND_SERVICE,
   OS_ISSUE_COMMAND_SERVICE,
   OS_PRODUCT_FEEDBACK_STORE,
+  OS_DELIVERY_COMMAND_SERVICE,
 } from './os-store.module';
 
 function mapError(err: unknown): HttpException {
@@ -109,6 +113,10 @@ function isProductFeedbackCommand(command: OsCommandName): command is ProductFee
   return (PRODUCT_FEEDBACK_COMMAND_NAMES as readonly string[]).includes(command);
 }
 
+function isDeliveryCommand(command: OsCommandName): command is DeliveryCommandName {
+  return (DELIVERY_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
 @Controller('commands')
 export class CommandsController {
   constructor(
@@ -121,6 +129,7 @@ export class CommandsController {
     @Inject(OS_COMMITMENT_COMMAND_SERVICE) private readonly commitmentCommands: CommitmentCommandService,
     @Inject(OS_ISSUE_COMMAND_SERVICE) private readonly issueCommands: IssueCommandService,
     @Inject(OS_PRODUCT_FEEDBACK_STORE) private readonly feedbackStore: OsProductFeedbackStore,
+    @Inject(OS_DELIVERY_COMMAND_SERVICE) private readonly deliveryCommands: DeliveryCommandService,
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
   ) {}
 
@@ -226,6 +235,9 @@ export class CommandsController {
           correlationId: session.correlationId,
           data: { feedbackId },
         };
+      }
+      if (isDeliveryCommand(command)) {
+        return await this.deliveryCommands.execute(command, session, parsed.data as Record<string, unknown>);
       }
       throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
     } catch (err) {

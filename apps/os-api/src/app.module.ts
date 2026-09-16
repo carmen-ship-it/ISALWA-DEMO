@@ -12,6 +12,7 @@ import { WorkItemsController } from './work-items.controller';
 import { ApprovalsController } from './approvals.controller';
 import { AttentionController } from './attention.controller';
 import { OpportunitiesController, OrdersController, QuotesController } from './commercial.controller';
+import { DeliveryNotesController } from './delivery.controller';
 import { CapabilitiesController } from './capabilities.controller';
 import { OperationsController } from './operations.controller';
 import { CommitmentsController } from './commitments.controller';
@@ -45,6 +46,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     AttentionController,
     OpportunitiesController,
     QuotesController,
+    DeliveryNotesController,
     OrdersController,
     CommitmentsController,
     IssuesController,

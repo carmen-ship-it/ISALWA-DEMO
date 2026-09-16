@@ -116,6 +116,13 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   CreateOrder: 'member_active',
   CancelOrder: 'member_active',
   ReassignCommercialAccountOwner: 'member_active',
+  CreateNotaDeEntrega: 'member_active',
+  RecordSalida: 'member_active',
+  RecordEntrega: 'member_active',
+  CorrectDeliveryDocument: 'member_active',
+  RecordWarehouseExit: 'member_active',
+  RecordCustomerDelivery: 'member_active',
+  RecordDeliveryEvidence: 'member_active',
   // Issue commands
   ReportIssue: 'member_active',
   TriageIssue: 'member_active', // Requires issue.manage but gate is in service layer

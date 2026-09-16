@@ -50,6 +50,7 @@ function exitRow(over: Partial<WarehouseExitRecord> = {}): WarehouseExitRecord {
     id: 'exit-a',
     organizationId: 'org-a',
     orderId: 'order-1',
+    deliveryNoteId: null,
     exitedAt: '2026-09-14T13:00:00.000Z',
     recordedByMemberId: 'member-warehouse',
     source: 'employee_recorded',
@@ -64,6 +65,7 @@ function deliveryRow(over: Partial<DeliveryRecord> = {}): DeliveryRecord {
     id: 'delivery-a',
     organizationId: 'org-a',
     orderId: 'order-1',
+    deliveryNoteId: null,
     deliveredAt: '2026-09-14T14:30:00.000Z',
     deliveredTo: 'Local Vainsa',
     recordedByMemberId: 'member-delivery',
@@ -80,10 +82,23 @@ function noteRow(over: Partial<DeliveryNoteRecord> = {}): DeliveryNoteRecord {
     organizationId: 'org-a',
     deliveryId: 'delivery-a',
     orderId: 'order-1',
+    partyId: 'party-a',
     documentKind: 'nota_de_entrega',
-    numberingPolicy: 'unknown',
+    numberingPolicy: 'provisional_internal',
     noteNumber: null,
+    internalDocumentRef: 'NE-PILOT-note-a',
+    displayDocumentNumber: null,
     externalDocumentNumber: null,
+    status: 'issued',
+    recipient: 'Local Vainsa',
+    deliveredBy: 'Chofer',
+    receivedBy: null,
+    observations: null,
+    locationId: null,
+    createdByMemberId: 'member-delivery',
+    correctsNoteId: null,
+    supersedesNoteId: null,
+    correctionReason: null,
     deliveredAt: '2026-09-14T14:30:00.000Z',
     bornAt: '2026-09-14T14:30:00.000Z',
     claimsInvoice: false,
@@ -125,8 +140,22 @@ function seededStore() {
     accessStatus: 'active',
     grantedScopes: [WAREHOUSE_EXIT_RECORD_SCOPE, CUSTOMER_DELIVERY_RECORD_SCOPE],
   });
-  store.putOrder({ id: 'order-1', organizationId: 'org-a', status: 'open', lines: null });
-  store.putOrder({ id: 'order-b', organizationId: 'org-b', status: 'open', lines: null });
+  store.putOrder({
+    id: 'order-1',
+    organizationId: 'org-a',
+    partyId: 'party-a',
+    orderNumber: 'PED-1',
+    status: 'open',
+    lines: null,
+  });
+  store.putOrder({
+    id: 'order-b',
+    organizationId: 'org-b',
+    partyId: 'party-b',
+    orderNumber: 'PED-B',
+    status: 'open',
+    lines: null,
+  });
   return store;
 }
 
@@ -162,9 +191,14 @@ async function seedBothTenants(store: LeakyDeliveryStore) {
       organizationId: 'org-b',
       deliveryId: 'delivery-b',
       orderId: 'order-b',
+      partyId: 'party-b',
+      internalDocumentRef: 'NE-PILOT-note-b',
+      createdByMemberId: 'member-b',
     }),
   );
-  await store.insertDeliveryNote(noteRow({ id: 'note-a-2', deliveryId: 'delivery-a-2' }));
+  await store.insertDeliveryNote(
+    noteRow({ id: 'note-a-2', deliveryId: 'delivery-a-2', internalDocumentRef: 'NE-PILOT-note-a-2' }),
+  );
   await store.insertEvidence({
     id: 'evidence-b',
     organizationId: 'org-b',
@@ -220,7 +254,7 @@ describe('delivery tenant and role isolation', () => {
     const note = await service.getDeliveryNoteById(ctx('member-delivery'), 'note-a');
     assert.equal(note.organizationId, 'org-a');
     assert.equal(note.noteNumber, null);
-    assert.equal(note.numberingPolicy, 'unknown');
+    assert.equal(note.numberingPolicy, 'provisional_internal');
   });
 
   it('denies the same tenant when the role does not match the resource', async () => {

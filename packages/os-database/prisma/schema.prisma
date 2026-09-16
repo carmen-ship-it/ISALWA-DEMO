@@ -1528,10 +1528,20 @@ model OsCustomerConversation {
 // Warehouse exit and customer delivery stay different models.
 // orderLineId is an opaque copy. SQL keeps the organization and order foreign keys.
 
+// Not merged into schema.prisma. The SQL migration is the persistence boundary.
+// CROSS_LANE: splice these models into schema.prisma and attach opposite
+// relations on OsOrganization, OsOrder, and OsOrganizationMember.
+// Warehouse exit and customer delivery stay different models.
+// Nota de entrega may exist without a delivery (nullable deliveryId / deliveredAt).
+// Provisional internalDocumentRef only. Do not invent official note numbers, invoice, tax, NIT,
+// ledger payment, or signature method.
+// orderLineId is an opaque copy. Do not point it at an order-line model this lane does not own.
+
 model OsWarehouseExit {
   id                 String   @id
   organizationId     String   @map("organization_id")
   orderId            String   @map("order_id")
+  deliveryNoteId     String?  @map("delivery_note_id")
   exitedAt           DateTime @map("exited_at")
   recordedByMemberId String   @map("recorded_by_member_id")
   source             String
@@ -1539,6 +1549,7 @@ model OsWarehouseExit {
   createdAt          DateTime @default(now()) @map("created_at")
 
   @@index([organizationId, orderId])
+  @@index([organizationId, deliveryNoteId])
   @@map("os_warehouse_exits")
 }
 
@@ -1578,6 +1589,7 @@ model OsDelivery {
   id                 String   @id
   organizationId     String   @map("organization_id")
   orderId            String   @map("order_id")
+  deliveryNoteId     String?  @map("delivery_note_id")
   deliveredAt        DateTime @map("delivered_at")
   deliveredTo        String?  @map("delivered_to")
   recordedByMemberId String   @map("recorded_by_member_id")
@@ -1586,23 +1598,43 @@ model OsDelivery {
   createdAt          DateTime @default(now()) @map("created_at")
 
   @@index([organizationId, orderId])
+  @@index([organizationId, deliveryNoteId])
   @@map("os_deliveries")
 }
 
 model OsDeliveryNote {
-  id                       String   @id
-  organizationId           String   @map("organization_id")
-  deliveryId               String   @unique @map("delivery_id")
-  orderId                  String   @map("order_id")
-  documentKind             String   @map("document_kind")
-  numberingPolicy          String   @map("numbering_policy")
+  id                       String    @id
+  organizationId           String    @map("organization_id")
+  /// Nullable: nota may exist before customer delivery is recorded.
+  deliveryId               String?   @unique @map("delivery_id")
+  orderId                  String    @map("order_id")
+  partyId                  String    @map("party_id")
+  documentKind             String    @map("document_kind")
+  numberingPolicy          String    @map("numbering_policy")
+  /// Pilot-safe immutable identity, e.g. NE-PILOT-<id>. Not official numbering.
+  internalDocumentRef      String    @map("internal_document_ref")
+  /// Optional future official display without changing identity.
+  displayDocumentNumber    String?   @map("display_document_number")
   /// Source-preserved printed number only. Not an OS-generated sequence.
-  externalDocumentNumber   String?  @map("external_document_number")
-  deliveredAt              DateTime @map("delivered_at")
-  bornAt                   DateTime @map("born_at")
-  createdAt                DateTime @default(now()) @map("created_at")
+  externalDocumentNumber   String?   @map("external_document_number")
+  status                   String    @map("status")
+  recipient                String
+  deliveredBy              String    @map("delivered_by")
+  /// Blank until RecordEntrega sets it.
+  receivedBy               String?   @map("received_by")
+  observations             String?
+  locationId               String?   @map("location_id")
+  createdByMemberId        String    @map("created_by_member_id")
+  correctsNoteId           String?   @map("corrects_note_id")
+  supersedesNoteId         String?   @map("supersedes_note_id")
+  correctionReason         String?   @map("correction_reason")
+  deliveredAt              DateTime? @map("delivered_at")
+  bornAt                   DateTime  @map("born_at")
+  createdAt                DateTime  @default(now()) @map("created_at")
 
+  @@unique([organizationId, internalDocumentRef])
   @@index([organizationId, orderId])
+  @@index([organizationId, partyId])
   @@map("os_delivery_notes")
 }
 

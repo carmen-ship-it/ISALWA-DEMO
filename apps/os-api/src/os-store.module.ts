@@ -59,6 +59,13 @@ import {
   type MemberQueryStorePort,
 } from '@isalwa/os-query';
 import { QuotePdfService } from './quote-pdf.service';
+import { DeliveryNotePdfService } from './delivery-note-pdf.service';
+import {
+  DeliveryCommandService,
+  MemoryDeliveryStore,
+  createPrismaDeliveryStore,
+  type DeliveryStore,
+} from '@isalwa/os-delivery';
 
 export const OS_STORE = Symbol('OS_STORE');
 export const OS_PARTY_STORE = Symbol('OS_PARTY_STORE');
@@ -88,10 +95,21 @@ export const OS_MEMBER_QUERY_STORE = Symbol('OS_MEMBER_QUERY_STORE');
 export const OS_MEMBER_QUERY_SERVICE = Symbol('OS_MEMBER_QUERY_SERVICE');
 export const OS_CAPABILITY_QUERY_SERVICE = Symbol('OS_CAPABILITY_QUERY_SERVICE');
 export const OS_QUOTE_PDF_SERVICE = Symbol('OS_QUOTE_PDF_SERVICE');
+export const OS_DELIVERY_STORE = Symbol('OS_DELIVERY_STORE');
+export const OS_DELIVERY_COMMAND_SERVICE = Symbol('OS_DELIVERY_COMMAND_SERVICE');
+export const OS_DELIVERY_NOTE_PDF_SERVICE = Symbol('OS_DELIVERY_NOTE_PDF_SERVICE');
 export const OS_PROJECTION_RUNNER = Symbol('OS_PROJECTION_RUNNER');
 export const OS_OUTBOX_WORKER_HOST = Symbol('OS_OUTBOX_WORKER_HOST');
 export const OS_ATTENTION_CLOCK = Symbol('OS_ATTENTION_CLOCK');
 export const OS_OUTBOX_RECOVERY_SERVICE = Symbol('OS_OUTBOX_RECOVERY_SERVICE');
+
+function createDeliveryStore(): DeliveryStore {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return createPrismaDeliveryStore(prisma as Parameters<typeof createPrismaDeliveryStore>[0]);
+  }
+  return new MemoryDeliveryStore();
+}
 
 function outboxWorkerEnabled(): boolean {
   const disabled =
@@ -403,6 +421,20 @@ function createMemberQueryStore(): MemberQueryStorePort {
       inject: [OS_PARTY_STORE],
     },
     {
+      provide: OS_DELIVERY_STORE,
+      useFactory: createDeliveryStore,
+    },
+    {
+      provide: OS_DELIVERY_COMMAND_SERVICE,
+      useFactory: (store: DeliveryStore) => new DeliveryCommandService(store),
+      inject: [OS_DELIVERY_STORE],
+    },
+    {
+      provide: OS_DELIVERY_NOTE_PDF_SERVICE,
+      useFactory: (partyStore: OsPartyStore) => new DeliveryNotePdfService(partyStore),
+      inject: [OS_PARTY_STORE],
+    },
+    {
       provide: OS_PROJECTION_RUNNER,
       useFactory: (
         outboxStore: OsOutboxStorePort,
@@ -491,6 +523,9 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_MEMBER_QUERY_SERVICE,
     OS_CAPABILITY_QUERY_SERVICE,
     OS_QUOTE_PDF_SERVICE,
+    OS_DELIVERY_STORE,
+    OS_DELIVERY_COMMAND_SERVICE,
+    OS_DELIVERY_NOTE_PDF_SERVICE,
     OS_PROJECTION_RUNNER,
     OS_OUTBOX_WORKER_HOST,
     OS_ATTENTION_CLOCK,

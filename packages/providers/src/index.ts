@@ -42,6 +42,15 @@ export type {
   QuotePdfLine,
   QuotePdfRenderInput,
 } from './pdf/quote-pdf-document';
+export {
+  formatDeliveryNotePdfDate,
+  sanitizeDeliveryNotePdfFilename,
+} from './pdf/delivery-note-pdf-document';
+export type {
+  DeliveryNotePdfDocument,
+  DeliveryNotePdfLine,
+  DeliveryNotePdfRenderInput,
+} from './pdf/delivery-note-pdf-document';
 
 export type ProviderEnv = {
   MESSAGING_PROVIDER?: string;

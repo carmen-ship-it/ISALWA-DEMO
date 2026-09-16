@@ -1,30 +1,31 @@
 import { z } from 'zod';
 
 /**
- * Delivery boundary. Warehouse exit and customer delivery are different facts.
+ * Delivery documents boundary. Warehouse exit and customer delivery are different facts.
  *
- * Nota de salida de almacén: goods left the warehouse. No number and no format
- * are allocated. It does not create a nota de entrega.
+ * Pedido → Nota de Entrega → Salida → Entrega are explicit human-created operational
+ * documents. There is no automatic lifecycle.
  *
- * Nota de entrega: born only when goods are delivered to the final customer.
- * It cannot predate that delivery. Generated numbering policy is unknown.
- * An externally printed document number may be preserved as source evidence.
- * It is not an invoice and it does not claim tax.
+ * Nota de Entrega: human-created from a Pedido. Not an invoice. No tax. Provisional
+ * internal numbering only (NE-PILOT-<id>). Official numbering policy is not invented.
  *
- * Evidence roles stay separate. They are not one actor.
- * Payment is not required. An authorized exception is not a confirmed ledger payment.
- * The product has no signature method. A confirmation may store a recipient and
- * an opaque signature reference only.
+ * Salida (warehouse outbound): goods left the warehouse. Does not create a nota.
+ * Entrega (customer delivery): goods reached the customer. Does not auto-create a nota.
+ * PDF download does not create salida or entrega.
+ *
+ * Evidence roles stay separate. Payment is not required. No signature method in product.
  *
  * CROSS_LANE: export this file from packages/os-contracts/src/index.ts.
  * CROSS_LANE: register commands in command-registry.ts and scopes.ts.
- * Do not treat them as invoice, tax, ledger payment, or order-status authority.
  * CROSS_LANE: merge prisma/fragments/delivery.prisma into schema.prisma.
  * Order lines, when they exist, are copied. This module does not invent them.
  */
 
+/** Warehouse outbound numbering remains unallocated. */
 export const DELIVERY_NUMBERING_POLICY = 'unknown' as const;
-/** Generated OS note number. Not assigned. Distinct from a source-preserved external print. */
+/** Provisional pilot-safe identity for human-created notas de entrega. */
+export const DELIVERY_NOTE_NUMBERING_POLICY = 'provisional_internal' as const;
+/** Generated OS official note number. Not assigned. Distinct from provisional internal ref. */
 export const DELIVERY_NOTE_NUMBER: null = null;
 /**
  * Source-preserved printed document number (for example Nota de Entrega 007189).
@@ -48,13 +49,13 @@ export const CONFIRMED_LEDGER_PAYMENT = false as const;
 export const LEDGER_POSTING = 'none' as const;
 export const PAYMENT_REQUIRED_BEFORE_DELIVERY = false as const;
 
+export const DELIVERY_NOTE_STATUSES = ['issued', 'reversed'] as const;
+export type DeliveryNoteStatus = (typeof DELIVERY_NOTE_STATUSES)[number];
+
 /**
  * Explicit assignment only. Cargo, title, and a sibling scope never grant these.
  * delivery.record is the existing delivery scope. warehouse.outbound.record is
  * the registered warehouse-exit mutation authority (OPERATIONS_ACCESS_SCOPE_KEYS).
- * It is not finished-goods receive, allocate, or customer delivery.
- * Receive, allocate, delivery.record, commercial.team.read, and people.admin
- * do not imply it.
  */
 export const WAREHOUSE_EXIT_RECORD_SCOPE = 'warehouse.outbound.record' as const;
 export const CUSTOMER_DELIVERY_RECORD_SCOPE = 'delivery.record' as const;
@@ -72,6 +73,10 @@ export type DeliveryResource = keyof typeof DELIVERY_RESOURCE_SCOPES;
 export const DELIVERY_FULFILLMENT_STATUS: null = null;
 
 export const DELIVERY_COMMAND_NAMES = [
+  'CreateNotaDeEntrega',
+  'RecordSalida',
+  'RecordEntrega',
+  'CorrectDeliveryDocument',
   'RecordWarehouseExit',
   'RecordCustomerDelivery',
   'RecordDeliveryEvidence',
@@ -88,20 +93,42 @@ export const DELIVERY_EVIDENCE_ROLES = [
 
 export type DeliveryEvidenceRole = (typeof DELIVERY_EVIDENCE_ROLES)[number];
 
-export const DELIVERY_SUBJECT_TYPES = ['warehouse_exit', 'delivery'] as const;
+export const DELIVERY_SUBJECT_TYPES = ['warehouse_exit', 'delivery', 'delivery_note'] as const;
 export type DeliverySubjectType = (typeof DELIVERY_SUBJECT_TYPES)[number];
+
+export const OS_DELIVERY_EVENT_TYPES = [
+  'delivery_note.created',
+  'delivery_note.corrected',
+  'warehouse_exit.recorded',
+  'customer_delivery.recorded',
+] as const;
+
+export type OsDeliveryEventType = (typeof OS_DELIVERY_EVENT_TYPES)[number];
+
+export function isOsDeliveryEventType(value: string): value is OsDeliveryEventType {
+  return (OS_DELIVERY_EVENT_TYPES as readonly string[]).includes(value);
+}
+
+export function provisionalInternalDocumentRef(noteId: string): string {
+  const id = noteId.trim();
+  if (!id) throw new Error('VALIDATION_FAILED');
+  return `NE-PILOT-${id}`;
+}
 
 export const ENTREGA_PANEL_COPY = {
   kicker: 'Entrega',
   title: 'Nota de entrega',
   warehouseTitle: 'Nota de salida de almacén',
-  beforeDelivery: 'La nota de entrega se crea solo cuando la mercadería llega al cliente final.',
-  orderDoesNotEmit: 'Un pedido no la emite. Una salida de almacén tampoco.',
-  warehouseDistinct: 'La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega.',
+  beforeDelivery:
+    'La nota de entrega es un documento operativo creado por una persona desde el pedido. No es factura y no tiene significado fiscal.',
+  orderDoesNotEmit: 'Un pedido no la emite sola. Una salida de almacén tampoco crea la nota.',
+  warehouseDistinct:
+    'La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega al cliente.',
   noDeliveryYet: 'Todavía no hay una entrega registrada.',
-  numberingUnknown: 'No se asigna un número generado. La política de numeración no está definida.',
+  numberingUnknown:
+    'La numeración es provisional interna (NE-PILOT-…). No es un número oficial de ISALWA.',
   externalNumberPreserved:
-    'Un número impreso externo puede conservarse como referencia de origen. No se genera aquí.',
+    'Un número impreso externo puede conservarse como referencia de origen. No se genera aquí un correlativo oficial.',
   factoryNoteDistinct:
     'La nota de entrega de fábrica es un documento distinto hasta que se defina su rol. No es automáticamente nota de salida, nota de entrega al cliente, ni producto terminado.',
   notInvoice: 'No es una factura y no calcula impuesto.',
@@ -111,8 +138,8 @@ export const ENTREGA_PANEL_COPY = {
   exceptionNotPayment: 'Una excepción autorizada no es un pago confirmado en el libro.',
   evidenceSeparate:
     'La coordinación, el pago, la salida de almacén y la confirmación de entrega son evidencias distintas. No se mezclan en un solo actor.',
-  delivered: 'Entrega registrada. La nota existe porque la mercadería llegó al cliente final.',
-  noteDoesNotPredate: 'La nota de entrega no puede ser anterior a la entrega.',
+  delivered: 'Entrega registrada. La salida de almacén y la entrega al cliente siguen siendo hechos distintos.',
+  noteDoesNotPredate: 'La nota puede existir antes de la entrega; la entrega no se infiere del PDF.',
   internalRecord: 'Este es un registro interno de entrega. No reclama un número oficial.',
   partialDeliveries:
     'Un pedido puede entregarse en partes, en más de una entrega. La cantidad guardada no declara el pedido como cumplido.',
@@ -121,6 +148,12 @@ export const ENTREGA_PANEL_COPY = {
   loading: 'Cargando el registro de entrega.',
   loadError: 'No se pudo cargar el registro de entrega.',
   permissionDenied: 'No tiene permiso para ver este registro de entrega.',
+  createNota: 'Crear nota de entrega',
+  recordSalida: 'Registrar salida',
+  recordEntrega: 'Registrar entrega',
+  downloadPdf: 'Descargar PDF',
+  provisionalDisclaimer:
+    'Referencia provisional de piloto. No es numeración oficial. La política de numeración oficial no está definida.',
 } as const;
 
 const NUMBER_KEYS = new Set([
@@ -132,8 +165,13 @@ const NUMBER_KEYS = new Set([
   'correlativo',
   'format',
 ]);
-/** Allowed: source-preserved printed number only. Not a generated note number. */
-const ALLOWED_EXTERNAL_NUMBER_KEYS = new Set(['externaldocumentnumber']);
+/** Allowed: source-preserved printed number and optional future display number. Not generated official sequences. */
+const ALLOWED_EXTERNAL_NUMBER_KEYS = new Set([
+  'externaldocumentnumber',
+  'displaydocumentnumber',
+  'internaldocumentref',
+  'numberingpolicy',
+]);
 const INVOICE_KEYS = new Set(['invoice', 'invoicenumber', 'factura', 'nit', 'fiscal', 'sin']);
 const TAX_KEYS = new Set(['tax', 'taxrate', 'iva']);
 const SIGNATURE_METHOD_KEYS = new Set(['signaturemethod', 'signedby', 'signatureprovider', 'firma']);
@@ -190,7 +228,24 @@ export type RequestedQuantity = z.output<typeof RequestedQuantitySchema>;
 
 const optionalQuantities = z.array(RequestedQuantitySchema).optional();
 
-export const RecordWarehouseExitSchema = z
+export const CreateNotaDeEntregaSchema = z
+  .object({
+    orderId: z.string().trim().min(1),
+    recipient: z.string().trim().min(1),
+    deliveredBy: z.string().trim().min(1),
+    recordedBy: z.string().trim().min(1),
+    observations: optionalText,
+    locationId: optionalText,
+    quantities: optionalQuantities,
+    source: z.literal(DELIVERY_SOURCE),
+    /** Optional future display; does not change identity. Not an official generator. */
+    displayDocumentNumber: optionalText,
+  })
+  .strict();
+
+export type CreateNotaDeEntregaPayload = z.output<typeof CreateNotaDeEntregaSchema>;
+
+export const RecordSalidaSchema = z
   .object({
     orderId: z.string().trim().min(1),
     exitedAt: z.string().datetime(),
@@ -198,13 +253,46 @@ export const RecordWarehouseExitSchema = z
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
     quantities: optionalQuantities,
-    /** Source-preserved printed number only. Does not generate numbering. */
+    deliveryNoteId: optionalText,
     externalDocumentNumber: optionalText,
   })
   .strict();
 
-export type RecordWarehouseExitPayload = z.output<typeof RecordWarehouseExitSchema>;
+export type RecordSalidaPayload = z.output<typeof RecordSalidaSchema>;
 
+export const RecordEntregaSchema = z
+  .object({
+    orderId: z.string().trim().min(1),
+    deliveredAt: z.string().datetime(),
+    receivedBy: z.string().trim().min(1),
+    recordedBy: z.string().trim().min(1),
+    notes: optionalText,
+    source: z.literal(DELIVERY_SOURCE),
+    quantities: optionalQuantities,
+    deliveryNoteId: optionalText,
+    evidenceReference: optionalText,
+    externalDocumentNumber: optionalText,
+  })
+  .strict();
+
+export type RecordEntregaPayload = z.output<typeof RecordEntregaSchema>;
+
+export const CorrectDeliveryDocumentSchema = z
+  .object({
+    deliveryNoteId: z.string().trim().min(1),
+    reason: z.string().trim().min(1),
+    recordedBy: z.string().trim().min(1),
+    source: z.literal(DELIVERY_SOURCE),
+  })
+  .strict();
+
+export type CorrectDeliveryDocumentPayload = z.output<typeof CorrectDeliveryDocumentSchema>;
+
+/** @deprecated Prefer RecordSalida. Kept for registry compatibility. */
+export const RecordWarehouseExitSchema = RecordSalidaSchema;
+export type RecordWarehouseExitPayload = RecordSalidaPayload;
+
+/** Legacy customer delivery without auto-creating a nota. Prefer RecordEntrega. */
 export const RecordCustomerDeliverySchema = z
   .object({
     orderId: z.string().trim().min(1),
@@ -214,7 +302,7 @@ export const RecordCustomerDeliverySchema = z
     notes: optionalText,
     source: z.literal(DELIVERY_SOURCE),
     quantities: optionalQuantities,
-    /** Source-preserved printed number only. Example: Nota de Entrega 007189. */
+    deliveryNoteId: optionalText,
     externalDocumentNumber: optionalText,
   })
   .strict();
@@ -230,30 +318,48 @@ const evidenceBase = {
 };
 
 export const RecordDeliveryEvidenceSchema = z.discriminatedUnion('role', [
-  z.object({
-    ...evidenceBase,
-    role: z.literal('commercial_coordination'),
-  }).strict(),
-  z.object({
-    ...evidenceBase,
-    role: z.literal('warehouse_outbound'),
-  }).strict(),
-  z.object({
-    ...evidenceBase,
-    role: z.literal('accounting_payment'),
-    paymentState: z.enum(['reference', 'authorized_exception']),
-    exceptionReason: optionalText,
-    authorizedBy: optionalText,
-  }).strict(),
-  z.object({
-    ...evidenceBase,
-    role: z.literal('delivery_confirmation'),
-    recipient: optionalText,
-    signatureReference: optionalText,
-  }).strict(),
+  z
+    .object({
+      ...evidenceBase,
+      role: z.literal('commercial_coordination'),
+    })
+    .strict(),
+  z
+    .object({
+      ...evidenceBase,
+      role: z.literal('warehouse_outbound'),
+    })
+    .strict(),
+  z
+    .object({
+      ...evidenceBase,
+      role: z.literal('accounting_payment'),
+      paymentState: z.enum(['reference', 'authorized_exception']),
+      exceptionReason: optionalText,
+      authorizedBy: optionalText,
+    })
+    .strict(),
+  z
+    .object({
+      ...evidenceBase,
+      role: z.literal('delivery_confirmation'),
+      recipient: optionalText,
+      signatureReference: optionalText,
+    })
+    .strict(),
 ]);
 
 export type RecordDeliveryEvidencePayload = z.output<typeof RecordDeliveryEvidenceSchema>;
+
+export const DELIVERY_COMMAND_PAYLOAD_SCHEMAS: Record<DeliveryCommandName, z.ZodTypeAny> = {
+  CreateNotaDeEntrega: CreateNotaDeEntregaSchema,
+  RecordSalida: RecordSalidaSchema,
+  RecordEntrega: RecordEntregaSchema,
+  CorrectDeliveryDocument: CorrectDeliveryDocumentSchema,
+  RecordWarehouseExit: RecordWarehouseExitSchema,
+  RecordCustomerDelivery: RecordCustomerDeliverySchema,
+  RecordDeliveryEvidence: RecordDeliveryEvidenceSchema,
+};
 
 export type StoredDeliveryEvidence = {
   role: DeliveryEvidenceRole;
@@ -314,12 +420,14 @@ export function assertNoDeliveryClaims(payload: unknown): void {
   }
 }
 
+/** @deprecated Nota can exist before delivery. Kept as null for honesty about auto-lifecycle. */
 export function noteBeforeDelivery(): null {
   return null;
 }
 
+/** Human create path lives on CreateNotaDeEntrega — this helper must not invent a nota. */
 export function createDeliveryNoteWithoutDelivery(): never {
-  throw new Error('DELIVERY_REQUIRED');
+  throw new Error('USE_CREATE_NOTA_DE_ENTREGA');
 }
 
 export function assignDeliveryNoteNumber(_requested: unknown): never {
@@ -350,6 +458,14 @@ export function paymentExceptionIsConfirmedLedgerPayment(): false {
   return false;
 }
 
+export function pdfDownloadCreatesSalida(): false {
+  return false;
+}
+
+export function entregaCreatesNota(): false {
+  return false;
+}
+
 export function assertNoteDoesNotPredateDelivery(bornAt: string, deliveredAt: string): void {
   const born = Date.parse(bornAt);
   const delivered = Date.parse(deliveredAt);
@@ -361,7 +477,7 @@ export function assertNoteDoesNotPredateDelivery(bornAt: string, deliveredAt: st
 export function assertEventHasOccurred(eventAt: string, recordedAt: Date): void {
   const eventMs = Date.parse(eventAt);
   if (Number.isNaN(eventMs) || eventMs > recordedAt.getTime()) {
-    throw new Error('NOTE_PREDATES_DELIVERY');
+    throw new Error('VALIDATION_FAILED');
   }
 }
 
@@ -383,16 +499,18 @@ export function copyKnownOrderQuantities(
     if (typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity < 1) {
       throw new Error('VALIDATION_FAILED');
     }
-    const productRef = typeof row.productRef === 'string' && row.productRef.trim() ? row.productRef.trim() : null;
-    const unitLabel = typeof row.unitLabel === 'string' && row.unitLabel.trim() ? row.unitLabel.trim() : null;
+    const productRef =
+      typeof row.productRef === 'string' && row.productRef.trim() ? row.productRef.trim() : null;
+    const unitLabel =
+      typeof row.unitLabel === 'string' && row.unitLabel.trim() ? row.unitLabel.trim() : null;
     return { orderLineId, productRef, description, quantity, unitLabel };
   });
 }
 
 /**
- * Stores the quantity this delivery or exit recorded.
- * A smaller quantity is allowed. A second call is not a fulfillment decision.
- * Unknown order lines are not invented. Missing quantities copy known lines only.
+ * Stores the quantity this document recorded.
+ * When order lines are known: reject qty < 1 or qty > that line's order quantity.
+ * Does not invent cumulative remaining/allocation math across partial deliveries.
  */
 export function storeDeliveredQuantities(
   lines: readonly unknown[] | null | undefined,
@@ -405,8 +523,12 @@ export function storeDeliveredQuantities(
   return requested.map((item) => {
     if (seen.has(item.orderLineId)) throw new Error('VALIDATION_FAILED');
     seen.add(item.orderLineId);
+    if (known.length === 0) throw new Error('VALIDATION_FAILED');
     const line = knownById.get(item.orderLineId);
     if (!line) throw new Error('VALIDATION_FAILED');
+    if (item.quantity < 1 || item.quantity > line.quantity) {
+      throw new Error('VALIDATION_FAILED');
+    }
     return { ...line, quantity: item.quantity };
   });
 }
@@ -463,14 +585,37 @@ export function suggestRecipientsInTenant(
   return out;
 }
 
-export function evidenceRoleFitsSubject(subjectType: DeliverySubjectType, role: DeliveryEvidenceRole): boolean {
+export function evidenceRoleFitsSubject(
+  subjectType: DeliverySubjectType,
+  role: DeliveryEvidenceRole,
+): boolean {
   if (subjectType === 'warehouse_exit') return role === 'warehouse_outbound';
+  if (subjectType === 'delivery_note') return role === 'delivery_confirmation' || role === 'commercial_coordination';
   return true;
 }
 
-export function parseRecordWarehouseExit(payload: unknown): RecordWarehouseExitPayload {
+export function parseCreateNotaDeEntrega(payload: unknown): CreateNotaDeEntregaPayload {
   assertNoDeliveryClaims(payload);
-  return RecordWarehouseExitSchema.parse(payload);
+  return CreateNotaDeEntregaSchema.parse(payload);
+}
+
+export function parseRecordSalida(payload: unknown): RecordSalidaPayload {
+  assertNoDeliveryClaims(payload);
+  return RecordSalidaSchema.parse(payload);
+}
+
+export function parseRecordEntrega(payload: unknown): RecordEntregaPayload {
+  assertNoDeliveryClaims(payload);
+  return RecordEntregaSchema.parse(payload);
+}
+
+export function parseCorrectDeliveryDocument(payload: unknown): CorrectDeliveryDocumentPayload {
+  assertNoDeliveryClaims(payload);
+  return CorrectDeliveryDocumentSchema.parse(payload);
+}
+
+export function parseRecordWarehouseExit(payload: unknown): RecordWarehouseExitPayload {
+  return parseRecordSalida(payload);
 }
 
 export function parseRecordCustomerDelivery(payload: unknown): RecordCustomerDeliveryPayload {

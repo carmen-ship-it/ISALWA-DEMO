@@ -94,9 +94,9 @@ export type DeliveryNoteRead = {
   documentKind: string;
   numberingPolicy: string | null;
   noteNumber: null;
-  deliveryId: string;
+  deliveryId: string | null;
   orderId: string;
-  deliveredAt: string;
+  deliveredAt: string | null;
   bornAt: string;
   warehouseExitId: null;
   claimsInvoice: false;
@@ -506,34 +506,24 @@ function buildDeliveries(
       const note = notes.find((item) => item.organizationId === organizationId && item.deliveryId === delivery.id);
       let deliveryNote: DeliveryNoteRead | null = null;
       if (note) {
-        const eventAt = delivery.deliveredAt;
-        if (predates(note.bornAt, eventAt) || predates(note.bornAt, note.deliveredAt) || predates(note.deliveredAt, eventAt)) {
-          violations.push({
-            sourceState: 'ERROR',
-            code: 'NOTE_PREDATES_DELIVERY',
-            noteId: note.id,
-            bornAt: iso(note.bornAt),
-            eventAt: iso(eventAt),
-          });
-        } else {
-          deliveryNote = {
-            id: note.id,
-            documentKind: note.documentKind,
-            numberingPolicy: note.numberingPolicy,
-            noteNumber: NOTE_NUMBER,
-            deliveryId: note.deliveryId,
-            orderId: note.orderId,
-            deliveredAt: iso(note.deliveredAt),
-            bornAt: iso(note.bornAt),
-            warehouseExitId: null,
-            claimsInvoice: false,
-            claimsTax: false,
-            lines: lines
-              .filter((line) => line.organizationId === organizationId && line.noteId === note.id)
-              .map(toLine),
-          };
-          acceptedNotes.push(deliveryNote);
-        }
+        // Nota may exist before delivery (human-created from pedido).
+        deliveryNote = {
+          id: note.id,
+          documentKind: note.documentKind,
+          numberingPolicy: note.numberingPolicy,
+          noteNumber: NOTE_NUMBER,
+          deliveryId: note.deliveryId,
+          orderId: note.orderId,
+          deliveredAt: note.deliveredAt ? iso(note.deliveredAt) : null,
+          bornAt: iso(note.bornAt),
+          warehouseExitId: null,
+          claimsInvoice: false,
+          claimsTax: false,
+          lines: lines
+            .filter((line) => line.organizationId === organizationId && line.noteId === note.id)
+            .map(toLine),
+        };
+        acceptedNotes.push(deliveryNote);
       }
       return {
         id: delivery.id,

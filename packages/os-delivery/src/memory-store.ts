@@ -1,5 +1,6 @@
 import type { DeliverySubjectType } from '../../os-contracts/src/delivery';
 import type {
+  DeliveryDomainEventRecord,
   DeliveryNoteRecord,
   DeliveryRecord,
   DeliveryStore,
@@ -30,6 +31,7 @@ export class MemoryDeliveryStore implements DeliveryStore {
   private readonly deliveryNotes: DeliveryNoteRecord[] = [];
   private readonly deliveryLines: NoteLineRecord[] = [];
   private readonly evidence: EvidenceRecord[] = [];
+  private readonly events: DeliveryDomainEventRecord[] = [];
 
   putOrder(order: OrderSnapshot): void {
     this.orders.set(key(order.organizationId, order.id), order);
@@ -71,8 +73,20 @@ export class MemoryDeliveryStore implements DeliveryStore {
     this.deliveryLines.push(...rows);
   }
 
+  async updateDeliveryNote(row: DeliveryNoteRecord): Promise<void> {
+    const index = this.deliveryNotes.findIndex(
+      (note) => note.organizationId === row.organizationId && note.id === row.id,
+    );
+    if (index < 0) throw new Error('NOT_FOUND');
+    this.deliveryNotes[index] = row;
+  }
+
   async insertEvidence(row: EvidenceRecord): Promise<void> {
     this.evidence.push(row);
+  }
+
+  async appendDomainEvent(row: DeliveryDomainEventRecord): Promise<void> {
+    this.events.push(row);
   }
 
   async listWarehouseExits(organizationId: string, orderId: string): Promise<WarehouseExitRecord[]> {
@@ -144,13 +158,22 @@ export class MemoryDeliveryStore implements DeliveryStore {
   }
 
   async listRecipientCandidates(organizationId: string) {
+    const fromNotes = this.deliveryNotes
+      .filter((row) => row.organizationId === organizationId && row.recipient)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient }));
     const fromDeliveries = this.deliveries
       .filter((row) => row.organizationId === organizationId && row.deliveredTo)
       .map((row) => ({ organizationId: row.organizationId, recipient: row.deliveredTo as string }));
     const fromEvidence = this.evidence
       .filter((row) => row.organizationId === organizationId && row.recipient)
       .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient as string }));
-    return [...fromDeliveries, ...fromEvidence];
+    return [...fromNotes, ...fromDeliveries, ...fromEvidence];
+  }
+
+  async listDomainEvents(organizationId: string, orderId?: string): Promise<DeliveryDomainEventRecord[]> {
+    return this.events.filter(
+      (row) => row.organizationId === organizationId && (!orderId || row.orderId === orderId),
+    );
   }
 
   /** Unscoped snapshots. The command service must not call these. */
@@ -167,12 +190,15 @@ export class MemoryDeliveryStore implements DeliveryStore {
   }
 
   protected recipientRows(): Array<{ organizationId: string; recipient: string }> {
+    const fromNotes = this.deliveryNotes
+      .filter((row) => row.recipient)
+      .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient }));
     const fromDeliveries = this.deliveries
       .filter((row) => row.deliveredTo)
       .map((row) => ({ organizationId: row.organizationId, recipient: row.deliveredTo as string }));
     const fromEvidence = this.evidence
       .filter((row) => row.recipient)
       .map((row) => ({ organizationId: row.organizationId, recipient: row.recipient as string }));
-    return [...fromDeliveries, ...fromEvidence];
+    return [...fromNotes, ...fromDeliveries, ...fromEvidence];
   }
 }
