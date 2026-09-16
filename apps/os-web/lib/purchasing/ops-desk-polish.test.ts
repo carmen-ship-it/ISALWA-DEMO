@@ -51,6 +51,9 @@ describe('Wave 2 operational polish', () => {
     assert.match(productos, /Vista previa/);
     assert.match(compras, /No es inventario/);
     assert.match(compras, /entregado'\) return 'success'/);
+    assert.match(compras, /permissionTitle/);
+    assert.match(compras, /data-compras-status="denied"/);
+    assert.doesNotMatch(compras, /AccessDeniedState/);
     assert.match(entregas, /No confirma pago en el libro/);
     assert.match(finance, /Dato manual/);
     assert.match(finance, /No es libro contable/);

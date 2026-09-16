@@ -11,7 +11,7 @@ import {
   Skeleton,
   StatusPill,
 } from '@isalwa/ui';
-import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
+import { ServiceUnavailableState } from '@/components/states/app-states';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import {
   COMPRAS_COPY,
@@ -64,6 +64,20 @@ export function PurchaseRequestPanel({
   onAdvance,
   onStop,
 }: PurchaseRequestPanelProps) {
+  if (state === 'permission') {
+    return (
+      <OpsDeskSurface data-compras-status="denied" role="alert">
+        <EmptyState
+          title={COMPRAS_COPY.permissionTitle}
+          description={COMPRAS_COPY.permissionDescription}
+        />
+        <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          {COMPRAS_COPY.boundary}
+        </p>
+      </OpsDeskSurface>
+    );
+  }
+
   return (
     <OpsDeskSurface>
       <PageSection card className="p-6 md:p-8" aria-label={COMPRAS_COPY.title}>
@@ -113,9 +127,6 @@ function renderState(
   }
   if (state === 'error') {
     return <ServiceUnavailableState />;
-  }
-  if (state === 'permission') {
-    return <AccessDeniedState />;
   }
   return (
     <QueueList

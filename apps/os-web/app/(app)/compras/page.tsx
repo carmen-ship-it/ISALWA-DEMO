@@ -23,11 +23,16 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const queue = await loadComprasQueue({ q, buyer: one(query.buyer), estado });
 
   return (
-    <PageContainer label={COMPRAS_COPY.title} data-tour={COMPRAS_FILTER_TARGET}>
+    <PageContainer
+      label={COMPRAS_COPY.title}
+      data-tour={queue.state === 'ready' ? COMPRAS_FILTER_TARGET : undefined}
+    >
       <PageHeader
         kicker={COMPRAS_COPY.kicker}
-        title={COMPRAS_COPY.title}
-        description={COMPRAS_COPY.description}
+        title={queue.state === 'permission' ? COMPRAS_COPY.permissionTitle : COMPRAS_COPY.title}
+        description={
+          queue.state === 'permission' ? COMPRAS_COPY.permissionDescription : COMPRAS_COPY.description
+        }
         action={
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="manual">No es inventario</StatusPill>
