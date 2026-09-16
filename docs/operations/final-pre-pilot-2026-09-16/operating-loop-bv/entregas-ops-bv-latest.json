@@ -1,0 +1,60 @@
+{
+  "at": "2026-09-16T22:35:37.934Z",
+  "expectedSha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaProof": {
+    "expected": "095bb7f952e38f2304ab60bfcaff56f29c8797f0",
+    "web": {
+      "dep": "dep-dalhglu1egvs73ekihhg",
+      "status": "live",
+      "sha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0"
+    },
+    "api": {
+      "dep": "dep-dalhgm65vjqs73fe2j7g",
+      "status": "live",
+      "sha": "095bb7f952e38f2304ab60bfcaff56f29c8797f0"
+    },
+    "sameSha": true
+  },
+  "walk": {
+    "coordLogin": true,
+    "coordEntregasDesk": true,
+    "coordHasCreateNota": true,
+    "coordHasSalida": false,
+    "coordHasEntrega": true,
+    "coordCreateNotaEnabled": true,
+    "coordNotaPersisted": true,
+    "coordPdf": "NO_BUTTON",
+    "coordEntregaPersisted": true,
+    "almacenDesk": true,
+    "almacenHasSalida": true,
+    "almacenHasCreateNota": false,
+    "almacenSalidaPersisted": true,
+    "almacenCommercialPedidoDenied": true,
+    "contabNoOpsDesk": true,
+    "mobileDeskVisible": true
+  },
+  "shots": {
+    "coordEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-coord-1440.png",
+    "coordAfterNota": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-coord-after-nota.png",
+    "coordAfterEntrega": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-coord-after-entrega.png",
+    "almacenEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-almacen-1440.png",
+    "almacenAfterSalida": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-almacen-after-salida.png",
+    "almacenPedidoDenied": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-almacen-pedido-denied.png",
+    "contabEntregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-contab-1440.png",
+    "coordEntregas390": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/entregas-ops-2026-09-16T22-35-37-coord-390.png"
+  },
+  "score": {
+    "SAME_SHA": "PASS",
+    "ENTREGAS_OPS_DESK": "BROWSER_VERIFIED",
+    "DELIVERY_NOTE_CREATE": "BROWSER_VERIFIED",
+    "ENTREGA": "BROWSER_VERIFIED",
+    "SALIDA": "BROWSER_VERIFIED",
+    "NO_COMMERCIAL_SHORTCUT": "PASS",
+    "CONTAB_DENIED": "PASS",
+    "DELIVERY_NOTE_PDF": "UNPROVEN"
+  }
+}

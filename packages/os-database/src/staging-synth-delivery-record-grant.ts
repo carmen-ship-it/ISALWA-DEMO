@@ -36,6 +36,16 @@ async function main(): Promise<void> {
   if (process.env.STAGING_FIXTURE_CONFIRM?.trim() !== STAGING_FIXTURE_CONFIRM_VALUE) {
     throw new Error('STAGING_FIXTURE_CONFIRM=1 required');
   }
+  if (!process.env.OS_DATABASE_URL?.trim()) {
+    const { readFileSync, existsSync } = await import('node:fs');
+    const { homedir } = await import('node:os');
+    const { join } = await import('node:path');
+    const secretPath = join(homedir(), '.isalwa-secrets', 'isalwa-os-staging.external-database-url');
+    if (!existsSync(secretPath)) {
+      throw new Error('OS_DATABASE_URL missing and secret file absent');
+    }
+    process.env.OS_DATABASE_URL = readFileSync(secretPath, 'utf8').trim();
+  }
   requireEnvFrom(process.env, 'OS_DATABASE_URL');
 
   const prisma = getOsPrisma();
