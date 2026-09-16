@@ -13,6 +13,7 @@ import {
   workItemsQueryForLens,
 } from '@/lib/inicio/queues';
 import { resolveInicioRoleLens, type InicioRoleLens } from '@/lib/inicio/role-lens';
+import { isVisibilityDenied } from '@/lib/leadership/load-inicio-leadership';
 
 export type InicioCommandQueues = {
   lens: InicioRoleLens;
@@ -31,11 +32,17 @@ export type InicioCommandQueues = {
 
 type Safe<T> = T | 'unavailable';
 
-async function safeFetch<T>(fn: () => Promise<T>): Promise<Safe<T>> {
+/**
+ * Optional Inicio section load. Forbidden/unauthorized omit the section
+ * (same as leadership `isVisibilityDenied`). Layout still fail-closes OS
+ * access; a 403 on one queue must not blank the home.
+ */
+export async function safeInicioSectionFetch<T>(fn: () => Promise<T>): Promise<Safe<T>> {
   try {
     return await fn();
   } catch (err) {
     if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
+    if (isVisibilityDenied(err)) return 'unavailable';
     throw err;
   }
 }
@@ -66,10 +73,10 @@ export async function loadInicioCommandQueues(
   const asOf = new Date();
 
   const [workResult, issuesResult, commitmentsResult, approvalsResult] = await Promise.all([
-    safeFetch(() => client.listWorkItems(workItemsQueryForLens(lens))),
-    safeFetch(() => client.listIssues(issuesQueryForLens(lens))),
-    safeFetch(() => client.listCommitments(commitmentsQueryForLens(lens, session.memberId))),
-    safeFetch(() => client.listApprovals({ limit: 50 })),
+    safeInicioSectionFetch(() => client.listWorkItems(workItemsQueryForLens(lens))),
+    safeInicioSectionFetch(() => client.listIssues(issuesQueryForLens(lens))),
+    safeInicioSectionFetch(() => client.listCommitments(commitmentsQueryForLens(lens, session.memberId))),
+    safeInicioSectionFetch(() => client.listApprovals({ limit: 50 })),
   ]);
 
   const workItems =

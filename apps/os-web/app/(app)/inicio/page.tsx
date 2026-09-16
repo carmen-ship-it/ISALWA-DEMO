@@ -18,7 +18,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
 import { commitmentAgingAdapter } from '@/lib/inicio/commitment-aging';
-import { loadInicioCommandQueues } from '@/lib/inicio/load-command-queues';
+import { loadInicioCommandQueues, safeInicioSectionFetch } from '@/lib/inicio/load-command-queues';
 import { resolveInicioApprovalSubjects } from '@/lib/inicio/resolve-approval-subjects';
 import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
@@ -40,15 +40,6 @@ import { isProjectionStale } from '@/lib/query/projection-freshness';
 
 /** Contract max. A page with more is not the complete upcoming set. */
 const PERSONAL_OPEN_WORK_LIMIT = 100;
-
-async function safeFetch<T>(fn: () => Promise<T>): Promise<T | 'unavailable'> {
-  try {
-    return await fn();
-  } catch (err) {
-    if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
-    throw err;
-  }
-}
 
 /** Org What Changed is admin-gated. Forbidden is omitted, not fabricated. */
 async function safeMemoryChanges(
@@ -120,13 +111,13 @@ export default async function InicioPage() {
       memoryChanges,
     ] = await Promise.all([
       loadShellContext(),
-      safeFetch(() =>
+      safeInicioSectionFetch(() =>
         client.listAttention({ activeOnly: true, limit: INICIO_ATTENTION_LIMIT }),
       ),
-      safeFetch(() => client.listOpportunities({ status: 'open', limit })),
-      safeFetch(() => client.listQuotes({ status: 'draft', limit })),
-      safeFetch(() => client.listQuotes({ status: 'submitted', limit })),
-      safeFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
+      safeInicioSectionFetch(() => client.listOpportunities({ status: 'open', limit })),
+      safeInicioSectionFetch(() => client.listQuotes({ status: 'draft', limit })),
+      safeInicioSectionFetch(() => client.listQuotes({ status: 'submitted', limit })),
+      safeInicioSectionFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
       loadInicioManagement(client),
       safeMemoryChanges(() => client.listMemoryChanges({ window: 'hoy' })),
     ]);

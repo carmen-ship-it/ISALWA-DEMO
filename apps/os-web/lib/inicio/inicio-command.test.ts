@@ -1,16 +1,42 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { MANAGEMENT_ORG_READ_SCOPE } from '@/lib/management/scope';
 import { COMMERCIAL_TEAM_READ_SCOPE } from '@isalwa/os-contracts';
 import { resolveInicioRoleLens } from '@/lib/inicio/role-lens';
+import {
+  loadInicioCommandQueues,
+  safeInicioSectionFetch,
+} from '@/lib/inicio/load-command-queues';
 import {
   commitmentsQueryForLens,
   filterVisibleWorkItems,
   splitCommitmentQueues,
   workItemsQueryForLens,
 } from '@/lib/inicio/queues';
+
+const appRoot = resolve(__dirname, '../..');
+
+function readApp(path: string): string {
+  return readFileSync(resolve(appRoot, path), 'utf8');
+}
+
+function forbiddenError(): OsApiError {
+  return new OsApiError({
+    kind: 'forbidden',
+    status: 403,
+    code: 'PERMISSION_DENIED',
+    message: 'PERMISSION_DENIED',
+  });
+}
+
+function emptyList() {
+  return { items: [], meta: { hasMore: false }, freshness: null };
+}
 
 function work(partial: Partial<WorkSummaryReadModel> & { workItemId: string }): WorkSummaryReadModel {
   return {
@@ -145,5 +171,106 @@ describe('inicio command queue queries', () => {
       split.open.map((row) => row.id),
       ['c-open'],
     );
+  });
+});
+
+describe('inicio optional section fetch', () => {
+  it('treats forbidden like unavailable and still throws unexpected errors', async () => {
+    const omitted = await safeInicioSectionFetch(async () => {
+      throw forbiddenError();
+    });
+    assert.equal(omitted, 'unavailable');
+
+    const down = await safeInicioSectionFetch(async () => {
+      throw new OsApiError({
+        kind: 'unavailable',
+        status: 503,
+        code: 'UNAVAILABLE',
+        message: 'UNAVAILABLE',
+      });
+    });
+    assert.equal(down, 'unavailable');
+
+    await assert.rejects(
+      () =>
+        safeInicioSectionFetch(async () => {
+          throw new OsApiError({
+            kind: 'unknown',
+            status: 400,
+            code: 'VALIDATION_FAILED',
+            message: 'VALIDATION_FAILED',
+          });
+        }),
+      (err: unknown) => err instanceof OsApiError && err.kind === 'unknown',
+    );
+  });
+});
+
+describe('loadInicioCommandQueues', () => {
+  it('does not collapse Gerente home when org work visibility is forbidden', async () => {
+    const workQueries: unknown[] = [];
+    const client = {
+      async getTrustedAuthorization() {
+        return {
+          authIdentityId: 'auth-1',
+          personId: 'person-1',
+          memberId: 'mem-gerente',
+          organizationId: 'org-1',
+          accessStatus: 'active',
+          employmentStatus: 'active',
+          grantedScopes: [MANAGEMENT_ORG_READ_SCOPE],
+        };
+      },
+      async getAuthenticatedSession() {
+        return { memberId: 'mem-gerente', organizationId: 'org-1' };
+      },
+      async listWorkItems(query?: unknown) {
+        workQueries.push(query);
+        throw forbiddenError();
+      },
+      async listIssues() {
+        return emptyList();
+      },
+      async listCommitments() {
+        return { items: [] };
+      },
+      async listApprovals() {
+        return emptyList();
+      },
+    };
+
+    const loaded = await loadInicioCommandQueues(client, {
+      leadershipTeamReady: false,
+      leadershipOrgReady: false,
+    });
+
+    assert.equal(loaded.lens, 'owner');
+    assert.deepEqual(workQueries, [{ status: 'open', limit: 8, visibility: 'org' }]);
+    assert.equal(loaded.unavailable.work, true);
+    assert.deepEqual(loaded.pendingWork, []);
+    assert.equal(loaded.unavailable.issues, false);
+    assert.equal(loaded.unavailable.approvals, false);
+    assert.equal(loaded.unavailable.commitments, false);
+  });
+});
+
+describe('Inicio page fail-closed per section', () => {
+  it('keeps greeting and Centro de mando when a sub-query is forbidden', () => {
+    const page = readApp('app/(app)/inicio/page.tsx');
+    const loader = readApp('lib/inicio/load-command-queues.ts');
+    const administracion = readApp('app/(app)/administracion/page.tsx');
+    const sistema = readApp('app/(app)/sistema/page.tsx');
+
+    assert.match(loader, /isVisibilityDenied/);
+    assert.match(loader, /safeInicioSectionFetch/);
+    assert.match(page, /safeInicioSectionFetch/);
+    assert.match(page, /PageHeader/);
+    assert.match(page, /Centro de mando/);
+    assert.match(page, /OperatingHomes/);
+    assert.match(page, /safeInicioSectionFetch\(\(\) =>\s*client\.listAttention/);
+    assert.match(page, /QuerySurfaceState error=\{classifyQueryError\(err\)\}/);
+    assert.doesNotMatch(page, /async function safeFetch/);
+    assert.match(administracion, /AccessDeniedState/);
+    assert.match(sistema, /AccessDeniedState/);
   });
 });
