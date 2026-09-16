@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, SectionHeader, StatusPill, Timeline, EmptyState } from '@isalwa/ui';
 import type { TimelineItem } from '@isalwa/ui';
+import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
+import { AssignIssueOwnerForm } from '@/components/issue/assign-issue-owner-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import {
   ISSUE_COPY,
   formatIssueStatus,
@@ -144,6 +147,15 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
     ].filter((id): id is string => Boolean(id));
     const memberLabels = await resolveMemberLabels(client, memberIds);
 
+    const capabilities = await loadMemberCapabilities();
+    const canAssignOwner = hasAssignedOperationsScope(
+      capabilities?.grantedScopes ?? [],
+      ISSUE_MANAGE_SCOPE,
+    );
+    const ownerName = issue.ownerMemberId
+      ? memberLabel(memberLabels, issue.ownerMemberId)
+      : null;
+
     const possibleCauses = issue.journal.filter((e) => e.entryType === 'possible_cause');
     const otherJournal = issue.journal.filter((e) => e.entryType !== 'possible_cause');
 
@@ -194,10 +206,16 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             <div>
               <dt className="isalwa-section-label">{ISSUE_COPY.owner}</dt>
               <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {issue.ownerMemberId
-                  ? memberLabel(memberLabels, issue.ownerMemberId)
-                  : ISSUE_COPY.noOwner}
+                {ownerName ?? ISSUE_COPY.noOwner}
               </dd>
+              {canAssignOwner ? (
+                <AssignIssueOwnerForm
+                  issueId={issue.issueId}
+                  expectedVersion={issue.version}
+                  currentOwnerMemberId={issue.ownerMemberId}
+                  currentOwnerLabel={ownerName}
+                />
+              ) : null}
             </div>
 
             {/* Context references */}

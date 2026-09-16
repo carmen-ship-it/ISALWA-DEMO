@@ -104,6 +104,8 @@ export type ReportIssueContext = {
   referenceType?: IssueReferenceType;
   referenceId?: string;
   referenceLabel?: string;
+  /** When reporting from a Pedido, partyId enables Cliente360 + Pedido path revalidation. */
+  partyId?: string;
 };
 
 export function buildIssueContext(

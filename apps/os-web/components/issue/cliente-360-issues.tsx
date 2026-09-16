@@ -9,6 +9,7 @@ import {
   statusToneForIssue,
 } from '@/lib/issue/labels';
 import { issueHref, issueListHref } from '@/lib/issue/navigation';
+import { reportIssueContextFromParty } from '@/lib/issue/report-context';
 import type { IssueListItem, ReportIssueContext } from '@/lib/issue/types';
 
 type Cliente360IssuesProps = {
@@ -42,11 +43,7 @@ export function Cliente360Issues({
   partyLabel,
   reportedByLabel,
 }: Cliente360IssuesProps) {
-  const context: ReportIssueContext = {
-    referenceType: 'party',
-    referenceId: partyId,
-    referenceLabel: partyLabel,
-  };
+  const context: ReportIssueContext = reportIssueContextFromParty(partyId, partyLabel);
 
   return (
     <div>

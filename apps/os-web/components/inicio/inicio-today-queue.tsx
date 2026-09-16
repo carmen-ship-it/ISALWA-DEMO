@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { OperatingRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { Button, OperatingRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import {
   TODAY_QUEUE_COPY,
   type TodayQueue,
@@ -48,9 +48,23 @@ export function InicioTodayQueue({ queue }: InicioTodayQueueProps) {
       ) : null}
 
       {queue.empty ? (
-        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-          {TODAY_QUEUE_COPY.empty}
-        </p>
+        <div>
+          <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+            {TODAY_QUEUE_COPY.empty}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link href="/trabajo" className="inline-flex">
+              <Button type="button" variant="secondary" size="sm">
+                {TODAY_QUEUE_COPY.viewWork}
+              </Button>
+            </Link>
+            <Link href="/incidencias" className="inline-flex">
+              <Button type="button" variant="secondary" size="sm">
+                {TODAY_QUEUE_COPY.viewIssues}
+              </Button>
+            </Link>
+          </div>
+        </div>
       ) : (
         <div className="space-y-3">
           {queue.buckets.map((bucket) => (

@@ -99,20 +99,20 @@ export function formatReferenceType(type: IssueReferenceType): string {
 
 export const ISSUE_COPY = {
   // Report form
-  reportTitle: 'Reportar problema',
-  reportAction: 'Reportar problema',
+  reportTitle: 'Reportar incidencia',
+  reportAction: 'Reportar incidencia',
   descriptionLabel: '¿Qué ocurrió?',
   descriptionPlaceholder: 'Describa el problema con suficiente detalle para que otro pueda investigar.',
   contextLabel: 'Relacionado con',
   reportedByLabel: 'Reportado por',
   dateLabel: 'Fecha',
-  submitLabel: 'Reportar problema',
+  submitLabel: 'Reportar incidencia',
   submitPending: 'Reportando…',
-  submitSuccess: 'Problema reportado. Pronto será revisado.',
+  submitSuccess: 'Incidencia reportada. Pronto será revisada.',
 
   // List
   listTitle: 'Incidencias',
-  listKicker: 'Problemas',
+  listKicker: 'Incidencias',
   listDescription: 'Problemas reportados y su estado de resolución.',
   tabOpen: 'Abiertas',
   tabAssigned: 'Asignadas a mí',
@@ -127,7 +127,10 @@ export const ISSUE_COPY = {
   detailKicker: 'Incidencia',
   whatHappened: 'Qué ocurrió',
   reporter: 'Reportó',
-  owner: 'Responsable',
+  owner: 'Quién es responsable',
+  assignOwner: 'Asignar',
+  assignOwnerPending: 'Asignando…',
+  assignOwnerSuccess: 'Responsable asignado.',
   cause: 'Causa confirmada',
   possibleCauses: 'Causas posibles',
   resolution: 'Resolución',
@@ -136,17 +139,23 @@ export const ISSUE_COPY = {
   investigation: 'Investigación',
   linkedWork: 'Trabajo vinculado',
   relatedIssues: 'Incidencias relacionadas',
-  noOwner: 'Sin asignar',
+  noOwner: 'Aún no hay una persona responsable asignada.',
   noCause: 'No confirmada',
   noResolution: 'Pendiente',
   noOutcome: 'No registrado',
 
   // Errors
   descriptionRequired: 'Describa qué ocurrió.',
+  ownerRequired: 'Seleccione una persona responsable.',
   sessionExpired: 'Su sesión venció. Vuelva a iniciar sesión.',
-  commandFailed: 'No se pudo reportar el problema. Intente de nuevo.',
+  commandFailed: 'No se pudo reportar la incidencia. Intente de nuevo.',
+  assignFailed: 'No se pudo asignar el responsable. Intente de nuevo.',
+  unauthorizedAssign: 'No tiene permiso para asignar un responsable.',
 
   // Empty panel for Cliente 360
   cliente360Empty: 'Todavía no hay incidencias registradas para este cliente.',
-  cliente360EmptyHint: 'Cuando se reporte un problema relacionado con este cliente, aparecerá aquí.',
+  cliente360EmptyHint: 'Cuando se reporte una incidencia relacionada con este cliente, aparecerá aquí.',
 } as const;
+
+/** Shared empty copy for Work / Issue / commercial owner surfaces. */
+export const RESPONSIBLE_ABSENT = 'Aún no hay una persona responsable asignada.' as const;

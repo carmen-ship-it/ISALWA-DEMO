@@ -1,21 +1,33 @@
 import type { IssueReferenceType, ReportIssueContext } from './types';
+import { buildIssueContext } from './types';
 
-/** Parse Reportar problema context from URL search params (not a Server Action). */
+/** Parse Reportar incidencia context from URL search params (not a Server Action). */
 export function parseReportIssueContext(
   searchParams: Record<string, string | string[] | undefined>,
 ): ReportIssueContext | null {
-  const referenceType =
-    typeof searchParams.issueRefType === 'string' ? searchParams.issueRefType : undefined;
-  const referenceId =
-    typeof searchParams.issueRefId === 'string' ? searchParams.issueRefId : undefined;
-  const referenceLabel =
-    typeof searchParams.issueRefLabel === 'string' ? searchParams.issueRefLabel : undefined;
+  return buildIssueContext(searchParams);
+}
 
-  if (!referenceType || !referenceId) return null;
-
+export function reportIssueContextFromParty(
+  partyId: string,
+  partyLabel: string,
+): ReportIssueContext {
   return {
-    referenceType: referenceType as IssueReferenceType,
-    referenceId,
-    referenceLabel,
+    referenceType: 'party' satisfies IssueReferenceType,
+    referenceId: partyId,
+    referenceLabel: partyLabel,
+  };
+}
+
+export function reportIssueContextFromOrder(
+  orderId: string,
+  orderLabel: string,
+  partyId?: string,
+): ReportIssueContext {
+  return {
+    referenceType: 'order' satisfies IssueReferenceType,
+    referenceId: orderId,
+    referenceLabel: orderLabel,
+    partyId,
   };
 }

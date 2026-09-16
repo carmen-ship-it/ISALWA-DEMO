@@ -1,15 +1,18 @@
 import Link from 'next/link';
-import { PageSection, SectionHeader } from '@isalwa/ui';
+import { Button, PageSection, SectionHeader } from '@isalwa/ui';
 import type {
   AttentionItemReadModel,
-  QuoteSummaryReadModel,
   WorkSummaryReadModel,
 } from '@isalwa/os-contracts';
 import { t } from '@/lib/i18n/es';
 import { deriveAgingFacts, workAgingInput } from '@/lib/work/aging/derive';
 import type { ApprovalAgingSource, CommitmentAgingAdapter } from '@/lib/work/aging/types';
 import { supplementalAgingGroups } from '@/lib/work/aging/present';
-import { groupInicioAttention } from '@/lib/work/inicio-attention';
+import {
+  groupInicioAttention,
+  inicioAttentionEmptyCtas,
+  inicioAttentionEmptyMessage,
+} from '@/lib/work/inicio-attention';
 import { AttentionList, FactualDueList } from '@/components/work/attention-list';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -20,7 +23,7 @@ type InicioAttentionPanelProps = {
   hasMore?: boolean;
   work?: readonly WorkSummaryReadModel[];
   approvals?: readonly ApprovalAgingSource[];
-  quotes?: readonly QuoteSummaryReadModel[];
+  /** Commitment due facts only — no quote-stale ranking or invented urgency. */
   commitments?: CommitmentAgingAdapter | null;
   asOf?: Date;
 };
@@ -32,7 +35,6 @@ export function InicioAttentionPanel({
   hasMore = false,
   work,
   approvals,
-  quotes,
   commitments,
   asOf,
 }: InicioAttentionPanelProps) {
@@ -53,7 +55,6 @@ export function InicioAttentionPanel({
   const facts = deriveAgingFacts({
     work: work?.map(workAgingInput),
     approvals,
-    quotes,
     commitments,
     asOf: clock,
   });
@@ -67,9 +68,44 @@ export function InicioAttentionPanel({
       approvalAges.set(fact.issueId.slice('approval:'.length), fact.label);
     }
   }
-  const extraGroups = supplementalAgingGroups(facts, items);
+  const extraGroups = supplementalAgingGroups(facts, items).filter(
+    (group) => group.id !== 'quote_submitted',
+  );
 
-  if (groups.length === 0 && extraGroups.length === 0) return null;
+  if (groups.length === 0 && extraGroups.length === 0) {
+    const emptyCtas = inicioAttentionEmptyCtas();
+    return (
+      <PageSection
+        card
+        surface="active"
+        className="border-[color-mix(in_srgb,var(--isalwa-glaze)_18%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
+        aria-label={t('pages.inicio.attention')}
+        data-tour={TOUR_TARGET.homeAttention}
+      >
+        <SectionHeader
+          kicker="Ahora"
+          title={
+            <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+              {t('pages.inicio.attention')}
+            </h2>
+          }
+          className="mb-2"
+        />
+        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+          {inicioAttentionEmptyMessage()}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {emptyCtas.map((cta) => (
+            <Link key={cta.href} href={cta.href} className="inline-flex">
+              <Button type="button" variant="secondary" size="sm">
+                {cta.label}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </PageSection>
+    );
+  }
 
   return (
     <PageSection

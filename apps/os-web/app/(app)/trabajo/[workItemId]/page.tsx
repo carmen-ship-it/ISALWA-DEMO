@@ -91,9 +91,11 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
 
           <dl className="mt-8 grid gap-6 sm:grid-cols-2">
             <div>
-              <dt className="isalwa-section-label">Responsable</dt>
+              <dt className="isalwa-section-label">Quién es responsable</dt>
               <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                {memberLabel(memberLabels, work.ownerMemberId)}
+                {work.ownerMemberId
+                  ? memberLabel(memberLabels, work.ownerMemberId)
+                  : 'Aún no hay una persona responsable asignada.'}
               </dd>
             </div>
             <div>

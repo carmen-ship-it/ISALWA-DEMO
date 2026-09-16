@@ -143,15 +143,12 @@ describe('CC-1 inicio attention grouping', () => {
 describe('CC-1 empty attention state', () => {
   it('does not invent a celebration or KPI when nothing needs attention', () => {
     assert.equal(groupInicioAttention([]).length, 0);
-    assert.equal(
-      inicioAttentionEmptyMessage(),
-      'No tiene pendientes que requieran atención ahora.',
-    );
+    assert.equal(inicioAttentionEmptyMessage(), 'No tienes pendientes para hoy.');
     assert.deepEqual(inicioAttentionEmptyCtas(), [
       { href: '/trabajo', label: 'Ver trabajo' },
       { href: '/clientes', label: 'Ir a clientes' },
     ]);
-    assert.equal(t('pages.inicio.attention'), 'Necesita su atención');
+    assert.equal(t('pages.inicio.attention'), 'Necesita atención');
     assert.doesNotMatch(inicioAttentionEmptyMessage(), /felicidades|todo al día|kpi/i);
   });
 });
@@ -163,7 +160,7 @@ describe('CC-1 inicio page wiring', () => {
     const grouping = readAppFile('lib/work/inicio-attention.ts');
 
     assert.match(page, /listAttention\(\{\s*activeOnly:\s*true/);
-    assert.doesNotMatch(page, /listAttention\([\s\S]*memberId/);
+    assert.doesNotMatch(page, /listAttention\(\{[^}]*memberId/);
     assert.doesNotMatch(page, /admin|team feed|role mapping/i);
 
     const attentionAt = page.indexOf('InicioAttentionPanel');
@@ -191,9 +188,11 @@ describe('CC-1 inicio page wiring', () => {
     assert.doesNotMatch(panel, FORBIDDEN_AGING);
     assert.doesNotMatch(grouping, FORBIDDEN_AGING);
     assert.doesNotMatch(grouping, /dueAt\s*</);
-    assert.match(panel, /quotes\?:/);
     assert.match(panel, /commitments\?:/);
+    assert.doesNotMatch(panel, /quotes\?:/);
     assert.doesNotMatch(panel, /attentionType:\s*'overdue_work'/);
+    assert.match(panel, /inicioAttentionEmptyMessage/);
+    assert.doesNotMatch(page, /quotes=\{quotesSubmitted/);
 
     const employeeCopy = [
       t('pages.inicio.attention'),
