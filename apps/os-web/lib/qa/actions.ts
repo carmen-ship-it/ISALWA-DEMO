@@ -18,8 +18,8 @@ import {
 } from '@/lib/qa/cookie';
 import {
   findSynthPersonaByMemberId,
-  isAllowedQaTargetMemberId,
   resolveSynthPersonas,
+  WAVE2_PERSONA_EMAIL,
   type SynthPersona,
 } from '@/lib/qa/personas';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
@@ -39,9 +39,6 @@ async function requireQaOperator() {
   const actingMemberId = session.memberId?.trim();
   const actorOrgId = session.organizationId?.trim();
   if (!actingMemberId || !actorOrgId) throw new Error('SESSION_INCOMPLETE');
-  if (actorOrgId === QA_SYNTH_ORGANIZATION_ID) {
-    // Operators act from REAL (or other) tenant; never impersonate from within SYNTH session swap.
-  }
   return { actingMemberId, actorOrgId, grantedScopes, client };
 }
 
@@ -56,27 +53,60 @@ export async function loadOperatorSynthPersonas(client: OsApiClient): Promise<Sy
   return resolveSynthPersonas(stagingLookup(client));
 }
 
+function fallbackPersonaFromRow(row: {
+  email: string;
+  memberId: string;
+  grantedScopes: readonly string[];
+}): SynthPersona | null {
+  const email = row.email.trim().toLowerCase();
+  const entry = Object.entries(WAVE2_PERSONA_EMAIL).find(([, v]) => v === email);
+  if (!entry) return null;
+  const functionId = entry[0] as Exclude<
+    SynthPersona['functionId'],
+    'issue-reporter' | 'issue-manager' | 'issue-work'
+  >;
+  const labels: Record<typeof functionId, string> = {
+    'asesor-comercial': 'Asesor Comercial',
+    'jefe-comercial': 'Jefe Comercial',
+    'gerente-general': 'Gerente General',
+    'encargado-produccion': 'Encargado de Producción',
+    'encargado-almacen': 'Encargado de Almacén',
+    'encargada-compras': 'Encargada de Compras',
+    contabilidad: 'Contabilidad',
+    'auxiliar-coordinacion': 'Auxiliar de Coordinación',
+    'isalwa-manager': 'ISALWA Manager',
+  };
+  return {
+    id: functionId,
+    functionId,
+    label: labels[functionId] ?? functionId,
+    description: 'staging',
+    email: row.email,
+    memberId: row.memberId,
+    grantedScopes: row.grantedScopes,
+    source: 'staging',
+  };
+}
+
 export async function startQaView(formData: FormData): Promise<void> {
   const { actingMemberId, client } = await requireQaOperator();
   const targetMemberId = String(formData.get('targetMemberId') ?? '').trim();
   if (!targetMemberId) throw new Error('TARGET_REQUIRED');
 
-  const personas = await loadOperatorSynthPersonas(client);
-  if (!isAllowedQaTargetMemberId(targetMemberId, personas)) {
-    throw new Error('TARGET_NOT_ALLOWED');
-  }
-  const persona = findSynthPersonaByMemberId(targetMemberId, personas);
-  if (!persona?.memberId) throw new Error('TARGET_RECEIPT_MISSING');
+  const { items } = await client.listQaSynthPersonas();
+  const allowed = items.find(
+    (row) => row.memberId === targetMemberId && row.organizationId === QA_SYNTH_ORGANIZATION_ID,
+  );
+  if (!allowed) throw new Error('TARGET_NOT_ALLOWED');
 
-  // Hosted fail-closed: confirm target remains SYNTH via effective-access.
-  const live = await client.getQaEffectiveAccess(persona.memberId);
+  const live = await client.getQaEffectiveAccess(targetMemberId);
   if (live.organizationId.trim() !== QA_SYNTH_ORGANIZATION_ID) {
     throw new Error('TARGET_NOT_ALLOWED');
   }
 
   const value = createSignedQaViewCookieValue({
     actingMemberId,
-    targetMemberId: persona.memberId,
+    targetMemberId: allowed.memberId,
     synthOrgId: QA_SYNTH_ORGANIZATION_ID,
   });
   if (!value) throw new Error('QA_SIGNING_UNAVAILABLE');
@@ -112,10 +142,27 @@ export async function readActiveQaView() {
         const client = createOsApiClient(auth);
         const personas = await loadOperatorSynthPersonas(client);
         persona = findSynthPersonaByMemberId(payload.targetMemberId, personas);
+        if (!persona) {
+          const { items } = await client.listQaSynthPersonas();
+          const row = items.find((item) => item.memberId === payload.targetMemberId);
+          if (row) persona = fallbackPersonaFromRow(row);
+        }
+        if (persona) {
+          try {
+            const live = await client.getQaEffectiveAccess(payload.targetMemberId);
+            if (live.organizationId === QA_SYNTH_ORGANIZATION_ID && live.grantedScopes.length) {
+              persona = { ...persona, grantedScopes: live.grantedScopes };
+            }
+          } catch {
+            // Keep roster scopes if live evaluation is unavailable.
+          }
+        }
       }
     } catch {
       persona = null;
     }
   }
+
+  if (!persona) return null;
   return { payload, persona };
 }

@@ -17,6 +17,7 @@ import {
   resolveSynthPersonas,
   type SynthPersona,
 } from '@/lib/qa/personas';
+import { resolveQaViewStartTarget } from '@/lib/qa/start-view';
 import {
   QA_REAL_ORGANIZATION_ID,
   QA_SYNTH_ORGANIZATION_ID,
@@ -201,6 +202,107 @@ describe('staging persona memberId fallback', () => {
     assert.equal(
       resolved.some((p) => p.email === 'w2.people-admin@isalwa.demo'),
       false,
+    );
+  });
+});
+
+describe('start view with staging-resolved memberId (no local receipt)', () => {
+  it('allows Ver Como start when memberId comes only from staging lookup', () => {
+    const plannedOnly: SynthPersona[] = [
+      {
+        id: 'asesor-comercial',
+        functionId: 'asesor-comercial',
+        label: 'Asesor comercial',
+        description: 'planned',
+        email: 'w2.asesor@isalwa.demo',
+        memberId: null,
+        grantedScopes: ['commercial.team.read'],
+        source: 'planned',
+      },
+    ];
+    const stagingMemberId = '01STAGINGASESORMEMBERID00001';
+    const personas = mergeStagingPersonaLookups(plannedOnly, [
+      {
+        email: 'w2.asesor@isalwa.demo',
+        memberId: stagingMemberId,
+        organizationId: QA_SYNTH_ORGANIZATION_ID,
+        grantedScopes: ['commercial.team.read'],
+      },
+    ]);
+    assert.equal(personas[0]?.source, 'staging');
+    assert.equal(personas[0]?.memberId, stagingMemberId);
+
+    const started = resolveQaViewStartTarget({
+      targetMemberId: stagingMemberId,
+      personas,
+      liveOrganizationId: QA_SYNTH_ORGANIZATION_ID,
+    });
+    assert.equal(started.targetMemberId, stagingMemberId);
+    assert.equal(started.persona.source, 'staging');
+
+    const prev = process.env.OS_QA_SIGNING_SECRET;
+    process.env.OS_QA_SIGNING_SECRET = 'unit-test-qa-signing-secret';
+    try {
+      const value = createSignedQaViewCookieValue({
+        actingMemberId: '01OPERATORACTINGMEMBER0000001',
+        targetMemberId: started.targetMemberId,
+        synthOrgId: QA_SYNTH_ORGANIZATION_ID,
+      });
+      assert.ok(value);
+      const parsed = parseSignedQaViewCookie(value);
+      assert.equal(parsed?.targetMemberId, stagingMemberId);
+      assert.equal(parsed?.synthOrgId, QA_SYNTH_ORGANIZATION_ID);
+    } finally {
+      if (prev === undefined) delete process.env.OS_QA_SIGNING_SECRET;
+      else process.env.OS_QA_SIGNING_SECRET = prev;
+    }
+  });
+
+  it('fail-closes REAL live organization even with staging memberId', () => {
+    const personas: SynthPersona[] = [
+      {
+        id: 'asesor-comercial',
+        functionId: 'asesor-comercial',
+        label: 'Asesor comercial',
+        description: 'staging',
+        email: 'w2.asesor@isalwa.demo',
+        memberId: '01STAGINGASESORMEMBERID00001',
+        grantedScopes: ['commercial.team.read'],
+        source: 'staging',
+      },
+    ];
+    assert.throws(
+      () =>
+        resolveQaViewStartTarget({
+          targetMemberId: '01STAGINGASESORMEMBERID00001',
+          personas,
+          liveOrganizationId: QA_REAL_ORGANIZATION_ID,
+        }),
+      /TARGET_NOT_ALLOWED/,
+    );
+  });
+
+  it('fail-closes unknown memberId not in staging catalog', () => {
+    const personas: SynthPersona[] = [
+      {
+        id: 'asesor-comercial',
+        functionId: 'asesor-comercial',
+        label: 'Asesor comercial',
+        description: 'staging',
+        email: 'w2.asesor@isalwa.demo',
+        memberId: '01STAGINGASESORMEMBERID00001',
+        grantedScopes: ['commercial.team.read'],
+        source: 'staging',
+      },
+    ];
+    assert.throws(
+      () =>
+        resolveQaViewStartTarget({
+          targetMemberId: '01NOTINCATALOGMEMBERID0000001',
+          personas,
+          liveOrganizationId: QA_SYNTH_ORGANIZATION_ID,
+        }),
+      /TARGET_NOT_ALLOWED/,
     );
   });
 });
