@@ -65,10 +65,18 @@ export const WAVE_A_CONTINUITY_FIXTURE_EMAILS = [
   'w2.cont-coverage@isalwa.demo',
 ] as const;
 
+/** Wave B issue-memory fixture emails (SYNTH only). */
+export const WAVE_B_ISSUE_MEMORY_EMAILS = [
+  'w2.issue-reporter@isalwa.demo',
+  'w2.issue-manager@isalwa.demo',
+  'w2.issue-work@isalwa.demo',
+] as const;
+
 export const ALLOWED_FIXTURE_TOOL_EMAILS = [
   ...ALLOWED_SYNTHETIC_EMAILS,
   WAVE2_FIXTURE_SEED_EMAIL,
   ...WAVE_A_CONTINUITY_FIXTURE_EMAILS,
+  ...WAVE_B_ISSUE_MEMORY_EMAILS,
 ] as const;
 
 export const ROLE_EMAILS: Record<
