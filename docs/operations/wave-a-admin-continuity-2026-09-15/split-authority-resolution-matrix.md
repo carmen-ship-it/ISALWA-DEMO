@@ -14,7 +14,7 @@
 | Pending approval (assigned approver) | **NO** | Assigned approver or `approval.act` delegate | `Approve` / `Reject` | `member_active` + gate | Link to `/aprobaciones` | Explains must decide; no reassign approver |
 | Direct reports | **YES** | — | `ChangeManager` (per report) | `people.admin` | Organización / Continuidad responsable | N/A |
 | Active delegation FROM/TO | **YES** | — | `RevokeDelegation` | `people.admin` | Delegaciones | N/A |
-| Customer coverage (primary) | **NO** | **FOUNDATION_GAP** — no Grant/Revoke/ReplaceCoverage command | none | — | Responsabilidades + Continuidad comercial | Spanish: fail-closed; ask who manages commercial coverage; people.admin does not gain coverage authority |
-| Customer coverage (acting / temporary) | **NO** | **FOUNDATION_GAP** | none | — | same | same |
+| Customer coverage (primary) | **NO** | **FOUNDATION_GAP** — no Grant/Revoke/ReplaceCoverage command | none | — | Responsabilidades + Continuidad comercial | Spanish: fail-closed; ask who manages commercial coverage; people.admin does not gain coverage authority. Hosted @ `fc38ebe`: **PASS** detect + block ([coverage BV](independent-verifier-wave-a-coverage.md)) |
+| Customer coverage (acting / temporary) | **NO** | **FOUNDATION_GAP** | none | — | same | same — hosted @ `fc38ebe`: **PASS** detect + block |
 
 No capability strings in operator UI.
