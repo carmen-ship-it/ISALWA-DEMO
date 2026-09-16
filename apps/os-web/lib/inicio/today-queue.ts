@@ -54,11 +54,11 @@ export type TodayQueue = {
 };
 
 export const TODAY_QUEUE_COPY = {
-  kicker: 'Cola de hoy',
-  title: 'Qué necesita atención',
+  kicker: 'Para hoy',
+  title: 'Para hoy',
   description:
-    'Hechos con responsable y fecha. El recordatorio es esta cola en el producto. No se envía correo, push ni WhatsApp.',
-  empty: 'No tiene hechos accionables para hoy.',
+    'Trabajo, aprobaciones, incidencias y compromisos con fecha o responsable. El recordatorio es esta cola en el producto — no correo, push ni WhatsApp.',
+  empty: 'No tienes pendientes para hoy.',
   nextAction: '¿Qué hago ahora?',
   overdue: 'Vencidos',
   dueToday: 'Vence hoy',
@@ -66,6 +66,8 @@ export const TODAY_QUEUE_COPY = {
   nextActions: 'Próximas acciones con fecha',
   commitments: 'Compromisos sin resolver',
   issues: 'Incidencias abiertas',
+  viewWork: 'Ver trabajo',
+  viewIssues: 'Ver incidencias',
 } as const;
 
 const BUCKET_TITLE: Record<TodayQueueBucketId, string> = {

@@ -83,6 +83,9 @@ export function ReportIssueDrawer({
         {context?.referenceId ? (
           <input type="hidden" name="referenceId" value={context.referenceId} />
         ) : null}
+        {context?.partyId ? (
+          <input type="hidden" name="partyId" value={context.partyId} />
+        ) : null}
 
         {/* Description field */}
         <div>

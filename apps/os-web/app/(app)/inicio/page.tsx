@@ -43,7 +43,7 @@ import { isProjectionStale } from '@/lib/query/projection-freshness';
 /** Contract max. A page with more is not the complete upcoming set. */
 const PERSONAL_OPEN_WORK_LIMIT = 100;
 
-/** Org What Changed is admin-gated. Forbidden is omitted, not fabricated. */
+/** Org What Changed is authority-gated. Forbidden is omitted, not fabricated. */
 async function safeMemoryChanges(
   fn: () => Promise<MemoryChangesResponse>,
 ): Promise<MemoryChangesResponse | 'unavailable' | 'unauthorized'> {
@@ -313,11 +313,12 @@ export default async function InicioPage() {
             <div>
               <p className="isalwa-kicker">Centro de mando</p>
               <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)] md:text-3xl">
-                Atención de hoy
+                ¿Qué necesita mi atención hoy?
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                Colas operativas con hechos gobernados. Sin totales inventados. El recordatorio es
-                esta pantalla — no correo, push ni WhatsApp.
+                Solo trabajo, aprobaciones, incidencias y compromisos con fecha o responsable.
+                Sin puntajes de urgencia. El recordatorio es esta pantalla — no correo, push ni
+                WhatsApp.
               </p>
             </div>
             <InicioTodayQueue queue={todayQueue} />
@@ -337,7 +338,6 @@ export default async function InicioPage() {
                   commandApprovalSubjects.get(item.approvalRequestId) ??
                   APPROVAL_ROW_SUBJECT_FALLBACK,
               }))}
-              quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
               commitments={
                 commandQueues.unavailable.commitments
                   ? null

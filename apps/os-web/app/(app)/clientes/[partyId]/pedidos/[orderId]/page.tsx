@@ -5,6 +5,7 @@ import { CommercialPath } from '@/components/commercial/commercial-path';
 import { OrderLines } from '@/components/commercial/order-lines';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
+import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
@@ -27,6 +28,7 @@ import { quoteHref } from '@/lib/commercial/navigation';
 import { orderNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
+import { reportIssueContextFromOrder } from '@/lib/issue/report-context';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -58,10 +60,20 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       );
     }
 
+    const capabilities = await loadMemberCapabilities();
+    const actorMemberId = capabilities?.memberId?.trim() || null;
     const partyLabels = await resolvePartyLabels(client, [order.partyId]);
     const customerName = partyLabel(partyLabels, order.partyId);
-    const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
+    const memberLabels = await resolveMemberLabels(
+      client,
+      [order.ownerMemberId, actorMemberId].filter((id): id is string => Boolean(id)),
+    );
     const ownerLabel = memberLabel(memberLabels, order.ownerMemberId);
+    const reportedByLabel = actorMemberId
+      ? memberLabel(memberLabels, actorMemberId)
+      : undefined;
+    const issueContext = reportIssueContextFromOrder(order.orderId, order.orderNumber, partyId);
+
     let sourceQuoteNumber: string | null = null;
     if (order.quoteId) {
       try {
@@ -87,8 +99,6 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       }
     }
 
-    const capabilities = await loadMemberCapabilities();
-    const actorMemberId = capabilities?.memberId?.trim() || null;
     const scopes = capabilities?.grantedScopes ?? [];
     const canMutateDelivery =
       order.status === 'open' &&
@@ -228,9 +238,16 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           title={order.orderNumber}
           description={customerName}
           action={
-            <Link href={partyHref(partyId)} className={documentLinkClass}>
-              Volver al cliente
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <ReportIssueTrigger
+                context={issueContext}
+                reportedByLabel={reportedByLabel}
+                variant="secondary"
+              />
+              <Link href={partyHref(partyId)} className={documentLinkClass}>
+                Volver al cliente
+              </Link>
+            </div>
           }
         />
 

@@ -183,6 +183,18 @@ describe('buildTodayQueue', () => {
     assert.ok(!ids.includes('issue:i2'));
     assert.match(TODAY_QUEUE_COPY.description, /correo/);
     assert.match(TODAY_QUEUE_COPY.description, /WhatsApp/);
+    assert.equal(TODAY_QUEUE_COPY.empty, 'No tienes pendientes para hoy.');
+    assert.equal(TODAY_QUEUE_COPY.title, 'Para hoy');
+    assert.equal(TODAY_QUEUE_COPY.kicker, 'Para hoy');
+  });
+
+  it('exposes empty CTAs to source desks without inventing urgency scores', () => {
+    const queue = buildTodayQueue({ memberId: 'mem-1', asOf: AS_OF });
+    assert.equal(queue.empty, true);
+    assert.equal(queue.nextAction, null);
+    assert.doesNotMatch(JSON.stringify(queue), /urgency|score|SLA|rank/i);
+    assert.equal(TODAY_QUEUE_COPY.viewWork, 'Ver trabajo');
+    assert.equal(TODAY_QUEUE_COPY.viewIssues, 'Ver incidencias');
   });
 
   it('treats dueAt equality boundary as not overdue and due-today when calendar matches', () => {

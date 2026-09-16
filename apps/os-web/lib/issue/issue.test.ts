@@ -10,6 +10,10 @@ import {
   ISSUE_COPY,
 } from './labels';
 import { issueHref, issueListHref, reportIssueHref } from './navigation';
+import {
+  reportIssueContextFromOrder,
+  reportIssueContextFromParty,
+} from './report-context';
 
 describe('issue status formatting', () => {
   it('formats all status values in Spanish', () => {
@@ -142,11 +146,31 @@ describe('issue context parsing', () => {
   });
 });
 
+describe('issue context helpers', () => {
+  it('builds Cliente and Pedido contexts without asking for opaque IDs', () => {
+    assert.deepEqual(reportIssueContextFromParty('pty_1', 'Casa Demo'), {
+      referenceType: 'party',
+      referenceId: 'pty_1',
+      referenceLabel: 'Casa Demo',
+    });
+    assert.deepEqual(reportIssueContextFromOrder('ord_1', 'O-000001', 'pty_1'), {
+      referenceType: 'order',
+      referenceId: 'ord_1',
+      referenceLabel: 'O-000001',
+      partyId: 'pty_1',
+    });
+  });
+});
+
 describe('issue copy constants', () => {
   it('provides Spanish copy for all UI strings', () => {
-    assert.equal(ISSUE_COPY.reportTitle, 'Reportar problema');
+    assert.equal(ISSUE_COPY.reportTitle, 'Reportar incidencia');
+    assert.equal(ISSUE_COPY.reportAction, 'Reportar incidencia');
     assert.equal(ISSUE_COPY.listTitle, 'Incidencias');
     assert.equal(ISSUE_COPY.detailKicker, 'Incidencia');
+    assert.equal(ISSUE_COPY.owner, 'Quién es responsable');
+    assert.equal(ISSUE_COPY.noOwner, 'Aún no hay una persona responsable asignada.');
+    assert.equal(ISSUE_COPY.assignOwner, 'Asignar');
     assert.ok(ISSUE_COPY.cliente360Empty.includes('Todavía no hay'));
     assert.ok(ISSUE_COPY.sessionExpired.includes('sesión venció'));
   });

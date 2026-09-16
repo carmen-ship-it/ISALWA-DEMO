@@ -26,7 +26,7 @@ describe('command palette authorization', () => {
       'Nueva oportunidad',
       'Crear cotización',
       'Registrar seguimiento',
-      'Reportar problema',
+      'Reportar incidencia',
       'Cómo trabajamos',
     ]);
     assert.equal(plain.includes('Agregar cliente'), false);
@@ -35,13 +35,13 @@ describe('command palette authorization', () => {
     const admin = paletteActions({ canCreateCustomer: true, canInvite: true }).map((item) => item.label);
     assert.equal(admin.includes('Agregar cliente'), true);
     assert.equal(admin.includes('Invitar empleado'), true);
-    assert.equal(admin.includes('Reportar problema'), true);
+    assert.equal(admin.includes('Reportar incidencia'), true);
   });
 
-  it('includes Reportar problema action for all users', () => {
+  it('includes Reportar incidencia action for all users', () => {
     const plain = paletteActions({ canCreateCustomer: false, canInvite: false });
-    const reportIssue = plain.find((item) => item.label === 'Reportar problema');
-    assert.ok(reportIssue, 'Reportar problema action should be available');
+    const reportIssue = plain.find((item) => item.label === 'Reportar incidencia');
+    assert.ok(reportIssue, 'Reportar incidencia action should be available');
     assert.equal(reportIssue?.href, '/incidencias/reportar');
   });
 

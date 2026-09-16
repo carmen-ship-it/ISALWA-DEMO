@@ -128,7 +128,7 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
     {
       key: 'action:report-issue',
       kind: 'action',
-      label: 'Reportar problema',
+      label: 'Reportar incidencia',
       detail: 'Nueva incidencia',
       href: '/incidencias/reportar',
     },
