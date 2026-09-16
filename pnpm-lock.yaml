@@ -167,6 +167,9 @@ importers:
       '@isalwa/os-database':
         specifier: workspace:*
         version: link:../../packages/os-database
+      '@isalwa/os-delivery':
+        specifier: workspace:*
+        version: link:../../packages/os-delivery
       '@isalwa/os-domain':
         specifier: workspace:*
         version: link:../../packages/os-domain

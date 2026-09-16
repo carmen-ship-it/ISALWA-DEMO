@@ -88458,6 +88458,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     orderId: string | null
+    deliveryNoteId: string | null
     exitedAt: Date | null
     recordedByMemberId: string | null
     source: string | null
@@ -88469,6 +88470,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     orderId: string | null
+    deliveryNoteId: string | null
     exitedAt: Date | null
     recordedByMemberId: string | null
     source: string | null
@@ -88480,6 +88482,7 @@ export namespace Prisma {
     id: number
     organizationId: number
     orderId: number
+    deliveryNoteId: number
     exitedAt: number
     recordedByMemberId: number
     source: number
@@ -88493,6 +88496,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     exitedAt?: true
     recordedByMemberId?: true
     source?: true
@@ -88504,6 +88508,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     exitedAt?: true
     recordedByMemberId?: true
     source?: true
@@ -88515,6 +88520,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     exitedAt?: true
     recordedByMemberId?: true
     source?: true
@@ -88599,6 +88605,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId: string | null
     exitedAt: Date
     recordedByMemberId: string
     source: string
@@ -88627,6 +88634,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     exitedAt?: boolean
     recordedByMemberId?: boolean
     source?: boolean
@@ -88638,6 +88646,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     exitedAt?: boolean
     recordedByMemberId?: boolean
     source?: boolean
@@ -88649,6 +88658,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     exitedAt?: boolean
     recordedByMemberId?: boolean
     source?: boolean
@@ -88660,6 +88670,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     exitedAt?: boolean
     recordedByMemberId?: boolean
     source?: boolean
@@ -88667,7 +88678,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OsWarehouseExitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "orderId" | "exitedAt" | "recordedByMemberId" | "source" | "notes" | "createdAt", ExtArgs["result"]["osWarehouseExit"]>
+  export type OsWarehouseExitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "orderId" | "deliveryNoteId" | "exitedAt" | "recordedByMemberId" | "source" | "notes" | "createdAt", ExtArgs["result"]["osWarehouseExit"]>
 
   export type $OsWarehouseExitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OsWarehouseExit"
@@ -88676,6 +88687,7 @@ export namespace Prisma {
       id: string
       organizationId: string
       orderId: string
+      deliveryNoteId: string | null
       exitedAt: Date
       recordedByMemberId: string
       source: string
@@ -89107,6 +89119,7 @@ export namespace Prisma {
     readonly id: FieldRef<"OsWarehouseExit", 'String'>
     readonly organizationId: FieldRef<"OsWarehouseExit", 'String'>
     readonly orderId: FieldRef<"OsWarehouseExit", 'String'>
+    readonly deliveryNoteId: FieldRef<"OsWarehouseExit", 'String'>
     readonly exitedAt: FieldRef<"OsWarehouseExit", 'DateTime'>
     readonly recordedByMemberId: FieldRef<"OsWarehouseExit", 'String'>
     readonly source: FieldRef<"OsWarehouseExit", 'String'>
@@ -91636,6 +91649,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     orderId: string | null
+    deliveryNoteId: string | null
     deliveredAt: Date | null
     deliveredTo: string | null
     recordedByMemberId: string | null
@@ -91648,6 +91662,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     orderId: string | null
+    deliveryNoteId: string | null
     deliveredAt: Date | null
     deliveredTo: string | null
     recordedByMemberId: string | null
@@ -91660,6 +91675,7 @@ export namespace Prisma {
     id: number
     organizationId: number
     orderId: number
+    deliveryNoteId: number
     deliveredAt: number
     deliveredTo: number
     recordedByMemberId: number
@@ -91674,6 +91690,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     deliveredAt?: true
     deliveredTo?: true
     recordedByMemberId?: true
@@ -91686,6 +91703,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     deliveredAt?: true
     deliveredTo?: true
     recordedByMemberId?: true
@@ -91698,6 +91716,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     orderId?: true
+    deliveryNoteId?: true
     deliveredAt?: true
     deliveredTo?: true
     recordedByMemberId?: true
@@ -91783,6 +91802,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId: string | null
     deliveredAt: Date
     deliveredTo: string | null
     recordedByMemberId: string
@@ -91812,6 +91832,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     deliveredAt?: boolean
     deliveredTo?: boolean
     recordedByMemberId?: boolean
@@ -91824,6 +91845,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     deliveredAt?: boolean
     deliveredTo?: boolean
     recordedByMemberId?: boolean
@@ -91836,6 +91858,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     deliveredAt?: boolean
     deliveredTo?: boolean
     recordedByMemberId?: boolean
@@ -91848,6 +91871,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     orderId?: boolean
+    deliveryNoteId?: boolean
     deliveredAt?: boolean
     deliveredTo?: boolean
     recordedByMemberId?: boolean
@@ -91856,7 +91880,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OsDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "orderId" | "deliveredAt" | "deliveredTo" | "recordedByMemberId" | "source" | "notes" | "createdAt", ExtArgs["result"]["osDelivery"]>
+  export type OsDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "orderId" | "deliveryNoteId" | "deliveredAt" | "deliveredTo" | "recordedByMemberId" | "source" | "notes" | "createdAt", ExtArgs["result"]["osDelivery"]>
 
   export type $OsDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OsDelivery"
@@ -91865,6 +91889,7 @@ export namespace Prisma {
       id: string
       organizationId: string
       orderId: string
+      deliveryNoteId: string | null
       deliveredAt: Date
       deliveredTo: string | null
       recordedByMemberId: string
@@ -92297,6 +92322,7 @@ export namespace Prisma {
     readonly id: FieldRef<"OsDelivery", 'String'>
     readonly organizationId: FieldRef<"OsDelivery", 'String'>
     readonly orderId: FieldRef<"OsDelivery", 'String'>
+    readonly deliveryNoteId: FieldRef<"OsDelivery", 'String'>
     readonly deliveredAt: FieldRef<"OsDelivery", 'DateTime'>
     readonly deliveredTo: FieldRef<"OsDelivery", 'String'>
     readonly recordedByMemberId: FieldRef<"OsDelivery", 'String'>
@@ -92684,9 +92710,22 @@ export namespace Prisma {
     organizationId: string | null
     deliveryId: string | null
     orderId: string | null
+    partyId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    internalDocumentRef: string | null
+    displayDocumentNumber: string | null
     externalDocumentNumber: string | null
+    status: string | null
+    recipient: string | null
+    deliveredBy: string | null
+    receivedBy: string | null
+    observations: string | null
+    locationId: string | null
+    createdByMemberId: string | null
+    correctsNoteId: string | null
+    supersedesNoteId: string | null
+    correctionReason: string | null
     deliveredAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -92697,9 +92736,22 @@ export namespace Prisma {
     organizationId: string | null
     deliveryId: string | null
     orderId: string | null
+    partyId: string | null
     documentKind: string | null
     numberingPolicy: string | null
+    internalDocumentRef: string | null
+    displayDocumentNumber: string | null
     externalDocumentNumber: string | null
+    status: string | null
+    recipient: string | null
+    deliveredBy: string | null
+    receivedBy: string | null
+    observations: string | null
+    locationId: string | null
+    createdByMemberId: string | null
+    correctsNoteId: string | null
+    supersedesNoteId: string | null
+    correctionReason: string | null
     deliveredAt: Date | null
     bornAt: Date | null
     createdAt: Date | null
@@ -92710,9 +92762,22 @@ export namespace Prisma {
     organizationId: number
     deliveryId: number
     orderId: number
+    partyId: number
     documentKind: number
     numberingPolicy: number
+    internalDocumentRef: number
+    displayDocumentNumber: number
     externalDocumentNumber: number
+    status: number
+    recipient: number
+    deliveredBy: number
+    receivedBy: number
+    observations: number
+    locationId: number
+    createdByMemberId: number
+    correctsNoteId: number
+    supersedesNoteId: number
+    correctionReason: number
     deliveredAt: number
     bornAt: number
     createdAt: number
@@ -92725,9 +92790,22 @@ export namespace Prisma {
     organizationId?: true
     deliveryId?: true
     orderId?: true
+    partyId?: true
     documentKind?: true
     numberingPolicy?: true
+    internalDocumentRef?: true
+    displayDocumentNumber?: true
     externalDocumentNumber?: true
+    status?: true
+    recipient?: true
+    deliveredBy?: true
+    receivedBy?: true
+    observations?: true
+    locationId?: true
+    createdByMemberId?: true
+    correctsNoteId?: true
+    supersedesNoteId?: true
+    correctionReason?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -92738,9 +92816,22 @@ export namespace Prisma {
     organizationId?: true
     deliveryId?: true
     orderId?: true
+    partyId?: true
     documentKind?: true
     numberingPolicy?: true
+    internalDocumentRef?: true
+    displayDocumentNumber?: true
     externalDocumentNumber?: true
+    status?: true
+    recipient?: true
+    deliveredBy?: true
+    receivedBy?: true
+    observations?: true
+    locationId?: true
+    createdByMemberId?: true
+    correctsNoteId?: true
+    supersedesNoteId?: true
+    correctionReason?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -92751,9 +92842,22 @@ export namespace Prisma {
     organizationId?: true
     deliveryId?: true
     orderId?: true
+    partyId?: true
     documentKind?: true
     numberingPolicy?: true
+    internalDocumentRef?: true
+    displayDocumentNumber?: true
     externalDocumentNumber?: true
+    status?: true
+    recipient?: true
+    deliveredBy?: true
+    receivedBy?: true
+    observations?: true
+    locationId?: true
+    createdByMemberId?: true
+    correctsNoteId?: true
+    supersedesNoteId?: true
+    correctionReason?: true
     deliveredAt?: true
     bornAt?: true
     createdAt?: true
@@ -92835,12 +92939,25 @@ export namespace Prisma {
   export type OsDeliveryNoteGroupByOutputType = {
     id: string
     organizationId: string
-    deliveryId: string
+    deliveryId: string | null
     orderId: string
+    partyId: string
     documentKind: string
     numberingPolicy: string
+    internalDocumentRef: string
+    displayDocumentNumber: string | null
     externalDocumentNumber: string | null
-    deliveredAt: Date
+    status: string
+    recipient: string
+    deliveredBy: string
+    receivedBy: string | null
+    observations: string | null
+    locationId: string | null
+    createdByMemberId: string
+    correctsNoteId: string | null
+    supersedesNoteId: string | null
+    correctionReason: string | null
+    deliveredAt: Date | null
     bornAt: Date
     createdAt: Date
     _count: OsDeliveryNoteCountAggregateOutputType | null
@@ -92867,9 +92984,22 @@ export namespace Prisma {
     organizationId?: boolean
     deliveryId?: boolean
     orderId?: boolean
+    partyId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    internalDocumentRef?: boolean
+    displayDocumentNumber?: boolean
     externalDocumentNumber?: boolean
+    status?: boolean
+    recipient?: boolean
+    deliveredBy?: boolean
+    receivedBy?: boolean
+    observations?: boolean
+    locationId?: boolean
+    createdByMemberId?: boolean
+    correctsNoteId?: boolean
+    supersedesNoteId?: boolean
+    correctionReason?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -92880,9 +93010,22 @@ export namespace Prisma {
     organizationId?: boolean
     deliveryId?: boolean
     orderId?: boolean
+    partyId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    internalDocumentRef?: boolean
+    displayDocumentNumber?: boolean
     externalDocumentNumber?: boolean
+    status?: boolean
+    recipient?: boolean
+    deliveredBy?: boolean
+    receivedBy?: boolean
+    observations?: boolean
+    locationId?: boolean
+    createdByMemberId?: boolean
+    correctsNoteId?: boolean
+    supersedesNoteId?: boolean
+    correctionReason?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -92893,9 +93036,22 @@ export namespace Prisma {
     organizationId?: boolean
     deliveryId?: boolean
     orderId?: boolean
+    partyId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    internalDocumentRef?: boolean
+    displayDocumentNumber?: boolean
     externalDocumentNumber?: boolean
+    status?: boolean
+    recipient?: boolean
+    deliveredBy?: boolean
+    receivedBy?: boolean
+    observations?: boolean
+    locationId?: boolean
+    createdByMemberId?: boolean
+    correctsNoteId?: boolean
+    supersedesNoteId?: boolean
+    correctionReason?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
@@ -92906,15 +93062,28 @@ export namespace Prisma {
     organizationId?: boolean
     deliveryId?: boolean
     orderId?: boolean
+    partyId?: boolean
     documentKind?: boolean
     numberingPolicy?: boolean
+    internalDocumentRef?: boolean
+    displayDocumentNumber?: boolean
     externalDocumentNumber?: boolean
+    status?: boolean
+    recipient?: boolean
+    deliveredBy?: boolean
+    receivedBy?: boolean
+    observations?: boolean
+    locationId?: boolean
+    createdByMemberId?: boolean
+    correctsNoteId?: boolean
+    supersedesNoteId?: boolean
+    correctionReason?: boolean
     deliveredAt?: boolean
     bornAt?: boolean
     createdAt?: boolean
   }
 
-  export type OsDeliveryNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "deliveryId" | "orderId" | "documentKind" | "numberingPolicy" | "externalDocumentNumber" | "deliveredAt" | "bornAt" | "createdAt", ExtArgs["result"]["osDeliveryNote"]>
+  export type OsDeliveryNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "deliveryId" | "orderId" | "partyId" | "documentKind" | "numberingPolicy" | "internalDocumentRef" | "displayDocumentNumber" | "externalDocumentNumber" | "status" | "recipient" | "deliveredBy" | "receivedBy" | "observations" | "locationId" | "createdByMemberId" | "correctsNoteId" | "supersedesNoteId" | "correctionReason" | "deliveredAt" | "bornAt" | "createdAt", ExtArgs["result"]["osDeliveryNote"]>
 
   export type $OsDeliveryNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OsDeliveryNote"
@@ -92922,15 +93091,40 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       organizationId: string
-      deliveryId: string
+      /**
+       * Nullable: nota may exist before customer delivery is recorded.
+       */
+      deliveryId: string | null
       orderId: string
+      partyId: string
       documentKind: string
       numberingPolicy: string
+      /**
+       * Pilot-safe immutable identity, e.g. NE-PILOT-<id>. Not official numbering.
+       */
+      internalDocumentRef: string
+      /**
+       * Optional future official display without changing identity.
+       */
+      displayDocumentNumber: string | null
       /**
        * Source-preserved printed number only. Not an OS-generated sequence.
        */
       externalDocumentNumber: string | null
-      deliveredAt: Date
+      status: string
+      recipient: string
+      deliveredBy: string
+      /**
+       * Blank until RecordEntrega sets it.
+       */
+      receivedBy: string | null
+      observations: string | null
+      locationId: string | null
+      createdByMemberId: string
+      correctsNoteId: string | null
+      supersedesNoteId: string | null
+      correctionReason: string | null
+      deliveredAt: Date | null
       bornAt: Date
       createdAt: Date
     }, ExtArgs["result"]["osDeliveryNote"]>
@@ -93360,9 +93554,22 @@ export namespace Prisma {
     readonly organizationId: FieldRef<"OsDeliveryNote", 'String'>
     readonly deliveryId: FieldRef<"OsDeliveryNote", 'String'>
     readonly orderId: FieldRef<"OsDeliveryNote", 'String'>
+    readonly partyId: FieldRef<"OsDeliveryNote", 'String'>
     readonly documentKind: FieldRef<"OsDeliveryNote", 'String'>
     readonly numberingPolicy: FieldRef<"OsDeliveryNote", 'String'>
+    readonly internalDocumentRef: FieldRef<"OsDeliveryNote", 'String'>
+    readonly displayDocumentNumber: FieldRef<"OsDeliveryNote", 'String'>
     readonly externalDocumentNumber: FieldRef<"OsDeliveryNote", 'String'>
+    readonly status: FieldRef<"OsDeliveryNote", 'String'>
+    readonly recipient: FieldRef<"OsDeliveryNote", 'String'>
+    readonly deliveredBy: FieldRef<"OsDeliveryNote", 'String'>
+    readonly receivedBy: FieldRef<"OsDeliveryNote", 'String'>
+    readonly observations: FieldRef<"OsDeliveryNote", 'String'>
+    readonly locationId: FieldRef<"OsDeliveryNote", 'String'>
+    readonly createdByMemberId: FieldRef<"OsDeliveryNote", 'String'>
+    readonly correctsNoteId: FieldRef<"OsDeliveryNote", 'String'>
+    readonly supersedesNoteId: FieldRef<"OsDeliveryNote", 'String'>
+    readonly correctionReason: FieldRef<"OsDeliveryNote", 'String'>
     readonly deliveredAt: FieldRef<"OsDeliveryNote", 'DateTime'>
     readonly bornAt: FieldRef<"OsDeliveryNote", 'DateTime'>
     readonly createdAt: FieldRef<"OsDeliveryNote", 'DateTime'>
@@ -104027,6 +104234,10 @@ export namespace Prisma {
     source: string | null
     productionTraceEntryId: string | null
     quemaId: string | null
+    contextOrderId: string | null
+    contextOrderLineId: string | null
+    contextPartyId: string | null
+    note: string | null
     correctsReceiptId: string | null
     correctionReason: string | null
     idempotencyKey: string | null
@@ -104045,6 +104256,10 @@ export namespace Prisma {
     source: string | null
     productionTraceEntryId: string | null
     quemaId: string | null
+    contextOrderId: string | null
+    contextOrderLineId: string | null
+    contextPartyId: string | null
+    note: string | null
     correctsReceiptId: string | null
     correctionReason: string | null
     idempotencyKey: string | null
@@ -104063,6 +104278,10 @@ export namespace Prisma {
     source: number
     productionTraceEntryId: number
     quemaId: number
+    contextOrderId: number
+    contextOrderLineId: number
+    contextPartyId: number
+    note: number
     correctsReceiptId: number
     correctionReason: number
     idempotencyKey: number
@@ -104083,6 +104302,10 @@ export namespace Prisma {
     source?: true
     productionTraceEntryId?: true
     quemaId?: true
+    contextOrderId?: true
+    contextOrderLineId?: true
+    contextPartyId?: true
+    note?: true
     correctsReceiptId?: true
     correctionReason?: true
     idempotencyKey?: true
@@ -104101,6 +104324,10 @@ export namespace Prisma {
     source?: true
     productionTraceEntryId?: true
     quemaId?: true
+    contextOrderId?: true
+    contextOrderLineId?: true
+    contextPartyId?: true
+    note?: true
     correctsReceiptId?: true
     correctionReason?: true
     idempotencyKey?: true
@@ -104119,6 +104346,10 @@ export namespace Prisma {
     source?: true
     productionTraceEntryId?: true
     quemaId?: true
+    contextOrderId?: true
+    contextOrderLineId?: true
+    contextPartyId?: true
+    note?: true
     correctsReceiptId?: true
     correctionReason?: true
     idempotencyKey?: true
@@ -104210,6 +104441,10 @@ export namespace Prisma {
     source: string
     productionTraceEntryId: string | null
     quemaId: string | null
+    contextOrderId: string | null
+    contextOrderLineId: string | null
+    contextPartyId: string | null
+    note: string | null
     correctsReceiptId: string | null
     correctionReason: string | null
     idempotencyKey: string | null
@@ -104245,6 +104480,10 @@ export namespace Prisma {
     source?: boolean
     productionTraceEntryId?: boolean
     quemaId?: boolean
+    contextOrderId?: boolean
+    contextOrderLineId?: boolean
+    contextPartyId?: boolean
+    note?: boolean
     correctsReceiptId?: boolean
     correctionReason?: boolean
     idempotencyKey?: boolean
@@ -104264,6 +104503,10 @@ export namespace Prisma {
     source?: boolean
     productionTraceEntryId?: boolean
     quemaId?: boolean
+    contextOrderId?: boolean
+    contextOrderLineId?: boolean
+    contextPartyId?: boolean
+    note?: boolean
     correctsReceiptId?: boolean
     correctionReason?: boolean
     idempotencyKey?: boolean
@@ -104283,6 +104526,10 @@ export namespace Prisma {
     source?: boolean
     productionTraceEntryId?: boolean
     quemaId?: boolean
+    contextOrderId?: boolean
+    contextOrderLineId?: boolean
+    contextPartyId?: boolean
+    note?: boolean
     correctsReceiptId?: boolean
     correctionReason?: boolean
     idempotencyKey?: boolean
@@ -104302,12 +104549,16 @@ export namespace Prisma {
     source?: boolean
     productionTraceEntryId?: boolean
     quemaId?: boolean
+    contextOrderId?: boolean
+    contextOrderLineId?: boolean
+    contextPartyId?: boolean
+    note?: boolean
     correctsReceiptId?: boolean
     correctionReason?: boolean
     idempotencyKey?: boolean
   }
 
-  export type OsFinishedGoodsReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "productId" | "quantity" | "warehouseLabel" | "receivedAt" | "recordedAt" | "actorMemberId" | "actorLabel" | "source" | "productionTraceEntryId" | "quemaId" | "correctsReceiptId" | "correctionReason" | "idempotencyKey", ExtArgs["result"]["osFinishedGoodsReceipt"]>
+  export type OsFinishedGoodsReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "productId" | "quantity" | "warehouseLabel" | "receivedAt" | "recordedAt" | "actorMemberId" | "actorLabel" | "source" | "productionTraceEntryId" | "quemaId" | "contextOrderId" | "contextOrderLineId" | "contextPartyId" | "note" | "correctsReceiptId" | "correctionReason" | "idempotencyKey", ExtArgs["result"]["osFinishedGoodsReceipt"]>
   export type OsFinishedGoodsReceiptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OsOrganizationDefaultArgs<ExtArgs>
   }
@@ -104336,6 +104587,10 @@ export namespace Prisma {
       source: string
       productionTraceEntryId: string | null
       quemaId: string | null
+      contextOrderId: string | null
+      contextOrderLineId: string | null
+      contextPartyId: string | null
+      note: string | null
       correctsReceiptId: string | null
       correctionReason: string | null
       idempotencyKey: string | null
@@ -104775,6 +105030,10 @@ export namespace Prisma {
     readonly source: FieldRef<"OsFinishedGoodsReceipt", 'String'>
     readonly productionTraceEntryId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
     readonly quemaId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly contextOrderId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly contextOrderLineId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly contextPartyId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
+    readonly note: FieldRef<"OsFinishedGoodsReceipt", 'String'>
     readonly correctsReceiptId: FieldRef<"OsFinishedGoodsReceipt", 'String'>
     readonly correctionReason: FieldRef<"OsFinishedGoodsReceipt", 'String'>
     readonly idempotencyKey: FieldRef<"OsFinishedGoodsReceipt", 'String'>
@@ -125160,6 +125419,7 @@ export namespace Prisma {
     id: 'id',
     organizationId: 'organizationId',
     orderId: 'orderId',
+    deliveryNoteId: 'deliveryNoteId',
     exitedAt: 'exitedAt',
     recordedByMemberId: 'recordedByMemberId',
     source: 'source',
@@ -125205,6 +125465,7 @@ export namespace Prisma {
     id: 'id',
     organizationId: 'organizationId',
     orderId: 'orderId',
+    deliveryNoteId: 'deliveryNoteId',
     deliveredAt: 'deliveredAt',
     deliveredTo: 'deliveredTo',
     recordedByMemberId: 'recordedByMemberId',
@@ -125221,9 +125482,22 @@ export namespace Prisma {
     organizationId: 'organizationId',
     deliveryId: 'deliveryId',
     orderId: 'orderId',
+    partyId: 'partyId',
     documentKind: 'documentKind',
     numberingPolicy: 'numberingPolicy',
+    internalDocumentRef: 'internalDocumentRef',
+    displayDocumentNumber: 'displayDocumentNumber',
     externalDocumentNumber: 'externalDocumentNumber',
+    status: 'status',
+    recipient: 'recipient',
+    deliveredBy: 'deliveredBy',
+    receivedBy: 'receivedBy',
+    observations: 'observations',
+    locationId: 'locationId',
+    createdByMemberId: 'createdByMemberId',
+    correctsNoteId: 'correctsNoteId',
+    supersedesNoteId: 'supersedesNoteId',
+    correctionReason: 'correctionReason',
     deliveredAt: 'deliveredAt',
     bornAt: 'bornAt',
     createdAt: 'createdAt'
@@ -125400,6 +125674,10 @@ export namespace Prisma {
     source: 'source',
     productionTraceEntryId: 'productionTraceEntryId',
     quemaId: 'quemaId',
+    contextOrderId: 'contextOrderId',
+    contextOrderLineId: 'contextOrderLineId',
+    contextPartyId: 'contextPartyId',
+    note: 'note',
     correctsReceiptId: 'correctsReceiptId',
     correctionReason: 'correctionReason',
     idempotencyKey: 'idempotencyKey'
@@ -132007,6 +132285,7 @@ export namespace Prisma {
     id?: StringFilter<"OsWarehouseExit"> | string
     organizationId?: StringFilter<"OsWarehouseExit"> | string
     orderId?: StringFilter<"OsWarehouseExit"> | string
+    deliveryNoteId?: StringNullableFilter<"OsWarehouseExit"> | string | null
     exitedAt?: DateTimeFilter<"OsWarehouseExit"> | Date | string
     recordedByMemberId?: StringFilter<"OsWarehouseExit"> | string
     source?: StringFilter<"OsWarehouseExit"> | string
@@ -132018,6 +132297,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrderInput | SortOrder
     exitedAt?: SortOrder
     recordedByMemberId?: SortOrder
     source?: SortOrder
@@ -132032,6 +132312,7 @@ export namespace Prisma {
     NOT?: OsWarehouseExitWhereInput | OsWarehouseExitWhereInput[]
     organizationId?: StringFilter<"OsWarehouseExit"> | string
     orderId?: StringFilter<"OsWarehouseExit"> | string
+    deliveryNoteId?: StringNullableFilter<"OsWarehouseExit"> | string | null
     exitedAt?: DateTimeFilter<"OsWarehouseExit"> | Date | string
     recordedByMemberId?: StringFilter<"OsWarehouseExit"> | string
     source?: StringFilter<"OsWarehouseExit"> | string
@@ -132043,6 +132324,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrderInput | SortOrder
     exitedAt?: SortOrder
     recordedByMemberId?: SortOrder
     source?: SortOrder
@@ -132060,6 +132342,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"OsWarehouseExit"> | string
     organizationId?: StringWithAggregatesFilter<"OsWarehouseExit"> | string
     orderId?: StringWithAggregatesFilter<"OsWarehouseExit"> | string
+    deliveryNoteId?: StringNullableWithAggregatesFilter<"OsWarehouseExit"> | string | null
     exitedAt?: DateTimeWithAggregatesFilter<"OsWarehouseExit"> | Date | string
     recordedByMemberId?: StringWithAggregatesFilter<"OsWarehouseExit"> | string
     source?: StringWithAggregatesFilter<"OsWarehouseExit"> | string
@@ -132225,6 +132508,7 @@ export namespace Prisma {
     id?: StringFilter<"OsDelivery"> | string
     organizationId?: StringFilter<"OsDelivery"> | string
     orderId?: StringFilter<"OsDelivery"> | string
+    deliveryNoteId?: StringNullableFilter<"OsDelivery"> | string | null
     deliveredAt?: DateTimeFilter<"OsDelivery"> | Date | string
     deliveredTo?: StringNullableFilter<"OsDelivery"> | string | null
     recordedByMemberId?: StringFilter<"OsDelivery"> | string
@@ -132237,6 +132521,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrderInput | SortOrder
     deliveredAt?: SortOrder
     deliveredTo?: SortOrderInput | SortOrder
     recordedByMemberId?: SortOrder
@@ -132252,6 +132537,7 @@ export namespace Prisma {
     NOT?: OsDeliveryWhereInput | OsDeliveryWhereInput[]
     organizationId?: StringFilter<"OsDelivery"> | string
     orderId?: StringFilter<"OsDelivery"> | string
+    deliveryNoteId?: StringNullableFilter<"OsDelivery"> | string | null
     deliveredAt?: DateTimeFilter<"OsDelivery"> | Date | string
     deliveredTo?: StringNullableFilter<"OsDelivery"> | string | null
     recordedByMemberId?: StringFilter<"OsDelivery"> | string
@@ -132264,6 +132550,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrderInput | SortOrder
     deliveredAt?: SortOrder
     deliveredTo?: SortOrderInput | SortOrder
     recordedByMemberId?: SortOrder
@@ -132282,6 +132569,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"OsDelivery"> | string
     organizationId?: StringWithAggregatesFilter<"OsDelivery"> | string
     orderId?: StringWithAggregatesFilter<"OsDelivery"> | string
+    deliveryNoteId?: StringNullableWithAggregatesFilter<"OsDelivery"> | string | null
     deliveredAt?: DateTimeWithAggregatesFilter<"OsDelivery"> | Date | string
     deliveredTo?: StringNullableWithAggregatesFilter<"OsDelivery"> | string | null
     recordedByMemberId?: StringWithAggregatesFilter<"OsDelivery"> | string
@@ -132296,12 +132584,25 @@ export namespace Prisma {
     NOT?: OsDeliveryNoteWhereInput | OsDeliveryNoteWhereInput[]
     id?: StringFilter<"OsDeliveryNote"> | string
     organizationId?: StringFilter<"OsDeliveryNote"> | string
-    deliveryId?: StringFilter<"OsDeliveryNote"> | string
+    deliveryId?: StringNullableFilter<"OsDeliveryNote"> | string | null
     orderId?: StringFilter<"OsDeliveryNote"> | string
+    partyId?: StringFilter<"OsDeliveryNote"> | string
     documentKind?: StringFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringFilter<"OsDeliveryNote"> | string
+    internalDocumentRef?: StringFilter<"OsDeliveryNote"> | string
+    displayDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
     externalDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
-    deliveredAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
+    status?: StringFilter<"OsDeliveryNote"> | string
+    recipient?: StringFilter<"OsDeliveryNote"> | string
+    deliveredBy?: StringFilter<"OsDeliveryNote"> | string
+    receivedBy?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    observations?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    locationId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    createdByMemberId?: StringFilter<"OsDeliveryNote"> | string
+    correctsNoteId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    supersedesNoteId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    correctionReason?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    deliveredAt?: DateTimeNullableFilter<"OsDeliveryNote"> | Date | string | null
     bornAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
   }
@@ -132309,12 +132610,25 @@ export namespace Prisma {
   export type OsDeliveryNoteOrderByWithRelationInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    deliveryId?: SortOrder
+    deliveryId?: SortOrderInput | SortOrder
     orderId?: SortOrder
+    partyId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    internalDocumentRef?: SortOrder
+    displayDocumentNumber?: SortOrderInput | SortOrder
     externalDocumentNumber?: SortOrderInput | SortOrder
-    deliveredAt?: SortOrder
+    status?: SortOrder
+    recipient?: SortOrder
+    deliveredBy?: SortOrder
+    receivedBy?: SortOrderInput | SortOrder
+    observations?: SortOrderInput | SortOrder
+    locationId?: SortOrderInput | SortOrder
+    createdByMemberId?: SortOrder
+    correctsNoteId?: SortOrderInput | SortOrder
+    supersedesNoteId?: SortOrderInput | SortOrder
+    correctionReason?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
   }
@@ -132322,28 +132636,55 @@ export namespace Prisma {
   export type OsDeliveryNoteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     deliveryId?: string
+    organizationId_internalDocumentRef?: OsDeliveryNoteOrganizationIdInternalDocumentRefCompoundUniqueInput
     AND?: OsDeliveryNoteWhereInput | OsDeliveryNoteWhereInput[]
     OR?: OsDeliveryNoteWhereInput[]
     NOT?: OsDeliveryNoteWhereInput | OsDeliveryNoteWhereInput[]
     organizationId?: StringFilter<"OsDeliveryNote"> | string
     orderId?: StringFilter<"OsDeliveryNote"> | string
+    partyId?: StringFilter<"OsDeliveryNote"> | string
     documentKind?: StringFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringFilter<"OsDeliveryNote"> | string
+    internalDocumentRef?: StringFilter<"OsDeliveryNote"> | string
+    displayDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
     externalDocumentNumber?: StringNullableFilter<"OsDeliveryNote"> | string | null
-    deliveredAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
+    status?: StringFilter<"OsDeliveryNote"> | string
+    recipient?: StringFilter<"OsDeliveryNote"> | string
+    deliveredBy?: StringFilter<"OsDeliveryNote"> | string
+    receivedBy?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    observations?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    locationId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    createdByMemberId?: StringFilter<"OsDeliveryNote"> | string
+    correctsNoteId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    supersedesNoteId?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    correctionReason?: StringNullableFilter<"OsDeliveryNote"> | string | null
+    deliveredAt?: DateTimeNullableFilter<"OsDeliveryNote"> | Date | string | null
     bornAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeFilter<"OsDeliveryNote"> | Date | string
-  }, "id" | "deliveryId">
+  }, "id" | "deliveryId" | "organizationId_internalDocumentRef">
 
   export type OsDeliveryNoteOrderByWithAggregationInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    deliveryId?: SortOrder
+    deliveryId?: SortOrderInput | SortOrder
     orderId?: SortOrder
+    partyId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    internalDocumentRef?: SortOrder
+    displayDocumentNumber?: SortOrderInput | SortOrder
     externalDocumentNumber?: SortOrderInput | SortOrder
-    deliveredAt?: SortOrder
+    status?: SortOrder
+    recipient?: SortOrder
+    deliveredBy?: SortOrder
+    receivedBy?: SortOrderInput | SortOrder
+    observations?: SortOrderInput | SortOrder
+    locationId?: SortOrderInput | SortOrder
+    createdByMemberId?: SortOrder
+    correctsNoteId?: SortOrderInput | SortOrder
+    supersedesNoteId?: SortOrderInput | SortOrder
+    correctionReason?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
     _count?: OsDeliveryNoteCountOrderByAggregateInput
@@ -132357,12 +132698,25 @@ export namespace Prisma {
     NOT?: OsDeliveryNoteScalarWhereWithAggregatesInput | OsDeliveryNoteScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
     organizationId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
-    deliveryId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    deliveryId?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
     orderId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    partyId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
     documentKind?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
     numberingPolicy?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    internalDocumentRef?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    displayDocumentNumber?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
     externalDocumentNumber?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
-    deliveredAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
+    status?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    recipient?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    deliveredBy?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    receivedBy?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    observations?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    locationId?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    createdByMemberId?: StringWithAggregatesFilter<"OsDeliveryNote"> | string
+    correctsNoteId?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    supersedesNoteId?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    correctionReason?: StringNullableWithAggregatesFilter<"OsDeliveryNote"> | string | null
+    deliveredAt?: DateTimeNullableWithAggregatesFilter<"OsDeliveryNote"> | Date | string | null
     bornAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"OsDeliveryNote"> | Date | string
   }
@@ -133174,6 +133528,10 @@ export namespace Prisma {
     source?: StringFilter<"OsFinishedGoodsReceipt"> | string
     productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderLineId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextPartyId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    note?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
@@ -133193,6 +133551,10 @@ export namespace Prisma {
     source?: SortOrder
     productionTraceEntryId?: SortOrderInput | SortOrder
     quemaId?: SortOrderInput | SortOrder
+    contextOrderId?: SortOrderInput | SortOrder
+    contextOrderLineId?: SortOrderInput | SortOrder
+    contextPartyId?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
     correctsReceiptId?: SortOrderInput | SortOrder
     correctionReason?: SortOrderInput | SortOrder
     idempotencyKey?: SortOrderInput | SortOrder
@@ -133215,6 +133577,10 @@ export namespace Prisma {
     source?: StringFilter<"OsFinishedGoodsReceipt"> | string
     productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderLineId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextPartyId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    note?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
@@ -133234,6 +133600,10 @@ export namespace Prisma {
     source?: SortOrder
     productionTraceEntryId?: SortOrderInput | SortOrder
     quemaId?: SortOrderInput | SortOrder
+    contextOrderId?: SortOrderInput | SortOrder
+    contextOrderLineId?: SortOrderInput | SortOrder
+    contextPartyId?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
     correctsReceiptId?: SortOrderInput | SortOrder
     correctionReason?: SortOrderInput | SortOrder
     idempotencyKey?: SortOrderInput | SortOrder
@@ -133258,6 +133628,10 @@ export namespace Prisma {
     source?: StringWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string
     productionTraceEntryId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
     quemaId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderLineId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextPartyId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
+    note?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
     correctsReceiptId?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
     correctionReason?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
     idempotencyKey?: StringNullableWithAggregatesFilter<"OsFinishedGoodsReceipt"> | string | null
@@ -141615,6 +141989,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     exitedAt: Date | string
     recordedByMemberId: string
     source: string
@@ -141626,6 +142001,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     exitedAt: Date | string
     recordedByMemberId: string
     source: string
@@ -141637,6 +142013,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     source?: StringFieldUpdateOperationsInput | string
@@ -141648,6 +142025,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     source?: StringFieldUpdateOperationsInput | string
@@ -141659,6 +142037,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     exitedAt: Date | string
     recordedByMemberId: string
     source: string
@@ -141670,6 +142049,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     source?: StringFieldUpdateOperationsInput | string
@@ -141681,6 +142061,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     exitedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
     source?: StringFieldUpdateOperationsInput | string
@@ -141867,6 +142248,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     deliveredAt: Date | string
     deliveredTo?: string | null
     recordedByMemberId: string
@@ -141879,6 +142261,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     deliveredAt: Date | string
     deliveredTo?: string | null
     recordedByMemberId: string
@@ -141891,6 +142274,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deliveredTo?: NullableStringFieldUpdateOperationsInput | string | null
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
@@ -141903,6 +142287,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deliveredTo?: NullableStringFieldUpdateOperationsInput | string | null
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
@@ -141915,6 +142300,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     orderId: string
+    deliveryNoteId?: string | null
     deliveredAt: Date | string
     deliveredTo?: string | null
     recordedByMemberId: string
@@ -141927,6 +142313,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deliveredTo?: NullableStringFieldUpdateOperationsInput | string | null
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
@@ -141939,6 +142326,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
+    deliveryNoteId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deliveredTo?: NullableStringFieldUpdateOperationsInput | string | null
     recordedByMemberId?: StringFieldUpdateOperationsInput | string
@@ -141950,12 +142338,25 @@ export namespace Prisma {
   export type OsDeliveryNoteCreateInput = {
     id: string
     organizationId: string
-    deliveryId: string
+    deliveryId?: string | null
     orderId: string
+    partyId: string
     documentKind: string
     numberingPolicy: string
+    internalDocumentRef: string
+    displayDocumentNumber?: string | null
     externalDocumentNumber?: string | null
-    deliveredAt: Date | string
+    status: string
+    recipient: string
+    deliveredBy: string
+    receivedBy?: string | null
+    observations?: string | null
+    locationId?: string | null
+    createdByMemberId: string
+    correctsNoteId?: string | null
+    supersedesNoteId?: string | null
+    correctionReason?: string | null
+    deliveredAt?: Date | string | null
     bornAt: Date | string
     createdAt?: Date | string
   }
@@ -141963,12 +142364,25 @@ export namespace Prisma {
   export type OsDeliveryNoteUncheckedCreateInput = {
     id: string
     organizationId: string
-    deliveryId: string
+    deliveryId?: string | null
     orderId: string
+    partyId: string
     documentKind: string
     numberingPolicy: string
+    internalDocumentRef: string
+    displayDocumentNumber?: string | null
     externalDocumentNumber?: string | null
-    deliveredAt: Date | string
+    status: string
+    recipient: string
+    deliveredBy: string
+    receivedBy?: string | null
+    observations?: string | null
+    locationId?: string | null
+    createdByMemberId: string
+    correctsNoteId?: string | null
+    supersedesNoteId?: string | null
+    correctionReason?: string | null
+    deliveredAt?: Date | string | null
     bornAt: Date | string
     createdAt?: Date | string
   }
@@ -141976,12 +142390,25 @@ export namespace Prisma {
   export type OsDeliveryNoteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    deliveryId?: StringFieldUpdateOperationsInput | string
+    deliveryId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    internalDocumentRef?: StringFieldUpdateOperationsInput | string
+    displayDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    deliveredBy?: StringFieldUpdateOperationsInput | string
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    correctsNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    supersedesNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -141989,12 +142416,25 @@ export namespace Prisma {
   export type OsDeliveryNoteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    deliveryId?: StringFieldUpdateOperationsInput | string
+    deliveryId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    internalDocumentRef?: StringFieldUpdateOperationsInput | string
+    displayDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    deliveredBy?: StringFieldUpdateOperationsInput | string
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    correctsNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    supersedesNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -142002,12 +142442,25 @@ export namespace Prisma {
   export type OsDeliveryNoteCreateManyInput = {
     id: string
     organizationId: string
-    deliveryId: string
+    deliveryId?: string | null
     orderId: string
+    partyId: string
     documentKind: string
     numberingPolicy: string
+    internalDocumentRef: string
+    displayDocumentNumber?: string | null
     externalDocumentNumber?: string | null
-    deliveredAt: Date | string
+    status: string
+    recipient: string
+    deliveredBy: string
+    receivedBy?: string | null
+    observations?: string | null
+    locationId?: string | null
+    createdByMemberId: string
+    correctsNoteId?: string | null
+    supersedesNoteId?: string | null
+    correctionReason?: string | null
+    deliveredAt?: Date | string | null
     bornAt: Date | string
     createdAt?: Date | string
   }
@@ -142015,12 +142468,25 @@ export namespace Prisma {
   export type OsDeliveryNoteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    deliveryId?: StringFieldUpdateOperationsInput | string
+    deliveryId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    internalDocumentRef?: StringFieldUpdateOperationsInput | string
+    displayDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    deliveredBy?: StringFieldUpdateOperationsInput | string
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    correctsNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    supersedesNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -142028,12 +142494,25 @@ export namespace Prisma {
   export type OsDeliveryNoteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    deliveryId?: StringFieldUpdateOperationsInput | string
+    deliveryId?: NullableStringFieldUpdateOperationsInput | string | null
     orderId?: StringFieldUpdateOperationsInput | string
+    partyId?: StringFieldUpdateOperationsInput | string
     documentKind?: StringFieldUpdateOperationsInput | string
     numberingPolicy?: StringFieldUpdateOperationsInput | string
+    internalDocumentRef?: StringFieldUpdateOperationsInput | string
+    displayDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
     externalDocumentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    deliveredBy?: StringFieldUpdateOperationsInput | string
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByMemberId?: StringFieldUpdateOperationsInput | string
+    correctsNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    supersedesNoteId?: NullableStringFieldUpdateOperationsInput | string | null
+    correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     bornAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -142948,6 +143427,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -142967,6 +143450,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -142984,6 +143471,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -143003,6 +143494,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -143021,6 +143516,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -143038,6 +143537,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -143056,6 +143559,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -149219,6 +149726,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     exitedAt?: SortOrder
     recordedByMemberId?: SortOrder
     source?: SortOrder
@@ -149230,6 +149738,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     exitedAt?: SortOrder
     recordedByMemberId?: SortOrder
     source?: SortOrder
@@ -149241,6 +149750,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     exitedAt?: SortOrder
     recordedByMemberId?: SortOrder
     source?: SortOrder
@@ -149335,6 +149845,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     deliveredAt?: SortOrder
     deliveredTo?: SortOrder
     recordedByMemberId?: SortOrder
@@ -149347,6 +149858,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     deliveredAt?: SortOrder
     deliveredTo?: SortOrder
     recordedByMemberId?: SortOrder
@@ -149359,6 +149871,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     orderId?: SortOrder
+    deliveryNoteId?: SortOrder
     deliveredAt?: SortOrder
     deliveredTo?: SortOrder
     recordedByMemberId?: SortOrder
@@ -149367,14 +149880,32 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type OsDeliveryNoteOrganizationIdInternalDocumentRefCompoundUniqueInput = {
+    organizationId: string
+    internalDocumentRef: string
+  }
+
   export type OsDeliveryNoteCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
     deliveryId?: SortOrder
     orderId?: SortOrder
+    partyId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    internalDocumentRef?: SortOrder
+    displayDocumentNumber?: SortOrder
     externalDocumentNumber?: SortOrder
+    status?: SortOrder
+    recipient?: SortOrder
+    deliveredBy?: SortOrder
+    receivedBy?: SortOrder
+    observations?: SortOrder
+    locationId?: SortOrder
+    createdByMemberId?: SortOrder
+    correctsNoteId?: SortOrder
+    supersedesNoteId?: SortOrder
+    correctionReason?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -149385,9 +149916,22 @@ export namespace Prisma {
     organizationId?: SortOrder
     deliveryId?: SortOrder
     orderId?: SortOrder
+    partyId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    internalDocumentRef?: SortOrder
+    displayDocumentNumber?: SortOrder
     externalDocumentNumber?: SortOrder
+    status?: SortOrder
+    recipient?: SortOrder
+    deliveredBy?: SortOrder
+    receivedBy?: SortOrder
+    observations?: SortOrder
+    locationId?: SortOrder
+    createdByMemberId?: SortOrder
+    correctsNoteId?: SortOrder
+    supersedesNoteId?: SortOrder
+    correctionReason?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -149398,9 +149942,22 @@ export namespace Prisma {
     organizationId?: SortOrder
     deliveryId?: SortOrder
     orderId?: SortOrder
+    partyId?: SortOrder
     documentKind?: SortOrder
     numberingPolicy?: SortOrder
+    internalDocumentRef?: SortOrder
+    displayDocumentNumber?: SortOrder
     externalDocumentNumber?: SortOrder
+    status?: SortOrder
+    recipient?: SortOrder
+    deliveredBy?: SortOrder
+    receivedBy?: SortOrder
+    observations?: SortOrder
+    locationId?: SortOrder
+    createdByMemberId?: SortOrder
+    correctsNoteId?: SortOrder
+    supersedesNoteId?: SortOrder
+    correctionReason?: SortOrder
     deliveredAt?: SortOrder
     bornAt?: SortOrder
     createdAt?: SortOrder
@@ -149838,6 +150395,10 @@ export namespace Prisma {
     source?: SortOrder
     productionTraceEntryId?: SortOrder
     quemaId?: SortOrder
+    contextOrderId?: SortOrder
+    contextOrderLineId?: SortOrder
+    contextPartyId?: SortOrder
+    note?: SortOrder
     correctsReceiptId?: SortOrder
     correctionReason?: SortOrder
     idempotencyKey?: SortOrder
@@ -149856,6 +150417,10 @@ export namespace Prisma {
     source?: SortOrder
     productionTraceEntryId?: SortOrder
     quemaId?: SortOrder
+    contextOrderId?: SortOrder
+    contextOrderLineId?: SortOrder
+    contextPartyId?: SortOrder
+    note?: SortOrder
     correctsReceiptId?: SortOrder
     correctionReason?: SortOrder
     idempotencyKey?: SortOrder
@@ -149874,6 +150439,10 @@ export namespace Prisma {
     source?: SortOrder
     productionTraceEntryId?: SortOrder
     quemaId?: SortOrder
+    contextOrderId?: SortOrder
+    contextOrderLineId?: SortOrder
+    contextPartyId?: SortOrder
+    note?: SortOrder
     correctsReceiptId?: SortOrder
     correctionReason?: SortOrder
     idempotencyKey?: SortOrder
@@ -161776,6 +162345,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -161793,6 +162366,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -164563,6 +165140,10 @@ export namespace Prisma {
     source?: StringFilter<"OsFinishedGoodsReceipt"> | string
     productionTraceEntryId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     quemaId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextOrderLineId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    contextPartyId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
+    note?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctsReceiptId?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     correctionReason?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
     idempotencyKey?: StringNullableFilter<"OsFinishedGoodsReceipt"> | string | null
@@ -205393,6 +205974,10 @@ export namespace Prisma {
     source?: string
     productionTraceEntryId?: string | null
     quemaId?: string | null
+    contextOrderId?: string | null
+    contextOrderLineId?: string | null
+    contextPartyId?: string | null
+    note?: string | null
     correctsReceiptId?: string | null
     correctionReason?: string | null
     idempotencyKey?: string | null
@@ -208378,6 +208963,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -208395,6 +208984,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -208412,6 +209005,10 @@ export namespace Prisma {
     source?: StringFieldUpdateOperationsInput | string
     productionTraceEntryId?: NullableStringFieldUpdateOperationsInput | string | null
     quemaId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextOrderLineId?: NullableStringFieldUpdateOperationsInput | string | null
+    contextPartyId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     correctsReceiptId?: NullableStringFieldUpdateOperationsInput | string | null
     correctionReason?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null

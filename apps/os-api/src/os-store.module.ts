@@ -106,7 +106,7 @@ export const OS_OUTBOX_RECOVERY_SERVICE = Symbol('OS_OUTBOX_RECOVERY_SERVICE');
 function createDeliveryStore(): DeliveryStore {
   const prisma = getOsPrisma();
   if (prisma) {
-    return createPrismaDeliveryStore(prisma as Parameters<typeof createPrismaDeliveryStore>[0]);
+    return createPrismaDeliveryStore(prisma as unknown as Parameters<typeof createPrismaDeliveryStore>[0]);
   }
   return new MemoryDeliveryStore();
 }

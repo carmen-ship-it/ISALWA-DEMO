@@ -285,7 +285,9 @@ export class CommandsController {
         const person = await this.workforceStore.getPerson(member.personId);
         const actorLabel =
           [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() || 'Almacén';
-        const store = createPrismaFinishedGoodsWriteStore(prisma);
+        const store = createPrismaFinishedGoodsWriteStore(
+          prisma as unknown as Parameters<typeof createPrismaFinishedGoodsWriteStore>[0],
+        );
         const result = await receiveFinishedGoods({
           session: {
             organizationId: session.organizationId,

@@ -305,7 +305,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           orderNumber={order.orderNumber}
           customerName={customerName}
           actorMemberId={actorMemberId}
-          orderLines={order.lines.map((line) => ({
+          orderLines={(order.lines ?? []).map((line) => ({
             orderLineId: line.orderLineId,
             description: line.description,
             quantity: line.quantity,
