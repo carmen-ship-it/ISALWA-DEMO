@@ -12,7 +12,7 @@
  * - Receipt + business event persist atomically when $transaction is available
  */
 
-import { canReceiveFinishedGoods } from '../../os-contracts/src/operations-scopes';
+import { canReceiveFinishedGoods } from '@isalwa/os-contracts';
 
 export const FINISHED_GOODS_RECEIVE_SCOPE = 'warehouse.finished_goods.receive' as const;
 export const FINISHED_GOODS_ALLOCATE_SCOPE = 'warehouse.finished_goods.allocate' as const;

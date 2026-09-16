@@ -628,6 +628,10 @@ importers:
         version: 5.9.3
 
   packages/os-finished-goods:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
     devDependencies:
       tsx:
         specifier: ^4.19.3

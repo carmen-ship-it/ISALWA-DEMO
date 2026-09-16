@@ -25,8 +25,8 @@ import {
   type CopiedDeliveryLine,
   type DeliveryCommandName,
   type DeliveryResource,
-} from '../../os-contracts/src/delivery';
-import { createId } from '../../ts-utils/src/index';
+} from '@isalwa/os-contracts';
+import { createId } from '@isalwa/ts-utils';
 import type {
   DeliveryDomainEventRecord,
   DeliveryNoteRecord,

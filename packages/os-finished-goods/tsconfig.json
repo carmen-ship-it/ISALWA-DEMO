@@ -1,9 +1,6 @@
 {
   "extends": "../config-ts/base.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "declaration": false,
-    "declarationMap": false
-  },
-  "include": ["src"]
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

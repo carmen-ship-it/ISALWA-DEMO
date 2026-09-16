@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { COMMERCIAL_TEAM_READ_SCOPE } from '../../os-contracts/src/scopes';
-import { WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE } from '../../os-contracts/src/operations-scopes';
+import { COMMERCIAL_TEAM_READ_SCOPE } from '@isalwa/os-contracts';
+import { WAREHOUSE_FINISHED_GOODS_RECEIVE_SCOPE } from '@isalwa/os-contracts';
 import {
   CUSTOMER_DELIVERY_RECORD_SCOPE,
   WAREHOUSE_EXIT_RECORD_SCOPE,
-} from '../../os-contracts/src/delivery';
+} from '@isalwa/os-contracts';
 import { DeliveryCommandService, DELIVERY_LIVE_WRITE } from './delivery-command-service';
 import { MEMORY_DELIVERY_STORE_IS_TENANT_PROOF, MemoryDeliveryStore } from './memory-store';
 import type { OrderSnapshot, WarehouseExitRecord } from './store-types';

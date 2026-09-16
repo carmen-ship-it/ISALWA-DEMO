@@ -1,7 +1,6 @@
 {
   "extends": "../config-ts/base.json",
-  "compilerOptions": {
-    "noEmit": true
-  },
-  "include": ["src", "../os-contracts/src/delivery.ts"]
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

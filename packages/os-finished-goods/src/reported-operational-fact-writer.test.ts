@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { FINANCE_OPERATIONAL_RECORD_SCOPE } from '../../os-contracts/src/operations-scopes';
+import { FINANCE_OPERATIONAL_RECORD_SCOPE } from '@isalwa/os-contracts';
 import {
   REPORTED_OPERATIONAL_FACT_CONFIRMATION,
   REPORTED_OPERATIONAL_FACT_PRISMA_LIVE_WRITE,

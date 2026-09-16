@@ -4,7 +4,7 @@ import type {
   DeliveryNoteStatus,
   DeliverySubjectType,
   OsDeliveryEventType,
-} from '../../os-contracts/src/delivery';
+} from '@isalwa/os-contracts';
 
 export type OrderSnapshot = {
   id: string;

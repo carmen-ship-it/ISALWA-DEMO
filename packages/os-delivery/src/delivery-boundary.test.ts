@@ -18,7 +18,7 @@ import {
   pdfDownloadCreatesSalida,
   provisionalInternalDocumentRef,
   warehouseExitIsCustomerDelivery,
-} from '../../os-contracts/src/delivery';
+} from '@isalwa/os-contracts';
 import { DeliveryCommandService } from './delivery-command-service';
 import { MemoryDeliveryStore } from './memory-store';
 

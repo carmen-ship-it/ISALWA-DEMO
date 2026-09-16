@@ -1,4 +1,4 @@
-import type { DeliverySubjectType } from '../../os-contracts/src/delivery';
+import type { DeliverySubjectType } from '@isalwa/os-contracts';
 import type {
   DeliveryDomainEventRecord,
   DeliveryNoteRecord,

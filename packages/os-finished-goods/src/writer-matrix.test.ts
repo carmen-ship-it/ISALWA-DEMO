@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { OPERATIONS_ACCESS_SCOPE_KEYS } from '../../os-contracts/src/operations-scopes';
+import { OPERATIONS_ACCESS_SCOPE_KEYS } from '@isalwa/os-contracts';
 import {
   COORDINATION_READ_AUTHORITY,
   CUSTOMER_INFORMED_FOUNDATION_GAP,

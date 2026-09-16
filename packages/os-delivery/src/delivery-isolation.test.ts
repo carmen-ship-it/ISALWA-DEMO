@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
   CUSTOMER_DELIVERY_RECORD_SCOPE,
   WAREHOUSE_EXIT_RECORD_SCOPE,
-} from '../../os-contracts/src/delivery';
+} from '@isalwa/os-contracts';
 import { DeliveryCommandService } from './delivery-command-service';
 import { MemoryDeliveryStore } from './memory-store';
 import type {

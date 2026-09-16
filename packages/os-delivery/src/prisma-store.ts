@@ -4,7 +4,7 @@
  * Migration apply remains separate (DELIVERY_MIGRATION_APPLIED = false).
  */
 
-import type { DeliverySubjectType } from '../../os-contracts/src/delivery';
+import type { DeliverySubjectType } from '@isalwa/os-contracts';
 import type {
   DeliveryNoteRecord,
   DeliveryRecord,

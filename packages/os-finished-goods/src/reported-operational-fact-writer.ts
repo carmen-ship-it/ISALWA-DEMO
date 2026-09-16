@@ -11,11 +11,11 @@ import {
   reverseReportedOperationalFactRow,
   type RecordReportedOperationalFactInput,
   type ReportedOperationalFactRow,
-} from '../../os-contracts/src/reported-operational-fact';
+} from '@isalwa/os-contracts';
 import {
   canRecordOperationalFinance,
   FINANCE_OPERATIONAL_RECORD_SCOPE,
-} from '../../os-contracts/src/operations-scopes';
+} from '@isalwa/os-contracts';
 
 export const REPORTED_OPERATIONAL_FACT_PRISMA_LIVE_WRITE = 'prisma_port' as const;
 export const REPORTED_OPERATIONAL_FACT_MIGRATION_APPLIED = false as const;

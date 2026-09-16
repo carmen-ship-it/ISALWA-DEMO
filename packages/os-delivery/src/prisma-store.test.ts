@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { OPERATIONS_ACCESS_SCOPE_KEYS } from '../../os-contracts/src/operations-scopes';
+import { OPERATIONS_ACCESS_SCOPE_KEYS } from '@isalwa/os-contracts';
 import {
   CUSTOMER_DELIVERY_RECORD_SCOPE,
   WAREHOUSE_EXIT_RECORD_SCOPE,
-} from '../../os-contracts/src/delivery';
+} from '@isalwa/os-contracts';
 import { DeliveryCommandService, DELIVERY_LIVE_WRITE } from './delivery-command-service';
 import {
   CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE,
