@@ -4,8 +4,7 @@
 **Branch:** `lane-b/pedido-timeline-docs`  
 **Base tip:** `5ca147207508c93f083e6cf141547f54c45e6eb0` (`pre-pilot/company-os-pass`)  
 **Worktree:** `.worktrees/lane-b-pedido-timeline-docs`  
-**SHA:** `c279d77045f98be9aed8953d7980100b0b0ddcf4` (tip; feature `206436cad15ce336da11b2ef08fc0c4404de7167`)  
-**Lane:** Pedido Historial projection + Client/Pedido document dossier (metadata + PDF links)  
+**SHA:** `206436cad15ce336da11b2ef08fc0c4404de7167` (feature) · tip includes receipt docs on this branch  
 **Deploy:** NO · **Staging DB migrate:** NO · **REAL_SEVEN_MUTATED:** NO
 
 ---
