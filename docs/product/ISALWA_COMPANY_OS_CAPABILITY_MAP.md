@@ -1,13 +1,16 @@
 # ISALWA Company OS — Capability Control Map
 
-**Date:** 2026-09-15 (Wave B code truth: 2026-09-16)  
+**Date:** 2026-09-16 (Final pre-pilot runtime)  
 **Role:** Permanent Control Tower map (reconcile vision ↔ code/runtime truth)  
-**Hosted baseline (onboarding isolation closed):** `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749`  
-**Wave A admin continuity:** see `docs/operations/WAVE_A_ADMIN_CONTINUITY_ACCEPTANCE.md` (technical close PASS @ `fc38ebe`)  
-**Wave B issue / memory:** candidate SHA `b28e9fcafc339575ac6c667d2bbc2b1527e5db4d` — **HOSTED PENDING** (deploy not confirmed); see `docs/operations/WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md`  
+**FINAL RUNTIME SHA (web+API same):** `37a1ed7bb783b2c2ea211ce49616442884825b1c`  
+**Web deploy:** `dep-dal4oqlg1s2s73e8bmpg` LIVE  
+**API deploy:** `dep-dal4oldbedkc73b8uu0g` LIVE  
+**Wave B accepted base (before this pass):** `afeb1c14c144f05a0eb99c745bbe14d8a0091f6e`  
 **URL:** https://os-web-staging.onrender.com  
 **REAL tenant:** `01M2DV9F0V5DXS4G89AKF4D5SR`  
 **SYNTH tenant:** `01M2JKF77TXMJNDTKNCYNHH9G5`
+
+**Pre-pilot 2026-09-16 proof (do not collapse):** web+API LIVE on `37a1ed7`. Independent hosted SYNTH verifier 17/17 PASS (health/ready, login 200, unauth inicio/QA 307, AI 503 `AI_UNAVAILABLE`, operator audit/changes 403, issues/commitments/parties 200, no REAL leak, QA effective-access 404). Browser visual 1440/390 authenticated desks = UNPROVEN. QA Control hosted flag not true. Map live tiles = MAP_PROVIDER_CREDENTIAL_REQUIRED. AI live model = AI_PROVIDER_CREDENTIAL_REQUIRED.
 
 **Sources (recon receipts only):**  
 `docs/operations/company-os-recon-2026-09-15/agent-01-admin-lifecycle.md` · `agent-02-issues-memory.md` · `agent-03-attention-commitments.md` · `agent-04-decision-audit.md` · `agent-05-data-health.md` · `agent-06-search-productivity.md` · `agent-08-notifications-health.md` · `agent-11-infra-owner-cost.md` · `agent-12-developer-handoff.md`  
@@ -163,7 +166,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| AI provider execution | Summarize / suggest only | `INTENTIONALLY DEFERRED` | `isAiEnabled` default false; packets AI-ready | Company records remain SoR | Ayuda unwired honesty | Deny list actions | N/A | N/A | YES | N/A | N/A | N/A | N/A | N/A | **AI OFF** Wave B — no SDK/keys | Memory stores + key | Yes — when enable | Stay deferred | P3 | F |
+| AI provider execution | Summarize / suggest only | `LIVE BUT PARTIAL` (adapter + governance DEPLOYED; provider OFF) | `POST /v1/ai/assist` + `createAiProviderFromEnv` + rate/budget seams | Authorized MemoryEvidence packet only | Issue / Cliente assist panel | Authz before provider; mutation features denied | N/A | YES (hosted 503 `AI_UNAVAILABLE`) | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | `AI_ENABLED` not true; no OS key; HARD COST CAP NOT GUARANTEED | `OPENAI_ISALWA_API_KEY` | Yes — enable only after company project | Credential + alerts then BV | P2 | F |
 | AI-ready evidence packets | Cite real antecedents | `LIVE` (IMPLEMENTED/TESTED substrate; `modelCalled: false`; hosted pending) | `buildAiReadyContext` + `MemoryEvidenceService` / `GET /v1/memory/evidence` | Evidence helpers + authorized Issue/Commitment slices | Evidence review helpers + API | Read-only packet; authz before return | N/A | N/A | YES | YES | PENDING | PENDING | UNPROVEN | NO | No AI call; hosted BV pending | Issue Memory | No | Hosted BV then grow retrieval | P3 | F |
 
 *Source: `agent-02-issues-memory.md`, `agent-11-infra-owner-cost.md`, Wave B. **AI OFF**.*
@@ -211,7 +214,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Party “Qué cambió” | What changed on my customer | `LIVE` | Timeline → `whatChangedFromTimeline` | BusinessEvent → PartyTimeline | Command Palette mode | Party read | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Fixed CHANGE_EVENTS set | Timeline | No | Keep | — | C |
-| Org-wide What Changed / since last login | Company rollup | `MISSING` | Reuse events (no new store) | BusinessEvent | — | Org read TBD | N/A | N/A | NO | NO | NO | NO | NO | NO | Explicit not-implemented | Timeline | Yes — last-login cursor? | Org feed | P2 | C |
+| Org-wide What Changed / since last login | Company rollup | `LIVE BUT PARTIAL` | `GET /v1/memory/changes` over `os_business_events` | BusinessEvent | Inicio (admin-gated) | `people.admin` or `system.admin` | UNPROVEN | YES (hosted 403 for asesor/gerente) | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | No last-login cursor; operator lens omitted (fail-closed) | Events | Yes — last-login? | Browser BV for admin | P2 | C |
 
 *Source: `agent-03-attention-commitments.md`, `agent-06-search-productivity.md`.*
 
@@ -223,7 +226,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Approval memory | Who approved / why | `LIVE` | `OsApprovalRequest` + events | Approval row + audit | `/aprobaciones` | Approver scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Row mutated; before in audit | — | No | Keep | — | — |
 | Coordination decision memory | Operating decisions ledger | `LIVE BUT PARTIAL` | Append-only coord contract | Coord rows | `/coordinacion` | Non-mutating authority | UNPROVEN | UNPROVEN | YES | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | Hosted write UNPROVEN | Migration | No | Prove write | P1 | C |
-| Unified Decision Memory product | One decision spine | `MISSING` | — | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Split truths | Approvals/Coord | Yes | Read model later | P2 | C |
+| Unified Decision Memory product | One decision spine | `LIVE BUT PARTIAL` | Read compose of approvals + coordination (no new SoT) | Approval + Coord + events | `/memoria-decisiones` | Existing approval/coord read | UNPROVEN | UNPROVEN | PARTIAL | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Not a new decision table; BV pending | Approvals/Coord | No | Browser BV | P2 | C |
 
 *Source: `agent-04-decision-audit.md`.*
 
@@ -253,7 +256,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Salud de datos findings | What’s wrong / who can fix | `LIVE BUT PARTIAL` | `data-health.ts` over party search (≤100) | Party summaries (session tenant) | `/mapa` Salud | Read; no auto-fix | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Capped population; limited catalog; no terminated-owner finding | Party search | Yes — terminated owner? | Expand findings carefully | P1 | C |
+| Salud de datos findings | What’s wrong / who can fix | `LIVE BUT PARTIAL` | `data-health.ts` + `/salud-datos` desk | Party summaries (session tenant) | `/salud-datos` + `/mapa` Salud | Read; no auto-fix | UNPROVEN | UNPROVEN | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Capped population; BV pending | Party search | Yes — terminated owner? | Browser BV | P1 | C |
 | Missing phone / location / provenance / shared phone / unassigned owner / duplicates / missing name | Integrity review | `LIVE` / `LIVE BUT PARTIAL` per finding | Same | Party read models | Mapa lists | Read | UNPROVEN (REAL 2/7 expected) | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Honest no geocode/merge | Map boundary | No | Hosted REAL coverage BV | P1 | C |
 
 *Source: `agent-05-data-health.md`.*
@@ -287,7 +290,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Audit Viewer (who/what/when/before/why) | Answer without SQL | `MISSING` (UI) / writes `LIVE` | `OsAuditLog` | Audit + BusinessEvent | None (`/auditoria` absent) | Admin TBD | N/A | UNPROVEN | PARTIAL | NO | UNPROVEN | UNPROVEN | NO | NO | No why column; before often empty | Query service | Yes — who may view | LIVE viewer | P1 | C |
+| Audit Viewer (who/what/when/before/why) | Answer without SQL | `LIVE BUT PARTIAL` | `GET /v1/audit` over `OsAuditLog` | Audit + BusinessEvent | `/auditoria` | `people.admin` or `system.admin` | UNPROVEN | YES (hosted 403 for asesor) | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | No export; reason only when supplied; BV pending | Query service | No | Browser BV for admin | P1 | C |
 | Party Historial substitute | Customer activity spine | `LIVE` | Party timeline projection | Timeline entries | Cliente Historial | Party read | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Not full before/why audit | — | No | Keep | — | — |
 
 *Source: `agent-04-decision-audit.md`.*
@@ -298,7 +301,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ⌘K / Ctrl+K palette | Find + act without inventing authority | `LIVE` | Palette search + gated actions | Session + API probes | Shell CommandPalette | Existing scopes only | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No products/WhatsApp/global contacts/locations | API lenses | No | Keep | — | D |
+| ⌘K / Ctrl+K palette | Find + act without inventing authority | `LIVE BUT PARTIAL` | Palette search + gated actions | Session + API probes | Shell CommandPalette | Existing scopes only | UNPROVEN | UNPROVEN | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Products not live (no listProducts API); WhatsApp deferred | API lenses | No | Product search when catalog list exists | — | D |
 | Global contact / location / WhatsApp / product search | Find those entities | `MISSING` | Ops-search helper unwired for some | — | Gaps in not-implemented | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Explicit absences | — | Yes | Selective add | P2 | D |
 
 *Source: `agent-06-search-productivity.md`.*
@@ -309,7 +312,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Built-in saved views | Jump to common queues | `LIVE` | `BUILT_IN_SAVED_VIEWS` | URL filters | Palette Vistas | Read scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Cotizaciones / opps / overdue / clientes activos | — | No | Keep | — | D |
+| Built-in saved views | Jump to common queues | `LIVE BUT PARTIAL` | `BUILT_IN_SAVED_VIEWS` | URL filters | Palette Vistas | Read scopes | UNPROVEN | UNPROVEN | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Added aprobaciones + salud-datos; no generic BI | — | No | Browser BV | — | D |
 | Mis clientes / Mis pendientes / Sin responsable / Compromisos / Problemas | Named employee views | `MISSING` (as named views) | Closest: Inicio + Trabajo tabs + data health | — | Gaps listed | — | N/A | N/A | NO | NO | NO | NO | NO | NO | No report builder (intentional) | Commitments/Issue | Yes | Add carefully | P1 | D |
 
 *Source: `agent-06-search-productivity.md`, `agent-03-attention-commitments.md`.*
@@ -365,8 +368,9 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Owner System Health matrix | App/API/DB/Auth/Map/Email/WA/AI/Backup/Monitor | `MISSING` | Health endpoints backend-only | Ops endpoints | `/sistema` shell excludes integration health | `system.admin` shell | N/A | N/A | PARTIAL | NO | UNPROVEN | UNPROVEN | NO | NO | Intentionally deferred on `/sistema` | Infra | Yes | Human health UI | P2 | F |
-| Map / Auth / App honesty fragments | Don’t claim broken providers | `LIVE BUT PARTIAL` | provider-status + session states | Desk copy | Mapa / session | — | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Not a full health console | — | No | Keep honesty | — | F |
+| Owner System Health matrix | App/API/DB/Auth/Map/Email/WA/AI/Backup/Monitor | `LIVE BUT PARTIAL` | `/v1/health` + `/v1/health/ready` + provider-status | Ops endpoints + env presence (no secrets) | `/sistema` human rows | `system.admin` | N/A | YES (ready profile=staging, db ok) | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Map/AI/email/WA honesty = No configurado / No conectado until credentials | Infra | No | Browser BV | P2 | F |
+| Map / Auth / App honesty fragments | Don’t claim broken providers | `LIVE BUT PARTIAL` | provider-status + session states | Desk copy | Mapa / session | — | UNPROVEN | UNPROVEN | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Not a full health console | — | No | Keep honesty | — | F |
+| Live Mapbox canvas | Confirmed coordinates only | `LIVE BUT PARTIAL` (adapter DEPLOYED; credential missing) | OS Location → MapsProvider → Mapbox adapter | Location rows with confirmed coords | `/mapa` | Existing location/party read | UNPROVEN | UNPROVEN | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | `MAP_PROVIDER_CREDENTIAL_REQUIRED`; no invented pins/heatmaps | `NEXT_PUBLIC_MAPBOX_TOKEN` | No | Credential then BV | P2 | F |
 
 *Source: `agent-08-notifications-health.md`, `agent-11-infra-owner-cost.md`.*
 
@@ -453,6 +457,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Lightweight access review | Review members/roles/delegations | `LIVE BUT PARTIAL` | Equipo filters | Member directory | Equipo | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No stale-access campaign; Accesos explainer | History/delegation list | Yes | Formal review | P1 | A |
+| QA Control / Ver Como | Carmen sees SYNTH personas without REAL impersonation | `LIVE BUT PARTIAL` (code; hosted gate off) | `qa.access` + signed cookie/`x-os-qa-view` + `OS_QA_CONTROL_ENABLED` AND staging | SYNTH org only | `/sistema/pruebas-acceso` | `qa.access` (not implied by `system.admin`) | N/A | YES (hosted 404 — flag not true) | YES | YES | YES (`37a1ed7`) | YES | UNPROVEN | NO | Hosted `OS_QA_CONTROL_ENABLED` not true; Ver Como BV pending | Staging env | No | Enable staging flag then BV | P1 | A |
 
 *Source: `agent-01-admin-lifecycle.md`.*
 
@@ -649,7 +654,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 2. Terminate path **code-ready** with preflight + ReassignWork UI; **hosted BV + people.admin fixture + quote/order gaps** remain.  
 3. **Ops single-owner risk** (Carmen personal Render/Supabase/billing/secrets) without dual recovery — ops P0, not a product screen.  
 4. **Owner fixture `/administracion` denied** on hosted SYNTH (verifier FAIL_DENY) — confirm `people.admin` on real Owner before Isa/Álvaro rely on Admin.  
-5. Do **not** claim Commitments, Issues, Product Feedback, Notifications inbox, AI, or WhatsApp as **hosted-live** until Wave B independent verifier PASS. Code is IMPLEMENTED/TESTED @ `b28e9fc` — **HOSTED PENDING**.
+5. Wave B Issue/Commitment SYNTH API reads are HOSTED-PROVEN @ `afeb1c14` and re-checked on this pass (`841c0c6` verifier 17/17). Product Feedback inbox / AI live model / WhatsApp remain not hosted-live. Browser visual 1440/390 and QA Ver Como remain UNPROVEN.
 
 **Already acceptable to keep deferred for a thin pilot:** AI, WhatsApp, maps live tiles, email notices, Import Center — if coaching copy stays honest about hosted-unproven Issue/Commitment memory.
 
@@ -667,11 +672,12 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | Field | Value |
 |---|---|
-| Map version | 2026-09-16 (Wave B code truth) |
+| Map version | 2026-09-16 (Final pre-pilot runtime) |
 | Hosted baseline SHA (recon start) | `e5e9cac82a0e2ba82f3633386393598220471da0` |
 | Hosted SHA after member-scope fix | `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749` (deploy `dep-dakuhuad0e5s73ftrvng`, Render LIVE) |
 | Wave A technical close SHA | `fc38ebe4f6a445aa1504436040aab257bbd33a4c` |
-| Wave B candidate SHA | `b28e9fcafc339575ac6c667d2bbc2b1527e5db4d` (**HOSTED PENDING**) |
+| Wave B accepted SHA | `afeb1c14c144f05a0eb99c745bbe14d8a0091f6e` |
+| Final pre-pilot runtime SHA | `37a1ed7bb783b2c2ea211ce49616442884825b1c` (web `dep-dal4oqlg1s2s73e8bmpg` · api `dep-dal4oldbedkc73b8uu0g`) |
 | Wave B acceptance | `docs/operations/WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md` |
 | Recon folder | `docs/operations/company-os-recon-2026-09-15/` |
 | Next proof gate | Confirm Wave B deploy → independent hosted verifier (Issue / Commitment / Feedback / Memory); then Wave C |
