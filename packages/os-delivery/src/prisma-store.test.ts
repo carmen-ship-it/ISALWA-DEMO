@@ -59,6 +59,7 @@ function fakePrisma(seed?: {
     id: string;
     organizationId: string;
     orderId: string;
+    deliveryNoteId: string | null;
     exitedAt: Date | string;
     recordedByMemberId: string;
     source: string;
@@ -129,6 +130,7 @@ function fakePrisma(seed?: {
     id: string;
     organizationId: string;
     orderId: string;
+    deliveryNoteId: string | null;
     exitedAt: Date | string;
     recordedByMemberId: string;
     source: string;
