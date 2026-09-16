@@ -173,25 +173,14 @@ Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-04-approval-m
 
 | Service | SHA | Deploy ID | Status |
 |---------|-----|-----------|--------|
-| os-web-staging | still live `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749` | `dep-dakuhuad0e5s73ftrvng` | **Wave A deploy not applied** |
-| os-api-staging | still live `fd06aea735fca2400956496727c3d8698f06e046` | `dep-dakm1cafngtc73atlrbg` | **Wave A deploy not applied** |
+| os-web-staging | `a97e17e156f58648beac4c0cd78d3245cc614e85` | `dep-dal04ie7bikc73dt380g` | **LIVE** |
+| os-api-staging | `a97e17e156f58648beac4c0cd78d3245cc614e85` | `dep-dal051740ujc7392vvr0` | **LIVE** |
 
-**Integrated code SHA (pushed):** `b6a44f721bff2d1360d510127571818febb3efee` on `origin/wave-a/admin-continuity`
+**Exact deploy candidate:** `a97e17e156f58648beac4c0cd78d3245cc614e85`  
+**Feature content SHA:** `b6a44f721bff2d1360d510127571818febb3efee` (ancestor)  
+**Health:** `/v1/health` + `/v1/health/ready` HTTP 200 after deploy  
 
-**BLOCKED LANE:** hosted deploy  
-**BLOCKER TYPE:** `HOSTED_PROOF_BLOCKED` (environment gate refused `render deploys create` for staging services without an approval card; Auto-Deploy is **OFF** on both services; branch tracked = `main`)  
-**UNBLOCK REQUIREMENT:** Carmen (or authorized operator) run:
-
-```bash
-SHA=b6a44f721bff2d1360d510127571818febb3efee
-# merge/cherry-pick onto main if Render requires main ancestry, then:
-render deploys create srv-dajddb67bikc73bl42q0 --commit "$SHA" --wait --confirm
-render deploys create srv-dajd64gae00c739gpk20 --commit "$SHA" --wait --confirm
-```
-
-Note: API service historically had migrate preDeploy; Wave A expects **no new migrations** — confirm migrate is no-op or cleared before API deploy.
-
-Migration expected: **NONE**.
+Migration: **NONE**
 
 ---
 
