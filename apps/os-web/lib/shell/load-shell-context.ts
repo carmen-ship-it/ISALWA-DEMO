@@ -4,6 +4,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { actorCanMutateMasterData, loadActorRoleKeys } from '@/lib/party/master-data-access';
+import { resolveQaShellOverlay } from '@/lib/qa/shell-overlay';
 import { usableGivenName } from '@/lib/shell/greeting';
 
 const PERMISSION_DENIAL_CODES = new Set([
@@ -111,15 +112,28 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
       grantedScopes = [];
     }
 
+    let sessionMemberId: string | null = null;
     try {
       const session = await client.getAuthenticatedSession();
       if (session.memberId && session.organizationId) {
+        sessionMemberId = session.memberId;
         actorKey = `${session.organizationId}:${session.memberId}`;
         givenName = await readMemberGivenName(client, session.memberId);
       }
     } catch {
       actorKey = null;
       givenName = null;
+    }
+
+    try {
+      const overlay = await resolveQaShellOverlay(sessionMemberId, grantedScopes);
+      if (overlay) {
+        grantedScopes = overlay.grantedScopes;
+        showAdmin = overlay.showAdmin;
+        canCreateCustomer = overlay.canCreateCustomer;
+      }
+    } catch {
+      // Fail-closed: keep operator shell if overlay cannot be resolved.
     }
 
     try {

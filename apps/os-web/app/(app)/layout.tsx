@@ -7,6 +7,7 @@ import {
   ServiceUnavailableState,
   SessionExpiredState,
 } from '@/components/states/app-states';
+import { QaViewBanner } from '@/components/qa/qa-view-banner';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
 
 export const dynamic = 'force-dynamic';
@@ -49,6 +50,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 
   return (
     <>
+      <QaViewBanner />
       <SessionGuard />
       <AppShell
         displayLabel={shell.displayLabel}

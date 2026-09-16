@@ -67,6 +67,12 @@ export const COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE = 'commercial.customer.cove
 /** Separate from operational scopes. Not implied by cargo, title, or any scope below. */
 export const SYSTEM_ADMIN_SCOPE = 'system.admin' as const;
 
+/**
+ * Staging-only QA control center ("Ver como"). Explicit grant only.
+ * system.admin does NOT imply qa.access.
+ */
+export const QA_ACCESS_SCOPE = 'qa.access' as const;
+
 /** Matches current CreateOrder eligibility. Ownership alone is not enough. */
 export const OWN_QUOTE_CONVERT_ELIGIBLE_STATUS = 'submitted' as const;
 
@@ -212,6 +218,10 @@ export function canRecordDelivery(grantedScopes: readonly string[]): boolean {
 
 export function canActAsSystemAdmin(grantedScopes: readonly string[]): boolean {
   return hasAssignedOperationsScope(grantedScopes, SYSTEM_ADMIN_SCOPE);
+}
+
+export function canUseQaAccess(grantedScopes: readonly string[]): boolean {
+  return hasAssignedOperationsScope(grantedScopes, QA_ACCESS_SCOPE);
 }
 
 /**

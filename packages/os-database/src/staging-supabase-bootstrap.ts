@@ -176,7 +176,7 @@ async function main(): Promise<void> {
     activatedAt: new Date(),
     revokedAt: null,
   });
-  for (const roleKey of ['people.admin', 'master_data.admin'] as const) {
+  for (const roleKey of ['people.admin', 'master_data.admin', 'qa.access'] as const) {
     await workforceStore.insertRoleAssignment({
       id: randomUUID(),
       organizationId: org.id,

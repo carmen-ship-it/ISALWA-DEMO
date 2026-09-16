@@ -1,9 +1,15 @@
-import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import Link from 'next/link';
+import { ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
-import { createOsApiClient } from '@/lib/api/os-api-client';
+import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
+import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { getOsApiBaseUrl, getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
+import { isAiEnabled } from '@/lib/ai/limits';
+import { resolveMapProviderStatus } from '@/lib/map/provider-status';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
+import { isQaControlEnabled } from '@/lib/qa/runtime';
 import {
   SYSTEM_ADMIN_MEANING,
   mayOpenSystemControls,
@@ -11,6 +17,177 @@ import {
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+type HealthTone = 'success' | 'warning' | 'neutral';
+
+type ProviderHealthRow = {
+  id: string;
+  label: string;
+  state: string;
+  detail: string;
+  tone: HealthTone;
+};
+
+function providerKind(provider: string): 'mock' | 'live' | 'unset' {
+  const value = provider.trim().toLowerCase();
+  if (!value || value === 'mock') return 'mock';
+  return 'live';
+}
+
+async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRow[]> {
+  const mapStatus = resolveMapProviderStatus();
+  const rows: ProviderHealthRow[] = [];
+
+  rows.push({
+    id: 'app',
+    label: 'Aplicación',
+    state: 'Operativa',
+    detail: 'Su sesión está autorizada en la organización de esta pantalla.',
+    tone: 'success',
+  });
+
+  let apiState = 'No verificada';
+  let apiDetail = 'No pudimos confirmar la respuesta del servicio de datos.';
+  let apiTone: HealthTone = 'warning';
+  try {
+    const health = await client.health();
+    if (health.status === 'ok') {
+      apiState = 'Respondiendo';
+      apiDetail = 'El servicio de datos respondió a la comprobación de disponibilidad.';
+      apiTone = 'success';
+    }
+  } catch (err) {
+    if (err instanceof OsApiError && err.kind === 'forbidden') {
+      apiState = 'Sin señal autorizada';
+      apiDetail = 'Su sesión no expone esta comprobación; no se infiere estado del servicio.';
+      apiTone = 'neutral';
+    }
+  }
+  rows.push({ id: 'api', label: 'API', state: apiState, detail: apiDetail, tone: apiTone });
+
+  let dbState = 'No verificada';
+  let dbDetail = 'La comprobación de base de datos no está disponible desde esta pantalla.';
+  let dbTone: HealthTone = 'neutral';
+  try {
+    const response = await fetch(`${getOsApiBaseUrl()}/health/ready`, { cache: 'no-store' });
+    const body = (await response.json()) as {
+      status?: string;
+      checks?: Array<{ name: string; ok: boolean; detail?: string }>;
+    };
+    const database = body.checks?.find((check) => check.name === 'database');
+    if (database) {
+      if (database.ok) {
+        dbState = 'Accesible';
+        dbDetail = 'La comprobación de preparación reportó la base de datos accesible.';
+        dbTone = 'success';
+      } else {
+        dbState = 'No accesible';
+        dbDetail = 'La comprobación de preparación no pudo usar la base de datos.';
+        dbTone = 'warning';
+      }
+    } else if (body.status === 'ready') {
+      dbState = 'Accesible';
+      dbDetail = 'La comprobación de preparación finalizó en estado listo.';
+      dbTone = 'success';
+    }
+  } catch {
+    dbDetail = 'No pudimos consultar la preparación del servicio de datos.';
+  }
+  rows.push({ id: 'database', label: 'Base de datos', state: dbState, detail: dbDetail, tone: dbTone });
+
+  const authMode = getOsAuthMode();
+  const authRow: ProviderHealthRow =
+    authMode === 'dev'
+      ? {
+          id: 'auth',
+          label: 'Autenticación',
+          state: 'Modo desarrollo',
+          detail: 'La sesión usa el modo de desarrollo local; no evalúa un proveedor de acceso en producción.',
+          tone: 'neutral',
+        }
+      : isSupabaseConfigured()
+        ? {
+            id: 'auth',
+            label: 'Autenticación',
+            state: 'Proveedor configurado',
+            detail: 'Las variables de acceso del proveedor están presentes; no se muestran secretos aquí.',
+            tone: 'success',
+          }
+        : {
+            id: 'auth',
+            label: 'Autenticación',
+            state: 'Sin proveedor configurado',
+            detail: 'Faltan variables de configuración del proveedor de acceso.',
+            tone: 'warning',
+          };
+  rows.push(authRow);
+
+  rows.push({
+    id: 'map',
+    label: 'Mapa',
+    state: mapStatus.label,
+    detail: mapStatus.tokenPresent
+      ? `${mapStatus.detail} Hay credencial de mapa configurada; la vista completa sigue en preparación.`
+      : mapStatus.detail,
+    tone: mapStatus.tokenPresent ? 'neutral' : 'neutral',
+  });
+
+  rows.push({
+    id: 'ai',
+    label: 'IA',
+    state: isAiEnabled() ? 'Activada' : 'No activada',
+    detail: isAiEnabled()
+      ? 'La asistencia de IA está habilitada por configuración explícita (AI_ENABLED=true).'
+      : 'La asistencia de IA permanece apagada hasta habilitarla de forma explícita.',
+    tone: isAiEnabled() ? 'success' : 'neutral',
+  });
+
+  const emailKind = providerKind(process.env.EMAIL_PROVIDER ?? '');
+  rows.push({
+    id: 'email',
+    label: 'Email',
+    state: emailKind === 'live' ? 'Proveedor declarado' : 'En preparación',
+    detail:
+      emailKind === 'live'
+        ? 'Hay un proveedor de correo declarado en configuración; no se envían credenciales desde esta pantalla.'
+        : 'El correo transaccional no está conectado en este entorno.',
+    tone: emailKind === 'live' ? 'neutral' : 'neutral',
+  });
+
+  const messagingKind = providerKind(process.env.MESSAGING_PROVIDER ?? '');
+  rows.push({
+    id: 'whatsapp',
+    label: 'WhatsApp',
+    state: messagingKind === 'live' ? 'Proveedor declarado' : 'En preparación',
+    detail:
+      messagingKind === 'live'
+        ? 'Hay un proveedor de mensajería declarado; el canal WhatsApp no se evalúa desde secretos aquí.'
+        : 'WhatsApp y envíos automáticos siguen sin conectar en este entorno.',
+    tone: 'neutral',
+  });
+
+  rows.push({
+    id: 'monitoring',
+    label: 'Monitoreo',
+    state: 'Sin panel en producto',
+    detail: 'No hay un tablero de monitoreo operativo dentro de ISALWA; use las herramientas de infraestructura.',
+    tone: 'neutral',
+  });
+
+  rows.push({
+    id: 'backups',
+    label: 'Backups',
+    state: 'Sin señal en producto',
+    detail: 'El estado de respaldos no se expone en la aplicación; consulte runbooks de operaciones.',
+    tone: 'neutral',
+  });
+
+  return rows;
+}
+
+function toneForPill(tone: HealthTone): 'success' | 'warning' | 'neutral' {
+  return tone;
+}
 
 /**
  * Technical system controls for system.admin only.
@@ -32,6 +209,9 @@ export default async function SistemaPage() {
     );
   }
 
+  const providerHealth = await loadProviderHealth(client);
+  const qaEnabled = isQaControlEnabled();
+
   return (
     <PageContainer label="Controles del sistema">
       <PageHeader
@@ -46,27 +226,65 @@ export default async function SistemaPage() {
           card
           className="border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-6 shadow-[var(--isalwa-shadow-resting)] md:p-8"
         >
-          <SectionHeader kicker="Alcance" title="Qué autoriza system.admin" />
-          <ul className="mt-2 max-w-2xl space-y-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            <li>
-              Autoridad técnica explícita ({SYSTEM_ADMIN_MEANING.scope}), acotada a la organización de la
-              sesión.
-            </li>
-            <li>No reescribe historial ni abre salud de integraciones.</li>
-            <li>
-              No implica administración de personas (people.admin). Equipo, accesos e invitaciones
-              siguen en Administración solo con esa autoridad.
-            </li>
+          <SectionHeader kicker="Salud" title="Integraciones y servicios" />
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Estados en lenguaje humano, derivados solo de comprobaciones disponibles. No se muestran
+            secretos ni credenciales.
+          </p>
+          <ul className="mt-6 space-y-2">
+            {providerHealth.map((row) => (
+              <ListRow key={row.id} as="li" className="min-w-0 px-1 py-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[var(--isalwa-ink)]">{row.label}</p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-[var(--isalwa-slate)]">{row.detail}</p>
+                  </div>
+                  <StatusPill tone={toneForPill(row.tone)} className="shrink-0 self-start">
+                    {row.state}
+                  </StatusPill>
+                </div>
+              </ListRow>
+            ))}
           </ul>
+          {qaEnabled ? (
+            <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              <Link
+                href="/sistema/pruebas-acceso"
+                className="font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+              >
+                Pruebas de acceso (QA)
+              </Link>
+              {' — '}
+              matriz de acceso para aceptación en staging.
+            </p>
+          ) : null}
         </PageSection>
 
         <div className="space-y-6">
+          <PageSection
+            card
+            className="border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-6 shadow-[var(--isalwa-shadow-resting)] md:p-8"
+          >
+            <SectionHeader kicker="Alcance" title="Qué autoriza system.admin" />
+            <ul className="mt-2 max-w-2xl space-y-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              <li>
+                Autoridad técnica explícita ({SYSTEM_ADMIN_MEANING.scope}), acotada a la organización de la
+                sesión.
+              </li>
+              <li>Salud de integraciones se resume aquí con evidencia disponible; no reescribe historial.</li>
+              <li>
+                No implica administración de personas (people.admin). Equipo, accesos e invitaciones
+                siguen en Administración solo con esa autoridad.
+              </li>
+            </ul>
+          </PageSection>
+
           <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_70%,white)] p-6 shadow-[var(--isalwa-shadow-soft)] md:p-7">
             <p className="isalwa-section-label">Disponible hoy</p>
             <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              Este panel confirma que su sesión tiene controles técnicos autorizados. Las herramientas
-              operativas de infraestructura se habilitan aquí cuando existan; no se muestran botones a
-              destinos que aún no puede usar.
+              Este panel confirma que su sesión tiene controles técnicos autorizados y resume la salud
+              visible del entorno. Las herramientas operativas adicionales se habilitan aquí cuando
+              existan; no se muestran botones a destinos que aún no puede usar.
             </p>
           </div>
           <PageSection card className="p-6 md:p-7">
