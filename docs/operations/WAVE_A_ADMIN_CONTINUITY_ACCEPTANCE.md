@@ -186,20 +186,25 @@ Migration: **NONE**
 
 ## Independent hosted acceptance
 
-**Receipt:** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md`  
-**Tooling:** Playwright-core 1.51.1 + headless Google Chrome; Render CLI for SHA; cursor-ide-browser **not** used.
+**Receipt (pre-deploy):** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md`  
+**Receipt (post-deploy close):** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a-close.md`  
+**Tooling:** Playwright-core 1.51.1 + headless Google Chrome; Render CLI; isolation script; cursor-ide-browser **not** used.  
+**Overall (close):** **CONDITIONAL**
 
 | Check | Result |
 |-------|--------|
-| Hosted SHA matches integrated | **FAIL** — web `1fd0167` / `dep-dakuhuad0e5s73ftrvng`; api `fd06aea` / `dep-dakm1cafngtc73atlrbg` |
-| people.admin bootstrap credentials | **AVAILABLE** (`carmen.staging@isalwa.demo`) — reaches `/administracion` |
-| people.admin: responsabilidades / ReassignWork / terminate / history | **UNPROVEN** — Wave A UI not on host |
+| Hosted SHA matches candidate `a97e17e` | **PASS** (web + api) |
+| people.admin bootstrap (`carmen.staging@isalwa.demo`) | **PASS** admin reach — org = **REAL** only |
+| SYNTH-scoped people.admin | **BLOCKED** — none |
+| ReassignWork → terminate → history (SYNTH) | **UNPROVEN** |
 | Non-admin `/administracion` denied | **PASS** (`w2.asesor`) |
-| system.admin without people.admin — no escalation | **PASS** (`w2.owner` deny admin; `/sistema` allow) |
-| Cross-tenant / SYNTH-scoped admin continuity | **UNPROVEN** hosted (bootstrap equipo looked REAL-org scoped) |
-| Mobile 390 continuity usable | **UNPROVEN** |
+| system.admin without people.admin | **PASS** (`w2.owner` deny admin; `/sistema` allow) |
+| Preflight + fail-closed (REAL read-only) | **PASS** |
+| Split-authority commercial copy | **PASS** |
+| Cross-tenant | **PASS** (17/17) |
+| Mobile 390 (panels) | **PASS** (read-only) |
 | REAL tenant mutations | **NONE** |
-| Protected seven customers | **UNCHANGED** (read-only nav only) |
+| Protected seven | **UNCHANGED** |
 
 ---
 
