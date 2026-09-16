@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@isalwa/ui';
 import { COMMITMENT_COPY, commitmentErrorCopy } from '@/lib/commitments/copy';
@@ -21,11 +22,13 @@ export function CommitmentRecordForm({
   organizationId,
   ownerMemberId,
   partyId,
-  origin = 'employee_entered',
+  origin: initialOrigin = 'employee_entered',
   onSaved,
 }: CommitmentRecordFormProps) {
+  const router = useRouter();
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [origin, setOrigin] = useState<'employee_entered' | 'customer_reported'>(initialOrigin);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -78,6 +81,7 @@ export function CommitmentRecordForm({
     setText('');
     setDueDate('');
     onSaved?.();
+    router.refresh();
   }
 
   return (
@@ -127,6 +131,30 @@ export function CommitmentRecordForm({
         />
         <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{COMMITMENT_COPY.dueHint}</p>
       </div>
+      <fieldset>
+        <legend className="isalwa-section-label">Origen</legend>
+        <div className="mt-2 flex flex-col gap-2">
+          <label className="flex items-center gap-2 text-sm text-[var(--isalwa-kiln)]">
+            <input
+              type="radio"
+              name="commitment-origin"
+              checked={origin === 'employee_entered'}
+              onChange={() => setOrigin('employee_entered')}
+            />
+            {COMMITMENT_COPY.originEmployee}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-[var(--isalwa-kiln)]">
+            <input
+              type="radio"
+              name="commitment-origin"
+              checked={origin === 'customer_reported'}
+              onChange={() => setOrigin('customer_reported')}
+            />
+            {COMMITMENT_COPY.originCustomer}
+          </label>
+        </div>
+        <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{COMMITMENT_COPY.originHint}</p>
+      </fieldset>
       <Button type="submit" disabled={submitting}>
         {submitting ? 'Guardando…' : COMMITMENT_COPY.record}
       </Button>

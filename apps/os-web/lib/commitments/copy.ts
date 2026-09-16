@@ -13,6 +13,14 @@ export const COMMITMENT_COPY = {
   sectionHint:
     'Promesas registradas con este cliente: quién prometió, qué, para cuándo y si se cumplió. Un compromiso del cliente no confirma un pago.',
   ownerNote: 'Quedará a nombre de quien lo registra.',
+  originEmployee: 'Promesa del equipo',
+  originCustomer: 'Reportado por el cliente',
+  originHint: 'Si el cliente lo dijo, márquelo así. No confirma un pago.',
+  promisedBy: 'Prometió',
+  promisedTo: 'A',
+  followUpOwner: 'Seguimiento',
+  recordedBy: 'Registró',
+  fulfilledBy: 'Cumplió',
   suggestion: 'Posible compromiso detectado',
   suggestionBoundary: 'Una sugerencia no es un compromiso hasta que una persona lo confirma.',
   saved: 'Compromiso registrado.',
@@ -21,7 +29,9 @@ export const COMMITMENT_COPY = {
   fulfilled: 'Compromiso marcado como cumplido.',
   fulfillFailed: 'No se pudo marcar como cumplido.',
   customerReportedLabel: 'Reportado por cliente',
+  customerPromisor: 'Cliente',
   sessionExpired: 'La sesión expiró. Inicia sesión nuevamente.',
+  paymentBoundary: 'No confirma un pago.',
 } as const;
 
 const STATE_LABELS: Record<CommitmentState, string> = {

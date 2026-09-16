@@ -64,6 +64,7 @@ export type CommitmentSummary = {
   createdByMemberId: string;
   createdAt: string;
   fulfilledAt: string | null;
+  fulfilledByMemberId: string | null;
   cancelledAt: string | null;
 };
 

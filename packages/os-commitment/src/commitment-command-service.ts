@@ -226,6 +226,7 @@ export class CommitmentCommandService {
       createdByMemberId: record.createdByMemberId,
       createdAt: new Date(record.createdAt),
       fulfilledAt: record.fulfilledAt ? new Date(record.fulfilledAt) : null,
+      fulfilledByMemberId: null,
       cancelledAt: record.cancelledAt ? new Date(record.cancelledAt) : null,
       provenanceSuggestionId: record.provenanceSuggestionId,
     };
@@ -258,7 +259,9 @@ export class CommitmentCommandService {
     store: OsCommitmentStore,
     origin: CommitmentOrigin,
   ): Promise<CommandResult> {
-    await this.authorize(ctx, 'CreateEmployeeCommitment', ctx.organizationId);
+    const commandName =
+      origin === 'customer_reported' ? 'CreateCustomerReportedCommitment' : 'CreateEmployeeCommitment';
+    await this.authorize(ctx, commandName, ctx.organizationId);
 
     const ownerMemberId = payload.ownerMemberId ? String(payload.ownerMemberId) : ctx.actorMemberId;
     const owner = await store.getMemberInOrg(ctx.organizationId, ownerMemberId);
@@ -330,9 +333,8 @@ export class CommitmentCommandService {
     payload: Record<string, unknown>,
     store: OsCommitmentStore,
   ): Promise<CommandResult> {
-    // Use employee_entered since customer_reported is not in current contract origins
-    // This is intentional: customer_reported origin does NOT imply payment confirmed
-    return this.createCommitment(ctx, payload, store, 'employee_entered');
+    // customer_reported qualifies source only — never payment truth.
+    return this.createCommitment(ctx, payload, store, 'customer_reported');
   }
 
   private async fulfillCommitment(
@@ -359,6 +361,7 @@ export class CommitmentCommandService {
     await store.updateCommitment(commitmentId, {
       lifecycle: 'fulfilled',
       fulfilledAt: ctx.effectiveAt,
+      fulfilledByMemberId: ctx.actorMemberId,
     });
 
     return this.emit(
@@ -367,10 +370,10 @@ export class CommitmentCommandService {
       'commitment.fulfilled',
       'commitment',
       commitmentId,
-      { commitmentId },
+      { commitmentId, fulfilledByMemberId: ctx.actorMemberId },
       'commitment.fulfilled',
       { lifecycle: commitment.lifecycle },
-      { lifecycle: 'fulfilled' },
+      { lifecycle: 'fulfilled', fulfilledByMemberId: ctx.actorMemberId },
     );
   }
 

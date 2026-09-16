@@ -1,11 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button, EmptyState, ListRow, SectionHeader, StatusPill } from '@isalwa/ui';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
 import { COMMITMENT_COPY, commitmentStateLabel } from '@/lib/commitments/copy';
 import { fulfillCommitmentAction } from '@/lib/commitments/persistence';
 import { formatCommitmentDue } from '@/lib/commitments/view';
+import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { CommitmentState } from '@isalwa/os-contracts';
 
 type CommitmentTone = 'neutral' | 'warning' | 'danger' | 'success';
@@ -28,17 +30,33 @@ const RANK: Record<CommitmentState, number> = {
 
 type CommitmentListProps = {
   items: CommitmentSummary[];
+  memberLabels?: MemberLabelMap;
+  partyLabel?: string | null;
   asOf?: Date;
   showOrigin?: boolean;
   onFulfilled?: () => void;
 };
 
-function formatOrigin(origin: string): string | null {
-  if (origin === 'customer_reported') return COMMITMENT_COPY.customerReportedLabel;
-  return null;
+function formatFulfilledAt(value: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('es-BO', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'America/La_Paz',
+  }).format(date);
 }
 
-export function CommitmentList({ items, asOf = new Date(), showOrigin = true, onFulfilled }: CommitmentListProps) {
+export function CommitmentList({
+  items,
+  memberLabels = {},
+  partyLabel = null,
+  asOf = new Date(),
+  showOrigin = true,
+  onFulfilled,
+}: CommitmentListProps) {
+  const router = useRouter();
   const [fulfillingId, setFulfillingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +81,7 @@ export function CommitmentList({ items, asOf = new Date(), showOrigin = true, on
     }
 
     onFulfilled?.();
+    router.refresh();
   }
 
   return (
@@ -88,17 +107,39 @@ export function CommitmentList({ items, asOf = new Date(), showOrigin = true, on
             const tone = TONES[row.state] ?? 'neutral';
             const stateLabel = commitmentStateLabel(row.state);
             const dueLabel = formatCommitmentDue(row.dueAt);
-            const originLabel = showOrigin ? formatOrigin(row.origin) : null;
+            const customerReported = row.origin === 'customer_reported';
+            const promisor = customerReported
+              ? COMMITMENT_COPY.customerPromisor
+              : memberLabel(memberLabels, row.createdByMemberId);
+            const followUp = memberLabel(memberLabels, row.ownerMemberId);
+            const recordedBy = memberLabel(memberLabels, row.createdByMemberId);
+            const fulfilledBy = row.fulfilledByMemberId
+              ? memberLabel(memberLabels, row.fulfilledByMemberId)
+              : null;
+            const fulfilledWhen = formatFulfilledAt(row.fulfilledAt);
             const canFulfill = row.lifecycle === 'open';
+            const meta = [
+              `${COMMITMENT_COPY.promisedBy}: ${promisor}`,
+              partyLabel ? `${COMMITMENT_COPY.promisedTo}: ${partyLabel}` : null,
+              `${COMMITMENT_COPY.followUpOwner}: ${followUp}`,
+              dueLabel,
+              showOrigin && customerReported ? COMMITMENT_COPY.customerReportedLabel : null,
+              customerReported ? COMMITMENT_COPY.paymentBoundary : null,
+              row.lifecycle === 'fulfilled' && fulfilledBy
+                ? `${COMMITMENT_COPY.fulfilledBy}: ${fulfilledBy}${fulfilledWhen ? ` · ${fulfilledWhen}` : ''}`
+                : null,
+              !customerReported && recordedBy !== followUp
+                ? `${COMMITMENT_COPY.recordedBy}: ${recordedBy}`
+                : null,
+            ]
+              .filter((part): part is string => Boolean(part))
+              .join(' · ');
 
             return (
               <ListRow key={row.id} as="li" railColor={row.state === 'overdue' ? 'var(--isalwa-danger)' : undefined}>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.text}</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {dueLabel}
-                    {originLabel ? ` · ${originLabel}` : null}
-                  </p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{meta}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusPill tone={tone}>{stateLabel}</StatusPill>

@@ -30,10 +30,14 @@ type CommitmentSummary = {
   createdByMemberId: string;
   createdAt: string;
   fulfilledAt: string | null;
+  fulfilledByMemberId: string | null;
   cancelledAt: string | null;
 };
 
-function toSummary(record: CommitmentRecord, asOf: Date): CommitmentSummary {
+function toSummary(
+  record: CommitmentRecord & { fulfilledByMemberId?: string | null },
+  asOf: Date,
+): CommitmentSummary {
   return {
     id: record.id,
     organizationId: record.organizationId,
@@ -49,6 +53,7 @@ function toSummary(record: CommitmentRecord, asOf: Date): CommitmentSummary {
     createdByMemberId: record.createdByMemberId,
     createdAt: record.createdAt,
     fulfilledAt: record.fulfilledAt,
+    fulfilledByMemberId: record.fulfilledByMemberId ?? null,
     cancelledAt: record.cancelledAt,
   };
 }
@@ -67,9 +72,10 @@ function dbToContract(db: {
   createdByMemberId: string;
   createdAt: Date;
   fulfilledAt: Date | null;
+  fulfilledByMemberId?: string | null;
   cancelledAt: Date | null;
   provenanceSuggestionId: string | null;
-}): CommitmentRecord {
+}): CommitmentRecord & { fulfilledByMemberId: string | null } {
   return {
     id: db.id,
     organizationId: db.organizationId,
@@ -84,6 +90,7 @@ function dbToContract(db: {
     createdByMemberId: db.createdByMemberId,
     createdAt: db.createdAt.toISOString(),
     fulfilledAt: db.fulfilledAt ? db.fulfilledAt.toISOString() : null,
+    fulfilledByMemberId: db.fulfilledByMemberId ?? null,
     cancelledAt: db.cancelledAt ? db.cancelledAt.toISOString() : null,
     provenanceSuggestionId: db.provenanceSuggestionId,
     canonical: true,

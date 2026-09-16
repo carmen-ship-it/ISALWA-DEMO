@@ -36,7 +36,7 @@ export interface OsCommitmentStore {
     patch: Partial<
       Pick<
         CommitmentDatabaseRecord,
-        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'cancelledAt'
+        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
       >
     >,
   ): Promise<void>;

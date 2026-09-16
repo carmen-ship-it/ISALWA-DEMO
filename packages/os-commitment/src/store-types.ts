@@ -23,6 +23,7 @@ export type CommitmentDatabaseRecord = {
   createdByMemberId: string;
   createdAt: Date;
   fulfilledAt: Date | null;
+  fulfilledByMemberId: string | null;
   cancelledAt: Date | null;
   provenanceSuggestionId: string | null;
 };

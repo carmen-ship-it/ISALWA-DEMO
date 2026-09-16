@@ -594,7 +594,12 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               />
             ) : null}
             <div className="mt-6">
-              <CommitmentList items={partyCommitments} showOrigin />
+              <CommitmentList
+                items={partyCommitments}
+                memberLabels={memberLabels}
+                partyLabel={displayName}
+                showOrigin
+              />
             </div>
           </PageSection>
 

@@ -58,7 +58,12 @@ class InMemoryCommitmentStore implements OsCommitmentStore {
 
   async updateCommitment(
     commitmentId: string,
-    patch: Partial<Pick<CommitmentDatabaseRecord, 'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'cancelledAt'>>,
+    patch: Partial<
+      Pick<
+        CommitmentDatabaseRecord,
+        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
+      >
+    >,
   ): Promise<void> {
     const c = this.commitments.get(commitmentId);
     if (c) {
@@ -192,6 +197,7 @@ describe('CommitmentCommandService', () => {
       const commitment = store.commitments.get(commitmentId);
       assert.equal(commitment?.lifecycle, 'fulfilled');
       assert.ok(commitment?.fulfilledAt);
+      assert.equal(commitment?.fulfilledByMemberId, 'mem-1');
     });
 
     it('rejects fulfillment by non-owner', async () => {
@@ -272,8 +278,7 @@ describe('CommitmentCommandService', () => {
       
       // Commitment exists but has no payment confirmation field
       assert.equal(commitment.text, 'Customer said they will pay on Friday');
-      // origin is employee_entered (customer_reported not in current contract)
-      assert.equal(commitment.origin, 'employee_entered');
+      assert.equal(commitment.origin, 'customer_reported');
       // No paymentConfirmed field should exist
       assert.ok(!('paymentConfirmed' in commitment));
       // lifecycle is open, not anything payment-related

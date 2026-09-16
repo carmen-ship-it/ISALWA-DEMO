@@ -111,7 +111,7 @@ export class CommitmentStoreAdapter implements CommandStoreInterface {
       createdByMemberId: record.createdByMemberId,
       createdAt: record.createdAt,
       fulfilledAt: record.fulfilledAt,
-      fulfilledByMemberId: null,
+      fulfilledByMemberId: record.fulfilledByMemberId,
       cancelledAt: record.cancelledAt,
       provenanceSuggestionId: record.provenanceSuggestionId,
     };
@@ -132,13 +132,14 @@ export class CommitmentStoreAdapter implements CommandStoreInterface {
     patch: Partial<
       Pick<
         CommitmentDatabaseRecord,
-        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'cancelledAt'
+        'ownerMemberId' | 'lifecycle' | 'fulfilledAt' | 'fulfilledByMemberId' | 'cancelledAt'
       >
     >,
   ): Promise<void> {
     const prismaPatch: Parameters<typeof this.commitmentStore.updateCommitment>[1] = {};
     if (patch.lifecycle !== undefined) prismaPatch.lifecycle = patch.lifecycle;
     if (patch.fulfilledAt !== undefined) prismaPatch.fulfilledAt = patch.fulfilledAt;
+    if (patch.fulfilledByMemberId !== undefined) prismaPatch.fulfilledByMemberId = patch.fulfilledByMemberId;
     if (patch.cancelledAt !== undefined) prismaPatch.cancelledAt = patch.cancelledAt;
     // ownerMemberId is not in the prisma patch type — handle separately if needed
     await this.commitmentStore.updateCommitment(commitmentId, prismaPatch);
@@ -217,6 +218,7 @@ export class CommitmentStoreAdapter implements CommandStoreInterface {
       createdByMemberId: prisma.createdByMemberId,
       createdAt: prisma.createdAt,
       fulfilledAt: prisma.fulfilledAt,
+      fulfilledByMemberId: prisma.fulfilledByMemberId,
       cancelledAt: prisma.cancelledAt,
       provenanceSuggestionId: prisma.provenanceSuggestionId,
     };
