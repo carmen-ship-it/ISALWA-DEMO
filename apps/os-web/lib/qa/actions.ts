@@ -70,10 +70,8 @@ export async function startQaView(formData: FormData): Promise<void> {
 
   // Hosted fail-closed: confirm target remains SYNTH via effective-access.
   const live = await client.getQaEffectiveAccess(persona.memberId);
-  if (live.organizationId !== QA_SYNTH_ORGANIZATION_ID) {
-    throw new Error('TARGET_NOT_ALLOWED');
-  }
-  if (live.organizationId === QA_REAL_ORGANIZATION_ID) {
+  const liveOrgId = live.organizationId.trim();
+  if (liveOrgId !== QA_SYNTH_ORGANIZATION_ID || liveOrgId === QA_REAL_ORGANIZATION_ID) {
     throw new Error('TARGET_NOT_ALLOWED');
   }
 
