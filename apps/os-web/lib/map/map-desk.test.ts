@@ -11,11 +11,11 @@ describe('map provider status', () => {
     assert.match(status.detail, /Vista geográfica en preparación|proveedor geográfico|ubicación ya está organizada/i);
   });
 
-  it('reports token present without wiring the canvas', () => {
+  it('enables live mapbox when token is present', () => {
     const status = resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' });
-    assert.equal(status.kind, 'token_present_unwired');
+    assert.equal(status.kind, 'live');
     assert.equal(status.tokenPresent, true);
-    assert.match(status.detail, /proveedor geográfico|ubicación ya está organizada/i);
+    assert.match(status.detail, /coordenadas confirmadas|enlace de mapas/i);
     assert.doesNotMatch(status.detail, /teselas|MapLibre|error|failed/i);
   });
 
@@ -53,16 +53,19 @@ describe('copy contracts — no fake streets or provider-error wording', () => {
     }
   });
 
-  it('provider label uses intentional preparation copy for unwired state', () => {
-    const statuses = [
+  it('provider label uses preparation copy except when live', () => {
+    const unwired = [
       resolveMapProviderStatus({ mapsProvider: null, mapboxToken: null }),
       resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: '' }),
-      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' }),
       resolveMapProviderStatus({ mapsProvider: 'mock', mapboxToken: null }),
     ];
-    for (const status of statuses) {
+    for (const status of unwired) {
       assert.equal(status.label, 'Vista geográfica en preparación');
     }
+    assert.equal(
+      resolveMapProviderStatus({ mapsProvider: 'mapbox', mapboxToken: 'pk.test' }).label,
+      'Mapa activo',
+    );
   });
 
   it('provider detail never invents streets, heatmaps, or pins', () => {

@@ -243,6 +243,9 @@ importers:
       '@isalwa/os-domain':
         specifier: workspace:*
         version: link:../../packages/os-domain
+      '@isalwa/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@isalwa/ts-utils':
         specifier: workspace:*
         version: link:../../packages/ts-utils
@@ -261,6 +264,9 @@ importers:
       lucide-react:
         specifier: ^1.26.0
         version: 1.26.0(react@19.1.0)
+      mapbox-gl:
+        specifier: ^3.27.0
+        version: 3.27.0
       next:
         specifier: 15.5.21
         version: 15.5.21(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -270,6 +276,9 @@ importers:
       react-dom:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
+      react-map-gl:
+        specifier: ^8.1.1
+        version: 8.1.1(mapbox-gl@3.27.0)(maplibre-gl@5.24.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0

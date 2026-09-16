@@ -9,9 +9,14 @@ type MapCanvasFallbackProps = {
 
 /**
  * Geographic frame without tiles or invented pins.
- * Soft territory silhouette — intentional waiting room, not a broken map.
+ * Calm sky / kiln composition — intentional waiting room, not a broken map.
  */
 export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvasFallbackProps) {
+  const coverageLine =
+    plottableCount > 0 || total > 0
+      ? `${plottableCount} de ${total} clientes con coordenadas confirmadas`
+      : null;
+
   return (
     <div
       className="relative flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] shadow-[var(--isalwa-shadow-lift)] md:min-h-[440px]"
@@ -20,31 +25,22 @@ export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvas
       data-map-canvas="waiting"
       data-map-provider-blocked=""
     >
-      {/* Soft territory wash — no streets, heat, or pins */}
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden
         style={{
           background: `
-            radial-gradient(ellipse 70% 55% at 42% 48%, color-mix(in srgb, var(--isalwa-glaze) 10%, transparent), transparent 70%),
-            radial-gradient(ellipse 45% 40% at 68% 58%, color-mix(in srgb, var(--isalwa-info) 12%, transparent), transparent 65%),
-            linear-gradient(165deg, color-mix(in srgb, var(--isalwa-porcelain) 80%, white), var(--isalwa-porcelain))
+            linear-gradient(180deg, color-mix(in srgb, #4a5d73 14%, var(--isalwa-porcelain)) 0%, color-mix(in srgb, var(--isalwa-porcelain) 92%, white) 42%, var(--isalwa-porcelain) 100%),
+            radial-gradient(ellipse 90% 40% at 50% 0%, color-mix(in srgb, var(--isalwa-info) 18%, transparent), transparent 70%)
           `,
         }}
       />
       <div
-        className="pointer-events-none absolute left-[12%] top-[18%] h-[64%] w-[76%] rounded-[46%_54%_48%_52%/52%_46%_54%_48%] border border-[color-mix(in_srgb,var(--isalwa-glaze)_18%,transparent)] opacity-70"
-        aria-hidden
-        style={{
-          boxShadow: 'inset 0 0 60px color-mix(in srgb, var(--isalwa-glaze) 6%, transparent)',
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.22]"
+        className="pointer-events-none absolute inset-0 opacity-[0.12]"
         style={{
           backgroundImage:
             'linear-gradient(to right, var(--isalwa-mist) 1px, transparent 1px), linear-gradient(to bottom, var(--isalwa-mist) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
+          backgroundSize: '64px 64px',
         }}
         aria-hidden
       />
@@ -57,16 +53,15 @@ export function MapCanvasFallback({ provider, plottableCount, total }: MapCanvas
         <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--isalwa-slate)]">
           La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.
         </p>
-        {plottableCount > 0 || total > 0 ? (
-          <p className="mt-2 max-w-md text-xs leading-relaxed text-[var(--isalwa-slate)]">
-            {plottableCount} de {total} clientes con coordenadas listas para el lienzo.
-          </p>
+        {coverageLine ? (
+          <p className="mt-2 max-w-md text-xs leading-relaxed text-[var(--isalwa-slate)]">{coverageLine}</p>
         ) : null}
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <StatusPill tone="manual">{provider.label}</StatusPill>
         </div>
-        <p className="mt-3 max-w-sm text-xs leading-relaxed text-[var(--isalwa-slate)]">
-          {provider.detail}
+        <p className="mt-3 max-w-sm text-xs leading-relaxed text-[var(--isalwa-slate)]">{provider.detail}</p>
+        <p className="mt-4 max-w-md text-xs leading-relaxed text-[var(--isalwa-slate)]">
+          Ubicación registrada — coordenadas pendientes: no se trazan en el lienzo hasta confirmar latitud y longitud.
         </p>
       </div>
 

@@ -1,8 +1,9 @@
 /**
  * Map tile provider status for os-web.
  * Never imports mapbox-gl / maplibre. Never purchases or connects silently.
- * A configured token is reported honestly; it does not turn the canvas on by itself.
  */
+
+import { MapboxMapProvider, type MapViewConfig } from '@isalwa/providers';
 
 export type MapProviderStatus =
   | {
@@ -13,7 +14,7 @@ export type MapProviderStatus =
       tokenPresent: false;
     }
   | {
-      kind: 'token_present_unwired';
+      kind: 'live';
       label: string;
       detail: string;
       engine: 'mapbox';
@@ -32,9 +33,14 @@ export type MapProviderEnv = {
   mapboxToken?: string | null;
 };
 
+export function isLiveMapProvider(
+  status: MapProviderStatus,
+): status is Extract<MapProviderStatus, { kind: 'live' }> {
+  return status.kind === 'live';
+}
+
 /**
- * Resolve whether a tile canvas could be wired.
- * OS web does not load a GL SDK in this pass — status drives honest fallback UI only.
+ * Resolve whether the map desk should render a live canvas or honest fallback.
  */
 export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEnv()): MapProviderStatus {
   const provider = (env.mapsProvider ?? '').trim().toLowerCase();
@@ -42,10 +48,10 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
 
   if (provider === 'mapbox' && token) {
     return {
-      kind: 'token_present_unwired',
-      label: 'Vista geográfica en preparación',
+      kind: 'live',
+      label: 'Mapa activo',
       detail:
-        'La información de ubicación ya está organizada. La visualización completa sobre mapa podrá activarse cuando se conecte el proveedor geográfico.',
+        'Solo se trazan clientes con coordenadas confirmadas. Un enlace de mapas no genera un pin.',
       engine: 'mapbox',
       tokenPresent: true,
     };
@@ -81,6 +87,15 @@ export function resolveMapProviderStatus(env: MapProviderEnv = readMapProviderEn
     engine: null,
     tokenPresent: false,
   };
+}
+
+/** MapboxMapProvider view config when live; null when fallback applies. */
+export function resolveMapViewConfig(env: MapProviderEnv = readMapProviderEnv()): MapViewConfig | null {
+  const status = resolveMapProviderStatus(env);
+  if (!isLiveMapProvider(status)) return null;
+  const token = (env.mapboxToken ?? '').trim();
+  if (!token) return null;
+  return new MapboxMapProvider({ accessToken: token }).getViewConfig();
 }
 
 export function readMapProviderEnv(): MapProviderEnv {

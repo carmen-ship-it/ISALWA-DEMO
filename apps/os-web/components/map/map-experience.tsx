@@ -1,20 +1,25 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { MapViewConfig } from '@isalwa/providers';
 import { Chip, SearchField } from '@isalwa/ui';
 import { MapCanvasFallback } from '@/components/map/map-canvas-fallback';
+import { MapConfirmedMarker, MapLiveCanvas } from '@/components/map/map-live-canvas';
 import { MapCoverageBanner } from '@/components/map/map-coverage-banner';
 import { MapCustomerLists } from '@/components/map/map-customer-lists';
 import { MapLayerControls } from '@/components/map/map-layer-controls';
 import { MapQuickViewCompact } from '@/components/map/map-quick-view-compact';
 import type { MapDeskViewModel } from '@/lib/map/build-view-model';
 import { DEFAULT_MAP_LAYER, type MapLayerId } from '@/lib/map/layers';
-import type { MapProviderStatus } from '@/lib/map/provider-status';
-import { hrefWithoutPanel, type ListQueryState } from '@/lib/lists/url-state';
+import { isLiveMapProvider, type MapProviderStatus } from '@/lib/map/provider-status';
+import { hrefWithoutPanel, panelHref, type ListQueryState } from '@/lib/lists/url-state';
 
 type MapExperienceProps = {
   model: MapDeskViewModel;
   provider: MapProviderStatus;
+  viewConfig: MapViewConfig | null;
+  markers: readonly MapConfirmedMarker[];
   listQuery: ListQueryState;
   selectedPartyId: string | null;
   memberLabels?: ReadonlyMap<string, string>;
@@ -25,10 +30,13 @@ type MobilePane = 'map' | 'list';
 export function MapExperience({
   model,
   provider,
+  viewConfig,
+  markers,
   listQuery,
   selectedPartyId,
   memberLabels,
 }: MapExperienceProps) {
+  const router = useRouter();
   const [layer, setLayer] = useState<MapLayerId>(DEFAULT_MAP_LAYER);
   const [mobilePane, setMobilePane] = useState<MobilePane>(selectedPartyId ? 'list' : 'map');
   const [query, setQuery] = useState(listQuery.q ?? '');
@@ -42,6 +50,14 @@ export function MapExperience({
     selectedRow?.commercialOwnerMemberId && memberLabels
       ? (memberLabels.get(selectedRow.commercialOwnerMemberId) ?? null)
       : null;
+
+  const showLiveMap = isLiveMapProvider(provider) && viewConfig !== null;
+
+  const handleSelectParty = (partyId: string | null) => {
+    if (!partyId) return;
+    router.push(panelHref('/mapa', listQuery, `party:${partyId}`));
+    setMobilePane('list');
+  };
 
   return (
     <div className="space-y-5" data-map-desk="location">
@@ -76,11 +92,22 @@ export function MapExperience({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(288px,0.9fr)]">
         <div className={mobilePane === 'map' ? 'block' : 'hidden md:block'}>
-          <MapCanvasFallback
-            provider={provider}
-            plottableCount={model.plottable.length}
-            total={model.coverage.total}
-          />
+          {showLiveMap ? (
+            <MapLiveCanvas
+              view={viewConfig}
+              markers={markers}
+              plottableCount={model.plottable.length}
+              total={model.coverage.total}
+              selectedPartyId={selectedPartyId}
+              onSelectPartyId={handleSelectParty}
+            />
+          ) : (
+            <MapCanvasFallback
+              provider={provider}
+              plottableCount={model.plottable.length}
+              total={model.coverage.total}
+            />
+          )}
         </div>
 
         <div className={`space-y-4 ${mobilePane === 'list' ? 'block' : 'hidden md:block'}`}>

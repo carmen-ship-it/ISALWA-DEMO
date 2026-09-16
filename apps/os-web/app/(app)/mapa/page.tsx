@@ -1,18 +1,67 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import type { MapConfirmedMarker } from '@/components/map/map-live-canvas';
 import { MapExperience } from '@/components/map/map-experience';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { parseListQuery, parsePanel } from '@/lib/lists/url-state';
-import { buildMapDeskViewModel, resolveMapProviderStatus } from '@/lib/map';
+import { buildMapDeskViewModel } from '@/lib/map';
+import {
+  readMapProviderEnv,
+  resolveMapProviderStatus,
+  resolveMapViewConfig,
+} from '@/lib/map/provider-status';
 import { t } from '@/lib/i18n/es';
+import type { LocationView } from '@/lib/party/types';
 import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries } from '@/lib/party/data-health';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 
 type MapaPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function locationHasConfirmedCoordinates(location: LocationView): boolean {
+  return (
+    Number.isFinite(location.latitude) &&
+    Number.isFinite(location.longitude) &&
+    location.latitude !== null &&
+    location.longitude !== null
+  );
+}
+
+function pickConfirmedLocation(locations: LocationView[]): LocationView | null {
+  const active = locations.find((loc) => loc.status === 'active' && locationHasConfirmedCoordinates(loc));
+  if (active) return active;
+  return locations.find((loc) => locationHasConfirmedCoordinates(loc)) ?? null;
+}
+
+async function loadConfirmedMarkers(
+  client: ReturnType<typeof createOsApiClient>,
+  plottablePartyIds: readonly { partyId: string; displayName: string }[],
+): Promise<MapConfirmedMarker[]> {
+  if (plottablePartyIds.length === 0) return [];
+
+  const settled = await Promise.all(
+    plottablePartyIds.map(async (row) => {
+      try {
+        const response = await client.listPartyLocations(row.partyId);
+        const location = pickConfirmedLocation(response.locations);
+        if (!location?.latitude || !location?.longitude) return null;
+        return {
+          partyId: row.partyId,
+          displayName: row.displayName,
+          lat: location.latitude,
+          lng: location.longitude,
+        } satisfies MapConfirmedMarker;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return settled.filter((marker): marker is MapConfirmedMarker => marker !== null);
+}
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
   const params = await searchParams;
@@ -24,7 +73,16 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const client = createOsApiClient(auth);
   const result = await client.searchParties({ status: 'active', limit: 100 });
   const model = buildMapDeskViewModel(result.items, { partial: result.meta.hasMore });
-  const provider = resolveMapProviderStatus();
+  const mapEnv = readMapProviderEnv();
+  const provider = resolveMapProviderStatus(mapEnv);
+  const viewConfig = resolveMapViewConfig(mapEnv);
+  const markers =
+    provider.kind === 'live'
+      ? await loadConfirmedMarkers(
+          client,
+          model.plottable.map((row) => ({ partyId: row.partyId, displayName: row.displayName })),
+        )
+      : [];
   const issues = dataHealthFromSummaries(result.items);
 
   const ownerIds = result.items
@@ -54,6 +112,8 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
       <MapExperience
         model={model}
         provider={provider}
+        viewConfig={viewConfig}
+        markers={markers}
         listQuery={listQuery}
         selectedPartyId={panel?.kind === 'party' ? panel.id : null}
         memberLabels={memberLabels}
