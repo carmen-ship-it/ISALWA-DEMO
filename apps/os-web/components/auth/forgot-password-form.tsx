@@ -52,7 +52,9 @@ export function ForgotPasswordForm() {
         });
         if (providerError) {
           const msg = providerError.message.toLowerCase();
-          if (msg.includes('redirect') || msg.includes('not allowed') || msg.includes('allowlist')) {
+          if (msg.includes('rate limit')) {
+            setError('Demasiados intentos. Espere unos minutos e intente de nuevo.');
+          } else if (msg.includes('redirect') || msg.includes('not allowed') || msg.includes('allowlist')) {
             setError(PASSWORD_RESET_COPY.forgotMisconfigured);
           } else {
             setError(PASSWORD_RESET_COPY.forgotUnavailable);
