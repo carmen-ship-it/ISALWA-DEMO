@@ -11,7 +11,7 @@ import {
 import type { Request } from 'express';
 import { deriveCommitmentState, type CommitmentRecord, type CommitmentState } from '@isalwa/os-contracts';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import type { OsCommitmentStore } from '@isalwa/os-commitment';
+import type { PrismaOsCommitmentStore } from '@isalwa/os-database';
 import { resolveSession } from './os-session';
 import { OS_STORE, OS_COMMITMENT_STORE } from './os-store.module';
 
@@ -101,7 +101,7 @@ function dbToContract(db: {
 export class CommitmentsController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
-    @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: OsCommitmentStore,
+    @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: PrismaOsCommitmentStore,
   ) {}
 
   @Get()
@@ -114,28 +114,29 @@ export class CommitmentsController {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const asOf = new Date();
-      
+
       let records;
       if (partyId) {
-        records = await this.commitmentStore.listCommitmentsForParty(
+        records = await this.commitmentStore.listCommitmentsByParty(
           session.organizationId,
           partyId,
         );
       } else if (ownerMemberId) {
-        records = await this.commitmentStore.listCommitmentsForOwner(
-          session.organizationId,
-          ownerMemberId,
-          lifecycle,
-        );
+        records =
+          lifecycle === 'open'
+            ? await this.commitmentStore.listOpenCommitmentsByOwner(
+                session.organizationId,
+                ownerMemberId,
+              )
+            : await this.commitmentStore.listCommitmentsByOwner(
+                session.organizationId,
+                ownerMemberId,
+              );
       } else {
-        records = await this.commitmentStore.listCommitmentsInOrg(
-          session.organizationId,
-          lifecycle,
-        );
+        records = await this.commitmentStore.listCommitmentsByOrg(session.organizationId);
       }
 
-      // Filter by lifecycle if also filtering by partyId
-      if (partyId && lifecycle) {
+      if (lifecycle) {
         records = records.filter((r) => r.lifecycle === lifecycle);
       }
 
