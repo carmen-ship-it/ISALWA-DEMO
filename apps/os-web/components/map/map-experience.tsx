@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { MapViewConfig } from '@isalwa/providers';
-import { Chip, SearchField } from '@isalwa/ui';
+import { Chip, SearchField, StatusPill } from '@isalwa/ui';
 import { MapCanvasFallback } from '@/components/map/map-canvas-fallback';
 import { MapConfirmedMarker, MapLiveCanvas } from '@/components/map/map-live-canvas';
 import { MapCoverageBanner } from '@/components/map/map-coverage-banner';
@@ -11,6 +11,11 @@ import { MapCustomerLists } from '@/components/map/map-customer-lists';
 import { MapLayerControls } from '@/components/map/map-layer-controls';
 import { MapQuickViewCompact } from '@/components/map/map-quick-view-compact';
 import type { MapDeskViewModel } from '@/lib/map/build-view-model';
+import {
+  MAP_COMMERCIAL_VALUE_DISCLAIMER,
+  type MapCommercialPortfolio,
+  type MapPartyCommercialSnapshot,
+} from '@/lib/map/commercial-lens';
 import { DEFAULT_MAP_LAYER, type MapLayerId } from '@/lib/map/layers';
 import { isLiveMapProvider, type MapProviderStatus } from '@/lib/map/provider-status';
 import { hrefWithoutPanel, panelHref, type ListQueryState } from '@/lib/lists/url-state';
@@ -23,9 +28,21 @@ type MapExperienceProps = {
   listQuery: ListQueryState;
   selectedPartyId: string | null;
   memberLabels?: ReadonlyMap<string, string>;
+  portfolio: MapCommercialPortfolio;
+  selectedCommercial: MapPartyCommercialSnapshot | null;
 };
 
 type MobilePane = 'map' | 'list';
+
+function partyFilterForLayer(
+  layer: MapLayerId,
+  portfolio: MapCommercialPortfolio,
+): ReadonlySet<string> | null {
+  if (layer === 'oportunidades') return portfolio.partyIdsWithOpportunities;
+  if (layer === 'cotizaciones') return portfolio.partyIdsWithQuotes;
+  if (layer === 'pedidos') return portfolio.partyIdsWithOrders;
+  return null;
+}
 
 export function MapExperience({
   model,
@@ -35,15 +52,36 @@ export function MapExperience({
   listQuery,
   selectedPartyId,
   memberLabels,
+  portfolio,
+  selectedCommercial,
 }: MapExperienceProps) {
   const router = useRouter();
   const [layer, setLayer] = useState<MapLayerId>(DEFAULT_MAP_LAYER);
   const [mobilePane, setMobilePane] = useState<MobilePane>(selectedPartyId ? 'list' : 'map');
   const [query, setQuery] = useState(listQuery.q ?? '');
 
+  const layerPartyIds = useMemo(() => partyFilterForLayer(layer, portfolio), [layer, portfolio]);
+
+  const filteredModel = useMemo(() => {
+    if (!layerPartyIds) return model;
+    const keep = (row: { partyId: string }) => layerPartyIds.has(row.partyId);
+    return {
+      ...model,
+      plottable: model.plottable.filter(keep),
+      provenanceOnly: model.provenanceOnly.filter(keep),
+      noLocation: model.noLocation.filter(keep),
+      all: model.all.filter(keep),
+    };
+  }, [model, layerPartyIds]);
+
+  const filteredMarkers = useMemo(() => {
+    if (!layerPartyIds) return markers;
+    return markers.filter((marker) => layerPartyIds.has(marker.partyId));
+  }, [markers, layerPartyIds]);
+
   const selectedRow = useMemo(
-    () => model.all.find((row) => row.partyId === selectedPartyId) ?? null,
-    [model.all, selectedPartyId],
+    () => filteredModel.all.find((row) => row.partyId === selectedPartyId) ?? null,
+    [filteredModel.all, selectedPartyId],
   );
 
   const ownerLabel =
@@ -62,6 +100,31 @@ export function MapExperience({
   return (
     <div className="space-y-5" data-map-desk="location">
       <MapCoverageBanner coverage={model.coverage} provider={provider} partial={model.partial} />
+
+      <div
+        className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)]"
+        data-map-commercial-portfolio="summary"
+      >
+        <p className="isalwa-kicker">Cartera comercial · lectura canónica</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <StatusPill tone="info">Oportunidades {portfolio.opportunityCount}</StatusPill>
+          <StatusPill tone="info">Cotizaciones {portfolio.quoteCount}</StatusPill>
+          <StatusPill tone="info">Pedidos {portfolio.orderCount}</StatusPill>
+          {portfolio.opportunityValueLabel ? (
+            <StatusPill tone="neutral">Valor de oportunidades {portfolio.opportunityValueLabel}</StatusPill>
+          ) : null}
+          {portfolio.quotedValueLabel ? (
+            <StatusPill tone="neutral">Valor cotizado {portfolio.quotedValueLabel}</StatusPill>
+          ) : null}
+          {portfolio.orderValueLabel ? (
+            <StatusPill tone="neutral">Valor de pedidos {portfolio.orderValueLabel}</StatusPill>
+          ) : null}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
+          {MAP_COMMERCIAL_VALUE_DISCLAIMER}
+          {portfolio.partial ? ' Lectura parcial de la cartera comercial.' : null}
+        </p>
+      </div>
 
       <MapLayerControls activeLayer={layer} onChange={setLayer} />
 
@@ -95,8 +158,8 @@ export function MapExperience({
           {showLiveMap ? (
             <MapLiveCanvas
               view={viewConfig}
-              markers={markers}
-              plottableCount={model.plottable.length}
+              markers={filteredMarkers}
+              plottableCount={filteredModel.plottable.length}
               total={model.coverage.total}
               selectedPartyId={selectedPartyId}
               onSelectPartyId={handleSelectParty}
@@ -104,7 +167,7 @@ export function MapExperience({
           ) : (
             <MapCanvasFallback
               provider={provider}
-              plottableCount={model.plottable.length}
+              plottableCount={filteredModel.plottable.length}
               total={model.coverage.total}
             />
           )}
@@ -116,14 +179,15 @@ export function MapExperience({
               row={selectedRow}
               ownerLabel={ownerLabel}
               onCloseHref={hrefWithoutPanel('/mapa', listQuery)}
+              commercial={selectedCommercial}
             />
           ) : null}
           <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)] md:p-5">
             <p className="isalwa-kicker mb-3">Cartera · lectura honesta</p>
             <MapCustomerLists
-              plottable={model.plottable}
-              provenanceOnly={model.provenanceOnly}
-              noLocation={model.noLocation}
+              plottable={filteredModel.plottable}
+              provenanceOnly={filteredModel.provenanceOnly}
+              noLocation={filteredModel.noLocation}
               selectedPartyId={selectedPartyId}
               listQuery={listQuery}
               memberLabels={memberLabels}

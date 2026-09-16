@@ -8,6 +8,10 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { buildMapDeskViewModel } from '@/lib/map';
 import {
+  buildMapCommercialPortfolio,
+  buildMapPartyCommercialSnapshot,
+} from '@/lib/map/commercial-lens';
+import {
   readMapProviderEnv,
   resolveMapProviderStatus,
   resolveMapViewConfig,
@@ -63,10 +67,31 @@ async function loadConfirmedMarkers(
   return settled.filter((marker): marker is MapConfirmedMarker => marker !== null);
 }
 
+async function loadCommercialLens(client: ReturnType<typeof createOsApiClient>) {
+  try {
+    const [opportunities, quotes, orders] = await Promise.all([
+      client.listOpportunities({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
+      client.listQuotes({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
+      client.listOrders({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
+    ]);
+    return {
+      opportunities: opportunities.items ?? [],
+      quotes: quotes.items ?? [],
+      orders: orders.items ?? [],
+      partial: Boolean(
+        opportunities.meta?.hasMore || quotes.meta?.hasMore || orders.meta?.hasMore,
+      ),
+    };
+  } catch {
+    return { opportunities: [], quotes: [], orders: [], partial: false };
+  }
+}
+
 export default async function MapaPage({ searchParams }: MapaPageProps) {
   const params = await searchParams;
   const listQuery = parseListQuery(params);
   const panel = parsePanel(listQuery.panel);
+  const selectedPartyId = panel?.kind === 'party' ? panel.id : null;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -76,13 +101,19 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const mapEnv = readMapProviderEnv();
   const provider = resolveMapProviderStatus(mapEnv);
   const viewConfig = resolveMapViewConfig(mapEnv);
-  const markers =
+  const [markers, commercialInput] = await Promise.all([
     provider.kind === 'live'
-      ? await loadConfirmedMarkers(
+      ? loadConfirmedMarkers(
           client,
           model.plottable.map((row) => ({ partyId: row.partyId, displayName: row.displayName })),
         )
-      : [];
+      : Promise.resolve([] as MapConfirmedMarker[]),
+    loadCommercialLens(client),
+  ]);
+  const portfolio = buildMapCommercialPortfolio(commercialInput);
+  const selectedCommercial = selectedPartyId
+    ? buildMapPartyCommercialSnapshot(selectedPartyId, commercialInput)
+    : null;
   const issues = dataHealthFromSummaries(result.items);
 
   const ownerIds = result.items
@@ -115,8 +146,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         viewConfig={viewConfig}
         markers={markers}
         listQuery={listQuery}
-        selectedPartyId={panel?.kind === 'party' ? panel.id : null}
+        selectedPartyId={selectedPartyId}
         memberLabels={memberLabels}
+        portfolio={portfolio}
+        selectedCommercial={selectedCommercial}
       />
 
       <PageSection className="mt-8" aria-label="Salud de datos">

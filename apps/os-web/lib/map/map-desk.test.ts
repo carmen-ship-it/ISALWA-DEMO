@@ -31,11 +31,12 @@ describe('map layers', () => {
     const available = MAP_LAYER_REGISTRY.filter((layer) => layer.truthClass === 'available');
     assert.deepEqual(
       available.map((layer) => layer.id),
-      ['clientes'],
+      ['clientes', 'oportunidades', 'cotizaciones', 'pedidos'],
     );
     assert.equal(resolveMapLayer('cobranza'), 'clientes');
     assert.equal(resolveMapLayer('atencion'), 'clientes');
     assert.equal(resolveMapLayer('clientes'), 'clientes');
+    assert.equal(resolveMapLayer('oportunidades'), 'oportunidades');
   });
 });
 

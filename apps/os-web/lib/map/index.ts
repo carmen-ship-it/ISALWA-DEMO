@@ -11,3 +11,14 @@ export type {
   MapCustomerRow,
   MapDeskViewModel,
 } from './build-view-model';
+
+export {
+  buildMapCommercialPortfolio,
+  buildMapPartyCommercialSnapshot,
+  MAP_COMMERCIAL_VALUE_DISCLAIMER,
+} from './commercial-lens';
+export type {
+  MapCommercialLensInput,
+  MapCommercialPortfolio,
+  MapPartyCommercialSnapshot,
+} from './commercial-lens';

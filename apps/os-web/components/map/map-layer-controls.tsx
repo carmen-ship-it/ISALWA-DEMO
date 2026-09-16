@@ -54,11 +54,12 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
       </p>
       <div className="hidden flex-wrap gap-2 sm:flex">
         <StatusPill tone="info">Clientes · disponible</StatusPill>
-        <StatusPill tone="manual">Otras capas · futuro o manual</StatusPill>
+        <StatusPill tone="info">Oportunidades / Cotizaciones / Pedidos · filtro por registro</StatusPill>
+        <StatusPill tone="manual">Atención / cobranza · futuro o manual</StatusPill>
       </div>
       <p className="hidden text-xs leading-relaxed text-[var(--isalwa-slate)] sm:block">
-        Solo la capa Clientes filtra la lista. Las demás quedan marcadas para no inventar geografía,
-        calor ni territorios.
+        Las capas comerciales filtran clientes con registros canónicos. No inventan pines, ingresos ni
+        geografía.
       </p>
     </div>
   );

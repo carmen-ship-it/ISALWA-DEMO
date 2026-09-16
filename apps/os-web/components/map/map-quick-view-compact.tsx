@@ -1,19 +1,29 @@
 import Link from 'next/link';
 import { StatusPill } from '@isalwa/ui';
 import type { MapCustomerRow } from '@/lib/map/build-view-model';
+import {
+  MAP_COMMERCIAL_VALUE_DISCLAIMER,
+  type MapPartyCommercialSnapshot,
+} from '@/lib/map/commercial-lens';
 import { partyHref } from '@/lib/party/navigation';
 
 type MapQuickViewCompactProps = {
   row: MapCustomerRow;
   ownerLabel: string | null;
   onCloseHref: string;
+  commercial?: MapPartyCommercialSnapshot | null;
 };
 
 /**
- * Compact geographic quick view — summary facts only.
- * Does not load a full Cliente 360 drawer body; opens ficha for depth.
+ * Compact geographic + commercial quick view — summary facts only.
+ * Opens Cliente 360 for depth. Never labels amounts as revenue.
  */
-export function MapQuickViewCompact({ row, ownerLabel, onCloseHref }: MapQuickViewCompactProps) {
+export function MapQuickViewCompact({
+  row,
+  ownerLabel,
+  onCloseHref,
+  commercial = null,
+}: MapQuickViewCompactProps) {
   const locationTone = row.hasCoordinates ? 'info' : row.hasProvenance ? 'manual' : 'warning';
   const locationLabel = row.hasCoordinates
     ? 'Coordenadas registradas'
@@ -59,10 +69,51 @@ export function MapQuickViewCompact({ row, ownerLabel, onCloseHref }: MapQuickVi
         </div>
       </dl>
 
-      <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
-        Atención, oportunidades y pedidos se abren en la ficha. Aquí no se inventan pines ni capas
-        comerciales.
-      </p>
+      {commercial ? (
+        <dl
+          className="mt-3 space-y-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white p-3 text-sm"
+          data-map-commercial-snapshot="party"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-xs text-[var(--isalwa-slate)]">Oportunidades abiertas</dt>
+            <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.opportunityCount}</dd>
+          </div>
+          {commercial.opportunityValueLabel ? (
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-xs text-[var(--isalwa-slate)]">Valor de oportunidades</dt>
+              <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.opportunityValueLabel}</dd>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-xs text-[var(--isalwa-slate)]">Cotizaciones</dt>
+            <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.quoteCount}</dd>
+          </div>
+          {commercial.quotedValueLabel ? (
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-xs text-[var(--isalwa-slate)]">Valor cotizado</dt>
+              <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.quotedValueLabel}</dd>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-xs text-[var(--isalwa-slate)]">Pedidos</dt>
+            <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.orderCount}</dd>
+          </div>
+          {commercial.orderValueLabel ? (
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-xs text-[var(--isalwa-slate)]">Valor de pedidos</dt>
+              <dd className="font-medium text-[var(--isalwa-kiln)]">{commercial.orderValueLabel}</dd>
+            </div>
+          ) : null}
+          <p className="pt-1 text-xs leading-relaxed text-[var(--isalwa-slate)]">
+            {MAP_COMMERCIAL_VALUE_DISCLAIMER}
+          </p>
+        </dl>
+      ) : (
+        <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
+          Contexto comercial se carga desde registros canónicos cuando está disponible. Aquí no se
+          inventan pines ni ingresos.
+        </p>
+      )}
 
       <nav className="mt-4 flex flex-col items-start gap-2 border-t border-[var(--isalwa-mist)] pt-3">
         <Link
