@@ -12,7 +12,14 @@ export type SavedView = {
 const SAVED_VIEWS_PREFIX = 'isalwa-os-saved-views-v1';
 const PIN_LIMIT = 6;
 
-const ALLOWED_PATHS = new Set(['/clientes', '/cotizaciones', '/oportunidades', '/trabajo', '/aprobaciones']);
+const ALLOWED_PATHS = new Set([
+  '/clientes',
+  '/cotizaciones',
+  '/oportunidades',
+  '/trabajo',
+  '/aprobaciones',
+  '/incidencias',
+]);
 const ALLOWED_KEYS = new Set([
   'q',
   'status',
@@ -62,6 +69,20 @@ export const BUILT_IN_SAVED_VIEWS: readonly SavedView[] = [
     href: '/clientes?status=active',
     source: 'built-in',
   },
+  {
+    id: 'issues-open',
+    label: 'Incidencias abiertas',
+    detail: 'Lista existente. Vista abierta.',
+    href: '/incidencias?view=open',
+    source: 'built-in',
+  },
+  {
+    id: 'issues-assigned',
+    label: 'Incidencias asignadas',
+    detail: 'Lista existente. Asignadas a usted.',
+    href: '/incidencias?view=assigned',
+    source: 'built-in',
+  },
 ];
 
 export function savedViewsStorageKey(actorKey: string): string | null {
@@ -95,6 +116,7 @@ const PATH_LABEL: Record<string, string> = {
   '/oportunidades': 'Oportunidades',
   '/trabajo': 'Trabajo',
   '/aprobaciones': 'Aprobaciones',
+  '/incidencias': 'Incidencias',
 };
 
 export function labelForViewHref(href: string): string | null {

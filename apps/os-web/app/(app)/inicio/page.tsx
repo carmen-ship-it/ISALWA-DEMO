@@ -7,6 +7,7 @@ import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioManagementLens } from '@/components/management/inicio-management-lens';
 import { OperatingHomes } from '@/components/management/operating-homes';
+import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -14,6 +15,9 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
+import { commitmentAgingAdapter } from '@/lib/inicio/commitment-aging';
+import { loadInicioCommandQueues } from '@/lib/inicio/load-command-queues';
+import { resolveInicioApprovalSubjects } from '@/lib/inicio/resolve-approval-subjects';
 import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { loadInicioManagement } from '@/lib/management/load-inicio-management';
@@ -25,6 +29,7 @@ import { formatWorkDueLine } from '@/lib/work/due-order';
 import { INICIO_ATTENTION_LIMIT } from '@/lib/work/inicio-attention';
 import { formatWorkStatus, isWorkOverdue, statusToneForWork } from '@/lib/work/labels';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import { APPROVAL_ROW_SUBJECT_FALLBACK } from '@/lib/work/approval-row-subject';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
@@ -141,11 +146,23 @@ export default async function InicioPage() {
     const leadership = await loadInicioLeadership(client);
     const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
     const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
+    const commandQueues = await loadInicioCommandQueues(client, {
+      leadershipTeamReady: leadership.team.kind === 'ready',
+      leadershipOrgReady: leadership.org.kind === 'ready',
+    });
 
     const memberLabels = await resolveMemberLabels(client, [
       ...opportunities.map((item) => item.ownerMemberId),
       ...quotesDraft.map((item) => item.ownerMemberId),
       ...quotesSubmitted.map((item) => item.ownerMemberId),
+      ...commandQueues.pendingWork.map((item) => item.ownerMemberId),
+      ...commandQueues.openIssues.flatMap((item) =>
+        [item.ownerMemberId, item.reporterMemberId].filter((id): id is string => Boolean(id)),
+      ),
+      ...commandQueues.pendingApprovals.flatMap((item) => [
+        item.requestedByMemberId,
+        item.approverMemberId,
+      ]),
       ...(teamData?.opportunities ?? []).map((item) => item.ownerMemberId),
       ...(teamData?.quotesDraft ?? []).map((item) => item.ownerMemberId),
       ...(teamData?.quotesSubmitted ?? []).map((item) => item.ownerMemberId),
@@ -170,6 +187,10 @@ export default async function InicioPage() {
             const subject = attentionSubjects.get(item.attentionKey) ?? '';
             return subject.trim().length > 0 && !isEngineeringFixtureCopy(subject);
           });
+    const commandApprovalSubjects = await resolveInicioApprovalSubjects(
+      client,
+      commandQueues.pendingApprovals,
+    );
     const partyLabels = await resolvePartyLabels(client, [
       ...opportunities.map((item) => item.partyId),
       ...quotesDraft.map((item) => item.partyId),
@@ -177,6 +198,11 @@ export default async function InicioPage() {
       ...upcoming.flatMap((item) =>
         item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
       ),
+      ...commandQueues.pendingWork.flatMap((item) =>
+        item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
+      ),
+      ...commandQueues.commitmentsOverdue.flatMap((item) => (item.partyId ? [item.partyId] : [])),
+      ...commandQueues.commitmentsOpen.flatMap((item) => (item.partyId ? [item.partyId] : [])),
       ...(teamData?.opportunities ?? []).map((item) => item.partyId),
       ...(teamData?.quotesDraft ?? []).map((item) => item.partyId),
       ...(teamData?.quotesSubmitted ?? []).map((item) => item.partyId),
@@ -262,10 +288,36 @@ export default async function InicioPage() {
               subjects={attentionSubjects}
               unavailable={attentionResult === 'unavailable'}
               hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
+              work={
+                personalWorkResult === 'unavailable' ? undefined : personalWorkResult.items
+              }
+              approvals={commandQueues.pendingApprovals.map((item) => ({
+                approvalRequestId: item.approvalRequestId,
+                status: item.status,
+                requestedAt: null,
+                subject:
+                  commandApprovalSubjects.get(item.approvalRequestId) ??
+                  APPROVAL_ROW_SUBJECT_FALLBACK,
+              }))}
               quotes={quotesSubmittedResult === 'unavailable' ? undefined : quotesSubmitted}
+              commitments={
+                commandQueues.unavailable.commitments
+                  ? null
+                  : commitmentAgingAdapter([
+                      ...commandQueues.commitmentsOverdue,
+                      ...commandQueues.commitmentsOpen,
+                    ])
+              }
             />
 
             <InicioManagementLens model={management} />
+
+            <InicioCommandQueueSections
+              model={commandQueues}
+              memberLabels={memberLabels}
+              partyLabels={partyLabels}
+              approvalSubjects={commandApprovalSubjects}
+            />
           </div>
 
           {upcomingRows.length > 0 ? (
