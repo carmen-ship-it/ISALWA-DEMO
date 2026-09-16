@@ -55,7 +55,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| First-use guide / Learning Mode persistence | Two employees on one browser must not inherit each other’s intro | `LIVE BUT PARTIAL` | Browser `localStorage` via `guideStorageKey(actorKey)` — member-scoped in **this pass**; bare key `isalwa.os-web.guide.v1` abandoned | Device-local UI state (not tenant SoR) | WalkthroughShell / GuideProvider | None (UI chrome only; must not store authz) | UNPROVEN | UNPROVEN | YES | YES | NO | UNPROVEN | UNPROVEN | NO | At `e5e9cac` BROWSER-GLOBAL leak; fix not hosted-proven | Shell `actorKey` | No | LIVE + hosted BV of A→B isolation | **P0** | A |
+| First-use guide / Learning Mode persistence | Two employees on one browser must not inherit each other’s intro | `LIVE` | Browser `localStorage` via `guideStorageKey(actorKey)` — member-scoped | Device-local UI state (not tenant SoR) | WalkthroughShell / GuideProvider | None (UI chrome only; must not store authz) | N/A | YES (A→B on SYNTH) | YES | YES | YES (`1fd0167`) | YES | YES (`independent-verifier-onboarding.md`) | NO | At `e5e9cac` was BROWSER-GLOBAL; fixed + hosted BV PASS | Shell `actorKey` | No | Maintain MEMBER-SCOPED | closed P0 | A |
 | Six-role post-onboarding regression (Asesor…Owner) | Intro/tours must not leak unauthorized controls | `LIVE BUT PARTIAL` | Role homes + walkthrough allowlists | Session scopes | Inicio / micro-tours | Existing scopes only | UNPROVEN | UNPROVEN | PARTIAL | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Independent hosted verifier still required this pass | Onboarding scope fix | No | BROWSER-VERIFIED on SYNTH then REAL smoke | P1 | A |
 
 *Source: pass note + `apps/os-web/lib/walkthrough/persistence.ts` (this worktree); no agent-10 receipt file.*
@@ -553,10 +553,11 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 ### P0 — concrete pilot safety / usability (before first real pilot use)
 
-1. **Onboarding member isolation** — hosted + browser A→B proof of member-scoped guide keys (fix in code this pass; **UNPROVEN** hosted at write time).  
+1. ~~**Onboarding member isolation**~~ — **CLOSED** hosted BV PASS (`1fd0167` / `dep-dakuhuad0e5s73ftrvng`; MEMBER-SCOPED).  
 2. **Terminate continuity hazard** — commercial / approvals (and related assets) stranded while only open work is gated.  
 3. **ReassignWork UI gap** — required for terminate path; not exposed in os-web.  
-4. **Carmen infra continuity awareness (ops, not product feature)** — personal Render/Supabase/billing/vault single-owner risk; dual admin / shared recovery before pilot expansion.
+4. **Owner/`people.admin` gate clarity** — SYNTH `w2.owner` denied `/administracion` on hosted (verifier FAIL_DENY); real Owner must hold `people.admin` before relying on Admin.  
+5. **Carmen infra continuity awareness (ops, not product feature)** — personal Render/Supabase/billing/vault single-owner risk; dual admin / shared recovery before pilot expansion.
 
 ### P1 — immediately after first pilot feedback
 
@@ -638,10 +639,11 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 **Blockers (must close or explicitly accept in writing):**
 
-1. Onboarding A→B isolation **not hosted/browser-proven** after member-scope fix.  
+1. ~~Onboarding A→B isolation~~ — **CLOSED** hosted BV PASS on `1fd0167` / `dep-dakuhuad0e5s73ftrvng` (MEMBER-SCOPED).  
 2. Terminate path **unsafe/unusable** without ReassignWork UI + continuity policy for non-work ownership.  
 3. **Ops single-owner risk** (Carmen personal Render/Supabase/billing/secrets) without dual recovery — ops P0, not a product screen.  
-4. Do **not** claim Commitments, Notifications inbox, Issues, AI, or WhatsApp as live.
+4. **Owner fixture `/administracion` denied** on hosted SYNTH (verifier FAIL_DENY) — confirm `people.admin` on real Owner before Isa/Álvaro rely on Admin.  
+5. Do **not** claim Commitments, Notifications inbox, Issues, AI, or WhatsApp as live.
 
 **Already acceptable to keep deferred for a thin pilot:** AI, WhatsApp, maps live tiles, email notices, Import Center, universal Issue — if coaching copy stays honest.
 
