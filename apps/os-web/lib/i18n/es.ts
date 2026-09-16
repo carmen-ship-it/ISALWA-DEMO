@@ -196,9 +196,9 @@ export const es = {
     },
     mapa: {
       title: 'Mapa',
-      kicker: 'Ubicación',
+      kicker: 'Cartera',
       description:
-        'Mesa de ubicación con cobertura honesta. Solo coordenadas ya registradas; un enlace de Maps no coloca al cliente ni se geocodifica. La vista geográfica completa espera la conexión del proveedor.',
+        'Lente geográfica de la cartera: clientes con coordenadas confirmadas, contexto comercial canónico y cobertura honesta. Un enlace de Maps no coloca al cliente. No inventa ingresos ni pines.',
       clientesLink: 'Clientes',
       dataHealth: 'Salud de datos',
       partialNote: 'No incluye todos los clientes.',
