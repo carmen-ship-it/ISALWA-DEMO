@@ -35,6 +35,18 @@ describe('admin commercial continuity (member detail)', () => {
     const wrapper = read('components/admin/commercial-continuity-panel.tsx');
     assert.match(wrapper, /Cotizaciones activas/);
     assert.match(wrapper, /Pedidos abiertos/);
-    assert.match(wrapper, /Aún no hay reasignación/);
+    assert.match(wrapper, /No hay reasignación de cotizaciones/);
+    assert.match(wrapper, /No hay reasignación de pedidos/);
+    assert.doesNotMatch(wrapper, /AssignQuoteOwner|AssignOrderOwner|capability|roleKey/);
+  });
+
+  it('explains commercial account needs separate commercial authority', () => {
+    const wrapper = read('components/admin/commercial-continuity-panel.tsx');
+    assert.match(wrapper, /permiso comercial[\s\S]*distinto/);
+    const impact = read('components/admin/termination-impact-panel.tsx');
+    assert.match(impact, /permiso comercial distinto/);
+    assert.match(impact, /continuidad-comercial/);
+    assert.match(impact, /\/aprobaciones/);
+    assert.doesNotMatch(impact, /people\.admin|commercial\.account\.reassign|capability/);
   });
 });

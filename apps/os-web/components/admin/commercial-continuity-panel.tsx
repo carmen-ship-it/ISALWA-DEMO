@@ -75,7 +75,9 @@ export function CommercialContinuityPanel({
         <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
           <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Cuentas comerciales</p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            Cambie el responsable desde la ficha del cliente cuando su permiso lo permita.
+            Cambie el responsable en la ficha del cliente. Ese cambio requiere un permiso comercial
+            distinto al de administración de personas. Si no puede hacerlo, pida a quien administra
+            cuentas que reasigne el propietario.
           </p>
           <ul className="mt-3 space-y-2 text-sm text-[var(--isalwa-slate)]">
             {accounts.map((row) => (
@@ -93,8 +95,8 @@ export function CommercialContinuityPanel({
         <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
           <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Cotizaciones activas</p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            Aún no hay reasignación de cotizaciones en administración. Cancele o reasigne por los
-            caminos disponibles cuando existan.
+            No hay reasignación de cotizaciones en el producto. Mientras sigan activas, no se puede
+            finalizar el acceso. Abra cada cotización para gestionarla o cancelarla si corresponde.
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             {blockingQuotes.slice(0, 8).map((quote) => (
@@ -119,8 +121,8 @@ export function CommercialContinuityPanel({
         <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
           <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Pedidos abiertos</p>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            Aún no hay reasignación de pedidos en administración. Cancele o gestione el pedido en su
-            ficha.
+            No hay reasignación de pedidos en el producto. Mientras el pedido siga abierto, no se
+            puede finalizar el acceso. Abra cada pedido para gestionarlo o cancelarlo si corresponde.
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             {openOrders.slice(0, 8).map((order) => (

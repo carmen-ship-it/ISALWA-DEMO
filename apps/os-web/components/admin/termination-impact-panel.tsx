@@ -9,35 +9,54 @@ type TerminationImpactPanelProps = {
 };
 
 const RESOLUTION_HINTS: Partial<
-  Record<TerminationImpactCategoryKey, { text: string; hash?: string }>
+  Record<
+    TerminationImpactCategoryKey,
+    { text: string; hash?: string; href?: string; linkLabel?: string }
+  >
 > = {
   open_work: {
-    text: 'Reasigne cada trabajo abierto en',
+    text: 'Puede reasignar el trabajo abierto desde',
     hash: 'trabajo-activo',
+    linkLabel: 'Trabajo activo',
   },
-  direct_reports: {
-    text: 'En la ficha de cada reporte, asigne un nuevo responsable en',
-    hash: 'continuidad-responsable',
+  open_opportunities: {
+    text: 'Puede reasignar las oportunidades abiertas desde',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
   },
-  active_delegations: {
-    text: 'Revoca las delegaciones activas con la referencia indicada en',
-    hash: 'continuidad-delegaciones',
+  commercial_accounts: {
+    text:
+      'El cambio de responsable de la cuenta se hace en la ficha del cliente y requiere un permiso comercial distinto. Si usted no puede cambiarlo, pida a quien administra cuentas que reasigne el propietario. Enlaces en',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
+  },
+  active_quotes: {
+    text:
+      'No hay reasignación de cotizaciones en el producto. Mientras la cotización no esté cancelada, no se puede finalizar el acceso. Abra la cotización desde',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
+  },
+  active_orders: {
+    text:
+      'No hay reasignación de pedidos en el producto. Mientras el pedido siga abierto, no se puede finalizar el acceso. Abra el pedido desde',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
   },
   pending_approvals: {
     text:
-      'Cada aprobación pendiente debe resolverse (aprobar o rechazar) con el aprobador asignado o su delegado. No hay reasignación de aprobador en producto.',
+      'Cada aprobación pendiente debe resolverse (aprobar o rechazar) por el aprobador asignado o su delegado. No se puede reasignar el aprobador desde aquí. Revise',
+    href: '/aprobaciones',
+    linkLabel: 'Aprobaciones',
   },
-  commercial_accounts: {
-    text: 'Reasigne la cuenta comercial desde la ficha del cliente (propietario).',
+  direct_reports: {
+    text: 'Asigne un nuevo responsable a cada reporte desde',
+    hash: 'continuidad-responsable',
+    linkLabel: 'Organización',
   },
-  open_opportunities: {
-    text: 'Reasigne la oportunidad desde su ficha comercial.',
-  },
-  active_quotes: {
-    text: 'Cancele la cotización o espere el comando de reasignación de propietario (aún no disponible).',
-  },
-  active_orders: {
-    text: 'Cierre o cancele el pedido abierto; no hay reasignación de propietario de pedido.',
+  active_delegations: {
+    text: 'Revoca las delegaciones activas (otorgadas o recibidas) en',
+    hash: 'continuidad-delegaciones',
+    linkLabel: 'Delegaciones',
   },
 };
 
@@ -92,14 +111,17 @@ export function TerminationImpactPanel({ impact, memberName }: TerminationImpact
                 {RESOLUTION_HINTS[category.key] ? (
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
                     {RESOLUTION_HINTS[category.key]!.text}
-                    {RESOLUTION_HINTS[category.key]!.hash ? (
+                    {RESOLUTION_HINTS[category.key]!.hash || RESOLUTION_HINTS[category.key]!.href ? (
                       <>
                         {' '}
                         <Link
-                          href={`#${RESOLUTION_HINTS[category.key]!.hash}`}
+                          href={
+                            RESOLUTION_HINTS[category.key]!.href ??
+                            `#${RESOLUTION_HINTS[category.key]!.hash}`
+                          }
                           className="font-medium text-[var(--isalwa-glaze)] hover:underline"
                         >
-                          esta ficha
+                          {RESOLUTION_HINTS[category.key]!.linkLabel ?? 'esta ficha'}
                         </Link>
                         .
                       </>
