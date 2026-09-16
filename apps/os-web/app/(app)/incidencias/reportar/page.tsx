@@ -7,7 +7,8 @@ import { Button, PageContainer, PageSection } from '@isalwa/ui';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { PageHeader } from '@/components/shell/page-header';
-import { reportIssueAction, parseReportIssueContext, type ReportIssueActionResult } from '@/lib/issue/actions';
+import { reportIssueAction, type ReportIssueActionResult } from '@/lib/issue/actions';
+import { parseReportIssueContext } from '@/lib/issue/report-context';
 import { ISSUE_COPY, formatReferenceType } from '@/lib/issue/labels';
 import { issueHref, issueListHref } from '@/lib/issue/navigation';
 
