@@ -20,6 +20,41 @@ function isTransientStatus(status: number): boolean {
   return status === 408 || status === 429 || status >= 500;
 }
 
+/**
+ * Newer OpenAI chat models (gpt-5* incl. gpt-5.6-luna, o-series) reject
+ * `max_tokens` with unsupported_parameter and require `max_completion_tokens`.
+ * Legacy chat models (gpt-4o*, gpt-3.5*, etc.) still expect `max_tokens`.
+ */
+export function usesMaxCompletionTokens(model: string): boolean {
+  const normalized = model.trim().toLowerCase();
+  if (!normalized) return false;
+  return (
+    normalized.startsWith('gpt-5') ||
+    normalized.startsWith('o1') ||
+    normalized.startsWith('o3') ||
+    normalized.startsWith('o4')
+  );
+}
+
+/** Build chat/completions JSON body — exported for request-shape tests. */
+export function buildOpenAICompatibleChatBody(
+  messages: AiChatMessage[],
+  options: Pick<OpenAICompatibleChatOptions, 'model' | 'temperature' | 'maxTokens'>,
+): Record<string, unknown> {
+  const maxTokens = options.maxTokens ?? 800;
+  const body: Record<string, unknown> = {
+    model: options.model,
+    messages,
+    temperature: options.temperature ?? 0.3,
+  };
+  if (usesMaxCompletionTokens(options.model)) {
+    body.max_completion_tokens = maxTokens;
+  } else {
+    body.max_tokens = maxTokens;
+  }
+  return body;
+}
+
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -45,12 +80,7 @@ export async function chatViaOpenAICompatible(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${options.apiKey}`,
         },
-        body: JSON.stringify({
-          model: options.model,
-          messages,
-          temperature: options.temperature ?? 0.3,
-          max_tokens: options.maxTokens ?? 800,
-        }),
+        body: JSON.stringify(buildOpenAICompatibleChatBody(messages, options)),
         signal: controller.signal,
       });
 
