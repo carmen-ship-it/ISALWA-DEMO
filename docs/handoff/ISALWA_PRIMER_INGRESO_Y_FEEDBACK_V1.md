@@ -85,16 +85,16 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 >  
 > No quiero que ustedes aprendan a trabajar “como ISALWA quiere”. Quiero que ISALWA aprenda cómo trabaja la empresa.  
 >  
-> *(Mapa / IA: solo agregar una frase aquí si el recibo del proveedor dice LIVE — hoy omitido.)*  
+> *(Mapa / IA: **omitir** frases LIVE. Hoy: mapa NOT LIVE (basemap FAIL); IA NOT LIVE / HOSTED-UNPROVEN.)*  
 >  
 > Les va a llegar una invitación a su correo para crear su propia contraseña.  
-> *(No afirmamos recuperación self-service desde el ingreso hasta PASS verificado.)*  
+> *(No afirmamos recuperación self-service desde el ingreso — **MISSING** hasta PASS verificado.)*  
 >  
 > No necesitan aprenderse todo de una vez. Entren, úsenlo como usarían cualquier herramienta de trabajo y me van contando qué sienten.  
 >  
 > ❤️ Carmen  
 
-`[PILOT POLICY]` · frases de producto `[CURRENT HOSTED STATE]` · Map/AI omitidos `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]`
+`[PILOT POLICY]` · frases de producto `[CURRENT HOSTED STATE]` · Map/AI `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]`
 
 ---
 
@@ -109,7 +109,9 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 | First-week cadence | PILOT POLICY | [Source: Carmen briefing §16] |
 | Feedback prompts | PILOT POLICY | [Source: Carmen briefing §15] |
 | WhatsApp/email message tone | PILOT POLICY | [Source: Carmen briefing §17] |
-| Map/AI optional sentences | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION | [Source: control-tower; briefing placeholders] |
+| Map/AI optional sentences | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: MAP ACCEPTANCE FAIL blank basemap; AI_ENABLED YES / assist FAIL max_completion_tokens pending] |
+| Password reset | MISSING | [Source: hosted `/login`] |
+| QA / Ver Como | never user feature | [Source: master TODAY rules] |
 
 **Account-creation checklist (prepare only — do not execute in this lane)**
 
@@ -119,7 +121,10 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 - [ ] people.admin actor available to invite  
 - [ ] Confirm Auth redirect allowlist includes invite complete URL  
 - [ ] After invite: verify login once each; do **not** store passwords  
-- [ ] Re-check password-reset UX before coaching self-service  
-- [ ] Update MAP/AI lines from provider receipts before send  
+- [ ] Re-check password-reset UX before coaching self-service (current MISSING)  
+- [ ] Keep Map/AI as NOT LIVE until PASS (do not trust old PASS labels)  
+- [ ] Never coach QA / Ver Como  
+
+**Editor bake-in:** PLANNED…USER-ACCEPTED separate; evidence priority; contradictions → NOT LIVE/HOSTED-UNPROVEN + EDITOR NOTES; no optimistic silent choice.
 
 **Bounded gap for Control Tower:** `PASSWORD_RESET_HOSTED = MISSING` (OS login UI). Invite-set-password via provider mail remains the first-password path.

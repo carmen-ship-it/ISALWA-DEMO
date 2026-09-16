@@ -15,8 +15,8 @@
 | Motor / API | Reglas, guardados, recordatorios de fondo | Render · `[CURRENT HOSTED STATE]` |
 | Base de datos del negocio | Clientes, cotizaciones, pedidos, historial | PostgreSQL administrado en Render · `[CURRENT HOSTED STATE]` |
 | Acceso (login / invitaciones / sesiones) | Correo + contraseña por persona | Supabase Auth · **separado** de la base del negocio · `[CURRENT HOSTED STATE]` |
-| Mapa (si queda en vivo) | Baldosas del mapa | Mapbox · solo si hay cierre LIVE · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` |
-| Asistencia IA (si queda en vivo) | Resúmenes / borradores limitados | OpenAI · solo si hay cierre LIVE · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` |
+| Mapa (baldosas en vivo) | Baldosas del mapa | Mapbox · **NOT LIVE** hoy (aceptación FAIL — basemap en blanco) · `[NOT LIVE]` · `[PENDING]` |
+| Asistencia IA | Resúmenes / borradores limitados | OpenAI · **NOT LIVE / HOSTED-UNPROVEN** (configurada; asistencia FAIL pendiente de patch) · `[NOT LIVE]` · `[HOSTED-UNPROVEN]` |
 
 El piloto corre en un ambiente de **staging / piloto**. Es usable de verdad, pero **no** es todavía el entorno de producción formal con dominio de empresa.  
 `[CURRENT HOSTED STATE]` · `[PILOT POLICY]`
@@ -41,7 +41,7 @@ No es el modelo permanente. Si avanzan a producción formal, lo siguiente es: cu
 | Supabase Auth | Login / invitaciones | Free/Pro según volumen | **VERIFY EXTERNALLY** | ~USD 0–25 / ambiente · `[ESTIMATE / PLANNING BAND]` | Auth de producción empresa · `[FUTURE RECOMMENDATION]` |
 | GitHub | Código y revisiones | Asientos / org | **VERIFY EXTERNALLY** | No fijado en register OS · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` | Org de empresa · `[FUTURE RECOMMENDATION]` |
 | Mapbox | Baldosas mapa | Uso / plan | **VERIFY EXTERNALLY** si se compra | Banda Architect ~USD 0–50 · `[ESTIMATE / PLANNING BAND]` | Solo si mapa LIVE aprobado |
-| OpenAI | Asistencia limitada | Uso | **$0 evidenciado** mientras esté apagado · `[CURRENT HOSTED STATE]` | Tope de política **USD 20 / mes** si se enciende · `[PILOT POLICY]` | Proyecto de empresa + alertas · `[FUTURE RECOMMENDATION]` |
+| OpenAI | Asistencia limitada | Uso | **VERIFY EXTERNALLY** · no tratar como factura · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` · *(runtime: `AI_ENABLED` YES pero assist NOT LIVE)* | Tope de política **USD 20 / mes** · `[PILOT POLICY]` · no es invoice | Proyecto de empresa + alertas · `[FUTURE RECOMMENDATION]` |
 | WhatsApp envío | Mensajes automáticos | — | No en registro de costo OS · `[PILOT POLICY]` | Diferido · `[FUTURE RECOMMENDATION]` | Decisión de negocio |
 | Email transaccional OS | Cotizaciones por mail | — | **$0** (no provisionado) · `[VERIFIED CURRENT FACT]` | Futuro ~USD 10–50 · `[ESTIMATE / PLANNING BAND]` | Cuando aprueben envío |
 | Monitoreo (Sentry etc.) | Errores / uptime | — | **$0** (no integrado) · `[VERIFIED CURRENT FACT]` | Confirmar al abrir · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` | Org empresa antes de encender |
@@ -55,7 +55,7 @@ No es el modelo permanente. Si avanzan a producción formal, lo siguiente es: cu
 - Cuentas individuales; no hay clave compartida del equipo. `[PILOT POLICY]`
 - El historial de negocio se preserva; no se “borra” a una persona del pasado al salir. `[PILOT POLICY]`
 - Si algún día hay IA, **no** puede saltarse permisos ni ejecutar acciones de negocio solas. `[PILOT POLICY]`
-- Las herramientas de prueba de Carmen (QA / Ver Como) son de **staging**, no son autoridad normal de usuaria/o final. `[CURRENT HOSTED STATE]`
+- Las herramientas de prueba de Carmen (QA / Ver Como) son **solo internas de staging** — **nunca** una función de usuaria/o final ni de Isa/Álvaro. `[CURRENT HOSTED STATE]` · `[PILOT POLICY]`
 - Los secretos del sistema no viven en el código que ve el navegador. `[PILOT POLICY]`
 
 No afirmamos “seguridad perfecta”. Afirmamos controles serios para esta etapa.  
@@ -63,8 +63,8 @@ No afirmamos “seguridad perfecta”. Afirmamos controles serios para esta etap
 
 ### Copias de seguridad — honestidad
 
-Hoy existen caminos de respaldo del Postgres del piloto (recuperación del proveedor + copias lógicas `pg_dump` del operador) y un runbook.  
-`[CURRENT HOSTED STATE]`
+Hoy existen caminos de respaldo del Postgres del piloto (recuperación del proveedor + copias lógicas `pg_dump` del operador) y un runbook — **postura parcial verificada**, no “DR completo probado”.  
+`[CURRENT HOSTED STATE]` · *(solo afirmar lo verificado)*
 
 Todavía **no** está evidenciado un desastre completo de producción (PITR de producción, almacenamiento off-host de empresa, segunda persona en el drill). Parte del break-glass sigue en un solo operador / laptop — riesgo conocido.  
 `[VERIFIED CURRENT FACT]` · `[FUTURE RECOMMENDATION]`
@@ -108,6 +108,12 @@ Más adelante, si ISALWA decide centralizar accesos de toda la empresa, usar ini
 | R2 off-host planned not provisioned | VERIFIED CURRENT FACT | [Source: owner infrastructure map] |
 | Monitoring not integrated | VERIFIED CURRENT FACT | [Source: owner infrastructure Monitoring] |
 | Auth wording (no scare “must replace”) | PILOT POLICY | [Source: Carmen briefing §8] |
+| Map LIVE | NOT LIVE · PENDING | [Source: mapbox-acceptance-fresh.json FAIL blank basemap] |
+| AI LIVE | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI configure — AI_ENABLED YES; assist FAIL max_tokens/luna] |
+| QA / Ver Como | PILOT POLICY · never user feature | [Source: capability / QA surfaces; master TODAY rules] |
+| Costs = estimate unless invoice | ESTIMATE / PLANNING BAND | [Source: master evidence rules] |
 | ENVIRONMENT_MAP topology partially stale | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION for old lines | [Source: owner map says prefer Wave2/backup receipts over stale ENVIRONMENT_MAP hosting claims] |
 
 **Secret rule:** names only in technical appendix — **never values** in this owner doc either.
+
+**Editor bake-in:** keep PLANNED…USER-ACCEPTED separate; evidence priority hosted/browser → … → agent summary; contradictions → UNPROVEN/NOT LIVE/HOSTED-UNPROVEN with EDITOR NOTES; no optimistic silent choice. Older EXTERNAL_CREDENTIAL_GATE for Map/AI superseded by FAIL/HOSTED-UNPROVEN.

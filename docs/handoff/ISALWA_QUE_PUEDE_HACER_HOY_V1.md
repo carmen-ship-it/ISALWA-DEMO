@@ -28,8 +28,8 @@ Hoy ISALWA ya sirve para trabajar con **clientes, oportunidades, cotizaciones, t
 | **Feedback del producto** | Decirle al equipo de ISALWA qué duele en la herramienta (esto **no** es una incidencia de negocio). | `[CURRENT HOSTED STATE]` |
 | **Administración** (si tienen permiso de personas) | Invitar, suspender, reasignar trabajo antes de dar de baja, revisar acceso — con cuidado. | `[CURRENT HOSTED STATE]` |
 | **Sistema / salud** | Ver honestidad de estado del sistema (no es un panel de facturas). | `[CURRENT HOSTED STATE]` |
-| **Mapa** | Ver cobertura honesta de ubicaciones (cuántos tienen coordenadas). El mapa con baldosas en vivo queda **condicional** hasta cierre del proveedor. | `[CURRENT HOSTED STATE]` + `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` |
-| **Asistencia IA** | Opcional y limitada (resumir / preguntar / borrador). **No** aprueba, convierte, reasigna ni envía sola. Hoy: **pendiente** de prueba en vivo. | `[PILOT POLICY]` + `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` |
+| **Mapa** | Ver cobertura honesta de ubicaciones (cuántos tienen coordenadas). Baldosas en vivo: **NOT LIVE** (aceptación FAIL — basemap en blanco). | `[CURRENT HOSTED STATE]` · `[NOT LIVE]` · `[PENDING]` |
+| **Asistencia IA** | Opcional y limitada (resumir / preguntar / borrador). **No** aprueba, convierte, reasigna ni envía sola. Hoy: **NOT LIVE / HOSTED-UNPROVEN** (configurada, asistencia FAIL pendiente de patch). | `[PILOT POLICY]` · `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]` |
 
 ### Datos del piloto (mapa — honestidad)
 
@@ -59,8 +59,8 @@ Si algo se ve, pero el texto dice “en preparación” o “no configurado”, 
 |---|---|---|
 | Wave B Issue / Commitment / Feedback HOSTED BV | CURRENT HOSTED STATE | [Source: `WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md` CONDITIONAL PASS; control-tower PRODUCT INTELLIGENCE HOSTED PASS on `23e50b0`] |
 | Wave A admin continuity technical close | CURRENT HOSTED STATE | [Source: `WAVE_A_ADMIN_CONTINUITY_ACCEPTANCE.md`] |
-| Map tiles LIVE | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION | [Source: control-tower MAP EXTERNAL_CREDENTIAL_GATE; briefing PENDING PROVIDER RECEIPT; agents 1065b97d in flight] |
-| AI live assist | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION | [Source: control-tower AI EXTERNAL_CREDENTIAL_GATE; AI_UNAVAILABLE historically; agent e310d3b5 may be in flight] |
+| Map tiles LIVE | NOT LIVE · PENDING | [Source: `~/.isalwa-secrets/_verifier-mapbox-out/mapbox-acceptance-fresh.json` verdict FAIL `basemapOk:false` — blank basemap; coverage honesty still shown] |
+| AI live assist | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI configure receipt — `AI_ENABLED` HOSTED YES; assist FAIL; `gpt-5.6-luna` rejects `max_tokens` (needs `max_completion_tokens`)] |
 | 2 de 7 coordenadas; 5 provenance | VERIFIED CURRENT FACT | [Source: `MAP_GEO_BOUNDARY.md`; capability map Z; draft Isa/Álvaro] |
 | Shared URL MICRISTAL/TORREZ | BUSINESS DECISION REQUIRED | [Source: `MAP_GEO_BOUNDARY.md`] |
 | No inventar pins / heatmaps | PILOT POLICY | [Source: `MAP_GEO_BOUNDARY.md`] |
@@ -69,9 +69,15 @@ Si algo se ve, pero el texto dice “en preparación” o “no configurado”, 
 | Production NOT EVIDENCED | VERIFIED CURRENT FACT | [Source: owner infrastructure map] |
 | Capability map older SHA `37a1ed7` | ESTIMATE / PLANNING BAND for doc drift | [Source: capability map header vs control-tower tip `23e50b0` — **prefer tip for runtime**; map tables may lag] |
 
-**Editor rules**
+**Editor rules (bake into every edit)**
 
+- Keep `PLANNED` / `IMPLEMENTED` / `TESTED` / `INTEGRATED` / `PUSHED` / `DEPLOYED` / `HOSTED` / `BROWSER-VERIFIED` / `USER-ACCEPTED` separate.  
+- Evidence priority: hosted/browser → provider/runtime config → DB/runtime → deployed SHA → tests → code → docs/receipts → agent summary.  
+- User-facing TODAY: MAP LIVE only after basemap BV PASS; AI LIVE only after provider response hosted-proven; password reset only if hosted UX verified; QA/Ver Como = internal never; costs = estimate unless invoice; backups = verified posture only.  
+- Contradictions → `UNPROVEN` / `NOT LIVE` / `IMPLEMENTED` / `HOSTED-UNPROVEN`; flag in EDITOR NOTES; no optimistic silent choice.  
 - After Map PASS receipt: change Mapa row to LIVE and add one warm sentence in welcome/message.  
 - After AI PASS: add bounded assist sentence; keep deny-list.  
 - Do not collapse USER-ACCEPTED.  
 - Keep REAL vs SYNTH separate in any internal coaching (not needed in this human table).
+
+**EDITOR NOTES — conflicts:** older EXTERNAL_CREDENTIAL_GATE labels superseded by Map FAIL / AI HOSTED-UNPROVEN FAIL; publish **NOT LIVE**.
