@@ -198,6 +198,7 @@ export function MapLiveCanvas({
       data-map-canvas="live"
       data-map-engine="mapbox"
     >
+      {/* Absolute fill: percent height alone can collapse; never paint porcelain over basemap tiles. */}
       <div className="relative min-h-[260px] flex-1 md:min-h-[380px]">
         <Map
           ref={mapRef}
@@ -212,7 +213,7 @@ export function MapLiveCanvas({
           maxZoom={view.maxZoom}
           maxBounds={view.maxBounds}
           mapStyle={view.styleUrl}
-          style={{ width: '100%', height: '100%' }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
           cursor={cursor}
           attributionControl
           onClick={onClick}
@@ -221,17 +222,10 @@ export function MapLiveCanvas({
           onLoad={(e: { target: MapHandle['getMap'] extends () => infer M ? M : never }) => {
             try {
               e.target.resize();
-              const style = e.target.getStyle();
-              style.layers?.forEach((layer) => {
-                if (layer.type === 'background') {
-                  e.target.setPaintProperty(layer.id, 'background-color', '#f3f1ed');
-                }
-                if (layer.id.includes('water') && layer.type === 'fill') {
-                  e.target.setPaintProperty(layer.id, 'fill-color', '#d9e4df');
-                }
-              });
+              // Do NOT recolor Mapbox background/water to porcelain — that reads as a blank beige
+              // canvas even when tiles succeed (Carmen hosted screenshot 2026-09-16).
             } catch {
-              /* style may be immutable */
+              /* map may not be ready */
             }
           }}
           reuseMaps
