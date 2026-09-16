@@ -9,6 +9,7 @@ import {
   approvalPaletteItem,
   commitmentPaletteItem,
   customerPaletteItem,
+  documentPaletteItem,
   issuePaletteItem,
   opportunityPaletteItem,
   orderPaletteItem,
@@ -195,6 +196,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     if (result.partial) partial = true;
     items.push(...result.items);
   }
+
+  const documents = await collectDeliveryDocuments(client, q);
+  if (documents.session) return { ok: false, reason: 'session' };
+  if (documents.partial) partial = true;
+  items.push(...documents.items);
 
   const partyIds = items.filter((item) => item.kind === 'customer' && item.partyId).slice(0, 2).map((item) => item.partyId!);
   if (partyIds.length > 0) {
@@ -504,6 +510,114 @@ async function collectCommitments(
       if (items.length >= PALETTE_GROUP_LIMIT) break;
     }
   }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}
+
+const DOCUMENT_ORDER_SCAN_LIMIT = 20;
+
+/**
+ * Nota / delivery-document hits via existing order + notes reads.
+ * Prefer delivery-ops when available; otherwise commercial open orders + /delivery-notes.
+ */
+async function collectDeliveryDocuments(
+  client: OsApiClient,
+  query: string,
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const q = query.toLocaleLowerCase('es');
+  type OrderSeed = { orderId: string; partyId: string; orderNumber: string };
+  const seeds: OrderSeed[] = [];
+  let partial = false;
+
+  try {
+    const ops = await client.listDeliveryOperationalOrders();
+    for (const order of ops.items ?? []) {
+      if (order.status === 'cancelled') continue;
+      seeds.push({
+        orderId: order.orderId,
+        partyId: order.partyId,
+        orderNumber: order.orderNumber,
+      });
+      if (seeds.length >= DOCUMENT_ORDER_SCAN_LIMIT) break;
+    }
+  } catch (err) {
+    if (isSessionFailure(err)) return { items: [], session: true, partial: false };
+    if (!isDenied(err)) partial = true;
+  }
+
+  if (seeds.length === 0) {
+    try {
+      const page = await client.listOrders({ status: 'open', limit: DOCUMENT_ORDER_SCAN_LIMIT });
+      for (const order of page.items ?? []) {
+        if (order.status === 'cancelled') continue;
+        seeds.push({
+          orderId: order.orderId,
+          partyId: order.partyId,
+          orderNumber: order.orderNumber,
+        });
+      }
+      if (page.meta?.hasMore) partial = true;
+    } catch (err) {
+      if (isSessionFailure(err)) return { items: [], session: true, partial: false };
+      if (isDenied(err)) return { items: [], session: false, partial };
+      partial = true;
+      return { items: [], session: false, partial };
+    }
+  }
+
+  const items: PaletteItem[] = [];
+  for (const seed of seeds) {
+    try {
+      let notes: Array<{
+        id: string;
+        internalDocumentRef?: string;
+        status: string;
+      }> = [];
+      try {
+        const pack = await client.getDeliveryOperationalDocuments(seed.orderId);
+        notes = (pack.notes ?? []).map((note) => ({
+          id: note.id,
+          internalDocumentRef: note.internalDocumentRef,
+          status: note.status,
+        }));
+      } catch (err) {
+        if (isDenied(err)) {
+          const pack = await client.listDeliveryNotesForOrder(seed.orderId);
+          notes = (pack.notes ?? []).map((note) => ({
+            id: note.id,
+            internalDocumentRef: note.internalDocumentRef,
+            status: note.status,
+          }));
+        } else if (isSessionFailure(err)) {
+          return { items: [], session: true, partial: false };
+        } else {
+          throw err;
+        }
+      }
+
+      for (const note of notes) {
+        if (note.status === 'reversed') continue;
+        const ref = (note.internalDocumentRef ?? '').trim();
+        if (!ref) continue;
+        const hay = `${ref} ${seed.orderNumber} nota`.toLocaleLowerCase('es');
+        if (!hay.includes(q)) continue;
+        const item = documentPaletteItem({
+          deliveryNoteId: note.id,
+          documentRef: ref,
+          orderId: seed.orderId,
+          partyId: seed.partyId,
+          orderNumber: seed.orderNumber,
+        });
+        items.push(item);
+        if (items.length >= PALETTE_GROUP_LIMIT) break;
+      }
+    } catch (err) {
+      if (isSessionFailure(err)) return { items: [], session: true, partial: false };
+      if (!isDenied(err)) partial = true;
+    }
+    if (items.length >= PALETTE_GROUP_LIMIT) break;
+  }
+
   const capped = cap(items);
   return { items: capped.items, session: false, partial: partial || capped.truncated };
 }

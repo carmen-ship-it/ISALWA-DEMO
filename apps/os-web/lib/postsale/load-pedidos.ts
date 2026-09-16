@@ -12,11 +12,29 @@ import {
 const OPEN_ORDER_PAGE_LIMIT = 50;
 const MAX_ORDER_DETAIL_FETCHES = 25;
 
+export type LoadPostSalePedidosOptions = {
+  /** Required for delivery-ops fallback mapping (ops payload has no org field). */
+  organizationId?: string | null;
+};
+
 /**
  * Load open Pedidos as human-readable post-sale handoff options.
- * Inherits customer / quote / lines / quantities from commercial SoR.
+ * Prefers commercial SoR when readable; falls back to delivery-ops for
+ * warehouse/delivery writers who lack commercial-read (same Pedido facts, no money).
  */
-export async function loadPostSalePedidos(client: OsApiClient): Promise<PostSalePedidoOption[]> {
+export async function loadPostSalePedidos(
+  client: OsApiClient,
+  options: LoadPostSalePedidosOptions = {},
+): Promise<PostSalePedidoOption[]> {
+  const fromCommercial = await loadFromCommercial(client);
+  if (fromCommercial.length > 0) return fromCommercial;
+
+  const organizationId = options.organizationId?.trim() ?? '';
+  if (!organizationId) return [];
+  return loadFromDeliveryOps(client, organizationId);
+}
+
+async function loadFromCommercial(client: OsApiClient): Promise<PostSalePedidoOption[]> {
   let list: OrderListResponse;
   try {
     list = await client.listOrders({ status: 'open', limit: OPEN_ORDER_PAGE_LIMIT });
@@ -75,6 +93,47 @@ export async function loadPostSalePedidos(client: OsApiClient): Promise<PostSale
       quoteId: order.quoteId,
       quoteNumber: order.quoteId ? quoteNumbers.get(order.quoteId) ?? null : null,
       ownerLabel: memberLabel(memberLabels, order.ownerMemberId),
+      statusLabel: formatOrderStatus(order.status),
+      lines: (order.lines ?? []).map((line) => ({
+        orderLineId: line.orderLineId,
+        productRef: line.productRef,
+        description: line.description,
+        quantity: line.quantity,
+      })),
+    });
+    if (built) options.push(built);
+  }
+
+  return options.sort((left, right) => left.optionLabel.localeCompare(right.optionLabel, 'es'));
+}
+
+async function loadFromDeliveryOps(
+  client: OsApiClient,
+  organizationId: string,
+): Promise<PostSalePedidoOption[]> {
+  let items: Awaited<ReturnType<OsApiClient['listDeliveryOperationalOrders']>>['items'] = [];
+  try {
+    const page = await client.listDeliveryOperationalOrders();
+    items = page.items ?? [];
+  } catch (err) {
+    if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
+      return [];
+    }
+    throw err;
+  }
+
+  const options: PostSalePedidoOption[] = [];
+  for (const order of items) {
+    if (order.status === 'cancelled') continue;
+    const built = buildPostSalePedidoOption({
+      organizationId,
+      orderId: order.orderId,
+      orderNumber: order.orderNumber,
+      partyId: order.partyId,
+      customerLabel: order.customerName,
+      quoteId: null,
+      quoteNumber: null,
+      ownerLabel: null,
       statusLabel: formatOrderStatus(order.status),
       lines: (order.lines ?? []).map((line) => ({
         orderLineId: line.orderLineId,

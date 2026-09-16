@@ -40,7 +40,8 @@ export type PaletteKind =
   | 'commitment'
   | 'people'
   | 'product'
-  | 'approval';
+  | 'approval'
+  | 'document';
 
 /** Live ⌘K entity kinds backed by session-scoped API reads (not actions/nav/recents). */
 export const PALETTE_LIVE_ENTITY_KINDS = [
@@ -54,6 +55,7 @@ export const PALETTE_LIVE_ENTITY_KINDS = [
   'commitment',
   'people',
   'approval',
+  'document',
 ] as const satisfies readonly PaletteKind[];
 
 export type PaletteLiveEntityKind = (typeof PALETTE_LIVE_ENTITY_KINDS)[number];
@@ -299,6 +301,26 @@ export function orderPaletteItem(input: {
   };
 }
 
+/** Delivery note / governed document hit — deep-links to Pedido Entregas desk. */
+export function documentPaletteItem(input: {
+  deliveryNoteId: string;
+  documentRef: string;
+  orderId: string;
+  partyId: string;
+  orderNumber?: string | null;
+}): PaletteItem {
+  const ref = input.documentRef.trim() || 'Nota de entrega';
+  const orderLabel = input.orderNumber?.trim() || 'Pedido';
+  return {
+    key: `document:nota:${input.deliveryNoteId}`,
+    kind: 'document',
+    label: ref,
+    detail: `Nota de entrega · ${orderLabel}`,
+    href: `/entregas?orderId=${encodeURIComponent(input.orderId)}`,
+    partyId: input.partyId,
+  };
+}
+
 export function workPaletteItem(input: {
   workItemId: string;
   title: string;
@@ -403,6 +425,7 @@ const GROUP_ORDER: Array<{ id: PaletteKind | 'action' | 'nav' | 'recent'; label:
   { id: 'opportunity', label: 'Oportunidades' },
   { id: 'quote', label: 'Cotizaciones' },
   { id: 'order', label: 'Pedidos' },
+  { id: 'document', label: 'Documentos' },
   { id: 'follow-up', label: 'Seguimientos' },
   { id: 'work', label: 'Trabajo' },
   { id: 'issue', label: 'Incidencias' },

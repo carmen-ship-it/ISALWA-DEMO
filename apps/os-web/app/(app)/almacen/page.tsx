@@ -62,9 +62,13 @@ async function loadAlmacenAccess() {
     const auth = await getServerOsAuthContext();
     if (auth) {
       const client = createOsApiClient(auth);
-      warehousePedidos = await loadWarehousePedidosFromOrders(client);
+      warehousePedidos = await loadWarehousePedidosFromOrders(client, {
+        organizationId: context.organizationId,
+      });
       try {
-        postsalePedidos = await loadPostSalePedidos(client);
+        postsalePedidos = await loadPostSalePedidos(client, {
+          organizationId: context.organizationId,
+        });
       } catch {
         postsalePedidos = NO_POSTSALE_PEDIDOS;
       }

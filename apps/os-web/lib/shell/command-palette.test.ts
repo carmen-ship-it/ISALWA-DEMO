@@ -241,6 +241,7 @@ describe('live entity kinds', () => {
       'commitment',
       'people',
       'approval',
+      'document',
     ]);
   });
 

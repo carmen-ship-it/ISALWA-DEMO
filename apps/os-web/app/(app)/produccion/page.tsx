@@ -77,7 +77,10 @@ async function loadPedidosSafe(): Promise<PostSalePedidoOption[]> {
   try {
     const auth = await getServerOsAuthContext();
     if (!auth) return [];
-    return await loadPostSalePedidos(createOsApiClient(auth));
+    const caps = await loadMemberCapabilities();
+    return await loadPostSalePedidos(createOsApiClient(auth), {
+      organizationId: caps?.organizationId ?? null,
+    });
   } catch {
     return [];
   }
