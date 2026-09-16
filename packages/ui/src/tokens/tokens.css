@@ -1,12 +1,16 @@
 :root {
   /* ISALWA design tokens — law. Do not invent colors outside this file. */
-  --isalwa-porcelain: #f7f5f2;
+  --isalwa-porcelain: #f6f1e8;
   --isalwa-white: #ffffff;
-  --isalwa-kiln: #1c2430;
+  --isalwa-kiln: #18324b;
+  --isalwa-navy-950: var(--isalwa-kiln);
   --isalwa-slate: #3d4a5c;
   --isalwa-mist: #e6eaf0;
-  --isalwa-glaze: #2f6f68;
-  --isalwa-glaze-deep: #1f4f4a;
+  --isalwa-glaze: #287a78;
+  --isalwa-glaze-deep: #1d635f;
+  --isalwa-sky-100: #edf5f8;
+  --isalwa-sky-200: #d9eaf2;
+  --isalwa-teal-100: #e2f0ed;
   --isalwa-copper: #b08a5b;
   /* Filled primary actions. Defaults to glaze so existing products stay unchanged.
      os-web remaps this to navy for Isabela’s command center. */
@@ -71,7 +75,8 @@
   --isalwa-tracking-kicker: 0.16em;
 
   --isalwa-motion-fast: 140ms;
-  --isalwa-motion-base: 220ms;
+  --isalwa-motion-base: 200ms;
+  --isalwa-motion-drawer: 260ms;
   --isalwa-motion-slow: 360ms;
   --isalwa-motion-deliberate: 520ms;
   /* Aliases (Mission 14) — map to the same clock; never invent parallel timings */
@@ -227,6 +232,7 @@
     --isalwa-motion-instant: 0ms;
     --isalwa-motion-fast: 0ms;
     --isalwa-motion-base: 0ms;
+    --isalwa-motion-drawer: 0ms;
     --isalwa-motion-normal: 0ms;
     --isalwa-motion-slow: 0ms;
     --isalwa-motion-deliberate: 0ms;

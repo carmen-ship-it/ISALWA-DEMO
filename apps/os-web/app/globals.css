@@ -13,14 +13,19 @@ body {
  * No brand font file is in the repo; Newsreader + a quiet sans carries the feel.
  */
 :root {
-  --isalwa-kiln: #1a3352;
+  --isalwa-kiln: #18324b;
+  --isalwa-navy-950: var(--isalwa-kiln);
   --isalwa-slate: #4a5d73;
-  --isalwa-glaze: #2a746c;
-  --isalwa-glaze-deep: #1c5852;
+  --isalwa-glaze: #287a78;
+  --isalwa-glaze-deep: #1d635f;
   --isalwa-porcelain: #f6f1e8;
-  --isalwa-mist: #e4eef5;
+  --isalwa-white: #ffffff;
+  --isalwa-sky-100: #edf5f8;
+  --isalwa-sky-200: #d9eaf2;
+  --isalwa-teal-100: #e2f0ed;
+  --isalwa-mist: var(--isalwa-sky-200);
   --isalwa-info: #7eadc8;
-  --isalwa-action: #1a3352;
+  --isalwa-action: var(--isalwa-kiln);
   --isalwa-action-deep: #12263d;
   /* Soft porcelain/mist operating canvas — never pure white behind white cards. */
   --isalwa-surface-canvas: var(--isalwa-porcelain);
@@ -92,7 +97,8 @@ a.isalwa-action-link:active {
   }
 }
 
-.isalwa-kicker {
+.isalwa-kicker,
+.isalwa-eyebrow {
   margin: 0;
   font-size: var(--isalwa-text-2xs);
   font-weight: 600;
@@ -159,6 +165,17 @@ textarea:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --isalwa-motion-instant: 0.01ms;
+    --isalwa-motion-fast: 0.01ms;
+    --isalwa-motion-base: 0.01ms;
+    --isalwa-motion-drawer: 0.01ms;
+    --isalwa-motion-normal: 0.01ms;
+    --isalwa-motion-slow: 0.01ms;
+    --isalwa-motion-deliberate: 0.01ms;
+    --isalwa-stagger-step: 0.01ms;
+  }
+
   .isalwa-t-fast,
   .isalwa-focus-ring {
     transition: none !important;
