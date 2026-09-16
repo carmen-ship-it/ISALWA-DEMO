@@ -9,6 +9,7 @@ import {
 } from '@isalwa/os-request-session';
 import type { TrustedContextDenial, TrustedContextResult } from '@isalwa/os-domain';
 import { getRuntimeProfile } from './env-validation';
+import { applyQaViewIfPresent } from './qa-view';
 
 /**
  * Request session used by os-api controllers.
@@ -17,6 +18,8 @@ import { getRuntimeProfile } from './env-validation';
  */
 export type OsSession = RequestContext & {
   grantedScopes: readonly string[];
+  /** Carmen/operator member when Ver Como is active. Product actor is actorMemberId. */
+  auditActorMemberId?: string;
 };
 
 export type AttachedTrustedSession = {
@@ -131,7 +134,12 @@ export async function resolveSession(req: Request, store: OsWorkforceStore): Pro
   if (mode !== 'dev' && mode !== 'supabase') {
     throw new Error('AUTH_CONFIGURATION_INVALID');
   }
-  if (mode === 'supabase') return sessionFromSupabaseJwt(req, store);
-  if (getRuntimeProfile() !== 'development') throw new Error('AUTH_REQUIRED');
-  return sessionFromDevHeaders(req, store);
+  let session: OsSession;
+  if (mode === 'supabase') {
+    session = await sessionFromSupabaseJwt(req, store);
+  } else {
+    if (getRuntimeProfile() !== 'development') throw new Error('AUTH_REQUIRED');
+    session = await sessionFromDevHeaders(req, store);
+  }
+  return applyQaViewIfPresent(req, store, session);
 }

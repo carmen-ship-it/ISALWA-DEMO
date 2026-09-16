@@ -3,15 +3,18 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import {
   applyPick,
+  approvalPaletteItem,
   commitmentPaletteItem,
   contextualPaletteActions,
   customerPaletteItem,
   groupPaletteItems,
   isFollowUpSubject,
   issuePaletteItem,
+  PALETTE_LIVE_ENTITY_KINDS,
   paletteActions,
   paletteNav,
   parseRecents,
+  peoplePaletteItem,
   quotePaletteItem,
 } from './command-palette';
 import { safeInternalPath } from './safe-next';
@@ -215,6 +218,53 @@ describe('palette search stays on the session', () => {
     assert.match(source, /export async function searchPalette\(query: string\)/);
     assert.doesNotMatch(source, /organizationId\s*[:=]/);
     assert.match(source, /getServerOsAuthContext/);
+  });
+
+  it('fail-closes forbidden member and approval reads without marking partial', () => {
+    const source = readFileSync(new URL('./command-search.ts', import.meta.url), 'utf8');
+    assert.match(source, /listMembers/);
+    assert.match(source, /listApprovals/);
+    assert.match(source, /if \(isDenied\(result\.err\)\) continue/);
+  });
+});
+
+describe('live entity kinds', () => {
+  it('lists supported remote entity kinds for the palette', () => {
+    assert.deepEqual(PALETTE_LIVE_ENTITY_KINDS, [
+      'customer',
+      'opportunity',
+      'quote',
+      'order',
+      'work',
+      'follow-up',
+      'issue',
+      'commitment',
+      'people',
+      'approval',
+    ]);
+  });
+
+  it('builds people and approval items without raw ids in labels', () => {
+    const person = peoplePaletteItem({
+      memberId: 'mem_secret',
+      displayName: 'Ana Gerente',
+      accessStatus: 'active',
+    });
+    assert.equal(person.kind, 'people');
+    assert.equal(person.label, 'Ana Gerente');
+    assert.equal(person.href, '/administracion/equipo/mem_secret');
+    assert.equal(person.label.includes('mem_secret'), false);
+
+    const approval = approvalPaletteItem({
+      approvalRequestId: 'appr_secret',
+      label: 'Cotización',
+      status: 'pending',
+    });
+    assert.equal(approval.kind, 'approval');
+    assert.equal(approval.label, 'Cotización');
+    assert.equal(approval.detail, 'Pendiente');
+    assert.equal(approval.href, '/aprobaciones/appr_secret');
+    assert.equal(approval.label.includes('appr_secret'), false);
   });
 });
 

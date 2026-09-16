@@ -151,7 +151,7 @@ export class AiController {
         maxOutputTokens: 800,
       });
 
-      await this.recordAssistAudit(req, session.organizationId, session.actorMemberId, {
+      await this.recordAssistAudit(req, session.organizationId, session.auditActorMemberId ?? session.actorMemberId, {
         feature,
         subjectType,
         subjectId,

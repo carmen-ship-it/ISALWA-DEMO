@@ -70,9 +70,10 @@ export type CommitmentSummary = {
   cancelledAt: string | null;
 };
 
-export type OsAuthContext =
+export type OsAuthContext = (
   | { mode: 'supabase'; accessToken: string; organizationId?: string }
-  | { mode: 'dev'; session: DevSession };
+  | { mode: 'dev'; session: DevSession }
+) & { qaViewCookie?: string };
 
 export type OsApiRequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -98,16 +99,21 @@ function buildUrl(path: string, query?: OsApiRequestOptions['query']): string {
 }
 
 function authHeaders(auth: OsAuthContext): Record<string, string> {
+  const extra: Record<string, string> = {};
+  if (auth.qaViewCookie) {
+    extra['x-os-qa-view'] = auth.qaViewCookie;
+  }
   if (auth.mode === 'supabase') {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${auth.accessToken}`,
+      ...extra,
     };
     if (auth.organizationId) {
       headers['x-os-organization-id'] = auth.organizationId;
     }
     return headers;
   }
-  return devSessionHeaders(auth.session);
+  return { ...devSessionHeaders(auth.session), ...extra };
 }
 
 async function fetchWithRetry(
@@ -416,6 +422,11 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<AuditListResponse>('/audit', { method: 'GET', query }),
     listMemoryChanges: (query?: Record<string, string | number | boolean>) =>
       request<MemoryChangesResponse>('/memory/changes', { method: 'GET', query }),
+    getQaEffectiveAccess: (memberId: string) =>
+      request<{ memberId: string; organizationId: string; grantedScopes: string[] }>(
+        '/qa/effective-access',
+        { method: 'GET', query: { memberId } },
+      ),
     requestAiAssist: (body: { feature: string; subjectType: string; subjectId: string }) =>
       request<AiAssistResponse>('/ai/assist', {
         method: 'POST',

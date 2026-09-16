@@ -5,7 +5,7 @@
  * Plots confirmed lat/lng markers; never invents geography.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type { MapViewConfig } from '@isalwa/providers';
 import { StatusPill } from '@isalwa/ui';
 
@@ -16,17 +16,31 @@ export type MapConfirmedMarker = {
   lng: number;
 };
 
+type MapHandle = {
+  getMap: () => {
+    queryRenderedFeatures: (
+      point: unknown,
+      opts: { layers: string[] },
+    ) => Array<{ properties?: { id?: string } }>;
+    flyTo: (opts: Record<string, unknown>) => void;
+    getZoom: () => number;
+    fitBounds: (bounds: unknown, opts: Record<string, unknown>) => void;
+    resize: () => void;
+    getStyle: () => { layers?: Array<{ id: string; type: string }> };
+    setPaintProperty: (id: string, prop: string, value: string) => void;
+  };
+};
+
 type MapBundle = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Map: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Source: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Layer: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  NavigationControl: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mapLib: any;
+  Map: (props: Record<string, unknown>) => ReactElement | null;
+  Source: (props: Record<string, unknown>) => ReactElement | null;
+  Layer: (props: Record<string, unknown>) => ReactElement | null;
+  NavigationControl: (props: Record<string, unknown>) => ReactElement | null;
+  mapLib: unknown;
+  LngLatBounds: new (
+    sw: [number, number],
+    ne: [number, number],
+  ) => { extend: (coord: [number, number]) => unknown };
 };
 
 type MapLiveCanvasProps = {
@@ -60,8 +74,7 @@ export function MapLiveCanvas({
   selectedPartyId,
   onSelectPartyId,
 }: MapLiveCanvasProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<MapHandle | null>(null);
   const didFitBounds = useRef(false);
   const [bundle, setBundle] = useState<MapBundle | null>(null);
   const [cursor, setCursor] = useState<'grab' | 'pointer'>('grab');
@@ -90,11 +103,12 @@ export function MapLiveCanvas({
       const mod = await import('react-map-gl/mapbox');
       if (!cancelled) {
         setBundle({
-          Map: mod.default,
-          Source: mod.Source,
-          Layer: mod.Layer,
-          NavigationControl: mod.NavigationControl,
+          Map: mod.default as unknown as MapBundle['Map'],
+          Source: mod.Source as unknown as MapBundle['Source'],
+          Layer: mod.Layer as unknown as MapBundle['Layer'],
+          NavigationControl: mod.NavigationControl as unknown as MapBundle['NavigationControl'],
           mapLib: mapboxgl,
+          LngLatBounds: mapboxgl.LngLatBounds as unknown as MapBundle['LngLatBounds'],
         });
       }
     })();
@@ -103,36 +117,32 @@ export function MapLiveCanvas({
     };
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onClick = useCallback(
-    (e: any) => {
-      const map = mapRef.current;
+    (e: { point: unknown }) => {
+      const map = mapRef.current?.getMap();
       if (!map) return;
       const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
-      const id = feats[0]?.properties?.id as string | undefined;
-      onSelectPartyId(id ?? null);
+      const id = feats[0]?.properties?.id;
+      onSelectPartyId(typeof id === 'string' ? id : null);
     },
     [onSelectPartyId],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onMoveHover = useCallback(
-    (e: any) => {
-      const map = mapRef.current;
-      if (!map) return;
-      const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
-      setCursor(feats.length ? 'pointer' : 'grab');
-    },
-    [],
-  );
+  const onMoveHover = useCallback((e: { point: unknown }) => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
+    setCursor(feats.length ? 'pointer' : 'grab');
+  }, []);
 
   useEffect(() => {
     if (!selectedPartyId || !mapRef.current) return;
     const marker = markers.find((m) => m.partyId === selectedPartyId);
     if (!marker) return;
-    mapRef.current.flyTo({
+    const map = mapRef.current.getMap();
+    map.flyTo({
       center: [marker.lng, marker.lat],
-      zoom: Math.max(mapRef.current.getZoom(), 13.2),
+      zoom: Math.max(map.getZoom(), 13.2),
       duration: 700,
       essential: true,
       padding: { top: 40, bottom: 56, left: 40, right: 40 },
@@ -141,12 +151,18 @@ export function MapLiveCanvas({
 
   useEffect(() => {
     if (!bundle || markers.length === 0 || didFitBounds.current) return;
-    const map = mapRef.current;
+    const map = mapRef.current?.getMap();
     if (!map) return;
     try {
       const bounds = markers.reduce(
-        (acc, m) => acc.extend([m.lng, m.lat]),
-        new bundle.mapLib.LngLatBounds([markers[0]!.lng, markers[0]!.lat], [markers[0]!.lng, markers[0]!.lat]),
+        (acc, m) => {
+          (acc as { extend: (c: [number, number]) => unknown }).extend([m.lng, m.lat]);
+          return acc;
+        },
+        new bundle.LngLatBounds(
+          [markers[0]!.lng, markers[0]!.lat],
+          [markers[0]!.lng, markers[0]!.lat],
+        ),
       );
       map.fitBounds(bounds, { padding: 56, maxZoom: 14, duration: 0 });
       didFitBounds.current = true;
@@ -202,12 +218,11 @@ export function MapLiveCanvas({
           onClick={onClick}
           onMouseMove={onMoveHover}
           onMouseLeave={() => setCursor('grab')}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onLoad={(e: any) => {
+          onLoad={(e: { target: MapHandle['getMap'] extends () => infer M ? M : never }) => {
             try {
               e.target.resize();
               const style = e.target.getStyle();
-              style.layers?.forEach((layer: { id: string; type: string }) => {
+              style.layers?.forEach((layer) => {
                 if (layer.type === 'background') {
                   e.target.setPaintProperty(layer.id, 'background-color', '#f3f1ed');
                 }

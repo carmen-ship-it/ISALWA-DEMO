@@ -14,6 +14,7 @@ import {
 import { createServerSupabaseClient } from '@/lib/auth/supabase/server';
 import { t } from '@/lib/i18n/es';
 import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
+import { QA_VIEW_COOKIE_NAME } from '@/lib/qa/constants';
 
 export type WebSession = {
   mode: 'supabase' | 'dev';
@@ -298,18 +299,26 @@ export async function completeInviteAction(): Promise<{ code: string }> {
   }
 }
 
-export async function getServerOsAuthContext() {
+export async function getServerOsAuthContext(options?: { skipQaView?: boolean }) {
   const session = await getServerWebSession();
   if (!session) return null;
 
+  let base:
+    | { mode: 'dev'; session: DevSession }
+    | { mode: 'supabase'; accessToken: string }
+    | null = null;
+
   if (session.mode === 'dev' && session.devSession) {
-    return { mode: 'dev' as const, session: session.devSession };
-  }
-
-  if (session.mode === 'supabase') {
+    base = { mode: 'dev', session: session.devSession };
+  } else if (session.mode === 'supabase') {
     const token = await getSupabaseAccessToken();
-    return { mode: 'supabase' as const, accessToken: token };
+    base = { mode: 'supabase', accessToken: token };
   }
 
-  return null;
+  if (!base) return null;
+  if (options?.skipQaView) return base;
+
+  const store = await cookies();
+  const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
+  return qaViewCookie ? { ...base, qaViewCookie } : base;
 }

@@ -341,6 +341,18 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /operations/outbox/dead-letters/:outboxId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /quotes/:quoteId/pdf': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /session/me': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /audit': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /commitments': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /commitments/:commitmentId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /issues': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /issues/:issueId': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /issues/:issueId/precedents': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /members/:memberId/access-history': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /members/:memberId/termination-impact': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /memory/changes': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /memory/evidence': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /product-feedback': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /qa/effective-access': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
 };
 
 function getRoutes(source: string): string[] {

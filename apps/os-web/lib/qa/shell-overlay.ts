@@ -10,8 +10,9 @@ export type QaShellOverlay = {
 };
 
 /**
- * When a signed QA view cookie matches the signed-in member, shell labeling
- * follows the SYNTH persona scopes. API calls remain the operator session.
+ * When a signed QA view cookie matches the signed-in operator, shell labeling
+ * follows the SYNTH persona scopes. Product API authorization is applied
+ * server-side via x-os-qa-view (effective actor = SYNTH target).
  */
 export async function resolveQaShellOverlay(
   actingMemberId: string | null | undefined,

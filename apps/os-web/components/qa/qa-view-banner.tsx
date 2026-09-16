@@ -17,14 +17,12 @@ export async function QaViewBanner() {
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
-          <span className="isalwa-kicker mr-2">Ver como</span>
-          Está revisando la experiencia como{' '}
-          <strong className="font-semibold">{active.persona.label}</strong> (
-          {active.persona.email}). Su sesión real sigue activa; esto es una vista de prueba en SYNTH.
+          <span className="isalwa-kicker mr-2">Modo de prueba</span>
+          Viendo ISALWA como: <strong className="font-semibold">{active.persona.label}</strong>
         </p>
         <form action={endQaView}>
           <Button type="submit" variant="secondary" size="sm">
-            Terminar vista
+            Salir de vista de prueba
           </Button>
         </form>
       </div>

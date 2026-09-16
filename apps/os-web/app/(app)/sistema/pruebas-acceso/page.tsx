@@ -24,7 +24,7 @@ export const revalidate = 0;
 export default async function PruebasAccesoPage() {
   if (!isQaControlEnabled()) notFound();
 
-  const auth = await getServerOsAuthContext();
+  const auth = await getServerOsAuthContext({ skipQaView: true });
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
@@ -39,6 +39,18 @@ export default async function PruebasAccesoPage() {
 
   const personas = loadSynthPersonas();
   const activeView = await readActiveQaView();
+  const liveScopes = new Map<string, readonly string[]>();
+  await Promise.all(
+    personas.map(async (persona) => {
+      if (!persona.memberId) return;
+      try {
+        const row = await client.getQaEffectiveAccess(persona.memberId);
+        liveScopes.set(persona.id, row.grantedScopes);
+      } catch {
+        // Receipt scopes remain until live evaluation is available.
+      }
+    }),
+  );
 
   return (
     <PageContainer label="Pruebas de acceso">
@@ -66,7 +78,8 @@ export default async function PruebasAccesoPage() {
           </p>
           <ul className="mt-6 divide-y divide-[var(--isalwa-mist)]">
             {personas.map((persona) => {
-              const matrix = buildAccessMatrix(persona.grantedScopes);
+              const scopes = liveScopes.get(persona.id) ?? persona.grantedScopes;
+              const matrix = buildAccessMatrix(scopes);
               const canStart = Boolean(persona.memberId);
               return (
                 <li key={persona.id} className="py-6 first:pt-0 last:pb-0">
@@ -97,7 +110,7 @@ export default async function PruebasAccesoPage() {
                         <tr className="isalwa-kicker border-b border-[var(--isalwa-mist)]">
                           <th className="py-2 pr-4 font-medium">Comprobación</th>
                           <th className="py-2 pr-4 font-medium">Resultado</th>
-                          <th className="py-2 font-medium">Evaluador</th>
+                          <th className="py-2 font-medium">Base</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -109,7 +122,7 @@ export default async function PruebasAccesoPage() {
                                 {row.allowed ? 'Permitido' : 'Denegado'}
                               </StatusPill>
                             </td>
-                            <td className="py-2.5 font-mono text-xs text-[var(--isalwa-slate)]">
+                            <td className="py-2.5 text-xs text-[var(--isalwa-slate)]">
                               {row.evaluator}
                             </td>
                           </tr>

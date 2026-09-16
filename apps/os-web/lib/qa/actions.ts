@@ -23,7 +23,7 @@ async function requireQaOperator() {
   if (!isQaControlEnabled()) {
     throw new Error('QA_CONTROL_DISABLED');
   }
-  const auth = await getServerOsAuthContext();
+  const auth = await getServerOsAuthContext({ skipQaView: true });
   if (!auth) throw new Error('AUTH_REQUIRED');
   const client = createOsApiClient(auth);
   const grantedScopes = await loadActorRoleKeys(client);

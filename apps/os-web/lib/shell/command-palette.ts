@@ -12,9 +12,11 @@ import { filterNavByAccess, PRIMARY_NAV } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
 import { formatWorkStatus } from '@/lib/work/labels';
 import { isEngineeringFixtureCopy, usableStaffTitle } from '@/lib/work/staff-subject';
-import { workItemHref } from '@/lib/work/navigation';
+import { memberHref } from '@/lib/workforce/navigation';
+import { workItemHref, approvalHref } from '@/lib/work/navigation';
 import { issueHref } from '@/lib/issue/navigation';
 import { formatIssueStatus } from '@/lib/issue/labels';
+import { formatApprovalStatus } from '@/lib/work/labels';
 import { commitmentStateLabel } from '@/lib/commitments/copy';
 import type { CommitmentState } from '@isalwa/os-contracts';
 import type { IssueStatus } from '@/lib/issue/types';
@@ -35,7 +37,26 @@ export type PaletteKind =
   | 'work'
   | 'follow-up'
   | 'issue'
-  | 'commitment';
+  | 'commitment'
+  | 'people'
+  | 'product'
+  | 'approval';
+
+/** Live ⌘K entity kinds backed by session-scoped API reads (not actions/nav/recents). */
+export const PALETTE_LIVE_ENTITY_KINDS = [
+  'customer',
+  'opportunity',
+  'quote',
+  'order',
+  'work',
+  'follow-up',
+  'issue',
+  'commitment',
+  'people',
+  'approval',
+] as const satisfies readonly PaletteKind[];
+
+export type PaletteLiveEntityKind = (typeof PALETTE_LIVE_ENTITY_KINDS)[number];
 
 export type PalettePick = 'customer-opportunity' | 'customer-follow-up' | 'opportunity-quote';
 
@@ -311,6 +332,37 @@ export function issuePaletteItem(input: {
   };
 }
 
+export function peoplePaletteItem(input: {
+  memberId: string;
+  displayName: string;
+  accessStatus: string;
+}): PaletteItem {
+  const name = input.displayName.trim() || 'Persona';
+  const inactive = input.accessStatus !== 'active' ? 'Acceso inactivo' : undefined;
+  return {
+    key: `people:${input.memberId}`,
+    kind: 'people',
+    label: name,
+    detail: inactive,
+    href: memberHref(input.memberId),
+  };
+}
+
+export function approvalPaletteItem(input: {
+  approvalRequestId: string;
+  label: string;
+  status: string;
+}): PaletteItem {
+  const label = input.label.trim() || 'Aprobación';
+  return {
+    key: `approval:${input.approvalRequestId}`,
+    kind: 'approval',
+    label,
+    detail: formatApprovalStatus(input.status),
+    href: approvalHref(input.approvalRequestId),
+  };
+}
+
 export function commitmentPaletteItem(input: {
   commitmentId: string;
   text: string;
@@ -355,6 +407,8 @@ const GROUP_ORDER: Array<{ id: PaletteKind | 'action' | 'nav' | 'recent'; label:
   { id: 'work', label: 'Trabajo' },
   { id: 'issue', label: 'Incidencias' },
   { id: 'commitment', label: 'Compromisos' },
+  { id: 'people', label: 'Personas' },
+  { id: 'approval', label: 'Aprobaciones' },
   { id: 'nav', label: 'Ir a' },
 ];
 

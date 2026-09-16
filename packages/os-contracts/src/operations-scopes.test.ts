@@ -90,6 +90,7 @@ describe('operational access scopes', () => {
       'production.review.member',
       'issue.manage',
       'product.feedback.review',
+      'qa.access',
     ]);
     assert.equal(isOperationsAccessScope(COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE), false);
     assert.equal(OPERATIONS_ACCESS_SCOPE_KEYS.includes(COMMERCIAL_TEAM_READ_SCOPE), true);

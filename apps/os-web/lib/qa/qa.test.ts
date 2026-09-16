@@ -81,5 +81,7 @@ describe('access matrix', () => {
     const adminNav = matrix.find((r) => r.id === 'nav-administracion');
     assert.ok(adminNav);
     assert.equal(adminNav.allowed, false);
+    assert.ok(matrix.find((r) => r.id === 'nav-inicio'));
+    assert.ok(matrix.find((r) => r.id === 'commercial-reassign'));
   });
 });

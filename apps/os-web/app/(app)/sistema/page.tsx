@@ -41,31 +41,31 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'app',
     label: 'Aplicación',
-    state: 'Operativa',
+    state: 'Funcionando',
     detail: 'Su sesión está autorizada en la organización de esta pantalla.',
     tone: 'success',
   });
 
-  let apiState = 'No verificada';
+  let apiState = 'No verificado';
   let apiDetail = 'No pudimos confirmar la respuesta del servicio de datos.';
   let apiTone: HealthTone = 'warning';
   try {
     const health = await client.health();
     if (health.status === 'ok') {
-      apiState = 'Respondiendo';
+      apiState = 'Funcionando';
       apiDetail = 'El servicio de datos respondió a la comprobación de disponibilidad.';
       apiTone = 'success';
     }
   } catch (err) {
     if (err instanceof OsApiError && err.kind === 'forbidden') {
-      apiState = 'Sin señal autorizada';
+      apiState = 'No verificado';
       apiDetail = 'Su sesión no expone esta comprobación; no se infiere estado del servicio.';
       apiTone = 'neutral';
     }
   }
   rows.push({ id: 'api', label: 'API', state: apiState, detail: apiDetail, tone: apiTone });
 
-  let dbState = 'No verificada';
+    let dbState = 'No verificado';
   let dbDetail = 'La comprobación de base de datos no está disponible desde esta pantalla.';
   let dbTone: HealthTone = 'neutral';
   try {
@@ -77,16 +77,16 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
     const database = body.checks?.find((check) => check.name === 'database');
     if (database) {
       if (database.ok) {
-        dbState = 'Accesible';
+        dbState = 'Funcionando';
         dbDetail = 'La comprobación de preparación reportó la base de datos accesible.';
         dbTone = 'success';
       } else {
-        dbState = 'No accesible';
+        dbState = 'Atención requerida';
         dbDetail = 'La comprobación de preparación no pudo usar la base de datos.';
         dbTone = 'warning';
       }
     } else if (body.status === 'ready') {
-      dbState = 'Accesible';
+      dbState = 'Funcionando';
       dbDetail = 'La comprobación de preparación finalizó en estado listo.';
       dbTone = 'success';
     }
@@ -109,14 +109,14 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
         ? {
             id: 'auth',
             label: 'Autenticación',
-            state: 'Proveedor configurado',
+            state: 'Funcionando',
             detail: 'Las variables de acceso del proveedor están presentes; no se muestran secretos aquí.',
             tone: 'success',
           }
         : {
             id: 'auth',
             label: 'Autenticación',
-            state: 'Sin proveedor configurado',
+            state: 'No configurado',
             detail: 'Faltan variables de configuración del proveedor de acceso.',
             tone: 'warning',
           };
@@ -125,19 +125,19 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'map',
     label: 'Mapa',
-    state: mapStatus.label,
+    state: mapStatus.kind === 'live' ? 'Funcionando' : 'Falta configurar',
     detail: mapStatus.tokenPresent
-      ? `${mapStatus.detail} Hay credencial de mapa configurada; la vista completa sigue en preparación.`
+      ? mapStatus.detail
       : mapStatus.detail,
-    tone: mapStatus.tokenPresent ? 'neutral' : 'neutral',
+    tone: mapStatus.kind === 'live' ? 'success' : 'neutral',
   });
 
   rows.push({
     id: 'ai',
     label: 'IA',
-    state: isAiEnabled() ? 'Activada' : 'No activada',
+    state: isAiEnabled() ? 'Funcionando' : 'Desactivada',
     detail: isAiEnabled()
-      ? 'La asistencia de IA está habilitada por configuración explícita (AI_ENABLED=true).'
+      ? 'La asistencia de IA está habilitada por configuración explícita.'
       : 'La asistencia de IA permanece apagada hasta habilitarla de forma explícita.',
     tone: isAiEnabled() ? 'success' : 'neutral',
   });
@@ -146,7 +146,7 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'email',
     label: 'Email',
-    state: emailKind === 'live' ? 'Proveedor declarado' : 'En preparación',
+    state: emailKind === 'live' ? 'Funcionando' : 'No conectado',
     detail:
       emailKind === 'live'
         ? 'Hay un proveedor de correo declarado en configuración; no se envían credenciales desde esta pantalla.'
@@ -158,7 +158,7 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'whatsapp',
     label: 'WhatsApp',
-    state: messagingKind === 'live' ? 'Proveedor declarado' : 'En preparación',
+    state: messagingKind === 'live' ? 'Funcionando' : 'No conectado',
     detail:
       messagingKind === 'live'
         ? 'Hay un proveedor de mensajería declarado; el canal WhatsApp no se evalúa desde secretos aquí.'
@@ -169,7 +169,7 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'monitoring',
     label: 'Monitoreo',
-    state: 'Sin panel en producto',
+    state: 'No configurado',
     detail: 'No hay un tablero de monitoreo operativo dentro de ISALWA; use las herramientas de infraestructura.',
     tone: 'neutral',
   });
@@ -177,7 +177,7 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
   rows.push({
     id: 'backups',
     label: 'Backups',
-    state: 'Sin señal en producto',
+    state: 'No verificado',
     detail: 'El estado de respaldos no se expone en la aplicación; consulte runbooks de operaciones.',
     tone: 'neutral',
   });

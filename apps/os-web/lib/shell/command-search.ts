@@ -6,6 +6,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import {
+  approvalPaletteItem,
   commitmentPaletteItem,
   customerPaletteItem,
   issuePaletteItem,
@@ -13,10 +14,13 @@ import {
   orderPaletteItem,
   PALETTE_GROUP_LIMIT,
   PALETTE_MIN_QUERY,
+  peoplePaletteItem,
   quotePaletteItem,
   workPaletteItem,
   type PaletteItem,
 } from '@/lib/shell/command-palette';
+import { approvalRowSubject } from '@/lib/work/approval-row-subject';
+import { formatApprovalStatus } from '@/lib/work/labels';
 import type { IssueStatus } from '@/lib/issue/types';
 import type { CommitmentState } from '@isalwa/os-contracts';
 
@@ -98,7 +102,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     if (parties.meta.hasMore) partial = true;
   } catch (err) {
     if (isSessionFailure(err)) return { ok: false, reason: 'session' };
-    partial = true;
+    if (!isDenied(err)) partial = true;
   }
 
   const opportunityCalls = [
@@ -121,8 +125,17 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   // Issue and commitment search calls
   const issueCalls = [client.listIssues({ view: 'all', limit: PALETTE_GROUP_LIMIT })];
   const commitmentCalls = [client.listCommitments({ lifecycle: 'open' })];
+  const peopleCalls = [
+    client.listMembers({
+      q,
+      accessStatus: 'active',
+      employmentStatus: 'active',
+      limit: PALETTE_GROUP_LIMIT,
+    }),
+  ];
+  const approvalCalls = [client.listApprovals({ limit: PALETTE_GROUP_LIMIT })];
 
-  const [opportunities, quotes, orders, work, issues, commitments] = await Promise.all([
+  const [opportunities, quotes, orders, work, issues, commitments, people, approvals] = await Promise.all([
     collect(opportunityCalls, (page) =>
       page.items
         .filter((item) => !isEngineeringFixtureCopy(item.title))
@@ -173,9 +186,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     ),
     collectIssues(issueCalls, q),
     collectCommitments(commitmentCalls, q),
+    collectPeople(peopleCalls),
+    collectApprovals(approvalCalls, q),
   ]);
 
-  for (const result of [opportunities, quotes, orders, work, issues, commitments]) {
+  for (const result of [opportunities, quotes, orders, work, issues, commitments, people, approvals]) {
     if (result.session) return { ok: false, reason: 'session' };
     if (result.partial) partial = true;
     items.push(...result.items);
@@ -291,10 +306,107 @@ async function collect<T extends { items: unknown[]; meta: { hasMore: boolean } 
   for (const result of settled) {
     if (!result.ok) {
       if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
-      partial = true;
+      if (!isDenied(result.err)) partial = true;
       continue;
     }
     items.push(...map(result.page));
+    if (result.page.meta.hasMore) partial = true;
+  }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}
+
+type MemberListResponse = {
+  items: Array<{
+    memberId: string;
+    displayName: string;
+    accessStatus: string;
+  }>;
+  meta: { hasMore: boolean };
+};
+
+async function collectPeople(
+  calls: Array<Promise<MemberListResponse>>,
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const settled = await Promise.all(calls.map(async (call) => {
+    try {
+      return { ok: true as const, page: await call };
+    } catch (err) {
+      return { ok: false as const, err };
+    }
+  }));
+  const items: PaletteItem[] = [];
+  let partial = false;
+  for (const result of settled) {
+    if (!result.ok) {
+      if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
+      if (isDenied(result.err)) continue;
+      partial = true;
+      continue;
+    }
+    for (const member of result.page.items) {
+      items.push(
+        peoplePaletteItem({
+          memberId: member.memberId,
+          displayName: member.displayName,
+          accessStatus: member.accessStatus,
+        }),
+      );
+    }
+    if (result.page.meta.hasMore) partial = true;
+  }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}
+
+type ApprovalListResponse = {
+  items: Array<{
+    approvalRequestId: string;
+    subjectType: string;
+    subjectId: string;
+    status: string;
+  }>;
+  meta: { hasMore: boolean };
+};
+
+async function collectApprovals(
+  calls: Array<Promise<ApprovalListResponse>>,
+  query: string,
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const settled = await Promise.all(calls.map(async (call) => {
+    try {
+      return { ok: true as const, page: await call };
+    } catch (err) {
+      return { ok: false as const, err };
+    }
+  }));
+  const items: PaletteItem[] = [];
+  let partial = false;
+  const q = query.toLocaleLowerCase('es');
+  for (const result of settled) {
+    if (!result.ok) {
+      if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
+      if (isDenied(result.err)) continue;
+      partial = true;
+      continue;
+    }
+    for (const item of result.page.items) {
+      const label = approvalRowSubject({
+        subjectType: item.subjectType,
+        subjectId: item.subjectId,
+      });
+      const detail = formatApprovalStatus(item.status);
+      const searchText = `${label} ${detail}`.toLocaleLowerCase('es');
+      if (!searchText.includes(q)) continue;
+      items.push(
+        approvalPaletteItem({
+          approvalRequestId: item.approvalRequestId,
+          label,
+          status: item.status,
+        }),
+      );
+      if (items.length >= PALETTE_GROUP_LIMIT) break;
+    }
     if (result.page.meta.hasMore) partial = true;
   }
   const capped = cap(items);
@@ -328,7 +440,7 @@ async function collectIssues(
   for (const result of settled) {
     if (!result.ok) {
       if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
-      partial = true;
+      if (!isDenied(result.err)) partial = true;
       continue;
     }
     for (const item of result.page.items) {
@@ -376,7 +488,7 @@ async function collectCommitments(
   for (const result of settled) {
     if (!result.ok) {
       if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
-      partial = true;
+      if (!isDenied(result.err)) partial = true;
       continue;
     }
     for (const item of result.page.items) {
