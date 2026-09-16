@@ -116,4 +116,25 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   CreateOrder: 'member_active',
   CancelOrder: 'member_active',
   ReassignCommercialAccountOwner: 'member_active',
+  // Issue commands
+  ReportIssue: 'member_active',
+  TriageIssue: 'member_active', // Requires issue.manage but gate is in service layer
+  AssignIssueOwner: 'member_active', // Requires issue.manage but gate is in service layer
+  StartIssueProgress: 'member_active',
+  AddIssueJournalEntry: 'member_active',
+  ConfirmIssueCause: 'member_active', // Requires issue.manage but gate is in service layer
+  LinkIssueWork: 'member_active',
+  ResolveIssue: 'member_active',
+  RecordIssueOutcome: 'member_active',
+  CloseIssue: 'member_active', // Requires issue.manage but gate is in service layer
+  ReopenIssue: 'member_active', // Requires issue.manage but gate is in service layer
+  RelateIssues: 'member_active', // Requires issue.manage but gate is in service layer
+  // Product feedback commands
+  SubmitProductFeedback: 'member_active',
+  // Commitment commands
+  CreateEmployeeCommitment: 'member_active',
+  CreateCustomerReportedCommitment: 'member_active',
+  FulfillCommitment: 'member_active',
+  CancelCommitment: 'member_active',
+  ReassignCommitmentOwner: 'member_active',
 };

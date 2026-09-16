@@ -70,6 +70,18 @@ export const SYSTEM_ADMIN_SCOPE = 'system.admin' as const;
 /** Matches current CreateOrder eligibility. Ownership alone is not enough. */
 export const OWN_QUOTE_CONVERT_ELIGIBLE_STATUS = 'submitted' as const;
 
+/**
+ * Issue management scope. Required for triage, assign, confirm cause, resolve, close, reopen.
+ * Separate from ISSUE_MANAGE_SCOPE in issue.ts; this registers it in the operations catalog.
+ */
+export const ISSUE_MANAGE_SCOPE = 'issue.manage' as const;
+
+/**
+ * Provisional scope for reviewing product feedback.
+ * Not yet wired into command auth. Explicit assignment only.
+ */
+export const PRODUCT_FEEDBACK_REVIEW_SCOPE = 'product.feedback.review' as const;
+
 export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
   COMMERCIAL_TEAM_READ_SCOPE,
@@ -86,6 +98,8 @@ export const OPERATIONS_ACCESS_SCOPE_KEYS = [
   DELIVERY_RECORD_SCOPE,
   PRODUCTION_ENTRY_MEMBER_SCOPE,
   PRODUCTION_REVIEW_MEMBER_SCOPE,
+  ISSUE_MANAGE_SCOPE,
+  PRODUCT_FEEDBACK_REVIEW_SCOPE,
 ] as const;
 
 export type OperationsAccessScopeKey = (typeof OPERATIONS_ACCESS_SCOPE_KEYS)[number];

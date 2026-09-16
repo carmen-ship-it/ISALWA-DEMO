@@ -15,7 +15,11 @@ export type CommitmentLifecycle = (typeof COMMITMENT_LIFECYCLES)[number];
 export const COMMITMENT_STATES = ['pending', 'due_today', 'overdue', 'fulfilled', 'cancelled'] as const;
 export type CommitmentState = (typeof COMMITMENT_STATES)[number];
 
-export const COMMITMENT_ORIGINS = ['employee_entered', 'human_confirmed_suggestion'] as const;
+export const COMMITMENT_ORIGINS = [
+  'employee_entered',
+  'human_confirmed_suggestion',
+  'customer_reported',
+] as const;
 export type CommitmentOrigin = (typeof COMMITMENT_ORIGINS)[number];
 
 /** Records that already exist. Not a new subject vocabulary. */
@@ -27,6 +31,7 @@ export const COMMITMENT_SUBJECT_TYPES = [
   'opportunity',
   'commercial_account',
   'approval_request',
+  'issue',
 ] as const;
 export type CommitmentSubjectType = (typeof COMMITMENT_SUBJECT_TYPES)[number];
 
@@ -312,4 +317,27 @@ function buildCommitment(input: {
     canonical: true,
   };
   return { ok: true, commitment };
+}
+
+/**
+ * Create a commitment from a customer-reported issue or request.
+ * Origin is 'customer_reported'. Not employee-entered and not suggestion-confirmed.
+ */
+export function createCustomerReportedCommitment(input: {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  createdByMemberId: string;
+  text: string;
+  dueAt?: string | null;
+  partyId?: string | null;
+  relatedSubjectType?: string | null;
+  relatedSubjectId?: string | null;
+  createdAt: string;
+}): CommitmentResult {
+  return buildCommitment({
+    ...input,
+    origin: 'customer_reported',
+    provenanceSuggestionId: null,
+  });
 }
