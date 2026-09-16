@@ -1796,9 +1796,11 @@ model OsOrderAllocation {
 
 // Listo is a receipt into Almacén de Productos Terminados.
 // It is not an allocation, a Pedido assignment, a delivery, a payment, or a stock ledger.
-// product_id is opaque. No SKU, valuation, cost, tax, or order relationship.
+// product_id is opaque. No SKU, valuation, cost, tax, FIFO, or reservation priority.
 // production_trace_entry_id and quema_id are optional citations of existing production facts.
 // They do not create Order → ProductionRun.
+// context_order_id / context_order_line_id / context_party_id / note are optional Pedido
+// operational citations. They are not OrderAllocation and do not assign stock to a Pedido.
 model OsFinishedGoodsReceipt {
   id                     String   @id
   organizationId         String   @map("organization_id")
@@ -1812,14 +1814,21 @@ model OsFinishedGoodsReceipt {
   source                 String   @default("explicit_command")
   productionTraceEntryId String?  @map("production_trace_entry_id")
   quemaId                String?  @map("quema_id")
+  contextOrderId         String?  @map("context_order_id")
+  contextOrderLineId     String?  @map("context_order_line_id")
+  contextPartyId         String?  @map("context_party_id")
+  note                   String?
   correctsReceiptId      String?  @map("corrects_receipt_id")
   correctionReason       String?  @map("correction_reason")
   idempotencyKey         String?  @map("idempotency_key")
 
   organization OsOrganization @relation(fields: [organizationId], references: [id])
 
+  // Partial unique (organization_id, idempotency_key) WHERE idempotency_key IS NOT NULL
+  // is enforced in SQL migrations — keep tenant-scoped idempotent receive durable.
   @@index([organizationId, productId, receivedAt])
   @@index([organizationId, receivedAt])
+  @@index([organizationId, contextOrderId, receivedAt])
   @@map("os_finished_goods_receipts")
 }
 

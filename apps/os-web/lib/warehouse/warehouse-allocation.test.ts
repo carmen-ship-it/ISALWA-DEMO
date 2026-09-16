@@ -515,7 +515,7 @@ describe('page access fails closed without a session organization or a confirmed
     assert.equal(access.canAllocate, false);
   });
 
-  it('denies an unconfirmed scope and an unauthorized role without leaking a foreign customer', () => {
+  it('denies an unconfirmed scope and unlocks receive without granting allocate', () => {
     const unconfirmed = resolveWarehousePageAccess({
       session: session({ grantedScopes: null }),
       grantedScopes: null,
@@ -524,9 +524,20 @@ describe('page access fails closed without a session organization or a confirmed
     assert.equal(unconfirmed.status, 'denied');
     if (unconfirmed.status === 'denied') assert.equal(unconfirmed.reason, 'permission_unconfirmed');
 
-    const unauthorized = resolveWarehousePageAccess({
+    const receiveOnly = resolveWarehousePageAccess({
       session: session({ grantedScopes: ['warehouse.finished_goods.receive'] }),
       grantedScopes: ['warehouse.finished_goods.receive'],
+      facts: facts({ pedidos: [pedido(), foreignPedido()] }),
+    });
+    assert.equal(receiveOnly.status, 'ready');
+    if (receiveOnly.status !== 'ready') return;
+    assert.equal(receiveOnly.canReceive, true);
+    assert.equal(receiveOnly.canAllocate, false);
+    assert.equal(JSON.stringify(receiveOnly.view.pedidos).includes(FOREIGN_CUSTOMER), false);
+
+    const unauthorized = resolveWarehousePageAccess({
+      session: session({ grantedScopes: ['commercial.team.read'] }),
+      grantedScopes: ['commercial.team.read'],
       facts: facts({ pedidos: [pedido(), foreignPedido()] }),
     });
     assert.equal(unauthorized.status, 'denied');
@@ -564,6 +575,8 @@ describe('warehouse surface copy', () => {
     assert.equal(error.includes('data-warehouse-status="error"'), true);
     assert.equal(page.includes('resolveWarehousePageAccess'), true);
     assert.equal(page.includes('loadWarehousePedidosFromOrders'), true);
+    assert.equal(page.includes('WarehousePostSaleDesk'), true);
+    assert.equal(page.includes('loadPostSalePedidos'), true);
     assert.equal(page.includes('pedidos: []'), false);
     assert.equal(page.includes('schema.prisma'), false);
   });

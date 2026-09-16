@@ -30,6 +30,8 @@ const EVENT_LABELS: Record<string, string> = {
   'order.created': 'Pedido creado',
   'order.cancelled': 'Pedido cancelado',
   'commercial_account.owner_reassigned': 'Responsable comercial cambiado',
+  'finished_goods.received': 'Ingreso a almacén de productos terminados',
+  'finished_goods.corrected': 'Corrección de ingreso a almacén',
   'work.created': 'Trabajo creado',
   'task.reassigned': 'Trabajo reasignado',
   'work.completed': 'Trabajo completado',
@@ -41,7 +43,7 @@ const EVENT_LABELS: Record<string, string> = {
 
 /** Employee-facing Historial scope — update when backend timeline domains change. */
 export const HISTORIAL_SCOPE_COPY =
-  'Actividad del cliente, comercial, trabajo y aprobaciones relacionadas.';
+  'Actividad del cliente, comercial, producción/almacén postventa, trabajo y aprobaciones relacionadas.';
 
 /** Add Spanish labels here when new timeline event types ship — unknown types use fallback. */
 export function timelineEventLabel(eventType: string): string {
@@ -66,6 +68,10 @@ const HIDDEN_FACT_KEYS = new Set([
   'orderId',
   'contactId',
   'organizationPartyId',
+  'productId',
+  'orderLineId',
+  'allocatesToOrder',
+  'postsStock',
   'roleAssignmentId',
   'partyIdA',
   'partyIdB',

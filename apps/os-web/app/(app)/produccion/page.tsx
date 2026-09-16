@@ -1,10 +1,15 @@
 import { PageContainer, StatusPill } from '@isalwa/ui';
-import { ProductionWorkspace } from '@/components/production/production-workspace';
+import { ProductionPostSaleDesk } from '@/components/production/production-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { PRODUCTION_PAGE_COPY, PRODUCTION_STEP_LABELS } from '@/lib/production/copy';
 import { loadProductionCatalog } from '@/lib/production/load-catalog';
+import { createPostSaleExpectedWorkAction } from '@/lib/postsale/actions';
+import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
+import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
@@ -13,13 +18,13 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
- * Manufacturing workspace. Not a Pedido page.
- * Una quema no es un pedido y no pertenece a un pedido.
- * Un ingreso al Almacén de Productos Terminados no asigna un pedido.
+ * Post-sale production desk. Pedido is the handoff root for context.
+ * Manufacturing annotation remains product-keyed — no Order→ProductionRun invented.
  */
 export default async function ProduccionPage() {
   const identity = await loadProductionIdentity();
   const catalog = loadProductionCatalog();
+  const pedidos = await loadPedidosSafe();
 
   return (
     <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
@@ -29,17 +34,14 @@ export default async function ProduccionPage() {
         description={PRODUCTION_PAGE_COPY.intro}
         action={
           <div className="flex flex-wrap gap-2">
-            <StatusPill tone="neutral">No es pedido</StatusPill>
-            <StatusPill tone="manual">Anotación de planta</StatusPill>
+            <StatusPill tone="info">Pedido como contexto</StatusPill>
+            <StatusPill tone="manual">Anotación confirmada</StatusPill>
           </div>
         }
       />
       <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del
-        catálogo.
-      </p>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un ingreso al Almacén de Productos Terminados no asigna un pedido.
+        Seleccione el pedido para heredar cliente, cotización y líneas. La anotación de planta sigue
+        el producto; no se inventa un SLA automático de fábrica.
       </p>
       <ol className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--isalwa-kiln)]" aria-label="Pasos de planta">
         {PRODUCTION_STEP_LABELS.map((label, index) => (
@@ -54,7 +56,7 @@ export default async function ProduccionPage() {
         </div>
       ) : (
         <div className="mt-8">
-          <ProductionWorkspace
+          <ProductionPostSaleDesk
             status={identity.status}
             organizationId={identity.organizationId}
             memberId={identity.memberId}
@@ -62,12 +64,23 @@ export default async function ProduccionPage() {
             grantedScopes={identity.grantedScopes}
             scopesConfirmed={identity.scopesConfirmed}
             catalog={catalog}
-            productionInternalDate={null}
+            pedidos={pedidos}
+            onCreateExpectedWork={createPostSaleExpectedWorkAction}
           />
         </div>
       )}
     </PageContainer>
   );
+}
+
+async function loadPedidosSafe(): Promise<PostSalePedidoOption[]> {
+  try {
+    const auth = await getServerOsAuthContext();
+    if (!auth) return [];
+    return await loadPostSalePedidos(createOsApiClient(auth));
+  } catch {
+    return [];
+  }
 }
 
 async function loadProductionIdentity(): Promise<{
@@ -79,8 +92,6 @@ async function loadProductionIdentity(): Promise<{
   scopesConfirmed: boolean;
 }> {
   try {
-    // Grants come only from GET /session/authorization via loadMemberCapabilities.
-    // getAuthenticatedSession / member.roleKeys are not a second grant source.
     const context = await loadMemberCapabilities();
     if (!context) {
       return {

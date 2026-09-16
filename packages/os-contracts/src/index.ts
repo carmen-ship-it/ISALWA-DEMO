@@ -46,6 +46,7 @@ export * from './purchase-request';
 export * from './price-list';
 export * from './special-order';
 export * from './warehouse-task';
+export * from './finished-goods-commands';
 export * from './coordination-decision';
 export * from './v1-planned-assignments';
 export * from './governance-proposals';
