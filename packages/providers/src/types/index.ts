@@ -1,3 +1,4 @@
+import type { AiAssistInput, AiAssistResult } from '../ai/types';
 import type { QuotePdfRenderInput } from '../pdf/quote-pdf-document';
 
 export type {
@@ -45,12 +46,15 @@ export interface MapsProvider {
   health(): Promise<'up' | 'degraded' | 'down'>;
 }
 
+export type { AiAssistInput, AiAssistResult, AiAssistEvidenceRef } from '../ai/types';
+
 export interface AiProvider {
   readonly info: ProviderInfo;
   summarizeAccount(input: {
     accountName: string;
     facts: string[];
   }): Promise<{ summary: string; evidence: string[] }>;
+  assist(input: AiAssistInput): Promise<AiAssistResult>;
   health(): Promise<'up' | 'degraded' | 'down'>;
 }
 

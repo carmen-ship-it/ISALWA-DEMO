@@ -20,6 +20,8 @@ import { resolveMemberLabels, memberLabel, type MemberLabelMap } from '@/lib/wor
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import type { IssueDetail, IssueJournalEntry, IssueReference, IssueRelation } from '@/lib/issue/types';
+import { AiAssistPanel } from '@/components/ai/ai-assist-panel';
+import { isAiEnabled } from '@/lib/ai/limits';
 
 type IssueDetailPageProps = {
   params: Promise<{ issueId: string }>;
@@ -311,6 +313,17 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             <RelatedIssuesList relations={issue.relations} />
           </PageSection>
         ) : null}
+
+        <div className="mt-6">
+          <AiAssistPanel
+            title="Ayuda con esta incidencia"
+            feature="ask"
+            subjectType="issue"
+            subjectId={issueId}
+            aiEnabled={isAiEnabled()}
+            promptLabel="Resumir incidencia con IA"
+          />
+        </div>
       </PageContainer>
     );
   } catch (err) {

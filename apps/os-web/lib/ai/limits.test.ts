@@ -6,9 +6,11 @@ import {
   AI_MAX_OUTPUT_TOKENS,
   AI_MAX_PROVIDER_RETRIES,
   AI_ORG_MONTHLY_LIMIT,
+  AI_UNAVAILABLE_COPY,
   AI_USER_DAILY_LIMIT,
   AiNotAllowedError,
   assertAiAllowed,
+  assertAiAssistRequest,
   isAiEnabled,
 } from './limits';
 
@@ -122,6 +124,21 @@ describe('AI limits', () => {
         return true;
       },
     );
+  });
+
+  it('exposes the unavailable copy for UI and API fallbacks', () => {
+    assert.match(AI_UNAVAILABLE_COPY, /no está disponible/);
+  });
+
+  it('validates assist subject types when AI is enabled', () => {
+    process.env.AI_ENABLED = 'true';
+    const request = assertAiAssistRequest({
+      feature: 'summarize_customer',
+      subjectType: 'party',
+      subjectId: 'party-1',
+    });
+    assert.equal(request.feature, 'summarize_customer');
+    assert.equal(request.subjectType, 'party');
   });
 
   it('allows an allowlisted intent under the caps and returns the output cap', () => {

@@ -1,4 +1,4 @@
-import { MockAiProvider } from './ai/mock';
+import { createAiProvider } from './ai/index';
 import { MockEmailProvider } from './email/mock';
 import { MockMapsProvider } from './maps/mock';
 import { MockMessagingProvider } from './messaging/mock';
@@ -25,7 +25,8 @@ export type {
   TerritoryLayerId,
   CreateMapProviderInput,
 } from './maps/index';
-export { MockAiProvider } from './ai/mock';
+export { createAiProvider, MockAiProvider, OpenAiCompatibleAiProvider } from './ai/index';
+export type { AiAssistInput, AiAssistResult, AiAssistEvidenceRef } from './ai/index';
 export { MockStorageProvider } from './storage/mock';
 export { MockSearchProvider } from './search/mock';
 export { MockPdfProvider } from './pdf/mock';
@@ -46,6 +47,9 @@ export type ProviderEnv = {
   MESSAGING_PROVIDER?: string;
   MAPS_PROVIDER?: string;
   AI_PROVIDER?: string;
+  OPENAI_ISALWA_API_KEY?: string;
+  OPENAI_ISALWA_MODEL?: string;
+  OPENAI_ISALWA_BASE_URL?: string;
   STORAGE_PROVIDER?: string;
   SEARCH_PROVIDER?: string;
   PDF_PROVIDER?: string;
@@ -53,6 +57,17 @@ export type ProviderEnv = {
   NODE_ENV?: string;
   ALLOW_MOCK_PROVIDERS?: string;
 };
+
+/** Read-only assist provider selected by AI_PROVIDER (default mock). */
+export function createAiProviderFromEnv(env: ProviderEnv = process.env) {
+  const mode = (env.AI_PROVIDER ?? 'mock').toLowerCase();
+  return createAiProvider({
+    provider: mode,
+    openAiApiKey: env.OPENAI_ISALWA_API_KEY,
+    openAiBaseUrl: env.OPENAI_ISALWA_BASE_URL,
+    openAiModel: env.OPENAI_ISALWA_MODEL,
+  });
+}
 
 /**
  * Create the live Quote PDF provider without requiring the full registry.
@@ -95,7 +110,7 @@ export function createProviderRegistry(env: ProviderEnv = process.env): Provider
 
   const messaging = new MockMessagingProvider();
   const maps = new MockMapsProvider();
-  const ai = new MockAiProvider();
+  const ai = createAiProviderFromEnv(env);
   const storage = new MockStorageProvider();
   const search = new MockSearchProvider();
   const pdf =

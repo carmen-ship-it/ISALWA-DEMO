@@ -13,8 +13,20 @@ export const AI_ALLOWED_INTENTS = ['summarize_customer', 'ask', 'draft_follow_up
 
 export const AI_DENIED_INTENTS = ['approve', 'convert', 'reassign', 'send'] as const;
 
+export const AI_UNAVAILABLE_COPY = 'La ayuda con IA no está disponible en este momento.';
+
+export const AI_ASSIST_SUBJECT_TYPES = ['issue', 'party'] as const;
+
+export type AiAssistSubjectType = (typeof AI_ASSIST_SUBJECT_TYPES)[number];
+
 export type AiAllowedIntent = (typeof AI_ALLOWED_INTENTS)[number];
 export type AiDeniedIntent = (typeof AI_DENIED_INTENTS)[number];
+
+export type AiAssistRequest = {
+  feature: AiAllowedIntent;
+  subjectType: AiAssistSubjectType;
+  subjectId: string;
+};
 
 export type AiAllowanceInput = {
   intent: string;
@@ -46,6 +58,32 @@ export class AiNotAllowedError extends Error {
 /** True only for the exact string `true`. A key in the environment does not enable AI. */
 export function isAiEnabled(): boolean {
   return process.env.AI_ENABLED === 'true';
+}
+
+const SUBJECT_TYPES = new Set<string>(AI_ASSIST_SUBJECT_TYPES);
+
+export function assertAiAssistRequest(input: {
+  feature: string;
+  subjectType: string;
+  subjectId: string;
+}): AiAssistRequest {
+  const subjectId = input.subjectId.trim();
+  if (!subjectId) {
+    throw new AiNotAllowedError('intent_denied', 'Falta el contexto para la asistencia.');
+  }
+  if (!SUBJECT_TYPES.has(input.subjectType)) {
+    throw new AiNotAllowedError('intent_denied', 'La asistencia no está disponible para ese contexto.');
+  }
+  const allowance = assertAiAllowed({
+    intent: input.feature,
+    userDailyCount: 0,
+    orgMonthlyCount: 0,
+  });
+  return {
+    feature: allowance.intent,
+    subjectType: input.subjectType as AiAssistSubjectType,
+    subjectId,
+  };
 }
 
 function requireUsageCount(value: number): boolean {
