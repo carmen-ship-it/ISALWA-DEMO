@@ -1,0 +1,120 @@
+{
+  "at": "2026-09-16T18:47:37.088Z",
+  "sha": "29b6f3f37fcf848a4a16248f34e39eeb33d1e463",
+  "email": "carmen.staging@isalwa.demo",
+  "base": "https://os-web-staging.onrender.com",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "readSafe": true,
+  "routes": {
+    "almacen": {
+      "path": "/almacen",
+      "finalUrl": "https://os-web-staging.onrender.com/almacen",
+      "title": "ISALWA OS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/loop-visual-close/almacen-1440.png",
+      "shotBytes": 165813,
+      "bodyBg": "rgb(246, 241, 232)",
+      "tokens": {
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "mist": "#d9eaf2"
+      },
+      "sidebarW": 280,
+      "warehouseStatus": "ready",
+      "welcomeStill": false,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión ALMACÉN Asignación a pedido El encargado de almacén ",
+      "visual": {
+        "navy": true,
+        "teal": true,
+        "porcelain": true,
+        "bodyBg": "rgb(246, 241, 232)"
+      },
+      "signals": {
+        "wiredPedidoSurface": true,
+        "readyDesk": true,
+        "honestEmpty": true,
+        "pedidoFactsListed": false,
+        "foundationLie": false,
+        "permissionDenyLikely": false
+      },
+      "LOOP_OK": true
+    },
+    "entregas": {
+      "path": "/entregas",
+      "finalUrl": "https://os-web-staging.onrender.com/entregas",
+      "title": "ISALWA OS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/loop-visual-close/entregas-1440.png",
+      "shotBytes": 148176,
+      "bodyBg": "rgb(246, 241, 232)",
+      "tokens": {
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "mist": "#d9eaf2"
+      },
+      "sidebarW": 280,
+      "warehouseStatus": null,
+      "welcomeStill": false,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión ENTREGA Entregas Registro interno de salida y entreg",
+      "visual": {
+        "navy": true,
+        "teal": true,
+        "porcelain": true,
+        "bodyBg": "rgb(246, 241, 232)"
+      },
+      "signals": {
+        "wiredPedidoSurface": true,
+        "readyDesk": true,
+        "honestEmpty": true,
+        "pedidoFactsListed": false,
+        "foundationLie": false,
+        "permissionDenyLikely": false
+      },
+      "LOOP_OK": true
+    },
+    "compras": {
+      "path": "/compras",
+      "finalUrl": "https://os-web-staging.onrender.com/compras",
+      "title": "ISALWA OS",
+      "shot": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/loop-visual-close/compras-1440.png",
+      "shotBytes": 150602,
+      "bodyBg": "rgb(246, 241, 232)",
+      "tokens": {
+        "kiln": "#18324b",
+        "glaze": "#287a78",
+        "porcelain": "#f6f1e8",
+        "mist": "#d9eaf2"
+      },
+      "sidebarW": 280,
+      "warehouseStatus": null,
+      "welcomeStill": false,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa PRODUCCIÓN Excepciones de la empresa COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producción Almacén Compras Finanzas Entregas DECISIONES Coordinación Aprobaciones Memoria de decisiones Incidencias Auditoría Administración Contraer Buscar ⌘K CONECTADO COMO Carmen Cerrar sesión COMPRAS Cola de compras El área responsable pide. La",
+      "visual": {
+        "navy": true,
+        "teal": true,
+        "porcelain": true,
+        "bodyBg": "rgb(246, 241, 232)"
+      },
+      "signals": {
+        "wiredPedidoSurface": true,
+        "readyDesk": true,
+        "honestEmpty": true,
+        "pedidoFactsListed": false,
+        "foundationLie": false,
+        "permissionDenyLikely": false
+      },
+      "LOOP_OK": true
+    }
+  },
+  "login": "OK",
+  "loginUrl": "https://os-web-staging.onrender.com/inicio",
+  "welcomeDismissed": true,
+  "LOOP_BV": "PASS",
+  "VISUAL_NO_REGRESSION": "PASS",
+  "pedidoFactsPresentSomewhere": false,
+  "honestEmptySeen": true,
+  "ok": true
+}
