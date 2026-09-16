@@ -427,6 +427,17 @@ export function createOsApiClient(auth: OsAuthContext) {
         '/qa/effective-access',
         { method: 'GET', query: { memberId } },
       ),
+    listQaSynthPersonas: () =>
+      request<{
+        organizationId: string;
+        items: Array<{
+          email: string;
+          memberId: string;
+          organizationId: string;
+          grantedScopes: string[];
+        }>;
+        gaps?: { peopleAdminPersona?: string };
+      }>('/qa/synth-personas', { method: 'GET' }),
     requestAiAssist: (body: { feature: string; subjectType: string; subjectId: string }) =>
       request<AiAssistResponse>('/ai/assist', {
         method: 'POST',

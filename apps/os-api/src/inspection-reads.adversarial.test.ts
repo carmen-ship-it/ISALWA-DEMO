@@ -353,6 +353,7 @@ const HTTP_CLASSIFICATION: Record<string, string> = {
   'GET /memory/evidence': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /product-feedback': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
   'GET /qa/effective-access': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
+  'GET /qa/synth-personas': 'AUTH_PATH_VERIFIED_LOCAL|LOCAL_HTTP_VERIFIED',
 };
 
 function getRoutes(source: string): string[] {

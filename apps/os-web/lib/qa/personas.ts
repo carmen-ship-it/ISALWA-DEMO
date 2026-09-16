@@ -5,7 +5,12 @@ import {
   V1_PLANNED_ASSIGNMENTS,
   type V1PlannedFunctionId,
 } from '@isalwa/os-contracts';
-import { QA_SYNTH_ORGANIZATION_ID } from '@/lib/qa/constants';
+import {
+  QA_REAL_ORGANIZATION_ID,
+  QA_SYNTH_ORGANIZATION_ID,
+} from '@/lib/qa/constants';
+
+export type SynthPersonaSource = 'receipt' | 'planned' | 'staging';
 
 export type SynthPersona = {
   id: string;
@@ -15,11 +20,25 @@ export type SynthPersona = {
   email: string;
   memberId: string | null;
   grantedScopes: readonly string[];
-  source: 'receipt' | 'planned';
+  source: SynthPersonaSource;
 };
 
+export type StagingPersonaLookupRow = {
+  email: string;
+  memberId: string;
+  organizationId?: string;
+  grantedScopes: readonly string[];
+};
+
+/**
+ * Gap (intentional): Wave 2 fixtures / V1 planned map do not include a People Admin
+ * SYNTH persona. Do not invent `people.admin` for Ver Como.
+ */
+export const PEOPLE_ADMIN_SYNTH_PERSONA_GAP =
+  'No hay persona People Admin SYNTH en el catálogo Wave 2 (people.admin excluido del mapa V1).';
+
 /** Matches Wave 2 fixture ROLE_EMAILS (business personas only). */
-const WAVE2_PERSONA_EMAIL: Record<V1PlannedFunctionId, string> = {
+export const WAVE2_PERSONA_EMAIL: Record<V1PlannedFunctionId, string> = {
   'asesor-comercial': 'w2.asesor@isalwa.demo',
   'jefe-comercial': 'w2.jefe@isalwa.demo',
   'gerente-general': 'w2.gerente@isalwa.demo',
@@ -146,17 +165,83 @@ function waveBIssuePersonas(): SynthPersona[] {
   return extras;
 }
 
+/**
+ * Local/dev path: planned V1 map + optional ~/.isalwa-secrets receipts.
+ * Hosted Render has no homedir receipt — use resolveSynthPersonas with OS API.
+ */
 export function loadSynthPersonas(): SynthPersona[] {
   const base = mergeWave2Receipt(plannedPersonas());
   return [...base, ...waveBIssuePersonas()];
 }
 
-export function findSynthPersonaByMemberId(memberId: string): SynthPersona | null {
-  const trimmed = memberId.trim();
-  if (!trimmed) return null;
-  return loadSynthPersonas().find((p) => p.memberId === trimmed) ?? null;
+/**
+ * Fill null memberIds from staging truth (fixture email → SYNTH member).
+ * Local receipt wins when already present. Fail-closed for REAL org rows.
+ */
+export function mergeStagingPersonaLookups(
+  personas: SynthPersona[],
+  stagingRows: readonly StagingPersonaLookupRow[],
+): SynthPersona[] {
+  const byEmail = new Map<string, StagingPersonaLookupRow>();
+  for (const row of stagingRows) {
+    const email = row.email.trim().toLowerCase();
+    const memberId = row.memberId.trim();
+    if (!email || !memberId) continue;
+    if (row.organizationId === QA_REAL_ORGANIZATION_ID) continue;
+    if (row.organizationId && row.organizationId !== QA_SYNTH_ORGANIZATION_ID) continue;
+    byEmail.set(email, row);
+  }
+  return personas.map((p) => {
+    if (p.memberId) return p;
+    const row = byEmail.get(p.email.trim().toLowerCase());
+    if (!row) return p;
+    return {
+      ...p,
+      memberId: row.memberId.trim(),
+      grantedScopes: row.grantedScopes.length ? [...row.grantedScopes] : p.grantedScopes,
+      source: 'staging' as const,
+    };
+  });
 }
 
-export function isAllowedQaTargetMemberId(memberId: string): boolean {
-  return findSynthPersonaByMemberId(memberId) !== null;
+export type StagingPersonaLookup = () => Promise<readonly StagingPersonaLookupRow[]>;
+
+/**
+ * Prefer local receipt; when absent, resolve SYNTH memberIds via staging lookup.
+ * Fail-soft on lookup errors: leave planned-only (Ver como stays disabled).
+ */
+export async function resolveSynthPersonas(
+  lookup?: StagingPersonaLookup,
+): Promise<SynthPersona[]> {
+  const base = loadSynthPersonas();
+  const needsStaging = base.some((p) => !p.memberId);
+  if (!needsStaging || !lookup) return base;
+  try {
+    const rows = await lookup();
+    return mergeStagingPersonaLookups(base, rows);
+  } catch {
+    return base;
+  }
+}
+
+export function findSynthPersonaByMemberId(
+  memberId: string,
+  personas: readonly SynthPersona[] = loadSynthPersonas(),
+): SynthPersona | null {
+  const trimmed = memberId.trim();
+  if (!trimmed) return null;
+  return personas.find((p) => p.memberId === trimmed) ?? null;
+}
+
+export function isAllowedQaTargetMemberId(
+  memberId: string,
+  personas: readonly SynthPersona[] = loadSynthPersonas(),
+): boolean {
+  return findSynthPersonaByMemberId(memberId, personas) !== null;
+}
+
+export function personaSourceLabel(source: SynthPersonaSource): string {
+  if (source === 'receipt') return 'recibo local';
+  if (source === 'staging') return 'verdad staging';
+  return 'mapa planificado V1';
 }

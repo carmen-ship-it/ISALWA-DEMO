@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { QA_ACCESS_SCOPE, canUseQaAccess } from '@isalwa/os-contracts';
-import { createOsApiClient } from '@/lib/api/os-api-client';
+import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import {
@@ -16,7 +16,12 @@ import {
   parseSignedQaViewCookie,
   qaViewCookieOptions,
 } from '@/lib/qa/cookie';
-import { findSynthPersonaByMemberId, isAllowedQaTargetMemberId } from '@/lib/qa/personas';
+import {
+  findSynthPersonaByMemberId,
+  isAllowedQaTargetMemberId,
+  resolveSynthPersonas,
+  type SynthPersona,
+} from '@/lib/qa/personas';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
 
 async function requireQaOperator() {
@@ -37,18 +42,40 @@ async function requireQaOperator() {
   if (actorOrgId === QA_SYNTH_ORGANIZATION_ID) {
     // Operators act from REAL (or other) tenant; never impersonate from within SYNTH session swap.
   }
-  return { actingMemberId, actorOrgId, grantedScopes };
+  return { actingMemberId, actorOrgId, grantedScopes, client };
+}
+
+function stagingLookup(client: OsApiClient) {
+  return async () => {
+    const { items } = await client.listQaSynthPersonas();
+    return items;
+  };
+}
+
+export async function loadOperatorSynthPersonas(client: OsApiClient): Promise<SynthPersona[]> {
+  return resolveSynthPersonas(stagingLookup(client));
 }
 
 export async function startQaView(formData: FormData): Promise<void> {
-  const { actingMemberId } = await requireQaOperator();
+  const { actingMemberId, client } = await requireQaOperator();
   const targetMemberId = String(formData.get('targetMemberId') ?? '').trim();
   if (!targetMemberId) throw new Error('TARGET_REQUIRED');
-  if (!isAllowedQaTargetMemberId(targetMemberId)) {
+
+  const personas = await loadOperatorSynthPersonas(client);
+  if (!isAllowedQaTargetMemberId(targetMemberId, personas)) {
     throw new Error('TARGET_NOT_ALLOWED');
   }
-  const persona = findSynthPersonaByMemberId(targetMemberId);
+  const persona = findSynthPersonaByMemberId(targetMemberId, personas);
   if (!persona?.memberId) throw new Error('TARGET_RECEIPT_MISSING');
+
+  // Hosted fail-closed: confirm target remains SYNTH via effective-access.
+  const live = await client.getQaEffectiveAccess(persona.memberId);
+  if (live.organizationId !== QA_SYNTH_ORGANIZATION_ID) {
+    throw new Error('TARGET_NOT_ALLOWED');
+  }
+  if (live.organizationId === QA_REAL_ORGANIZATION_ID) {
+    throw new Error('TARGET_NOT_ALLOWED');
+  }
 
   const value = createSignedQaViewCookieValue({
     actingMemberId,
@@ -79,6 +106,19 @@ export async function readActiveQaView() {
   if (!payload) return null;
   if (payload.synthOrgId === QA_REAL_ORGANIZATION_ID) return null;
   if (payload.synthOrgId !== QA_SYNTH_ORGANIZATION_ID) return null;
-  const persona = findSynthPersonaByMemberId(payload.targetMemberId);
+
+  let persona = findSynthPersonaByMemberId(payload.targetMemberId);
+  if (!persona) {
+    try {
+      const auth = await getServerOsAuthContext({ skipQaView: true });
+      if (auth) {
+        const client = createOsApiClient(auth);
+        const personas = await loadOperatorSynthPersonas(client);
+        persona = findSynthPersonaByMemberId(payload.targetMemberId, personas);
+      }
+    } catch {
+      persona = null;
+    }
+  }
   return { payload, persona };
 }

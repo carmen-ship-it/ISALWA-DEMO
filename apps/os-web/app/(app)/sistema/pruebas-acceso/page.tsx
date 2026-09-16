@@ -12,10 +12,10 @@ import { AccessDeniedState } from '@/components/states/app-states';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
-import { startQaView, readActiveQaView } from '@/lib/qa/actions';
+import { loadOperatorSynthPersonas, startQaView, readActiveQaView } from '@/lib/qa/actions';
 import { buildAccessMatrix } from '@/lib/qa/access-matrix';
 import { qaControlSurfaceAllowed } from '@/lib/qa/authorization';
-import { loadSynthPersonas } from '@/lib/qa/personas';
+import { personaSourceLabel, PEOPLE_ADMIN_SYNTH_PERSONA_GAP } from '@/lib/qa/personas';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
 
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ export default async function PruebasAccesoPage() {
     );
   }
 
-  const personas = loadSynthPersonas();
+  const personas = await loadOperatorSynthPersonas(client);
   const activeView = await readActiveQaView();
   const liveScopes = new Map<string, readonly string[]>();
   await Promise.all(
@@ -47,7 +47,7 @@ export default async function PruebasAccesoPage() {
         const row = await client.getQaEffectiveAccess(persona.memberId);
         liveScopes.set(persona.id, row.grantedScopes);
       } catch {
-        // Receipt scopes remain until live evaluation is available.
+        // Receipt/staging scopes remain until live evaluation is available.
       }
     }),
   );
@@ -76,11 +76,15 @@ export default async function PruebasAccesoPage() {
           <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
             Seleccione una persona de aceptación. Solo miembros del tenant SYNTH Wave 2.
           </p>
+          <p className="mt-2 text-xs text-[var(--isalwa-slate)]">{PEOPLE_ADMIN_SYNTH_PERSONA_GAP}</p>
           <ul className="mt-6 divide-y divide-[var(--isalwa-mist)]">
             {personas.map((persona) => {
               const scopes = liveScopes.get(persona.id) ?? persona.grantedScopes;
               const matrix = buildAccessMatrix(scopes);
               const canStart = Boolean(persona.memberId);
+              const matrixSource = liveScopes.has(persona.id)
+                ? 'acceso efectivo en vivo'
+                : personaSourceLabel(persona.source);
               return (
                 <li key={persona.id} className="py-6 first:pt-0 last:pb-0">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -88,11 +92,12 @@ export default async function PruebasAccesoPage() {
                       <p className="font-medium text-[var(--isalwa-kiln)]">{persona.label}</p>
                       <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{persona.email}</p>
                       <p className="isalwa-kicker mt-2">
-                        Origen: {persona.source === 'receipt' ? 'recibo local' : 'mapa planificado V1'}
+                        Origen: {personaSourceLabel(persona.source)}
+                        {canStart ? ` · Matriz: ${matrixSource}` : null}
                       </p>
                       {!canStart ? (
                         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                          Ejecute el fixture Wave 2 en staging para obtener memberId en el recibo local.
+                          Sin memberId SYNTH resuelto (recibo local ausente y staging no devolvió este email).
                         </p>
                       ) : null}
                     </div>
