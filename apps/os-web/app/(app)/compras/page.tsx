@@ -85,12 +85,13 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
         líneas del pedido aquí. La cola de compras no inventa inventario.
       </p>
       {orders.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          title="Sin pedidos abiertos para vincular"
-          description="Cuando exista un pedido en esta empresa, aparecerá aquí. La cola local vacía no es un fallo de stock."
-          example="Abra el pedido desde el cliente. No se duplican líneas comerciales en compras."
-        />
+        <div data-owner-review-state="no-data" className="mt-6">
+          <EmptyState
+            title="Sin pedidos abiertos para vincular"
+            description="Cuando exista un pedido en esta empresa, aparecerá aquí. La cola vacía no es un fallo de stock ni falta de permiso."
+            example="Abra el pedido desde el cliente. No se duplican líneas comerciales en compras."
+          />
+        </div>
       ) : (
         <ul className="mt-6">
           {orders.map((order) => (

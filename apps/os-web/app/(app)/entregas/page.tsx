@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
+import {
+  OWNER_REVIEW_V1_COPY,
+  V1FlowValidateNotice,
+} from '@/components/owner-review/v1-flow-validate-notice';
 import { PageHeader } from '@/components/shell/page-header';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
@@ -21,8 +25,14 @@ export default async function EntregasPage() {
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="neutral">Sin número oficial</StatusPill>
             <StatusPill tone="manual">Registro interno</StatusPill>
+            <StatusPill tone="manual">Versión 1 · por validar</StatusPill>
           </div>
         }
+      />
+      <V1FlowValidateNotice
+        className="mb-6"
+        title={OWNER_REVIEW_V1_COPY.entregasTitle}
+        description={OWNER_REVIEW_V1_COPY.entregasDescription}
       />
       <LinkedOrdersSection orders={view.linkedOrders} />
       <EntregaPanel
@@ -49,12 +59,13 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
         Abra el pedido ya registrado de la lista. No se inventa una entrega desde el pedido.
       </p>
       {orders.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          title="Todavía no hay pedidos abiertos"
-          description="Cuando exista un pedido en esta empresa, aparecerá aquí para vincular salidas y entregas sin volver a escribir las líneas."
-          example="Convierta una cotización aceptada a pedido desde el cliente. Aquí no se crean pedidos."
-        />
+        <div data-owner-review-state="no-data" className="mt-6">
+          <EmptyState
+            title="Todavía no hay pedidos abiertos"
+            description="Cuando exista un pedido en esta empresa, aparecerá aquí para vincular salidas y entregas sin volver a escribir las líneas."
+            example="Convierta una cotización aceptada a pedido desde el cliente. Aquí no se crean pedidos."
+          />
+        </div>
       ) : (
         <ul className="mt-6">
           {orders.map((order) => (

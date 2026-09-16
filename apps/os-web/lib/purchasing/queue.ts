@@ -22,9 +22,9 @@ export const COMPRAS_COPY = {
   description:
     'El área responsable pide. La encargada de compras compra. Esta cola no es inventario.',
   boundary: PURCHASE_REQUEST_BOUNDARY,
-  emptyTitle: 'Todavía no hay pedidos en la cola',
+  emptyTitle: 'Cola de compras · estructura propuesta',
   emptyDescription:
-    'El área responsable pide. La encargada de compras compra. Un pedido no prueba que no haya stock.',
+    'Esta Versión 1 muestra la estructura propuesta para Compras. Antes de formalizar el registro y sus estados, queremos validar con ustedes cómo funciona realmente el proceso. Un vacío aquí no significa que falte un permiso ni que el inventario esté en cero.',
   loading: 'Cargando la cola de compras',
   errorTitle: 'No se pudo cargar la cola de compras',
   errorDescription: 'La cola no se mostró. No hay un resultado de otra empresa.',

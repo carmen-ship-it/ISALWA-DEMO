@@ -11,6 +11,10 @@ import {
   StatusPill,
 } from '@isalwa/ui';
 import { SearchableSelect } from '@/components/experience/searchable-select';
+import {
+  OWNER_REVIEW_V1_COPY,
+  V1FlowValidateNotice,
+} from '@/components/owner-review/v1-flow-validate-notice';
 import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import {
@@ -74,18 +78,33 @@ export function WarehouseDesk({
   const empty =
     view.waiting.length === 0 && view.pedidos.length === 0 && view.allocations.length === 0;
 
+  const persistWriteMounted = Boolean(onAllocate);
+
   return (
     <OpsDeskSurface className="space-y-6" data-warehouse-boundary="allocation" data-warehouse-status="ready">
       <BoundaryNotes />
-      {empty ? (
-        <EmptyState
-          title="Todavía no hay producto para asignar"
-          description="Cuando haya ingreso a Almacén de Productos Terminados y pedidos de esta empresa, aparecerán aquí. Un vacío no es cero de stock ni un error de pantalla."
-          example="Espere un Listo de planta o un pedido real. No se inventan cantidades ni asignaciones."
+      {!persistWriteMounted ? (
+        <V1FlowValidateNotice
+          title={OWNER_REVIEW_V1_COPY.almacenTitle}
+          description={OWNER_REVIEW_V1_COPY.almacenDescription}
         />
       ) : null}
+      {empty ? (
+        <div data-owner-review-state="no-data">
+          <EmptyState
+            title="Todavía no hay producto para asignar"
+            description="Cuando haya ingreso a Almacén de Productos Terminados y pedidos de esta empresa, aparecerán aquí. Un vacío no es cero de stock ni un error de pantalla."
+            example="Espere un Listo de planta o un pedido real. No se inventan cantidades ni asignaciones."
+          />
+        </div>
+      ) : null}
       <WaitingSection view={view} />
-      <AllocateSection view={view} canAllocate={canAllocate} onAllocate={onAllocate} />
+      <AllocateSection
+        view={view}
+        canAllocate={canAllocate}
+        persistWriteMounted={persistWriteMounted}
+        onAllocate={onAllocate}
+      />
       <RemainsSection view={view} />
       <HistorySection view={view} canAllocate={canAllocate} onCorrect={onCorrect} />
       <ExitNote />
@@ -141,10 +160,12 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
 function AllocateSection({
   view,
   canAllocate,
+  persistWriteMounted,
   onAllocate,
 }: {
   view: WarehouseTaskView;
   canAllocate: boolean;
+  persistWriteMounted: boolean;
   onAllocate?: (draft: AllocateDraft) => void;
 }) {
   const choosable = view.allocatable.filter((row) => row.canChooseQuantity && row.availableQuantity);
@@ -156,7 +177,7 @@ function AllocateSection({
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (!onAllocate || !canAllocate || !orderLineId || !productId || !quantity.trim()) return;
+    if (!onAllocate || !canAllocate || !persistWriteMounted || !orderLineId || !productId || !quantity.trim()) return;
     onAllocate({ orderLineId, productId, quantity: quantity.trim() });
   }
 
@@ -199,7 +220,9 @@ function AllocateSection({
         {WAREHOUSE_TASK_COPY.pedido}
       </h3>
       {view.pedidos.length === 0 ? (
-        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.emptyPedidos}</p>
+        <div data-owner-review-state="no-data">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.emptyPedidos}</p>
+        </div>
       ) : (
         <ul className="mt-3" aria-label={WAREHOUSE_TASK_COPY.pedido}>
           {view.pedidos.map((pedido) => (
@@ -209,7 +232,7 @@ function AllocateSection({
           ))}
         </ul>
       )}
-      {canAllocate && onAllocate && choosable.length > 0 && pedidos.length > 0 ? (
+      {canAllocate && persistWriteMounted && onAllocate && choosable.length > 0 && pedidos.length > 0 ? (
         <form className="mt-8 space-y-4" onSubmit={submit}>
           <SearchableSelect
             id="warehouse-product"
@@ -251,18 +274,25 @@ function AllocateSection({
           </div>
         </form>
       ) : !canAllocate ? (
-        <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.permissionRole}</p>
+        <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-owner-review-state="not-authorized">
+          {WAREHOUSE_TASK_COPY.permissionRole}
+        </p>
+      ) : !persistWriteMounted ? (
+        <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          El contexto de pedidos y producto se muestra arriba. No hay un botón de asignación definitiva en esta Versión 1.
+        </p>
       ) : choosable.length === 0 || pedidos.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          title={view.pedidos.length === 0 ? WAREHOUSE_TASK_COPY.emptyPedidos : WAREHOUSE_TASK_COPY.emptyWaiting}
-          description={
-            view.pedidos.length === 0
-              ? 'Los pedidos de esta empresa aparecerán cuando existan. No se inventan líneas ni cantidades.'
-              : WAREHOUSE_TASK_COPY.unknownAvailability
-          }
-          example="Si falta producto terminado, espere Listo en Producción. Si faltan pedidos, espere carga comercial."
-        />
+        <div data-owner-review-state="no-data" className="mt-6">
+          <EmptyState
+            title={view.pedidos.length === 0 ? WAREHOUSE_TASK_COPY.emptyPedidos : WAREHOUSE_TASK_COPY.emptyWaiting}
+            description={
+              view.pedidos.length === 0
+                ? 'Los pedidos de esta empresa aparecerán cuando existan. No se inventan líneas ni cantidades.'
+                : WAREHOUSE_TASK_COPY.unknownAvailability
+            }
+            example="Si falta producto terminado, espere Listo en Producción. Si faltan pedidos, espere carga comercial."
+          />
+        </div>
       ) : null}
     </PageSection>
   );
@@ -420,7 +450,7 @@ function WarehousePermission({ denial }: { denial: WarehouseDenialReason }) {
           ? WAREHOUSE_TASK_COPY.permissionNoSession
           : WAREHOUSE_TASK_COPY.permissionRole;
   return (
-    <OpsDeskSurface data-warehouse-status="denied" role="alert">
+    <OpsDeskSurface data-warehouse-status="denied" role="alert" data-owner-review-state="not-authorized">
       <EmptyState
         title={WAREHOUSE_TASK_COPY.permissionTitle}
         description={description}

@@ -66,7 +66,7 @@ export function PurchaseRequestPanel({
 }: PurchaseRequestPanelProps) {
   if (state === 'permission') {
     return (
-      <OpsDeskSurface data-compras-status="denied" role="alert">
+      <OpsDeskSurface data-compras-status="denied" role="alert" data-owner-review-state="not-authorized">
         <EmptyState
           title={COMPRAS_COPY.permissionTitle}
           description={COMPRAS_COPY.permissionDescription}
@@ -84,12 +84,13 @@ export function PurchaseRequestPanel({
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill tone="manual">No es inventario</StatusPill>
         <StatusPill tone="neutral">No prueba falta de stock</StatusPill>
+        <StatusPill tone="manual">Versión 1 · por validar</StatusPill>
       </div>
       <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Un pedido de compra no prueba que no haya stock. No genera una recompra automática.
       </p>
       <p className="mt-3 text-xs font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">
-        Camino habitual
+        Camino habitual (propuesto)
       </p>
       <ol className="mt-2 flex flex-wrap gap-2" aria-label="Pasos de la compra">
         {HAPPY_PATH.map((label) => (
@@ -99,7 +100,7 @@ export function PurchaseRequestPanel({
         ))}
       </ol>
       <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-        Cancelado no es un paso. Solo detiene un pedido equivocado.
+        Cancelado no es un paso. Solo detiene un pedido equivocado. Los estados se formalizarán después de validar el proceso real.
       </p>
       <div className="mt-8">{renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}</div>
     </PageSection>
@@ -217,20 +218,24 @@ function QueueList({
         </p>
       ) : null}
       {items.length === 0 ? (
-        <EmptyState
+        <div
           className="mt-6"
-          title={filterActive ? 'Ningún pedido coincide con el filtro' : COMPRAS_COPY.emptyTitle}
-          description={
-            filterActive
-              ? 'Pruebe otro estado o quite los filtros. La cola no inventa pedidos.'
-              : COMPRAS_COPY.emptyDescription
-          }
-          example={
-            filterActive
-              ? 'Quitar filtros muestra toda la cola de esta empresa.'
-              : 'Cuando un área pida un ítem, aparecerá aquí para la encargada de compras.'
-          }
-        />
+          data-owner-review-state={filterActive ? 'no-data' : 'v1-flow-to-validate'}
+        >
+          <EmptyState
+            title={filterActive ? 'Ningún pedido coincide con el filtro' : COMPRAS_COPY.emptyTitle}
+            description={
+              filterActive
+                ? 'Pruebe otro estado o quite los filtros. La cola no inventa pedidos.'
+                : COMPRAS_COPY.emptyDescription
+            }
+            example={
+              filterActive
+                ? 'Quitar filtros muestra toda la cola de esta empresa.'
+                : 'No se crea un pedido de compra persistido desde aquí hasta formalizar el proceso con la empresa.'
+            }
+          />
+        </div>
       ) : (
         <ul className="mt-4" aria-label={COMPRAS_COPY.title}>
           {items.map((item) => (

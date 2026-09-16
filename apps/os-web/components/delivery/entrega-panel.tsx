@@ -96,8 +96,8 @@ function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
       {items.length === 0 ? (
         <EmptyState
           title="Sin movimientos todavía"
-          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden. Un vacío es intencional: no hay registro interno aún."
-          example="Registre primero una salida de almacén; la nota de entrega al cliente es otro hecho."
+          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden. Un vacío es intencional: no hay registro interno guardado aún."
+          example="Cuando exista un registro formalizado, saldrá aquí en orden cronológico."
         />
       ) : (
         <Timeline
@@ -144,7 +144,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
   if (surface === 'permission') {
     return (
-      <div data-entrega-boundary="permission" role="alert">
+      <div data-entrega-boundary="permission" role="alert" data-owner-review-state="not-authorized">
         <EmptyState
           title="No tiene permiso para ver este registro de entrega."
           description="Este es un registro interno de entrega. No reclama un número oficial."
@@ -163,11 +163,13 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
       </div>
 
       {warehouseExits.length === 0 && deliveries.length === 0 ? (
-        <EmptyState
-          title="Todavía no hay entregas registradas"
-          description="La empresa aún no tiene salidas de almacén ni notas de entrega internas. No se inventan movimientos."
-          example="Cuando almacén registre una salida, aparecerá en la cronología y en la sección de salida."
-        />
+        <div data-owner-review-state="no-data">
+          <EmptyState
+            title="Todavía no hay entregas registradas"
+            description="La empresa aún no tiene salidas de almacén ni notas de entrega internas guardadas. Un vacío de datos no es falta de permiso."
+            example="Cuando exista un registro formalizado de salida o llegada, aparecerá en la cronología."
+          />
+        </div>
       ) : null}
 
       <Chronology warehouseExits={warehouseExits} deliveries={deliveries} />
@@ -187,12 +189,13 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           genera un número aquí; una referencia impresa externa puede anotarse como origen.
         </p>
         {warehouseExits.length === 0 ? (
-          <EmptyState
-            className="mt-8"
-            title="Todavía no hay salida de almacén"
-            description="Una salida de almacén no crea la nota de entrega. El vacío significa que aún no se registró una salida real."
-            example="Cuando salga mercadería del almacén, anótela aquí. No use esta pantalla para inventar stock."
-          />
+          <div data-owner-review-state="no-data" className="mt-8">
+            <EmptyState
+              title="Todavía no hay salida de almacén"
+              description="Una salida de almacén no crea la nota de entrega. El vacío significa que aún no hay un registro guardado de salida."
+              example="El registro definitivo de salida se formalizará después de validar el flujo con la empresa."
+            />
+          </div>
         ) : (
           <ul className="mt-8 space-y-8" aria-label="Salidas de almacén">
             {warehouseExits.map((exit) => (
@@ -237,12 +240,13 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           libro.
         </p>
         {deliveries.length === 0 ? (
-          <EmptyState
-            className="mt-8"
-            title="Todavía no hay una entrega registrada."
-            description="La nota de entrega se crea solo cuando la mercadería llega al cliente final. Un vacío no inventa llegada ni número oficial."
-            example="Después de una salida de almacén, registre la llegada al cliente aquí — no en el pedido."
-          />
+          <div data-owner-review-state="no-data" className="mt-8">
+            <EmptyState
+              title="Todavía no hay una entrega registrada."
+              description="La nota de entrega se crea solo cuando la mercadería llega al cliente final. Un vacío no inventa llegada ni número oficial."
+              example="El registro definitivo de llegada se formalizará después de validar el flujo con la empresa."
+            />
+          </div>
         ) : (
           <ul className="mt-8 space-y-10" aria-label="Entregas al cliente">
             {deliveries.map((delivery) => {
