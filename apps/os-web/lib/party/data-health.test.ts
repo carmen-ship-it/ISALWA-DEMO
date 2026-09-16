@@ -44,6 +44,9 @@ describe('data health from loaded customers', () => {
     assert.match(shared?.action ?? '', /No se fusiona/);
     assert.match(shared?.boundary ?? '', /No se elige un ganador/);
     assert.match(shared?.boundary ?? '', /No se geocodifica/);
+    assert.equal(shared?.type, 'revision');
+    assert.equal(shared?.status, 'hallazgo');
+    assert.equal('severity' in (shared ?? {}), false);
     assert.equal('resolvedWinner' in (shared ?? {}), false);
     assert.doesNotMatch(JSON.stringify(issues), /ubicación correcta es|coordenada inventada|-16\./);
     assert.equal(DATA_HEALTH_BOUNDARY.includes('no geocodifica'), true);

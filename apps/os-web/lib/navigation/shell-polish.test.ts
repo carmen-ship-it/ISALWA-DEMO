@@ -77,6 +77,8 @@ describe('role-aware nav labeling (no authority change)', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'memoria-decisiones',
+      'salud-datos',
       'incidencias',
     ]);
   });
@@ -120,7 +122,31 @@ describe('nav hierarchy groups', () => {
     assert.equal(sections.find((s) => s.group === 'operaciones')?.label, 'Operaciones');
     assert.deepEqual(
       sections.flatMap((s) => s.items.map((i) => i.id)),
-      visible.map((i) => i.id),
+      [
+        'inicio',
+        'clientes',
+        'mapa',
+        'oportunidades',
+        'cotizaciones',
+        'trabajo',
+        'salud-datos',
+        'productos',
+        'produccion',
+        'almacen',
+        'compras',
+        'finanzas',
+        'entregas',
+        'coordinacion',
+        'aprobaciones',
+        'memoria-decisiones',
+        'incidencias',
+        'auditoria',
+        'administracion',
+      ],
+    );
+    assert.deepEqual(
+      new Set(sections.flatMap((s) => s.items.map((i) => i.id))),
+      new Set(visible.map((i) => i.id)),
     );
   });
 });

@@ -3,8 +3,9 @@
 import { createContext, useContext, useEffect, useId, useRef, useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, Menu, X } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
+import { cx } from '@isalwa/ui';
 import { AppNav } from '@/components/shell/app-nav';
 import { ShellBreadcrumbs } from '@/components/shell/shell-breadcrumbs';
 import { WalkthroughShell } from '@/components/walkthrough/walkthrough-shell';
@@ -13,6 +14,7 @@ import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/comman
 import { UserMenu } from '@/components/shell/user-menu';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
+import { loadUiPreferences, saveUiPreferences } from '@/lib/shell/ui-preferences';
 
 const ShellIdentityContext = createContext<string | null>(null);
 
@@ -45,12 +47,25 @@ export function AppShell({
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [prefsReady, setPrefsReady] = useState(false);
   const [signingOut, startSignOut] = useTransition();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const mobileTitleId = useId();
+
+  useEffect(() => {
+    const prefs = loadUiPreferences(window.localStorage);
+    setSidebarCollapsed(prefs.sidebarCollapsed);
+    setPrefsReady(true);
+  }, []);
+
+  function persistSidebarCollapsed(next: boolean) {
+    setSidebarCollapsed(next);
+    saveUiPreferences(window.localStorage, { sidebarCollapsed: next });
+  }
 
   useEffect(() => {
     function onPageShow(event: PageTransitionEvent) {
@@ -121,27 +136,87 @@ export function AppShell({
   }, [mobileOpen]);
 
   const actorLabel = givenName ?? displayLabel;
+  const railCollapsed = prefsReady && sidebarCollapsed;
 
   return (
     <ShellIdentityContext.Provider value={givenName}>
-      <div className="min-h-screen bg-[var(--isalwa-surface-canvas)] lg:grid lg:grid-cols-[17.5rem_1fr]">
-        {/* Desktop rail — kiln/beige porcelain; sticky for orientation. */}
-        <aside className="hidden border-r border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto">
-          <div className="px-6 pb-4 pt-8">
+      <div
+        className={cx(
+          'min-h-screen bg-[var(--isalwa-surface-canvas)] lg:grid',
+          railCollapsed ? 'lg:grid-cols-[4.5rem_1fr]' : 'lg:grid-cols-[17.5rem_1fr]',
+        )}
+      >
+        {/* Desktop rail — porcelain structure; sticky. Collapses to icon rail ≥ lg only. */}
+        <aside
+          id="desktop-nav-rail"
+          className={cx(
+            'hidden border-r border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto',
+            railCollapsed ? 'lg:w-[4.5rem]' : 'lg:w-[17.5rem]',
+          )}
+          data-sidebar={railCollapsed ? 'collapsed' : 'expanded'}
+        >
+          <div className={cx(railCollapsed ? 'px-2 pb-3 pt-6' : 'px-6 pb-4 pt-8')}>
             <Link
               href="/inicio"
               className="block rounded-[var(--isalwa-radius-control)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+              title={t('app.name')}
             >
-              <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
-                {t('app.name')}
-              </p>
-              <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                {t('app.tagline')}
-              </p>
+              {railCollapsed ? (
+                <p
+                  aria-label={t('app.name')}
+                  className="flex h-10 items-center justify-center font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-none text-[var(--isalwa-kiln)]"
+                >
+                  I
+                </p>
+              ) : (
+                <>
+                  <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
+                    {t('app.name')}
+                  </p>
+                  <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                    {t('app.tagline')}
+                  </p>
+                </>
+              )}
             </Link>
           </div>
-          <div className="flex-1 px-4 pb-8 pt-2">
-            <AppNav showAdmin={showAdmin} grantedScopes={grantedScopes} capabilities={capabilities} />
+          <div className={cx('flex-1 pb-4 pt-2', railCollapsed ? 'px-1.5' : 'px-4')}>
+            <AppNav
+              showAdmin={showAdmin}
+              grantedScopes={grantedScopes}
+              capabilities={capabilities}
+              collapsed={railCollapsed}
+            />
+          </div>
+          <div
+            className={cx(
+              'mt-auto border-t border-[var(--isalwa-mist)] pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+              railCollapsed ? 'px-1.5 py-3' : 'px-4 py-3',
+            )}
+          >
+            <button
+              type="button"
+              className={cx(
+                'isalwa-t-fast inline-flex h-10 w-full items-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-white)] focus-visible:shadow-[var(--isalwa-shadow-focus)]',
+                railCollapsed ? 'justify-center px-0' : 'justify-start gap-2 px-3.5 text-sm font-medium',
+              )}
+              aria-expanded={!railCollapsed}
+              aria-controls="desktop-nav-rail"
+              title={railCollapsed ? 'Expandir menú' : 'Contraer menú'}
+              onClick={() => persistSidebarCollapsed(!railCollapsed)}
+            >
+              {railCollapsed ? (
+                <>
+                  <span className="sr-only">Expandir menú</span>
+                  <ChevronsRight size={18} strokeWidth={1.75} aria-hidden />
+                </>
+              ) : (
+                <>
+                  <ChevronsLeft size={18} strokeWidth={1.75} aria-hidden />
+                  <span>Contraer</span>
+                </>
+              )}
+            </button>
           </div>
         </aside>
 

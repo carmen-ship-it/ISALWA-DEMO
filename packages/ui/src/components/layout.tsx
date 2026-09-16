@@ -32,14 +32,30 @@ export type PageSectionProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;
   /** Wrap in Panel-like white card */
   card?: boolean;
+  /**
+   * Controlled operating surface when `card` is set.
+   * ops = white · context = sky · active = teal · attention = amber
+   */
+  surface?: 'ops' | 'context' | 'active' | 'attention';
 };
 
-export function PageSection({ children, className, card, ...rest }: PageSectionProps) {
+const SURFACE_BG: Record<NonNullable<PageSectionProps['surface']>, string> = {
+  ops: 'bg-[var(--isalwa-surface-ops,var(--isalwa-white))]',
+  context: 'bg-[var(--isalwa-surface-context,var(--isalwa-sky-100))]',
+  active: 'bg-[var(--isalwa-surface-active,var(--isalwa-teal-100))]',
+  attention:
+    'bg-[var(--isalwa-surface-attention,color-mix(in_srgb,var(--isalwa-warning)_8%,white))]',
+};
+
+export function PageSection({ children, className, card, surface = 'ops', ...rest }: PageSectionProps) {
   return (
     <section
       className={cx(
         card &&
-          'overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-card-resting)]',
+          cx(
+            'overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] shadow-[var(--isalwa-shadow-card-resting)]',
+            SURFACE_BG[surface],
+          ),
         className,
       )}
       {...rest}

@@ -50,18 +50,26 @@
   /* Operating canvas behind white working surfaces (cards/panels). Host apps
      may remap; never leave the page at pure --isalwa-white. */
   --isalwa-surface-canvas: var(--isalwa-porcelain);
+  /* Controlled card surfaces — porcelain stays canvas only. */
+  --isalwa-surface-ops: var(--isalwa-white);
+  --isalwa-surface-context: var(--isalwa-sky-100);
+  --isalwa-surface-active: var(--isalwa-teal-100);
+  --isalwa-surface-attention: color-mix(in srgb, var(--isalwa-warning) 8%, var(--isalwa-white));
 
-  /* Button hierarchy — primary fills action; secondary stays outlined white.
-     Hosts (os-web) remap --isalwa-action to navy; keep these aliases so
-     Button and action links share one vocabulary. */
+  /* Button hierarchy — primary fills action; secondary navy outline;
+     contextual = teal operational. Hosts (os-web) remap --isalwa-action to
+     navy; keep these aliases so Button and action links share one vocabulary. */
   --isalwa-btn-primary-bg: var(--isalwa-action);
   --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
   --isalwa-btn-primary-fg: var(--isalwa-white);
   --isalwa-btn-secondary-bg: var(--isalwa-white);
   --isalwa-btn-secondary-bg-hover: var(--isalwa-porcelain);
   --isalwa-btn-secondary-fg: var(--isalwa-kiln);
-  --isalwa-btn-secondary-border: var(--isalwa-mist);
-  --isalwa-btn-secondary-border-hover: var(--isalwa-glaze);
+  --isalwa-btn-secondary-border: color-mix(in srgb, var(--isalwa-kiln) 42%, var(--isalwa-mist));
+  --isalwa-btn-secondary-border-hover: var(--isalwa-kiln);
+  --isalwa-btn-contextual-bg: var(--isalwa-glaze);
+  --isalwa-btn-contextual-bg-hover: var(--isalwa-glaze-deep);
+  --isalwa-btn-contextual-fg: var(--isalwa-white);
 
   --isalwa-text-2xs: 11px;
   --isalwa-text-xs: 12px;

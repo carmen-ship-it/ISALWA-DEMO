@@ -243,21 +243,21 @@ export function EmptyPanel({
 }: EmptyPanelProps) {
   if (compact) {
     return (
-      <div className={cx('px-5 py-10 text-center md:px-6', className)}>
-        <p className="text-[var(--isalwa-text-base)] font-semibold text-[var(--isalwa-kiln)]">{title}</p>
+      <div className={cx('px-1 py-2 text-left', className)} role="status">
+        <p className="text-[var(--isalwa-text-sm)] font-medium text-[var(--isalwa-kiln)]">{title}</p>
         {description ? (
-          <p className="mx-auto mt-2 max-w-md text-[var(--isalwa-text-md)] text-[var(--isalwa-slate)]">
+          <p className="mt-0.5 max-w-xl text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
             {description}
           </p>
         ) : null}
         {example ? (
-          <p className="mx-auto mt-3 max-w-md text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
+          <p className="mt-1.5 max-w-xl text-[var(--isalwa-text-xs)] text-[var(--isalwa-slate)]">
             <span className="font-semibold text-[var(--isalwa-glaze)]">Ejemplo · </span>
             {example}
           </p>
         ) : null}
-        {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
-        {walkthrough ? <div className="mt-3 text-[var(--isalwa-text-xs)]">{walkthrough}</div> : null}
+        {action ? <div className="mt-2">{action}</div> : null}
+        {walkthrough ? <div className="mt-1.5 text-[var(--isalwa-text-xs)]">{walkthrough}</div> : null}
       </div>
     );
   }

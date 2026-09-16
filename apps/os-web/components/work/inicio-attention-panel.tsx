@@ -74,13 +74,18 @@ export function InicioAttentionPanel({
   return (
     <PageSection
       card
-      className="border-[color-mix(in_srgb,var(--isalwa-glaze)_14%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
+      surface="active"
+      className="border-[color-mix(in_srgb,var(--isalwa-glaze)_18%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
       aria-label={t('pages.inicio.attention')}
       data-tour={TOUR_TARGET.homeAttention}
     >
       <SectionHeader
         kicker="Ahora"
-        title={t('pages.inicio.attention')}
+        title={
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+            {t('pages.inicio.attention')}
+          </h2>
+        }
         className="mb-2"
       />
       <div>

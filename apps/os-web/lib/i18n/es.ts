@@ -52,8 +52,9 @@ export const es = {
     loadingHint: 'Espere un momento.',
     sessionExpired: 'Sesión vencida',
     sessionExpiredDesc: 'Por seguridad, vuelva a iniciar sesión para continuar.',
-    accessDenied: 'Sin acceso',
-    accessDeniedDesc: 'No tiene permiso para ver esta sección.',
+    accessDenied: 'Sin permiso para esta sección',
+    accessDeniedDesc:
+      'Esta vista está bloqueada para su cuenta. Puede volver a Inicio o pedir acceso a quien administra el sistema.',
     accountInactive: 'Cuenta desactivada',
     accountInactiveDesc: 'Su acceso fue suspendido. Contacte a administración.',
     serviceUnavailable: 'Servicio no disponible',

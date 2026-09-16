@@ -1,13 +1,15 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
-  EmptyState,
+  Button,
+  EmptyPanel,
   OperatingRow,
   PageSection,
   SectionHeader,
   StatusPill,
+  cx,
 } from '@isalwa/ui';
-import type { ApprovalSummaryReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
+import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
 import { IssueList } from '@/components/issue/issue-list';
 import { ApprovalList } from '@/components/work/approval-list';
@@ -33,10 +35,12 @@ type InicioCommandQueueSectionsProps = {
   approvalSubjects: Map<string, string>;
 };
 
-function destinationLink(href: string, label: string) {
+function destinationButton(href: string, label: string, variant: 'primary' | 'secondary' | 'tertiary' = 'secondary') {
   return (
-    <Link href={href} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-      {label}
+    <Link href={href} className="inline-flex">
+      <Button type="button" variant={variant} size="sm">
+        {label}
+      </Button>
     </Link>
   );
 }
@@ -134,6 +138,14 @@ function PendingWorkRows({
   );
 }
 
+/** Differentiated surface weight inside Centro de mando — not equal cards. */
+const SECTION_SURFACE: Record<string, 'ops' | 'context' | 'active' | 'attention'> = {
+  pendientes: 'ops',
+  problemas: 'attention',
+  compromisos: 'context',
+  decisiones: 'active',
+};
+
 export function InicioCommandQueueSections({
   model,
   memberLabels,
@@ -149,26 +161,31 @@ export function InicioCommandQueueSections({
   const sections: Array<{
     id: string;
     title: string;
+    weight: 'lead' | 'support';
     href: string;
     hrefLabel: string;
     unavailable?: boolean;
     emptyTitle: string;
     emptyDescription: string;
     content: ReactNode;
+    isEmpty: boolean;
   }> = [
     {
       id: 'pendientes',
       title: 'Pendientes',
+      weight: 'lead',
       href: model.lens === 'operator' ? '/trabajo' : `/trabajo?view=${model.lens === 'manager' ? 'team' : 'org'}`,
       hrefLabel: 'Ver trabajo',
       unavailable: model.unavailable.work,
       emptyTitle: 'Sin trabajo pendiente en esta lectura',
       emptyDescription: 'Cuando haya ítems abiertos en su cola, aparecerán aquí.',
       content: <PendingWorkRows items={model.pendingWork} partyLabels={partyLabels} asOf={asOf} />,
+      isEmpty: model.pendingWork.length === 0,
     },
     {
       id: 'problemas',
       title: 'Problemas abiertos',
+      weight: 'lead',
       href: issueListHref('open'),
       hrefLabel: 'Ver incidencias',
       unavailable: model.unavailable.issues,
@@ -177,10 +194,12 @@ export function InicioCommandQueueSections({
       content: (
         <IssueList items={visibleIssues} memberLabels={memberLabels} density="compact" showHeader={false} />
       ),
+      isEmpty: visibleIssues.length === 0,
     },
     {
       id: 'compromisos',
       title: 'Compromisos',
+      weight: 'support',
       href: '/clientes',
       hrefLabel: 'Ir a clientes',
       unavailable: model.unavailable.commitments,
@@ -208,10 +227,12 @@ export function InicioCommandQueueSections({
           ) : null}
         </div>
       ),
+      isEmpty: model.commitmentsOverdue.length === 0 && model.commitmentsOpen.length === 0,
     },
     {
       id: 'decisiones',
       title: 'Decisiones',
+      weight: 'lead',
       href: '/aprobaciones',
       hrefLabel: 'Ver aprobaciones',
       unavailable: model.unavailable.approvals,
@@ -226,43 +247,47 @@ export function InicioCommandQueueSections({
           showHeader={false}
         />
       ),
+      isEmpty: model.pendingApprovals.length === 0,
     },
   ];
 
   return (
-    <div className="min-w-0 space-y-6" aria-label="Colas del centro de mando">
+    <div className="min-w-0 space-y-4" aria-label="Colas del centro de mando">
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{lensNote}</p>
       {sections.map((section) => (
-        <PageSection key={section.id} card className="min-w-0 p-3 md:p-4">
+        <PageSection
+          key={section.id}
+          card
+          surface={SECTION_SURFACE[section.id]}
+          className={cx('min-w-0 p-3 shadow-[var(--isalwa-shadow-soft)] md:p-4', section.weight === 'lead' && 'md:p-5')}
+        >
           <SectionHeader
-            title={section.title}
-            action={destinationLink(section.href, section.hrefLabel)}
+            title={
+              section.weight === 'lead' ? (
+                <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+                  {section.title}
+                </h2>
+              ) : (
+                section.title
+              )
+            }
+            action={destinationButton(
+              section.href,
+              section.hrefLabel,
+              section.weight === 'lead' ? 'secondary' : 'tertiary',
+            )}
             className="mb-2"
           />
           {section.unavailable ? (
             <p className="text-sm text-[var(--isalwa-slate)]" role="status">
               No disponible en este momento.
             </p>
-          ) : section.id === 'compromisos' ? (
-            model.commitmentsOverdue.length === 0 && model.commitmentsOpen.length === 0 ? (
-              <EmptyState title={section.emptyTitle} description={section.emptyDescription} />
-            ) : (
-              section.content
-            )
-          ) : section.id === 'pendientes' ? (
-            model.pendingWork.length === 0 ? (
-              <EmptyState title={section.emptyTitle} description={section.emptyDescription} />
-            ) : (
-              section.content
-            )
-          ) : section.id === 'problemas' ? (
-            visibleIssues.length === 0 ? (
-              <EmptyState title={section.emptyTitle} description={section.emptyDescription} />
-            ) : (
-              section.content
-            )
-          ) : model.pendingApprovals.length === 0 ? (
-            <EmptyState title={section.emptyTitle} description={section.emptyDescription} />
+          ) : section.isEmpty ? (
+            <EmptyPanel
+              compact
+              title={section.emptyTitle}
+              description={section.emptyDescription}
+            />
           ) : (
             section.content
           )}

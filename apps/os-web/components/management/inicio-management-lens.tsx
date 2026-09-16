@@ -33,11 +33,12 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
 
       <PageSection
         card
+        surface="active"
         className="min-w-0 overflow-hidden p-0 shadow-[var(--isalwa-shadow-soft)]"
         aria-label={t('pages.inicio.managementTitle')}
       >
         {ownerLane ? (
-          <div className="bg-[color-mix(in_srgb,var(--isalwa-glaze)_4%,white)] px-5 py-5 md:px-6 md:py-6">
+          <div className="px-5 py-5 md:px-6 md:py-6">
             <p className="isalwa-section-label">{ownerLane.label}</p>
             {cards && cards.length > 0 ? (
               <ul className="mt-3 space-y-2">
@@ -48,7 +49,7 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+              <p className="mt-2 text-xs leading-relaxed text-[var(--isalwa-slate)]" role="status">
                 {model.ownerEmpty}
               </p>
             )}
@@ -81,7 +82,7 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
                             </ul>
                           ) : (
                             <p
-                              className="mt-0.5 text-sm leading-relaxed text-[var(--isalwa-slate)]"
+                              className="mt-0.5 text-xs leading-relaxed text-[color-mix(in_srgb,var(--isalwa-slate)_78%,transparent)]"
                               role="status"
                             >
                               {model.noRecord}

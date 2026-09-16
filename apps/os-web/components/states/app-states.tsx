@@ -73,18 +73,22 @@ export function SessionExpiredState() {
 
 export function AccessDeniedState() {
   return (
-    <AccessState
-      title={t('states.accessDenied')}
-      description={t('states.accessDeniedDesc')}
-      semantic="blocked"
-      action={
-        <Link href="/inicio" className="inline-flex">
-          <Button type="button" variant="secondary">
-            {t('nav.inicio')}
-          </Button>
-        </Link>
-      }
-    />
+    <div role="status" className="w-full max-w-lg">
+      <EmptyState
+        title={t('states.accessDenied')}
+        description={t('states.accessDeniedDesc')}
+        action={
+          <div className="flex flex-col items-start gap-4">
+            <StatusPill tone="info">Sin permiso</StatusPill>
+            <Link href="/inicio" className="inline-flex">
+              <Button type="button" variant="primary">
+                {t('nav.inicio')}
+              </Button>
+            </Link>
+          </div>
+        }
+      />
+    </div>
   );
 }
 

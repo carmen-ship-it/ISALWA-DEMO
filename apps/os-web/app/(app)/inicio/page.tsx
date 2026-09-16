@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { OperatingRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { Button, OperatingRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import type { QuoteSummaryReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
 import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
@@ -56,10 +56,12 @@ async function safeMemoryChanges(
   }
 }
 
-function destinationLink(href: string, label: string) {
+function destinationLink(href: string, label: string, variant: 'primary' | 'secondary' | 'tertiary' = 'secondary') {
   return (
-    <Link href={href} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-      {label}
+    <Link href={href} className="inline-flex">
+      <Button type="button" variant={variant} size="sm">
+        {label}
+      </Button>
     </Link>
   );
 }
@@ -266,9 +268,9 @@ export default async function InicioPage() {
           title={greeting}
           description={t('pages.inicio.description')}
           action={
-            <div className="flex flex-wrap items-center gap-4">
-              {destinationLink('/trabajo', t('states.viewWork'))}
-              {destinationLink('/clientes', t('states.goToClientes'))}
+            <div className="flex flex-wrap items-center gap-2">
+              {destinationLink('/trabajo', t('states.viewWork'), 'primary')}
+              {destinationLink('/clientes', t('states.goToClientes'), 'secondary')}
             </div>
           }
         />
@@ -291,8 +293,16 @@ export default async function InicioPage() {
         <div className="min-w-0 space-y-10">
           <OperatingHomes model={operatingHomes} />
 
-          <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_28%,white)] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
-            <p className="isalwa-kicker">Centro de mando</p>
+          <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_55%,var(--isalwa-porcelain))] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
+            <div>
+              <p className="isalwa-kicker">Centro de mando</p>
+              <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)] md:text-3xl">
+                Atención de hoy
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                Colas operativas con peso diferenciado. Sin totales inventados.
+              </p>
+            </div>
             <InicioAttentionPanel
               items={visibleAttention}
               subjects={attentionSubjects}

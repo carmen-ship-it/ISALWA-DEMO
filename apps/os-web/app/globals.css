@@ -9,8 +9,8 @@ body {
 
 /*
  * Isabela command-center brand — scoped to os-web only.
- * Navy / teal / beige / sky / white, used as roles, not decoration.
- * No brand font file is in the repo; Newsreader + a quiet sans carries the feel.
+ * Porcelain = canvas; Navy = structure; Teal = active; Sky = context;
+ * Amber/Red = semantic only. No brand font file in-repo.
  */
 :root {
   --isalwa-kiln: #18324b;
@@ -24,28 +24,37 @@ body {
   --isalwa-sky-200: #d9eaf2;
   --isalwa-teal-100: #e2f0ed;
   --isalwa-mist: var(--isalwa-sky-200);
-  --isalwa-info: #7eadc8;
+  --isalwa-info: #3a5f82;
   --isalwa-action: var(--isalwa-kiln);
   --isalwa-action-deep: #12263d;
-  /* Soft porcelain/mist operating canvas — never pure white behind white cards. */
+  /* Quiet porcelain canvas — navy/teal/sky wash only (no copper hero). */
   --isalwa-surface-canvas: var(--isalwa-porcelain);
   --isalwa-surface-hero: linear-gradient(
     165deg,
-    color-mix(in srgb, var(--isalwa-mist) 55%, var(--isalwa-porcelain)) 0%,
-    var(--isalwa-porcelain) 48%,
-    color-mix(in srgb, var(--isalwa-copper) 5%, var(--isalwa-porcelain)) 100%
+    color-mix(in srgb, var(--isalwa-sky-100) 70%, var(--isalwa-porcelain)) 0%,
+    var(--isalwa-porcelain) 52%,
+    color-mix(in srgb, var(--isalwa-teal-100) 45%, var(--isalwa-porcelain)) 100%
   );
   --isalwa-surface-app: var(--isalwa-surface-hero);
   --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
-  /* Primary = filled navy action; secondary = white/outlined on porcelain. */
+  /* Primary = filled navy; secondary = navy border; contextual = teal ops. */
   --isalwa-btn-primary-bg: var(--isalwa-action);
   --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
   --isalwa-btn-primary-fg: var(--isalwa-white);
   --isalwa-btn-secondary-bg: var(--isalwa-white);
-  --isalwa-btn-secondary-bg-hover: var(--isalwa-porcelain);
+  --isalwa-btn-secondary-bg-hover: var(--isalwa-sky-100);
   --isalwa-btn-secondary-fg: var(--isalwa-kiln);
-  --isalwa-btn-secondary-border: var(--isalwa-mist);
-  --isalwa-btn-secondary-border-hover: var(--isalwa-glaze);
+  --isalwa-btn-secondary-border: color-mix(in srgb, var(--isalwa-kiln) 48%, var(--isalwa-sky-200));
+  --isalwa-btn-secondary-border-hover: var(--isalwa-kiln);
+  --isalwa-btn-contextual-bg: var(--isalwa-glaze);
+  --isalwa-btn-contextual-bg-hover: var(--isalwa-glaze-deep);
+  --isalwa-btn-contextual-fg: var(--isalwa-white);
+
+  /* Controlled operating surfaces — porcelain stays canvas only. */
+  --isalwa-surface-ops: var(--isalwa-white);
+  --isalwa-surface-context: var(--isalwa-sky-100);
+  --isalwa-surface-active: var(--isalwa-teal-100);
+  --isalwa-surface-attention: color-mix(in srgb, var(--isalwa-warning) 8%, var(--isalwa-white));
 }
 
 body {

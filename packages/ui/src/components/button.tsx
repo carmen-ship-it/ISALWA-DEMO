@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'contextual' | 'tertiary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -11,10 +11,18 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const styles: Record<Variant, string> = {
+  /* Filled navy (hosts remap --isalwa-action). White label. Main page actions. */
   primary:
     'bg-[var(--isalwa-btn-primary-bg)] text-[var(--isalwa-btn-primary-fg)] hover:bg-[var(--isalwa-btn-primary-bg-hover)] active:scale-[0.98]',
+  /* Navy border outline on white — secondary structure, not soft mist. */
   secondary:
     'bg-[var(--isalwa-btn-secondary-bg)] text-[var(--isalwa-btn-secondary-fg)] border border-[var(--isalwa-btn-secondary-border)] hover:border-[var(--isalwa-btn-secondary-border-hover)] hover:bg-[var(--isalwa-btn-secondary-bg-hover)] active:scale-[0.98]',
+  /* Teal fill — operational / semantic affirmative only, not default primary. */
+  contextual:
+    'bg-[var(--isalwa-btn-contextual-bg)] text-[var(--isalwa-btn-contextual-fg)] hover:bg-[var(--isalwa-btn-contextual-bg-hover)] active:scale-[0.98]',
+  /* Text-only tertiary. Alias of ghost for product vocabulary. */
+  tertiary:
+    'bg-transparent text-[var(--isalwa-slate)] hover:text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-porcelain)] active:scale-[0.98]',
   ghost:
     'bg-transparent text-[var(--isalwa-slate)] hover:text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-porcelain)] active:scale-[0.98]',
   danger:
