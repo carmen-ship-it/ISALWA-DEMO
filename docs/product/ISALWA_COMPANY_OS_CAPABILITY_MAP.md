@@ -660,8 +660,9 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | Field | Value |
 |---|---|
 | Map version | 2026-09-15 |
-| Hosted baseline SHA | `e5e9cac82a0e2ba82f3633386393598220471da0` |
+| Hosted baseline SHA (recon start) | `e5e9cac82a0e2ba82f3633386393598220471da0` |
+| Hosted SHA after member-scope fix | `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749` (deploy `dep-dakuhuad0e5s73ftrvng`, Render LIVE) |
 | Recon folder | `docs/operations/company-os-recon-2026-09-15/` |
-| Next proof gate | Independent hosted verifier: onboarding A→B; then terminate/reassign path on SYNTH |
+| Next proof gate | Independent hosted verifier receipt for onboarding A→B + six-role; then terminate/reassign path on SYNTH |
 
 *End of Company OS Capability Control Map.*
