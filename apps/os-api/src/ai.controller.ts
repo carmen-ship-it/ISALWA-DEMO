@@ -60,15 +60,19 @@ const usageLedger = new AiUsageLedger(governance);
 
 @Controller('ai')
 export class AiController {
-  private readonly aiProvider: AiProvider;
+  private aiProvider: AiProvider;
   private readonly config = governance;
 
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
-    aiProvider?: AiProvider,
   ) {
-    this.aiProvider = aiProvider ?? createAiProviderFromEnv();
+    this.aiProvider = createAiProviderFromEnv();
+  }
+
+  /** Test seam — never call from product code. */
+  replaceAiProviderForTest(provider: AiProvider): void {
+    this.aiProvider = provider;
   }
 
   private async getAccessSnapshot(

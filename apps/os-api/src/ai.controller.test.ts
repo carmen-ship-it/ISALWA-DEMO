@@ -91,7 +91,8 @@ describe('AiController assist', () => {
   it('returns AI_UNAVAILABLE when disabled without calling the provider', async () => {
     delete process.env.AI_ENABLED;
     const provider = new TrackingAiProvider();
-    const controller = new AiController({} as never, {} as never, provider);
+    const controller = new AiController({} as never, {} as never);
+    controller.replaceAiProviderForTest(provider);
 
     await assert.rejects(
       () =>
@@ -130,7 +131,8 @@ describe('AiController assist', () => {
         return [];
       },
     };
-    const controller = new AiController(workforceStore as never, {} as never, provider);
+    const controller = new AiController(workforceStore as never, {} as never);
+    controller.replaceAiProviderForTest(provider);
 
     await assert.rejects(
       () =>
@@ -203,7 +205,8 @@ describe('AiController assist', () => {
       },
     };
 
-    const controller = new AiController(workforceStore as never, issueStore as never, provider);
+    const controller = new AiController(workforceStore as never, issueStore as never);
+    controller.replaceAiProviderForTest(provider);
     const result = await withDevAuth(() =>
       controller.assist(
         request({
@@ -227,7 +230,8 @@ describe('AiController assist', () => {
   it('rejects client-supplied model names', async () => {
     process.env.AI_ENABLED = 'true';
     const provider = new TrackingAiProvider();
-    const controller = new AiController({} as never, {} as never, provider);
+    const controller = new AiController({} as never, {} as never);
+    controller.replaceAiProviderForTest(provider);
     await assert.rejects(
       () =>
         controller.assist(request(), {
@@ -248,7 +252,8 @@ describe('AiController assist', () => {
   it('rejects mutation intents before provider', async () => {
     process.env.AI_ENABLED = 'true';
     const provider = new TrackingAiProvider();
-    const controller = new AiController({} as never, {} as never, provider);
+    const controller = new AiController({} as never, {} as never);
+    controller.replaceAiProviderForTest(provider);
     await assert.rejects(
       () =>
         controller.assist(request(), {
@@ -326,7 +331,8 @@ describe('AiController assist', () => {
       },
     };
 
-    const controller = new AiController(workforceStore as never, issueStore as never, provider);
+    const controller = new AiController(workforceStore as never, issueStore as never);
+    controller.replaceAiProviderForTest(provider);
     const result = await withDevAuth(() =>
       controller.assist(
         request({
