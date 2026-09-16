@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { PRODUCTION_PAGE_COPY, PRODUCTION_STEP_LABELS } from '@/lib/production/copy';
+import { loadProductionCatalog } from '@/lib/production/load-catalog';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
@@ -18,6 +19,7 @@ export const revalidate = 0;
  */
 export default async function ProduccionPage() {
   const identity = await loadProductionIdentity();
+  const catalog = loadProductionCatalog();
 
   return (
     <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
@@ -33,8 +35,8 @@ export default async function ProduccionPage() {
         }
       />
       <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios identificadores de
-        producto.
+        Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del
+        catálogo.
       </p>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Un ingreso al Almacén de Productos Terminados no asigna un pedido.
@@ -59,7 +61,7 @@ export default async function ProduccionPage() {
             actorLabel={identity.actorLabel}
             grantedScopes={identity.grantedScopes}
             scopesConfirmed={identity.scopesConfirmed}
-            catalog={null}
+            catalog={catalog}
             productionInternalDate={null}
           />
         </div>

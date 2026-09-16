@@ -21,6 +21,24 @@ describe('manual conversation on Mensajes', () => {
     assert.doesNotMatch(JSON.stringify(MANUAL_CONVERSATION_COPY), /\+591|\d{7,}/);
   });
 
+  it('requires a selected party and does not accept free-text customer or link ids', () => {
+    const panel = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '../../components/conversations/manual-conversation-panel.tsx'),
+      'utf8',
+    );
+    assert.match(panel, /ServerPartyTypeahead/);
+    assert.match(panel, /listPartyCommercialLinks/);
+    assert.match(panel, /SearchableSelect/);
+    assert.match(panel, /!customerId\.trim\(\)/);
+    assert.match(panel, /disabled=\{!actor \|\| !customerId\.trim\(\)\}/);
+    assert.doesNotMatch(panel, /name="customerId"/);
+    assert.doesNotMatch(panel, /name="customerLabel"/);
+    assert.doesNotMatch(panel, /name="opportunityId"/);
+    assert.doesNotMatch(panel, /name="quoteId"/);
+    assert.doesNotMatch(panel, /name="orderId"/);
+    assert.match(MANUAL_CONVERSATION_COPY.linksNeedParty, /Primero seleccione un cliente/);
+  });
+
   it('records evidence without a phone, a payment, or a delivery', () => {
     const admitted = admitManualConversation({
       id: 'conv-ui-1',

@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Button, StatusPill } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { SearchableSelect } from '@/components/experience/searchable-select';
+import { ServerPartyTypeahead } from '@/components/operating/server-party-typeahead';
 import {
   MANUAL_CONVERSATION_COPY,
   MANUAL_CONVERSATION_ERRORS,
   admitManualConversation,
 } from '@/lib/conversations/manual-conversation';
+import {
+  listPartyCommercialLinks,
+  type PartyCommercialLinkOption,
+} from '@/lib/productivity/actions';
 import type { ManualCustomerConversation } from '@isalwa/os-contracts';
 
 const fieldClass =
@@ -30,6 +36,14 @@ function toIso(value: string): string | null {
   return date.toISOString();
 }
 
+function toSearchable(options: readonly PartyCommercialLinkOption[]) {
+  return options.map((option) => ({
+    id: option.id,
+    label: option.label,
+    hint: option.hint,
+  }));
+}
+
 export function ManualConversationPanel({ actor }: ManualConversationPanelProps) {
   const [customerId, setCustomerId] = useState('');
   const [customerLabel, setCustomerLabel] = useState('');
@@ -41,6 +55,10 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
   const [opportunityId, setOpportunityId] = useState('');
   const [quoteId, setQuoteId] = useState('');
   const [orderId, setOrderId] = useState('');
+  const [opportunityOptions, setOpportunityOptions] = useState<PartyCommercialLinkOption[]>([]);
+  const [quoteOptions, setQuoteOptions] = useState<PartyCommercialLinkOption[]>([]);
+  const [orderOptions, setOrderOptions] = useState<PartyCommercialLinkOption[]>([]);
+  const [linksStatus, setLinksStatus] = useState<'idle' | 'loading' | 'ready' | 'unavailable'>('idle');
   const [customerQuestion, setCustomerQuestion] = useState('');
   const [commitmentCandidate, setCommitmentCandidate] = useState('');
   const [possibleRequestedDate, setPossibleRequestedDate] = useState('');
@@ -48,10 +66,46 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState<ManualCustomerConversation[]>([]);
 
+  useEffect(() => {
+    setOpportunityId('');
+    setQuoteId('');
+    setOrderId('');
+    setOpportunityOptions([]);
+    setQuoteOptions([]);
+    setOrderOptions([]);
+    if (!customerId.trim()) {
+      setLinksStatus('idle');
+      return;
+    }
+    let cancelled = false;
+    setLinksStatus('loading');
+    void listPartyCommercialLinks(customerId).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setOpportunityOptions([]);
+        setQuoteOptions([]);
+        setOrderOptions([]);
+        setLinksStatus('unavailable');
+        return;
+      }
+      setOpportunityOptions(result.opportunities);
+      setQuoteOptions(result.quotes);
+      setOrderOptions(result.orders);
+      setLinksStatus('ready');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [customerId]);
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!actor) {
       setError(MANUAL_CONVERSATION_COPY.sessionNeeded);
+      return;
+    }
+    if (!customerId.trim() || !customerLabel.trim()) {
+      setError(MANUAL_CONVERSATION_ERRORS.missing_customer);
       return;
     }
     const occurredIso = toIso(occurredAt);
@@ -92,6 +146,8 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
     setNextAction('');
   }
 
+  const partySelected = Boolean(customerId.trim());
+
   return (
     <section aria-label={MANUAL_CONVERSATION_COPY.title} className="w-full max-w-xl space-y-4 text-left">
       <div className="flex flex-wrap items-center gap-2">
@@ -116,35 +172,18 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
         ) : (
           <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.sessionNeeded}</p>
         )}
-        <div>
-          <label htmlFor="conversation-customer" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.customer}
-          </label>
-          <input
-            id="conversation-customer"
-            name="customerId"
-            required
-            value={customerId}
-            onChange={(event) => setCustomerId(event.target.value)}
-            className={fieldClass}
-            autoComplete="off"
-          />
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.customerHint}</p>
-        </div>
-        <div>
-          <label htmlFor="conversation-customer-name" className="isalwa-section-label">
-            {MANUAL_CONVERSATION_COPY.customerName}
-          </label>
-          <input
-            id="conversation-customer-name"
-            name="customerLabel"
-            required
-            value={customerLabel}
-            onChange={(event) => setCustomerLabel(event.target.value)}
-            className={fieldClass}
-            autoComplete="off"
-          />
-        </div>
+        <ServerPartyTypeahead
+          id="conversation-customer"
+          label={MANUAL_CONVERSATION_COPY.customer}
+          required
+          value={customerId}
+          displayLabel={customerLabel}
+          hint={MANUAL_CONVERSATION_COPY.customerHint}
+          onChange={({ partyId, label }) => {
+            setCustomerId(partyId);
+            setCustomerLabel(label);
+          }}
+        />
         <div>
           <label htmlFor="conversation-contact" className="isalwa-section-label">
             {MANUAL_CONVERSATION_COPY.contact}
@@ -224,48 +263,55 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
           />
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.pastedHint}</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <label htmlFor="conversation-opportunity" className="isalwa-section-label">
-              {MANUAL_CONVERSATION_COPY.opportunity}
-            </label>
-            <input
-              id="conversation-opportunity"
-              name="opportunityId"
-              value={opportunityId}
-              onChange={(event) => setOpportunityId(event.target.value)}
-              className={fieldClass}
-              autoComplete="off"
-            />
-          </div>
-          <div>
-            <label htmlFor="conversation-quote" className="isalwa-section-label">
-              {MANUAL_CONVERSATION_COPY.quote}
-            </label>
-            <input
-              id="conversation-quote"
-              name="quoteId"
-              value={quoteId}
-              onChange={(event) => setQuoteId(event.target.value)}
-              className={fieldClass}
-              autoComplete="off"
-            />
-          </div>
-          <div>
-            <label htmlFor="conversation-order" className="isalwa-section-label">
-              {MANUAL_CONVERSATION_COPY.order}
-            </label>
-            <input
-              id="conversation-order"
-              name="orderId"
-              value={orderId}
-              onChange={(event) => setOrderId(event.target.value)}
-              className={fieldClass}
-              autoComplete="off"
-            />
-          </div>
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.linksHint}</p>
+          {!partySelected ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              {MANUAL_CONVERSATION_COPY.linksNeedParty}
+            </p>
+          ) : linksStatus === 'loading' ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              Cargando vínculos…
+            </p>
+          ) : linksStatus === 'unavailable' ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              No se pudieron cargar los vínculos de este cliente.
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-3">
+              <SearchableSelect
+                id="conversation-opportunity"
+                label={MANUAL_CONVERSATION_COPY.opportunity}
+                options={toSearchable(opportunityOptions)}
+                value={opportunityId || null}
+                onChange={(id) => setOpportunityId(id ?? '')}
+                placeholder="Buscar oportunidad"
+                noMatchLabel="Sin oportunidades"
+                disabled={opportunityOptions.length === 0}
+              />
+              <SearchableSelect
+                id="conversation-quote"
+                label={MANUAL_CONVERSATION_COPY.quote}
+                options={toSearchable(quoteOptions)}
+                value={quoteId || null}
+                onChange={(id) => setQuoteId(id ?? '')}
+                placeholder="Buscar cotización"
+                noMatchLabel="Sin cotizaciones"
+                disabled={quoteOptions.length === 0}
+              />
+              <SearchableSelect
+                id="conversation-order"
+                label={MANUAL_CONVERSATION_COPY.order}
+                options={toSearchable(orderOptions)}
+                value={orderId || null}
+                onChange={(id) => setOrderId(id ?? '')}
+                placeholder="Buscar pedido"
+                noMatchLabel="Sin pedidos"
+                disabled={orderOptions.length === 0}
+              />
+            </div>
+          )}
         </div>
-        <p className="text-sm text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.linksHint}</p>
         <div>
           <label htmlFor="conversation-question" className="isalwa-section-label">
             {MANUAL_CONVERSATION_COPY.question}
@@ -317,7 +363,7 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
             className={fieldClass}
           />
         </div>
-        <Button type="submit" disabled={!actor}>
+        <Button type="submit" disabled={!actor || !customerId.trim()}>
           {MANUAL_CONVERSATION_COPY.submit}
         </Button>
       </form>

@@ -81,8 +81,8 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
         }
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Si la solicitud corresponde a un pedido, use su identificador. No reescriba las líneas del
-        pedido aquí. La cola de compras no inventa inventario.
+        Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. No reescriba las
+        líneas del pedido aquí. La cola de compras no inventa inventario.
       </p>
       {orders.length === 0 ? (
         <EmptyState

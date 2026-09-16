@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { EmptyState, PageSection, StatusPill } from '@isalwa/ui';
+import { SearchableSelect, type SearchableOption } from '@/components/experience/searchable-select';
 import { ManualPaymentForm } from '@/components/operations/manual-payment-form';
 import { ReportedFactProvenance } from '@/components/operations/reported-fact-provenance';
+import { ServerPartyTypeahead } from '@/components/operating/server-party-typeahead';
 import {
   FINANCE_DESK_COPY,
   authorizeFinanceOperationalWrite,
@@ -29,6 +31,11 @@ type FinanceOperationalDeskProps =
       memberId: string;
       actorLabel: string;
       grantedScopes: readonly string[];
+      orderOptions?: readonly SearchableOption[];
+      quoteOptions?: readonly SearchableOption[];
+      initialSubjectType?: SubjectType;
+      initialSubjectId?: string;
+      initialSubjectLabel?: string;
     };
 
 type SubjectType = 'party' | 'order' | 'quote';
@@ -56,6 +63,11 @@ export function FinanceOperationalDesk(props: FinanceOperationalDeskProps) {
       memberId={props.memberId}
       actorLabel={props.actorLabel}
       grantedScopes={props.grantedScopes}
+      orderOptions={props.orderOptions ?? []}
+      quoteOptions={props.quoteOptions ?? []}
+      initialSubjectType={props.initialSubjectType}
+      initialSubjectId={props.initialSubjectId}
+      initialSubjectLabel={props.initialSubjectLabel}
     />
   );
 }
@@ -65,6 +77,11 @@ function ReadyDesk(props: {
   memberId: string;
   actorLabel: string;
   grantedScopes: readonly string[];
+  orderOptions: readonly SearchableOption[];
+  quoteOptions: readonly SearchableOption[];
+  initialSubjectType?: SubjectType;
+  initialSubjectId?: string;
+  initialSubjectLabel?: string;
 }) {
   const session: FinanceActorSession = useMemo(
     () => ({
@@ -77,9 +94,9 @@ function ReadyDesk(props: {
     [props.organizationId, props.memberId, props.actorLabel, props.grantedScopes],
   );
 
-  const [subjectType, setSubjectType] = useState<SubjectType>('order');
-  const [subjectId, setSubjectId] = useState('');
-  const [subjectLabel, setSubjectLabel] = useState('');
+  const [subjectType, setSubjectType] = useState<SubjectType>(props.initialSubjectType ?? 'order');
+  const [subjectId, setSubjectId] = useState(props.initialSubjectId?.trim() ?? '');
+  const [subjectLabel, setSubjectLabel] = useState(props.initialSubjectLabel?.trim() ?? '');
   const [facts, setFacts] = useState<ReportedOperationalFact[]>([]);
   const [correctsFactId, setCorrectsFactId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -87,6 +104,25 @@ function ReadyDesk(props: {
 
   const trimmedSubjectId = subjectId.trim();
   const canShowForm = trimmedSubjectId.length > 0;
+
+  function clearSubject() {
+    setSubjectId('');
+    setSubjectLabel('');
+  }
+
+  function selectOption(optionId: string | null, options: readonly SearchableOption[]) {
+    if (!optionId) {
+      clearSubject();
+      return;
+    }
+    const option = options.find((item) => item.id === optionId);
+    if (!option) {
+      clearSubject();
+      return;
+    }
+    setSubjectId(option.id);
+    setSubjectLabel(option.hint ? `${option.label} · ${option.hint}` : option.label);
+  }
 
   function onRecorded(result: ReportedFactWriteResult) {
     const auth = authorizeFinanceOperationalWrite({
@@ -155,37 +191,72 @@ function ReadyDesk(props: {
               id="finance-subject-type"
               className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
               value={subjectType}
-              onChange={(event) => setSubjectType(event.target.value as SubjectType)}
+              onChange={(event) => {
+                setSubjectType(event.target.value as SubjectType);
+                clearSubject();
+              }}
             >
               <option value="order">{FINANCE_DESK_COPY.subjectOrder}</option>
               <option value="party">{FINANCE_DESK_COPY.subjectParty}</option>
               <option value="quote">{FINANCE_DESK_COPY.subjectQuote}</option>
             </select>
           </div>
-          <div>
-            <label htmlFor="finance-subject-id" className="isalwa-section-label">
-              {FINANCE_DESK_COPY.subjectId}
-            </label>
-            <input
-              id="finance-subject-id"
-              value={subjectId}
-              onChange={(event) => setSubjectId(event.target.value)}
-              className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
-              autoComplete="off"
+
+          {subjectType === 'order' ? (
+            props.orderOptions.length === 0 ? (
+              <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+                {FINANCE_DESK_COPY.subjectEmptyOrders}
+              </p>
+            ) : (
+              <SearchableSelect
+                id="finance-subject-order"
+                label={FINANCE_DESK_COPY.subjectSelectOrder}
+                options={props.orderOptions}
+                value={subjectType === 'order' ? trimmedSubjectId || null : null}
+                onChange={(id) => selectOption(id, props.orderOptions)}
+                placeholder="Buscar pedido"
+                noMatchLabel="Ningún pedido coincide"
+              />
+            )
+          ) : null}
+
+          {subjectType === 'quote' ? (
+            props.quoteOptions.length === 0 ? (
+              <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+                {FINANCE_DESK_COPY.subjectEmptyQuotes}
+              </p>
+            ) : (
+              <SearchableSelect
+                id="finance-subject-quote"
+                label={FINANCE_DESK_COPY.subjectSelectQuote}
+                options={props.quoteOptions}
+                value={subjectType === 'quote' ? trimmedSubjectId || null : null}
+                onChange={(id) => selectOption(id, props.quoteOptions)}
+                placeholder="Buscar cotización"
+                noMatchLabel="Ninguna cotización coincide"
+              />
+            )
+          ) : null}
+
+          {subjectType === 'party' ? (
+            <ServerPartyTypeahead
+              id="finance-subject-party"
+              label={FINANCE_DESK_COPY.subjectSelectParty}
+              required
+              value={trimmedSubjectId}
+              displayLabel={subjectLabel}
+              onChange={({ partyId, label }) => {
+                setSubjectId(partyId);
+                setSubjectLabel(label);
+              }}
             />
-          </div>
-          <div>
-            <label htmlFor="finance-subject-label" className="isalwa-section-label">
-              {FINANCE_DESK_COPY.subjectLabel}
-            </label>
-            <input
-              id="finance-subject-label"
-              value={subjectLabel}
-              onChange={(event) => setSubjectLabel(event.target.value)}
-              className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
-              autoComplete="off"
-            />
-          </div>
+          ) : null}
+
+          {canShowForm ? (
+            <p className="text-sm text-[var(--isalwa-kiln)]" data-finance-subject-selected="">
+              {FINANCE_DESK_COPY.subjectSelected}: {subjectLabel || trimmedSubjectId}
+            </p>
+          ) : null}
 
           {writeError ? (
             <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
@@ -232,7 +303,7 @@ function ReadyDesk(props: {
               <EmptyState
                 className="mt-3"
                 title={FINANCE_DESK_COPY.emptyFacts}
-                description="Indique el pedido o cliente y registre un pago reportado. Queda pendiente de confirmar."
+                description="Seleccione el pedido, cliente o cotización y registre un pago reportado. Queda pendiente de confirmar."
                 example="Un pago reportado sobre un pedido aparece aquí con quién lo cargó y que aún no está confirmado."
               />
             ) : (

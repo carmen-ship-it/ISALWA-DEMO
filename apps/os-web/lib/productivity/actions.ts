@@ -408,3 +408,77 @@ export async function loadWhatChanged(partyId: string): Promise<
     return { ok: false, reason: 'unavailable' };
   }
 }
+
+export type PartyCommercialLinkOption = {
+  id: string;
+  label: string;
+  hint?: string;
+};
+
+/**
+ * Opportunities / quotes / orders scoped to one party for link selects.
+ * Empty until a party is chosen. Fail closed on auth/API failure.
+ */
+export async function listPartyCommercialLinks(partyId: string): Promise<
+  | {
+      ok: true;
+      opportunities: PartyCommercialLinkOption[];
+      quotes: PartyCommercialLinkOption[];
+      orders: PartyCommercialLinkOption[];
+    }
+  | SessionFailure
+> {
+  const id = partyId.trim();
+  if (!id || /[/?#\\]/.test(id)) {
+    return { ok: true, opportunities: [], quotes: [], orders: [] };
+  }
+  const ready = await clientOrSession();
+  if (!ready.ok) return ready;
+  const client = ready.client;
+
+  async function safeList<T>(run: () => Promise<{ items: T[] }>): Promise<T[]> {
+    try {
+      const page = await run();
+      return page.items ?? [];
+    } catch (err) {
+      if (isSessionFailure(err)) throw err;
+      return [];
+    }
+  }
+
+  try {
+    const [opportunities, quotes, orders] = await Promise.all([
+      safeList(() => client.listOpportunities({ partyId: id, limit: 50 })),
+      safeList(() => client.listQuotes({ partyId: id, limit: 50 })),
+      safeList(() => client.listOrders({ partyId: id, limit: 50 })),
+    ]);
+
+    return {
+      ok: true,
+      opportunities: opportunities
+        .filter((item) => item.status !== 'cancelled')
+        .map((item) => ({
+          id: item.opportunityId,
+          label: item.title?.trim() || 'Oportunidad',
+          hint: item.stage ?? item.status,
+        })),
+      quotes: quotes
+        .filter((item) => item.status !== 'cancelled')
+        .map((item) => ({
+          id: item.quoteId,
+          label: item.quoteNumber,
+          hint: item.status,
+        })),
+      orders: orders
+        .filter((item) => item.status !== 'cancelled')
+        .map((item) => ({
+          id: item.orderId,
+          label: item.orderNumber,
+          hint: item.status,
+        })),
+    };
+  } catch (err) {
+    if (isSessionFailure(err)) return { ok: false, reason: 'session' };
+    return { ok: false, reason: 'unavailable' };
+  }
+}

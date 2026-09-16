@@ -39,14 +39,18 @@ export const PRODUCTION_PAGE_COPY = {
   title: 'Producción',
   intro: 'Anotación de planta por producto. No es una tabla de base de datos.',
   quemaNotParent:
-    'Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios identificadores de producto.',
+    'Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del catálogo.',
   receiptDoesNotAssign:
     'Un ingreso al Almacén de Productos Terminados no asigna un pedido.',
   listoMeaning:
     'Listo significa ingreso de producto terminado al Almacén de Productos Terminados.',
   stockNotOfficial: 'El stock no es oficial. El consumo no descuenta stock.',
   emptyNotZeroStock: 'Un resultado vacío no es cero de stock.',
-  catalogEmpty: 'No hay nombres de catálogo. Escriba el identificador del producto. No se inventan nombres.',
+  catalogEmpty:
+    'El catálogo no está disponible. No se anota con un identificador escrito a mano. No se inventan productos.',
+  catalogSelect: 'Seleccione un producto del catálogo.',
+  catalogSearchLabel: 'Buscar producto',
+  productRequired: 'Seleccione un producto de la lista antes de anotar.',
   quantityPending: 'Cantidad pendiente',
   qualityMissing: 'Sin porcentaje. Hacen falta las dos cuentas: piezas buenas y piezas perdidas.',
   qualityDerived: 'Porcentaje solo con las piezas buenas y las piezas perdidas de esta organización.',

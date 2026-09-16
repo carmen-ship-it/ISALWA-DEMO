@@ -4,19 +4,70 @@ import { PageHeader } from '@/components/shell/page-header';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { FINANCE_DESK_COPY, resolveFinancePageAccess } from '@/lib/finance';
+import {
+  FINANCE_DESK_COPY,
+  loadFinanceSubjectOptions,
+  resolveFinancePageAccess,
+} from '@/lib/finance';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 
 /** CROSS_LANE: add 'financeProvenance' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const FINANCE_PROVENANCE_TARGET = 'finance-provenance';
+
+type FinanzasPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function one(value: string | string[] | undefined): string | null {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+  if (Array.isArray(value) && typeof value[0] === 'string') {
+    const trimmed = value[0].trim();
+    return trimmed || null;
+  }
+  return null;
+}
 
 /**
  * Operational finance desk for Contabilidad.
  * Unlocks with finance.operational.record only.
  * Product capability `finance` remains LOCKED (no official ledger / Ingresos).
  */
-export default async function FinanzasPage() {
+export default async function FinanzasPage({ searchParams }: FinanzasPageProps) {
+  const params = await searchParams;
   const access = await loadFinanceAccess();
+  const subjectOptions =
+    access.status === 'ready' ? await loadFinanceSubjectOptions() : { orders: [], quotes: [] };
+
+  const prefillOrderId = one(params.orderId);
+  const prefillPartyId = one(params.partyId);
+  const prefillQuoteId = one(params.quoteId);
+
+  let initialSubjectType: 'order' | 'party' | 'quote' | undefined;
+  let initialSubjectId: string | undefined;
+  let initialSubjectLabel: string | undefined;
+
+  if (prefillOrderId) {
+    const hit = subjectOptions.orders.find((option) => option.id === prefillOrderId);
+    if (hit) {
+      initialSubjectType = 'order';
+      initialSubjectId = hit.id;
+      initialSubjectLabel = hit.hint ? `${hit.label} · ${hit.hint}` : hit.label;
+    }
+  } else if (prefillQuoteId) {
+    const hit = subjectOptions.quotes.find((option) => option.id === prefillQuoteId);
+    if (hit) {
+      initialSubjectType = 'quote';
+      initialSubjectId = hit.id;
+      initialSubjectLabel = hit.hint ? `${hit.label} · ${hit.hint}` : hit.label;
+    }
+  } else if (prefillPartyId) {
+    initialSubjectType = 'party';
+    initialSubjectId = prefillPartyId;
+    initialSubjectLabel = '';
+  }
 
   return (
     <PageContainer label={FINANCE_DESK_COPY.title} data-tour={FINANCE_PROVENANCE_TARGET}>
@@ -45,6 +96,11 @@ export default async function FinanzasPage() {
           memberId={access.memberId}
           actorLabel={access.actorLabel}
           grantedScopes={access.grantedScopes}
+          orderOptions={subjectOptions.orders}
+          quoteOptions={subjectOptions.quotes}
+          initialSubjectType={initialSubjectType}
+          initialSubjectId={initialSubjectId}
+          initialSubjectLabel={initialSubjectLabel}
         />
       ) : (
         <FinanceOperationalDesk status="denied" reason={access.reason} />

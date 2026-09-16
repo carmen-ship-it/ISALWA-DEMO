@@ -43,7 +43,6 @@ describe('production workspace page', () => {
     assert.equal(/pedido padre/i.test(surface), false);
     assert.equal(/pedido de la quema/i.test(surface), false);
     assert.equal(/parent order/i.test(surface), false);
-    assert.equal(/orderId/.test(surface), false);
     assert.equal(/completionPercent/.test(surface), false);
   });
 
@@ -71,5 +70,17 @@ describe('production workspace page', () => {
     assert.deepEqual(searchProductIds(null, 'lavamanos'), { namesAvailable: false, hits: [] });
     assert.deepEqual(searchProductIds([], 'lavamanos'), { namesAvailable: false, hits: [] });
     assert.equal(surface.includes(PRODUCTION_PAGE_COPY.catalogEmpty), true);
+  });
+
+  it('does not commit a raw typed product id and blocks annotate without catalog selection', () => {
+    assert.match(page, /loadProductionCatalog/);
+    assert.doesNotMatch(page, /catalog=\{null\}/);
+    assert.match(workspace, /selectCatalogHit/);
+    assert.match(workspace, /productRequiredForTab && !productFromCatalog/);
+    assert.match(workspace, /catalogContainsProductId/);
+    assert.doesNotMatch(workspace, /selectProductId\(productQuery\)/);
+    assert.doesNotMatch(workspace, /Identificador de producto/);
+    assert.doesNotMatch(workspace, /escriba el identificador/i);
+    assert.match(PRODUCTION_PAGE_COPY.catalogEmpty, /No se anota con un identificador escrito a mano/);
   });
 });

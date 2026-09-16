@@ -40,7 +40,12 @@ import {
   PRODUCTION_STEP_OPTIONS,
 } from '@/lib/production/copy';
 import { productionInternalDateFact } from '@/lib/production/dates';
-import { searchProductIds, type CatalogProductId } from '@/lib/production/product-search';
+import {
+  catalogContainsProductId,
+  catalogProductLabel,
+  searchProductIds,
+  type CatalogProductId,
+} from '@/lib/production/product-search';
 import { FINISHED_GOODS_WAREHOUSE_LABEL } from '@isalwa/os-contracts';
 import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 
@@ -130,11 +135,18 @@ export function ProductionWorkspace({
 
   const dateFact = productionInternalDateFact(productionInternalDate, organizationId, customerCommittedOn);
   const catalogSearch = searchProductIds(catalog, productQuery);
+  const catalogReady = Boolean(catalog && catalog.length > 0);
+  const productFromCatalog = catalogContainsProductId(catalog, productId);
+  const productDisplayName = catalogProductLabel(catalog, productId);
   const board = canRead ? listWorkspace(ledger, session) : null;
-  const ratio = canRead && productId ? qualityRatioForProduct(ledger, session, productId) : null;
-  const stock = canRead ? officialInputStock(ledger, session, productId || 'entrada') : null;
-  const listo = Boolean(board?.ok && productId && board.value.listoProductIds.includes(productId));
+  const ratio = canRead && productFromCatalog ? qualityRatioForProduct(ledger, session, productId) : null;
+  const stock = canRead ? officialInputStock(ledger, session, productFromCatalog ? productId : 'entrada') : null;
+  const listo = Boolean(board?.ok && productFromCatalog && board.value.listoProductIds.includes(productId));
   const stepLabel = PRODUCTION_STEP_OPTIONS.find((step) => step.key === stepKey)?.label ?? PRODUCTION_STEP_LABELS[0];
+  const productRequiredForTab =
+    tab === 'planta' ||
+    tab === 'listo' ||
+    (tab === 'quemas' && Boolean(draft.quemaId) && !draft.endedAt);
 
   useEffect(() => {
     if (!dirty) return;
@@ -162,9 +174,14 @@ export function ProductionWorkspace({
     setDirty(false);
   }
 
-  function selectProductId(id: string) {
-    setProductId(id.trim());
-    setProductQuery(id.trim());
+  function selectCatalogHit(hit: { productId: string; name: string | null }) {
+    if (!catalogContainsProductId(catalog, hit.productId)) return;
+    setProductId(hit.productId);
+    setProductQuery(hit.name?.trim() || hit.productId);
+  }
+
+  function clearProductSelection() {
+    setProductId('');
   }
 
   function save() {
@@ -173,6 +190,14 @@ export function ProductionWorkspace({
         tone: 'error',
         title: scopesConfirmed ? PERMISSION_CHROME.annotate : PRODUCTION_PAGE_COPY.scopesUnconfirmed,
         detail: PERMISSION_CHROME.unauthorized,
+      });
+      return;
+    }
+    if (productRequiredForTab && !productFromCatalog) {
+      setFeedback({
+        tone: 'error',
+        title: 'No se anotó.',
+        detail: catalogReady ? PRODUCTION_PAGE_COPY.productRequired : PRODUCTION_PAGE_COPY.catalogEmpty,
       });
       return;
     }
@@ -247,7 +272,7 @@ export function ProductionWorkspace({
       const saved = recordLoss(ledger, session, {
         ...base,
         id: crypto.randomUUID(),
-        productId: productId || null,
+        productId: productFromCatalog ? productId : null,
         stepKey,
         quantityLost: draft.quantity.trim(),
         percentageLost: draft.percentage.trim(),
@@ -346,21 +371,33 @@ export function ProductionWorkspace({
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Producto</p>
           <SearchField
-            aria-label="Identificador de producto"
-            placeholder="Identificador de producto"
+            aria-label={PRODUCTION_PAGE_COPY.catalogSearchLabel}
+            placeholder={PRODUCTION_PAGE_COPY.catalogSearchLabel}
             value={productQuery}
-            onChange={(event) => setProductQuery(event.target.value)}
+            onChange={(event) => {
+              setProductQuery(event.target.value);
+              if (productId) clearProductSelection();
+            }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') selectProductId(productQuery);
+              if (event.key !== 'Enter') return;
+              event.preventDefault();
+              const first = catalogSearch.namesAvailable ? catalogSearch.hits[0] : undefined;
+              if (first) selectCatalogHit(first);
             }}
           />
           {catalogSearch.namesAvailable ? (
             <ul className="mt-1">
               {catalogSearch.hits.map((hit) => (
                 <li key={hit.productId}>
-                  <button type="button" className="text-sm text-[var(--isalwa-kiln)]" onClick={() => selectProductId(hit.productId)}>
-                    {hit.productId}
-                    {hit.name ? ` · ${hit.name}` : ''}
+                  <button
+                    type="button"
+                    className="text-sm text-[var(--isalwa-kiln)]"
+                    onClick={() => selectCatalogHit(hit)}
+                  >
+                    {hit.name ?? hit.productId}
+                    {hit.name ? (
+                      <span className="mt-0.5 block text-xs text-[var(--isalwa-slate)]">{hit.productId}</span>
+                    ) : null}
                   </button>
                 </li>
               ))}
@@ -368,7 +405,16 @@ export function ProductionWorkspace({
           ) : (
             <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.catalogEmpty}</p>
           )}
-          {productId ? <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">En uso · {productId}</p> : null}
+          {productFromCatalog ? (
+            <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">
+              En uso · {productDisplayName ?? PRODUCTION_PAGE_COPY.catalogSelect}
+              {productDisplayName ? (
+                <span className="ml-2 text-xs text-[var(--isalwa-slate)]">{productId}</span>
+              ) : null}
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.catalogSelect}</p>
+          )}
         </div>
         <label className="min-w-[12rem] text-xs text-[var(--isalwa-slate)]">
           Paso
@@ -516,7 +562,7 @@ export function ProductionWorkspace({
           <EmptyPanel
             title={PRODUCTION_PAGE_COPY.emptyTitle}
             description={PRODUCTION_PAGE_COPY.emptyDescription}
-            example="Elija un paso, escriba el identificador del producto y pulse Anotar. Un vacío no es cero de stock."
+            example="Elija un paso, seleccione un producto del catálogo y pulse Anotar. Un vacío no es cero de stock."
           />
         ) : (
           <div>
@@ -565,7 +611,10 @@ export function ProductionWorkspace({
         >
           <div className="min-h-0 flex-1 space-y-3">
             <p className="text-sm text-[var(--isalwa-slate)]">
-              {productId || 'Sin identificador'} · {stepLabel}
+              {productFromCatalog
+                ? `${productDisplayName ?? PRODUCTION_PAGE_COPY.catalogSelect}${productDisplayName ? ` · ${productId}` : ''}`
+                : PRODUCTION_PAGE_COPY.catalogSelect}{' '}
+              · {stepLabel}
             </p>
             {tab === 'quemas' ? (
               <>

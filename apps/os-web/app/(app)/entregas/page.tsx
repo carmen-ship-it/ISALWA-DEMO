@@ -46,7 +46,7 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
         }
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Use el identificador del pedido ya registrado. No se inventa una entrega desde el pedido.
+        Abra el pedido ya registrado de la lista. No se inventa una entrega desde el pedido.
       </p>
       {orders.length === 0 ? (
         <EmptyState

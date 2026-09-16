@@ -229,6 +229,10 @@ describe('finance operational desk access', () => {
 
   it('page and nav wire operational desk without activating product finance', () => {
     const page = readFileSync(resolve(__dirname, '../../app/(app)/finanzas/page.tsx'), 'utf8');
+    const desk = readFileSync(
+      resolve(__dirname, '../../components/finance/finance-operational-desk.tsx'),
+      'utf8',
+    );
     const presentation = readFileSync(
       resolve(__dirname, '../capabilities/presentation.ts'),
       'utf8',
@@ -240,6 +244,13 @@ describe('finance operational desk access', () => {
 
     assert.match(page, /resolveFinancePageAccess/);
     assert.match(page, /FinanceOperationalDesk/);
+    assert.match(page, /loadFinanceSubjectOptions/);
+    assert.match(desk, /SearchableSelect/);
+    assert.match(desk, /ServerPartyTypeahead/);
+    assert.doesNotMatch(desk, /finance-subject-id/);
+    assert.doesNotMatch(desk, /finance-subject-label/);
+    assert.doesNotMatch(desk, /Identificador/);
+    assert.equal(FINANCE_DESK_COPY.subjectId, 'Pedido / Cliente / Cotización');
     assert.doesNotMatch(page, /CapabilityLockedState/);
     assert.match(nav, /id: 'finanzas'/);
     assert.match(nav, /href: '\/finanzas'/);
@@ -255,5 +266,18 @@ describe('finance operational desk access', () => {
       presentation,
       /finance:\s*\{[\s\S]*?route:\s*'\/finanzas'/,
     );
+  });
+
+  it('cannot show the payment form without a selected subject id', () => {
+    const desk = readFileSync(
+      resolve(__dirname, '../../components/finance/finance-operational-desk.tsx'),
+      'utf8',
+    );
+    assert.match(desk, /const canShowForm = trimmedSubjectId\.length > 0/);
+    assert.match(desk, /selectOption\(id, props\.orderOptions\)/);
+    assert.match(desk, /selectOption\(id, props\.quoteOptions\)/);
+    assert.match(desk, /setSubjectId\(partyId\)/);
+    assert.doesNotMatch(desk, /onChange=\{\(event\) => setSubjectId/);
+    assert.doesNotMatch(desk, /onChange=\{\(event\) => setSubjectLabel/);
   });
 });
