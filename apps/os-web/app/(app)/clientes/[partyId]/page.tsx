@@ -21,6 +21,9 @@ import { WorkList } from '@/components/work/work-list';
 import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
+import { Cliente360Issues } from '@/components/issue/cliente-360-issues';
+import { CommitmentList } from '@/components/commitments/commitment-list';
+import { CommitmentRecordForm } from '@/components/commitments/commitment-record-form';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
@@ -28,6 +31,8 @@ import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
+import type { IssueListItem } from '@/lib/issue/types';
+import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import {
   canManageContacts,
   canMutateActiveParty,
@@ -306,9 +311,42 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     });
     const primaryContact =
       contacts.find((item) => item.id === composition.primaryContact.id) ?? null;
-    const reportedByLabel = (await getServerWebSession())?.displayLabel?.trim() ?? '';
+    const webSession = await getServerWebSession();
+    const reportedByLabel = webSession?.displayLabel?.trim() ?? '';
+    let actorMemberId = '';
+    try {
+      const authed = await client.getAuthenticatedSession();
+      actorMemberId = authed.memberId?.trim() ?? '';
+    } catch {
+      actorMemberId = '';
+    }
     const manualSubjectId = party.id.trim();
     const manualOrganizationId = party.organizationId.trim();
+
+    let partyIssues: IssueListItem[] = [];
+    try {
+      const issuePage = await client.listIssues({ view: 'all', partyId, limit: 20 });
+      partyIssues = (issuePage.items ?? []).map((item) => ({
+        issueId: item.issueId,
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        reporterMemberId: item.reporterMemberId,
+        ownerMemberId: item.ownerMemberId,
+        createdAt: item.createdAt,
+        references: item.references ?? [],
+      }));
+    } catch {
+      partyIssues = [];
+    }
+
+    let partyCommitments: Awaited<ReturnType<typeof client.listCommitments>>['items'] = [];
+    try {
+      const commitmentPage = await client.listCommitments({ partyId });
+      partyCommitments = commitmentPage.items ?? [];
+    } catch {
+      partyCommitments = [];
+    }
 
     return (
       <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
@@ -532,6 +570,32 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 </>
               )}
             </CommercialSectionState>
+          </PageSection>
+
+          <PageSection id="incidencias" card className={sectionClass}>
+            <Cliente360Issues
+              items={partyIssues}
+              partyId={partyId}
+              partyLabel={displayName}
+              reportedByLabel={reportedByLabel || undefined}
+            />
+          </PageSection>
+
+          <PageSection id="compromisos" card className={sectionClass}>
+            <SectionHeader title={COMMITMENT_COPY.title} />
+            <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              {COMMITMENT_COPY.sectionHint}
+            </p>
+            {actorMemberId ? (
+              <CommitmentRecordForm
+                organizationId={manualOrganizationId || party.organizationId}
+                ownerMemberId={actorMemberId}
+                partyId={partyId}
+              />
+            ) : null}
+            <div className="mt-6">
+              <CommitmentList items={partyCommitments} showOrigin />
+            </div>
           </PageSection>
 
           <PageSection id="historial" card className={sectionClass}>

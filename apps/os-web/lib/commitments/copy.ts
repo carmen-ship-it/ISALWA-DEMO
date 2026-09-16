@@ -10,6 +10,8 @@ export const COMMITMENT_COPY = {
   placeholder: 'Confirmar despacho mañana',
   empty: 'Sin compromisos pendientes.',
   emptyDescription: 'Los compromisos registrados con este cliente aparecerán aquí.',
+  sectionHint:
+    'Promesas registradas con este cliente: quién prometió, qué, para cuándo y si se cumplió. Un compromiso del cliente no confirma un pago.',
   ownerNote: 'Quedará a nombre de quien lo registra.',
   suggestion: 'Posible compromiso detectado',
   suggestionBoundary: 'Una sugerencia no es un compromiso hasta que una persona lo confirma.',

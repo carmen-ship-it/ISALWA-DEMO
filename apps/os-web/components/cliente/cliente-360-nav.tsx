@@ -13,6 +13,8 @@ const SECTIONS = [
   { id: 'cotizaciones', label: 'Cotizaciones' },
   { id: 'pedidos', label: 'Pedidos' },
   { id: 'trabajo', label: 'Seguimiento' },
+  { id: 'incidencias', label: 'Incidencias' },
+  { id: 'compromisos', label: 'Compromisos' },
   { id: 'historial', label: 'Historial' },
 ] as const;
 

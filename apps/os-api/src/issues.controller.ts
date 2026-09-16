@@ -23,30 +23,37 @@ import { resolveSession } from './os-session';
 import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
 
 type IssueSummary = {
-  id: string;
+  issueId: string;
   organizationId: string;
   title: string | null;
   description: string;
   status: IssueStatus;
-  reportedByMemberId: string;
+  reporterMemberId: string;
   ownerMemberId: string | null;
+  createdAt: string;
   reportedAt: string;
   resolvedAt: string | null;
   version: number;
+  references: Array<{ referenceType: string; referenceId: string }>;
 };
 
-function toSummary(record: IssueRecord): IssueSummary {
+function toSummary(
+  record: IssueRecord,
+  references: Array<{ referenceType: string; referenceId: string }> = [],
+): IssueSummary {
   return {
-    id: record.id,
+    issueId: record.id,
     organizationId: record.organizationId,
     title: record.title,
     description: record.description,
     status: record.status as IssueStatus,
-    reportedByMemberId: record.reportedByMemberId,
+    reporterMemberId: record.reportedByMemberId,
     ownerMemberId: record.currentOwnerMemberId,
+    createdAt: record.reportedAt.toISOString(),
     reportedAt: record.reportedAt.toISOString(),
     resolvedAt: record.resolvedAt?.toISOString() ?? null,
     version: record.version,
+    references,
   };
 }
 
@@ -104,9 +111,10 @@ export class IssuesController {
   async listIssues(
     @Req() req: Request,
     @Query('view') view: IssueView = 'open',
+    @Query('partyId') partyId?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-  ): Promise<{ items: IssueSummary[]; total: number }> {
+  ): Promise<{ items: IssueSummary[]; total: number; meta: { hasMore: boolean } }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const snap = await this.getAccessSnapshot(
@@ -209,12 +217,38 @@ export class IssuesController {
       // Sort by reportedAt desc
       records.sort((a, b) => b.reportedAt.getTime() - a.reportedAt.getTime());
 
-      const total = records.length;
+      const withRefs = await Promise.all(
+        records.map(async (record) => {
+          const refs = await this.issueStore.listReferencesForIssue(
+            session.organizationId,
+            record.id,
+          );
+          return {
+            record,
+            references: refs.map((r) => ({
+              referenceType: r.referenceType,
+              referenceId: r.referenceId,
+            })),
+          };
+        }),
+      );
+
+      const filtered = partyId
+        ? withRefs.filter((row) =>
+            row.references.some((r) => r.referenceType === 'party' && r.referenceId === partyId),
+          )
+        : withRefs;
+
+      const total = filtered.length;
       const offsetNum = offset ? parseInt(offset, 10) : 0;
       const limitNum = limit ? parseInt(limit, 10) : 50;
-      const paginated = records.slice(offsetNum, offsetNum + limitNum);
+      const paginated = filtered.slice(offsetNum, offsetNum + limitNum);
 
-      return { items: paginated.map(toSummary), total };
+      return {
+        items: paginated.map((row) => toSummary(row.record, row.references)),
+        total,
+        meta: { hasMore: offsetNum + paginated.length < total },
+      };
     } catch (err) {
       throw this.toHttp(err);
     }
@@ -242,7 +276,17 @@ export class IssuesController {
         throw new Error('NOT_FOUND'); // Return 404 for unauthorized reads (don't leak existence)
       }
 
-      return toSummary(issue);
+      const refs = await this.issueStore.listReferencesForIssue(
+        session.organizationId,
+        issue.id,
+      );
+      return toSummary(
+        issue,
+        refs.map((r) => ({
+          referenceType: r.referenceType,
+          referenceId: r.referenceId,
+        })),
+      );
     } catch (err) {
       throw this.toHttp(err);
     }
@@ -294,7 +338,7 @@ export class IssuesController {
         }
       }
 
-      return { items: relatedIssues.map(toSummary) };
+      return { items: relatedIssues.map((related) => toSummary(related)) };
     } catch (err) {
       throw this.toHttp(err);
     }

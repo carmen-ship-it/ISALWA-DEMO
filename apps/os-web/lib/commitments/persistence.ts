@@ -90,11 +90,11 @@ export async function listCommitmentsAction(query?: {
   const client = createOsApiClient(auth);
 
   try {
-    const result = await client.listCommitments({
-      partyId: query?.partyId,
-      ownerMemberId: query?.ownerMemberId,
-      lifecycle: query?.lifecycle,
-    });
+    const params: Record<string, string> = {};
+    if (query?.partyId) params.partyId = query.partyId;
+    if (query?.ownerMemberId) params.ownerMemberId = query.ownerMemberId;
+    if (query?.lifecycle) params.lifecycle = query.lifecycle;
+    const result = await client.listCommitments(params);
 
     return { ok: true, persisted: true, items: result.items };
   } catch (err) {
