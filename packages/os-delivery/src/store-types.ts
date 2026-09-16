@@ -4,6 +4,8 @@ export type OrderSnapshot = {
   id: string;
   organizationId: string;
   status: string;
+  /** Read-only commercial party inherited from OsOrder. Not invented here. */
+  partyId?: string | null;
   lines: readonly unknown[] | null;
 };
 

@@ -44,6 +44,7 @@ type OrderRow = {
   id: string;
   organizationId: string;
   status: string;
+  partyId?: string | null;
   lines?: Array<{
     id: string;
     descriptionSnapshot: string;
@@ -250,10 +251,10 @@ function mapDeliveryNote(row: DeliveryNoteRow): DeliveryNoteRecord {
     organizationId: row.organizationId,
     deliveryId: row.deliveryId,
     orderId: row.orderId,
-    documentKind: 'nota_de_entrega',
-    numberingPolicy: 'unknown',
+    documentKind: (row.documentKind as DeliveryNoteRecord['documentKind']) || 'nota_de_entrega',
+    numberingPolicy: (row.numberingPolicy as DeliveryNoteRecord['numberingPolicy']) || 'unknown',
     noteNumber: null,
-    externalDocumentNumber: row.externalDocumentNumber,
+    externalDocumentNumber: row.externalDocumentNumber ?? null,
     deliveredAt: asIso(row.deliveredAt),
     bornAt: asIso(row.bornAt),
     claimsInvoice: false,
@@ -281,10 +282,10 @@ function mapOutbound(row: OutboundNoteRow): OutboundNoteRecord {
     organizationId: row.organizationId,
     warehouseExitId: row.warehouseExitId,
     orderId: row.orderId,
-    documentKind: 'nota_de_salida',
-    numberingPolicy: 'unknown',
+    documentKind: (row.documentKind as OutboundNoteRecord['documentKind']) || 'nota_de_salida',
+    numberingPolicy: (row.numberingPolicy as OutboundNoteRecord['numberingPolicy']) || 'unknown',
     noteNumber: null,
-    externalDocumentNumber: row.externalDocumentNumber,
+    externalDocumentNumber: row.externalDocumentNumber ?? null,
     exitedAt: asIso(row.exitedAt),
     bornAt: asIso(row.bornAt),
     createdAt: asIso(row.createdAt),
@@ -381,6 +382,7 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
         id: row.id,
         organizationId: row.organizationId,
         status: row.status,
+        partyId: row.partyId ?? null,
         lines,
       };
       return snapshot;

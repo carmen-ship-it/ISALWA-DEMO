@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
+import { EntregaWriteDesk } from '@/components/delivery/entrega-write-desk';
 import {
   OWNER_REVIEW_V1_COPY,
   V1FlowValidateNotice,
@@ -14,13 +15,18 @@ export default async function EntregasPage() {
   const view = await loadEntregaPage();
   const panelStatus =
     view.status === 'ready' || view.status === 'empty' ? 'ready' : view.status;
+  const orderOptions = view.linkedOrders.map((order) => ({
+    id: order.orderId,
+    label: order.orderNumber,
+    description: order.status === 'open' ? 'Pedido abierto' : order.status,
+  }));
 
   return (
     <PageContainer label="Entregas">
       <PageHeader
         kicker="Entrega"
         title="Entregas"
-        description="Registro interno de salida y entrega. No reclama un número oficial."
+        description="Registro interno de entrega. Salida y llegada al cliente sin número oficial."
         action={
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="neutral">Sin número oficial</StatusPill>
@@ -35,6 +41,7 @@ export default async function EntregasPage() {
         description={OWNER_REVIEW_V1_COPY.entregasDescription}
       />
       <LinkedOrdersSection orders={view.linkedOrders} />
+      <EntregaWriteDesk orderOptions={orderOptions} />
       <EntregaPanel
         status={panelStatus}
         warehouseExits={view.warehouseExits}
@@ -72,7 +79,6 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
             <ListRow key={order.orderId} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                <p className="mt-1 font-mono text-xs text-[var(--isalwa-slate)]">{order.orderId}</p>
               </div>
               <Link
                 href={orderHref(order.partyId, order.orderId)}

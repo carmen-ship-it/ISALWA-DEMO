@@ -75,7 +75,7 @@ export class PdfLibPdfProvider implements PdfProvider {
 
     const ensureSpace = (needed: number) => {
       if (y - needed < MARGIN_BOTTOM) {
-        this.drawFooter(page, regular, doc.quoteNumber);
+        this.drawFooter(page, regular, doc.quoteNumber, doc.documentTitle);
         page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
         y = PAGE_HEIGHT - MARGIN_TOP;
       }
@@ -298,13 +298,22 @@ export class PdfLibPdfProvider implements PdfProvider {
       }
     }
 
-    this.drawFooter(page, regular, doc.quoteNumber);
+    this.drawFooter(page, regular, doc.quoteNumber, doc.documentTitle);
 
     return pdf.save();
   }
 
-  private drawFooter(page: PDFPage, font: PDFFont, quoteNumber: string) {
-    page.drawText(`ISALWA · Cotización ${quoteNumber}`, {
+  private drawFooter(
+    page: PDFPage,
+    font: PDFFont,
+    quoteNumber: string,
+    documentTitle: QuotePdfDocument['documentTitle'] = 'COTIZACIÓN',
+  ) {
+    const label =
+      documentTitle === 'NOTA DE ENTREGA'
+        ? `ISALWA · Nota de entrega ${quoteNumber}`
+        : `ISALWA · Cotización ${quoteNumber}`;
+    page.drawText(label, {
       x: MARGIN_X,
       y: MARGIN_BOTTOM - 16,
       size: 7,

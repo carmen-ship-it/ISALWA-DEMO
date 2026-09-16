@@ -39,6 +39,7 @@ import type {
 } from '@/lib/commercial/types';
 import type {
   CommitmentCommandName,
+  DeliveryCommandName,
   IssueCommandName,
   ProductFeedbackCommandName,
 } from '@isalwa/os-contracts';
@@ -432,6 +433,34 @@ export function createOsApiClient(auth: OsAuthContext) {
         idempotencyKey,
         retry: false,
       }),
+    executeDeliveryCommand: <T extends DeliveryCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<{ commandId: string; correlationId: string; data: Record<string, unknown> }>(
+        `/commands/${commandName}`,
+        {
+          method: 'POST',
+          body: payload,
+          idempotencyKey,
+          retry: false,
+        },
+      ),
+    getDeliveryNotePdf: async (noteId: string, opts?: { inline?: boolean }) => {
+      const binary = await requestBinary(
+        `/fulfillment/delivery-notes/${encodeURIComponent(noteId)}/pdf`,
+        {
+          method: 'GET',
+          query: opts?.inline ? { disposition: 'inline' } : undefined,
+        },
+      );
+      return {
+        bytes: binary.bytes,
+        contentType: binary.contentType || 'application/pdf',
+        filename: binary.filename ?? `nota-entrega-${noteId}.pdf`,
+      };
+    },
     listAudit: (query?: Record<string, string | number | boolean>) =>
       request<AuditListResponse>('/audit', { method: 'GET', query }),
     listMemoryChanges: (query?: Record<string, string | number | boolean>) =>

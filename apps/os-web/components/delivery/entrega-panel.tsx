@@ -1,4 +1,5 @@
 import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
+import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
 
@@ -63,9 +64,7 @@ function formatWhen(iso: string): string {
 function LineList({ lines }: { lines: EntregaLineView[] }) {
   if (lines.length === 0) {
     return (
-      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Sin líneas. El pedido no tiene cantidades conocidas para copiar.
-      </p>
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>
     );
   }
   return (
@@ -88,16 +87,16 @@ function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
   return (
     <section aria-label="Cronología" className="space-y-4">
       <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-        Cronología
+        {ENTREGA_PANEL_COPY.chronology}
       </h2>
       <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un pedido puede entregarse en partes. La cantidad guardada no declara el pedido como cumplido.
+        {ENTREGA_PANEL_COPY.partialDeliveries}
       </p>
       {items.length === 0 ? (
         <EmptyState
-          title="Sin movimientos todavía"
-          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden. Un vacío es intencional: no hay registro interno guardado aún."
-          example="Cuando exista un registro formalizado, saldrá aquí en orden cronológico."
+          title={ENTREGA_PANEL_COPY.chronologyEmpty}
+          description={ENTREGA_PANEL_COPY.internalRecord}
+          example={ENTREGA_PANEL_COPY.noteDoesNotPredate}
         />
       ) : (
         <Timeline
@@ -124,7 +123,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
   if (surface === 'loading') {
     return (
       <div className="space-y-6" data-entrega-boundary="loading" aria-busy="true" aria-live="polite">
-        <p className="text-sm text-[var(--isalwa-slate)]">Cargando el registro de entrega.</p>
+        <p className="text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.loading}</p>
         <Skeleton h={18} rounded="pill" />
         <Skeleton h={96} rounded="panel" />
       </div>
@@ -135,8 +134,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
     return (
       <div data-entrega-boundary="error">
         <EmptyState
-          title="No se pudo cargar el registro de entrega."
-          description="Este es un registro interno de entrega. No reclama un número oficial."
+          title={ENTREGA_PANEL_COPY.loadError}
+          description={ENTREGA_PANEL_COPY.internalRecord}
         />
       </div>
     );
@@ -146,8 +145,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
     return (
       <div data-entrega-boundary="permission" role="alert" data-owner-review-state="not-authorized">
         <EmptyState
-          title="No tiene permiso para ver este registro de entrega."
-          description="Este es un registro interno de entrega. No reclama un número oficial."
+          title={ENTREGA_PANEL_COPY.permissionDenied}
+          description={ENTREGA_PANEL_COPY.internalRecord}
           example="Con el permiso de entregas en la sesión, verá salidas y notas internas de esta empresa."
         />
       </div>
@@ -162,12 +161,19 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         <StatusPill tone="manual">No confirma pago en el libro</StatusPill>
       </div>
 
+      <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {ENTREGA_PANEL_COPY.beforeDelivery} {ENTREGA_PANEL_COPY.orderDoesNotEmit}{' '}
+        {ENTREGA_PANEL_COPY.numberingUnknown} {ENTREGA_PANEL_COPY.externalNumberPreserved}{' '}
+        {ENTREGA_PANEL_COPY.factoryNoteDistinct} {ENTREGA_PANEL_COPY.notInvoice}{' '}
+        {ENTREGA_PANEL_COPY.noSignatureMethod} {ENTREGA_PANEL_COPY.evidenceSeparate}
+      </p>
+
       {warehouseExits.length === 0 && deliveries.length === 0 ? (
         <div data-owner-review-state="no-data">
           <EmptyState
             title="Todavía no hay entregas registradas"
-            description="La empresa aún no tiene salidas de almacén ni notas de entrega internas guardadas. Un vacío de datos no es falta de permiso."
-            example="Cuando exista un registro formalizado de salida o llegada, aparecerá en la cronología."
+            description={ENTREGA_PANEL_COPY.internalRecord}
+            example={ENTREGA_PANEL_COPY.beforeDelivery}
           />
         </div>
       ) : null}
@@ -176,24 +182,23 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
       <PageSection card className="p-6 md:p-8">
         <SectionHeader
-          kicker="Entrega"
+          kicker={ENTREGA_PANEL_COPY.kicker}
           title={
             <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-              Nota de salida de almacén
+              {ENTREGA_PANEL_COPY.warehouseTitle}
             </h2>
           }
           action={<StatusPill tone="info">No es entrega</StatusPill>}
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Registra que la mercadería salió del almacén. No es la nota de entrega al cliente. No se
-          genera un número aquí; una referencia impresa externa puede anotarse como origen.
+          {ENTREGA_PANEL_COPY.warehouseDistinct}
         </p>
         {warehouseExits.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
             <EmptyState
               title="Todavía no hay salida de almacén"
-              description="Una salida de almacén no crea la nota de entrega. El vacío significa que aún no hay un registro guardado de salida."
-              example="El registro definitivo de salida se formalizará después de validar el flujo con la empresa."
+              description={ENTREGA_PANEL_COPY.warehouseDistinct}
+              example={ENTREGA_PANEL_COPY.orderDoesNotEmit}
             />
           </div>
         ) : (
@@ -227,24 +232,23 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
       <PageSection card className="p-6 md:p-8">
         <SectionHeader
-          kicker="Entrega"
+          kicker={ENTREGA_PANEL_COPY.kicker}
           title={
             <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-              Nota de entrega
+              {ENTREGA_PANEL_COPY.title}
             </h2>
           }
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Se crea solo cuando la mercadería llega al cliente. Un pedido o una salida de almacén no la
-          emiten. El pago no es requisito. Una excepción autorizada no es un pago confirmado en el
-          libro.
+          {ENTREGA_PANEL_COPY.beforeDelivery} {ENTREGA_PANEL_COPY.paymentNotRequired}{' '}
+          {ENTREGA_PANEL_COPY.exceptionNotPayment}
         </p>
         {deliveries.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
             <EmptyState
-              title="Todavía no hay una entrega registrada."
-              description="La nota de entrega se crea solo cuando la mercadería llega al cliente final. Un vacío no inventa llegada ni número oficial."
-              example="El registro definitivo de llegada se formalizará después de validar el flujo con la empresa."
+              title={ENTREGA_PANEL_COPY.noDeliveryYet}
+              description={ENTREGA_PANEL_COPY.beforeDelivery}
+              example={ENTREGA_PANEL_COPY.orderDoesNotEmit}
             />
           </div>
         ) : (
@@ -263,6 +267,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                       <StatusPill tone="manual">Sin confirmación de pago</StatusPill>
                     )}
                   </div>
+                  <p className="text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.delivered}</p>
                   <dl className="grid gap-6 sm:grid-cols-2">
                     <div>
                       <dt className="isalwa-section-label">Entregada</dt>
@@ -306,7 +311,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                           ) : null}
                           {item.paymentState === 'authorized_exception' ? (
                             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                              Una excepción autorizada no es un pago confirmado en el libro.
+                              {ENTREGA_PANEL_COPY.exceptionNotPayment}
                             </p>
                           ) : null}
                           {item.note ? <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{item.note}</p> : null}
@@ -315,7 +320,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                     </ul>
                   ) : (
                     <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                      El pago no es requisito para registrar la entrega.
+                      {ENTREGA_PANEL_COPY.paymentNotRequired}
                     </p>
                   )}
                 </li>

@@ -71,13 +71,28 @@ export type DeliveryResource = keyof typeof DELIVERY_RESOURCE_SCOPES;
 /** Partial quantity is stored. Fulfillment is unspecified. Do not invent a status. */
 export const DELIVERY_FULFILLMENT_STATUS: null = null;
 
+/**
+ * Product write names (Spanish ops language) plus legacy English aliases.
+ * CreateNotaDeEntrega births the internal nota with the delivery event.
+ * It does not invent fiscal numbering — only NE-PILOT provisional refs when unset.
+ */
 export const DELIVERY_COMMAND_NAMES = [
+  'CreateNotaDeEntrega',
+  'RecordSalida',
+  'RecordEntrega',
+  'CorrectDeliveryDocument',
   'RecordWarehouseExit',
   'RecordCustomerDelivery',
   'RecordDeliveryEvidence',
 ] as const;
 
 export type DeliveryCommandName = (typeof DELIVERY_COMMAND_NAMES)[number];
+
+/** Provisional internal document ref. Not fiscal. Not an OS sequence. */
+export function provisionalInternalDocumentRef(seed: string): string {
+  const slug = seed.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase() || 'PILOT';
+  return `NE-PILOT-${slug}`;
+}
 
 export const DELIVERY_EVIDENCE_ROLES = [
   'commercial_coordination',
@@ -221,6 +236,46 @@ export const RecordCustomerDeliverySchema = z
 
 export type RecordCustomerDeliveryPayload = z.output<typeof RecordCustomerDeliverySchema>;
 
+/** Alias of warehouse exit — Nota de salida. */
+export const RecordSalidaSchema = RecordWarehouseExitSchema;
+export type RecordSalidaPayload = RecordWarehouseExitPayload;
+
+/**
+ * Crear nota de entrega. Same shape as customer delivery.
+ * When externalDocumentNumber is omitted, the service stamps NE-PILOT-*.
+ */
+export const CreateNotaDeEntregaSchema = RecordCustomerDeliverySchema;
+export type CreateNotaDeEntregaPayload = RecordCustomerDeliveryPayload;
+
+/**
+ * Registrar entrega with received-by (deliveredTo) required.
+ * Does not invent fiscal numbering.
+ */
+export const RecordEntregaSchema = z
+  .object({
+    orderId: z.string().trim().min(1),
+    deliveredAt: z.string().datetime(),
+    deliveredTo: z.string().trim().min(1),
+    recordedBy: z.string().trim().min(1),
+    notes: optionalText,
+    source: z.literal(DELIVERY_SOURCE),
+    quantities: optionalQuantities,
+    externalDocumentNumber: optionalText,
+  })
+  .strict();
+
+export type RecordEntregaPayload = z.output<typeof RecordEntregaSchema>;
+
+/** Correction reserved; not implemented — refuse silent rewrite. */
+export const CorrectDeliveryDocumentSchema = z
+  .object({
+    deliveryNoteId: z.string().trim().min(1),
+    reason: z.string().trim().min(3).max(2000),
+  })
+  .strict();
+
+export type CorrectDeliveryDocumentPayload = z.output<typeof CorrectDeliveryDocumentSchema>;
+
 const evidenceBase = {
   subjectType: z.enum(DELIVERY_SUBJECT_TYPES),
   subjectId: z.string().trim().min(1),
@@ -254,6 +309,16 @@ export const RecordDeliveryEvidenceSchema = z.discriminatedUnion('role', [
 ]);
 
 export type RecordDeliveryEvidencePayload = z.output<typeof RecordDeliveryEvidenceSchema>;
+
+export const DELIVERY_COMMAND_PAYLOAD_SCHEMAS: Record<DeliveryCommandName, z.ZodTypeAny> = {
+  CreateNotaDeEntrega: CreateNotaDeEntregaSchema,
+  RecordSalida: RecordSalidaSchema,
+  RecordEntrega: RecordEntregaSchema,
+  CorrectDeliveryDocument: CorrectDeliveryDocumentSchema,
+  RecordWarehouseExit: RecordWarehouseExitSchema,
+  RecordCustomerDelivery: RecordCustomerDeliverySchema,
+  RecordDeliveryEvidence: RecordDeliveryEvidenceSchema,
+};
 
 export type StoredDeliveryEvidence = {
   role: DeliveryEvidenceRole;

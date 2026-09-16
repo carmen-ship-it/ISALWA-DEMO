@@ -36,6 +36,7 @@ export {
   formatBobCentavos,
   formatQuotePdfDate,
   sanitizeQuotePdfFilename,
+  sanitizeDeliveryNotePdfFilename,
 } from './pdf/quote-pdf-document';
 export type {
   QuotePdfDocument,

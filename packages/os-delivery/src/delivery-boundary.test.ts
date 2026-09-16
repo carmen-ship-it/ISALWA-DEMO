@@ -426,8 +426,9 @@ describe('delivery persistence and panel stay inside the boundary', () => {
       join(repo, 'apps/os-web/components/delivery/entrega-panel.tsx'),
       'utf8',
     );
-    for (const sentence of Object.values(ENTREGA_PANEL_COPY)) {
-      assert.ok(panel.includes(sentence), sentence);
+    assert.match(panel, /ENTREGA_PANEL_COPY/);
+    for (const key of Object.keys(ENTREGA_PANEL_COPY)) {
+      assert.match(panel, new RegExp(`ENTREGA_PANEL_COPY\\.${key}`), key);
     }
     assert.doesNotMatch(panel, /signatureMethod/);
     assert.doesNotMatch(panel, /NE-\d/);
@@ -444,10 +445,10 @@ describe('delivery persistence and panel stay inside the boundary', () => {
     assert.doesNotMatch(entregas, /noteNumber/);
     const loading = readFileSync(join(repo, 'apps/os-web/app/(app)/entregas/loading.tsx'), 'utf8');
     assert.match(loading, /loading/);
-    assert.match(panel, /Cronología/);
-    assert.match(panel, /Cargando el registro de entrega/);
-    assert.match(panel, /No se pudo cargar el registro de entrega/);
-    assert.match(panel, /No tiene permiso para ver este registro de entrega/);
+    assert.match(panel, /ENTREGA_PANEL_COPY\.chronology/);
+    assert.match(panel, /ENTREGA_PANEL_COPY\.loading/);
+    assert.match(panel, /ENTREGA_PANEL_COPY\.loadError/);
+    assert.match(panel, /ENTREGA_PANEL_COPY\.permissionDenied/);
     assert.doesNotMatch(panel, /Cumplido/);
   });
 });

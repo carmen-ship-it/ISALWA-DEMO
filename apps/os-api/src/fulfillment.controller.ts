@@ -4,8 +4,10 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Param,
   Query,
   Req,
+  StreamableFile,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { getOsPrisma } from '@isalwa/os-database';
@@ -18,7 +20,11 @@ import {
 } from '@isalwa/os-read-fulfillment';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { resolveSession } from './os-session';
-import { OS_STORE } from './os-store.module';
+import {
+  OS_DELIVERY_NOTE_PDF_SERVICE,
+  OS_STORE,
+} from './os-store.module';
+import type { DeliveryNotePdfService } from './delivery-note-pdf.service';
 
 type FulfillmentListResponse<T> = {
   sourceState: 'AVAILABLE' | 'NO_FACT' | 'UNPROVEN' | 'ERROR';
@@ -46,8 +52,6 @@ function createService(): FulfillmentReadService {
   if (!prisma) {
     throw new HttpException({ code: 'PROVIDER_NOT_CONFIGURED' }, HttpStatus.SERVICE_UNAVAILABLE);
   }
-  // Prisma delegates are structural for this port; line rows use outboundNoteId/deliveryNoteId
-  // and the adapter maps them to noteId.
   return new FulfillmentReadService(
     createPrismaFulfillmentReadDb(prisma as unknown as FulfillmentPrismaDb),
   );
@@ -68,7 +72,10 @@ function availableList<T>(items: T[]): FulfillmentListResponse<T> {
  */
 @Controller('fulfillment')
 export class FulfillmentController {
-  constructor(@Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore) {}
+  constructor(
+    @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
+    @Inject(OS_DELIVERY_NOTE_PDF_SERVICE) private readonly deliveryNotePdf: DeliveryNotePdfService,
+  ) {}
 
   @Get('warehouse-exits')
   async listWarehouseExits(
@@ -145,6 +152,35 @@ export class FulfillmentController {
         };
       }
       return availableList(result.rows);
+    } catch (err) {
+      throw mapFulfillmentError(err);
+    }
+  }
+
+  @Get('delivery-notes/:noteId/pdf')
+  async getDeliveryNotePdf(
+    @Param('noteId') noteId: string,
+    @Query('disposition') disposition: string | undefined,
+    @Req() req: Request,
+  ) {
+    try {
+      const trimmed = noteId?.trim();
+      if (!trimmed) {
+        throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+      }
+      const session = await resolveSession(req, this.workforceStore);
+      const rendered = await this.deliveryNotePdf.renderAuthorizedNote({
+        organizationId: session.organizationId,
+        actorMemberId: session.actorMemberId,
+        effectiveAt: session.effectiveAt,
+        noteId: trimmed,
+      });
+      const inline = disposition === 'inline';
+      const contentDisposition = `${inline ? 'inline' : 'attachment'}; filename="${rendered.filename}"`;
+      return new StreamableFile(Buffer.from(rendered.bytes), {
+        type: rendered.contentType,
+        disposition: contentDisposition,
+      });
     } catch (err) {
       throw mapFulfillmentError(err);
     }

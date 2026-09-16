@@ -15,11 +15,13 @@ import {
   parseRecordCustomerDelivery,
   parseRecordDeliveryEvidence,
   parseRecordWarehouseExit,
+  provisionalInternalDocumentRef,
   requireSessionOrganization,
   storeDeliveredQuantities,
   suggestRecipientsInTenant,
   visibleInSession,
   type CopiedDeliveryLine,
+  type DeliveryCommandName,
   type DeliveryResource,
 } from '../../os-contracts/src/delivery';
 import { createId } from '../../ts-utils/src/index';
@@ -37,6 +39,13 @@ export type DeliveryContext = {
   organizationId?: string | null;
   actorMemberId: string;
   effectiveAt: Date;
+  correlationId?: string;
+};
+
+export type DeliveryCommandResult = {
+  commandId: string;
+  correlationId: string;
+  data: Record<string, unknown>;
 };
 
 export type DeliveryAggregate = {
@@ -75,8 +84,8 @@ export type CustomerDeliveryResult = {
   bornAt: string;
   deliveredAt: string;
   lineCount: number;
+  partyId: string | null;
 };
-
 
 // Same error codes as os-domain. Local so this lane does not edit the shared domain package.
 function assertTenantMatch(sessionOrgId: string, resourceOrgId: string): void {
@@ -104,9 +113,70 @@ export const DELIVERY_LIVE_WRITE = 'UNPROVEN' as const;
 export class DeliveryCommandService {
   constructor(private readonly store: DeliveryStore) {}
 
+  async execute(
+    command: DeliveryCommandName,
+    ctx: DeliveryContext,
+    payload: Record<string, unknown>,
+    _idempotencyKey?: string,
+  ): Promise<DeliveryCommandResult> {
+    const correlationId = ctx.correlationId?.trim() || createId();
+    let data: Record<string, unknown>;
+    switch (command) {
+      case 'CreateNotaDeEntrega':
+        data = { ...(await this.createNotaDeEntrega(ctx, payload)) };
+        break;
+      case 'RecordSalida':
+      case 'RecordWarehouseExit':
+        data = { ...(await this.recordWarehouseExit(ctx, payload)) };
+        break;
+      case 'RecordEntrega':
+        data = { ...(await this.recordEntrega(ctx, payload)) };
+        break;
+      case 'RecordCustomerDelivery':
+        data = { ...(await this.recordCustomerDelivery(ctx, payload)) };
+        break;
+      case 'RecordDeliveryEvidence':
+        data = { ...(await this.recordEvidence(ctx, payload)) };
+        break;
+      case 'CorrectDeliveryDocument':
+        throw new Error('VALIDATION_FAILED');
+      default:
+        throw new Error('VALIDATION_FAILED');
+    }
+    return {
+      commandId: createId(),
+      correlationId,
+      data,
+    };
+  }
+
   /** A nota de entrega cannot be opened before goods reach the customer. */
   createNoteBeforeDelivery(): never {
     return createDeliveryNoteWithoutDelivery();
+  }
+
+  /**
+   * Human Crear Nota. Inherits order lines. Stamps NE-PILOT provisional ref when
+   * no external printed number is supplied. Does not invent fiscal numbering.
+   */
+  async createNotaDeEntrega(ctx: DeliveryContext, payload: unknown): Promise<CustomerDeliveryResult> {
+    const parsed = parseRecordCustomerDelivery(payload);
+    const withProvisional =
+      parsed.externalDocumentNumber == null
+        ? { ...parsed, externalDocumentNumber: provisionalInternalDocumentRef(parsed.orderId) }
+        : parsed;
+    return this.recordCustomerDelivery(ctx, withProvisional);
+  }
+
+  /** Human Registrar Entrega — received-by (deliveredTo) required. */
+  async recordEntrega(ctx: DeliveryContext, payload: unknown): Promise<CustomerDeliveryResult> {
+    const parsed = parseRecordCustomerDelivery(payload);
+    if (!parsed.deliveredTo?.trim()) throw new Error('VALIDATION_FAILED');
+    const withProvisional =
+      parsed.externalDocumentNumber == null
+        ? { ...parsed, externalDocumentNumber: provisionalInternalDocumentRef(parsed.orderId) }
+        : parsed;
+    return this.recordCustomerDelivery(ctx, withProvisional);
   }
 
   async recordWarehouseExit(ctx: DeliveryContext, payload: unknown): Promise<WarehouseExitResult> {
@@ -222,6 +292,7 @@ export class DeliveryCommandService {
         bornAt,
         deliveredAt: parsed.deliveredAt,
         lineCount: lines.length,
+        partyId: order.partyId ?? null,
       };
     } catch (err) {
       throw asError(err);
@@ -293,6 +364,23 @@ export class DeliveryCommandService {
 
   async getDeliveryNoteById(ctx: DeliveryContext, noteId: string): Promise<DeliveryNoteRecord> {
     return this.readById(ctx, 'delivery_note', noteId, (orgId, id) => this.store.getDeliveryNoteById(orgId, id));
+  }
+
+  async listLinesForDeliveryNote(
+    ctx: DeliveryContext,
+    noteId: string,
+  ): Promise<NoteLineRecord[]> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const note = visibleInSession(organizationId, await this.store.getDeliveryNoteById(organizationId, noteId));
+    if (!note) throw new Error('NOT_FOUND');
+    return this.store.listDeliveryNoteLines(organizationId, noteId);
+  }
+
+  async getOrderPartyId(ctx: DeliveryContext, orderId: string): Promise<string | null> {
+    const organizationId = await this.authorizeResource(ctx, 'delivery_note');
+    const order = await this.store.getOrderInOrg(organizationId, orderId);
+    if (!order || order.organizationId !== organizationId) throw new Error('NOT_FOUND');
+    return order.partyId ?? null;
   }
 
   async listDeliveryNotesForSession(ctx: DeliveryContext): Promise<DeliveryNoteRecord[]> {

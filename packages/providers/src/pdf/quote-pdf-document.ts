@@ -9,8 +9,8 @@ export type QuotePdfLine = {
 
 export type QuotePdfDocument = {
   quoteNumber: string;
-  /** Always "COTIZACIÓN" for this document type. */
-  documentTitle: 'COTIZACIÓN';
+  /** Cotización or honest delivery-note title. */
+  documentTitle: 'COTIZACIÓN' | 'NOTA DE ENTREGA';
   brandName: string;
   organizationLegalName?: string | null;
   issuedAtLabel: string;
@@ -66,4 +66,12 @@ export function sanitizeQuotePdfFilename(quoteNumber: string): string {
     .replace(/^\.+/, '')
     .replace(/^_+|_+$/g, '');
   return `cotizacion-${safe || 'documento'}.pdf`;
+}
+
+export function sanitizeDeliveryNotePdfFilename(documentRef: string): string {
+  const safe = documentRef
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .replace(/^\.+/, '')
+    .replace(/^_+|_+$/g, '');
+  return `nota-entrega-${safe || 'documento'}.pdf`;
 }

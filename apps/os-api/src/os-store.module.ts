@@ -59,8 +59,17 @@ import {
   type MemberQueryStorePort,
 } from '@isalwa/os-query';
 import { QuotePdfService } from './quote-pdf.service';
+import { DeliveryNotePdfService } from './delivery-note-pdf.service';
+import {
+  DeliveryCommandService,
+  MemoryDeliveryStore,
+  createPrismaDeliveryStore,
+  type DeliveryStore,
+} from '@isalwa/os-delivery';
 
 export const OS_STORE = Symbol('OS_STORE');
+export const OS_DELIVERY_STORE = Symbol('OS_DELIVERY_STORE');
+export const OS_DELIVERY_COMMAND_SERVICE = Symbol('OS_DELIVERY_COMMAND_SERVICE');
 export const OS_PARTY_STORE = Symbol('OS_PARTY_STORE');
 export const OS_WORK_STORE = Symbol('OS_WORK_STORE');
 export const OS_PROJECTION_STORE = Symbol('OS_PROJECTION_STORE');
@@ -88,6 +97,7 @@ export const OS_MEMBER_QUERY_STORE = Symbol('OS_MEMBER_QUERY_STORE');
 export const OS_MEMBER_QUERY_SERVICE = Symbol('OS_MEMBER_QUERY_SERVICE');
 export const OS_CAPABILITY_QUERY_SERVICE = Symbol('OS_CAPABILITY_QUERY_SERVICE');
 export const OS_QUOTE_PDF_SERVICE = Symbol('OS_QUOTE_PDF_SERVICE');
+export const OS_DELIVERY_NOTE_PDF_SERVICE = Symbol('OS_DELIVERY_NOTE_PDF_SERVICE');
 export const OS_PROJECTION_RUNNER = Symbol('OS_PROJECTION_RUNNER');
 export const OS_OUTBOX_WORKER_HOST = Symbol('OS_OUTBOX_WORKER_HOST');
 export const OS_ATTENTION_CLOCK = Symbol('OS_ATTENTION_CLOCK');
@@ -230,10 +240,27 @@ function createMemberQueryStore(): MemberQueryStorePort {
   throw new Error('Member queries require Postgres store');
 }
 
+function createDeliveryStore(): DeliveryStore {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return createPrismaDeliveryStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  return new MemoryDeliveryStore();
+}
+
 @Global()
 @Module({
   providers: [
     { provide: OS_STORE, useFactory: createWorkforceStore },
+    { provide: OS_DELIVERY_STORE, useFactory: createDeliveryStore },
+    {
+      provide: OS_DELIVERY_COMMAND_SERVICE,
+      useFactory: (store: DeliveryStore) => new DeliveryCommandService(store),
+      inject: [OS_DELIVERY_STORE],
+    },
     { provide: OS_PARTY_STORE, useFactory: createPartyStore },
     { provide: OS_WORK_STORE, useFactory: createWorkStore },
     { provide: OS_COMMERCIAL_STORE, useFactory: createCommercialStore },
@@ -403,6 +430,12 @@ function createMemberQueryStore(): MemberQueryStorePort {
       inject: [OS_PARTY_STORE],
     },
     {
+      provide: OS_DELIVERY_NOTE_PDF_SERVICE,
+      useFactory: (deliveryCommands: DeliveryCommandService, partyStore: OsPartyStore) =>
+        new DeliveryNotePdfService(deliveryCommands, partyStore),
+      inject: [OS_DELIVERY_COMMAND_SERVICE, OS_PARTY_STORE],
+    },
+    {
       provide: OS_PROJECTION_RUNNER,
       useFactory: (
         outboxStore: OsOutboxStorePort,
@@ -465,6 +498,8 @@ function createMemberQueryStore(): MemberQueryStorePort {
   ],
   exports: [
     OS_STORE,
+    OS_DELIVERY_STORE,
+    OS_DELIVERY_COMMAND_SERVICE,
     OS_PARTY_STORE,
     OS_WORK_STORE,
     OS_PROJECTION_STORE,
@@ -491,6 +526,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_MEMBER_QUERY_SERVICE,
     OS_CAPABILITY_QUERY_SERVICE,
     OS_QUOTE_PDF_SERVICE,
+    OS_DELIVERY_NOTE_PDF_SERVICE,
     OS_PROJECTION_RUNNER,
     OS_OUTBOX_WORKER_HOST,
     OS_ATTENTION_CLOCK,
