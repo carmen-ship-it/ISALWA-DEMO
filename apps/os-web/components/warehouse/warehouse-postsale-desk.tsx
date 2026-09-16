@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useRef, useState, useTransition, type FormEvent } from 'react';
 import {
   Button,
   FeedbackNote,
@@ -27,6 +27,7 @@ type ReceiveDraft = {
   contextOrderId: string;
   contextOrderLineId: string;
   note: string;
+  idempotencyKey: string;
 };
 
 type WarehousePostSaleDeskProps = {
@@ -59,6 +60,8 @@ export function WarehousePostSaleDesk({
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; title: string; detail?: string } | null>(
     null,
   );
+  const [pending, startTransition] = useTransition();
+  const attemptKeyRef = useRef<string | null>(null);
 
   const pedido = useMemo(
     () => pedidos.find((row) => row.orderId === orderId) ?? null,
@@ -66,33 +69,46 @@ export function WarehousePostSaleDesk({
   );
   const line = resolveLineProduct(pedido, orderLineId);
 
-  async function submitReceive(event: FormEvent) {
+  function submitReceive(event: FormEvent) {
     event.preventDefault();
     setFeedback(null);
-    if (!onReceive || !canReceive || !pedido || !line || !quantity.trim()) {
-      setFeedback({
-        tone: 'error',
-        title: 'Seleccione pedido, producto y una cantidad válida.',
+    if (!onReceive || !canReceive || !pedido || !line || !quantity.trim() || pending) {
+      if (!pending) {
+        setFeedback({
+          tone: 'error',
+          title: 'Seleccione pedido, producto y una cantidad válida.',
+        });
+      }
+      return;
+    }
+    if (!attemptKeyRef.current) {
+      attemptKeyRef.current =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `fg-${Date.now()}`;
+    }
+    const idempotencyKey = attemptKeyRef.current;
+    startTransition(async () => {
+      const result = await onReceive({
+        productId: line.productId,
+        quantity: quantity.trim(),
+        contextOrderId: pedido.orderId,
+        contextOrderLineId: line.orderLineId,
+        note: note.trim(),
+        idempotencyKey,
       });
-      return;
-    }
-    const result = await onReceive({
-      productId: line.productId,
-      quantity: quantity.trim(),
-      contextOrderId: pedido.orderId,
-      contextOrderLineId: line.orderLineId,
-      note: note.trim(),
+      if (!result.ok) {
+        setFeedback({ tone: 'error', title: result.error ?? 'No se pudo registrar el ingreso.' });
+        return;
+      }
+      attemptKeyRef.current = null;
+      setFeedback({
+        tone: 'success',
+        title: 'Ingreso físico registrado. No asigna el pedido ni publica stock oficial.',
+      });
+      setQuantity('');
+      setNote('');
     });
-    if (!result.ok) {
-      setFeedback({ tone: 'error', title: result.error ?? 'No se pudo registrar el ingreso.' });
-      return;
-    }
-    setFeedback({
-      tone: 'success',
-      title: 'Ingreso físico registrado. No asigna el pedido ni publica stock oficial.',
-    });
-    setQuantity('');
-    setNote('');
   }
 
   return (
@@ -132,7 +148,9 @@ export function WarehousePostSaleDesk({
               <input className={fieldClass} value={note} onChange={(event) => setNote(event.target.value)} />
             </label>
             <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
-              <Button type="submit">Registrar ingreso físico</Button>
+              <Button type="submit" disabled={pending}>
+                {pending ? 'Registrando…' : 'Registrar ingreso físico'}
+              </Button>
             </div>
           </form>
         ) : canReceive ? (

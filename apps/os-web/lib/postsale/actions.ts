@@ -59,10 +59,13 @@ export async function receiveFinishedGoodsAction(input: {
   contextOrderId: string;
   contextOrderLineId: string;
   note?: string;
+  /** Client-stable key for retry/double-click; UI must reuse until success. */
+  idempotencyKey?: string;
 }): Promise<PostSaleReceiveResult> {
   const parsed = ReceiveFinishedGoodsPayloadSchema.safeParse({
     productId: input.productId,
     quantity: input.quantity,
+    receivedAt: new Date().toISOString(),
     contextOrderId: input.contextOrderId,
     contextOrderLineId: input.contextOrderLineId,
     note: input.note?.trim() || null,
@@ -75,8 +78,9 @@ export async function receiveFinishedGoodsAction(input: {
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
 
   const client = createOsApiClient(auth);
+  const idempotencyKey = input.idempotencyKey?.trim() || createId();
   try {
-    await client.post('/commands/ReceiveFinishedGoods', parsed.data, createId());
+    await client.post('/commands/ReceiveFinishedGoods', parsed.data, idempotencyKey);
     revalidatePath('/almacen');
     revalidatePath('/inicio');
     return { ok: true };
