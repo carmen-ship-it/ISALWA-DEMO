@@ -11,6 +11,8 @@ import type { WorkListResponse } from '@/lib/work/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { mergeRelatedWork } from '@/lib/work/follow-up';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
+import { loadDocumentLinks, type DocumentLinksOutcome } from './document-links';
+import { loadClienteFinanceSummary, type FinanceSummaryOutcome } from './finance-summary';
 
 export type Cliente360Data = {
   detail: PartyDetailResponse;
@@ -20,6 +22,8 @@ export type Cliente360Data = {
   timeline: FetchOutcome<PartyTimelineResponse>;
   relatedWork: FetchOutcome<WorkListResponse>;
   locations: FetchOutcome<PartyLocationsResponse>;
+  documentLinks: DocumentLinksOutcome;
+  financeSummary: FinanceSummaryOutcome;
   memberLabels: Awaited<ReturnType<typeof resolveMemberLabels>>;
   staleFreshness: boolean;
 };
@@ -37,7 +41,7 @@ export async function loadCliente360(
   const detail = await client.getParty(partyId);
   const commercialAccountId = detail.commercialAccount?.id ?? null;
 
-  const [opportunities, quotes, orders, timeline, relatedWork, locations] = await Promise.all([
+  const [opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary] = await Promise.all([
     fetchCommercialSection(() => client.listOpportunities({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listQuotes({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listOrders({ partyId, limit: 10 })),
@@ -63,6 +67,8 @@ export async function loadCliente360(
       }
     }),
     fetchCommercialSection(() => client.listPartyLocations(partyId)),
+    loadDocumentLinks(client, partyId),
+    loadClienteFinanceSummary(client, partyId),
   ]);
 
   const memberIds = new Set<string>();
@@ -108,10 +114,12 @@ export async function loadCliente360(
     timeline,
     relatedWork,
     locations,
+    documentLinks,
+    financeSummary,
     memberLabels,
     staleFreshness,
   };
 }
 
-/** Cliente detail: 1 party + 4 commercial/timeline + 1 work + 1 locations = 7 parallel reads max. */
-export const CLIENTE_360_REQUEST_COUNT = 7;
+/** Cliente detail: 1 party + 4 commercial/timeline + 1 work + 1 locations + 2 dossier = 9 parallel reads max. */
+export const CLIENTE_360_REQUEST_COUNT = 9;

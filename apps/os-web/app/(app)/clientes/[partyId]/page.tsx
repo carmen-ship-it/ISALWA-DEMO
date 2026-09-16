@@ -22,6 +22,8 @@ import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form'
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { Cliente360Issues } from '@/components/issue/cliente-360-issues';
+import { Cliente360Documentos } from '@/components/cliente/cliente-360-documentos';
+import { Cliente360Finanzas } from '@/components/cliente/cliente-360-finanzas';
 import { CommitmentList } from '@/components/commitments/commitment-list';
 import { CommitmentRecordForm } from '@/components/commitments/commitment-record-form';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -277,7 +279,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
 
   try {
     const data = await loadCliente360(client, partyId);
-    const { detail, opportunities, quotes, orders, timeline, relatedWork, locations, memberLabels } = data;
+    const { detail, opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary, memberLabels } = data;
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
@@ -581,6 +583,14 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               partyLabel={displayName}
               reportedByLabel={reportedByLabel || undefined}
             />
+          </PageSection>
+
+          <PageSection id="documentos" card className={sectionClass}>
+            <Cliente360Documentos outcome={documentLinks} />
+          </PageSection>
+
+          <PageSection id="finanzas" card className={sectionClass}>
+            <Cliente360Finanzas outcome={financeSummary} />
           </PageSection>
 
           <div className="mt-6">
