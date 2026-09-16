@@ -188,7 +188,7 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.equal(ALLOWED_SYNTHETIC_EMAILS.length, 9);
     assert.doesNotThrow(() => assertRoleEmailMapBounded());
     assert.equal(HOSTED_APP_SHA, 'ef7eeabdea5f8f4449ba706caa1a323435d96fcc');
-    assert.equal(EXPECTED_MIGRATION_COUNT, 30);
+    assert.equal(EXPECTED_MIGRATION_COUNT, 31);
 
     for (const planned of V1_PLANNED_ASSIGNMENTS) {
       assertCapabilitiesMatchPlanned(planned.functionId, planned.intendedCapabilities);
@@ -219,8 +219,8 @@ describe('staging-wave2-role-fixtures guards', () => {
   });
 
   it('I: migration count guard + confirm latch for idempotent entry', () => {
-    assert.throws(() => assertMigrationCount(29), /UNEXPECTED_MIGRATION_COUNT:29/);
-    assert.doesNotThrow(() => assertMigrationCount(30));
+    assert.throws(() => assertMigrationCount(30), /UNEXPECTED_MIGRATION_COUNT:30/);
+    assert.doesNotThrow(() => assertMigrationCount(31));
     assert.doesNotThrow(() => assertStagingFixtureConfirm(validEnv));
     assertPreConnectGuards(validEnv);
     assertPreConnectGuards(validEnv);

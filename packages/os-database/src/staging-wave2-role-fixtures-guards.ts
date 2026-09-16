@@ -9,7 +9,7 @@ export const STAGING_SUPABASE_PROJECT_REF = 'qbpxuywtoycjpitxoblo' as const;
 export const STAGING_DATABASE_NAME = 'isalwa_os_staging' as const;
 /** Hostname substring for Render staging Postgres (no secret). */
 export const STAGING_DATABASE_HOST_MARKER = 'dpg-dajd3kh5efls738falcg-a' as const;
-export const EXPECTED_MIGRATION_COUNT = 30 as const;
+export const EXPECTED_MIGRATION_COUNT = 31 as const;
 export const STAGING_FIXTURE_CONFIRM_VALUE = '1' as const;
 
 export const WAVE2_ROLE_FIXTURE_ORG_LEGAL_NAME =
