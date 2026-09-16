@@ -15,20 +15,20 @@
 
 | Gate | State |
 |------|--------|
-| CURRENT RUNTIME SHA (candidate) | **`b28e9fcafc339575ac6c667d2bbc2b1527e5db4d`** — **pending deploy confirmation** |
+| CURRENT RUNTIME SHA | **`9fbafb7ffff5e4cc7eba0840567487be7aa4a8b7`** — **VERIFIED** |
 | Implementation | **IMPLEMENTED** |
 | Automated tests | **TESTED** (os-issue lifecycle + adversarial; commitment; web issue/palette/feedback suites at commit time) |
 | Integrated | **YES** (API adapters + os-web surfaces on same SHA) |
 | Migration `20260919120000_os_issue_memory` | **APPLIED** (expected migration count **30**) |
-| DEPLOYED | **PENDING** — deploy IDs not confirmed against candidate SHA |
-| HOSTED | **PENDING / IN PROGRESS** — do **not** invent PASS |
-| BROWSER-VERIFIED | **UNPROVEN** — independent verifier not run |
-| USER-ACCEPTED | **NO** |
+| DEPLOYED | **PASS** — WEB `dep-dal2aldg1s2s73e065h0`, API `dep-dal2allg1s2s73e066r0` |
+| HOSTED | **PASS** — https://os-web-staging.onrender.com |
+| BROWSER-VERIFIED | **PASS** — Independent verifier 2026-09-16T05:24:54Z (AGENT 9) |
+| USER-ACCEPTED | **PENDING** |
 | AI | **OFF** (`modelCalled: false`; no OpenAI SDK / embeddings / AI keys / `AI_ENABLED`) |
-| REAL tenant after migration | **UNCHANGED** |
-| Overall Wave B hosted close | **NOT CLOSED** (await deploy confirm + verifier) |
+| REAL tenant after migration | **UNCHANGED** (partyCount=18, memberCount=3) |
+| Overall Wave B hosted close | **CONDITIONAL PASS** (19/20 checks pass, 1 conditional) |
 
-Do **not** claim HOSTED PASS or BROWSER-VERIFIED PASS until an independent verifier receipt exists for this SHA (or a successor explicitly pinned here).
+**Independent verifier receipt:** `docs/operations/wave-b-issue-memory-2026-09-16/independent-verifier-wave-b.md`
 
 ---
 
@@ -38,14 +38,14 @@ Proof vocabulary: keep `IMPLEMENTED` → `TESTED` → `INTEGRATED` → `DEPLOYED
 
 | Capability | Code | Tests | Integrated | Deployed | Hosted | BV | UA | Notes |
 |---|---|---|---|---|---|---|---|---|
-| **Issue aggregate** (`OsIssue` + lifecycle commands) | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | `@isalwa/os-issue`; `/incidencias` |
-| **Reportar problema** (universal) | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | Drawer + `/incidencias/reportar` |
-| **Palette Reportar problema** | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | ⌘K → `/incidencias/reportar` |
-| **Resolution Memory / precedents** | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | Cycles + `GET /v1/issues/:id/precedents` |
-| **Commitment API** (create/fulfill/cancel) | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | Existing `OsCommitment`; no second aggregate |
-| **Product Feedback** (≠ Issue) | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | `OsProductFeedback`; never auto-creates Issue |
-| **Organizational memory evidence** | IMPLEMENTED | TESTED | YES | PENDING | PENDING | UNPROVEN | NO | `MemoryEvidenceService` + `GET /v1/memory/evidence` |
-| **AI execution** | INTENTIONALLY DEFERRED | N/A | N/A | N/A | N/A | N/A | N/A | **AI OFF** |
+| **Issue aggregate** (`OsIssue` + lifecycle commands) | IMPLEMENTED | TESTED | YES | PASS | PASS | PASS | — | `@isalwa/os-issue`; `/incidencias` |
+| **Reportar problema** (universal) | IMPLEMENTED | TESTED | YES | PASS | PASS | PASS | — | Drawer + `/incidencias/reportar` |
+| **Palette Reportar problema** | IMPLEMENTED | TESTED | YES | PASS | PASS | — | — | ⌘K → `/incidencias/reportar` |
+| **Resolution Memory / precedents** | IMPLEMENTED | TESTED | YES | PASS | PASS | PASS | — | Cycles + resolve/reopen history preserved |
+| **Commitment API** (create/fulfill/cancel) | IMPLEMENTED | TESTED | YES | PASS | PASS | — | — | Existing `OsCommitment`; no second aggregate |
+| **Product Feedback** (≠ Issue) | IMPLEMENTED | TESTED | YES | PASS | PASS | — | — | `OsProductFeedback`; never auto-creates Issue |
+| **Organizational memory evidence** | IMPLEMENTED | TESTED | YES | PASS | PASS | — | — | `MemoryEvidenceService` + `GET /v1/memory/evidence` |
+| **AI execution** | INTENTIONALLY DEFERRED | N/A | N/A | N/A | N/A | N/A | N/A | **AI OFF** (verified) |
 | Commitment → Attention overdue type | NOT THIS WAVE | — | — | — | — | — | — | Wave C / Attention freeze |
 | SOP / Architect deep link | NOT THIS WAVE | — | — | — | — | — | — | Deferred |
 
@@ -152,14 +152,35 @@ Boundaries enforced in tests: possible cause ≠ confirmed cause; work complete 
 
 ## HISTORICAL
 
-Wave B first pass — no prior hosted verifier eras for Issue Memory.
+### Era 1 — 2026-09-16T05:24:54Z (AGENT 9)
 
-*(Empty until deploy + independent verifier receipts are filed.)*
+**SHA:** `9fbafb7ffff5e4cc7eba0840567487be7aa4a8b7`  
+**Deploy IDs:** WEB `dep-dal2aldg1s2s73e065h0`, API `dep-dal2allg1s2s73e066r0`  
+**Verifier:** AGENT 9 (independent — did not implement product)  
+**Result:** **PASS** (19/20 PASS, 1 CONDITIONAL)
+
+Browser-verified checks:
+- ✅ Reportar problema hosted submit + issue visible
+- ✅ Reporter cannot triage (403 PERMISSION_DENIED)
+- ✅ Manager triage/assign (201)
+- ✅ Journal possible cause not confirmed until explicit ConfirmIssueCause
+- ✅ Work complete does not auto-resolve issue
+- ✅ Resolve/reopen history preserved (resolvedAt, reopenedAt timestamps)
+- ✅ Cross-tenant denied (404)
+- ✅ AI OFF (no openai/AI_ENABLED)
+- ✅ Wave A coverage categories present (12 categories including owned_issues, open_commitments)
+- ✅ REAL unchanged (18 parties, 3 members)
+- ✅ Mobile 390 report path
+
+CONDITIONAL: CompleteWorkItem command shape (400) — invariant test still passed
+
+Receipt: `docs/operations/wave-b-issue-memory-2026-09-16/independent-verifier-wave-b.md`
 
 ---
 
 ## Exact next action
 
-1. Confirm hosted WEB + API deploy IDs match candidate SHA `b28e9fc…` (or pin successor SHA here).  
-2. Run independent hosted verifier on SYNTH (Issue report → triage → resolve; Commitment wire; Feedback ≠ Issue; memory evidence authz; REAL unchanged; AI OFF).  
-3. Only then update CURRENT VERDICT HOSTED / BV columns — never invent PASS.
+1. ~~Confirm hosted WEB + API deploy IDs match candidate SHA~~ **DONE**
+2. ~~Run independent hosted verifier on SYNTH~~ **DONE** (CONDITIONAL PASS)
+3. Await USER-ACCEPTED for full Wave B close
+4. Address API routing quirk (`/v1/v1/issues`) in follow-up
