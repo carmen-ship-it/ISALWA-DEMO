@@ -8,6 +8,7 @@ import {
   PrismaOsWorkStore,
   PrismaOsCommercialStore,
   PrismaOsImportStore,
+  PrismaOsCommitmentStore,
   PrismaMemberQueryStore,
   encodePartySearchCursor,
 } from '@isalwa/os-database';
@@ -23,6 +24,7 @@ import { PartyCommandService, LocationCommandService, type OsPartyStore } from '
 import { WorkCommandService, type OsWorkStore } from '@isalwa/os-work';
 import { CommercialCommandService, type OsCommercialStore } from '@isalwa/os-commercial';
 import { ImportCommandService, type OsImportStore } from '@isalwa/os-import';
+import { CommitmentCommandService, type OsCommitmentStore } from '@isalwa/os-commitment';
 import type { OsOutboxStorePort } from '@isalwa/os-events';
 import { OutboxWorkerHost, OutboxRecoveryService } from '@isalwa/os-events';
 import {
@@ -66,6 +68,8 @@ export const OS_COMMERCIAL_STORE = Symbol('OS_COMMERCIAL_STORE');
 export const OS_COMMERCIAL_COMMAND_SERVICE = Symbol('OS_COMMERCIAL_COMMAND_SERVICE');
 export const OS_IMPORT_STORE = Symbol('OS_IMPORT_STORE');
 export const OS_IMPORT_COMMAND_SERVICE = Symbol('OS_IMPORT_COMMAND_SERVICE');
+export const OS_COMMITMENT_STORE = Symbol('OS_COMMITMENT_STORE');
+export const OS_COMMITMENT_COMMAND_SERVICE = Symbol('OS_COMMITMENT_COMMAND_SERVICE');
 export const OS_PARTY_QUERY_SERVICE = Symbol('OS_PARTY_QUERY_SERVICE');
 export const OS_WORK_QUERY_SERVICE = Symbol('OS_WORK_QUERY_SERVICE');
 export const OS_APPROVAL_QUERY_SERVICE = Symbol('OS_APPROVAL_QUERY_SERVICE');
@@ -174,6 +178,17 @@ function createImportStore(): OsImportStore {
   throw new Error('Import lane requires Postgres store');
 }
 
+function createCommitmentStore(): OsCommitmentStore {
+  const prisma = getOsPrisma();
+  if (prisma) {
+    return new PrismaOsCommitmentStore(prisma);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('OS_DATABASE_URL required in production');
+  }
+  throw new Error('Commitment lane requires Postgres store');
+}
+
 function createMemberQueryStore(): MemberQueryStorePort {
   const prisma = getOsPrisma();
   if (prisma) {
@@ -193,6 +208,7 @@ function createMemberQueryStore(): MemberQueryStorePort {
     { provide: OS_WORK_STORE, useFactory: createWorkStore },
     { provide: OS_COMMERCIAL_STORE, useFactory: createCommercialStore },
     { provide: OS_IMPORT_STORE, useFactory: createImportStore },
+    { provide: OS_COMMITMENT_STORE, useFactory: createCommitmentStore },
     { provide: OS_PROJECTION_STORE, useFactory: createProjectionStore },
     { provide: OS_OUTBOX_STORE, useFactory: createOutboxStore },
     {
@@ -235,6 +251,11 @@ function createMemberQueryStore(): MemberQueryStorePort {
         OS_PARTY_COMMAND_SERVICE,
         OS_LOCATION_COMMAND_SERVICE,
       ],
+    },
+    {
+      provide: OS_COMMITMENT_COMMAND_SERVICE,
+      useFactory: (store: OsCommitmentStore) => new CommitmentCommandService(store),
+      inject: [OS_COMMITMENT_STORE],
     },
     {
       provide: OS_PARTY_QUERY_SERVICE,
@@ -402,6 +423,8 @@ function createMemberQueryStore(): MemberQueryStorePort {
     OS_WORK_COMMAND_SERVICE,
     OS_COMMERCIAL_STORE,
     OS_COMMERCIAL_COMMAND_SERVICE,
+    OS_COMMITMENT_STORE,
+    OS_COMMITMENT_COMMAND_SERVICE,
     OS_PARTY_QUERY_SERVICE,
     OS_WORK_QUERY_SERVICE,
     OS_APPROVAL_QUERY_SERVICE,

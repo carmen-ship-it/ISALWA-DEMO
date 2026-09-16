@@ -1,0 +1,34 @@
+{
+  "shaExpected": "780a54eb7aca8ad1eada519e530fd1052753dc4c",
+  "baseUrl": "https://os-web-staging.onrender.com",
+  "out": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/visual-system-pass-2026-09-15/shots/hosted-after",
+  "capturedAt": "2026-09-15T19:37:07.109Z",
+  "results": [
+    {
+      "id": "real",
+      "email": "carmen.staging@isalwa.demo",
+      "ok": true,
+      "reason": null,
+      "files": 35,
+      "fonts": {
+        "titleFont": "Newsreader, \"Newsreader Fallback\", Georgia, serif",
+        "titleStyle": "italic",
+        "bodyFont": "\"Plus Jakarta Sans\", \"Plus Jakarta Sans Fallback\", \"Segoe UI\", sans-serif",
+        "canvasBg": "rgb(246, 241, 232)"
+      }
+    },
+    {
+      "id": "synth-gerente",
+      "email": "w2.gerente@isalwa.demo",
+      "ok": true,
+      "reason": null,
+      "files": 11,
+      "fonts": {
+        "titleFont": "Newsreader, \"Newsreader Fallback\", Georgia, serif",
+        "titleStyle": "italic",
+        "bodyFont": "\"Plus Jakarta Sans\", \"Plus Jakarta Sans Fallback\", \"Segoe UI\", sans-serif",
+        "canvasBg": "rgb(246, 241, 232)"
+      }
+    }
+  ]
+}

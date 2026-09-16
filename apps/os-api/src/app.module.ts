@@ -14,6 +14,7 @@ import { AttentionController } from './attention.controller';
 import { OpportunitiesController, OrdersController, QuotesController } from './commercial.controller';
 import { CapabilitiesController } from './capabilities.controller';
 import { OperationsController } from './operations.controller';
+import { CommitmentsController } from './commitments.controller';
 import { OsStoreModule } from './os-store.module';
 import { isDevBootstrapEnabled } from './env-validation';
 
@@ -38,6 +39,7 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     OpportunitiesController,
     QuotesController,
     OrdersController,
+    CommitmentsController,
     ...devControllers,
   ],
 })

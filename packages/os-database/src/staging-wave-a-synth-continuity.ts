@@ -104,19 +104,24 @@ async function ensureMember(args: {
   assertFixtureToolEmailAllowed(email);
   assertNotRealTenant(orgId, new Set([REAL_ORG]));
 
-  const existingAuth = await prisma.osAuthIdentity.findFirst({
+  const existingAuthBySubject = await prisma.osAuthIdentity.findFirst({
     where: { provider: 'supabase', providerSubject: supabaseUserId },
   });
+  const existingAuthByEmail =
+    existingAuthBySubject ??
+    (await prisma.osAuthIdentity.findFirst({
+      where: { provider: 'supabase', email: { equals: email, mode: 'insensitive' } },
+    }));
 
-  let personId = existingAuth?.personId ?? randomUUID();
-  let authId = existingAuth?.id ?? randomUUID();
+  let personId = existingAuthByEmail?.personId ?? randomUUID();
+  let authId = existingAuthByEmail?.id ?? randomUUID();
   let memberId: string;
 
   const existingMember = await prisma.osOrganizationMember.findFirst({
     where: { organizationId: orgId, personId },
   });
 
-  if (!existingAuth) {
+  if (!existingAuthByEmail) {
     await workforceStore.insertPerson({
       id: personId,
       givenName,
@@ -145,30 +150,44 @@ async function ensureMember(args: {
       activatedAt: new Date(),
       revokedAt: null,
     });
-  } else if (!existingMember) {
-    memberId = randomUUID();
-    await workforceStore.insertMember({
-      id: memberId,
-      organizationId: orgId,
-      personId,
-      employmentStatus: 'active',
-      accessStatus: 'active',
-      employmentStartedAt: new Date(),
-      employmentEndedAt: null,
-      version: 0,
-    });
   } else {
-    memberId = existingMember.id;
-    if (existingMember.accessStatus !== 'active' || existingMember.employmentStatus !== 'active') {
-      await prisma.osOrganizationMember.update({
-        where: { id: memberId },
+    if (existingAuthByEmail.providerSubject !== supabaseUserId) {
+      await prisma.osAuthIdentity.update({
+        where: { id: existingAuthByEmail.id },
         data: {
-          accessStatus: 'active',
-          employmentStatus: 'active',
-          employmentEndedAt: null,
-          version: { increment: 1 },
+          providerSubject: supabaseUserId,
+          status: 'active',
+          revokedAt: null,
+          activatedAt: existingAuthByEmail.activatedAt ?? new Date(),
+          email,
         },
       });
+    }
+    if (!existingMember) {
+      memberId = randomUUID();
+      await workforceStore.insertMember({
+        id: memberId,
+        organizationId: orgId,
+        personId,
+        employmentStatus: 'active',
+        accessStatus: 'active',
+        employmentStartedAt: new Date(),
+        employmentEndedAt: null,
+        version: 0,
+      });
+    } else {
+      memberId = existingMember.id;
+      if (existingMember.accessStatus !== 'active' || existingMember.employmentStatus !== 'active') {
+        await prisma.osOrganizationMember.update({
+          where: { id: memberId },
+          data: {
+            accessStatus: 'active',
+            employmentStatus: 'active',
+            employmentEndedAt: null,
+            version: { increment: 1 },
+          },
+        });
+      }
     }
   }
 

@@ -158,6 +158,9 @@ importers:
       '@isalwa/os-commercial':
         specifier: workspace:*
         version: link:../../packages/os-commercial
+      '@isalwa/os-commitment':
+        specifier: workspace:*
+        version: link:../../packages/os-commitment
       '@isalwa/os-contracts':
         specifier: workspace:*
         version: link:../../packages/os-contracts
@@ -440,6 +443,31 @@ importers:
         specifier: ^5.8.2
         version: 5.9.3
 
+  packages/os-commitment:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
+      '@isalwa/os-domain':
+        specifier: workspace:*
+        version: link:../os-domain
+      '@isalwa/os-events':
+        specifier: workspace:*
+        version: link:../os-events
+      '@isalwa/ts-utils':
+        specifier: workspace:*
+        version: link:../ts-utils
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/os-contracts:
     dependencies:
       zod:
@@ -480,6 +508,9 @@ importers:
       '@isalwa/os-commercial':
         specifier: workspace:*
         version: link:../os-commercial
+      '@isalwa/os-commitment':
+        specifier: workspace:*
+        version: link:../os-commitment
       '@isalwa/os-contracts':
         specifier: workspace:*
         version: link:../os-contracts
@@ -598,6 +629,28 @@ importers:
       '@isalwa/os-party':
         specifier: workspace:*
         version: link:../os-party
+      '@isalwa/ts-utils':
+        specifier: workspace:*
+        version: link:../ts-utils
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/os-issue:
+    dependencies:
+      '@isalwa/os-contracts':
+        specifier: workspace:*
+        version: link:../os-contracts
+      '@isalwa/os-domain':
+        specifier: workspace:*
+        version: link:../os-domain
+      '@isalwa/os-events':
+        specifier: workspace:*
+        version: link:../os-events
       '@isalwa/ts-utils':
         specifier: workspace:*
         version: link:../ts-utils

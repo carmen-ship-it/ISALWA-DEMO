@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ISALWA Visual System Pass — 2026-09-15</title>
+<style>
+  :root {
+    --canvas: #f6f1e8;
+    --ink: #1a3352;
+    --muted: #5c6b7a;
+    --line: #e2d9cc;
+    --good: #2f6f5e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    background: var(--canvas);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  header {
+    padding: 2rem 1.5rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 2rem;
+    margin: 0.25rem 0 0.5rem;
+  }
+  .meta { color: var(--muted); font-size: 0.95rem; }
+  .meta code { background: #fff; padding: 0.1rem 0.35rem; border-radius: 4px; }
+  section {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+  }
+  h2 {
+    font-family: Newsreader, Georgia, serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.4rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(26,51,82,0.06);
+  }
+  th, td {
+    text-align: left;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th { background: color-mix(in srgb, var(--canvas) 70%, white); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .pass { color: var(--good); font-weight: 600; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+  figure {
+    margin: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #ddd;
+  }
+  figcaption {
+    padding: 0.6rem 0.75rem 0.85rem;
+    font-size: 0.85rem;
+  }
+  figcaption strong { display: block; margin-bottom: 0.2rem; }
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .note {
+    background: #fff;
+    border-left: 3px solid var(--good);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 8px 8px 0;
+  }
+</style>
+</head>
+<body>
+<header>
+  <p class="tag">ISALWA · Visual system + real pilot presentation</p>
+  <h1>Contact sheet — hosted AFTER</h1>
+  <p class="meta">
+    Base <code>16f82423269c0ddd0676a334c2c83e9289fe7d3a</code><br />
+    Final / deployed <code>780a54eb7aca8ad1eada519e530fd1052753dc4c</code> · deploy <code>dep-dakpomff3r2c73drvddg</code><br />
+    Hosted <code>https://os-web-staging.onrender.com</code> · persona real <code>carmen.staging@isalwa.demo</code><br />
+    Captured 2026-09-15 · fonts probed on /inicio
+  </p>
+  <div class="note">
+    <strong>Font probe (hosted AFTER):</strong>
+    DISPLAY = Newsreader italic · BODY = Plus Jakarta Sans · canvas = rgb(246, 241, 232) porcelain.
+    Map provider still unwired — “Lienzo en espera” is intentional, not a failed tile load.
+  </div>
+</header>
+
+<section>
+  <h2>Route scorecard (AFTER hosted)</h2>
+  <table>
+    <thead>
+      <tr><th>Route</th><th>BEFORE</th><th>AFTER</th><th>Changes</th><th>Caveat</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>/inicio</td><td>GOOD / flat hierarchy risk</td><td class="pass">GOOD</td><td>Centro de mando nest; attention elevation; porcelain canvas</td><td>Guided walkthrough overlay present</td></tr>
+      <tr><td>/clientes</td><td>TOO WHITE / TOO FLAT</td><td class="pass">GOOD</td><td>Porcelain + white desk; kiln Buscar; StatusPill Activo; 7 real customers</td><td>—</td></tr>
+      <tr><td>Cliente 360</td><td>TOO FLAT</td><td class="pass">GOOD</td><td>Identity hierarchy; navy Nueva oportunidad; honest empty nests</td><td>Sticky stack tall on 390</td></tr>
+      <tr><td>/oportunidades</td><td>TOO WHITE</td><td class="pass">GOOD</td><td>Intentional empty + example + Ir a Clientes</td><td>Real pipeline empty</td></tr>
+      <tr><td>/cotizaciones</td><td>TOO WHITE</td><td class="pass">GOOD</td><td>Same empty maturity</td><td>—</td></tr>
+      <tr><td>/pedidos</td><td>n/a top-level</td><td class="pass">GOOD (nested empty)</td><td>Empty nest via Cliente 360</td><td>No primary-nav /pedidos</td></tr>
+      <tr><td>/trabajo</td><td>GOOD</td><td class="pass">GOOD</td><td>Empty example strengthened</td><td>—</td></tr>
+      <tr><td>/aprobaciones</td><td>CRUD risk</td><td class="pass">GOOD</td><td>Decision framing; sticky decide actions</td><td>—</td></tr>
+      <tr><td>/productos</td><td>GOOD</td><td class="pass">GOOD</td><td>Light porcelain wrap</td><td>—</td></tr>
+      <tr><td>/produccion</td><td>TOO WHITE / FLAT</td><td class="pass">GOOD</td><td>OpsDeskSurface porcelain nest; sticky Guardar</td><td>—</td></tr>
+      <tr><td>/almacen</td><td>TOO FLAT</td><td class="pass">GOOD</td><td>Porcelain nest; intentional empty</td><td>—</td></tr>
+      <tr><td>/compras</td><td>GOOD cond.</td><td class="pass">GOOD</td><td>Nest + sticky filter strip</td><td>—</td></tr>
+      <tr><td>/entregas</td><td>TOO FLAT</td><td class="pass">GOOD</td><td>Empty maturity</td><td>—</td></tr>
+      <tr><td>/coordinacion</td><td>GOOD cond.</td><td class="pass">GOOD</td><td>Sticky decisión bar</td><td>—</td></tr>
+      <tr><td>/finanzas</td><td>TOO FLAT / warning-heavy</td><td class="pass">GOOD</td><td>Calm provenance; permission honesty</td><td>Capability key still visible in denial copy</td></tr>
+      <tr><td>/mapa</td><td>looked broken risk</td><td class="pass">GOOD</td><td>Lienzo en espera; coverage 2/7; Mapa in PRIMARY_NAV</td><td>Tiles unwired (intentional)</td></tr>
+      <tr><td>/ayuda</td><td>TOO WHITE</td><td class="pass">GOOD</td><td>Porcelain nests</td><td>—</td></tr>
+      <tr><td>/administracion</td><td>sparse</td><td class="pass">GOOD</td><td>Authorized desk depth</td><td>—</td></tr>
+      <tr><td>/mensajes</td><td>TOO WHITE</td><td class="pass">GOOD</td><td>Locked + manual panel split</td><td>Capability locked</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Hosted AFTER — desktop 1440 (real tenant)</h2>
+  <div class="grid">
+    <figure><img src="shots/hosted-after/real-inicio-1440.png" alt="/inicio 1440" /><figcaption><strong>/inicio</strong><span class="tag">1440 · real</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-clientes-1440.png" alt="/clientes 1440" /><figcaption><strong>/clientes</strong><span class="tag">1440 · 7 real</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-cliente360-1440.png" alt="Cliente 360 1440" /><figcaption><strong>Cliente 360</strong><span class="tag">COMERCIAL ALVAREZ</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-oportunidades-1440.png" alt="/oportunidades" /><figcaption><strong>/oportunidades</strong><span class="tag">empty intentional</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-cotizaciones-1440.png" alt="/cotizaciones" /><figcaption><strong>/cotizaciones</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-trabajo-1440.png" alt="/trabajo" /><figcaption><strong>/trabajo</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-aprobaciones-1440.png" alt="/aprobaciones" /><figcaption><strong>/aprobaciones</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-productos-1440.png" alt="/productos" /><figcaption><strong>/productos</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-produccion-1440.png" alt="/produccion" /><figcaption><strong>/produccion</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-almacen-1440.png" alt="/almacen" /><figcaption><strong>/almacen</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-compras-1440.png" alt="/compras" /><figcaption><strong>/compras</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-entregas-1440.png" alt="/entregas" /><figcaption><strong>/entregas</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-coordinacion-1440.png" alt="/coordinacion" /><figcaption><strong>/coordinacion</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-finanzas-1440.png" alt="/finanzas" /><figcaption><strong>/finanzas</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-mapa-1440.png" alt="/mapa" /><figcaption><strong>/mapa</strong><span class="tag">2/7 · lienzo en espera</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-ayuda-1440.png" alt="/ayuda" /><figcaption><strong>/ayuda</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-administracion-1440.png" alt="/administracion" /><figcaption><strong>/administracion</strong></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-mensajes-1440.png" alt="/mensajes" /><figcaption><strong>/mensajes</strong></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Hosted AFTER — mobile 390 (real tenant)</h2>
+  <div class="grid">
+    <figure><img src="shots/hosted-after/real-inicio-390.png" alt="/inicio 390" /><figcaption><strong>/inicio</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-clientes-390.png" alt="/clientes 390" /><figcaption><strong>/clientes</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-cliente360-390.png" alt="C360 390" /><figcaption><strong>Cliente 360</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-mapa-390.png" alt="/mapa 390" /><figcaption><strong>/mapa</strong><span class="tag">390 · guided overlay tall</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-oportunidades-390.png" alt="/oportunidades 390" /><figcaption><strong>/oportunidades</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-produccion-390.png" alt="/produccion 390" /><figcaption><strong>/produccion</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-finanzas-390.png" alt="/finanzas 390" /><figcaption><strong>/finanzas</strong><span class="tag">390</span></figcaption></figure>
+    <figure><img src="shots/hosted-after/real-aprobaciones-390.png" alt="/aprobaciones 390" /><figcaption><strong>/aprobaciones</strong><span class="tag">390</span></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Before baselines (selected)</h2>
+  <div class="grid">
+    <figure><img src="shots/inicio-before-1440.png" alt="inicio before" /><figcaption><strong>/inicio BEFORE</strong></figcaption></figure>
+    <figure><img src="shots/clientes-before-real-1440.png" alt="clientes before" /><figcaption><strong>/clientes BEFORE real</strong></figcaption></figure>
+    <figure><img src="shots/mapa-before-hosted-1440.png" alt="mapa before" /><figcaption><strong>/mapa BEFORE</strong></figcaption></figure>
+    <figure><img src="shots/produccion-before-hosted-1440.png" alt="produccion before" /><figcaption><strong>/produccion BEFORE</strong></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2>Workers</h2>
+  <p class="meta">True parallel: Agent1 shell <code>8e9ff67</code> · Agent2 commercial <code>9bf83f2</code> · Agent3 ops <code>8aa848e</code> · Agent4 mgmt <code>2e8221d</code> · Agent5 map <code>418bf5d</code> · Agent6 mobile <code>5df9fe7</code> · CT integrate + Mapa nav <code>780a54e</code></p>
+</section>
+</body>
+</html>
