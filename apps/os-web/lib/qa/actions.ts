@@ -23,6 +23,7 @@ import {
   type SynthPersona,
 } from '@/lib/qa/personas';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
+import { selectHostedQaViewRosterTarget } from '@/lib/qa/start-view';
 
 async function requireQaOperator() {
   if (!isQaControlEnabled()) {
@@ -94,15 +95,22 @@ export async function startQaView(formData: FormData): Promise<void> {
   if (!targetMemberId) throw new Error('TARGET_REQUIRED');
 
   const { items } = await client.listQaSynthPersonas();
-  const allowed = items.find(
-    (row) => row.memberId === targetMemberId && row.organizationId === QA_SYNTH_ORGANIZATION_ID,
-  );
-  if (!allowed) throw new Error('TARGET_NOT_ALLOWED');
+  const allowed = selectHostedQaViewRosterTarget({ targetMemberId, items });
 
-  const live = await client.getQaEffectiveAccess(targetMemberId);
-  if (live.organizationId.trim() !== QA_SYNTH_ORGANIZATION_ID) {
-    throw new Error('TARGET_NOT_ALLOWED');
+  // Live SYNTH confirm. Transport failure must not 500 the start action:
+  // roster is already SYNTH-only. Reject only when live org is present and not SYNTH.
+  let liveOrganizationId: string | undefined;
+  try {
+    const live = await client.getQaEffectiveAccess(allowed.memberId);
+    liveOrganizationId = String(live.organizationId ?? '').trim() || undefined;
+  } catch {
+    liveOrganizationId = undefined;
   }
+  selectHostedQaViewRosterTarget({
+    targetMemberId: allowed.memberId,
+    items,
+    liveOrganizationId: liveOrganizationId ?? allowed.organizationId,
+  });
 
   const value = createSignedQaViewCookieValue({
     actingMemberId,

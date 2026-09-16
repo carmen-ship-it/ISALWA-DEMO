@@ -29,12 +29,15 @@ describe('visual system — canvas + chrome', () => {
     assert.equal(/body\s*\{[^}]*background:\s*var\(--isalwa-white\)/.test(globals), false);
   });
 
-  it('keeps shell canvas porcelain and sticky header on glass-light', () => {
+  it('keeps shell canvas porcelain, navy-led desktop rail, sticky header on glass-light', () => {
     const shell = readFileSync(resolve(root, 'components/shell/app-shell.tsx'), 'utf8');
     assert.match(shell, /bg-\[var\(--isalwa-surface-canvas\)\]/);
     assert.match(shell, /isalwa-glass-light/);
-    assert.match(shell, /bg-\[var\(--isalwa-porcelain\)\]/);
+    assert.match(shell, /desktop-nav-rail/);
+    assert.match(shell, /--isalwa-kiln\)_12%,var\(--isalwa-sky-100\)/);
+    assert.match(shell, /--isalwa-kiln\)_28%,var\(--isalwa-glaze\)/);
     assert.doesNotMatch(shell, /min-h-screen bg-\[var\(--isalwa-white\)\]/);
+    assert.doesNotMatch(shell, /id="desktop-nav-rail"[\s\S]{0,280}bg-\[var\(--isalwa-porcelain\)\]/);
   });
 
   it('makes active nav obvious with teal edge + navy ink + sky/teal tint', () => {

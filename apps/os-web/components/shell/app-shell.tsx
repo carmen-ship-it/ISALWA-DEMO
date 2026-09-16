@@ -146,11 +146,11 @@ export function AppShell({
           railCollapsed ? 'lg:grid-cols-[4.5rem_1fr]' : 'lg:grid-cols-[17.5rem_1fr]',
         )}
       >
-        {/* Desktop rail — porcelain structure; sticky. Collapses to icon rail ≥ lg only. */}
+        {/* Desktop rail — navy/teal structure on porcelain canvas. Collapses to icon rail ≥ lg only. */}
         <aside
           id="desktop-nav-rail"
           className={cx(
-            'hidden border-r border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto',
+            'hidden border-r border-[color-mix(in_srgb,var(--isalwa-kiln)_28%,var(--isalwa-glaze))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-sky-100))] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto',
             railCollapsed ? 'lg:w-[4.5rem]' : 'lg:w-[17.5rem]',
           )}
           data-sidebar={railCollapsed ? 'collapsed' : 'expanded'}

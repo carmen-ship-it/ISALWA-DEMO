@@ -17,7 +17,7 @@ import {
   resolveSynthPersonas,
   type SynthPersona,
 } from '@/lib/qa/personas';
-import { resolveQaViewStartTarget } from '@/lib/qa/start-view';
+import { resolveQaViewStartTarget, selectHostedQaViewRosterTarget } from '@/lib/qa/start-view';
 import {
   QA_REAL_ORGANIZATION_ID,
   QA_SYNTH_ORGANIZATION_ID,
@@ -277,6 +277,40 @@ describe('start view with staging-resolved memberId (no local receipt)', () => {
           targetMemberId: '01STAGINGASESORMEMBERID00001',
           personas,
           liveOrganizationId: QA_REAL_ORGANIZATION_ID,
+        }),
+      /TARGET_NOT_ALLOWED/,
+    );
+  });
+
+  it('allows start from staging roster rows when organizationId is omitted', () => {
+    const stagingMemberId = '01STAGINGASESORMEMBERID00001';
+    const selected = selectHostedQaViewRosterTarget({
+      targetMemberId: stagingMemberId,
+      items: [
+        {
+          email: 'w2.asesor@isalwa.demo',
+          memberId: stagingMemberId,
+          grantedScopes: ['commercial.team.read'],
+        },
+      ],
+    });
+    assert.equal(selected.memberId, stagingMemberId);
+    assert.equal(selected.organizationId, QA_SYNTH_ORGANIZATION_ID);
+  });
+
+  it('fail-closes hosted roster rows that resolve to REAL', () => {
+    assert.throws(
+      () =>
+        selectHostedQaViewRosterTarget({
+          targetMemberId: '01REALMEMBERID0000000000001',
+          items: [
+            {
+              email: 'w2.asesor@isalwa.demo',
+              memberId: '01REALMEMBERID0000000000001',
+              organizationId: QA_REAL_ORGANIZATION_ID,
+              grantedScopes: ['people.admin'],
+            },
+          ],
         }),
       /TARGET_NOT_ALLOWED/,
     );
