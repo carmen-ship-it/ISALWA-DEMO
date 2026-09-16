@@ -4,7 +4,7 @@
 **Date:** 2026-09-16  
 **Worktree:** `.worktrees/wave2-remediation-integrate`  
 **Branch:** `pre-pilot/company-os-pass`  
-**FINAL_RUNTIME_SHA (hosted claim):** *(set after deploy — product commit SHA)*  
+**FINAL_RUNTIME_SHA (hosted claim):** `9cc629751641f2e4f397c4110611e6d2565f8a4d` (web+API same; dep-dalds1942hec73c55ltg / dep-dalds1rl550s73au7ph0)  
 **Evidence basis:** code + contracts + Prisma SoR + automated tests + hosted BV after deploy  
 **Policy:** Manual initial entry **once** is OK. Manual **re-entry of the same canonical fact across pages** is NOT OK. Historical records inside ISALWA stay; external archives need not bulk-migrate.  
 **Addendum:** Visual constitution preserved (navy/teal/sky/porcelain/white). No Wave C. No Isa/Álvaro accounts. No invented business policy. Version-1 individual Supabase Auth OK.
