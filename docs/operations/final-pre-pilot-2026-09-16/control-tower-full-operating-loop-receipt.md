@@ -37,16 +37,28 @@ Deploy repair commits after merge tip (hosted build/runtime): `00793e1` → `b90
 
 ## Feature matrix (subfeatures separate)
 
-| Subfeature | Code | Automated test | Hosted | Browser-verified |
-|---|---|---|---|---|
-| RecordQuoteManualSend → `quote.send_recorded` | **IMPLEMENTED** | package tests PASS | **HOSTED** @ `8508b9c` | **UNPROVEN** (AUTH_BLOCKED for automated password fill) |
-| ReceiveFinishedGoods + Pedido context (not allocate) | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **UNPROVEN** (same) |
-| CreateNotaDeEntrega / RecordSalida / RecordEntrega | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **UNPROVEN** (same) |
-| Delivery note provisional PDF (NE-PILOT) | **IMPLEMENTED** | providers + panel copy tests | **HOSTED** | **UNPROVEN** (same) |
-| Inicio today / event work offers | **IMPLEMENTED** | lane tests | **HOSTED** | **UNPROVEN** (same) |
-| Map commercial lens (prior) | **IMPLEMENTED** | prior | **HOSTED** (ancestry) | **BROWSER-VERIFIED PASS** @ `03745ab` |
-| WhatsApp provider send | N/A | — | — | intentional manual only |
-| Official fiscal numbering | N/A | — | — | **HELD** NE-PILOT only |
+Source: [SYNTH operating-loop hosted BV](4ab8b808-da06-4572-95eb-14e8279e7737) @ claimed `8508b9c`.
+
+| Subfeature | IMPLEMENTED | HOSTED | BROWSER-VERIFIED |
+|---|---|---|---|
+| QUOTE_MANUAL_SEND_UI | YES | YES | **PASS** |
+| QUOTE_MANUAL_SEND_DURABLE_EVENT | YES | YES | **PASS** |
+| OWN_QUOTE_TO_ORDER_CONVERT | YES | YES | **PASS** (O-000001) |
+| FINISHED_GOODS_RECEIVE_UI | YES | YES | **UNPROVEN** |
+| FINISHED_GOODS_PEDIDO_CONTEXT_NOT_ALLOCATE | YES | YES | **PASS** (copy); mutation **UNPROVEN** |
+| DELIVERY_DOCUMENTS_PANEL | YES | YES | **PASS** |
+| NOTA_DE_ENTREGA_CREATE | YES | YES | **UNPROVEN** (controls disabled @ `8508b9c`) |
+| SALIDA / ENTREGA / PDF | YES | PARTIAL | **UNPROVEN** |
+| NUMBERING_NE_PILOT_ONLY | YES | YES | **PASS** |
+| NO_ADMIN_BYPASS / REAL_SEVEN | YES | YES | **PASS** |
+| DESKTOP_1440 / MOBILE_390 | YES | YES | **PASS** (surfaces) |
+| Map commercial lens (prior) | YES | YES | **PASS** @ `03745ab` |
+
+### Follow-up defect (post-BV tip)
+
+Hosted delivery mutations were blocked because pedido page + delivery actions set `actorMemberId` only when `auth.mode === 'dev'`, so staging Supabase sessions always got `canMutate=false`. Fixed to use `loadMemberCapabilities()` + `canRecordDelivery` / `canRecordWarehouseOutbound`. Re-BV Nota→Salida→Entrega after web redeploy. Almacén denied on commercial pedido URL remains intentional (commercial read gate); warehouse path is `/almacen` + `/entregas`.
+
+**Verdict from BV @ `8508b9c`:** Partial PASS commercial close + honesty; ops write loop UNPROVEN until actorMemberId fix is LIVE.
 
 ---
 
@@ -79,8 +91,7 @@ Deploy repair commits after merge tip (hosted build/runtime): `00793e1` → `b90
 
 ### 1. Can an employee start with a customer and reach delivery without retyping the business?
 
-**Closer than before — write path is now hosted.**  
-Commercial close (PDF → record external send → convert to Pedido with lines) and post-sale FG receive + Nota→Salida→Entrega commands are on the same SHA with migrations applied. Hosted browser proof of the full interactive walk is still in progress and must not be claimed PASS until the SYNTH receipt lands.
+**Commercial close BV PASS** (manual send durable + convert). Ops write (Nota→Salida→Entrega / FG receive mutation) still **UNPROVEN** on hosted until the actorMemberId staging fix is redeployed and re-walked.
 
 ### 2. Where does the employee still leave ISALWA?
 
@@ -122,17 +133,14 @@ Commercial close (PDF → record external send → convert to Pedido with lines)
 
 ---
 
-## Blocked lane (non-blocking for deploy)
+## Blocked / next proof
 
 | Field | Value |
 |---|---|
-| **BLOCKED LANE** | Hosted interactive SYNTH / Carmen browser walk (password login automation) |
-| **BLOCKER TYPE** | AUTH_BLOCKED |
-| **EXACT EVIDENCE** | Browser fill of Contraseña rejected by session policy; login page reachable at `/login` |
-| **SAFE WORK COMPLETED** | Integrate · SAME SHA dual deploy LIVE · migrations applied · health ready · consolidated receipt |
-| **UNBLOCK REQUIREMENT** | Manual login (Carmen or operator) or approved credential-entry path for BV agent; then score `operating-loop-hosted-bv-receipt.md` |
+| Commercial close hosted BV | **PASS** ([SYNTH operating-loop hosted BV](4ab8b808-da06-4572-95eb-14e8279e7737)) |
+| Delivery / FG mutations BV | **UNPROVEN** @ `8508b9c` (actorMemberId=dev-only defect) |
+| Fix | This tip — `loadMemberCapabilities` for actor + scope-gated `canMutate` |
+| Almacén → commercial pedido URL | Intentional deny (commercial read); use `/entregas` |
+| Next | Web redeploy · re-BV Nota→Salida→Entrega with persona holding `delivery.record` (Carmen eval or scoped SYNTH) |
 
-## Next proof gate
-
-Do **not** mark BROWSER-VERIFIED PASS until interactive SYNTH/Carmen walk scores subfeatures after unblock.  
-Docs tip on branch may be ahead of runtime SHA (`3fbece9` docs-only); **runtime remains `8508b9c`**.
+Do **not** claim Nota→Salida→Entrega or FG receive mutation BROWSER-VERIFIED PASS until re-walk after fix is LIVE.

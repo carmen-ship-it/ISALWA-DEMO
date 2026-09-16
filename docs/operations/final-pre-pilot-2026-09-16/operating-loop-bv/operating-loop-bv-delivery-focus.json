@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-16T21:56:56.154Z",
+  "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shots": {
+    "pedidoDeliveryPanel": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/30-pedido-delivery-panel-asesor-1440.png"
+  },
+  "delivery": {
+    "panelVisible": {
+      "createNota": true,
+      "recordSalida": true,
+      "recordEntrega": true,
+      "provisional": true,
+      "notOfficial": true,
+      "canMutateHint": true
+    },
+    "createNotaButtonCount": 1
+  },
+  "receive": {},
+  "permissionGaps": {},
+  "asesorLogin": true,
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /Crear nota de entrega/i }).first()\n    - locator resolved to <button disabled type=\"button\" class=\"inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] font-medium cursor-pointer transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-45 disabled:pointer-events-none h-10 px-4 text-[var(--isalwa-text-md)] bg-[var(--isalwa-btn-primary-bg)] text-[var(--isalwa-b…>Crear nota de entrega</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /Crear nota de entrega/i }).first()\n    - locator resolved to <button disabled type=\"button\" class=\"inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] font-medium cursor-pointer transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-45 disabled:pointer-events-none h-10 px-4 text-[var(--isalwa-text-md)] bg-[var(--isalwa-btn-primary-bg)] text-[var(--isalwa-b…>Crear nota de entrega</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n\n    at main (/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv-delivery-focus.mjs:144:34)"
+}

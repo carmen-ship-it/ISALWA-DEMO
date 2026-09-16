@@ -11,9 +11,11 @@ import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
+import { canRecordDelivery, canRecordWarehouseOutbound } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import {
   formatOrderStatus,
   formatTimestamp,
@@ -84,7 +86,13 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       }
     }
 
-    const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+    const capabilities = await loadMemberCapabilities();
+    const actorMemberId = capabilities?.memberId?.trim() || null;
+    const scopes = capabilities?.grantedScopes ?? [];
+    const canMutateDelivery =
+      order.status === 'open' &&
+      Boolean(actorMemberId) &&
+      (canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes));
     const operating = buildPedidoOperatingView({
       order: {
         organizationId: order.organizationId,
@@ -314,7 +322,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           }))}
           notes={deliveryNotes}
           timeline={deliveryTimeline}
-          canMutate={order.status === 'open' && Boolean(actorMemberId)}
+          canMutate={canMutateDelivery}
         />
 
         {order.status === 'open' || approvals.length > 0 ? (

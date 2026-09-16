@@ -1,0 +1,270 @@
+{
+  "at": "2026-09-16T21:53:06.479Z",
+  "expectedSha": "8508b9ce84c9914ebf86f0b25e07e1f159ba122e",
+  "claimedLive": {
+    "web": "https://os-web-staging.onrender.com",
+    "webDeploy": "dep-dalgna2jnfac739h0otg",
+    "api": "https://os-api-staging.onrender.com",
+    "apiDeploy": "dep-dalgna942hec73ce8360"
+  },
+  "synthOrgClaimedByUser": "01M2JKF77TXMJNDTKNCYNHH5G5",
+  "synthOrgFromFixtures": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "synthOrgCorrection": "fixtures_H9G5_not_user_H5G5",
+  "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+  "quoteId": "01M2JSDZYR37MCHVXVHPR586G7",
+  "REAL_SEVEN_MUTATED": "NO",
+  "shaConfirm": {
+    "renderCli": "FORBIDDEN_OR_UNAUTH",
+    "surfaceProof": {
+      "quoteManualSendCopy": true,
+      "deliveryDocsOnPedido": true,
+      "entregasPanelCopy": true,
+      "deliveryDocsPanel": false
+    }
+  },
+  "personas": {
+    "asesor": "w2.asesor@isalwa.demo",
+    "almacen": "w2.almacen@isalwa.demo",
+    "contabilidad_negative": "w2.contabilidad@isalwa.demo"
+  },
+  "walk": {
+    "asesorLogin": true,
+    "asesorOrgSignals": {
+      "synthConnected": true,
+      "realSevenLeak": false
+    },
+    "manualSendUi": {
+      "disclaimer": true,
+      "action": true,
+      "channelWhatsapp": true,
+      "nextStepMentionsSend": true,
+      "statusEnviada": true,
+      "convertLink": true,
+      "formCount": 1
+    },
+    "sendDurable": {
+      "flash": true,
+      "historyAfterReload": true,
+      "localStorageSuggestsOnlyClient": false,
+      "lsKeyCount": 1
+    },
+    "convert": {
+      "url": "https://os-web-staging.onrender.com/clientes/01M2JSDQJNYZ03N8808PBEDVS8/pedidos/01M2P3CAP2QCTXXRRB4A0G74XJ?resultado=pedido",
+      "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+      "badGateway": false
+    },
+    "pedidoLinks": [
+      "/clientes/01M2JSDQJNYZ03N8808PBEDVS8/pedidos/01M2P3CAP2QCTXXRRB4A0G74XJ"
+    ],
+    "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+    "pedidoAsesorPanel": {
+      "createNota": true,
+      "provisional": true,
+      "notFiscal": true,
+      "recordSalida": true,
+      "recordEntrega": true,
+      "downloadPdf": false
+    },
+    "almacenLogin": true,
+    "receiveUi": {
+      "sessionOk": true,
+      "deskOpen": true,
+      "receiveCopy": true,
+      "pedidoContext": true,
+      "notAllocateLanguage": true,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ALMAC\u00c9N Asignaci\u00f3n a pedido El encargado de almac\u00e9n asigna producto terminado a un pedido despu\u00e9s de que est\u00e1 en Almac\u00e9n de Productos Terminados. Esto no es stock y no es una entrega. No es stock oficial. Ingreso \u2260 asignaci\u00f3n PEDIDO CONTEXTO POSTVENTA Cliente, cotizaci\u00f3n y l\u00edneas se heredan del pedido. No se vuelven a teclear. No escriba identificadores internos. Elija el pedid"
+    },
+    "receiveMutation": {
+      "attempted": false
+    },
+    "entregasPanel": {
+      "sessionOk": true,
+      "kicker": true,
+      "noOfficialNumber": true,
+      "provisional": false,
+      "notFiscal": false,
+      "emptyPedidos": true,
+      "bodySnippet": "ISALWA Sistema operativo de su empresa ALMAC\u00c9N Inicio COMERCIAL Clientes Mapa Oportunidades Cotizaciones Trabajo Salud de datos OPERACIONES Productos Producci\u00f3n Almac\u00e9n Compras Finanzas Entregas DECISIONES Coordinaci\u00f3n Aprobaciones Memoria de decisiones Incidencias Contraer Buscar \u2318K CONECTADO COMO Synth Cerrar sesi\u00f3n ENTREGA Entregas Registro interno de salida y entrega. No reclama un n\u00famero oficial. Sin n\u00famero oficial Registro interno Versi\u00f3n 1 \u00b7 por validar Versi\u00f3n 1 \u00b7 por validar PEDIDO Pedidos de esta empresa Abra el pedido ya registrado de la lista. No se inventa una entrega desde el ped"
+    },
+    "deliveryWalk": {
+      "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+      "panel": {
+        "createNota": false,
+        "recordSalida": false,
+        "recordEntrega": false,
+        "downloadPdf": false,
+        "provisional": false,
+        "permissionGap": true
+      },
+      "notaCreated": false,
+      "notaUi": "NO_CREATE_UI",
+      "pdf": {
+        "present": false
+      }
+    },
+    "contabLogin": true,
+    "asesorLoginMobile": true,
+    "almacenLoginMobile": true
+  },
+  "negatives": {
+    "contabNoWarehouseWrite": true,
+    "noFiscalNumberingVisible": true,
+    "noAdminBypassUsed": true,
+    "REAL_SEVEN_MUTATED": "NO",
+    "orgWasSynthOnly": true
+  },
+  "desktop1440": {
+    "asesorHome": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/01-asesor-home-1440.png",
+    "quote": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/02-quote-manual-send-1440.png",
+    "quoteScrolled": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/02b-quote-scrolled-1440.png",
+    "quoteAfterSend": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/03-quote-after-send-1440.png",
+    "quoteReload": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/04-quote-reload-1440.png",
+    "afterConvert": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/06-after-convert-1440.png",
+    "cliente": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/05-cliente360-1440.png",
+    "pedidoAsesor": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/07-pedido-asesor-1440.png",
+    "almacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/08-almacen-receive-1440.png",
+    "almacenScrolled": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/08b-almacen-scrolled-1440.png",
+    "entregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/10-entregas-panel-1440.png",
+    "pedidoAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/11-pedido-delivery-1440.png",
+    "contabAlmacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/16-contab-almacen-negative-1440.png"
+  },
+  "mobile390": {
+    "quote": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/20-quote-390.png",
+    "manualSendSignals": {
+      "action": false,
+      "nextStep": false,
+      "disclaimer": false,
+      "convert": false,
+      "enviadaFlashOrBadge": false
+    },
+    "almacen": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/21-almacen-390.png",
+    "almacenOk": true,
+    "entregas": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/22-entregas-390.png",
+    "entregasSignals": {
+      "kicker": true,
+      "noOfficial": true
+    },
+    "pedido": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/23-pedido-390.png",
+    "deliveryDocs": false
+  },
+  "subfeatures": {
+    "QUOTE_MANUAL_SEND_UI": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "QUOTE_MANUAL_SEND_DURABLE_EVENT": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "OWN_QUOTE_TO_ORDER_CONVERT": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "FINISHED_GOODS_RECEIVE_UI": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "FINISHED_GOODS_PEDIDO_CONTEXT_NOT_ALLOCATE": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS",
+      "mutation": "UNPROVEN"
+    },
+    "DELIVERY_DOCUMENTS_PANEL": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "NOTA_DE_ENTREGA_CREATE": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "UNPROVEN",
+      "note": "controls disabled actorMemberId/canMutate"
+    },
+    "SALIDA": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "ENTREGA": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "DELIVERY_NOTE_PDF": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "PARTIAL",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    },
+    "NUMBERING_NE_PILOT_ONLY": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "NO_ADMIN_BYPASS": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "REAL_SEVEN_UNMUTATED": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "DESKTOP_1440": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "MOBILE_390": {
+      "IMPLEMENTED": "YES",
+      "HOSTED": "YES",
+      "BROWSER_VERIFIED": "PASS"
+    },
+    "SAME_SHA_WEB_API_CONFIRM": {
+      "IMPLEMENTED": "claimed",
+      "HOSTED": "deps_named",
+      "BROWSER_VERIFIED": "UNPROVEN"
+    }
+  },
+  "apiHealth": {
+    "status": 200,
+    "body": "{\"status\":\"ok\",\"service\":\"os-api\",\"check\":\"liveness\"}"
+  },
+  "ok": true,
+  "focusDelivery": {
+    "at": "2026-09-16T21:56:56.154Z",
+    "orderId": "01M2P3CAP2QCTXXRRB4A0G74XJ",
+    "partyId": "01M2JSDQJNYZ03N8808PBEDVS8",
+    "REAL_SEVEN_MUTATED": "NO",
+    "shots": {
+      "pedidoDeliveryPanel": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv/30-pedido-delivery-panel-asesor-1440.png"
+    },
+    "delivery": {
+      "panelVisible": {
+        "createNota": true,
+        "recordSalida": true,
+        "recordEntrega": true,
+        "provisional": true,
+        "notOfficial": true,
+        "canMutateHint": true
+      },
+      "createNotaButtonCount": 1
+    },
+    "receive": {},
+    "permissionGaps": {},
+    "asesorLogin": true,
+    "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /Crear nota de entrega/i }).first()\n    - locator resolved to <button disabled type=\"button\" class=\"inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] font-medium cursor-pointer transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-45 disabled:pointer-events-none h-10 px-4 text-[var(--isalwa-text-md)] bg-[var(--isalwa-btn-primary-bg)] text-[var(--isalwa-b\u2026>Crear nota de entrega</button>\n  - attempting click action\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 \u00d7 waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n",
+    "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /Crear nota de entrega/i }).first()\n    - locator resolved to <button disabled type=\"button\" class=\"inline-flex items-center justify-center gap-2 rounded-[var(--isalwa-radius-control)] font-medium cursor-pointer transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--isalwa-motion-fast)] ease-[var(--isalwa-ease-out)] focus-visible:outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-45 disabled:pointer-events-none h-10 px-4 text-[var(--isalwa-text-md)] bg-[var(--isalwa-btn-primary-bg)] text-[var(--isalwa-b\u2026>Crear nota de entrega</button>\n  - attempting click action\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 \u00d7 waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n\n    at main (/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/docs/operations/final-pre-pilot-2026-09-16/operating-loop-bv-delivery-focus.mjs:144:34)"
+  },
+  "permissionGaps": {
+    "ALMACEN_PEDIDO_COMMERCIAL_VIEW": "DENIED",
+    "ASESOR_DELIVERY_MUTATIONS": "CONTROLS_DISABLED_ACTOR_MEMBER_NULL"
+  },
+  "finalVerdict": "PARTIAL_PASS_COMMERCIAL_CLOSE_OPS_WRITES_UNPROVEN",
+  "receipt": "../operating-loop-hosted-bv-receipt.md"
+}

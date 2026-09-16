@@ -4,10 +4,17 @@ import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import { orderHref } from '@/lib/commercial/navigation';
 
 type ActionResult = { ok: true } | { ok: false; error: string };
+
+async function resolveActorMemberId(): Promise<string | null> {
+  const capabilities = await loadMemberCapabilities();
+  const memberId = capabilities?.memberId?.trim() ?? '';
+  return memberId || null;
+}
 
 async function runDeliveryCommand(
   commandName:
@@ -39,9 +46,7 @@ export async function createNotaDeEntregaAction(input: {
   observations: string | null;
   quantities: Array<{ orderLineId: string; quantity: number }>;
 }): Promise<ActionResult> {
-  const auth = await getServerOsAuthContext();
-  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
-  const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+  const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
   if (!input.recipient.trim() || !input.deliveredBy.trim()) {
     return { ok: false, error: 'Complete destinatario y entregado por.' };
@@ -69,9 +74,7 @@ export async function recordSalidaAction(input: {
   quantities: Array<{ orderLineId: string; quantity: number }>;
   notes: string | null;
 }): Promise<ActionResult> {
-  const auth = await getServerOsAuthContext();
-  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
-  const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+  const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
   return runDeliveryCommand(
     'RecordSalida',
@@ -97,9 +100,7 @@ export async function recordEntregaAction(input: {
   quantities: Array<{ orderLineId: string; quantity: number }>;
   notes: string | null;
 }): Promise<ActionResult> {
-  const auth = await getServerOsAuthContext();
-  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
-  const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+  const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
   if (!input.receivedBy.trim()) return { ok: false, error: 'Indique quién recibió la mercadería.' };
   return runDeliveryCommand(
@@ -125,9 +126,7 @@ export async function correctDeliveryDocumentAction(input: {
   deliveryNoteId: string;
   reason: string;
 }): Promise<ActionResult> {
-  const auth = await getServerOsAuthContext();
-  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
-  const actorMemberId = auth.mode === 'dev' ? auth.session.memberId : null;
+  const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
   return runDeliveryCommand(
     'CorrectDeliveryDocument',
