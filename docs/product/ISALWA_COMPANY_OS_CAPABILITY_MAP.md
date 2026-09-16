@@ -1,9 +1,10 @@
 # ISALWA Company OS — Capability Control Map
 
-**Date:** 2026-09-15  
+**Date:** 2026-09-15 (Wave B code truth: 2026-09-16)  
 **Role:** Permanent Control Tower map (reconcile vision ↔ code/runtime truth)  
 **Hosted baseline (onboarding isolation closed):** `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749`  
-**Wave A admin continuity:** branch `wave-a/admin-continuity` — see `docs/operations/WAVE_A_ADMIN_CONTINUITY_ACCEPTANCE.md`  
+**Wave A admin continuity:** see `docs/operations/WAVE_A_ADMIN_CONTINUITY_ACCEPTANCE.md` (technical close PASS @ `fc38ebe`)  
+**Wave B issue / memory:** candidate SHA `b28e9fcafc339575ac6c667d2bbc2b1527e5db4d` — **HOSTED PENDING** (deploy not confirmed); see `docs/operations/WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md`  
 **URL:** https://os-web-staging.onrender.com  
 **REAL tenant:** `01M2DV9F0V5DXS4G89AKF4D5SR`  
 **SYNTH tenant:** `01M2JKF77TXMJNDTKNCYNHH9G5`
@@ -132,14 +133,14 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Business Issue aggregate | Company problem with learning loop | `MISSING` | Compose Work + Coord + evidence (design only) | — | — | TBD | N/A | N/A | NO | NO | NO | NO | NO | NO | No parallel task system | Work/Coord | **Yes** — aggregate shape | Thin Issue contract | P1 | B |
-| Universal Reportar problema | Report without knowing module | `MISSING` | — | — | — | TBD | N/A | N/A | NO | NO | NO | NO | NO | NO | Walkthrough journey honestly blocked | Issue design | Yes — authority | After design | P2 | B |
-| Palette “Reportar una incidencia” | Fast report from context | `MISSING` | — | — | Command palette | TBD | N/A | N/A | NO | NO | NO | NO | NO | NO | Prefill planned only | Palette + Issue | Yes | After design | P2 | B |
-| Issue learning loop + Resolution Memory | Precedent / confirmed cause | `MISSING` | Fragments only | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Never invent root cause (honored by absence) | Issue | Yes | Resolution Memory | P2 | B |
-| Work / follow-up (action loop — not Issue) | Do the next action | `LIVE` | `OsWorkItem` | Work tables + events | `/trabajo`, palette, Cliente | Work scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Must not become Issue store | — | No | Keep | — | — |
-| Coordination problem→resolve | Cross-area operating decision | `LIVE BUT PARTIAL` | `OsCoordinationDecision` | Coord ledger (write UNPROVEN hosted) | `/coordinacion` | Coord scopes (non-authorizing) | UNPROVEN | UNPROVEN | YES | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | Ledger not loaded from DB; write UNPROVEN | Migration flag | No | Hosted write proof | P1 | B |
+| Business Issue aggregate | Company problem with learning loop | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | `@isalwa/os-issue` + `OsIssue` (+ journal/refs/work links/relations/resolution cycles) | `os_issues` + related tables (`20260919120000_os_issue_memory`) | `/incidencias`, detail, Cliente 360 issues | `member_active` report; `issue.manage` govern — see `issue-authority-matrix.ts` | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted BV not run; severity optional (deferred BD) | Work links only (no parallel tasks) | Yes — severity thresholds later | DEPLOY + hosted BV | P1 | B |
+| Universal Reportar problema | Report without knowing module | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | `ReportIssue` command | `OsIssue` | `/incidencias/reportar`, `ReportIssueDrawer` / trigger | `member_active` | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted BV pending | Issue aggregate | No | BROWSER-VERIFIED | P1 | B |
+| Palette “Reportar problema” | Fast report from context | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | Palette action → report route | Session + Issue | Command palette label **Reportar problema** → `/incidencias/reportar` | Existing scopes; report = member_active | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Prefill via query/context; hosted BV pending | Palette + Issue | No | BROWSER-VERIFIED | P1 | B |
+| Issue learning loop + Resolution Memory | Precedent / confirmed cause | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | Journal `possible_cause` ≠ `ConfirmIssueCause`; resolution cycles; `GET …/precedents` | Issue + `OsIssueResolutionCycle` + relations | Issue detail (Antecedentes / journal / resolution) | `issue.manage` for confirm/close/relate | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Never invent root cause (honored); hosted BV pending | Issue | No | Hosted BV | P1 | B |
+| Work / follow-up (action loop — not Issue) | Do the next action | `LIVE` | `OsWorkItem` | Work tables + events | `/trabajo`, palette, Cliente | Work scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Must not become Issue store; Issue links Work | — | No | Keep | — | — |
+| Coordination problem→resolve | Cross-area operating decision | `LIVE BUT PARTIAL` | `OsCoordinationDecision` | Coord ledger (write UNPROVEN hosted) | `/coordinacion` | Coord scopes (non-authorizing) | UNPROVEN | UNPROVEN | YES | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | Ledger not loaded from DB; write UNPROVEN | Migration flag | No | Hosted write proof | P1 | C |
 
-*Source: `agent-02-issues-memory.md`. **Not P0** — design before pilot claims.*
+*Source: `agent-02-issues-memory.md` + Wave B code @ `b28e9fc`. Proof: IMPLEMENTED/TESTED; HOSTED/BV pending — see `WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md`.*
 
 ---
 
@@ -147,14 +148,14 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Relationship memory | Customer history | `LIVE BUT PARTIAL` | Party timeline + commercial | `OsPartyTimelineEntry` / commercial | Cliente 360 Historial | Party read | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Not generic notes | — | No | Keep typed | — | B |
+| Relationship memory | Customer history | `LIVE BUT PARTIAL` | Party timeline + commercial + Cliente 360 issues | `OsPartyTimelineEntry` / commercial / Issue refs | Cliente 360 Historial + Incidencias | Party read + Issue read policy | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Not generic notes; Issue slice hosted pending | — | No | Keep typed; hosted BV | — | B |
 | Decision memory (unified) | One place for decisions | `MISSING` | Split: Approval + Coord + Release + events | Multiple | Split surfaces | Per primitive | N/A | N/A | NO | NO | NO | NO | NO | NO | Do not collapse | Agent 4 | Yes | Unified read model later | P2 | C |
-| Issue / Resolution memory | Reuse solutions | `MISSING` | — | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Highest gap this lane | Issue | Yes | Wave B | P1 | B |
-| Commitment memory | Promises ≠ tasks | `BACKEND ONLY` | `OsCommitment` + contracts | Commitment table | UI present; port stub | TBD | N/A | UNPROVEN | YES | NO | UNPROVEN | UNPROVEN | NO | NO | `schema_not_available` honesty drift | API | Yes — vs follow-up | Wire API | P1 | B |
+| Issue / Resolution memory | Reuse solutions | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | `OsIssue` + resolution cycles + precedents + memory evidence | Issue tables + `GET /v1/memory/evidence` | `/incidencias` + evidence API | Issue read policy / `issue.manage` | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted BV pending; AI OFF | Issue | No | Hosted BV | P1 | B |
+| Commitment memory | Promises ≠ tasks | `LIVE` (IMPLEMENTED/TESTED; API wired; hosted pending) | `OsCommitment` + `@isalwa/os-commitment` + Commitments API | Commitment table | Commitment UI + API (no longer persistence stub) | Commitment scopes / member paths | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted BV pending; Attention promotion still Wave C | Do not merge into Work | Yes — vs follow-up language | Hosted BV | P1 | B |
 | Operational memory (unified) | Cross-desk memory | `MISSING` as memory; desks `LIVE BUT PARTIAL` | Desk tables | Domain tables | Ops routes | Desk scopes | UNPROVEN | UNPROVEN | PARTIAL | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | Do not merge to notes | Desks | Yes | Typed links only | P3 | B |
 | Knowledge / SOP memory (OS runtime) | Governed procedures in OS | `MISSING` (OS); Architect SOP `LIVE` | Guidance catalog ≠ SOP vault | Architect deliverables vs OS guidance | `/ayuda` | Guidance | N/A | N/A | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No OS↔Architect link | Architect | Yes — link model | Link refs | P2 | B |
 
-*Source: `agent-02-issues-memory.md`, `agent-03-attention-commitments.md`.*
+*Source: `agent-02-issues-memory.md`, `agent-03-attention-commitments.md` + Wave B @ `b28e9fc`.*
 
 ---
 
@@ -162,10 +163,10 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| AI provider execution | Summarize / suggest only | `INTENTIONALLY DEFERRED` | `isAiEnabled` default false; packets AI-ready | Company records remain SoR | Ayuda unwired honesty | Deny list actions | N/A | N/A | YES | N/A | N/A | N/A | N/A | N/A | No wiring this pass | Memory stores + key | Yes — when enable | Stay deferred | P3 | F |
-| AI-ready evidence packets | Cite real antecedents | `LIVE` (architecture only; `modelCalled: false`) | `buildAiReadyContext` | Evidence helpers | Evidence review helpers | Read-only packet | N/A | N/A | YES | PARTIAL | UNPROVEN | UNPROVEN | NO | NO | Needs Issue/Decision stores later | Issue Memory | No | Grow retrieval later | P3 | F |
+| AI provider execution | Summarize / suggest only | `INTENTIONALLY DEFERRED` | `isAiEnabled` default false; packets AI-ready | Company records remain SoR | Ayuda unwired honesty | Deny list actions | N/A | N/A | YES | N/A | N/A | N/A | N/A | N/A | **AI OFF** Wave B — no SDK/keys | Memory stores + key | Yes — when enable | Stay deferred | P3 | F |
+| AI-ready evidence packets | Cite real antecedents | `LIVE` (IMPLEMENTED/TESTED substrate; `modelCalled: false`; hosted pending) | `buildAiReadyContext` + `MemoryEvidenceService` / `GET /v1/memory/evidence` | Evidence helpers + authorized Issue/Commitment slices | Evidence review helpers + API | Read-only packet; authz before return | N/A | N/A | YES | YES | PENDING | PENDING | UNPROVEN | NO | No AI call; hosted BV pending | Issue Memory | No | Hosted BV then grow retrieval | P3 | F |
 
-*Source: `agent-02-issues-memory.md`, `agent-11-infra-owner-cost.md`. **Not P0**.*
+*Source: `agent-02-issues-memory.md`, `agent-11-infra-owner-cost.md`, Wave B. **AI OFF**.*
 
 ---
 
@@ -177,7 +178,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | Overdue follow-up (as overdue work) | Late follow-ups | `LIVE` (governed as overdue work) | `overdue_work` + followUp filters | Work dueAt | Inicio / `/trabajo?view=overdue` | Work owner | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No follow-up-only saved view | Saved views | Yes — dedicated view? | Optional view | P1 | D |
 | Stale customer / opportunity stale | Idle relationships | `MISSING` (+ BD required) | No attention type | — | 360 “sin actividad” composition only | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Do not invent thresholds | Policy | **Yes** | After thresholds | P3 | C |
 | Quote waiting / approval aging (facts) | See elapsed age | `LIVE BUT PARTIAL` | Aging facts client-side | Quote/approval timestamps | Aging labels; not Attention types | Read | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Promotion to Attention needs BD | Attention freeze | Yes | Facts OK; Attention later | P2 | C |
-| Commitment overdue → Attention | Promise overdue | `MISSING` (Attention) / rule in contracts | Commitment derive state | `OsCommitment` | Unwired | — | N/A | N/A | PARTIAL | NO | NO | NO | NO | NO | Wire commitments first | Commitments API | Yes | After API | P2 | C |
+| Commitment overdue → Attention | Promise overdue | `MISSING` (Attention) / Commitment API `LIVE` | Commitment derive state | `OsCommitment` | Commitment surfaces wired; Attention type not added | — | N/A | N/A | PARTIAL | PARTIAL | PENDING | PENDING | NO | NO | Do not invent Attention type without freeze | Commitments API (done) | Yes | After Attention policy (Wave C) | P2 | C |
 | Unassigned work / issue aging / delivery exception | Gaps | `MISSING` | — | — | Data health for unassigned customers only | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Work always has owner | Issue/ops | Yes | Policy-driven | P3 | C |
 
 *Source: `agent-03-attention-commitments.md`.*
@@ -188,9 +189,9 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Commitment create/fulfill/cancel | “Te llamo el viernes” as promise memory | `BACKEND ONLY` | Contracts + `os_commitments` migration | `OsCommitment` | Components exist; persistence stub | TBD | N/A | UNPROVEN | YES | NO | UNPROVEN | UNPROVEN | NO | NO | No os-api; port claims schema missing | Do not merge into Work | **Yes** — vs follow-up language | Wire one API | P1 | B |
+| Commitment create/fulfill/cancel | “Te llamo el viernes” as promise memory | `LIVE` (IMPLEMENTED/TESTED; API wired; hosted pending) | `@isalwa/os-commitment` + `os_commitments` + CommitmentsController | `OsCommitment` | Existing commitment components + API persistence | Member/commitment paths | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted BV pending; Attention overdue still separate | Do not merge into Work | **Yes** — vs follow-up language | Hosted BV | P1 | B |
 
-*Source: `agent-03-attention-commitments.md`. Do not claim LIVE for pilot copy.*
+*Source: `agent-03-attention-commitments.md` + Wave B @ `b28e9fc`. Do not claim USER-ACCEPTED or hosted PASS until verifier runs.*
 
 ---
 
@@ -410,7 +411,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Online find / next action / update | Field work on phone | `LIVE BUT PARTIAL` | Cliente 360 + search | Party/work | Mobile chrome / sticky | Existing | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No `tel:` click-to-call found | — | No | Add tel: links | P1 | D |
 | Offline field stack | Work without network | `MISSING` / deferred | None | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | No SW/cache | — | Yes | Stay MISSING for pilot | P3 | F |
-| Report issue from field | Capture incident | `MISSING` | — | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Depends Issue | Issue | Yes | After Issue | P2 | B |
+| Report issue from field | Capture incident | `LIVE` (IMPLEMENTED/TESTED; hosted pending) | `ReportIssue` + mobile chrome | `OsIssue` | Reportar drawer/page (responsive) | `member_active` | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Hosted mobile BV pending | Issue | No | Hosted BV | P1 | B |
 
 *Source: `agent-06-search-productivity.md`. No agent-09 receipt.*
 
@@ -420,9 +421,9 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Product Feedback (software) | Tell builders about ISALWA UX | `MISSING` | — | — | FormFeedback ≠ product feedback | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Separate from Business Issue | — | **Yes** — separate forever? | Pilot feedback channel | P1 | D |
+| Product Feedback (software) | Tell builders about ISALWA UX | `LIVE` (IMPLEMENTED/TESTED; separate from Issue; hosted pending) | `OsProductFeedback` + `SubmitProductFeedback` | Product feedback table (same migration) | `ProductFeedbackMenu` (≠ Reportar problema) | Submit: member_active; review: `product.feedback.review` | UNPROVEN | UNPROVEN | YES | YES | PENDING | PENDING | UNPROVEN | NO | Never auto-creates Business Issue; hosted BV pending | — | No — separate forever (Wave B) | Hosted BV | P1 | B |
 
-*Source: `agent-08-notifications-health.md`, `agent-02-issues-memory.md`.*
+*Source: Wave B + `ISALWA_ORGANIZATIONAL_MEMORY_MODEL.md`. Distinct from Business Issue.*
 
 ---
 
@@ -543,7 +544,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | Wave | One-liner |
 |---|---|
 | **A** | Admin continuity: member-scoped onboarding proof, ReassignWork UI, terminate continuity gates, governed roles, delegation list, access history/review. |
-| **B** | Issues/Resolution Memory design + Commitment API wire (no parallel task system); Product Feedback separate; SOP link later. |
+| **B** | Issues/Resolution Memory LIVE in code + Commitment API wire + Reportar problema + Product Feedback separate + memory evidence (AI OFF); hosted BV pending. |
 | **C** | Attention freeze + Data Health/Audit Viewer/What Changed (org)/Decision read-model honesty — no invented thresholds. |
 | **D** | Palette/views/notifications (internal only) + mobile tel: friction — no WhatsApp/email channels yet. |
 | **E** | Manager intelligence: mount impact / who-to-talk ladder; escalation only after policy. |
@@ -565,16 +566,18 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 - Freeze governed primary role catalog (free-string / empty-tenant bootstrap hazard).  
 - Persist suspend/terminate reasons; invited email visibility; access history UI / review depth.  
-- Wire Commitments API to existing schema; wire internal notifications (no email/WA).  
+- ~~Wire Commitments API~~ — **IMPLEMENTED/TESTED** @ `b28e9fc`; hosted BV pending.  
+- Wire internal notifications (no email/WA).  
 - Mount escalation/impact/who-to-talk panel on attention.  
-- Data Health hosted REAL coverage BV; Audit Viewer; Product Feedback channel.  
+- Data Health hosted REAL coverage BV; Audit Viewer.  
+- ~~Product Feedback channel~~ — **IMPLEMENTED/TESTED** (separate from Issue); hosted BV pending.  
 - Mobile `tel:` links; follow-up-only overdue view if users confuse queues.  
 - Developer handoff gaps (access path, runbooks in tree, consolidated manual); invoice costs **VERIFY EXTERNALLY**.  
-- Business Issue contract design (still not build-all). **Not P0:** Issues / AI / WhatsApp.
+- ~~Business Issue contract~~ — **IMPLEMENTED/TESTED** (`OsIssue`); hosted BV pending. **Not P0:** AI / WhatsApp.
 
 ### P2 — high-value V1.1
 
-- Department CRUD; Rehire UI; Merge ops UI (SYNTH first); org What Changed; promote selected aging→Attention after thresholds; System Health UI; Qué hay de nuevo; SOP/Issue links; Resolution Memory list.
+- Department CRUD; Rehire UI; Merge ops UI (SYNTH first); org What Changed; promote selected aging→Attention after thresholds; System Health UI; Qué hay de nuevo; SOP/Issue links; Commitment→Attention overdue after policy.
 
 ### P3 — later / provider-dependent
 
@@ -594,11 +597,11 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 8. Is Equipo filtering enough for V1 access review, or is formal attestation required?  
 9. Should member summary show invited auth email (not only active)?  
 10. Confirm soft-terminate as permanent employee stance (no hard delete) unless compliance purge?  
-11. Is Business Issue a new aggregate, or typed Coordination + Work child?  
-12. Who may REPORTAR PROBLEMA / confirm cause / close?  
-13. Mandatory vs optional context fields on problem report?  
+11. ~~Is Business Issue a new aggregate, or typed Coordination + Work child?~~ — **Resolved Wave B:** first-class `OsIssue` that **links** Work (no parallel task system).  
+12. Who may REPORTAR PROBLEMA / confirm cause / close? — **Resolved in matrix:** report/`member_active`; confirm/close/`issue.manage` (see `issue-authority-matrix.ts`). Refine if product wants narrower reporter set.  
+13. Mandatory vs optional context fields on problem report? — Report requires description; context refs optional; **severity optional / deferred** (no mandatory severity).  
 14. May Work subjects include order/delivery/product/issue, or only via Issue links?  
-15. Product Feedback vs Business Issue — separate forever, or defer Product Feedback as not needed for pilot?  
+15. ~~Product Feedback vs Business Issue — separate forever?~~ — **Resolved Wave B:** separate forever (`OsProductFeedback` ≠ `OsIssue`). 
 16. SOP linkage: OS stores refs, or deep-link Architect only?  
 17. Stale customer: after how many days without which events?  
 18. Opportunity stale: idle rule by stage and/or `lastOccurredAt`?  
@@ -620,18 +623,19 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 ## 8. Foundation gaps
 
-1. **Schema vs web honesty drift:** `os_commitments` / `os_internal_notifications` migrated; web ports still return `schema_not_available`.  
-2. **Attention type freeze:** expanding signals requires contract + derivation + clock — not UI-only.  
+1. ~~**Schema vs web honesty drift (commitments):**~~ **CLOSED in code Wave B** — Commitment API wired; hosted BV still pending. Notifications inbox still stubbed.  
+2. **Attention type freeze:** expanding signals (incl. Commitment overdue) requires contract + derivation + clock — not UI-only.  
 3. **Dual overdue semantics:** Work uses instant `< asOf`; Commitment uses calendar day `America/La_Paz` — must not conflate.  
-4. **Follow-up vs Commitment confusion** until API + UX teach the difference.  
+4. **Follow-up vs Commitment confusion** until UX teaches the difference on hosted.  
 5. **Coordination hosted write UNPROVEN** (`COORDINATION_DECISION_MIGRATION_APPLIED = false`).  
 6. **Quote/Order owner reassignment** FOUNDATION_GAP — terminate fail-closed until cancel or new commands.  
 7. **Primary roles as free strings** / empty-tenant bootstrap risk.  
 8. **Audit Viewer missing**; contact corrections weak on before/why.  
 9. **Personal Carmen ownership** of staging host/auth/billing/vault; production **NOT EVIDENCED**.  
 10. **Developer takeover not ready** in this worktree (missing runbooks vs main; root README legacy orientation; access undocumented).  
-11. **Onboarding isolation fix** not yet HOSTED/BROWSER-VERIFIED.  
-12. **No invoice dollars in repo** — cost truth incomplete until external verify.
+11. **Wave B Issue/Commitment/Feedback/Memory** — IMPLEMENTED/TESTED @ `b28e9fc`; **HOSTED / BROWSER-VERIFIED = PENDING** until deploy confirmation + independent verifier.  
+12. **Issue severity** — intentionally optional; thresholds = deferred business decision (do not invent).  
+13. **No invoice dollars in repo** — cost truth incomplete until external verify.
 
 ---
 
@@ -645,9 +649,9 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 2. Terminate path **code-ready** with preflight + ReassignWork UI; **hosted BV + people.admin fixture + quote/order gaps** remain.  
 3. **Ops single-owner risk** (Carmen personal Render/Supabase/billing/secrets) without dual recovery — ops P0, not a product screen.  
 4. **Owner fixture `/administracion` denied** on hosted SYNTH (verifier FAIL_DENY) — confirm `people.admin` on real Owner before Isa/Álvaro rely on Admin.  
-5. Do **not** claim Commitments, Notifications inbox, Issues, AI, or WhatsApp as live.
+5. Do **not** claim Commitments, Issues, Product Feedback, Notifications inbox, AI, or WhatsApp as **hosted-live** until Wave B independent verifier PASS. Code is IMPLEMENTED/TESTED @ `b28e9fc` — **HOSTED PENDING**.
 
-**Already acceptable to keep deferred for a thin pilot:** AI, WhatsApp, maps live tiles, email notices, Import Center, universal Issue — if coaching copy stays honest.
+**Already acceptable to keep deferred for a thin pilot:** AI, WhatsApp, maps live tiles, email notices, Import Center — if coaching copy stays honest about hosted-unproven Issue/Commitment memory.
 
 ---
 
@@ -655,7 +659,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 **YES — with constraints.**
 
-**Reason:** Invite / activate / role assignment / tenant isolation primitives are LIVE in code and suitable to create real people **after** (a) identity + function/role keys are provided, (b) roles chosen from a **known** set (avoid inventing ghost `roleKey` strings), (c) SYNTH vs REAL tenant rules respected, (d) onboarding isolation is hosted-proven before multi-user same-browser coaching, and (e) they are coached that Commitments/Notifications/Issues/AI/WhatsApp are **not** operational yet. Creating accounts does **not** require those deferred capabilities.
+**Reason:** Invite / activate / role assignment / tenant isolation primitives are LIVE in code and suitable to create real people **after** (a) identity + function/role keys are provided, (b) roles chosen from a **known** set (avoid inventing ghost `roleKey` strings), (c) SYNTH vs REAL tenant rules respected, (d) onboarding isolation is hosted-proven before multi-user same-browser coaching, and (e) they are coached that Notifications inbox / AI / WhatsApp remain deferred, and that Issue/Commitment/Feedback memory is **IMPLEMENTED but HOSTED-UNPROVEN** until Wave B verifier. Creating accounts does **not** require those deferred/provider capabilities.
 
 ---
 
@@ -663,10 +667,13 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | Field | Value |
 |---|---|
-| Map version | 2026-09-15 |
+| Map version | 2026-09-16 (Wave B code truth) |
 | Hosted baseline SHA (recon start) | `e5e9cac82a0e2ba82f3633386393598220471da0` |
 | Hosted SHA after member-scope fix | `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749` (deploy `dep-dakuhuad0e5s73ftrvng`, Render LIVE) |
+| Wave A technical close SHA | `fc38ebe4f6a445aa1504436040aab257bbd33a4c` |
+| Wave B candidate SHA | `b28e9fcafc339575ac6c667d2bbc2b1527e5db4d` (**HOSTED PENDING**) |
+| Wave B acceptance | `docs/operations/WAVE_B_ISSUE_MEMORY_ACCEPTANCE.md` |
 | Recon folder | `docs/operations/company-os-recon-2026-09-15/` |
-| Next proof gate | Independent hosted verifier receipt for onboarding A→B + six-role; then terminate/reassign path on SYNTH |
+| Next proof gate | Confirm Wave B deploy → independent hosted verifier (Issue / Commitment / Feedback / Memory); then Wave C |
 
 *End of Company OS Capability Control Map.*
