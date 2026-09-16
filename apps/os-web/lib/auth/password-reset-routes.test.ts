@@ -16,7 +16,7 @@ describe('password reset routes and actions', () => {
     assert.ok(PUBLIC_PATHS.includes('/auth/reset-password'));
   });
 
-  it('ships pages, forms, and server actions', () => {
+  it('ships pages, forms, and password update action', () => {
     const actions = read('lib/auth/actions.ts');
     assert.match(actions, /export async function requestPasswordResetAction/);
     assert.match(actions, /export async function updatePasswordFromResetAction/);
@@ -25,7 +25,7 @@ describe('password reset routes and actions', () => {
 
     assert.match(read('app/auth/forgot-password/page.tsx'), /ForgotPasswordForm/);
     assert.match(read('app/auth/reset-password/page.tsx'), /ResetPasswordForm/);
-    assert.match(read('components/auth/forgot-password-form.tsx'), /requestPasswordResetAction/);
+    assert.match(read('components/auth/forgot-password-form.tsx'), /resetPasswordForEmail/);
     assert.match(read('components/auth/reset-password-form.tsx'), /updatePasswordFromResetAction/);
     assert.match(read('components/auth/login-form.tsx'), /\/auth\/forgot-password/);
   });

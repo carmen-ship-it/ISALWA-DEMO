@@ -3,8 +3,13 @@
 import Link from 'next/link';
 import { useState, useTransition, type FormEvent } from 'react';
 import { Button, Panel } from '@isalwa/ui';
-import { requestPasswordResetAction } from '@/lib/auth/actions';
-import { PASSWORD_RESET_COPY } from '@/lib/auth/password-reset';
+import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
+import {
+  PASSWORD_RESET_COPY,
+  buildPasswordResetRedirectUrl,
+  isValidResetEmail,
+} from '@/lib/auth/password-reset';
+import { createBrowserSupabaseClient } from '@/lib/auth/supabase/browser';
 
 export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
@@ -14,15 +19,52 @@ export function ForgotPasswordForm() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const email = String(formData.get('email') ?? '').trim();
     setError(null);
+
+    if (!isValidResetEmail(email)) {
+      setError('Ingrese un correo válido.');
+      return;
+    }
+
     startTransition(async () => {
-      const result = await requestPasswordResetAction(formData);
-      if (result.error) {
-        setError(result.error);
+      if (getOsAuthMode() !== 'supabase' || !isSupabaseConfigured()) {
+        setError(PASSWORD_RESET_COPY.forgotMisconfigured);
         setSuccess(false);
         return;
       }
-      setSuccess(true);
+
+      const redirectTo = buildPasswordResetRedirectUrl({
+        configuredOrigin: process.env.NEXT_PUBLIC_OS_WEB_ORIGIN,
+        host: typeof window !== 'undefined' ? window.location.host : null,
+        proto: typeof window !== 'undefined' ? window.location.protocol.replace(':', '') : null,
+      });
+      if (!redirectTo) {
+        setError(PASSWORD_RESET_COPY.forgotMisconfigured);
+        setSuccess(false);
+        return;
+      }
+
+      try {
+        const supabase = createBrowserSupabaseClient();
+        const { error: providerError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
+        if (providerError) {
+          const msg = providerError.message.toLowerCase();
+          if (msg.includes('redirect') || msg.includes('not allowed') || msg.includes('allowlist')) {
+            setError(PASSWORD_RESET_COPY.forgotMisconfigured);
+          } else {
+            setError(PASSWORD_RESET_COPY.forgotUnavailable);
+          }
+          setSuccess(false);
+          return;
+        }
+        setSuccess(true);
+      } catch {
+        setError(PASSWORD_RESET_COPY.forgotUnavailable);
+        setSuccess(false);
+      }
     });
   }
 
