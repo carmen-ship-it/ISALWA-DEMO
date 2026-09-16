@@ -8,6 +8,7 @@ import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
+import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -173,11 +174,9 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         }>;
       }>('/delivery-notes', { orderId: order.orderId });
       deliveryNotes = docs.notes ?? [];
-      deliveryTimeline = (docs.timeline ?? []).map((event) => ({
-        id: event.id,
-        eventType: event.eventType,
-        occurredAt: event.occurredAt,
-        label:
+      deliveryTimeline = (docs.timeline ?? []).map((event) => {
+        const payload = event.payload ?? {};
+        const label =
           event.eventType === 'delivery_note.created'
             ? 'Nota de entrega creada'
             : event.eventType === 'warehouse_exit.recorded'
@@ -186,9 +185,23 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
                 ? 'Entrega al cliente'
                 : event.eventType === 'delivery_note.corrected'
                   ? 'Nota corregida'
-                  : event.eventType,
-        detail: event.eventType,
-      }));
+                  : 'Evento registrado';
+        const detail =
+          event.eventType === 'delivery_note.created'
+            ? `Documento ${typeof payload.internalDocumentRef === 'string' ? payload.internalDocumentRef : 'emitido'}`
+            : event.eventType === 'warehouse_exit.recorded'
+              ? 'Mercadería salió del almacén'
+              : event.eventType === 'customer_delivery.recorded'
+                ? typeof payload.receivedBy === 'string' && payload.receivedBy
+                  ? `Recibido por ${payload.receivedBy}`
+                  : 'Entrega registrada al cliente'
+                : event.eventType === 'delivery_note.corrected'
+                  ? typeof payload.reason === 'string' && payload.reason
+                    ? payload.reason
+                    : 'Documento corregido o anulado'
+                  : 'Evento del pedido';
+        return { id: event.id, eventType: event.eventType, occurredAt: event.occurredAt, label, detail };
+      });
     } catch {
       deliveryNotes = [];
       deliveryTimeline = [];
@@ -357,6 +370,29 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             </div>
           </PageSection>
         ) : null}
+
+        <PageSection card className="mt-10 bg-white p-8 md:p-10">
+          <SectionHeader
+            title={
+              <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+                Incidencias
+              </h2>
+            }
+          />
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Reporte un problema relacionado con este pedido. La incidencia queda vinculada al pedido y al cliente.
+          </p>
+          <div className="mt-6">
+            <ReportIssueTrigger
+              context={{
+                referenceType: 'order',
+                referenceId: order.orderId,
+                referenceLabel: order.orderNumber,
+              }}
+              variant="secondary"
+            />
+          </div>
+        </PageSection>
       </PageContainer>
     );
   } catch (err) {
