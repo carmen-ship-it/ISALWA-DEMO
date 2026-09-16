@@ -9,10 +9,10 @@
 | MAP FEATURE | CURRENTLY IMPLEMENTED? | CANONICAL SOURCE | HOSTED-PROVEN? | SAFE LABEL | GAP |
 |---|---|---|---|---|---|
 | Customer pins | YES | `listPartyLocations` · confirmed lat/lng only | YES (prior MAP_LIVE) | Pines con coordenadas confirmadas | — |
-| Cliente360 deep link | YES | `partyHref(partyId)` → `/clientes/[id]` | PENDING this SHA | Abrir Cliente 360 | — |
-| Opportunity context | YES (this pass) | `listOpportunities` · open/non-cancelled | PENDING this SHA | Oportunidades abiertas · Valor de oportunidades | — |
-| Quote context | YES (this pass) | `listQuotes` · non-cancelled · `totalCentavos` | PENDING this SHA | Cotizaciones · Valor cotizado | — |
-| Order context | YES (this pass) | `listOrders` · non-cancelled · `totalCentavos` | PENDING this SHA | Pedidos · Valor de pedidos | — |
+| Cliente360 deep link | YES | `partyHref(partyId)` → `/clientes/[id]` | YES @ `03745ab` | Abrir Cliente 360 | — |
+| Opportunity context | YES (this pass) | `listOpportunities` · open/non-cancelled | YES @ `03745ab` | Oportunidades abiertas · Valor de oportunidades | — |
+| Quote context | YES (this pass) | `listQuotes` · non-cancelled · `totalCentavos` | YES @ `03745ab` | Cotizaciones · Valor cotizado | — |
+| Order context | YES (this pass) | `listOrders` · non-cancelled · `totalCentavos` | YES @ `03745ab` | Pedidos · Valor de pedidos | — |
 | Attention signals | NO filter | Inicio attention queues exist; **no party→map filter** | N/A | Atención · futuro | **FOUNDATION_GAP** |
 | Commercial value | YES (safe labels) | expectedValue / quote total / order total | PENDING this SHA | Valor de oportunidades / cotizado / de pedidos | — |
 | Revenue | NO | No authoritative revenue SoR | N/A | — | **NOT EVIDENCED** · never label Ingresos |

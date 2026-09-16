@@ -24,6 +24,7 @@ import {
   ISSUE_COMMAND_NAMES,
   PRODUCT_FEEDBACK_COMMAND_NAMES,
   DELIVERY_COMMAND_NAMES,
+  FINISHED_GOODS_COMMAND_NAMES,
   type PartyCommandName,
   type LocationCommandName,
   type ImportCommandName,
@@ -34,6 +35,8 @@ import {
   type IssueCommandName,
   type ProductFeedbackCommandName,
   type DeliveryCommandName,
+  type FinishedGoodsCommandName,
+  type ReceiveFinishedGoodsPayload,
 } from '@isalwa/os-contracts';
 import type { LocationCommandService, PartyCommandService } from '@isalwa/os-party';
 import type { ImportCommandService } from '@isalwa/os-import';
@@ -44,6 +47,11 @@ import type { IssueCommandService } from '@isalwa/os-issue';
 import type { DeliveryCommandService } from '@isalwa/os-delivery';
 import type { OsWorkforceStore, WorkforceCommandService } from '@isalwa/os-workforce';
 import type { OsProductFeedbackStore } from '@isalwa/os-database';
+import { getOsPrisma } from '@isalwa/os-database';
+import {
+  createPrismaFinishedGoodsWriteStore,
+  receiveFinishedGoods,
+} from '@isalwa/os-finished-goods';
 import { createId } from '@isalwa/ts-utils';
 import { resolveSession } from './os-session';
 import {
@@ -115,6 +123,23 @@ function isProductFeedbackCommand(command: OsCommandName): command is ProductFee
 
 function isDeliveryCommand(command: OsCommandName): command is DeliveryCommandName {
   return (DELIVERY_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
+function isFinishedGoodsCommand(command: OsCommandName): command is FinishedGoodsCommandName {
+  return (FINISHED_GOODS_COMMAND_NAMES as readonly string[]).includes(command);
+}
+
+function mapReceiveDenial(reason: string): HttpException {
+  if (reason === 'unauthorized' || reason === 'access_revoked') {
+    return new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+  }
+  if (reason === 'session_org_required') {
+    return new HttpException({ code: 'AUTH_REQUIRED' }, HttpStatus.UNAUTHORIZED);
+  }
+  if (reason === 'not_found' || reason === 'citation_not_in_org' || reason === 'invalid_order_context') {
+    return new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+  }
+  return new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
 }
 
 @Controller('commands')
@@ -237,10 +262,67 @@ export class CommandsController {
         };
       }
       if (isDeliveryCommand(command)) {
-        return await this.deliveryCommands.execute(command, session, parsed.data as Record<string, unknown>);
+        return await this.deliveryCommands.execute(
+          command,
+          session,
+          parsed.data as Record<string, unknown>,
+        );
+      }
+      if (isFinishedGoodsCommand(command) && command === 'ReceiveFinishedGoods') {
+        // Physical FG receive — not allocate, not delivery (Agent 3).
+        const prisma = getOsPrisma();
+        if (!prisma) {
+          throw new HttpException({ code: 'PROVIDER_NOT_CONFIGURED' }, HttpStatus.UNAUTHORIZED);
+        }
+        const payload = parsed.data as ReceiveFinishedGoodsPayload;
+        const member = await this.workforceStore.getMemberInOrg(
+          session.organizationId,
+          session.actorMemberId,
+        );
+        if (!member || member.organizationId !== session.organizationId) {
+          throw new HttpException({ code: 'PERMISSION_DENIED' }, HttpStatus.FORBIDDEN);
+        }
+        const person = await this.workforceStore.getPerson(member.personId);
+        const actorLabel =
+          [person?.givenName, person?.familyName].filter(Boolean).join(' ').trim() || 'Almacén';
+        const store = createPrismaFinishedGoodsWriteStore(prisma);
+        const result = await receiveFinishedGoods({
+          session: {
+            organizationId: session.organizationId,
+            actorMemberId: session.actorMemberId,
+            actorLabel,
+            accessStatus: member.accessStatus,
+            grantedScopes: session.grantedScopes,
+          },
+          store,
+          command: {
+            ...payload,
+            receivedAt: payload.receivedAt ?? session.effectiveAt.toISOString(),
+            idempotencyKey: idempotencyKey?.trim() || null,
+            correlationId: session.correlationId,
+          },
+          now: session.effectiveAt,
+          id: createId(),
+        });
+        if (!result.ok) {
+          throw mapReceiveDenial(result.reason);
+        }
+        return {
+          commandId: result.receipt.id,
+          correlationId: session.correlationId,
+          data: {
+            receiptId: result.receipt.id,
+            eventId: result.event.id,
+            allocatesToOrder: false,
+            postsStock: false,
+            replayed: result.replayed,
+            migrationApplied: result.migrationApplied,
+          },
+        };
       }
       throw new HttpException({ code: 'VALIDATION_FAILED' }, HttpStatus.BAD_REQUEST);
     } catch (err) {
+      if (err instanceof HttpException) throw err;
       throw mapError(err);
     }
   }

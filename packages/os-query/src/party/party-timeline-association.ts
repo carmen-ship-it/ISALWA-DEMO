@@ -136,6 +136,20 @@ export async function resolvePartyIdForTimeline(
     return payload.organizationPartyId;
   }
 
+  // Finished-goods physical receipt may cite Pedido context. That citation is not
+  // allocation. Resolve Cliente360 timeline via order → party when partyId was omitted.
+  if (
+    envelope.eventType === 'finished_goods.received' ||
+    envelope.eventType === 'finished_goods.corrected'
+  ) {
+    const orderId = typeof payload.orderId === 'string' ? payload.orderId : null;
+    if (orderId) {
+      const row = await deps.commercialStore.getOrderInOrg(envelope.organizationId, orderId);
+      return row?.partyId ?? null;
+    }
+    return null;
+  }
+
   if (!isOsCommercialEventType(envelope.eventType)) {
     return null;
   }

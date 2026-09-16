@@ -3,8 +3,8 @@
 **Date:** 2026-09-16  
 **Worktree:** `.worktrees/wave2-remediation-integrate`  
 **Branch:** `pre-pilot/company-os-pass`  
-**FINAL_RUNTIME_SHA (hosted):** pending deploy after this fix SHA  
-**Evidence:** code fix · unit/source tests · hosted BV after deploy
+**FINAL_RUNTIME_SHA (hosted):** `e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed` (web+API SAME)  
+**Evidence:** code fix · unit/source tests · hosted BV desktop+mobile (`opaque-id-hosted-bv-receipt.md` · `opaque-id-mobile-bv-receipt.md`)
 
 **Gap types only:** PASS · WIRING_DEFECT · PRESENTATION_DEFECT · DUPLICATE_TRANSCRIPTION_DEFECT · HISTORY_DEFECT · FOUNDATION_GAP · BUSINESS_DECISION_REQUIRED
 
@@ -13,13 +13,13 @@
 | SURFACE | FIELD / ACTION | CURRENT INPUT TYPE | CLASSIFICATION | CANONICAL ENTITY | CONTEXT CAN BE INHERITED? | SELECTOR REQUIRED? | BACKEND AUTH CHECK | FIX APPLIED | HOSTED VERIFIED | REMAINING GAP | GAP TYPE |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `/finanzas` | Tipo de sujeto | select | BUSINESS_POLICY_FIELD | party \| order \| quote | N/A | no | type enum only | none | N/A | — | PASS |
-| `/finanzas` | Pedido / Cliente / Cotización | SearchableSelect / ServerPartyTypeahead | CANONICAL_REFERENCE | Party / Order / Quote | YES from Pedido/Cliente360 (`?orderId`/`?partyId`/`?quoteId`) | **YES** | listOrders / lookupCustomers / listQuotes | **YES** | pending BV | — | **FIXED** |
-| `/finanzas` | Etiqueta visible | derived from selection | derived display | subject label | from selection | no (derive) | N/A | **YES** | pending BV | — | **FIXED** |
+| `/finanzas` | Pedido / Cliente / Cotización | SearchableSelect / ServerPartyTypeahead | CANONICAL_REFERENCE | Party / Order / Quote | YES from Pedido/Cliente360 (`?orderId`/`?partyId`/`?quoteId`) | **YES** | listOrders / lookupCustomers / listQuotes | **YES** | **YES** @1440 `e9a7a02` | — | **PASS** |
+| `/finanzas` | Etiqueta visible | derived from selection | derived display | subject label | from selection | no (derive) | N/A | **YES** | **YES** | — | **PASS** |
 | Cliente360 Finanzas | subject | hidden `partyId` | CANONICAL_REFERENCE | Party | YES | no | yes | already | prior | — | PASS |
-| `/produccion` | Producto | catalog search → select hit only | CANONICAL_REFERENCE | Product | YES from Productos preview catalog | **YES** | catalog membership check | **YES** | pending BV | list-products API still FOUNDATION if preview missing | **FIXED** |
-| `/mensajes` | Cliente | ServerPartyTypeahead (`lookupCustomers`) | CANONICAL_REFERENCE | Party | optional | **YES** | party auth | **YES** | pending BV | — | **FIXED** |
-| `/mensajes` | Nombre del cliente | derived from party selection | derived display | Party displayName | from party | no (derive) | N/A | **YES** | pending BV | — | **FIXED** |
-| `/mensajes` | opportunity / quote / order | SearchableSelect after party | CANONICAL_REFERENCE | Opp / Quote / Order | from party | **YES** | scoped `listPartyCommercialLinks` | **YES** | pending BV | — | **FIXED** |
+| `/produccion` | Producto | catalog search → select hit only | CANONICAL_REFERENCE | Product | YES from Productos preview catalog | **YES** | catalog membership check | **YES** | **YES** @1440 | — | **PASS** |
+| `/mensajes` | Cliente | ServerPartyTypeahead (`lookupCustomers`) | CANONICAL_REFERENCE | Party | optional | **YES** | party auth | **YES** | **YES** @1440 | — | **PASS** |
+| `/mensajes` | Nombre del cliente | derived from party selection | derived display | Party displayName | from party | no (derive) | N/A | **YES** | **YES** | — | **PASS** |
+| `/mensajes` | opportunity / quote / order | SearchableSelect after party | CANONICAL_REFERENCE | Opp / Quote / Order | from party | **YES** | scoped `listPartyCommercialLinks` | **YES** | **YES** @1440 | — | **PASS** |
 | `/almacen` | producto / pedido line | SearchableSelect | CANONICAL_REFERENCE | Product / OrderLine | from SoR load | yes (done) | session + scopes | already | BV honest empty | allocate write | FOUNDATION_GAP (write) |
 | `/compras` | pedido link | list select | CANONICAL_REFERENCE | Order | from listOrders | yes (done) | yes | already | BV honest empty | SoR queue write | FOUNDATION_GAP |
 | `/compras` | copy “use su identificador” | select/open language | PRESENTATION | — | — | — | — | **YES** | pending BV | — | **FIXED** |

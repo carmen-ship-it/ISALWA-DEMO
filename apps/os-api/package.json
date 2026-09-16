@@ -15,6 +15,7 @@
     "@isalwa/os-database": "workspace:*",
     "@isalwa/os-domain": "workspace:*",
     "@isalwa/os-events": "workspace:*",
+    "@isalwa/os-finished-goods": "workspace:*",
     "@isalwa/os-party": "workspace:*",
     "@isalwa/os-query": "workspace:*",
     "@isalwa/os-request-session": "workspace:*",

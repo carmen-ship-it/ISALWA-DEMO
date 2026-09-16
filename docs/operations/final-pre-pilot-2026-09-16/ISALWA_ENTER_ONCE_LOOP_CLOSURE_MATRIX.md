@@ -4,7 +4,8 @@
 **Date:** 2026-09-16  
 **Worktree:** `.worktrees/wave2-remediation-integrate`  
 **Branch:** `pre-pilot/company-os-pass`  
-**FINAL_RUNTIME_SHA (hosted claim):** `29b6f3f37fcf848a4a16248f34e39eeb33d1e463` (web+API same; product wiring `9cc6297`; map fix included; loop visual BV close)  
+**FINAL_RUNTIME_SHA (lane-7 loop claim / ancestral BV):** `29b6f3f37fcf848a4a16248f34e39eeb33d1e463` (map + Almacén/Entregas/Compras read BV)  
+**CURRENT LIVE (superseding product tip):** `e9a7a02b5a2e2105e7f4c756e0bfd20b17fe7fed` — includes this matrix’s product wiring as ancestor + opaque-ID selectors  
 **Evidence basis:** code + contracts + Prisma SoR + automated tests + hosted BV after deploy (`loop-visual-close/`)  
 **Policy:** Manual initial entry **once** is OK. Manual **re-entry of the same canonical fact across pages** is NOT OK. Historical records inside ISALWA stay; external archives need not bulk-migrate.  
 **Addendum:** Visual constitution preserved (navy/teal/sky/porcelain/white). No Wave C. No Isa/Álvaro accounts. No invented business policy. Version-1 individual Supabase Auth OK.

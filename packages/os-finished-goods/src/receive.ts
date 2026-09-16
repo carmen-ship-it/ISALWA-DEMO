@@ -1,6 +1,15 @@
 /**
  * Warehouse receive command. warehouse.finished_goods.receive is not allocate.
- * A receipt does not assign a Pedido, post stock, or create Order → ProductionRun.
+ *
+ * Physical receipt may cite Pedido / order-line context for operations and timeline.
+ * That citation is not allocation, reservation, FIFO, valuation, or stock posting.
+ * Bare orderId / orderLineId / sku still mean "allocation-shaped link" and are rejected.
+ *
+ * Persistence constitution:
+ * - Durable OsFinishedGoodsReceipt columns only (no allocate/FIFO/stock flags on disk)
+ * - Tenant predicates on every lookup / proof / write
+ * - Org-scoped idempotency (partial unique index) with replay on conflict
+ * - Receipt + business event persist atomically when $transaction is available
  */
 
 import { canReceiveFinishedGoods } from '../../os-contracts/src/operations-scopes';
@@ -27,6 +36,11 @@ export type FinishedGoodsReceiptRecord = {
   source: 'explicit_command';
   productionTraceEntryId: string | null;
   quemaId: string | null;
+  /** Operational Pedido context. Not allocation. */
+  contextOrderId: string | null;
+  contextOrderLineId: string | null;
+  contextPartyId: string | null;
+  note: string | null;
   correctsReceiptId: string | null;
   correctionReason: string | null;
   idempotencyKey: string | null;
@@ -48,6 +62,25 @@ export type FinishedGoodsEventRecord = {
   correlationId: string;
   idempotencyKey: string | null;
   provenance: 'command';
+  /** Timeline / Cliente360 association. Never invents party without Pedido context. */
+  payload: {
+    productId: string;
+    quantity: string;
+    allocatesToOrder: false;
+    postsStock: false;
+    orderId: string | null;
+    orderLineId: string | null;
+    partyId: string | null;
+    note: string | null;
+  };
+};
+
+export type OrderLineContextProof = {
+  organizationId: string;
+  orderId: string;
+  orderLineId: string;
+  productId: string;
+  partyId: string | null;
 };
 
 export type FinishedGoodsWriteStore = {
@@ -57,8 +90,22 @@ export type FinishedGoodsWriteStore = {
     organizationId: string,
     citation: { productionTraceEntryId?: string | null; quemaId?: string | null },
   ): Promise<boolean>;
-  insertReceipt(receipt: FinishedGoodsReceiptRecord): Promise<void>;
-  appendEvent(event: FinishedGoodsEventRecord): Promise<void>;
+  /**
+   * Prove Pedido / line / product belong to the session organization.
+   * Invalid or foreign targets return null (not-found equivalence).
+   */
+  proveOrderLineContext(
+    organizationId: string,
+    citation: { orderId: string; orderLineId: string; productId: string },
+  ): Promise<OrderLineContextProof | null>;
+  /**
+   * Durable receipt + business event.
+   * Prisma port uses $transaction when available; unique (org, idempotency) → idempotent_replay.
+   */
+  persistReceiptAndEvent(
+    receipt: FinishedGoodsReceiptRecord,
+    event: FinishedGoodsEventRecord,
+  ): Promise<'inserted' | 'idempotent_replay'>;
 };
 
 export type ReceiveSession = {
@@ -75,10 +122,15 @@ export type ReceiveFinishedGoodsInput = {
   receivedAt?: unknown;
   productionTraceEntryId?: unknown;
   quemaId?: unknown;
+  /** Pedido context citation — not allocation. */
+  contextOrderId?: unknown;
+  contextOrderLineId?: unknown;
+  note?: unknown;
   correctsReceiptId?: unknown;
   correctionReason?: unknown;
   idempotencyKey?: unknown;
   correlationId?: unknown;
+  /** Allocation-shaped fields — always rejected. */
   orderId?: unknown;
   orderLineId?: unknown;
   sku?: unknown;
@@ -91,7 +143,8 @@ export type ReceiveDenialReason =
   | 'invalid'
   | 'order_link_rejected'
   | 'not_found'
-  | 'citation_not_in_org';
+  | 'citation_not_in_org'
+  | 'invalid_order_context';
 
 export type ReceiveFinishedGoodsResult =
   | {
@@ -124,7 +177,64 @@ function positiveQuantity(value: unknown): string | null {
   return quantity;
 }
 
+function eventPayload(receipt: FinishedGoodsReceiptRecord): FinishedGoodsEventRecord['payload'] {
+  return {
+    productId: receipt.productId,
+    quantity: receipt.quantity,
+    allocatesToOrder: false,
+    postsStock: false,
+    orderId: receipt.contextOrderId,
+    orderLineId: receipt.contextOrderLineId,
+    partyId: receipt.contextPartyId,
+    note: receipt.note,
+  };
+}
+
+function replayEvent(
+  existing: FinishedGoodsReceiptRecord,
+  organizationId: string,
+  correlationId: string,
+  idempotencyKey: string | null,
+): FinishedGoodsEventRecord {
+  return {
+    id: `evt-replay-${existing.id}`,
+    organizationId,
+    eventType: existing.correctsReceiptId ? FINISHED_GOODS_CORRECTED_EVENT : FINISHED_GOODS_RECEIVED_EVENT,
+    occurredAt: existing.receivedAt,
+    recordedAt: existing.recordedAt,
+    actorMemberId: existing.actorMemberId,
+    primaryEntityType: 'finished_goods_receipt',
+    primaryEntityId: existing.id,
+    capabilityKey: FINISHED_GOODS_RECEIVE_SCOPE,
+    correlationId,
+    idempotencyKey,
+    provenance: 'command',
+    payload: eventPayload(existing),
+  };
+}
+
+function replayResult(
+  existing: FinishedGoodsReceiptRecord,
+  organizationId: string,
+  correlationId: string,
+  idempotencyKey: string | null,
+): ReceiveFinishedGoodsResult {
+  return {
+    ok: true,
+    receipt: existing,
+    event: replayEvent(existing, organizationId, correlationId, idempotencyKey),
+    replayed: true,
+    migrationApplied: false,
+    liveWrite: 'prisma_port',
+  };
+}
+
 export function receiveAuthorizesAllocate(): false {
+  return false;
+}
+
+/** Pedido context on a receipt is operational evidence, never an allocation. */
+export function receiveContextAllocatesToOrder(): false {
   return false;
 }
 
@@ -144,31 +254,12 @@ export async function receiveFinishedGoods(input: {
   }
 
   const idempotencyKey = text(input.command.idempotencyKey) || null;
+  const correlationId = text(input.command.correlationId);
   if (idempotencyKey) {
     const existing = await input.store.findByIdempotency(organizationId, idempotencyKey);
     if (existing) {
       if (existing.organizationId !== organizationId) return denied('not_found');
-      return {
-        ok: true,
-        receipt: existing,
-        event: {
-          id: `evt-replay-${existing.id}`,
-          organizationId,
-          eventType: existing.correctsReceiptId ? FINISHED_GOODS_CORRECTED_EVENT : FINISHED_GOODS_RECEIVED_EVENT,
-          occurredAt: existing.receivedAt,
-          recordedAt: existing.recordedAt,
-          actorMemberId: existing.actorMemberId,
-          primaryEntityType: 'finished_goods_receipt',
-          primaryEntityId: existing.id,
-          capabilityKey: FINISHED_GOODS_RECEIVE_SCOPE,
-          correlationId: text(input.command.correlationId) || existing.id,
-          idempotencyKey,
-          provenance: 'command',
-        },
-        replayed: true,
-        migrationApplied: false,
-        liveWrite: 'prisma_port',
-      };
+      return replayResult(existing, organizationId, correlationId || existing.id, idempotencyKey);
     }
   }
 
@@ -189,6 +280,27 @@ export async function receiveFinishedGoods(input: {
     });
     if (!proven) return denied('citation_not_in_org');
   }
+
+  const contextOrderId = text(input.command.contextOrderId) || null;
+  const contextOrderLineId = text(input.command.contextOrderLineId) || null;
+  if (Boolean(contextOrderId) !== Boolean(contextOrderLineId)) {
+    return denied('invalid_order_context');
+  }
+
+  let contextPartyId: string | null = null;
+  if (contextOrderId && contextOrderLineId) {
+    const proven = await input.store.proveOrderLineContext(organizationId, {
+      orderId: contextOrderId,
+      orderLineId: contextOrderLineId,
+      productId,
+    });
+    if (!proven || proven.organizationId !== organizationId) {
+      return denied('invalid_order_context');
+    }
+    contextPartyId = proven.partyId;
+  }
+
+  const note = text(input.command.note) || null;
 
   const correctsReceiptId = text(input.command.correctsReceiptId) || null;
   const correctionReason = text(input.command.correctionReason) || null;
@@ -213,6 +325,10 @@ export async function receiveFinishedGoods(input: {
     source: 'explicit_command',
     productionTraceEntryId,
     quemaId,
+    contextOrderId,
+    contextOrderLineId,
+    contextPartyId,
+    note,
     correctsReceiptId,
     correctionReason,
     idempotencyKey,
@@ -230,12 +346,22 @@ export async function receiveFinishedGoods(input: {
     primaryEntityType: 'finished_goods_receipt',
     primaryEntityId: id,
     capabilityKey: FINISHED_GOODS_RECEIVE_SCOPE,
-    correlationId: text(input.command.correlationId) || id,
+    correlationId: correlationId || id,
     idempotencyKey,
     provenance: 'command',
+    payload: eventPayload(receipt),
   };
-  await input.store.insertReceipt(receipt);
-  await input.store.appendEvent(event);
+
+  const outcome = await input.store.persistReceiptAndEvent(receipt, event);
+  if (outcome === 'idempotent_replay') {
+    if (!idempotencyKey) throw new Error('finished_goods_receive_persist_failed');
+    const existing = await input.store.findByIdempotency(organizationId, idempotencyKey);
+    if (!existing || existing.organizationId !== organizationId) {
+      throw new Error('finished_goods_receive_persist_failed');
+    }
+    return replayResult(existing, organizationId, correlationId || existing.id, idempotencyKey);
+  }
+
   return {
     ok: true,
     receipt,
@@ -250,6 +376,14 @@ export class MemoryFinishedGoodsWriteStore implements FinishedGoodsWriteStore {
   readonly receipts: FinishedGoodsReceiptRecord[] = [];
   readonly events: FinishedGoodsEventRecord[] = [];
   readonly citations = new Set<string>();
+  readonly orderLines = new Map<string, OrderLineContextProof>();
+
+  seedOrderLine(proof: OrderLineContextProof) {
+    this.orderLines.set(
+      `${proof.organizationId}:${proof.orderId}:${proof.orderLineId}:${proof.productId}`,
+      proof,
+    );
+  }
 
   async findByIdempotency(organizationId: string, idempotencyKey: string) {
     return (
@@ -274,18 +408,57 @@ export class MemoryFinishedGoodsWriteStore implements FinishedGoodsWriteStore {
     return true;
   }
 
-  async insertReceipt(receipt: FinishedGoodsReceiptRecord) {
-    this.receipts.push(receipt);
+  async proveOrderLineContext(
+    organizationId: string,
+    citation: { orderId: string; orderLineId: string; productId: string },
+  ) {
+    const key = `${organizationId}:${citation.orderId}:${citation.orderLineId}:${citation.productId}`;
+    return this.orderLines.get(key) ?? null;
   }
 
-  async appendEvent(event: FinishedGoodsEventRecord) {
+  async persistReceiptAndEvent(receipt: FinishedGoodsReceiptRecord, event: FinishedGoodsEventRecord) {
+    if (receipt.organizationId !== event.organizationId) {
+      throw new Error('TENANT_MISMATCH');
+    }
+    if (receipt.idempotencyKey) {
+      const existing = this.receipts.find(
+        (row) =>
+          row.organizationId === receipt.organizationId && row.idempotencyKey === receipt.idempotencyKey,
+      );
+      if (existing) return 'idempotent_replay';
+    }
+    this.receipts.push(receipt);
     this.events.push(event);
+    return 'inserted';
   }
 }
 
+/** Durable row shape for OsFinishedGoodsReceipt — no domain-only flags. */
+type PrismaReceiptRow = {
+  id: string;
+  organizationId: string;
+  productId: string;
+  quantity: string;
+  warehouseLabel: string;
+  receivedAt: Date | string;
+  recordedAt: Date | string;
+  actorMemberId: string | null;
+  actorLabel: string;
+  source: string;
+  productionTraceEntryId: string | null;
+  quemaId: string | null;
+  contextOrderId: string | null;
+  contextOrderLineId: string | null;
+  contextPartyId: string | null;
+  note: string | null;
+  correctsReceiptId: string | null;
+  correctionReason: string | null;
+  idempotencyKey: string | null;
+};
+
 type PrismaReceiptDelegate = {
-  findFirst(args: { where: Record<string, unknown> }): Promise<FinishedGoodsReceiptRecord | null>;
-  create(args: { data: FinishedGoodsReceiptRecord }): Promise<unknown>;
+  findFirst(args: { where: Record<string, unknown> }): Promise<PrismaReceiptRow | null>;
+  create(args: { data: Record<string, unknown> }): Promise<unknown>;
 };
 
 type PrismaEventDelegate = {
@@ -295,25 +468,122 @@ type PrismaEventDelegate = {
 export type FinishedGoodsPrismaPort = {
   osFinishedGoodsReceipt: PrismaReceiptDelegate;
   osBusinessEvent: PrismaEventDelegate;
+  /** Present on PrismaClient — used for atomic receipt + event persist. */
+  $transaction?: (...args: never[]) => Promise<unknown>;
   osProductionTraceEntry?: {
     findFirst(args: { where: Record<string, unknown> }): Promise<{ id: string } | null>;
   };
   osProductionQuema?: {
     findFirst(args: { where: Record<string, unknown> }): Promise<{ id: string } | null>;
   };
+  osOrder?: {
+    findFirst(args: {
+      where: Record<string, unknown>;
+      select?: Record<string, boolean>;
+    }): Promise<{ id: string; partyId: string | null } | null>;
+  };
+  osOrderLine?: {
+    findFirst(args: {
+      where: Record<string, unknown>;
+      select?: Record<string, boolean>;
+    }): Promise<{ id: string; orderId: string; productRefSnapshot: string | null } | null>;
+  };
 };
+
+function asIso(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function fromPrismaReceipt(row: PrismaReceiptRow): FinishedGoodsReceiptRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    productId: row.productId,
+    quantity: row.quantity,
+    warehouseLabel: FINISHED_GOODS_WAREHOUSE_LABEL,
+    receivedAt: asIso(row.receivedAt),
+    recordedAt: asIso(row.recordedAt),
+    actorMemberId: row.actorMemberId,
+    actorLabel: row.actorLabel,
+    source: 'explicit_command',
+    productionTraceEntryId: row.productionTraceEntryId,
+    quemaId: row.quemaId,
+    contextOrderId: row.contextOrderId,
+    contextOrderLineId: row.contextOrderLineId,
+    contextPartyId: row.contextPartyId,
+    note: row.note,
+    correctsReceiptId: row.correctsReceiptId,
+    correctionReason: row.correctionReason,
+    idempotencyKey: row.idempotencyKey,
+    allocatesToOrder: false,
+    postsStock: false,
+    officialStock: false,
+  };
+}
+
+function toPrismaReceiptData(receipt: FinishedGoodsReceiptRecord): Record<string, unknown> {
+  return {
+    id: receipt.id,
+    organizationId: receipt.organizationId,
+    productId: receipt.productId,
+    quantity: receipt.quantity,
+    warehouseLabel: receipt.warehouseLabel,
+    receivedAt: new Date(receipt.receivedAt),
+    recordedAt: new Date(receipt.recordedAt),
+    actorMemberId: receipt.actorMemberId,
+    actorLabel: receipt.actorLabel,
+    source: receipt.source,
+    productionTraceEntryId: receipt.productionTraceEntryId,
+    quemaId: receipt.quemaId,
+    contextOrderId: receipt.contextOrderId,
+    contextOrderLineId: receipt.contextOrderLineId,
+    contextPartyId: receipt.contextPartyId,
+    note: receipt.note,
+    correctsReceiptId: receipt.correctsReceiptId,
+    correctionReason: receipt.correctionReason,
+    idempotencyKey: receipt.idempotencyKey,
+  };
+}
+
+function toPrismaEventData(event: FinishedGoodsEventRecord): Record<string, unknown> {
+  return {
+    id: event.id,
+    organizationId: event.organizationId,
+    eventType: event.eventType,
+    occurredAt: new Date(event.occurredAt),
+    recordedAt: new Date(event.recordedAt),
+    actorMemberId: event.actorMemberId,
+    primaryEntityType: event.primaryEntityType,
+    primaryEntityId: event.primaryEntityId,
+    capabilityKey: event.capabilityKey,
+    correlationId: event.correlationId,
+    idempotencyKey: event.idempotencyKey,
+    provenance: event.provenance,
+    payloadJson: event.payload,
+  };
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = 'code' in err ? String((err as { code?: unknown }).code ?? '') : '';
+  if (code === 'P2002') return true;
+  const message = err instanceof Error ? err.message : String(err);
+  return /unique|idempotency/i.test(message);
+}
 
 export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaPort): FinishedGoodsWriteStore {
   return {
     async findByIdempotency(organizationId, idempotencyKey) {
-      return prisma.osFinishedGoodsReceipt.findFirst({
+      const row = await prisma.osFinishedGoodsReceipt.findFirst({
         where: { organizationId, idempotencyKey },
       });
+      return row ? fromPrismaReceipt(row) : null;
     },
     async findInOrg(organizationId, receiptId) {
-      return prisma.osFinishedGoodsReceipt.findFirst({
+      const row = await prisma.osFinishedGoodsReceipt.findFirst({
         where: { organizationId, id: receiptId },
       });
+      return row ? fromPrismaReceipt(row) : null;
     },
     async proveProductionCitation(organizationId, citation) {
       if (citation.productionTraceEntryId) {
@@ -330,26 +600,55 @@ export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaP
       }
       return true;
     },
-    async insertReceipt(receipt) {
-      await prisma.osFinishedGoodsReceipt.create({ data: receipt });
-    },
-    async appendEvent(event) {
-      await prisma.osBusinessEvent.create({
-        data: {
-          id: event.id,
-          organizationId: event.organizationId,
-          eventType: event.eventType,
-          occurredAt: new Date(event.occurredAt),
-          recordedAt: new Date(event.recordedAt),
-          actorMemberId: event.actorMemberId,
-          primaryEntityType: event.primaryEntityType,
-          primaryEntityId: event.primaryEntityId,
-          capabilityKey: event.capabilityKey,
-          correlationId: event.correlationId,
-          idempotencyKey: event.idempotencyKey,
-          provenance: event.provenance,
-        },
+    async proveOrderLineContext(organizationId, citation) {
+      if (!prisma.osOrder || !prisma.osOrderLine) return null;
+      const order = await prisma.osOrder.findFirst({
+        where: { organizationId, id: citation.orderId },
+        select: { id: true, partyId: true },
       });
+      if (!order || order.id !== citation.orderId) return null;
+      const line = await prisma.osOrderLine.findFirst({
+        where: { organizationId, id: citation.orderLineId, orderId: citation.orderId },
+        select: { id: true, orderId: true, productRefSnapshot: true },
+      });
+      if (!line || line.id !== citation.orderLineId) return null;
+      // Match UI handoff: productId = productRefSnapshot || orderLineId.
+      const productKey = (line.productRefSnapshot?.trim() || line.id).trim();
+      if (productKey !== citation.productId) return null;
+      return {
+        organizationId,
+        orderId: citation.orderId,
+        orderLineId: citation.orderLineId,
+        productId: citation.productId,
+        partyId: order.partyId,
+      };
+    },
+    async persistReceiptAndEvent(receipt, event) {
+      if (receipt.organizationId !== event.organizationId) {
+        throw new Error('TENANT_MISMATCH');
+      }
+      const receiptData = toPrismaReceiptData(receipt);
+      const eventData = toPrismaEventData(event);
+      try {
+        const runTx = prisma.$transaction as
+          | undefined
+          | ((ops: Promise<unknown>[]) => Promise<unknown>);
+        if (typeof runTx === 'function') {
+          await runTx([
+            prisma.osFinishedGoodsReceipt.create({ data: receiptData }),
+            prisma.osBusinessEvent.create({ data: eventData }),
+          ]);
+        } else {
+          await prisma.osFinishedGoodsReceipt.create({ data: receiptData });
+          await prisma.osBusinessEvent.create({ data: eventData });
+        }
+        return 'inserted';
+      } catch (err) {
+        if (receipt.idempotencyKey && isUniqueViolation(err)) {
+          return 'idempotent_replay';
+        }
+        throw err;
+      }
     },
   };
 }

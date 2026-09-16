@@ -173,6 +173,9 @@ importers:
       '@isalwa/os-events':
         specifier: workspace:*
         version: link:../../packages/os-events
+      '@isalwa/os-finished-goods':
+        specifier: workspace:*
+        version: link:../../packages/os-finished-goods
       '@isalwa/os-import':
         specifier: workspace:*
         version: link:../../packages/os-import

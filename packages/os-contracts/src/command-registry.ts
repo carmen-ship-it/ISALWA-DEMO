@@ -49,6 +49,11 @@ import {
   DELIVERY_COMMAND_NAMES,
   type DeliveryCommandName,
 } from './delivery';
+import {
+  FINISHED_GOODS_COMMAND_PAYLOAD_SCHEMAS,
+  FINISHED_GOODS_COMMAND_NAMES,
+  type FinishedGoodsCommandName,
+} from './finished-goods-commands';
 
 export const OS_COMMAND_NAMES = [
   ...WORKFORCE_COMMAND_NAMES,
@@ -61,6 +66,7 @@ export const OS_COMMAND_NAMES = [
   ...PRODUCT_FEEDBACK_COMMAND_NAMES,
   ...COMMITMENT_COMMAND_NAMES,
   ...DELIVERY_COMMAND_NAMES,
+  ...FINISHED_GOODS_COMMAND_NAMES,
 ] as const;
 
 export type OsCommandName =
@@ -73,7 +79,8 @@ export type OsCommandName =
   | IssueCommandName
   | ProductFeedbackCommandName
   | CommitmentCommandName
-  | DeliveryCommandName;
+  | DeliveryCommandName
+  | FinishedGoodsCommandName;
 
 export function isOsCommandName(value: string): value is OsCommandName {
   return (OS_COMMAND_NAMES as readonly string[]).includes(value);
@@ -90,4 +97,5 @@ export const COMMAND_PAYLOAD_SCHEMAS: Record<OsCommandName, z.ZodTypeAny> = {
   ...PRODUCT_FEEDBACK_COMMAND_PAYLOAD_SCHEMAS,
   ...COMMITMENT_COMMAND_PAYLOAD_SCHEMAS,
   ...DELIVERY_COMMAND_PAYLOAD_SCHEMAS,
+  ...FINISHED_GOODS_COMMAND_PAYLOAD_SCHEMAS,
 };

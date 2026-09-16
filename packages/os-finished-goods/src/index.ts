@@ -8,6 +8,7 @@ export {
   MemoryFinishedGoodsWriteStore,
   createPrismaFinishedGoodsWriteStore,
   receiveAuthorizesAllocate,
+  receiveContextAllocatesToOrder,
   receiveFinishedGoods,
 } from './receive';
 export type {
@@ -15,6 +16,8 @@ export type {
   FinishedGoodsPrismaPort,
   FinishedGoodsReceiptRecord,
   FinishedGoodsWriteStore,
+  OrderLineContextProof,
+  ReceiveDenialReason,
   ReceiveFinishedGoodsInput,
   ReceiveFinishedGoodsResult,
   ReceiveSession,
