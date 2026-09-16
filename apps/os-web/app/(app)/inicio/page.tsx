@@ -8,6 +8,7 @@ import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioManagementLens } from '@/components/management/inicio-management-lens';
 import { OperatingHomes } from '@/components/management/operating-homes';
 import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
+import { InicioTodayQueue } from '@/components/inicio/inicio-today-queue';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
 import type { MemoryChangesResponse } from '@/lib/audit/types';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
@@ -20,6 +21,7 @@ import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
 import { commitmentAgingAdapter } from '@/lib/inicio/commitment-aging';
 import { loadInicioCommandQueues, safeInicioSectionFetch } from '@/lib/inicio/load-command-queues';
 import { resolveInicioApprovalSubjects } from '@/lib/inicio/resolve-approval-subjects';
+import { buildTodayQueue } from '@/lib/inicio/today-queue';
 import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { loadInicioManagement } from '@/lib/management/load-inicio-management';
@@ -253,6 +255,20 @@ export default async function InicioPage() {
 
     const showLenses = leadership.team.kind === 'ready' || leadership.org.kind === 'ready';
     const greeting = greetingLine(shellContext?.givenName);
+    const session = await client.getAuthenticatedSession();
+    const todayQueue = buildTodayQueue({
+      memberId: session.memberId,
+      asOf: new Date(),
+      attention: visibleAttention,
+      work: personalWorkResult === 'unavailable' ? [] : personalWorkResult.items,
+      approvals: commandQueues.pendingApprovals,
+      commitments: commandQueues.unavailable.commitments
+        ? []
+        : [...commandQueues.commitmentsOverdue, ...commandQueues.commitmentsOpen],
+      issues: commandQueues.unavailable.issues ? [] : commandQueues.openIssues,
+      partyLabels,
+      approvalSubjects: commandApprovalSubjects,
+    });
     const operatingHomes = await loadOperatingHomes(client, {
       ownQuotes: [...quotesDraft, ...quotesSubmitted],
       teamQuotes: [...(teamData?.quotesDraft ?? []), ...(teamData?.quotesSubmitted ?? [])],
@@ -300,9 +316,11 @@ export default async function InicioPage() {
                 Atención de hoy
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                Colas operativas con peso diferenciado. Sin totales inventados.
+                Colas operativas con hechos gobernados. Sin totales inventados. El recordatorio es
+                esta pantalla — no correo, push ni WhatsApp.
               </p>
             </div>
+            <InicioTodayQueue queue={todayQueue} />
             <InicioAttentionPanel
               items={visibleAttention}
               subjects={attentionSubjects}

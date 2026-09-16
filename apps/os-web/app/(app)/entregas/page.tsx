@@ -6,14 +6,22 @@ import {
   V1FlowValidateNotice,
 } from '@/components/owner-review/v1-flow-validate-notice';
 import { PageHeader } from '@/components/shell/page-header';
+import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
 import { orderHref } from '@/lib/commercial/navigation';
+import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
 
 export default async function EntregasPage() {
   const view = await loadEntregaPage();
   const panelStatus =
     view.status === 'ready' || view.status === 'empty' ? 'ready' : view.status;
+  const firstDelivery = view.deliveries[0];
+  const deliveryOffer = offerAfterDeliveryFollowUp({
+    deliveryId: firstDelivery?.id ?? null,
+    deliveredAt: firstDelivery?.deliveredAt ?? null,
+    partyId: view.linkedOrders[0]?.partyId ?? null,
+  });
 
   return (
     <PageContainer label="Entregas">
@@ -34,6 +42,11 @@ export default async function EntregasPage() {
         title={OWNER_REVIEW_V1_COPY.entregasTitle}
         description={OWNER_REVIEW_V1_COPY.entregasDescription}
       />
+      {deliveryOffer.offered ? (
+        <div className="mb-6">
+          <EventWorkOfferPanel offer={deliveryOffer} />
+        </div>
+      ) : null}
       <LinkedOrdersSection orders={view.linkedOrders} />
       <EntregaPanel
         status={panelStatus}

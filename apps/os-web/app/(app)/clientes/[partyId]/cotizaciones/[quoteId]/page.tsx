@@ -10,6 +10,7 @@ import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { RecordQuoteManualSendForm } from '@/components/commercial/record-quote-manual-send-form';
 import { PageHeader } from '@/components/shell/page-header';
 import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
+import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -34,6 +35,7 @@ import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver'
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
+import { offerAfterQuoteSent } from '@/lib/work/event-work-offer';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -93,6 +95,11 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     const hasPendingApproval = approvals.some((row) => row.status === 'pending');
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
     const manualSendAllowed = canRecordQuoteManualSend(quote.status);
+    const quoteWorkOffer = offerAfterQuoteSent({
+      quoteStatus: quote.status,
+      partyId: quote.partyId,
+      quoteNumber: quote.quoteNumber,
+    });
     const nextStep = quoteNextStep({
       status: quote.status,
       partyId,
@@ -313,7 +320,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         {followUpAllowed ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
             <SectionHeader title={FOLLOW_UP_COPY.section} />
-            <div className="mt-6">
+            <div className="mt-6 space-y-4">
+              {quoteWorkOffer.offered ? <EventWorkOfferPanel offer={quoteWorkOffer} /> : null}
               <RegisterFollowUpForm
                 partyId={quote.partyId}
                 quoteId={quote.quoteId}

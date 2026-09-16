@@ -1,6 +1,7 @@
 import {
   CreateWorkItemPayloadSchema,
   CompleteWorkPayloadSchema,
+  CancelWorkItemPayloadSchema,
   type WorkSubjectType,
 } from '@isalwa/os-contracts';
 import type { WorkListResponse } from '@/lib/work/types';
@@ -16,6 +17,10 @@ export const FOLLOW_UP_COPY = {
   pending: 'Pendiente',
   complete: 'Completar',
   markComplete: 'Marcar como completado',
+  cancel: 'Cancelar',
+  markCancel: 'Cancelar seguimiento',
+  cancelReason: 'Motivo (opcional)',
+  cancelled: 'Seguimiento cancelado.',
   placeholder: 'Llamar al cliente para confirmar cantidades',
   ownerNote: 'Quedará a su nombre.',
   dueHint: 'Opcional',
@@ -27,6 +32,7 @@ export const FOLLOW_UP_COPY = {
   dueInvalid: 'La fecha no es válida.',
   identityMissing: 'No se pudo identificar su usuario. Vuelva a iniciar sesión para registrar el seguimiento.',
   customerMissing: 'No se encontró este cliente.',
+  historyNote: 'Completar o cancelar conserva el registro. No elimina el historial.',
 } as const;
 
 export const FOLLOW_UP_SUBJECT_TYPES = ['party', 'commercial_account'] as const satisfies readonly WorkSubjectType[];
@@ -145,6 +151,22 @@ export function buildCompleteWorkPayload(workItemId: string):
   const parsed = CompleteWorkPayloadSchema.safeParse({ workItemId: id });
   if (!parsed.success) return { ok: false, error: 'No se encontró el seguimiento.' };
   return { ok: true, payload: parsed.data, command: 'CompleteWork' };
+}
+
+export function buildCancelWorkPayload(
+  workItemId: string,
+  reason?: string | null,
+):
+  | { ok: true; payload: { workItemId: string; reason?: string }; command: 'CancelWorkItem' }
+  | { ok: false; error: string } {
+  const id = workItemId.trim();
+  if (!id) return { ok: false, error: 'No se encontró el seguimiento.' };
+  const payload: { workItemId: string; reason?: string } = { workItemId: id };
+  const trimmed = reason?.trim();
+  if (trimmed) payload.reason = trimmed;
+  const parsed = CancelWorkItemPayloadSchema.safeParse(payload);
+  if (!parsed.success) return { ok: false, error: 'No se encontró el seguimiento.' };
+  return { ok: true, payload: parsed.data, command: 'CancelWorkItem' };
 }
 
 export function followUpStatusLabel(status: string): string {

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { CompleteFollowUpForm } from '@/components/work/complete-follow-up-form';
+import { CancelFollowUpForm } from '@/components/work/cancel-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -57,6 +58,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
     const statusLabel = customerFollowUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
     const undatedOpen = work.status === 'open' && !work.dueAt;
     const completedAt = formatTimestamp(work.completedAt);
+    const cancelledAt = formatTimestamp(work.cancelledAt);
 
     return (
       <PageContainer label={staffTitle}>
@@ -148,9 +150,18 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
                 <dd className="mt-2 text-[var(--isalwa-kiln)]">{completedAt}</dd>
               </div>
             ) : null}
+            {cancelledAt ? (
+              <div>
+                <dt className="isalwa-section-label">Cancelado</dt>
+                <dd className="mt-2 text-[var(--isalwa-kiln)]">{cancelledAt}</dd>
+              </div>
+            ) : null}
           </dl>
           {work.status === 'open' ? (
-            <CompleteFollowUpForm workItemId={work.workItemId} partyId={partyId} />
+            <>
+              <CompleteFollowUpForm workItemId={work.workItemId} partyId={partyId} />
+              <CancelFollowUpForm workItemId={work.workItemId} partyId={partyId} />
+            </>
           ) : null}
         </PageSection>
       </PageContainer>

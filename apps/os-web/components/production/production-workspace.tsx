@@ -40,6 +40,8 @@ import {
   PRODUCTION_STEP_OPTIONS,
 } from '@/lib/production/copy';
 import { productionInternalDateFact } from '@/lib/production/dates';
+import { offerAfterProductionExpectedDate } from '@/lib/work/event-work-offer';
+import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import {
   catalogContainsProductId,
   catalogProductLabel,
@@ -134,6 +136,9 @@ export function ProductionWorkspace({
   const quantityRef = useRef<HTMLInputElement>(null);
 
   const dateFact = productionInternalDateFact(productionInternalDate, organizationId, customerCommittedOn);
+  const productionWorkOffer = offerAfterProductionExpectedDate({
+    targetOn: dateFact?.targetOn ?? null,
+  });
   const catalogSearch = searchProductIds(catalog, productQuery);
   const catalogReady = Boolean(catalog && catalog.length > 0);
   const productFromCatalog = catalogContainsProductId(catalog, productId);
@@ -441,6 +446,11 @@ export function ProductionWorkspace({
       ) : (
         <p className="mb-3 text-sm text-[var(--isalwa-slate)]">{PRODUCTION_PAGE_COPY.dateSeparate}</p>
       )}
+      {productionWorkOffer?.offered ? (
+        <div className="mb-3">
+          <EventWorkOfferPanel offer={productionWorkOffer} />
+        </div>
+      ) : null}
 
       {!scopesConfirmed || !canEnter ? (
         <div className="mb-0">
