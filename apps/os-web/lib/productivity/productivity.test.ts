@@ -190,7 +190,7 @@ describe('what changed', () => {
     };
     const items = whatChangedFromTimeline([created, quote]);
     assert.equal(items.length, 1);
-    assert.equal(items[0]?.label, 'Cotización enviada');
+    assert.equal(items[0]?.label, 'Cotización presentada');
     assert.equal(items[0]?.href, '/clientes/pty%201/cotizaciones/quo-1');
     assert.equal(items.some((item) => item.label.toLocaleLowerCase('es').includes('compromiso')), false);
     assert.equal(PRODUCTIVITY_NOT_IMPLEMENTED.some((gap) => gap.id === 'commitments'), true);

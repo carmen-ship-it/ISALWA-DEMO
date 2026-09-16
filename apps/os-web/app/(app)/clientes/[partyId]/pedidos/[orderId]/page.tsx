@@ -237,11 +237,17 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
           {resultado === 'pedido' ? (
             <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-              Pedido creado desde la cotización. La relación se conserva. No se emitió factura ni nota de entrega.
+              {sourceQuoteNumber
+                ? `Pedido creado desde Cotización ${sourceQuoteNumber}`
+                : 'Pedido creado desde la cotización'}
+              . La relación se conserva. No se emitió factura ni nota de entrega.
             </p>
           ) : (
             <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              Pedido registrado desde una cotización.
+              {sourceQuoteNumber
+                ? `Pedido creado desde Cotización ${sourceQuoteNumber}`
+                : 'Pedido registrado desde una cotización'}
+              .
             </p>
           )}
 

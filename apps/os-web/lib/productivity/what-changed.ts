@@ -7,6 +7,7 @@ import { approvalHref, workItemHref } from '@/lib/work/navigation';
 
 const CHANGE_EVENTS = new Set([
   'quote.submitted',
+  'quote.send_recorded',
   'quote.cancelled',
   'quote.updated',
   'opportunity.stage_changed',
@@ -70,7 +71,7 @@ export function whatChangedFromTimeline(
     .map((entry) => ({
       id: entry.entryId,
       eventType: entry.eventType,
-      label: timelineEventLabel(entry.eventType),
+      label: timelineEventLabel(entry.eventType, entry.facts),
       detail: timelineEntrySummary(entry),
       occurredAt: entry.occurredAt,
       when: formatTimestamp(entry.occurredAt),

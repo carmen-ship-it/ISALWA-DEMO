@@ -50,6 +50,7 @@ export const OS_FOUNDATION_EVENT_TYPES = [
   'quote.line_updated',
   'quote.line_removed',
   'quote.submitted',
+  'quote.send_recorded',
   'quote.cancelled',
   'order.created',
   'order.cancelled',

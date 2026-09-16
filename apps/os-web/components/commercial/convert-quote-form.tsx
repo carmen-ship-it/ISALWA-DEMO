@@ -40,7 +40,7 @@ export function ConvertQuoteForm({
       <input type="hidden" name="quoteId" value={quoteId} />
       <GuidanceNotes notes={guidanceForConvertQuote({ quoteStatus })} />
       <FormFeedback error={state?.error} />
-      <CommandSubmitButton label="Convertir a pedido" pendingLabel="Registrando pedido…" />
+      <CommandSubmitButton label="Cliente aceptó · Convertir a pedido" pendingLabel="Registrando pedido…" />
     </form>
   );
 }

@@ -7,6 +7,7 @@ import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
+import { RecordQuoteManualSendForm } from '@/components/commercial/record-quote-manual-send-form';
 import { PageHeader } from '@/components/shell/page-header';
 import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -21,6 +22,10 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
+import {
+  canRecordQuoteManualSend,
+  QUOTE_MANUAL_SEND_COPY,
+} from '@/lib/commercial/quote-manual-send';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
@@ -87,6 +92,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
     const hasPendingApproval = approvals.some((row) => row.status === 'pending');
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
+    const manualSendAllowed = canRecordQuoteManualSend(quote.status);
     const nextStep = quoteNextStep({
       status: quote.status,
       partyId,
@@ -130,7 +136,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">
-            <p className="text-sm text-[var(--isalwa-slate)]">Cotización aceptada</p>
+            <p className="text-sm text-[var(--isalwa-slate)]">
+              Cliente aceptó · listo para pedido (estado sigue presentada hasta convertir)
+            </p>
             <a href="#convertir-pedido" className={documentLinkClass}>
               Ir a convertir a pedido
             </a>
@@ -176,7 +184,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </div>
             {quote.submittedAt ? (
               <div>
-                <dt className="isalwa-section-label">Enviada</dt>
+                <dt className="isalwa-section-label">Presentada</dt>
                 <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(quote.submittedAt)}</dd>
               </div>
             ) : null}
@@ -283,11 +291,34 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           )}
         </PageSection>
 
+        {manualSendAllowed ? (
+          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+            <SectionHeader
+              title={
+                <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+                  {QUOTE_MANUAL_SEND_COPY.section}
+                </h2>
+              }
+            />
+            <div className="mt-6">
+              <RecordQuoteManualSendForm
+                partyId={partyId}
+                quoteId={quote.quoteId}
+                quoteNumber={quote.quoteNumber}
+              />
+            </div>
+          </PageSection>
+        ) : null}
+
         {followUpAllowed ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
             <SectionHeader title={FOLLOW_UP_COPY.section} />
             <div className="mt-6">
-              <RegisterFollowUpForm partyId={quote.partyId} quoteId={quote.quoteId} />
+              <RegisterFollowUpForm
+                partyId={quote.partyId}
+                quoteId={quote.quoteId}
+                quoteNumber={quote.quoteNumber}
+              />
             </div>
           </PageSection>
         ) : null}

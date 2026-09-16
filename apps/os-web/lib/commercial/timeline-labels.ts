@@ -1,6 +1,7 @@
 import type { PartyTimelineEntryReadModel, PartyTimelineFacts } from '@isalwa/os-contracts';
 import { formatRecordStatus, formatStage, presentStage, formatOpportunityStatus } from './labels';
 import { formatOptionalCentavos } from './money';
+import { quoteManualSendHistoryLabel } from './quote-manual-send';
 
 const EVENT_LABELS: Record<string, string> = {
   'party.created': 'Cliente registrado',
@@ -25,7 +26,8 @@ const EVENT_LABELS: Record<string, string> = {
   'quote.line_added': 'Línea agregada a cotización',
   'quote.line_updated': 'Línea de cotización actualizada',
   'quote.line_removed': 'Línea eliminada de cotización',
-  'quote.submitted': 'Cotización enviada',
+  'quote.submitted': 'Cotización presentada',
+  'quote.send_recorded': 'Cotización registrada como enviada',
   'quote.cancelled': 'Cotización cancelada',
   'order.created': 'Pedido creado',
   'order.cancelled': 'Pedido cancelado',
@@ -44,7 +46,15 @@ export const HISTORIAL_SCOPE_COPY =
   'Actividad del cliente, comercial, trabajo y aprobaciones relacionadas.';
 
 /** Add Spanish labels here when new timeline event types ship — unknown types use fallback. */
-export function timelineEventLabel(eventType: string): string {
+export function timelineEventLabel(
+  eventType: string,
+  facts?: PartyTimelineFacts | null,
+): string {
+  if (eventType === 'quote.send_recorded') {
+    return quoteManualSendHistoryLabel(
+      typeof facts?.channel === 'string' ? facts.channel : null,
+    );
+  }
   return EVENT_LABELS[eventType] ?? 'Actividad registrada';
 }
 
@@ -125,6 +135,17 @@ function factLine(
 }
 
 export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string {
+  if (entry.eventType === 'quote.send_recorded') {
+    const parts = [timelineEventLabel(entry.eventType, entry.facts)];
+    if (typeof entry.facts.quoteNumber === 'string' && entry.facts.quoteNumber) {
+      parts.push(`Cotización: ${entry.facts.quoteNumber}`);
+    }
+    if (typeof entry.facts.note === 'string' && entry.facts.note) {
+      parts.push(`Nota: ${entry.facts.note}`);
+    }
+    return parts.join(' · ');
+  }
+
   const entityType = entry.primaryEntityType || entry.eventType.split('.')[0] || '';
   const parts: string[] = [];
   const nameFact =
@@ -145,7 +166,7 @@ export function timelineEntrySummary(entry: PartyTimelineEntryReadModel): string
     const line = factLine(key, value, entityType);
     if (line) parts.push(line);
   }
-  return parts.join(' · ') || timelineEventLabel(entry.eventType);
+  return parts.join(' · ') || timelineEventLabel(entry.eventType, entry.facts);
 }
 
 /** Timeline entries must never expose raw payload — only allowlisted facts. */

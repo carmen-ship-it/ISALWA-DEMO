@@ -115,7 +115,11 @@ describe('UI-4 timeline presentation', () => {
 
   it('labels commercial events in Spanish', () => {
     assert.equal(timelineEventLabel('opportunity.created'), 'Oportunidad creada');
-    assert.equal(timelineEventLabel('quote.submitted'), 'Cotización enviada');
+    assert.equal(timelineEventLabel('quote.submitted'), 'Cotización presentada');
+    assert.equal(
+      timelineEventLabel('quote.send_recorded', { channel: 'whatsapp' }),
+      'Cotización registrada como enviada por WhatsApp',
+    );
     assert.equal(timelineEventLabel('order.created'), 'Pedido creado');
   });
 

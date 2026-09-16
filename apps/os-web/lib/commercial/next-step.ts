@@ -88,14 +88,16 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
       }
       if (input.canRegisterFollowUp && input.followUpHref) {
         return {
-          statement: 'Cotización enviada. Puede registrar un seguimiento si ya lo acordó.',
+          statement:
+            'Cotización presentada. Registre el envío manual y el seguimiento cuando lo acuerde.',
           href: input.followUpHref,
           hrefLabel: 'Registrar seguimiento',
           waiting: false,
         };
       }
       return {
-        statement: 'Cotización enviada. Espere la respuesta del cliente o una decisión de aprobación.',
+        statement:
+          'Cotización presentada. Registre el envío externo o espere la respuesta del cliente.',
         href: null,
         hrefLabel: null,
         waiting: true,
