@@ -30,7 +30,12 @@ describe('AI limits', () => {
     assert.equal(AI_ORG_MONTHLY_LIMIT, 300);
     assert.equal(AI_MAX_OUTPUT_TOKENS, 800);
     assert.equal(AI_MAX_PROVIDER_RETRIES, 1);
-    assert.deepEqual(AI_ALLOWED_INTENTS, ['summarize_customer', 'ask', 'draft_follow_up']);
+    assert.deepEqual(AI_ALLOWED_INTENTS, [
+      'summarize_customer',
+      'ask',
+      'draft_follow_up',
+      'summarize_commitments',
+    ]);
     assert.deepEqual(AI_DENIED_INTENTS, ['approve', 'convert', 'reassign', 'send']);
   });
 
@@ -139,6 +144,32 @@ describe('AI limits', () => {
     });
     assert.equal(request.feature, 'summarize_customer');
     assert.equal(request.subjectType, 'party');
+  });
+
+  it('accepts free-text question as phrasing without changing subject selectors', () => {
+    process.env.AI_ENABLED = 'true';
+    const request = assertAiAssistRequest({
+      feature: 'ask',
+      subjectType: 'issue',
+      subjectId: 'issue-1',
+      question: '  ¿Qué se intentó?  ',
+    });
+    assert.equal(request.subjectType, 'issue');
+    assert.equal(request.subjectId, 'issue-1');
+    assert.equal(request.feature, 'ask');
+    assert.equal(request.question, '¿Qué se intentó?');
+  });
+
+  it('allows summarize_commitments under the caps', () => {
+    process.env.AI_ENABLED = 'true';
+    const request = assertAiAssistRequest({
+      feature: 'summarize_commitments',
+      subjectType: 'party',
+      subjectId: 'party-1',
+      question: '¿Qué está vencido?',
+    });
+    assert.equal(request.feature, 'summarize_commitments');
+    assert.equal(request.question, '¿Qué está vencido?');
   });
 
   it('allows an allowlisted intent under the caps and returns the output cap', () => {

@@ -10,7 +10,7 @@ import {
 import type { Request } from 'express';
 import { createId } from '@isalwa/ts-utils';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import type { OsIssueStore } from '@isalwa/os-database';
+import type { OsIssueStore, PrismaOsCommitmentStore } from '@isalwa/os-database';
 import type { AiProvider } from '@isalwa/providers';
 import { createAiProviderFromEnv } from '@isalwa/providers';
 import {
@@ -20,17 +20,19 @@ import {
 } from '@isalwa/os-domain';
 import { buildAuditEntry, buildBusinessEvent, buildOutboxForEvent } from '@isalwa/os-events';
 import { resolveSession } from './os-session';
-import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
+import { OS_STORE, OS_ISSUE_STORE, OS_COMMITMENT_STORE } from './os-store.module';
 import {
   buildAuthorizedAssistPacket,
   toCommandIssue,
   toCommandJournalEntries,
+  toCommitmentEvidence,
 } from './ai-evidence-packet';
 import { resolveAiGovernanceConfig } from './ai/ai-governance-config';
 import {
   AI_DENIED_MUTATION_FEATURES,
   assertFeatureSubject,
   normalizeAiFeature,
+  type AiBoundedFeature,
 } from './ai/ai-features';
 import { AiRateLimiter } from './ai/ai-rate-limiter';
 import { AiUsageLedger } from './ai/ai-usage-ledger';
@@ -49,7 +51,7 @@ export type AiAssistResponse = {
   summary: string;
   suggestion: string;
   facts: string[];
-  evidenceRefs: Array<{ type: 'issue' | 'journal_entry'; id: string }>;
+  evidenceRefs: Array<{ type: 'issue' | 'journal_entry' | 'commitment'; id: string }>;
   modelCalled: boolean;
   truncated?: boolean;
 };
@@ -68,6 +70,7 @@ export class AiController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
     @Inject(OS_ISSUE_STORE) private readonly issueStore: OsIssueStore,
+    @Inject(OS_COMMITMENT_STORE) private readonly commitmentStore: PrismaOsCommitmentStore,
   ) {}
 
   /** Test seam — never call from product code. */
@@ -158,15 +161,9 @@ export class AiController {
       acquired = true;
 
       // 2) load candidates in tenant → 3) authorize via MemoryEvidenceService → 4) minimize
-      const issues = await this.loadIssuesForSubject(session.organizationId, subjectType, subjectId);
-      const commandIssues = issues.map(toCommandIssue);
-      const journalsByIssue = new Map<string, ReturnType<typeof toCommandJournalEntries>>();
-      for (const issue of commandIssues) {
-        const entries = await this.issueStore.listJournalEntriesForIssue(issue.id);
-        journalsByIssue.set(issue.id, toCommandJournalEntries(session.organizationId, entries));
-      }
-
-      const packet = buildAuthorizedAssistPacket({
+      // Free-text never changes which loaders/selectors run — only feature+subject do.
+      const packet = await this.buildPacketForFeature({
+        feature,
         actor: {
           memberId: snap.memberId,
           organizationId: snap.organizationId,
@@ -174,9 +171,6 @@ export class AiController {
         },
         subjectType,
         subjectId,
-        issues: commandIssues,
-        journalEntriesByIssue: journalsByIssue,
-        maxEvidenceItems: this.config.maxEvidenceItems,
       });
 
       if (!packet) {
@@ -255,6 +249,71 @@ export class AiController {
         rateLimiter.release(organizationId, memberId);
       }
     }
+  }
+
+  private async buildPacketForFeature(input: {
+    feature: AiBoundedFeature;
+    actor: {
+      memberId: string;
+      organizationId: string;
+      grantedScopes: readonly string[];
+    };
+    subjectType: string;
+    subjectId: string;
+  }) {
+    if (input.feature === 'summarizeCommitments') {
+      const commitments = await this.loadCommitmentsForSubject(
+        input.actor.organizationId,
+        input.subjectType,
+        input.subjectId,
+      );
+      return buildAuthorizedAssistPacket({
+        actor: input.actor,
+        subjectType: input.subjectType,
+        subjectId: input.subjectId,
+        issues: [],
+        journalEntriesByIssue: new Map(),
+        commitments: commitments.map(toCommitmentEvidence),
+        evidenceMode: 'commitments',
+        maxEvidenceItems: this.config.maxEvidenceItems,
+      });
+    }
+
+    const issues = await this.loadIssuesForSubject(
+      input.actor.organizationId,
+      input.subjectType,
+      input.subjectId,
+    );
+    const commandIssues = issues.map(toCommandIssue);
+    const journalsByIssue = new Map<string, ReturnType<typeof toCommandJournalEntries>>();
+    for (const issue of commandIssues) {
+      const entries = await this.issueStore.listJournalEntriesForIssue(issue.id);
+      journalsByIssue.set(issue.id, toCommandJournalEntries(input.actor.organizationId, entries));
+    }
+
+    return buildAuthorizedAssistPacket({
+      actor: input.actor,
+      subjectType: input.subjectType,
+      subjectId: input.subjectId,
+      issues: commandIssues,
+      journalEntriesByIssue: journalsByIssue,
+      maxEvidenceItems: this.config.maxEvidenceItems,
+    });
+  }
+
+  private async loadCommitmentsForSubject(
+    organizationId: string,
+    subjectType: string,
+    subjectId: string,
+  ) {
+    if (subjectType === 'party') {
+      return this.commitmentStore.listCommitmentsByParty(organizationId, subjectId);
+    }
+    if (subjectType === 'commitment') {
+      const one = await this.commitmentStore.getCommitmentInOrg(organizationId, subjectId);
+      return one ? [one] : [];
+    }
+    return [];
   }
 
   private async loadIssuesForSubject(

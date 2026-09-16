@@ -320,8 +320,9 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             feature="ask"
             subjectType="issue"
             subjectId={issueId}
+            surface="issue"
             aiEnabled={isAiEnabled()}
-            promptLabel="Resumir incidencia con IA"
+            promptLabel="Preguntar sobre esta incidencia"
           />
         </div>
       </PageContainer>

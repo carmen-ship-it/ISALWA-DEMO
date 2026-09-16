@@ -1,6 +1,7 @@
 import type { IssueJournalType, IssueStatus } from '@isalwa/os-contracts';
 import {
   MemoryEvidenceService,
+  type CommitmentEvidence,
   type IssueRecord as CommandIssueRecord,
   type IssueJournalEntryRecord as CommandJournalRecord,
 } from '@isalwa/os-issue';
@@ -35,6 +36,12 @@ function journalFactLine(entry: CommandJournalRecord): string {
   return redactSensitiveFragments(`Diario ${entry.entryType} · ${entry.content.trim().slice(0, 160)}`);
 }
 
+function commitmentFactLine(commitment: CommitmentEvidence): string {
+  return redactSensitiveFragments(
+    `Compromiso (${commitment.lifecycle}): ${commitment.text.trim().slice(0, 160)} · seguimiento ${commitment.ownerMemberId}`,
+  );
+}
+
 export function buildAuthorizedAssistPacket(input: {
   actor: AssistEvidenceActor;
   subjectType: string;
@@ -42,7 +49,35 @@ export function buildAuthorizedAssistPacket(input: {
   issues: readonly CommandIssueRecord[];
   journalEntriesByIssue: ReadonlyMap<string, readonly CommandJournalRecord[]>;
   maxEvidenceItems: number;
+  /** When set, packet uses commitment evidence only (same authz filter). */
+  commitments?: readonly CommitmentEvidence[];
+  evidenceMode?: 'issues' | 'commitments';
 }): AuthorizedAssistPacket | null {
+  if (input.evidenceMode === 'commitments') {
+    const authorized = evidenceService.retrieveCommitmentEvidence(
+      input.actor,
+      input.commitments ?? [],
+    );
+    if (input.subjectType === 'commitment') {
+      const match = authorized.find((item) => item.id === input.subjectId);
+      if (!match) return null;
+      return packetFromCommitmentEvidence([match], input.maxEvidenceItems);
+    }
+    if (input.subjectType === 'party') {
+      if (authorized.length === 0) {
+        return {
+          facts: [`Compromisos: sin registros autorizados visibles para este cliente.`],
+          evidenceRefs: [],
+          truncated: false,
+          selectedCount: 0,
+          totalAvailable: 0,
+        };
+      }
+      return packetFromCommitmentEvidence(authorized, input.maxEvidenceItems);
+    }
+    return null;
+  }
+
   const filtered = evidenceService.retrieveIssueEvidence(
     input.actor,
     input.issues,
@@ -114,6 +149,34 @@ function packetFromIssueEvidence(
   };
 }
 
+function packetFromCommitmentEvidence(
+  items: readonly CommitmentEvidence[],
+  maxEvidenceItems: number,
+): AuthorizedAssistPacket {
+  const flat = items.map((commitment) => ({
+    fact: commitmentFactLine(commitment),
+    ref: { type: 'commitment' as const, id: commitment.id },
+  }));
+
+  const minimized = minimizeEvidenceItems(flat, maxEvidenceItems);
+  const facts = minimized.items.map((row) => row.fact);
+  const evidenceRefs = minimized.items.map((row) => row.ref);
+
+  if (minimized.truncated) {
+    facts.push(
+      `Resumen limitado a ${minimized.selectedCount} de ${minimized.totalAvailable} compromisos autorizados relevantes (límite de evidencia).`,
+    );
+  }
+
+  return {
+    facts,
+    evidenceRefs,
+    truncated: minimized.truncated,
+    selectedCount: minimized.selectedCount,
+    totalAvailable: minimized.totalAvailable,
+  };
+}
+
 export function toCommandIssue(record: {
   id: string;
   organizationId: string;
@@ -169,4 +232,20 @@ export function toCommandJournalEntries(
       createdByMemberId: entry.authorMemberId,
       createdAt: entry.recordedAt,
     }));
+}
+
+export function toCommitmentEvidence(record: {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  text: string;
+  lifecycle: string;
+}): CommitmentEvidence {
+  return {
+    id: record.id,
+    organizationId: record.organizationId,
+    ownerMemberId: record.ownerMemberId,
+    text: record.text,
+    lifecycle: record.lifecycle,
+  };
 }

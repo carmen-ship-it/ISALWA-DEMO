@@ -438,7 +438,13 @@ export function createOsApiClient(auth: OsAuthContext) {
         }>;
         gaps?: { peopleAdminPersona?: string };
       }>('/qa/synth-personas', { method: 'GET' }),
-    requestAiAssist: (body: { feature: string; subjectType: string; subjectId: string }) =>
+    requestAiAssist: (body: {
+      feature: string;
+      subjectType: string;
+      subjectId: string;
+      /** Phrasing only — server never uses this to broaden evidence selectors. */
+      question?: string;
+    }) =>
       request<AiAssistResponse>('/ai/assist', {
         method: 'POST',
         body,

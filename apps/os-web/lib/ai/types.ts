@@ -1,5 +1,5 @@
 export type AiAssistEvidenceRef = {
-  type: 'issue' | 'journal_entry';
+  type: 'issue' | 'journal_entry' | 'commitment';
   id: string;
 };
 

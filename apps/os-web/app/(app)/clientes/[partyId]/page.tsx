@@ -589,8 +589,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               feature="summarize_customer"
               subjectType="party"
               subjectId={partyId}
+              surface="cliente360"
               aiEnabled={isAiEnabled()}
-              promptLabel="Resumir cliente con IA"
+              promptLabel="Preguntar sobre este cliente"
             />
           </div>
 
@@ -612,6 +613,17 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 memberLabels={memberLabels}
                 partyLabel={displayName}
                 showOrigin
+              />
+            </div>
+            <div className="mt-6">
+              <AiAssistPanel
+                title="Ayuda con compromisos"
+                feature="summarize_commitments"
+                subjectType="party"
+                subjectId={partyId}
+                surface="commitment"
+                aiEnabled={isAiEnabled()}
+                promptLabel="Preguntar sobre compromisos"
               />
             </div>
           </PageSection>

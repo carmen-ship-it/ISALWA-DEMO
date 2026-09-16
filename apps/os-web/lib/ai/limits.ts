@@ -9,7 +9,12 @@ export const AI_MAX_OUTPUT_TOKENS = 800;
 export const AI_MAX_PROVIDER_RETRIES = 1;
 
 /** AI may draft or explain. It may not execute business actions. */
-export const AI_ALLOWED_INTENTS = ['summarize_customer', 'ask', 'draft_follow_up'] as const;
+export const AI_ALLOWED_INTENTS = [
+  'summarize_customer',
+  'ask',
+  'draft_follow_up',
+  'summarize_commitments',
+] as const;
 
 export const AI_DENIED_INTENTS = ['approve', 'convert', 'reassign', 'send'] as const;
 
@@ -26,6 +31,8 @@ export type AiAssistRequest = {
   feature: AiAllowedIntent;
   subjectType: AiAssistSubjectType;
   subjectId: string;
+  /** Optional phrasing only — never changes subject or evidence selectors. */
+  question?: string;
 };
 
 export type AiAllowanceInput = {
@@ -66,6 +73,7 @@ export function assertAiAssistRequest(input: {
   feature: string;
   subjectType: string;
   subjectId: string;
+  question?: string;
 }): AiAssistRequest {
   const subjectId = input.subjectId.trim();
   if (!subjectId) {
@@ -79,10 +87,12 @@ export function assertAiAssistRequest(input: {
     userDailyCount: 0,
     orgMonthlyCount: 0,
   });
+  const question = input.question?.trim();
   return {
     feature: allowance.intent,
     subjectType: input.subjectType as AiAssistSubjectType,
     subjectId,
+    ...(question ? { question: question.slice(0, 500) } : {}),
   };
 }
 
@@ -105,7 +115,7 @@ export function assertAiAllowed(input: AiAllowanceInput): AiAllowance {
   if (!ALLOWED.has(input.intent)) {
     throw new AiNotAllowedError(
       'intent_denied',
-      'La IA no puede ejecutar esa acción. Solo puede resumir un cliente, responder una pregunta o redactar un seguimiento. No aprueba, no convierte, no reasigna y no envía.',
+      'La IA no puede ejecutar esa acción. Solo puede resumir un cliente, resumir compromisos, responder una pregunta o redactar un seguimiento. No aprueba, no convierte, no reasigna y no envía.',
     );
   }
 

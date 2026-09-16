@@ -133,4 +133,41 @@ describe('buildAuthorizedAssistPacket', () => {
 
     assert.equal(packet, null);
   });
+
+  it('builds authorized commitment packets without issue fan-out', () => {
+    const packet = buildAuthorizedAssistPacket({
+      actor: {
+        memberId: 'mem-a',
+        organizationId: 'org-a',
+        grantedScopes: [],
+      },
+      subjectType: 'party',
+      subjectId: 'party-1',
+      issues: [],
+      journalEntriesByIssue: new Map(),
+      evidenceMode: 'commitments',
+      commitments: [
+        {
+          id: 'cmt-1',
+          organizationId: 'org-a',
+          ownerMemberId: 'mem-a',
+          text: 'Llamar al cliente',
+          lifecycle: 'open',
+        },
+        {
+          id: 'cmt-hidden',
+          organizationId: 'org-a',
+          ownerMemberId: 'mem-other',
+          text: 'SECRET',
+          lifecycle: 'open',
+        },
+      ],
+      maxEvidenceItems: 50,
+    });
+
+    assert.ok(packet);
+    assert.equal(packet!.evidenceRefs.length, 1);
+    assert.deepEqual(packet!.evidenceRefs[0], { type: 'commitment', id: 'cmt-1' });
+    assert.equal(packet!.facts.some((fact) => fact.includes('SECRET')), false);
+  });
 });

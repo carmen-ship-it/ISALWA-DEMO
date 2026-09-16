@@ -9,12 +9,14 @@ import {
   isAiEnabled,
   AiNotAllowedError,
 } from './limits';
+import { normalizeAiFreeTextQuestion } from './suggested-prompts';
 import type { AiAssistActionResult, AiAssistResponse } from './types';
 
 export async function requestAiAssistAction(input: {
   feature: string;
   subjectType: string;
   subjectId: string;
+  question?: string;
 }): Promise<AiAssistActionResult> {
   if (!isAiEnabled()) {
     return { ok: false, code: 'disabled', message: AI_UNAVAILABLE_COPY };
@@ -25,8 +27,10 @@ export async function requestAiAssistAction(input: {
     return { ok: false, code: 'denied', message: 'Su sesión venció. Vuelva a iniciar sesión.' };
   }
 
+  const question = normalizeAiFreeTextQuestion(input.question);
+  let validated;
   try {
-    assertAiAssistRequest(input);
+    validated = assertAiAssistRequest({ ...input, question });
   } catch (err) {
     if (err instanceof AiNotAllowedError) {
       return { ok: false, code: 'denied', message: err.message };
@@ -38,9 +42,10 @@ export async function requestAiAssistAction(input: {
 
   try {
     const data = await client.requestAiAssist({
-      feature: input.feature,
-      subjectType: input.subjectType,
-      subjectId: input.subjectId,
+      feature: validated.feature,
+      subjectType: validated.subjectType,
+      subjectId: validated.subjectId,
+      ...(validated.question ? { question: validated.question } : {}),
     });
     return { ok: true, data };
   } catch (err) {

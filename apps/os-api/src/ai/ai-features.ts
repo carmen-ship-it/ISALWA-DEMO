@@ -19,6 +19,7 @@ const FEATURE_ALIASES: Record<string, AiBoundedFeature> = {
   summarize_customer: 'summarizeCustomerAuthorizedContext',
   ask: 'explainCurrentSurface',
   draft_follow_up: 'suggestIssueNextSteps',
+  summarize_commitments: 'summarizeCommitments',
 };
 
 export type AiFeatureSubjectType = 'issue' | 'party' | 'commitment';

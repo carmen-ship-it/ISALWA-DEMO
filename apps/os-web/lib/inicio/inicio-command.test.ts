@@ -239,7 +239,7 @@ describe('loadInicioCommandQueues', () => {
       },
     };
 
-    const loaded = await loadInicioCommandQueues(client, {
+    const loaded = await loadInicioCommandQueues(client as never, {
       leadershipTeamReady: false,
       leadershipOrgReady: false,
     });
