@@ -57,7 +57,7 @@ function activeOrders(items: readonly OrderSummaryReadModel[]) {
 }
 
 function sumCentavos(values: readonly (string | null | undefined)[]): string | null {
-  let total = 0n;
+  let total = BigInt(0);
   let any = false;
   for (const value of values) {
     if (value == null || value === '' || !/^-?\d+$/.test(value)) continue;
