@@ -468,7 +468,8 @@ type PrismaEventDelegate = {
 export type FinishedGoodsPrismaPort = {
   osFinishedGoodsReceipt: PrismaReceiptDelegate;
   osBusinessEvent: PrismaEventDelegate;
-  $transaction?: (ops: Promise<unknown>[]) => Promise<unknown>;
+  /** Present on PrismaClient — used for atomic receipt + event persist. */
+  $transaction?: (...args: never[]) => Promise<unknown>;
   osProductionTraceEntry?: {
     findFirst(args: { where: Record<string, unknown> }): Promise<{ id: string } | null>;
   };
@@ -629,8 +630,11 @@ export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaP
       const receiptData = toPrismaReceiptData(receipt);
       const eventData = toPrismaEventData(event);
       try {
-        if (typeof prisma.$transaction === 'function') {
-          await prisma.$transaction([
+        const runTx = prisma.$transaction as
+          | undefined
+          | ((ops: Promise<unknown>[]) => Promise<unknown>);
+        if (typeof runTx === 'function') {
+          await runTx([
             prisma.osFinishedGoodsReceipt.create({ data: receiptData }),
             prisma.osBusinessEvent.create({ data: eventData }),
           ]);
