@@ -10,16 +10,16 @@
 
 ---
 
-## Verdict (pre-deploy / pre-hosted BV)
+## Verdict (post independent hosted verifier)
 
 | Gate | State |
 |------|--------|
-| Implementation | **IMPLEMENTED** (this branch) |
-| Automated tests | **TESTED** (contracts / domain / workforce / work / commercial / database unit / web source-lock) |
-| Integrated SHA | Pending commit + push |
-| Deployed / Hosted | **UNPROVEN** until deploy IDs recorded below |
-| Independent hosted BV | **UNPROVEN** until verifier receipt |
-| Overall Wave A | **CONDITIONAL** until hosted BV + people.admin fixture path proven |
+| Implementation | **IMPLEMENTED** (`b6a44f7`+) |
+| Automated tests | **TESTED** |
+| Integrated SHA (branch) | `941de265d8de589b25bb5225b733ac254b91ff2d` (`origin/wave-a/admin-continuity`) |
+| Deployed / Hosted Wave A | **NO** — live web still `1fd0167` |
+| Independent hosted BV | **CONDITIONAL** — access truth PASS; continuity E2E UNPROVEN ([receipt](wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md)) |
+| Overall Wave A | **CONDITIONAL** |
 
 ---
 
@@ -195,19 +195,22 @@ Migration expected: **NONE**.
 
 ---
 
-## Independent hosted acceptance (fill after verifier)
+## Independent hosted acceptance
+
+**Receipt:** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md`  
+**Tooling:** Playwright-core 1.51.1 + headless Google Chrome; Render CLI for SHA; cursor-ide-browser **not** used.
 
 | Check | Result |
 |-------|--------|
-| Hosted SHA matches integrated | UNPROVEN |
-| people.admin: employee detail + responsibilities | UNPROVEN |
-| ReassignWork + blocked terminate + terminate after resolve | UNPROVEN |
-| Non-admin `/administracion` denied | UNPROVEN |
-| system.admin without people.admin — no escalation | UNPROVEN (code EXPECTED) |
-| Cross-tenant negatives | UNPROVEN hosted / PASS unit |
-| Mobile 390 continuity usable | UNPROVEN |
-| REAL tenant mutations | Expected **NONE** |
-| Protected seven customers | Expected **UNCHANGED** |
+| Hosted SHA matches integrated | **FAIL** — web `1fd0167` / `dep-dakuhuad0e5s73ftrvng`; api `fd06aea` / `dep-dakm1cafngtc73atlrbg` |
+| people.admin bootstrap credentials | **AVAILABLE** (`carmen.staging@isalwa.demo`) — reaches `/administracion` |
+| people.admin: responsabilidades / ReassignWork / terminate / history | **UNPROVEN** — Wave A UI not on host |
+| Non-admin `/administracion` denied | **PASS** (`w2.asesor`) |
+| system.admin without people.admin — no escalation | **PASS** (`w2.owner` deny admin; `/sistema` allow) |
+| Cross-tenant / SYNTH-scoped admin continuity | **UNPROVEN** hosted (bootstrap equipo looked REAL-org scoped) |
+| Mobile 390 continuity usable | **UNPROVEN** |
+| REAL tenant mutations | **NONE** |
+| Protected seven customers | **UNCHANGED** (read-only nav only) |
 
 ---
 
@@ -218,6 +221,7 @@ Migration expected: **NONE**.
 3. Quote/Order owner reassignment commands absent — terminate stays fail-closed (**FOUNDATION_GAP**).
 4. No ReassignApprover — pending approvals must be decided, not reassigned.
 5. Ops dual recovery not transferred — thin pilot needs exception or second admins.
+6. **Customer coverage grants** (`OsCustomerCoverageGrant` primary/acting advisor) are **not** in termination preflight — a terminated member can remain sole acting advisor (**FOUNDATION_GAP**; evidence `agent-03-commercial-continuity.md`).
 
 ---
 

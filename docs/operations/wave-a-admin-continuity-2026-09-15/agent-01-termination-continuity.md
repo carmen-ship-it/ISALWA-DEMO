@@ -1,15 +1,17 @@
 # WAVE A — Termination continuity audit (Agent 1+3+4)
 
 **Date:** 2026-09-15  
-**Mode:** READ-ONLY (no implementation)  
+**Mode:** READ-ONLY (no implementation) — **SUPERSEDED for gate truth**  
 **Repo:** `/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate`  
 **Receipt:** `docs/operations/wave-a-admin-continuity-2026-09-15/agent-01-termination-continuity.md`
 
+> **SUPERSEDED (2026-09-15):** Preflight + reason persistence landed in `agent-01-termination-preflight-impl.md` and commit `b6a44f7`. Do **not** treat “open work only” or “reason discarded” as current truth. Remaining gaps from later agents: quote/order reassignment, no ReassignApprover, customer **coverage grants** not in preflight (`agent-03-commercial-continuity.md`).
+
 ---
 
-## Verdict
+## Verdict (historical — pre-implementation audit)
 
-`TerminateMember` is **LIVE BUT PARTIAL**. The sole continuity gate is open work via `listOpenWorkItemsForMember` (`status: 'open'`). Commercial ownership, opportunities, quotes, orders, pending approvals, manager/direct reports, and delegations are **not** preflighted. Optional terminate `reason` is collected in UI/API payload and **discarded** by the service (event payload is `{ memberId }` only).
+`TerminateMember` was **LIVE BUT PARTIAL** at audit time. The sole continuity gate then was open work via `listOpenWorkItemsForMember` (`status: 'open'`). Commercial ownership, opportunities, quotes, orders, pending approvals, manager/direct reports, and delegations were **not** preflighted. Optional terminate `reason` was collected in UI/API payload and **discarded** by the service (event payload `{ memberId }` only).
 
 ---
 
