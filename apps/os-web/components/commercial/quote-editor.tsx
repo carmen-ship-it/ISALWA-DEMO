@@ -201,7 +201,7 @@ export function QuoteEditor({
     if (result.ok) {
       setSent(true);
       router.refresh();
-      return { error: null, success: 'Cotización enviada.' };
+      return { error: null, success: 'Cotización presentada.' };
     }
     return { error: result.error, success: null };
   }, feedbackInitial);

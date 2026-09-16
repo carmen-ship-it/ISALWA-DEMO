@@ -13,6 +13,7 @@ export const COMMERCIAL_COMMAND_NAMES = [
   'RemoveQuoteLine',
   'UpdateQuote',
   'SubmitQuote',
+  'RecordQuoteManualSend',
   'CancelQuote',
   'CreateOrder',
   'CancelOrder',
@@ -102,6 +103,16 @@ export const SubmitQuotePayloadSchema = z.object({
   quoteId: z.string().min(1),
 });
 
+/** Human evidence that a quote was sent outside ISALWA. Does not call a provider. */
+export const QUOTE_MANUAL_SEND_CHANNELS = ['whatsapp', 'otro'] as const;
+export type QuoteManualSendChannel = (typeof QUOTE_MANUAL_SEND_CHANNELS)[number];
+
+export const RecordQuoteManualSendPayloadSchema = z.object({
+  quoteId: z.string().min(1),
+  channel: z.enum(QUOTE_MANUAL_SEND_CHANNELS),
+  note: z.string().max(2000).optional(),
+});
+
 export const CancelQuotePayloadSchema = z.object({
   quoteId: z.string().min(1),
   reason: z.string().optional(),
@@ -133,6 +144,7 @@ export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z
   RemoveQuoteLine: RemoveQuoteLinePayloadSchema,
   UpdateQuote: UpdateQuotePayloadSchema,
   SubmitQuote: SubmitQuotePayloadSchema,
+  RecordQuoteManualSend: RecordQuoteManualSendPayloadSchema,
   CancelQuote: CancelQuotePayloadSchema,
   CreateOrder: CreateOrderPayloadSchema,
   CancelOrder: CancelOrderPayloadSchema,

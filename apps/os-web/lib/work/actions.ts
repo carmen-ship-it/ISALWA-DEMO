@@ -39,11 +39,30 @@ function revalidateFollowUpSurfaces(partyId?: string, workItemId?: string, quote
   revalidatePath('/inicio');
 }
 
+function descriptionWithQuoteContext(
+  description: string,
+  quoteId: string,
+  quoteNumber: string,
+): string {
+  const base = description.trim();
+  if (!quoteId && !quoteNumber) return base;
+  const ref = quoteNumber
+    ? `Cotización ${quoteNumber}`
+    : `Cotización ${quoteId}`;
+  const context = `Contexto: ${ref}`;
+  return base ? `${base}\n\n${context}` : context;
+}
+
 export async function createFollowUpAction(formData: FormData): Promise<FollowUpActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
   const quoteId = String(formData.get('quoteId') ?? '').trim();
+  const quoteNumber = String(formData.get('quoteNumber') ?? '').trim();
   const title = String(formData.get('title') ?? '');
-  const description = String(formData.get('description') ?? '');
+  const description = descriptionWithQuoteContext(
+    String(formData.get('description') ?? ''),
+    quoteId,
+    quoteNumber,
+  );
   const dueAt = String(formData.get('dueAt') ?? '');
 
   if (!partyId) return { ok: false, error: FOLLOW_UP_COPY.customerMissing };

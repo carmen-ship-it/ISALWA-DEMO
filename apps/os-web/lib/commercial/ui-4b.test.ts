@@ -108,7 +108,11 @@ describe('UI-4B mixed chronology', () => {
 
   it('includes party and commercial regression labels', () => {
     assert.equal(timelineEventLabel('party.created'), 'Cliente registrado');
-    assert.equal(timelineEventLabel('quote.submitted'), 'Cotización enviada');
+    assert.equal(timelineEventLabel('quote.submitted'), 'Cotización presentada');
+    assert.equal(
+      timelineEventLabel('quote.send_recorded', { channel: 'whatsapp' }),
+      'Cotización registrada como enviada por WhatsApp',
+    );
   });
 });
 

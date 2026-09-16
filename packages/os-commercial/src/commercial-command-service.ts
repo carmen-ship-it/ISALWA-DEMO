@@ -142,6 +142,9 @@ export class CommercialCommandService {
       case 'SubmitQuote':
         result = await this.submitQuote(ctx, payload, store);
         break;
+      case 'RecordQuoteManualSend':
+        result = await this.recordQuoteManualSend(ctx, payload, store);
+        break;
       case 'CancelQuote':
         result = await this.cancelQuote(ctx, payload, store);
         break;
@@ -876,6 +879,50 @@ export class CommercialCommandService {
         quoteId,
         quoteNumber: quote.quoteNumber,
         totalCentavos: centavosToString(quote.totalCentavos),
+      },
+    );
+  }
+
+  /**
+   * Records that a human sent the quote outside ISALWA.
+   * Does not call WhatsApp or any provider. Does not change quote status.
+   */
+  private async recordQuoteManualSend(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommercialStore,
+  ): Promise<CommandResult> {
+    const snap = await this.authorize(ctx, 'RecordQuoteManualSend', ctx.organizationId);
+    const quoteId = String(payload.quoteId);
+    const quote = this.refuseForeign(
+      await store.getQuoteInOrg(ctx.organizationId, quoteId),
+      ctx.organizationId,
+    );
+    if (quote.status !== 'submitted') throw new Error('VALIDATION_FAILED');
+    this.assertCanEditQuote(snap, quote);
+
+    const channel = String(payload.channel ?? '');
+    if (channel !== 'whatsapp' && channel !== 'otro') {
+      throw new Error('VALIDATION_FAILED');
+    }
+    const noteRaw = payload.note != null ? String(payload.note).trim() : '';
+    const note = noteRaw.length > 0 ? noteRaw : undefined;
+
+    return this.emit(
+      ctx,
+      store,
+      'quote.send_recorded',
+      'quote',
+      quoteId,
+      {
+        quoteId,
+        quoteNumber: quote.quoteNumber,
+        partyId: quote.partyId,
+        channel,
+        note,
+        providerSend: false,
+        recordedAt: ctx.effectiveAt.toISOString(),
+        recordedByMemberId: snap.memberId,
       },
     );
   }

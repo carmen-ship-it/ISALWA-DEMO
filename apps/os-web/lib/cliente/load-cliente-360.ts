@@ -81,6 +81,11 @@ export async function loadCliente360(
       memberIds.add(item.createdByMemberId);
     }
   }
+  if (timeline.status === 'ok') {
+    for (const item of timeline.data.items) {
+      if (item.actorMemberId) memberIds.add(item.actorMemberId);
+    }
+  }
 
   if (detail.commercialAccount?.ownerMemberId) {
     memberIds.add(detail.commercialAccount.ownerMemberId);

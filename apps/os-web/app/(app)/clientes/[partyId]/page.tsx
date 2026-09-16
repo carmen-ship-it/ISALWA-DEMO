@@ -638,7 +638,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               {(list) => (
                 <>
                   <StaleProjectionBanner freshness={list.freshness} />
-                  <PartyTimelineList items={list.items} />
+                  <PartyTimelineList items={list.items} memberLabels={memberLabels} />
                 </>
               )}
             </CommercialSectionState>

@@ -50,6 +50,7 @@ const BUSINESS_EVENT_LABELS: Record<string, string> = {
   'member.terminated': 'Acceso finalizado',
   'opportunity.created': 'Oportunidad creada',
   'quote.created': 'Cotización creada',
+  'quote.send_recorded': 'Cotización registrada como enviada',
   'order.created': 'Pedido creado',
   'issue.reported': 'Incidencia reportada',
   'commitment.created': 'Compromiso registrado',

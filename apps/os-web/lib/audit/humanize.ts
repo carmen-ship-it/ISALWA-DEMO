@@ -30,6 +30,8 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'opportunity.updated': 'Oportunidad actualizada',
   'quote.created': 'Cotización creada',
   'quote.updated': 'Cotización actualizada',
+  'quote.submitted': 'Cotización presentada',
+  'quote.send_recorded': 'Cotización registrada como enviada',
   'order.created': 'Pedido creado',
   'order.updated': 'Pedido actualizado',
   'issue.reported': 'Incidencia reportada',

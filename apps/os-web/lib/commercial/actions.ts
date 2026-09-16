@@ -372,6 +372,40 @@ export async function createOrderAction(formData: FormData): Promise<CreateRedir
   }
 }
 
+export async function recordQuoteManualSendAction(
+  formData: FormData,
+): Promise<
+  | { ok: true; channel: 'whatsapp' | 'otro' }
+  | { ok: false; error: string }
+> {
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const quoteId = String(formData.get('quoteId') ?? '').trim();
+  const channel = String(formData.get('channel') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+  if (!quoteId) return { ok: false, error: 'Cotización no válida.' };
+  if (channel !== 'whatsapp' && channel !== 'otro') {
+    return { ok: false, error: 'Seleccione el canal de envío.' };
+  }
+
+  const payload: Record<string, unknown> = { quoteId, channel };
+  if (note) payload.note = note;
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+
+  const client = createOsApiClient(auth);
+  try {
+    await client.executeCommand('RecordQuoteManualSend', payload, createId());
+    if (partyId) {
+      revalidateCliente360(partyId);
+      revalidatePath(quoteHref(partyId, quoteId));
+    }
+    return { ok: true, channel };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
 export async function requestCommercialApprovalAction(formData: FormData): Promise<CommandActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
   const subjectType = String(formData.get('subjectType') ?? '').trim();
