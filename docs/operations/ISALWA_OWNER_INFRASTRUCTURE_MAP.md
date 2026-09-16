@@ -5,6 +5,7 @@
 **Scope:** Company OS hosting, ownership, billing, recovery, transfer priority  
 **Secret rule:** Names only — never values  
 **Primary sources:** `docs/operations/company-os-recon-2026-09-15/agent-11-infra-owner-cost.md`, `docs/operations/PRODUCTION_OWNERSHIP_AND_COSTS.md`  
+**Dual recovery checklist:** `docs/operations/wave-a-admin-continuity-2026-09-15/agent-08-ops-dual-recovery.md` (Wave A Agent 8 — executable TRANSFER / BREAK-GLASS; **NOT TRANSFERRED**)  
 **Supporting evidence:** Wave 2 staging receipts, `BACKUP_RESTORE_RUNBOOK.md`, `ENVIRONMENT_MAP.md` (topology partially stale — prefer Wave 2 / backup / onboarding receipts for staging host truth)
 
 ---
@@ -112,36 +113,57 @@ Do **not** invent vendor invoice dollars. Planning numbers above are labeled **B
 
 ---
 
-## Transfer checklist
+## Transfer / break-glass checklist
 
-### Before pilot (CRITICAL)
+**Executable detail:** `docs/operations/wave-a-admin-continuity-2026-09-15/agent-08-ops-dual-recovery.md`  
+**Status rule:** every box below is **NOT DONE / NOT TRANSFERRED** until Carmen records external evidence. Do **not** mutate provider ownership without Carmen approval. No secret values in this map.
 
-- [ ] Second admin on Carmen personal Render **or** company Render team with transfer/recreate of `os-web-staging`, `os-api-staging`, `isalwa-os-staging`
-- [ ] Second owner on Supabase Auth staging org/project (or company org + re-invite users)
-- [ ] Shared break-glass for recovery email / operator access (not Carmen-only)
-- [ ] Shared access to `OS_DATABASE_URL` / external DB URL (vault or second human) — rotate after sharing
-- [ ] Staging restore drill discipline confirmed (logical dump path works; document who can run it)
-- [ ] Written exception if pilot stays on `*.onrender.com` without company DNS
-- [ ] Confirm Auto-Deploy posture: do not leave production-like hosts on silent auto-deploy without CI gate
-- [ ] Billing may remain personal for a **short** pilot only if recovery is shared — treat single-payer as CRITICAL risk
+| Label | Meaning |
+|-------|---------|
+| **BLOCKS THIN PILOT** | Required before expanding beyond solo-operator thin pilot, **or** a dated owner exception accepting Carmen-only recovery for a named window |
+| **BLOCKS PRODUCTION CLAIM** | Required before calling the stack production / company-owned / transferred |
+| **TRANSFER SOON** | Longevity / real production approval — does not stop a written thin-pilot exception |
 
-### Soon (TRANSFER SOON — before production / longevity)
+### BLOCKS THIN PILOT
 
-- [ ] Company legal-entity billing emails and **two** payers on Render, Supabase, GitHub
-- [ ] Transfer or mirror GitHub repo to company org; add second owner; Environments `staging` / `production` with production reviewers
-- [ ] Company secret manager; move secrets; rotate anything only Carmen can see
-- [ ] Create company Sentry org **before** enabling SDKs; alerts not Carmen-only
-- [ ] Company registrar + Cloudflare zone before branded production hostname
-- [ ] Provision production services only after ownership transfer: `os-web-prod`, `os-api-prod`, `isalwa-os-prod` (PITR), `isalwa-os-auth-prod`
-- [ ] VERIFY EXTERNALLY invoice/SKU dollars (do not treat planning bands as invoices)
-- [ ] Confirm Postgres plan class still `0.1c-256mb` and whether PITR retention meets pilot/production policy
-- [ ] Reconcile stale `ENVIRONMENT_MAP.md` topology paragraph with Wave 2 staging truth
+- [ ] **A1 Render second admin** — Invite second trusted human as Admin on the Render account/team that hosts `os-web-staging`, `os-api-staging`, `isalwa-os-staging` (interim personal team OK; company team preferred). Carmen: Dashboard → Team/Members → Invite. Future owner verifies: sees those three services + env **names**.
+- [ ] **A2 Supabase second owner** — Invite second Owner/Admin on Auth org/project `isalwa-os-auth-staging` (ref `qbpxuywtoycjpitxoblo`). Carmen: Org → Team → Invite. Future owner verifies: can open Auth users; never pastes `SUPABASE_SERVICE_ROLE_KEY` into browser/chat.
+- [ ] **A3 Shared break-glass** — Name Human B in writing; both can recover Render + Supabase (+ GitHub if they deploy) via **their own** logins / reset mail — not shared passwords. Company recovery mailbox desired; dual personal admins interim OK.
+- [ ] **A4 Shared DB URL / vault** — Second human can retrieve `OS_DATABASE_URL` / external DB URL without Carmen’s laptop; put copies in vault; **rotate after first share**. Vault item roles match `~/.isalwa-secrets/` naming (values never in git).
+- [ ] **A5 Staging restore-drill dual human** — Walk Human B through `BACKUP_RESTORE_RUNBOOK.md` on staging only; document who may approve restore; re-check provider recovery in Dashboard (**VERIFY EXTERNALLY**).
+- [ ] **A6 Written onrender.com exception** — Owners date-stamp that thin pilot may use `https://os-web-staging.onrender.com` without company DNS; production hostname still **NOT EVIDENCED**.
+- [ ] **Auto-Deploy posture** — Do not leave production-like hosts on silent auto-deploy without CI gate (staging web historically ON — treat as ops risk).
+- [ ] **Billing note** — Personal billing may remain for a **short** thin pilot **only if** A3 dual recovery is shared; single-payer remains CRITICAL risk and **BLOCKS PRODUCTION CLAIM** (B1).
 
-### Can wait
+### BLOCKS PRODUCTION CLAIM
+
+- [ ] **B1 Company billing + two payers** — Legal-entity billing emails and two payers on Render, Supabase, GitHub (stop sole personal card as production payer).
+- [ ] **B2 Company Render prod services** — Only after ownership transfer: `os-web-prod`, `os-api-prod`, `isalwa-os-prod` (PITR); production Auto-Deploy **off**. **NOT EVIDENCED** today.
+- [ ] **B3 Company Auth prod** — `isalwa-os-auth-prod` in company org; re-invite users; never copy Auth Postgres into OS. **NOT EVIDENCED**.
+- [ ] **B4 GitHub company org + production reviewers** — Transfer/mirror repo; 2 owners; Environments `staging` / `production` with production reviewers.
+- [ ] **B5 Company DNS** — Registrar + Cloudflare zone; 2 admins; branded hostname before calling URL “production”.
+- [ ] **B6 Company secret manager + two humans** — Move secrets; revoke laptop-only copies; rotate Carmen-only secrets.
+- [ ] **B7 Prod PITR + encrypted off-host** — Production Postgres PITR + company off-host (planned R2) when approved. **NOT EVIDENCED**.
+- [ ] **B8 Observability ≠ Carmen-only** — Company Sentry org **before** enabling SDKs; alert destination reaches two ops humans.
+- [ ] **B9 Dual recovery on production accounts** — Repeat thin-pilot dual-admin/vault/restore proofs against **prod** team/org (staging proof does not transfer).
+
+### TRANSFER SOON
+
+- [ ] **C1** Second GitHub owner on `carmen-ship-it/ISALWA-DEMO` (interim) and/or org transfer/mirror
+- [ ] **C2** Company billing on staging for longevity (even if personal OK for short pilot with shared recovery)
+- [ ] **C3** Company vault productization beyond interim two-human share
+- [ ] **C4** Create company Sentry org/projects `isalwa-os-web` / `isalwa-os-api` before SDK enable
+- [ ] **C5** Company registrar + Cloudflare before branded cutover
+- [ ] **C6** VERIFY EXTERNALLY invoice/SKU dollars (bands ≠ invoices)
+- [ ] **C7** Confirm Postgres plan class (historically `0.1c-256mb`) and PITR retention vs policy
+- [ ] **C8** Reconcile stale `ENVIRONMENT_MAP.md` topology with Wave 2 staging truth
+- [ ] **C9** Optional vendors under company **before** enable (email / Mapbox / OpenAI / WhatsApp / R2); AI: USD 20 hard-cap alerts before `AI_ENABLED=true`
+
+### Can wait (not transfer blockers for thin pilot host)
 
 - [ ] Transactional email vendor (until OS sends quotes)
 - [ ] Mapbox / live tiles
-- [ ] OpenAI (`AI_ENABLED`) — if enabled later: company project + USD 20 hard cap alerts first
+- [ ] OpenAI (`AI_ENABLED`) — company project + cap alerts first when approved
 - [ ] WhatsApp / Meta Cloud API
 - [ ] R2 off-host buckets (if logical dumps + provider recovery remain adequate for pilot)
 - [ ] Product object storage beyond mock
@@ -174,3 +196,4 @@ Do **not** invent vendor invoice dollars. Planning numbers above are labeled **B
 - Planning figures are **BAND ONLY**, not vendor invoices.
 - WhatsApp is deferred and excluded from the ownership cost register.
 - This map documents ownership and topology readiness — it is **not** USER-ACCEPTED production readiness.
+- Dual recovery / company transfer steps in § Transfer / break-glass are **checklists only** — no account was transferred by the Wave A Agent 8 docs pass.

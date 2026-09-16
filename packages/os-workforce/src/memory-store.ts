@@ -1,6 +1,7 @@
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
 import type { OsWorkforceStore } from './os-workforce-store';
+import { memberMatchesAccessEvent } from './member-access-history';
 import type {
   AuthIdentityRecord,
   DepartmentAssignmentRecord,
@@ -10,6 +11,11 @@ import type {
   ManagerAssignmentRecord,
   MemberRecord,
   OrganizationRecord,
+  OwnedCommercialAccountRecord,
+  OwnedOpportunityRecord,
+  OwnedOrderRecord,
+  OwnedQuoteRecord,
+  PendingApprovalForMemberRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -26,6 +32,11 @@ export type {
   ManagerAssignmentRecord,
   DelegationRecord,
   WorkItemRecord,
+  OwnedCommercialAccountRecord,
+  OwnedOpportunityRecord,
+  OwnedQuoteRecord,
+  OwnedOrderRecord,
+  PendingApprovalForMemberRecord,
   IdempotencyRecord,
 } from './store-types';
 
@@ -40,6 +51,11 @@ export class MemoryOsStore implements OsWorkforceStore {
   managerAssignments: ManagerAssignmentRecord[] = [];
   delegations: DelegationRecord[] = [];
   workItems: WorkItemRecord[] = [];
+  commercialAccounts: OwnedCommercialAccountRecord[] = [];
+  opportunities: OwnedOpportunityRecord[] = [];
+  quotes: OwnedQuoteRecord[] = [];
+  orders: OwnedOrderRecord[] = [];
+  approvalRequests: PendingApprovalForMemberRecord[] = [];
   businessEvents: StoredBusinessEvent[] = [];
   auditLogs: StoredAuditLog[] = [];
   outbox: StoredOutboxMessage[] = [];
@@ -144,6 +160,120 @@ export class MemoryOsStore implements OsWorkforceStore {
       (w) =>
         w.organizationId === organizationId && w.ownerMemberId === memberId && w.status === 'open',
     );
+  }
+
+  async listActiveCommercialAccountsForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedCommercialAccountRecord[]> {
+    return this.commercialAccounts.filter(
+      (a) =>
+        a.organizationId === organizationId &&
+        a.ownerMemberId === memberId &&
+        a.status === 'active',
+    );
+  }
+
+  async listOpenOpportunitiesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOpportunityRecord[]> {
+    return this.opportunities.filter(
+      (o) =>
+        o.organizationId === organizationId &&
+        o.ownerMemberId === memberId &&
+        o.status === 'open',
+    );
+  }
+
+  async listBlockingQuotesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedQuoteRecord[]> {
+    return this.quotes.filter(
+      (q) =>
+        q.organizationId === organizationId &&
+        q.ownerMemberId === memberId &&
+        q.status !== 'cancelled',
+    );
+  }
+
+  async listActiveOrdersForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOrderRecord[]> {
+    return this.orders.filter(
+      (o) =>
+        o.organizationId === organizationId &&
+        o.ownerMemberId === memberId &&
+        o.status === 'open',
+    );
+  }
+
+  async listPendingApprovalsForApprover(
+    organizationId: string,
+    memberId: string,
+  ): Promise<PendingApprovalForMemberRecord[]> {
+    return this.approvalRequests.filter(
+      (a) =>
+        a.organizationId === organizationId &&
+        a.approverMemberId === memberId &&
+        a.status === 'pending',
+    );
+  }
+
+  async listActiveDirectReportAssignments(
+    organizationId: string,
+    managerMemberId: string,
+    asOf: Date,
+  ): Promise<ManagerAssignmentRecord[]> {
+    return this.managerAssignments.filter(
+      (m) =>
+        m.organizationId === organizationId &&
+        m.managerMemberId === managerMemberId &&
+        m.effectiveAt <= asOf &&
+        (m.endedAt === null || m.endedAt > asOf),
+    );
+  }
+
+  async listActiveDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]> {
+    return this.delegations.filter(
+      (d) =>
+        d.organizationId === organizationId &&
+        (d.delegatorMemberId === memberId || d.delegateMemberId === memberId) &&
+        d.revokedAt === null &&
+        d.startsAt <= asOf &&
+        d.expiresAt > asOf,
+    );
+  }
+
+  async listDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+  ): Promise<DelegationRecord[]> {
+    return this.delegations.filter(
+      (d) =>
+        d.organizationId === organizationId &&
+        (d.delegatorMemberId === memberId || d.delegateMemberId === memberId),
+    );
+  }
+
+  async listMemberAccessBusinessEvents(
+    organizationId: string,
+    memberId: string,
+    limit: number,
+  ): Promise<StoredBusinessEvent[]> {
+    const delegationIds = new Set(
+      (await this.listDelegationsInvolvingMember(organizationId, memberId)).map((d) => d.id),
+    );
+    return this.businessEvents
+      .filter((event) => memberMatchesAccessEvent(event, organizationId, memberId, delegationIds))
+      .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
+      .slice(0, limit);
   }
 
   async findWorkItem(organizationId: string, workItemId: string): Promise<WorkItemRecord | null> {

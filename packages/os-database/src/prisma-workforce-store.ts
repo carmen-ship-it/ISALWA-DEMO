@@ -1,6 +1,10 @@
 import { createId } from '@isalwa/ts-utils';
 import type { StoredAuditLog, StoredBusinessEvent, StoredOutboxMessage } from '@isalwa/os-events';
-import type { OsWorkforceStore } from '@isalwa/os-workforce';
+import {
+  MEMBER_ACCESS_HISTORY_EVENT_TYPES,
+  memberMatchesAccessEvent,
+  type OsWorkforceStore,
+} from '@isalwa/os-workforce';
 import type {
   AuthIdentityRecord,
   DepartmentRecord,
@@ -9,6 +13,11 @@ import type {
   ManagerAssignmentRecord,
   MemberRecord,
   OrganizationRecord,
+  OwnedCommercialAccountRecord,
+  OwnedOpportunityRecord,
+  OwnedOrderRecord,
+  OwnedQuoteRecord,
+  PendingApprovalForMemberRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -216,6 +225,223 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       status: w.status,
       version: w.version,
     }));
+  }
+
+  async listActiveCommercialAccountsForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedCommercialAccountRecord[]> {
+    const rows = await this.db().osCommercialAccount.findMany({
+      where: { organizationId, ownerMemberId: memberId, status: 'active' },
+    });
+    return rows.map((a) => ({
+      id: a.id,
+      organizationId: a.organizationId,
+      partyId: a.partyId,
+      ownerMemberId: a.ownerMemberId ?? memberId,
+      status: a.status,
+    }));
+  }
+
+  async listOpenOpportunitiesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOpportunityRecord[]> {
+    const rows = await this.db().osOpportunity.findMany({
+      where: { organizationId, ownerMemberId: memberId, status: 'open' },
+    });
+    return rows.map((o) => ({
+      id: o.id,
+      organizationId: o.organizationId,
+      ownerMemberId: o.ownerMemberId,
+      title: o.title,
+      status: o.status,
+    }));
+  }
+
+  async listBlockingQuotesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedQuoteRecord[]> {
+    // Quote statuses: draft | submitted | accepted | cancelled. No "closed".
+    const rows = await this.db().osQuote.findMany({
+      where: {
+        organizationId,
+        ownerMemberId: memberId,
+        status: { not: 'cancelled' },
+      },
+    });
+    return rows.map((q) => ({
+      id: q.id,
+      organizationId: q.organizationId,
+      ownerMemberId: q.ownerMemberId,
+      quoteNumber: q.quoteNumber,
+      status: q.status,
+    }));
+  }
+
+  async listActiveOrdersForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOrderRecord[]> {
+    const rows = await this.db().osOrder.findMany({
+      where: { organizationId, ownerMemberId: memberId, status: 'open' },
+    });
+    return rows.map((o) => ({
+      id: o.id,
+      organizationId: o.organizationId,
+      ownerMemberId: o.ownerMemberId,
+      orderNumber: o.orderNumber,
+      status: o.status,
+    }));
+  }
+
+  async listPendingApprovalsForApprover(
+    organizationId: string,
+    memberId: string,
+  ): Promise<PendingApprovalForMemberRecord[]> {
+    const rows = await this.db().osApprovalRequest.findMany({
+      where: { organizationId, approverMemberId: memberId, status: 'pending' },
+    });
+    return rows.map((a) => ({
+      id: a.id,
+      organizationId: a.organizationId,
+      approverMemberId: a.approverMemberId,
+      subjectType: a.subjectType,
+      subjectId: a.subjectId,
+      status: a.status,
+    }));
+  }
+
+  async listActiveDirectReportAssignments(
+    organizationId: string,
+    managerMemberId: string,
+    asOf: Date,
+  ): Promise<ManagerAssignmentRecord[]> {
+    const rows = await this.db().osManagerAssignment.findMany({
+      where: {
+        organizationId,
+        managerMemberId,
+        effectiveAt: { lte: asOf },
+        OR: [{ endedAt: null }, { endedAt: { gt: asOf } }],
+      },
+    });
+    return rows.map((m) => ({
+      id: m.id,
+      organizationId: m.organizationId,
+      memberId: m.memberId,
+      managerMemberId: m.managerMemberId,
+      effectiveAt: m.effectiveAt,
+      endedAt: m.endedAt,
+    }));
+  }
+
+  async listActiveDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: {
+        organizationId,
+        revokedAt: null,
+        startsAt: { lte: asOf },
+        expiresAt: { gt: asOf },
+        OR: [{ delegatorMemberId: memberId }, { delegateMemberId: memberId }],
+      },
+    });
+    return rows.map((d) => ({
+      id: d.id,
+      organizationId: d.organizationId,
+      delegatorMemberId: d.delegatorMemberId,
+      delegateMemberId: d.delegateMemberId,
+      scopes: d.scopesJson as string[],
+      startsAt: d.startsAt,
+      expiresAt: d.expiresAt,
+      revokedAt: d.revokedAt,
+    }));
+  }
+
+  async listDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+  ): Promise<DelegationRecord[]> {
+    const rows = await this.db().osDelegation.findMany({
+      where: {
+        organizationId,
+        OR: [{ delegatorMemberId: memberId }, { delegateMemberId: memberId }],
+      },
+    });
+    return rows.map((d) => ({
+      id: d.id,
+      organizationId: d.organizationId,
+      delegatorMemberId: d.delegatorMemberId,
+      delegateMemberId: d.delegateMemberId,
+      scopes: d.scopesJson as string[],
+      startsAt: d.startsAt,
+      expiresAt: d.expiresAt,
+      revokedAt: d.revokedAt,
+    }));
+  }
+
+  async listMemberAccessBusinessEvents(
+    organizationId: string,
+    memberId: string,
+    limit: number,
+  ): Promise<StoredBusinessEvent[]> {
+    const delegations = await this.listDelegationsInvolvingMember(organizationId, memberId);
+    const delegationIds = delegations.map((d) => d.id);
+    const rows = await this.db().osBusinessEvent.findMany({
+      where: {
+        organizationId,
+        eventType: { in: [...MEMBER_ACCESS_HISTORY_EVENT_TYPES] },
+        OR: [
+          { primaryEntityType: 'organization_member', primaryEntityId: memberId },
+          {
+            payloadJson: {
+              path: ['memberId'],
+              equals: memberId,
+            },
+          },
+          ...(delegationIds.length > 0
+            ? [
+                {
+                  eventType: { in: ['delegation.granted', 'delegation.revoked'] },
+                  primaryEntityId: { in: delegationIds },
+                },
+              ]
+            : []),
+        ],
+      },
+      orderBy: { occurredAt: 'desc' },
+      take: limit,
+    });
+    return rows
+      .map((row) => ({
+        id: row.id,
+        organizationId: row.organizationId,
+        eventType: row.eventType,
+        occurredAt: row.occurredAt,
+        recordedAt: row.recordedAt,
+        actorMemberId: row.actorMemberId,
+        authorizationContext: row.authorizationContext as Record<string, unknown> | undefined,
+        primaryEntityType: row.primaryEntityType,
+        primaryEntityId: row.primaryEntityId,
+        payload: row.payloadJson as Record<string, unknown> | undefined,
+        provenance: row.provenance,
+        correlationId: row.correlationId,
+        idempotencyKey: row.idempotencyKey ?? undefined,
+        dataOrigin: row.dataOrigin,
+        capabilityKey: row.capabilityKey ?? undefined,
+      }))
+      .filter((event) =>
+        memberMatchesAccessEvent(
+          event,
+          organizationId,
+          memberId,
+          new Set(delegationIds),
+        ),
+      );
   }
 
   async findWorkItem(organizationId: string, workItemId: string): Promise<WorkItemRecord | null> {

@@ -17,6 +17,7 @@ import type { AuthProviderPort } from './auth-provider';
 import { normalizeAuthEmail } from './auth-email';
 import type { OsWorkforceStore } from './os-workforce-store';
 import { runProviderSideEffectWithRetry } from './provider-side-effects';
+import { collectTerminationImpact } from './termination-impact';
 
 export type CommandResult = {
   commandId: string;
@@ -801,8 +802,14 @@ export class WorkforceCommandService {
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
 
-    const openWork = await store.listOpenWorkItemsForMember(ctx.organizationId, memberId);
-    if (openWork.length > 0) {
+    const impact = await collectTerminationImpact(
+      store,
+      ctx.organizationId,
+      memberId,
+      ctx.effectiveAt,
+    );
+    if (!impact.canTerminate) {
+      // Same client-facing code as open-work gate; details via GET termination-impact.
       throw new Error('VALIDATION_FAILED');
     }
 
@@ -822,7 +829,22 @@ export class WorkforceCommandService {
       this.scheduleProviderRevokeCredentials(postCommit, memberId, auth.providerSubject);
     }
 
-    return this.emit(ctx, 'member.terminated', 'organization_member', memberId, store, { memberId });
+    const reasonRaw = payload.reason;
+    const reason =
+      typeof reasonRaw === 'string' && reasonRaw.trim().length > 0 ? reasonRaw.trim() : undefined;
+    const emitPayload: Record<string, unknown> = { memberId };
+    if (reason !== undefined) {
+      emitPayload.reason = reason;
+    }
+
+    return this.emit(
+      ctx,
+      'member.terminated',
+      'organization_member',
+      memberId,
+      store,
+      emitPayload,
+    );
   }
 
   private async rehireMember(

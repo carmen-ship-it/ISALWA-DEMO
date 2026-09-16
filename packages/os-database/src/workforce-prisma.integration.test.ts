@@ -149,7 +149,7 @@ describePrisma('workforce prisma integration', () => {
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
       { memberId, managerMemberId: admin.member.id },
     );
-    await svc.execute(
+    const grant = await svc.execute(
       'GrantDelegation',
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
       {
@@ -162,10 +162,34 @@ describePrisma('workforce prisma integration', () => {
     const roles = await store.listRoleAssignmentsForMember(memberId);
     assert.ok(roles.length >= 2);
 
+    const asOf = new Date('2026-08-01T12:00:00Z');
+    const activeDelegations = await store.listActiveDelegationsInvolvingMember(
+      org.id,
+      memberId,
+      asOf,
+    );
+    assert.equal(activeDelegations.length, 1);
+
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'TerminateMember',
+          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+          { memberId },
+        ),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
+
+    await svc.execute(
+      'RevokeDelegation',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { delegationId: grant.data.delegationId as string },
+    );
+
     await svc.execute(
       'TerminateMember',
       ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
-      { memberId },
+      { memberId, reason: 'Cierre de ciclo' },
     );
 
     const terminated = await store.getMember(memberId);

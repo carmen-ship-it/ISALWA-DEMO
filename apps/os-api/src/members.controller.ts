@@ -10,8 +10,17 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { ListMembersQuerySchema } from '@isalwa/os-contracts';
-import type { OsWorkforceStore } from '@isalwa/os-workforce';
-import { buildQueryContext, type MemberQueryService } from '@isalwa/os-query';
+import {
+  collectMemberAccessHistory,
+  collectTerminationImpact,
+  type OsWorkforceStore,
+} from '@isalwa/os-workforce';
+import {
+  assertQueryScope,
+  assertQueryTenantResource,
+  buildQueryContext,
+  type MemberQueryService,
+} from '@isalwa/os-query';
 import { resolveSession } from './os-session';
 import { OS_MEMBER_QUERY_SERVICE, OS_STORE } from './os-store.module';
 
@@ -23,13 +32,13 @@ function toHttp(err: unknown): HttpException {
       ? HttpStatus.UNAUTHORIZED
       : code === 'NOT_FOUND'
         ? HttpStatus.NOT_FOUND
-      : code === 'TENANT_FORBIDDEN' ||
-          code === 'PERMISSION_DENIED' ||
-          code === 'ACCESS_REVOKED'
-        ? HttpStatus.FORBIDDEN
-        : code === 'VALIDATION_FAILED'
-          ? HttpStatus.BAD_REQUEST
-          : HttpStatus.INTERNAL_SERVER_ERROR;
+        : code === 'TENANT_FORBIDDEN' ||
+            code === 'PERMISSION_DENIED' ||
+            code === 'ACCESS_REVOKED'
+          ? HttpStatus.FORBIDDEN
+          : code === 'VALIDATION_FAILED'
+            ? HttpStatus.BAD_REQUEST
+            : HttpStatus.INTERNAL_SERVER_ERROR;
   return new HttpException({ code }, status);
 }
 
@@ -77,6 +86,55 @@ export class MembersController {
     }
   }
 
+  @Get(':memberId/access-history')
+  async getMemberAccessHistory(@Param('memberId') memberId: string, @Req() req: Request) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      assertQueryScope(ctx, 'people.admin');
+      assertQueryTenantResource(ctx, ctx.organizationId);
+
+      const member = await this.workforceStore.getMemberInOrg(ctx.organizationId, memberId);
+      if (!member) {
+        throw new Error('NOT_FOUND');
+      }
+
+      const items = await collectMemberAccessHistory(
+        this.workforceStore,
+        ctx.organizationId,
+        memberId,
+        20,
+      );
+      return { items };
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
+  @Get(':memberId/termination-impact')
+  async getTerminationImpact(@Param('memberId') memberId: string, @Req() req: Request) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      assertQueryScope(ctx, 'people.admin');
+      assertQueryTenantResource(ctx, ctx.organizationId);
+
+      const member = await this.workforceStore.getMemberInOrg(ctx.organizationId, memberId);
+      if (!member) {
+        throw new Error('NOT_FOUND');
+      }
+
+      return collectTerminationImpact(
+        this.workforceStore,
+        ctx.organizationId,
+        memberId,
+        ctx.effectiveAt,
+      );
+    } catch (err) {
+      throw toHttp(err);
+    }
+  }
+
   @Get(':memberId')
   async getMember(@Param('memberId') memberId: string, @Req() req: Request) {
     try {
@@ -97,7 +155,6 @@ export class MembersController {
           familyName: summary.familyName,
         },
         summary,
-        organizationId: session.organizationId,
       };
     } catch (err) {
       throw toHttp(err);

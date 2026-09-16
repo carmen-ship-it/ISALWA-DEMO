@@ -1,7 +1,9 @@
 import type {
   CapabilityStateReadModel,
+  MemberAccessHistoryResponse,
   MemberSummaryReadModel,
   PaginatedMeta,
+  TerminationImpactReadModel,
 } from '@isalwa/os-contracts';
 
 export type MemberListResponse = {
@@ -25,6 +27,10 @@ export type MemberDetailResponse = {
   summary: MemberSummaryReadModel;
   organizationId: string;
 };
+
+export type TerminationImpactResponse = TerminationImpactReadModel;
+
+export type { MemberAccessHistoryResponse };
 
 export type CapabilityStateResponse = {
   capabilities: CapabilityStateReadModel[];

@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { AdminSubNav } from '@/components/admin/admin-sub-nav';
+import { MemberAccessHistoryPanel } from '@/components/admin/member-access-history-panel';
 import { MemberAdminActionsPanel } from '@/components/admin/member-admin-actions-panel';
+import { CommercialContinuityPanel } from '@/components/admin/commercial-continuity-panel';
+import { ReassignWorkPanel } from '@/components/admin/reassign-work-panel';
+import { TerminationImpactPanel } from '@/components/admin/termination-impact-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -25,6 +29,13 @@ import { memberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
 import { buildDirectoryLabelMap, directoryMemberLabel } from '@/lib/workforce/member-labels';
 import { equipoHref, memberHref } from '@/lib/workforce/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import type {
+  OpportunitySummaryReadModel,
+  OrderSummaryReadModel,
+  QuoteSummaryReadModel,
+  WorkSummaryReadModel,
+} from '@isalwa/os-contracts';
+import type { TerminationImpactResponse } from '@/lib/workforce/types';
 
 type MemberDetailPageProps = {
   params: Promise<{ memberId: string }>;
@@ -84,6 +95,58 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
       visibility.terminate ||
       visibility.delegation ||
       visibility.requestEmailChange;
+
+    let openWork: WorkSummaryReadModel[] = [];
+    if (visibility.reassignWork) {
+      try {
+        const workResult = await client.listWorkItems({
+          status: 'open',
+          ownerMemberId: memberId,
+          limit: 100,
+        });
+        openWork = workResult.items;
+      } catch {
+        openWork = [];
+      }
+    }
+
+    let terminationImpact: TerminationImpactResponse | null = null;
+    let openOpportunities: OpportunitySummaryReadModel[] = [];
+    let blockingQuotes: QuoteSummaryReadModel[] = [];
+    let openOrders: OrderSummaryReadModel[] = [];
+
+    if (visibility.reassignWork) {
+      try {
+        const [oppResult, quoteResult, orderResult] = await Promise.all([
+          client.listOpportunities({ status: 'open', ownerMemberId: memberId, limit: 100 }),
+          client.listQuotes({ ownerMemberId: memberId, limit: 100 }),
+          client.listOrders({ status: 'open', ownerMemberId: memberId, limit: 100 }),
+        ]);
+        openOpportunities = oppResult.items;
+        blockingQuotes = quoteResult.items.filter((quote) => quote.status !== 'cancelled');
+        openOrders = orderResult.items;
+      } catch {
+        openOpportunities = [];
+        blockingQuotes = [];
+        openOrders = [];
+      }
+    }
+
+    if (visibility.terminate) {
+      try {
+        terminationImpact = await client.getTerminationImpact(memberId);
+      } catch {
+        terminationImpact = null;
+      }
+    }
+
+    let accessHistory: Awaited<ReturnType<typeof client.getMemberAccessHistory>>['items'] = [];
+    try {
+      const history = await client.getMemberAccessHistory(memberId);
+      accessHistory = history.items;
+    } catch {
+      accessHistory = [];
+    }
 
     return (
       <PageContainer label={name}>
@@ -179,6 +242,39 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
           </dl>
         </PageSection>
 
+        {visibility.reassignWork ? (
+          <div className="mt-8">
+            <ReassignWorkPanel
+              fromMemberId={summary.memberId}
+              fromMemberName={name}
+              items={openWork}
+            />
+          </div>
+        ) : null}
+
+        {visibility.reassignWork ? (
+          <div className="mt-8">
+            <CommercialContinuityPanel
+              fromMemberId={summary.memberId}
+              fromMemberName={name}
+              opportunities={openOpportunities}
+              blockingQuotes={blockingQuotes}
+              openOrders={openOrders}
+              terminationImpact={terminationImpact}
+            />
+          </div>
+        ) : null}
+
+        {terminationImpact ? (
+          <div className="mt-8">
+            <TerminationImpactPanel impact={terminationImpact} memberName={name} />
+          </div>
+        ) : null}
+
+        <div className="mt-8">
+          <MemberAccessHistoryPanel items={accessHistory} directory={selfMap} />
+        </div>
+
         {showAdminActions ? (
           <div className="mt-8">
             <MemberAdminActionsPanel
@@ -186,6 +282,9 @@ export default async function MemberDetailPage({ params }: MemberDetailPageProps
               visibility={visibility}
               departments={adminOptions.departments}
               roles={adminOptions.roles}
+              terminationBlocked={
+                terminationImpact != null ? !terminationImpact.canTerminate : false
+              }
             />
           </div>
         ) : null}

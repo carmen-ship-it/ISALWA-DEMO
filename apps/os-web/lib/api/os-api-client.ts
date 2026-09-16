@@ -14,6 +14,8 @@ import type {
   CapabilityStateResponse,
   MemberDetailResponse,
   MemberListResponse,
+  MemberAccessHistoryResponse,
+  TerminationImpactResponse,
 } from '@/lib/workforce/types';
 import type { CommercialCommandResult } from '@/lib/commercial/command-types';
 import type { WorkforceCommandResult } from '@/lib/workforce/command-types';
@@ -249,6 +251,14 @@ export function createOsApiClient(auth: OsAuthContext) {
       }),
     getMember: (memberId: string) =>
       request<MemberDetailResponse>(`/members/${encodeURIComponent(memberId)}`),
+    getTerminationImpact: (memberId: string) =>
+      request<TerminationImpactResponse>(
+        `/members/${encodeURIComponent(memberId)}/termination-impact`,
+      ),
+    getMemberAccessHistory: (memberId: string) =>
+      request<MemberAccessHistoryResponse>(
+        `/members/${encodeURIComponent(memberId)}/access-history`,
+      ),
     listMembers: (query?: Record<string, string | number | boolean>) =>
       request<MemberListResponse>('/members', { method: 'GET', query }),
     getCapabilityState: () =>

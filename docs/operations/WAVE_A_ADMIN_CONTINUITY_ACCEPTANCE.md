@@ -1,0 +1,209 @@
+# WAVE A — Admin Continuity Acceptance
+
+**Date:** 2026-09-15  
+**Wave:** A — Admin Continuity + Safe Termination + Reassignment + Access Truth + Ops Dual Recovery  
+**Branch:** `wave-a/admin-continuity`  
+**Base SHA (hosted before wave):** `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749`  
+**Hosted URL:** https://os-web-staging.onrender.com  
+**SYNTH org:** `01M2JKF77TXMJNDTKNCYNHH9G5`  
+**REAL org:** `01M2DV9F0V5DXS4G89AKF4D5SR` — **READ ONLY** this wave; no people mutations.
+
+---
+
+## Verdict (pre-deploy / pre-hosted BV)
+
+| Gate | State |
+|------|--------|
+| Implementation | **IMPLEMENTED** (this branch) |
+| Automated tests | **TESTED** (contracts / domain / workforce / work / commercial / database unit / web source-lock) |
+| Integrated SHA | Pending commit + push |
+| Deployed / Hosted | **UNPROVEN** until deploy IDs recorded below |
+| Independent hosted BV | **UNPROVEN** until verifier receipt |
+| Overall Wave A | **CONDITIONAL** until hosted BV + people.admin fixture path proven |
+
+---
+
+## Owner / people.admin / system.admin
+
+| Item | Exact truth |
+|------|-------------|
+| OWNER ADMIN DENIAL | **EXPECTED** |
+| w2.owner email | `w2.owner@isalwa.demo` |
+| w2.owner roleKey (fixture plan) | Owner / `isalwa-manager` |
+| w2.owner scopes | `management.org.read`, `system.admin` — **no** `people.admin` |
+| `/administracion` gate | `probeAdminAccess` → `people.admin` / `GET /members` |
+| `/sistema` gate | exact `system.admin` via `mayOpenSystemControls` |
+| system.admin ⇒ people.admin | **NO** (`scopeImplies` identity-only; tests lock) |
+| Wave2 SYNTH fixtures with people.admin | **NONE** |
+| people.admin acceptance actor | Staging bootstrap admin (separate from Owner) **or** explicit SYNTH grant — not Owner |
+
+Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-05-owner-admin-truth.md`
+
+---
+
+## Termination safety model
+
+### Preflight
+
+| Piece | Exact |
+|-------|--------|
+| Collector | `collectTerminationImpact` — `packages/os-workforce/src/termination-impact.ts` |
+| API | `GET /members/:memberId/termination-impact` — requires `people.admin` |
+| UI | `TerminationImpactPanel` on admin member detail (`#responsabilidades`) |
+| Gate | `TerminateMember` fail-closed when `!canTerminate` → `VALIDATION_FAILED` |
+| Spanish UX | “No puedes finalizar este acceso todavía. Esta persona todavía tiene responsabilidades activas que deben reasignarse.” |
+| Finalizar control | Disabled in UI when `terminationBlocked` |
+
+### Categories inspected (fail-closed if count > 0)
+
+| Key | Spanish label |
+|-----|---------------|
+| `open_work` | Trabajos abiertos |
+| `commercial_accounts` | Cuentas comerciales |
+| `open_opportunities` | Oportunidades abiertas |
+| `active_quotes` | Cotizaciones activas |
+| `active_orders` | Pedidos activos |
+| `pending_approvals` | Aprobaciones pendientes |
+| `direct_reports` | Reportes directos |
+| `active_delegations` | Delegaciones activas |
+
+### Historical attribution
+
+- Reassignment updates **current** owner only.
+- `createdByMemberId` / decision / audit / BusinessEvent history not rewritten.
+- Terminate reason (optional UI) now included in `member.terminated` payload when provided.
+- Suspend reason still **not** persisted in event payload (**gap**, not blocking terminate path).
+
+---
+
+## ReassignWork
+
+| Item | Exact |
+|------|--------|
+| Command | Existing `ReassignWork` only |
+| Authority | `people.admin` (`COMMAND_REQUIRED_SCOPES`) |
+| Web | Admin member detail — `ReassignWorkPanel` / **Trabajo activo** |
+| `/trabajo` | Still does **not** expose ReassignWork (by design this wave) |
+| Hosted BV | UNPROVEN until deploy |
+
+---
+
+## Commercial continuity
+
+| Entity | Active rule | Governed reassignment | Admin UI this wave |
+|--------|-------------|----------------------|--------------------|
+| Commercial account | `status=active` + owner | `ReassignCommercialAccountOwner` (`commercial.account.reassign`) | Existing party reassign path; people.admin alone insufficient |
+| Opportunity | `status=open` | `AssignOpportunityOwner` (`people.admin` may) | `ReassignOpportunitiesPanel` on member detail |
+| Quote | not `cancelled` | **FOUNDATION_GAP** — no `AssignQuoteOwner` | Block terminate; cancel or wait |
+| Order | `status=open` | **FOUNDATION_GAP** — no `AssignOrderOwner` | Block terminate |
+
+Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-03-commercial-continuity.md`
+
+---
+
+## Approval / manager / delegation
+
+| Concern | Exact behavior |
+|---------|----------------|
+| Pending assigned approver | Blocks terminate; resolve via Approve/Reject; **no** ReassignApprover |
+| Manager | Optional in model; active direct reports **block** terminate; resolve via `ChangeManager` |
+| Delegation FROM/TO | Active (non-expired, non-revoked) **block** terminate; resolve via `RevokeDelegation` |
+| Suspend | Does **not** force reassignment |
+
+Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-04-approval-manager-delegation.md`
+
+---
+
+## Access history
+
+| Item | Exact |
+|------|--------|
+| State | **LIVE BUT PARTIAL** (bounded projection) |
+| Source | Existing BusinessEvents only (`MEMBER_ACCESS_HISTORY_EVENT_TYPES`) |
+| API | `GET /members/:memberId/access-history` — `people.admin` |
+| UI | `MemberAccessHistoryPanel` — capped 20 |
+| Full Audit Viewer | Deferred Wave C |
+
+---
+
+## Role catalog
+
+| Layer | Truth |
+|-------|--------|
+| Invite / ChangeRole UI | `<select>` from observed directory role keys — **no free-text field** |
+| Contract | `roleKey` still free-string |
+| Frozen governed enum | **FOUNDATION_GAP** — not invented from Cargo |
+
+---
+
+## Ops dual recovery
+
+| Item | Exact |
+|------|--------|
+| Dual recovery today | **NOT EVIDENCED** |
+| Checklist | `docs/operations/ISALWA_OWNER_INFRASTRUCTURE_MAP.md` + `agent-08-ops-dual-recovery.md` |
+| External ownership mutated | **NO** |
+| BLOCKS THIN PILOT | Second Render admin + second Supabase Auth admin (or dated owner exception) |
+| BLOCKS PRODUCTION CLAIM | Company-owned accounts + billing + vault + production env (production still NOT EVIDENCED) |
+
+---
+
+## Migrations
+
+**NONE.**
+
+---
+
+## Tests (local gate — this wave)
+
+| Suite | Result (sample) |
+|-------|-----------------|
+| `@isalwa/os-contracts` | 162 pass |
+| `@isalwa/os-domain` | 232 pass |
+| `@isalwa/os-workforce` | 59 pass (incl. termination-preflight + adversarial) |
+| `@isalwa/os-work` | 10 pass |
+| `@isalwa/os-commercial` | 48 pass |
+| `@isalwa/os-database` (unit) | 34 pass |
+| os-web source-lock (reassign / ui-2b / follow-up / system-admin) | pass |
+| typecheck/build | os-api + os-web OK |
+
+---
+
+## Deploy record (fill after ship)
+
+| Service | SHA | Deploy ID |
+|---------|-----|-----------|
+| os-web-staging | _pending_ | _pending_ |
+| os-api-staging | _pending_ | _pending_ |
+
+---
+
+## Independent hosted acceptance (fill after verifier)
+
+| Check | Result |
+|-------|--------|
+| Hosted SHA matches integrated | UNPROVEN |
+| people.admin: employee detail + responsibilities | UNPROVEN |
+| ReassignWork + blocked terminate + terminate after resolve | UNPROVEN |
+| Non-admin `/administracion` denied | UNPROVEN |
+| system.admin without people.admin — no escalation | UNPROVEN (code EXPECTED) |
+| Cross-tenant negatives | UNPROVEN hosted / PASS unit |
+| Mobile 390 continuity usable | UNPROVEN |
+| REAL tenant mutations | Expected **NONE** |
+| Protected seven customers | Expected **UNCHANGED** |
+
+---
+
+## Remaining Wave A blockers (honest)
+
+1. Hosted deploy + independent BV not yet done at doc write.
+2. SYNTH Wave2 personas lack `people.admin` — acceptance must use bootstrap admin or explicit SYNTH grant (not Owner).
+3. Quote/Order owner reassignment commands absent — terminate stays fail-closed (**FOUNDATION_GAP**).
+4. No ReassignApprover — pending approvals must be decided, not reassigned.
+5. Ops dual recovery not transferred — thin pilot needs exception or second admins.
+
+---
+
+## Next Company OS wave (exact one)
+
+**Wave B — Attention / Commitments product honesty** (or Issues Memory if Control Tower reprioritizes — do not start both). Default next from recon: **Issue Memory** only after Continuity hosted BV closes P0 admin continuity.

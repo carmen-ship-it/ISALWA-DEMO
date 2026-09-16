@@ -2,7 +2,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import type { PeopleV1InviteCommand, Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
 
 const OPEN_WORK_TERMINATE_MESSAGE =
-  'No se puede finalizar todavía porque esta persona tiene trabajo abierto. Reasigne ese trabajo primero.';
+  'No puedes finalizar este acceso todavía. Esta persona todavía tiene responsabilidades activas que deben reasignarse.';
 
 const GENERIC_ERROR = 'Ocurrió un error. Intente de nuevo.';
 

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { PageSection } from '@isalwa/ui';
 import type { MemberSummaryReadModel } from '@isalwa/os-contracts';
@@ -32,6 +31,8 @@ type MemberAdminActionsPanelProps = {
   visibility: MemberAdminVisibility;
   departments: SelectOption[];
   roles: SelectOption[];
+  /** When true, Finalizar remains disabled until responsibilities are cleared. */
+  terminationBlocked?: boolean;
 };
 
 const initial = { error: null as string | null, success: null as string | null };
@@ -65,6 +66,7 @@ export function MemberAdminActionsPanel({
   visibility,
   departments,
   roles,
+  terminationBlocked = false,
 }: MemberAdminActionsPanelProps) {
   const [terminateConfirm, setTerminateConfirm] = useState(false);
   const [suspendConfirm, setSuspendConfirm] = useState(false);
@@ -118,8 +120,8 @@ export function MemberAdminActionsPanel({
     initial,
   );
 
-  const showOpenWorkHint =
-    terminateState.error === OPEN_WORK_TERMINATE_MESSAGE;
+  const showResponsibilityHint =
+    terminationBlocked || terminateState.error === OPEN_WORK_TERMINATE_MESSAGE;
   const { primary, additional } = splitRoleKeys(summary.roleKeys);
   const primaryRoleOptions = roles.filter((option) => !isAdditionalAssignableScope(option.value));
   const additionalToAdd = ADDITIONAL_ASSIGNABLE_SCOPE_KEYS.filter(
@@ -129,7 +131,7 @@ export function MemberAdminActionsPanel({
   return (
     <div className="space-y-8">
       {visibility.organization ? (
-        <PageSection card className="p-8">
+        <PageSection card className="p-8" id="continuidad-organizacion">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Organización</h2>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
             Cambios de departamento, rol y responsable quedan registrados con fecha efectiva.
@@ -270,7 +272,7 @@ export function MemberAdminActionsPanel({
               ) : null}
             </div>
 
-            <div>
+            <div id="continuidad-responsable">
               <h3 className="isalwa-section-label">Cambiar responsable</h3>
               <FormFeedback error={managerState.error} success={managerState.success} />
               <form action={managerAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -361,12 +363,24 @@ export function MemberAdminActionsPanel({
                 Acción permanente: revoca el acceso y finaliza la relación laboral en el sistema.
               </p>
               <FormFeedback error={terminateState.error} success={terminateState.success} />
-              {showOpenWorkHint ? (
+              {showResponsibilityHint ? (
                 <p className="mt-3 text-sm text-[var(--isalwa-kiln)]">
-                  <Link href="/trabajo" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
-                    Ver trabajo abierto
-                  </Link>
-                  {' '}para reasignar tareas antes de finalizar.
+                  {OPEN_WORK_TERMINATE_MESSAGE}{' '}
+                  <a
+                    href="#responsabilidades"
+                    className="font-medium text-[var(--isalwa-glaze)] hover:underline"
+                  >
+                    Ver responsabilidades
+                  </a>
+                  {' '}
+                  y{' '}
+                  <a
+                    href="#trabajo-activo"
+                    className="font-medium text-[var(--isalwa-glaze)] hover:underline"
+                  >
+                    trabajo activo
+                  </a>
+                  . El historial se conserva.
                 </p>
               ) : null}
               <form action={terminateAction} className="mt-4 space-y-4">
@@ -380,6 +394,7 @@ export function MemberAdminActionsPanel({
                     id="terminate-reason"
                     name="reason"
                     className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
+                    disabled={terminationBlocked}
                   />
                 </div>
                 <label className="flex items-start gap-2 text-sm text-[var(--isalwa-kiln)]">
@@ -388,13 +403,14 @@ export function MemberAdminActionsPanel({
                     checked={terminateConfirm}
                     onChange={(e) => setTerminateConfirm(e.target.checked)}
                     className="mt-1"
+                    disabled={terminationBlocked}
                   />
                   Confirmo que deseo finalizar la relación laboral de esta persona.
                 </label>
                 <CommandSubmitButton
                   label="Finalizar relación"
                   variant="danger"
-                  disabled={!terminateConfirm}
+                  disabled={terminationBlocked || !terminateConfirm}
                 />
               </form>
             </div>
@@ -403,7 +419,7 @@ export function MemberAdminActionsPanel({
       ) : null}
 
       {visibility.delegation ? (
-        <PageSection card className="p-8">
+        <PageSection card className="p-8" id="continuidad-delegaciones">
           <h2 className="text-lg font-medium text-[var(--isalwa-kiln)]">Delegaciones</h2>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
             Delegaciones activas registradas: {summary.activeDelegationCount}. Las delegaciones

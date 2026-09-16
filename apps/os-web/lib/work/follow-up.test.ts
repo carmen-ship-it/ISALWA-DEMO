@@ -244,5 +244,10 @@ describe('CC-2 boundaries', () => {
     assert.match(actions, /getAuthenticatedSession/);
     assert.match(actions, /followUpOwnerFromAuthenticatedSession/);
     assert.match(actions, /built\.command/);
+
+    // ReassignWork is people.admin on member detail only — not follow-up / trabajo.
+    const reassignAdmin = readFileSync(resolve('lib/work/reassign-work-action.ts'), 'utf8');
+    assert.match(reassignAdmin, /ADMIN_REASSIGN_WORK_COMMAND/);
+    assert.match(reassignAdmin, /executeWorkCommand\(/);
   });
 });

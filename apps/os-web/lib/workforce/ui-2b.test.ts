@@ -43,6 +43,7 @@ describe('UI-2B lifecycle visibility', () => {
     assert.equal(v.terminate, true);
     assert.equal(v.delegation, true);
     assert.equal(v.requestEmailChange, false);
+    assert.equal(v.reassignWork, true);
   });
 
   it('shows reactivate only for suspended member (not self)', () => {
@@ -64,6 +65,7 @@ describe('UI-2B lifecycle visibility', () => {
     assert.equal(v.reactivate, false);
     assert.equal(v.terminate, false);
     assert.equal(v.delegation, false);
+    assert.equal(v.reassignWork, false);
   });
 
   it('shows email change request only for self on active member', () => {

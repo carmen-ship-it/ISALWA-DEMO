@@ -243,11 +243,17 @@ describe('CC-3 surfaces stay scoped', () => {
     assert.match(controls, /sortOpenWorkByDue\(next,/);
     assert.doesNotMatch(page, /ownerMemberId\s*:/);
     assert.doesNotMatch(page, /orderBy|sortBy|ReassignWork|name="ownerMemberId"/);
+    assert.doesNotMatch(page, /reassignWorkAction|Trabajo activo/);
 
     assert.match(order, /isWorkOverdue/);
     assert.doesNotMatch(order, /due soon|dueSoon|agingDays|priorityScore/);
     assert.doesNotMatch(grouping, FORBIDDEN_RULE);
     assert.doesNotMatch(grouping, /dueAt\s*</);
     assert.doesNotMatch(page, FORBIDDEN_RULE);
+
+    // ReassignWork belongs on people.admin member detail, not Trabajo.
+    const adminMember = readAppFile('app/(app)/administracion/equipo/[memberId]/page.tsx');
+    assert.match(adminMember, /ReassignWorkPanel/);
+    assert.match(adminMember, /ownerMemberId:\s*memberId/);
   });
 });

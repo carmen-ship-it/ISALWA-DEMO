@@ -7,6 +7,8 @@ export type MemberAdminVisibility = {
   terminate: boolean;
   delegation: boolean;
   requestEmailChange: boolean;
+  /** Open-work reassignment (ReassignWork) for continuity before terminate/suspend. */
+  reassignWork: boolean;
 };
 
 function isTerminated(summary: MemberSummaryReadModel): boolean {
@@ -34,5 +36,6 @@ export function memberAdminVisibility(
       Boolean(actorMemberId) &&
       summary.memberId === actorMemberId &&
       active,
+    reassignWork: (active || suspended) && !terminated && !invited,
   };
 }

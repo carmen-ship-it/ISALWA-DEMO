@@ -355,6 +355,63 @@ export const ListMembersQuerySchema = CursorPaginationSchema.extend({
 
 export type ListMembersQuery = z.infer<typeof ListMembersQuerySchema>;
 
+export const TERMINATION_IMPACT_CATEGORY_KEYS = [
+  'open_work',
+  'commercial_accounts',
+  'open_opportunities',
+  'active_quotes',
+  'active_orders',
+  'pending_approvals',
+  'direct_reports',
+  'active_delegations',
+] as const;
+
+export type TerminationImpactCategoryKey = (typeof TERMINATION_IMPACT_CATEGORY_KEYS)[number];
+
+export const TerminationImpactItemSchema = z.object({
+  id: z.string(),
+  summary: z.string(),
+});
+
+export type TerminationImpactItem = z.infer<typeof TerminationImpactItemSchema>;
+
+export const TerminationImpactCategorySchema = z.object({
+  key: z.enum(TERMINATION_IMPACT_CATEGORY_KEYS),
+  /** Spanish operator-facing label (not a business-event type). */
+  label: z.string(),
+  count: z.number().int().nonnegative(),
+  items: z.array(TerminationImpactItemSchema),
+  foundationGaps: z.array(z.string()).optional(),
+});
+
+export type TerminationImpactCategory = z.infer<typeof TerminationImpactCategorySchema>;
+
+export const TerminationImpactReadModelSchema = z.object({
+  memberId: z.string(),
+  organizationId: z.string(),
+  canTerminate: z.boolean(),
+  totalBlockingCount: z.number().int().nonnegative(),
+  categories: z.array(TerminationImpactCategorySchema),
+});
+
+export type TerminationImpactReadModel = z.infer<typeof TerminationImpactReadModelSchema>;
+
+export const MemberAccessHistoryEntrySchema = z.object({
+  id: z.string(),
+  occurredAt: z.string().datetime(),
+  label: z.string(),
+  detail: z.string().nullable(),
+  actorMemberId: z.string().nullable(),
+});
+
+export type MemberAccessHistoryEntryReadModel = z.infer<typeof MemberAccessHistoryEntrySchema>;
+
+export const MemberAccessHistoryResponseSchema = z.object({
+  items: z.array(MemberAccessHistoryEntrySchema),
+});
+
+export type MemberAccessHistoryResponse = z.infer<typeof MemberAccessHistoryResponseSchema>;
+
 export const CapabilityStateReadModelSchema = z.object({
   capabilityKey: z.string(),
   organizationId: z.string(),

@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-15  
 **Role:** Permanent Control Tower map (reconcile vision ↔ code/runtime truth)  
-**Hosted baseline (before this pass):** `e5e9cac82a0e2ba82f3633386393598220471da0`  
+**Hosted baseline (onboarding isolation closed):** `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749`  
+**Wave A admin continuity:** branch `wave-a/admin-continuity` — see `docs/operations/WAVE_A_ADMIN_CONTINUITY_ACCEPTANCE.md`  
 **URL:** https://os-web-staging.onrender.com  
 **REAL tenant:** `01M2DV9F0V5DXS4G89AKF4D5SR`  
 **SYNTH tenant:** `01M2JKF77TXMJNDTKNCYNHH9G5`
@@ -70,12 +71,13 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | Invitation state visibility | See invited / email / resend | `LIVE BUT PARTIAL` | Member summary + auth identity | Member + auth rows | Equipo / member detail | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Invited email often `—`; no resend | Invite path | Yes — show invited email? | LIVE (email + resend policy) | P1 | A |
 | Activate / complete invite | Invitee becomes active | `LIVE` | `ActivateMember` / `completeInvitedAccess` | Member accessStatus | `/auth/complete-invite` | Invitee + admin reactivate rules | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Admin cannot force-activate invited from panel (by design) | Auth | No | Keep | — | — |
 | Suspend / reactivate | Pause access without terminate | `LIVE` | `SuspendMember` / `ActivateMember` | Member accessStatus | MemberAdminActionsPanel | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Reason UI not persisted | — | Yes — persist reason? | LIVE + reason audit | P1 | A |
-| Terminate employee | End employment safely | `LIVE BUT PARTIAL` | `TerminateMember` (blocks on open work only) | Member employment + access revoked | Member detail terminate | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Commercial/approvals not gated; reason ignored | ReassignWork | Yes — continuity policy | LIVE continuity gate | **P0** | A |
+| Terminate employee | End employment safely | `LIVE BUT PARTIAL` | `TerminateMember` + `collectTerminationImpact` fail-closed | Member employment + access revoked | Member detail: Responsabilidades + Acceso | `people.admin` | UNPROVEN | PARTIAL (unit) | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Quote/Order reassign commands missing; no ReassignApprover; Wave2 lacks people.admin fixture | ReassignWork + commercial cmds | Yes — quote/order cmds | LIVE continuity after hosted BV | **P0** | A |
+| Reassign work (admin) | Move open work before terminate | `LIVE` (code) | `ReassignWork` | WorkItem owner + events | Admin member **Trabajo activo** | `people.admin` | UNPROVEN | PARTIAL | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Hosted BV pending; not on `/trabajo` | Open work list | No | BROWSER-VERIFIED | P0 | A |
+| Access history (employee) | Who changed access | `LIVE BUT PARTIAL` | Bounded BusinessEvent projection | `OsBusinessEvent` access types | Member detail Historial | `people.admin` | UNPROVEN | PARTIAL | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Not full Audit Viewer | Events | No | Maintain; Wave C for full audit | P1 | A |
 | Rehire | Bring back terminated member | `BACKEND ONLY` | `RehireMember` | Membership restart events | UI blocked | `people.admin` (API) | N/A | UNPROVEN | YES | NO | UNPROVEN | UNPROVEN | NO | NO | Explicitly UI-blocked | Lifecycle | Yes — ship UI? | LIVE UI or keep deferred | P2 | A |
 | Assign primary business role | Put person on correct job access | `LIVE BUT PARTIAL` | `ChangeRole` | `OsRoleAssignment.roleKey` | Member detail | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Free-string roleKey; options from existing members | Scopes | Yes — freeze catalog | Governed enum | P1 | A |
 | Additional roles / remove | Grant/end scoped extras | `LIVE` / remove primary = `LIVE BUT PARTIAL` | `GrantAdditionalRole` / `EndAdditionalRole` / `ChangeRole` | Role assignments | Permisos adicionales | `people.admin` + `ADDITIONAL_ASSIGNABLE_SCOPE_KEYS` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | ChangeRole clears additionals | Scopes | No | Keep | — | A |
 | Inspect effective access | What can this person do now? | `LIVE BUT PARTIAL` | `computeEffectiveScopes` | Roles + non-expired delegations | Member pills; Accesos = explainer only | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No effective-scopes inspector / dates | Delegation | Yes — review depth | LIVE inspector | P1 | A |
-| Access history (employee) | Who changed access / why | `MISSING` (UI) / `LIVE BUT PARTIAL` (raw) | Temporal assignments + `OsAuditLog` / events | Assignments + audit | None on employee | — | UNPROVEN | UNPROVEN | PARTIAL | NO | UNPROVEN | UNPROVEN | NO | NO | No history UI; reasons often unused | Audit | Yes — V1 enough? | LIVE history UI | P1 | A |
 | Department | Place in org structure | `LIVE BUT PARTIAL` | `ChangeDepartment` | `OsDepartmentAssignment` | Member select (existing depts only) | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No CreateDepartment / CRUD UI | Dept seed | Yes — who creates depts? | LIVE CRUD or seed policy | P2 | A |
 | Manager / reporting | Who leads whom | `LIVE` | `ChangeManager` | `OsManagerAssignment` | Typeahead on member | `people.admin` | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Invite omits manager | — | No | Keep | — | A |
 | HR cargo / job title | Non-authorizing function label | `INTENTIONALLY DEFERRED` / `MISSING` | None on member | N/A | Forbidden on invite | Must never grant scopes | N/A | N/A | YES | N/A | N/A | N/A | N/A | N/A | Cargo ≠ access (by design) | — | Yes — ever store label? | Stay deferred | P3 | — |
@@ -90,7 +92,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Correct commercial owner / opp owner | Wrong responsible | `LIVE` | `ReassignCommercialAccountOwner` / `AssignOpportunityOwner` | Account/opp row + event/audit | Cliente / commercial forms | Commercial reassign scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Current pointer overwritten; prior in event | — | No | Keep | — | A |
-| Correct work ownership | Wrong work owner | `LIVE` | `ReassignWork` + ownership history | `OsWorkItem` + history | **API only** (no os-web wire) | `people.admin` | UNPROVEN | YES (tests) | YES | NO (web) | UNPROVEN | UNPROVEN | NO | NO | Terminate path needs UI | Terminate | Yes — expose UI? | LIVE web ReassignWork | **P0** | A |
+| Correct work ownership | Wrong work owner | `LIVE` (code) | `ReassignWork` + ownership history | `OsWorkItem` + history | Admin member **Trabajo activo** | `people.admin` | UNPROVEN | PARTIAL | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Hosted BV pending | Terminate path | No | BROWSER-VERIFIED | P0 | A |
 | Correct contact / phone | Wrong contact facts | `LIVE BUT PARTIAL` | `UpdateContact` | Contact row | Cliente edit | Master-data scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Weak beforeJson; no version history | Audit | Yes — correction pattern | Stronger provenance | P1 | A |
 | Correct location | Wrong location | `LIVE` | `UpdateLocation` + before/after | Location row + audit | Cliente / map honesty | Location scopes | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Row overwrite (not append history table) | Map boundary | No | Keep | — | A |
 | Correct role / manager / relationship | Wrong org facts | `LIVE` | ChangeRole/Manager/Dept; party roles | Temporal assignment rows | Admin / party | people / master_data | UNPROVEN | UNPROVEN | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | No separate “override with reason” | — | Yes — reason required? | Optional reason | P1 | A |
@@ -105,7 +107,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 | CAPABILITY | USER PROBLEM | CURRENT STATE | BACKEND PRIMITIVE | CANONICAL SOURCE OF TRUTH | UI SURFACE | AUTHORITY | REAL | SYN | T | I | D | H | BV | UA | GAP | DEPENDENCIES | BD? | NEXT | P | W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Termination continuity (work) | Leaving employee’s open work | `LIVE` (gate) | Terminate blocked until no open work | `OsWorkItem` | Link to `/trabajo` only | `people.admin` | UNPROVEN | YES (tests) | YES | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | ReassignWork not in UI | ReassignWork UI | Yes | Wire ReassignWork | **P0** | A |
+| Termination continuity (work) | Leaving employee’s open work | `LIVE` (code) | Terminate blocked until no open work + ReassignWork UI | `OsWorkItem` | Admin member detail | `people.admin` | UNPROVEN | PARTIAL | YES | YES | UNPROVEN | UNPROVEN | UNPROVEN | NO | Hosted BV; commercial quote/order gaps remain | Impact preflight | No | Hosted BV | **P0** | A |
 | Termination continuity (customers / opp / quote / order / approvals) | Assets not stranded | `MISSING` | Commercial reassign exists separately; terminate does not check | Commercial + approvals | None on terminate | — | UNPROVEN | UNPROVEN | NO | NO | NO | NO | NO | NO | Orphan ownership risk | Continuity policy | **Yes** | Policy + gates/transfer | **P0** | A |
 | Bulk transfer on leave | One continuity ceremony | `MISSING` | No `TransferMember` | — | — | — | N/A | N/A | NO | NO | NO | NO | NO | NO | Fragmented reassign only | Work + commercial | Yes | Orchestrated transfer | P1 | A |
 | Unassigned / continuity queues | See stranded ownership | `LIVE BUT PARTIAL` (customers) / `MISSING` (term queues) | Data health unassigned; no term queue | Party / commercial | Mapa Salud; no admin term queue | Read scopes | UNPROVEN | UNPROVEN | YES | PARTIAL | UNPROVEN | UNPROVEN | UNPROVEN | NO | No terminated-owner scan | Data Health | Yes | Continuity queue | P1 | A |
@@ -555,7 +557,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 
 1. ~~**Onboarding member isolation**~~ — **CLOSED** hosted BV PASS (`1fd0167` / `dep-dakuhuad0e5s73ftrvng`; MEMBER-SCOPED).  
 2. **Terminate continuity hazard** — commercial / approvals (and related assets) stranded while only open work is gated.  
-3. **ReassignWork UI gap** — required for terminate path; not exposed in os-web.  
+3. **ReassignWork UI** — IMPLEMENTED on admin member detail; hosted BV pending.  
 4. **Owner/`people.admin` gate clarity** — SYNTH `w2.owner` denied `/administracion` on hosted (verifier FAIL_DENY); real Owner must hold `people.admin` before relying on Admin.  
 5. **Carmen infra continuity awareness (ops, not product feature)** — personal Render/Supabase/billing/vault single-owner risk; dual admin / shared recovery before pilot expansion.
 
@@ -623,7 +625,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 3. **Dual overdue semantics:** Work uses instant `< asOf`; Commitment uses calendar day `America/La_Paz` — must not conflate.  
 4. **Follow-up vs Commitment confusion** until API + UX teach the difference.  
 5. **Coordination hosted write UNPROVEN** (`COORDINATION_DECISION_MIGRATION_APPLIED = false`).  
-6. **ReassignWork not in os-web** while terminate depends on it.  
+6. **Quote/Order owner reassignment** FOUNDATION_GAP — terminate fail-closed until cancel or new commands.  
 7. **Primary roles as free strings** / empty-tenant bootstrap risk.  
 8. **Audit Viewer missing**; contact corrections weak on before/why.  
 9. **Personal Carmen ownership** of staging host/auth/billing/vault; production **NOT EVIDENCED**.  
@@ -640,7 +642,7 @@ Column legend: **AUTH** = authority · **REAL** = real-data proof · **SYN** = s
 **Blockers (must close or explicitly accept in writing):**
 
 1. ~~Onboarding A→B isolation~~ — **CLOSED** hosted BV PASS on `1fd0167` / `dep-dakuhuad0e5s73ftrvng` (MEMBER-SCOPED).  
-2. Terminate path **unsafe/unusable** without ReassignWork UI + continuity policy for non-work ownership.  
+2. Terminate path **code-ready** with preflight + ReassignWork UI; **hosted BV + people.admin fixture + quote/order gaps** remain.  
 3. **Ops single-owner risk** (Carmen personal Render/Supabase/billing/secrets) without dual recovery — ops P0, not a product screen.  
 4. **Owner fixture `/administracion` denied** on hosted SYNTH (verifier FAIL_DENY) — confirm `people.admin` on real Owner before Isa/Álvaro rely on Admin.  
 5. Do **not** claim Commitments, Notifications inbox, Issues, AI, or WhatsApp as live.

@@ -7,6 +7,11 @@ import type {
   ManagerAssignmentRecord,
   MemberRecord,
   OrganizationRecord,
+  OwnedCommercialAccountRecord,
+  OwnedOpportunityRecord,
+  OwnedOrderRecord,
+  OwnedQuoteRecord,
+  PendingApprovalForMemberRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -54,6 +59,58 @@ export interface OsWorkforceStore {
     organizationId?: string,
   ): Promise<DelegationRecord[]>;
   listOpenWorkItemsForMember(organizationId: string, memberId: string): Promise<WorkItemRecord[]>;
+  /** Active commercial accounts owned by the member (status = active). */
+  listActiveCommercialAccountsForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedCommercialAccountRecord[]>;
+  /** Opportunities owned by the member with status = open. */
+  listOpenOpportunitiesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOpportunityRecord[]>;
+  /**
+   * Quotes owned by the member that still block terminate.
+   * Product quote statuses: draft | submitted | accepted | cancelled.
+   * There is no "closed" quote status; cancelled releases ownership.
+   */
+  listBlockingQuotesForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedQuoteRecord[]>;
+  /** Orders owned by the member with status = open. */
+  listActiveOrdersForOwner(
+    organizationId: string,
+    memberId: string,
+  ): Promise<OwnedOrderRecord[]>;
+  /** Pending approvals where the member is the approver. */
+  listPendingApprovalsForApprover(
+    organizationId: string,
+    memberId: string,
+  ): Promise<PendingApprovalForMemberRecord[]>;
+  /** Active manager rows where this member is the manager (direct reports). */
+  listActiveDirectReportAssignments(
+    organizationId: string,
+    managerMemberId: string,
+    asOf: Date,
+  ): Promise<ManagerAssignmentRecord[]>;
+  /** Active (started, non-expired, non-revoked) delegations from or to the member. */
+  listActiveDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<DelegationRecord[]>;
+  /** All delegations where the member is delegator or delegate (includes revoked). */
+  listDelegationsInvolvingMember(
+    organizationId: string,
+    memberId: string,
+  ): Promise<DelegationRecord[]>;
+  /** Recent workforce access events for admin member detail (bounded). */
+  listMemberAccessBusinessEvents(
+    organizationId: string,
+    memberId: string,
+    limit: number,
+  ): Promise<StoredBusinessEvent[]>;
   findWorkItem(organizationId: string, workItemId: string): Promise<WorkItemRecord | null>;
   findDelegation(organizationId: string, delegationId: string): Promise<DelegationRecord | null>;
 

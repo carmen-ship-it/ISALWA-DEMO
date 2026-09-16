@@ -7,3 +7,5 @@ export * from './memory-store';
 export * from './workforce-command-service';
 export * from './os-workforce-store';
 export * from './store-types';
+export * from './termination-impact';
+export * from './member-access-history';

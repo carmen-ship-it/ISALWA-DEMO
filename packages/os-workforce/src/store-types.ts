@@ -89,6 +89,52 @@ export type WorkItemRecord = {
   version: number;
 };
 
+/** Commercial account owned by a member (termination continuity). */
+export type OwnedCommercialAccountRecord = {
+  id: string;
+  organizationId: string;
+  partyId: string;
+  ownerMemberId: string;
+  status: string;
+};
+
+/** Opportunity owned by a member with open status. */
+export type OwnedOpportunityRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  title: string;
+  status: string;
+};
+
+/** Quote owned by a member that is not cancelled (no closed status in product enum). */
+export type OwnedQuoteRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  quoteNumber: string;
+  status: string;
+};
+
+/** Active (open) order owned by a member. */
+export type OwnedOrderRecord = {
+  id: string;
+  organizationId: string;
+  ownerMemberId: string;
+  orderNumber: string;
+  status: string;
+};
+
+/** Pending approval where the member is the approver. */
+export type PendingApprovalForMemberRecord = {
+  id: string;
+  organizationId: string;
+  approverMemberId: string;
+  subjectType: string;
+  subjectId: string;
+  status: string;
+};
+
 export type IdempotencyRecord = {
   organizationId: string;
   key: string;
