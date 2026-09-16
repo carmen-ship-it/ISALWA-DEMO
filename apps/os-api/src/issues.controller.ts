@@ -52,7 +52,7 @@ function toSummary(record: IssueRecord): IssueSummary {
 
 type IssueView = 'open' | 'assigned_to_me' | 'reported_by_me' | 'resolved' | 'all';
 
-@Controller('v1/issues')
+@Controller('issues')
 export class IssuesController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,

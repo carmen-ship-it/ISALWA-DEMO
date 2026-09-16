@@ -38,6 +38,7 @@ import type {
   QuoteListResponse,
 } from '@/lib/commercial/types';
 import type {
+  CommitmentCommandName,
   IssueCommandName,
   ProductFeedbackCommandName,
 } from '@isalwa/os-contracts';
@@ -46,6 +47,25 @@ import type {
   IssueDetailResponse,
   IssueCommandResult,
 } from '@/lib/issue/types';
+import type { CommitmentState } from '@isalwa/os-contracts';
+
+export type CommitmentSummary = {
+  id: string;
+  organizationId: string;
+  partyId: string | null;
+  ownerMemberId: string;
+  text: string;
+  dueAt: string | null;
+  origin: string;
+  relatedSubjectType: string | null;
+  relatedSubjectId: string | null;
+  lifecycle: string;
+  state: CommitmentState;
+  createdByMemberId: string;
+  createdAt: string;
+  fulfilledAt: string | null;
+  cancelledAt: string | null;
+};
 
 export type OsAuthContext =
   | { mode: 'supabase'; accessToken: string; organizationId?: string }
@@ -366,6 +386,24 @@ export function createOsApiClient(auth: OsAuthContext) {
       idempotencyKey?: string,
     ) =>
       request<{ ok: boolean; data: Record<string, unknown> }>(`/commands/${commandName}`, {
+        method: 'POST',
+        body: payload,
+        idempotencyKey,
+        retry: false,
+      }),
+    // ─────────────────────────────────────────────────────────────────────────
+    // Commitments
+    // ─────────────────────────────────────────────────────────────────────────
+    listCommitments: (query?: Record<string, string | number | boolean>) =>
+      request<{ items: CommitmentSummary[] }>('/commitments', { method: 'GET', query }),
+    getCommitment: (commitmentId: string) =>
+      request<CommitmentSummary>(`/commitments/${encodeURIComponent(commitmentId)}`),
+    executeCommitmentCommand: <T extends CommitmentCommandName>(
+      commandName: T,
+      payload: Record<string, unknown>,
+      idempotencyKey?: string,
+    ) =>
+      request<{ ok: boolean; data: { commitmentId?: string } }>(`/commands/${commandName}`, {
         method: 'POST',
         body: payload,
         idempotencyKey,

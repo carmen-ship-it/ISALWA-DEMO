@@ -3,10 +3,12 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import {
   applyPick,
+  commitmentPaletteItem,
   contextualPaletteActions,
   customerPaletteItem,
   groupPaletteItems,
   isFollowUpSubject,
+  issuePaletteItem,
   paletteActions,
   paletteNav,
   parseRecents,
@@ -213,5 +215,86 @@ describe('palette search stays on the session', () => {
     assert.match(source, /export async function searchPalette\(query: string\)/);
     assert.doesNotMatch(source, /organizationId\s*[:=]/);
     assert.match(source, /getServerOsAuthContext/);
+  });
+});
+
+describe('issue and commitment palette items', () => {
+  it('creates an issue palette item with correct structure', () => {
+    const issue = issuePaletteItem({
+      issueId: 'iss_123',
+      title: 'Problema con entrega',
+      description: 'La entrega no llegó a tiempo',
+      status: 'reported',
+    });
+    assert.equal(issue.kind, 'issue');
+    assert.equal(issue.label, 'Problema con entrega');
+    assert.equal(issue.detail, 'Reportado');
+    assert.equal(issue.href, '/incidencias/iss_123');
+    assert.equal(issue.key, 'issue:iss_123');
+    assert.equal(issue.label.includes('iss_123'), false);
+  });
+
+  it('uses description truncated when title is missing', () => {
+    const issue = issuePaletteItem({
+      issueId: 'iss_456',
+      title: null,
+      description: 'La entrega no llegó a tiempo y el cliente está muy molesto',
+      status: 'in_progress',
+    });
+    // Truncated at 50 chars
+    assert.equal(issue.label.length, 50);
+    assert.ok(issue.label.startsWith('La entrega no llegó'));
+    assert.equal(issue.detail, 'En progreso');
+  });
+
+  it('creates a commitment palette item linking to party when partyId exists', () => {
+    const commitment = commitmentPaletteItem({
+      commitmentId: 'cmt_789',
+      text: 'Entregar mañana a las 9am',
+      state: 'pending',
+      partyId: 'pty_abc',
+    });
+    assert.equal(commitment.kind, 'commitment');
+    assert.equal(commitment.label, 'Entregar mañana a las 9am');
+    assert.equal(commitment.detail, 'Pendiente');
+    assert.equal(commitment.href, '/clientes/pty_abc#compromisos');
+    assert.equal(commitment.key, 'commitment:cmt_789');
+  });
+
+  it('falls back to /incidencias when no partyId', () => {
+    const commitment = commitmentPaletteItem({
+      commitmentId: 'cmt_000',
+      text: 'Resolver el problema',
+      state: 'overdue',
+      partyId: null,
+    });
+    assert.equal(commitment.href, '/incidencias');
+    assert.equal(commitment.detail, 'Vencido');
+  });
+
+  it('groups issues and commitments correctly', () => {
+    const items = [
+      issuePaletteItem({
+        issueId: 'iss_1',
+        title: 'Test issue',
+        description: 'desc',
+        status: 'reported',
+      }),
+      commitmentPaletteItem({
+        commitmentId: 'cmt_1',
+        text: 'Test commitment',
+        state: 'pending',
+        partyId: null,
+      }),
+    ];
+    const groups = groupPaletteItems(items);
+    const issueGroup = groups.find((g) => g.id === 'issue');
+    const commitmentGroup = groups.find((g) => g.id === 'commitment');
+    assert.ok(issueGroup, 'should have issue group');
+    assert.equal(issueGroup?.label, 'Incidencias');
+    assert.equal(issueGroup?.items.length, 1);
+    assert.ok(commitmentGroup, 'should have commitment group');
+    assert.equal(commitmentGroup?.label, 'Compromisos');
+    assert.equal(commitmentGroup?.items.length, 1);
   });
 });

@@ -13,6 +13,11 @@ import { t } from '@/lib/i18n/es';
 import { formatWorkStatus } from '@/lib/work/labels';
 import { isEngineeringFixtureCopy, usableStaffTitle } from '@/lib/work/staff-subject';
 import { workItemHref } from '@/lib/work/navigation';
+import { issueHref } from '@/lib/issue/navigation';
+import { formatIssueStatus } from '@/lib/issue/labels';
+import { commitmentStateLabel } from '@/lib/commitments/copy';
+import type { CommitmentState } from '@isalwa/os-contracts';
+import type { IssueStatus } from '@/lib/issue/types';
 
 export const PALETTE_MIN_QUERY = 2;
 export const PALETTE_GROUP_LIMIT = 6;
@@ -28,7 +33,9 @@ export type PaletteKind =
   | 'quote'
   | 'order'
   | 'work'
-  | 'follow-up';
+  | 'follow-up'
+  | 'issue'
+  | 'commitment';
 
 export type PalettePick = 'customer-opportunity' | 'customer-follow-up' | 'opportunity-quote';
 
@@ -288,6 +295,42 @@ export function workPaletteItem(input: {
   };
 }
 
+export function issuePaletteItem(input: {
+  issueId: string;
+  title: string | null;
+  description: string;
+  status: IssueStatus;
+}): PaletteItem {
+  const label = input.title?.trim() || input.description.slice(0, 50).trim() || 'Incidencia';
+  return {
+    key: `issue:${input.issueId}`,
+    kind: 'issue',
+    label,
+    detail: formatIssueStatus(input.status),
+    href: issueHref(input.issueId),
+  };
+}
+
+export function commitmentPaletteItem(input: {
+  commitmentId: string;
+  text: string;
+  state: CommitmentState;
+  partyId: string | null;
+}): PaletteItem {
+  const label = input.text.slice(0, 50).trim() || 'Compromiso';
+  // Link to party page with commitments anchor if partyId exists, else to incidencias
+  const href = input.partyId
+    ? `/clientes/${encodeURIComponent(input.partyId)}#compromisos`
+    : '/incidencias';
+  return {
+    key: `commitment:${input.commitmentId}`,
+    kind: 'commitment',
+    label,
+    detail: commitmentStateLabel(input.state),
+    href,
+  };
+}
+
 export function applyPick(item: PaletteItem, pick: PalettePick): PaletteItem | null {
   if (pick === 'customer-opportunity' && item.kind === 'customer' && item.partyId) {
     return { ...item, href: newOpportunityHref(item.partyId), detail: 'Nueva oportunidad' };
@@ -310,6 +353,8 @@ const GROUP_ORDER: Array<{ id: PaletteKind | 'action' | 'nav' | 'recent'; label:
   { id: 'order', label: 'Pedidos' },
   { id: 'follow-up', label: 'Seguimientos' },
   { id: 'work', label: 'Trabajo' },
+  { id: 'issue', label: 'Incidencias' },
+  { id: 'commitment', label: 'Compromisos' },
   { id: 'nav', label: 'Ir a' },
 ];
 

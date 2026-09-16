@@ -44,7 +44,7 @@ function toSummary(record: ProductFeedbackRecord): FeedbackSummary {
   };
 }
 
-@Controller('v1/product-feedback')
+@Controller('product-feedback')
 export class ProductFeedbackController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,

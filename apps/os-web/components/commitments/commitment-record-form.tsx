@@ -4,26 +4,37 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@isalwa/ui';
 import { COMMITMENT_COPY, commitmentErrorCopy } from '@/lib/commitments/copy';
 import { buildCommitmentDraft } from '@/lib/commitments/draft';
-import { commitmentPersistence } from '@/lib/commitments/persistence';
+import { saveCommitmentAction } from '@/lib/commitments/persistence';
 
 type CommitmentRecordFormProps = {
   organizationId: string;
   ownerMemberId: string;
   partyId?: string | null;
+  origin?: 'employee_entered' | 'customer_reported';
+  onSaved?: () => void;
 };
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
-export function CommitmentRecordForm({ organizationId, ownerMemberId, partyId }: CommitmentRecordFormProps) {
+export function CommitmentRecordForm({
+  organizationId,
+  ownerMemberId,
+  partyId,
+  origin = 'employee_entered',
+  onSaved,
+}: CommitmentRecordFormProps) {
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
+    setError(null);
+
     const draft = buildCommitmentDraft({
       id: crypto.randomUUID(),
       organizationId,
@@ -34,22 +45,45 @@ export function CommitmentRecordForm({ organizationId, ownerMemberId, partyId }:
       partyId,
       createdAt: new Date().toISOString(),
     });
+
     if (!draft.ok) {
       setError(commitmentErrorCopy(draft.reason));
       return;
     }
-    setError(null);
-    const saved = await commitmentPersistence().save(draft.commitment);
-    if (!saved.persisted) {
-      setMessage(COMMITMENT_COPY.notSaved);
+
+    setSubmitting(true);
+
+    const result = await saveCommitmentAction({
+      text: draft.commitment.text,
+      ownerMemberId: draft.commitment.ownerMemberId,
+      partyId: draft.commitment.partyId ?? undefined,
+      dueAt: draft.commitment.dueAt ?? undefined,
+      relatedSubjectType: draft.commitment.relatedSubjectType ?? undefined,
+      relatedSubjectId: draft.commitment.relatedSubjectId ?? undefined,
+      origin,
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      if (result.reason === 'session_expired') {
+        setError(COMMITMENT_COPY.sessionExpired);
+      } else {
+        setError(result.message ?? COMMITMENT_COPY.saveFailed);
+      }
+      return;
     }
+
+    setMessage(COMMITMENT_COPY.saved);
+    setText('');
+    setDueDate('');
+    onSaved?.();
   }
 
   return (
     <form
       onSubmit={onSubmit}
       className="space-y-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4"
-      data-persistence="not_persisted"
     >
       <div>
         <p className="font-medium text-[var(--isalwa-kiln)]">{COMMITMENT_COPY.record}</p>
@@ -61,7 +95,7 @@ export function CommitmentRecordForm({ organizationId, ownerMemberId, partyId }:
         </p>
       ) : null}
       {message ? (
-        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+        <p className="text-sm text-[var(--isalwa-success)]" role="status">
           {message}
         </p>
       ) : null}
@@ -93,7 +127,9 @@ export function CommitmentRecordForm({ organizationId, ownerMemberId, partyId }:
         />
         <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{COMMITMENT_COPY.dueHint}</p>
       </div>
-      <Button type="submit">{COMMITMENT_COPY.record}</Button>
+      <Button type="submit" disabled={submitting}>
+        {submitting ? 'Guardando…' : COMMITMENT_COPY.record}
+      </Button>
     </form>
   );
 }

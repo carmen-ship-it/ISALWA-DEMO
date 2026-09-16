@@ -90,7 +90,7 @@ function dbToContract(db: {
   };
 }
 
-@Controller('v1/commitments')
+@Controller('commitments')
 export class CommitmentsController {
   constructor(
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,

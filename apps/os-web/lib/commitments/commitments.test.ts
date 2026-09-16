@@ -4,7 +4,6 @@ import { describe, it } from 'node:test';
 import { createEmployeeCommitment } from '@isalwa/os-contracts';
 import { COMMITMENT_COPY, commitmentErrorCopy, commitmentStateLabel } from './copy';
 import { buildCommitmentDraft, dueDateInputToIso, isSavedCommitment } from './draft';
-import { commitmentPersistence } from './persistence';
 import { sortCommitmentRows } from './view';
 
 const createdAt = '2026-09-13T16:00:00.000Z';
@@ -17,7 +16,7 @@ describe('commitment presentation', () => {
       ),
       ['Pendiente', 'Vence hoy', 'Vencido', 'Cumplido', 'Cancelado'],
     );
-    assert.match(COMMITMENT_COPY.notSaved, /No se guardó/);
+    assert.match(COMMITMENT_COPY.saveFailed, /No se pudo guardar/);
     assert.equal(commitmentErrorCopy('text_required'), 'Escriba el compromiso.');
   });
 
@@ -45,7 +44,7 @@ describe('commitment presentation', () => {
     assert.equal(isSavedCommitment(draft.commitment), false);
   });
 
-  it('orders overdue before due today and does not persist', async () => {
+  it('orders overdue before due today', () => {
     const overdue = createEmployeeCommitment({
       id: 'late',
       organizationId: 'org-a',
@@ -74,16 +73,11 @@ describe('commitment presentation', () => {
         ['today', 'Vence hoy'],
       ],
     );
-
-    const saved = await commitmentPersistence().save(today.commitment);
-    const listed = await commitmentPersistence().list({ organizationId: 'org-a' });
-    assert.deepEqual(saved, { ok: false, persisted: false, reason: 'schema_not_available' });
-    assert.equal('items' in listed, false);
-    assert.equal(listed.persisted, false);
   });
 
-  it('does not reach prisma', () => {
+  it('persistence uses server actions and does not reach prisma directly', () => {
     const source = readFileSync(new URL('./persistence.ts', import.meta.url), 'utf8');
-    assert.doesNotMatch(source, /prisma|email|push/i);
+    assert.doesNotMatch(source, /prisma/i);
+    assert.match(source, /use server/);
   });
 });

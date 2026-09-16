@@ -6,7 +6,9 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import {
+  commitmentPaletteItem,
   customerPaletteItem,
+  issuePaletteItem,
   opportunityPaletteItem,
   orderPaletteItem,
   PALETTE_GROUP_LIMIT,
@@ -15,6 +17,8 @@ import {
   workPaletteItem,
   type PaletteItem,
 } from '@/lib/shell/command-palette';
+import type { IssueStatus } from '@/lib/issue/types';
+import type { CommitmentState } from '@isalwa/os-contracts';
 
 export type PaletteSearchResult =
   | { ok: true; items: PaletteItem[]; partial: boolean }
@@ -114,7 +118,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     ),
   ];
 
-  const [opportunities, quotes, orders, work] = await Promise.all([
+  // Issue and commitment search calls
+  const issueCalls = [client.listIssues({ view: 'all', limit: PALETTE_GROUP_LIMIT })];
+  const commitmentCalls = [client.listCommitments({ lifecycle: 'open' })];
+
+  const [opportunities, quotes, orders, work, issues, commitments] = await Promise.all([
     collect(opportunityCalls, (page) =>
       page.items
         .filter((item) => !isEngineeringFixtureCopy(item.title))
@@ -163,9 +171,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         }),
       ),
     ),
+    collectIssues(issueCalls, q),
+    collectCommitments(commitmentCalls, q),
   ]);
 
-  for (const result of [opportunities, quotes, orders, work]) {
+  for (const result of [opportunities, quotes, orders, work, issues, commitments]) {
     if (result.session) return { ok: false, reason: 'session' };
     if (result.partial) partial = true;
     items.push(...result.items);
@@ -286,6 +296,101 @@ async function collect<T extends { items: unknown[]; meta: { hasMore: boolean } 
     }
     items.push(...map(result.page));
     if (result.page.meta.hasMore) partial = true;
+  }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}
+
+type IssueListResponse = {
+  items: Array<{
+    issueId: string;
+    title: string | null;
+    description: string;
+    status: IssueStatus;
+  }>;
+  meta: { hasMore: boolean };
+};
+
+async function collectIssues(
+  calls: Array<Promise<IssueListResponse>>,
+  query: string,
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const settled = await Promise.all(calls.map(async (call) => {
+    try {
+      return { ok: true as const, page: await call };
+    } catch (err) {
+      return { ok: false as const, err };
+    }
+  }));
+  const items: PaletteItem[] = [];
+  let partial = false;
+  const q = query.toLocaleLowerCase('es');
+  for (const result of settled) {
+    if (!result.ok) {
+      if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
+      partial = true;
+      continue;
+    }
+    for (const item of result.page.items) {
+      const searchText = `${item.title ?? ''} ${item.description}`.toLocaleLowerCase('es');
+      if (!searchText.includes(q)) continue;
+      items.push(
+        issuePaletteItem({
+          issueId: item.issueId,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+        }),
+      );
+      if (items.length >= PALETTE_GROUP_LIMIT) break;
+    }
+    if (result.page.meta.hasMore) partial = true;
+  }
+  const capped = cap(items);
+  return { items: capped.items, session: false, partial: partial || capped.truncated };
+}
+
+type CommitmentListResponse = {
+  items: Array<{
+    id: string;
+    text: string;
+    state: CommitmentState;
+    partyId: string | null;
+  }>;
+};
+
+async function collectCommitments(
+  calls: Array<Promise<CommitmentListResponse>>,
+  query: string,
+): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
+  const settled = await Promise.all(calls.map(async (call) => {
+    try {
+      return { ok: true as const, page: await call };
+    } catch (err) {
+      return { ok: false as const, err };
+    }
+  }));
+  const items: PaletteItem[] = [];
+  let partial = false;
+  const q = query.toLocaleLowerCase('es');
+  for (const result of settled) {
+    if (!result.ok) {
+      if (isSessionFailure(result.err)) return { items: [], session: true, partial: false };
+      partial = true;
+      continue;
+    }
+    for (const item of result.page.items) {
+      if (!item.text.toLocaleLowerCase('es').includes(q)) continue;
+      items.push(
+        commitmentPaletteItem({
+          commitmentId: item.id,
+          text: item.text,
+          state: item.state,
+          partyId: item.partyId,
+        }),
+      );
+      if (items.length >= PALETTE_GROUP_LIMIT) break;
+    }
   }
   const capped = cap(items);
   return { items: capped.items, session: false, partial: partial || capped.truncated };

@@ -54,7 +54,7 @@ type IssueEvidenceResponse = {
  * Memory evidence controller.
  * GET /v1/memory/evidence — filtered evidence for authorized viewing.
  */
-@Controller('v1/memory')
+@Controller('memory')
 export class MemoryController {
   private readonly evidenceService = new MemoryEvidenceService();
 

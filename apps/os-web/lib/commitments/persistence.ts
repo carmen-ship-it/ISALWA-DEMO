@@ -1,110 +1,127 @@
-import type { CommitmentRecord, CommitmentState } from '@isalwa/os-contracts';
+'use server';
+
+import { createId } from '@isalwa/ts-utils';
+import { revalidatePath } from 'next/cache';
+import { createOsApiClient, type CommitmentSummary } from '@/lib/api/os-api-client';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { mapCommandError } from '@/lib/commercial/command-errors';
 
 export type CommitmentPersistenceError =
-  | 'schema_not_available'
+  | 'session_expired'
   | 'api_error'
   | 'network_error';
 
 export type CommitmentSaveResult =
-  | { ok: true; persisted: true; commitment: CommitmentRecord }
-  | { ok: false; persisted: false; reason: CommitmentPersistenceError };
+  | { ok: true; persisted: true; commitmentId: string }
+  | { ok: false; persisted: false; reason: CommitmentPersistenceError; message?: string };
 
 export type CommitmentListResult =
-  | { ok: true; persisted: true; items: CommitmentApiItem[] }
-  | { ok: false; persisted: false; reason: CommitmentPersistenceError };
+  | { ok: true; persisted: true; items: CommitmentSummary[] }
+  | { ok: false; persisted: false; reason: CommitmentPersistenceError; message?: string };
 
-export type CommitmentApiItem = {
-  id: string;
-  organizationId: string;
-  partyId: string | null;
-  ownerMemberId: string;
-  text: string;
-  dueAt: string | null;
-  origin: string;
-  relatedSubjectType: string | null;
-  relatedSubjectId: string | null;
-  lifecycle: string;
-  state: CommitmentState;
-  createdByMemberId: string;
-  createdAt: string;
-  fulfilledAt: string | null;
-  cancelledAt: string | null;
-};
+export type CommitmentFulfillResult =
+  | { ok: true }
+  | { ok: false; reason: CommitmentPersistenceError; message?: string };
 
 /**
- * Commitment persistence via OS API.
- * If OS_API_URL is not configured, returns honest errors.
+ * Save a commitment via the OS API.
+ * Supports CreateEmployeeCommitment and CreateCustomerReportedCommitment.
  */
-export function commitmentPersistence(): {
-  persistence: 'api' | 'not_configured';
-  save(record: CommitmentRecord): Promise<CommitmentSaveResult>;
-  list(query: { organizationId: string; partyId?: string }): Promise<CommitmentListResult>;
-} {
-  const apiUrl = typeof process !== 'undefined'
-    ? process.env.OS_API_URL ?? process.env.NEXT_PUBLIC_OS_API_URL
-    : null;
-
-  if (!apiUrl) {
-    return {
-      persistence: 'not_configured',
-      async save(_record) {
-        return { ok: false, persisted: false, reason: 'schema_not_available' };
-      },
-      async list(_query) {
-        return { ok: false, persisted: false, reason: 'schema_not_available' };
-      },
-    };
+export async function saveCommitmentAction(input: {
+  text: string;
+  ownerMemberId?: string;
+  partyId?: string | null;
+  dueAt?: string | null;
+  relatedSubjectType?: string | null;
+  relatedSubjectId?: string | null;
+  origin: 'employee_entered' | 'customer_reported';
+}): Promise<CommitmentSaveResult> {
+  const auth = await getServerOsAuthContext();
+  if (!auth) {
+    return { ok: false, persisted: false, reason: 'session_expired' };
   }
 
-  return {
-    persistence: 'api',
-    async save(record) {
-      try {
-        const response = await fetch(`${apiUrl}/commands/CreateEmployeeCommitment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            text: record.text,
-            ownerMemberId: record.ownerMemberId,
-            partyId: record.partyId,
-            dueAt: record.dueAt,
-            relatedSubjectType: record.relatedSubjectType,
-            relatedSubjectId: record.relatedSubjectId,
-          }),
-        });
-        if (!response.ok) {
-          return { ok: false, persisted: false, reason: 'api_error' };
-        }
-        return { ok: true, persisted: true, commitment: record };
-      } catch {
-        return { ok: false, persisted: false, reason: 'network_error' };
-      }
-    },
-    async list(query) {
-      try {
-        const params = new URLSearchParams();
-        if (query.partyId) {
-          params.set('partyId', query.partyId);
-        }
-        const url = `${apiUrl}/v1/commitments${params.toString() ? `?${params}` : ''}`;
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        if (!response.ok) {
-          return { ok: false, persisted: false, reason: 'api_error' };
-        }
-        const data = await response.json() as { items: CommitmentApiItem[] };
-        return { ok: true, persisted: true, items: data.items };
-      } catch {
-        return { ok: false, persisted: false, reason: 'network_error' };
-      }
-    },
-  };
+  const client = createOsApiClient(auth);
+  const commandName = input.origin === 'customer_reported'
+    ? 'CreateCustomerReportedCommitment'
+    : 'CreateEmployeeCommitment';
+
+  try {
+    const result = await client.executeCommitmentCommand(
+      commandName,
+      {
+        text: input.text,
+        ownerMemberId: input.ownerMemberId,
+        partyId: input.partyId,
+        dueAt: input.dueAt,
+        relatedSubjectType: input.relatedSubjectType,
+        relatedSubjectId: input.relatedSubjectId,
+      },
+      createId(),
+    );
+
+    const commitmentId = result.data.commitmentId ?? '';
+
+    // Revalidate relevant paths
+    if (input.partyId) {
+      revalidatePath(`/clientes/${input.partyId}`);
+    }
+
+    return { ok: true, persisted: true, commitmentId };
+  } catch (err) {
+    return { ok: false, persisted: false, reason: 'api_error', message: mapCommandError(err) };
+  }
+}
+
+/**
+ * List commitments via the OS API.
+ * Can filter by partyId or ownerMemberId or lifecycle.
+ */
+export async function listCommitmentsAction(query?: {
+  partyId?: string;
+  ownerMemberId?: string;
+  lifecycle?: 'open' | 'fulfilled' | 'cancelled';
+}): Promise<CommitmentListResult> {
+  const auth = await getServerOsAuthContext();
+  if (!auth) {
+    return { ok: false, persisted: false, reason: 'session_expired' };
+  }
+
+  const client = createOsApiClient(auth);
+
+  try {
+    const result = await client.listCommitments({
+      partyId: query?.partyId,
+      ownerMemberId: query?.ownerMemberId,
+      lifecycle: query?.lifecycle,
+    });
+
+    return { ok: true, persisted: true, items: result.items };
+  } catch (err) {
+    return { ok: false, persisted: false, reason: 'api_error', message: mapCommandError(err) };
+  }
+}
+
+/**
+ * Fulfill a commitment via the OS API.
+ */
+export async function fulfillCommitmentAction(commitmentId: string): Promise<CommitmentFulfillResult> {
+  const auth = await getServerOsAuthContext();
+  if (!auth) {
+    return { ok: false, reason: 'session_expired' };
+  }
+
+  const client = createOsApiClient(auth);
+
+  try {
+    await client.executeCommitmentCommand(
+      'FulfillCommitment',
+      { commitmentId },
+      createId(),
+    );
+
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, reason: 'api_error', message: mapCommandError(err) };
+  }
 }
