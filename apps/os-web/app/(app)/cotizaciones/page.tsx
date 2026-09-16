@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageSection, SearchField, cx } from '@isalwa/ui';
+import { Button, EmptyState, PageSection, SearchField, StatusPill, cx } from '@isalwa/ui';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import {
@@ -115,6 +115,8 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
         : panelHref(LIST_PATH, listState, `quote:${preview.quoteId}`)
       : null;
     const hasQuery = Boolean(listState.q);
+    const statusLabel =
+      filters.find((filter) => filter.status === status)?.label ?? status;
     const nextHref =
       result.meta.hasMore && result.meta.nextCursor
         ? workingHref({ ...listState, cursor: result.meta.nextCursor }, ['panel'])
@@ -126,6 +128,9 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
           kicker={t('pages.cotizaciones.kicker')}
           title={t('pages.cotizaciones.title')}
           description={visible.length === 0 ? undefined : t('pages.cotizaciones.description')}
+          action={
+            <StatusPill tone="neutral">{statusLabel}</StatusPill>
+          }
         />
 
         <div className={`commercial-toolbar ${commercialToolbarClass}`}>

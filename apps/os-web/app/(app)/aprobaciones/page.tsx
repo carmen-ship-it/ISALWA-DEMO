@@ -72,8 +72,8 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
         {pending.length === 0 ? (
           <EmptyState
             title={t('states.emptyAprobaciones')}
-            description="Cuando alguien solicite su aprobación, la verá aquí para decidir."
-            example="Una cotización o pedido que requiere su sí o no aparece aquí — no es un listado para editar registros."
+            description="Nadie le ha pedido una decisión todavía. Aparecerán aquí las solicitudes que requieran su sí o no."
+            example="Aprobar autoriza el siguiente paso comercial; no crea pedido, no registra pago ni despacha mercancía."
           />
         ) : (
           <>

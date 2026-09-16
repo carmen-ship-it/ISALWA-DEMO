@@ -13,7 +13,7 @@ import type { CommitmentState } from '@isalwa/os-contracts';
 type CommitmentTone = 'neutral' | 'warning' | 'danger' | 'success';
 
 const TONES: Record<CommitmentState, CommitmentTone> = {
-  pending: 'neutral',
+  pending: 'warning',
   due_today: 'warning',
   overdue: 'danger',
   fulfilled: 'success',
@@ -100,7 +100,11 @@ export function CommitmentList({
         </p>
       ) : null}
       {rows.length === 0 ? (
-        <EmptyState title={COMMITMENT_COPY.empty} description={COMMITMENT_COPY.emptyDescription} />
+        <EmptyState
+          title={COMMITMENT_COPY.empty}
+          description={COMMITMENT_COPY.emptyDescription}
+          example={COMMITMENT_COPY.sectionHint}
+        />
       ) : (
         <ul className="min-w-0" aria-label="Compromisos">
           {rows.map((row) => {
@@ -123,7 +127,6 @@ export function CommitmentList({
               partyLabel ? `${COMMITMENT_COPY.promisedTo}: ${partyLabel}` : null,
               `${COMMITMENT_COPY.followUpOwner}: ${followUp}`,
               dueLabel,
-              showOrigin && customerReported ? COMMITMENT_COPY.customerReportedLabel : null,
               customerReported ? COMMITMENT_COPY.paymentBoundary : null,
               row.lifecycle === 'fulfilled' && fulfilledBy
                 ? `${COMMITMENT_COPY.fulfilledBy}: ${fulfilledBy}${fulfilledWhen ? ` · ${fulfilledWhen}` : ''}`
@@ -141,7 +144,12 @@ export function CommitmentList({
                   <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.text}</p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{meta}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {showOrigin ? (
+                    <StatusPill tone={customerReported ? 'warning' : 'neutral'}>
+                      {customerReported ? COMMITMENT_COPY.originCustomer : COMMITMENT_COPY.originEmployee}
+                    </StatusPill>
+                  ) : null}
                   <StatusPill tone={tone}>{stateLabel}</StatusPill>
                   {canFulfill ? (
                     <Button

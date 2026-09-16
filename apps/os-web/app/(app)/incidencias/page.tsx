@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageContainer, PageSection, cx } from '@isalwa/ui';
+import { EmptyState, PageContainer, PageSection, StatusPill, cx } from '@isalwa/ui';
 import { IssueList } from '@/components/issue/issue-list';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { PageHeader } from '@/components/shell/page-header';
@@ -42,16 +42,46 @@ function viewQuery(view: IssueView): Record<string, string | number | boolean> {
   }
 }
 
-function emptyMessage(view: IssueView): { title: string; description: string } {
+type IncidenciasEmpty = {
+  title: string;
+  description: string;
+  example?: string;
+  showReportAction?: boolean;
+};
+
+function emptyMessage(view: IssueView): IncidenciasEmpty {
   switch (view) {
     case 'open':
-      return { title: ISSUE_COPY.emptyOpen, description: 'Cuando se reporten problemas, aparecerán aquí.' };
+      return {
+        title: ISSUE_COPY.emptyOpen,
+        description:
+          'Nadie ha reportado un problema que siga abierto. Esta lista es el punto de partida para investigar.',
+        example:
+          'Un retraso de entrega o un error en un pedido reportado desde Trabajo o un cliente aparece aquí con su estado.',
+        showReportAction: true,
+      };
     case 'assigned':
-      return { title: ISSUE_COPY.emptyAssigned, description: 'Las incidencias asignadas a usted aparecerán aquí.' };
+      return {
+        title: ISSUE_COPY.emptyAssigned,
+        description:
+          'Aún no tiene incidencias asignadas. Cuando alguien le pida resolver un caso, lo verá en esta pestaña.',
+        example: 'Un caso en progreso asignado a usted muestra responsable, contexto y diario de investigación.',
+      };
     case 'reported':
-      return { title: ISSUE_COPY.emptyReported, description: 'Las incidencias que usted reporte aparecerán aquí.' };
+      return {
+        title: ISSUE_COPY.emptyReported,
+        description:
+          'Todavía no ha reportado problemas. Use el botón de arriba cuando algo impida cumplir o entregar.',
+        example: ISSUE_COPY.descriptionPlaceholder,
+        showReportAction: true,
+      };
     case 'resolved':
-      return { title: ISSUE_COPY.emptyResolved, description: 'Las incidencias resueltas aparecerán aquí.' };
+      return {
+        title: ISSUE_COPY.emptyResolved,
+        description:
+          'No hay incidencias cerradas en esta vista. Las resueltas conservan causa, resolución y resultado.',
+        example: 'Un caso resuelto muestra cuándo se cerró y qué se hizo para corregirlo.',
+      };
   }
 }
 
@@ -75,6 +105,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
     ].filter((id): id is string => Boolean(id)));
     const memberLabels = await resolveMemberLabels(client, memberIds);
     const empty = emptyMessage(view);
+    const openCount = view === 'open' ? result.items.length : null;
 
     return (
       <PageContainer label={ISSUE_COPY.listTitle}>
@@ -82,7 +113,16 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
           kicker={ISSUE_COPY.listKicker}
           title={ISSUE_COPY.listTitle}
           description={ISSUE_COPY.listDescription}
-          action={<ReportIssueTrigger reportedByLabel={reportedByLabel} variant="primary" />}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              {openCount !== null && openCount > 0 ? (
+                <StatusPill tone="warning">
+                  {openCount === 1 ? '1 abierta' : `${openCount} abiertas`}
+                </StatusPill>
+              ) : null}
+              <ReportIssueTrigger reportedByLabel={reportedByLabel} variant="primary" />
+            </div>
+          }
         />
 
         <IssueViewTabs active={view} />
@@ -91,10 +131,19 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
           <EmptyState
             title={empty.title}
             description={empty.description}
+            example={empty.example}
+            action={
+              empty.showReportAction ? (
+                <ReportIssueTrigger reportedByLabel={reportedByLabel} variant="secondary" />
+              ) : undefined
+            }
           />
         ) : (
           <>
-            <PageSection card className="overflow-hidden p-0">
+            <PageSection
+              card
+              className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
+            >
               <IssueList
                 items={result.items}
                 memberLabels={memberLabels}

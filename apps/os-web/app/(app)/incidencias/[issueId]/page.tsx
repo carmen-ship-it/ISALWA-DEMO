@@ -150,32 +150,28 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
         <PageHeader
           kicker={ISSUE_COPY.detailKicker}
           title={issueTitle(issue)}
+          description="Estado del ciclo de vida, contexto reportado e investigación — sin mezclar con aprobaciones comerciales."
           action={
-            <Link href={issueListHref()}>
-              <Button type="button" variant="secondary">
-                Volver a incidencias
-              </Button>
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusPill tone={statusToneForIssue(issue.status)}>
+                {formatIssueStatus(issue.status)}
+              </StatusPill>
+              <Link href={issueListHref()}>
+                <Button type="button" variant="secondary">
+                  Volver a incidencias
+                </Button>
+              </Link>
+            </div>
           }
         />
 
         {/* Status and key dates */}
         <PageSection card className="p-6 md:p-8">
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone={statusToneForIssue(issue.status)}>
-              {formatIssueStatus(issue.status)}
-            </StatusPill>
-          </div>
+          <SectionHeader kicker="Reporte" title={ISSUE_COPY.whatHappened} />
+
+          <p className="mt-4 whitespace-pre-wrap text-[var(--isalwa-kiln)]">{issue.description}</p>
 
           <dl className="mt-8 grid gap-6 sm:grid-cols-2">
-            {/* What happened */}
-            <div className="sm:col-span-2">
-              <dt className="isalwa-section-label">{ISSUE_COPY.whatHappened}</dt>
-              <dd className="mt-2 whitespace-pre-wrap text-[var(--isalwa-kiln)]">
-                {issue.description}
-              </dd>
-            </div>
-
             {/* Reporter */}
             <div>
               <dt className="isalwa-section-label">{ISSUE_COPY.reporter}</dt>
@@ -216,7 +212,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
 
         {/* Investigation section */}
         <PageSection card className="mt-6 p-6 md:p-8">
-          <SectionHeader title={ISSUE_COPY.investigation} />
+          <SectionHeader kicker="Ciclo de vida" title={ISSUE_COPY.investigation} />
 
           {/* Possible causes */}
           {possibleCauses.length > 0 ? (
@@ -253,15 +249,17 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
               <Timeline items={journalToTimeline(otherJournal, memberLabels)} />
             </div>
           ) : (
-            <p className="text-sm text-[var(--isalwa-slate)]">
-              No hay entradas de investigación todavía.
-            </p>
+            <EmptyState
+              title="Sin entradas de investigación"
+              description="Todavía nadie documentó observaciones ni intentos en el diario."
+              example="Registre observaciones, intentos y referencias a evidencia mientras avanza el caso."
+            />
           )}
         </PageSection>
 
         {/* Resolution section */}
         <PageSection card className="mt-6 p-6 md:p-8">
-          <SectionHeader title={ISSUE_COPY.resolution} />
+          <SectionHeader kicker="Cierre" title={ISSUE_COPY.resolution} />
 
           <dl className="grid gap-6 sm:grid-cols-2">
             <div>
