@@ -3,6 +3,7 @@
 **When:** 2026-09-16  
 **Branch:** `agent2/post-sale-spine`  
 **SHA:** `2c6cd1185a2a53e85f20b322aa450ac3cdadcc18`  
+**TIP:** `6ec2d5b8aa66b0a730c0c5b622bfe235aba8c5fe` (product tip; receipt docs may trail)  
 **Base / map tip:** `03745ab522bb6f4e83b27fbc3353efd598ab07ac` (fast-forwarded)  
 **Lane:** Pedido → Producción → Almacén physical receive (not allocate, not delivery)  
 **Deploy:** NO · **REAL_SEVEN_MUTATED:** NO
@@ -27,6 +28,7 @@
 2. Pedido product proof uses `productRefSnapshot` (schema truth), matching UI handoff `productRef \|\| orderLineId`.
 3. API uses stored member `accessStatus` (fail-closed if member missing / foreign org).
 4. Concurrent idempotency race: unique-key conflict re-reads and replays.
+5. PrismaClient `$transaction` assignability + `pnpm-lock.yaml` workspace link for `@isalwa/os-finished-goods`.
 
 ---
 
