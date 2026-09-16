@@ -7,11 +7,15 @@ export type CreateAiProviderInput = {
   openAiApiKey?: string;
   openAiBaseUrl?: string;
   openAiModel?: string;
+  modelAllowlist?: readonly string[];
+  timeoutMs?: number;
+  maxRetries?: number;
 };
 
 /**
  * Factory for read-only assist adapters.
  * `openai` uses fetch against an OpenAI-compatible `/chat/completions` endpoint.
+ * Model names are construction-time only — never from browser input.
  */
 export function createAiProvider(input: CreateAiProviderInput = {}): AiProvider {
   const mode = (input.provider ?? 'mock').toLowerCase();
@@ -22,6 +26,9 @@ export function createAiProvider(input: CreateAiProviderInput = {}): AiProvider 
         apiKey,
         baseUrl: input.openAiBaseUrl,
         model: input.openAiModel,
+        modelAllowlist: input.modelAllowlist,
+        timeoutMs: input.timeoutMs,
+        maxRetries: input.maxRetries,
       });
     }
   }

@@ -1,24 +1,22 @@
 import type { AiProvider } from '../types/index';
 import { chatViaOpenAICompatible } from './openai-compatible-client';
+import { AI_PROVIDER_SYSTEM_PROMPT, wrapCompanyFactsAsData } from './data-guard';
 import type { AiAssistInput, AiAssistResult } from './types';
 
 export type OpenAiCompatibleAiProviderOptions = {
   apiKey: string;
   baseUrl?: string;
   model?: string;
+  /** Server allowlist — model must be in this set. */
+  modelAllowlist?: readonly string[];
+  timeoutMs?: number;
+  maxRetries?: number;
 };
 
-const SYSTEM_PROMPT = `You assist ISALWA Company OS staff with read-only analysis.
-Rules:
-- Use ONLY the facts and evidence references provided in the user message.
-- Never invent records, amounts, or commitments.
-- Never instruct the user to approve, send, convert, reassign, or mutate data.
-- Respond with a single JSON object (no markdown fences) shaped as:
-  {"summary":"...","suggestion":"...","facts":["..."]}
-- facts must be short strings grounded in the provided packet.
-- suggestion is a human next step; it must not execute an action.`;
-
-function parseAssistJson(raw: string, evidenceRefs: AiAssistResult['evidenceRefs']): Omit<AiAssistResult, 'modelCalled'> {
+function parseAssistJson(
+  raw: string,
+  evidenceRefs: AiAssistResult['evidenceRefs'],
+): Omit<AiAssistResult, 'modelCalled'> {
   try {
     const parsed = JSON.parse(raw) as {
       summary?: unknown;
@@ -50,6 +48,8 @@ export class OpenAiCompatibleAiProvider implements AiProvider {
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly model: string;
+  private readonly timeoutMs: number;
+  private readonly maxRetries: number;
 
   constructor(options: OpenAiCompatibleAiProviderOptions) {
     const key = options.apiKey.trim();
@@ -58,12 +58,21 @@ export class OpenAiCompatibleAiProvider implements AiProvider {
     }
     this.apiKey = key;
     this.baseUrl = options.baseUrl?.trim() || 'https://api.openai.com/v1';
-    this.model = options.model?.trim() || 'gpt-4o-mini';
+    const model = options.model?.trim() || 'gpt-4o-mini';
+    const allowlist = options.modelAllowlist?.length
+      ? options.modelAllowlist
+      : [model];
+    if (!allowlist.includes(model)) {
+      throw new Error('AI_MODEL_NOT_ALLOWED');
+    }
+    this.model = model;
+    this.timeoutMs = options.timeoutMs ?? 20_000;
+    this.maxRetries = Math.min(1, options.maxRetries ?? 1);
   }
 
   async summarizeAccount(input: { accountName: string; facts: string[] }) {
     const result = await this.assist({
-      feature: 'summarize_customer',
+      feature: 'summarizeCustomerAuthorizedContext',
       subjectType: 'party',
       subjectId: input.accountName,
       facts: input.facts,
@@ -73,18 +82,20 @@ export class OpenAiCompatibleAiProvider implements AiProvider {
   }
 
   async assist(input: AiAssistInput): Promise<AiAssistResult> {
+    // Never accept a model name from the assist input — construction-time allowlist only.
     const evidenceRefs = [...input.evidenceRefs];
     const userPayload = {
       feature: input.feature,
       subjectType: input.subjectType,
-      subjectId: input.subjectId,
-      facts: input.facts,
-      evidenceRefs,
+      // subjectId is an opaque reference for correlation; facts carry human content.
+      subjectTypeOnly: input.subjectType,
+      evidence: wrapCompanyFactsAsData(input.facts),
+      evidenceRefCount: evidenceRefs.length,
     };
 
-    const content = await chatViaOpenAICompatible(
+    const { content } = await chatViaOpenAICompatible(
       [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: AI_PROVIDER_SYSTEM_PROMPT },
         {
           role: 'user',
           content: JSON.stringify(userPayload),
@@ -95,6 +106,8 @@ export class OpenAiCompatibleAiProvider implements AiProvider {
         baseUrl: this.baseUrl,
         model: this.model,
         maxTokens: input.maxOutputTokens ?? 800,
+        timeoutMs: this.timeoutMs,
+        maxRetries: this.maxRetries,
       },
     );
 

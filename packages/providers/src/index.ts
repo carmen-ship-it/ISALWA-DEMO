@@ -47,6 +47,12 @@ export type ProviderEnv = {
   MESSAGING_PROVIDER?: string;
   MAPS_PROVIDER?: string;
   AI_PROVIDER?: string;
+  AI_ENABLED?: string;
+  AI_MODEL?: string;
+  AI_FALLBACK_MODEL?: string;
+  AI_MODEL_ALLOWLIST?: string;
+  AI_REQUEST_TIMEOUT_MS?: string;
+  AI_MAX_PROVIDER_RETRIES?: string;
   OPENAI_ISALWA_API_KEY?: string;
   OPENAI_ISALWA_MODEL?: string;
   OPENAI_ISALWA_BASE_URL?: string;
@@ -61,11 +67,29 @@ export type ProviderEnv = {
 /** Read-only assist provider selected by AI_PROVIDER (default mock). */
 export function createAiProviderFromEnv(env: ProviderEnv = process.env) {
   const mode = (env.AI_PROVIDER ?? 'mock').toLowerCase();
+  const defaultModel =
+    env.AI_MODEL?.trim() || env.OPENAI_ISALWA_MODEL?.trim() || 'gpt-4o-mini';
+  const fallback = env.AI_FALLBACK_MODEL?.trim() || '';
+  const allowlistRaw = env.AI_MODEL_ALLOWLIST?.trim();
+  const fromList = allowlistRaw
+    ? allowlistRaw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+  const modelAllowlist = [
+    ...new Set([defaultModel, ...(fallback && fallback !== defaultModel ? [fallback] : []), ...fromList]),
+  ];
+  const timeoutMs = Number.parseInt(env.AI_REQUEST_TIMEOUT_MS ?? '20000', 10);
+  const maxRetries = Math.min(1, Number.parseInt(env.AI_MAX_PROVIDER_RETRIES ?? '1', 10) || 1);
   return createAiProvider({
     provider: mode,
     openAiApiKey: env.OPENAI_ISALWA_API_KEY,
     openAiBaseUrl: env.OPENAI_ISALWA_BASE_URL,
-    openAiModel: env.OPENAI_ISALWA_MODEL,
+    openAiModel: defaultModel,
+    modelAllowlist,
+    timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 20_000,
+    maxRetries,
   });
 }
 

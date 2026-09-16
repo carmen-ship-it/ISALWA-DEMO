@@ -6,44 +6,100 @@ export type OpenAICompatibleChatOptions = {
   model: string;
   temperature?: number;
   maxTokens?: number;
+  /** Hard request timeout (ms). */
+  timeoutMs?: number;
+  /** Max automatic retries for transient failures only (0 or 1). */
+  maxRetries?: number;
 };
 
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/$/, '');
 }
 
+function isTransientStatus(status: number): boolean {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function chatViaOpenAICompatible(
   messages: AiChatMessage[],
   options: OpenAICompatibleChatOptions,
-): Promise<string> {
+): Promise<{ content: string; usage?: { promptTokens?: number; completionTokens?: number } }> {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${options.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: options.model,
-      messages,
-      temperature: options.temperature ?? 0.3,
-      max_tokens: options.maxTokens ?? 800,
-    }),
-  });
+  const timeoutMs = options.timeoutMs ?? 20_000;
+  const maxRetries = Math.min(1, Math.max(0, options.maxRetries ?? 1));
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`AI chat request failed (${response.status}): ${detail}`);
+  let attempt = 0;
+  let lastError: Error | null = null;
+
+  while (attempt <= maxRetries) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${options.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: options.model,
+          messages,
+          temperature: options.temperature ?? 0.3,
+          max_tokens: options.maxTokens ?? 800,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        // Do not include response body in thrown message (may leak provider details to callers).
+        const transient = isTransientStatus(response.status);
+        const err = new Error(transient ? 'AI_PROVIDER_TRANSIENT' : 'AI_PROVIDER_ERROR');
+        if (!transient || attempt >= maxRetries) throw err;
+        lastError = err;
+        attempt += 1;
+        await sleep(250 * attempt);
+        continue;
+      }
+
+      const payload = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        usage?: { prompt_tokens?: number; completion_tokens?: number };
+      };
+
+      const content = payload.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new Error('AI_PROVIDER_EMPTY');
+      }
+
+      return {
+        content: content.trim(),
+        usage: {
+          promptTokens: payload.usage?.prompt_tokens,
+          completionTokens: payload.usage?.completion_tokens,
+        },
+      };
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new Error('AI_PROVIDER_TIMEOUT');
+      }
+      if (err instanceof Error && err.message.startsWith('AI_')) {
+        lastError = err;
+        if (err.message === 'AI_PROVIDER_TRANSIENT' && attempt < maxRetries) {
+          attempt += 1;
+          await sleep(250 * attempt);
+          continue;
+        }
+        throw err;
+      }
+      throw new Error('AI_PROVIDER_ERROR');
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-
-  const content = payload.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error('AI chat response contained no content.');
-  }
-
-  return content.trim();
+  throw lastError ?? new Error('AI_PROVIDER_ERROR');
 }

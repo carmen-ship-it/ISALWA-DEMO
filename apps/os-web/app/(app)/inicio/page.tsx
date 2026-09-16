@@ -8,6 +8,8 @@ import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioManagementLens } from '@/components/management/inicio-management-lens';
 import { OperatingHomes } from '@/components/management/operating-homes';
 import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
+import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
+import type { MemoryChangesResponse } from '@/lib/audit/types';
 import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -43,6 +45,21 @@ async function safeFetch<T>(fn: () => Promise<T>): Promise<T | 'unavailable'> {
   try {
     return await fn();
   } catch (err) {
+    if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
+    throw err;
+  }
+}
+
+/** Org What Changed is admin-gated. Forbidden is omitted, not fabricated. */
+async function safeMemoryChanges(
+  fn: () => Promise<MemoryChangesResponse>,
+): Promise<MemoryChangesResponse | 'unavailable' | 'unauthorized'> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
+      return 'unauthorized';
+    }
     if (err instanceof OsApiError && err.kind === 'unavailable') return 'unavailable';
     throw err;
   }
@@ -100,6 +117,7 @@ export default async function InicioPage() {
       quotesSubmittedResult,
       personalWorkResult,
       management,
+      memoryChanges,
     ] = await Promise.all([
       loadShellContext(),
       safeFetch(() =>
@@ -110,6 +128,7 @@ export default async function InicioPage() {
       safeFetch(() => client.listQuotes({ status: 'submitted', limit })),
       safeFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
       loadInicioManagement(client),
+      safeMemoryChanges(() => client.listMemoryChanges({ window: 'hoy' })),
     ]);
 
     const allUnavailable = [
@@ -318,6 +337,10 @@ export default async function InicioPage() {
               partyLabels={partyLabels}
               approvalSubjects={commandApprovalSubjects}
             />
+
+            {memoryChanges !== 'unauthorized' && memoryChanges !== 'unavailable' ? (
+              <InicioWhatChanged items={memoryChanges.items} windowLabel="Hoy" />
+            ) : null}
           </div>
 
           {upcomingRows.length > 0 ? (

@@ -5,6 +5,10 @@ import {
   type IssueJournalEntryRecord as CommandJournalRecord,
 } from '@isalwa/os-issue';
 import type { AiAssistEvidenceRef } from '@isalwa/providers';
+import {
+  minimizeEvidenceItems,
+  redactSensitiveFragments,
+} from './ai/ai-evidence-guard';
 
 export type AssistEvidenceActor = {
   memberId: string;
@@ -15,17 +19,20 @@ export type AssistEvidenceActor = {
 export type AuthorizedAssistPacket = {
   facts: string[];
   evidenceRefs: AiAssistEvidenceRef[];
+  truncated: boolean;
+  selectedCount: number;
+  totalAvailable: number;
 };
 
 const evidenceService = new MemoryEvidenceService();
 
 function issueFactLine(issue: CommandIssueRecord): string {
   const title = issue.title?.trim() || issue.description.trim().slice(0, 120);
-  return `Incidencia ${issue.id} (${issue.status}): ${title}`;
+  return redactSensitiveFragments(`Incidencia (${issue.status}): ${title}`);
 }
 
 function journalFactLine(entry: CommandJournalRecord): string {
-  return `Diario ${entry.entryType} · ${entry.content.trim().slice(0, 160)}`;
+  return redactSensitiveFragments(`Diario ${entry.entryType} · ${entry.content.trim().slice(0, 160)}`);
 }
 
 export function buildAuthorizedAssistPacket(input: {
@@ -34,6 +41,7 @@ export function buildAuthorizedAssistPacket(input: {
   subjectId: string;
   issues: readonly CommandIssueRecord[];
   journalEntriesByIssue: ReadonlyMap<string, readonly CommandJournalRecord[]>;
+  maxEvidenceItems: number;
 }): AuthorizedAssistPacket | null {
   const filtered = evidenceService.retrieveIssueEvidence(
     input.actor,
@@ -46,14 +54,20 @@ export function buildAuthorizedAssistPacket(input: {
     if (!match) {
       return null;
     }
-    return packetFromIssueEvidence([match]);
+    return packetFromIssueEvidence([match], input.maxEvidenceItems);
   }
 
   if (input.subjectType === 'party') {
     if (filtered.length === 0) {
-      return { facts: [`Cliente ${input.subjectId}: sin incidencias autorizadas visibles.`], evidenceRefs: [] };
+      return {
+        facts: [`Cliente: sin incidencias autorizadas visibles.`],
+        evidenceRefs: [],
+        truncated: false,
+        selectedCount: 0,
+        totalAvailable: 0,
+      };
     }
-    return packetFromIssueEvidence(filtered);
+    return packetFromIssueEvidence(filtered, input.maxEvidenceItems);
   }
 
   return null;
@@ -64,20 +78,40 @@ function packetFromIssueEvidence(
     issue: CommandIssueRecord;
     journalEntries: readonly CommandJournalRecord[];
   }>,
+  maxEvidenceItems: number,
 ): AuthorizedAssistPacket {
-  const facts: string[] = [];
-  const evidenceRefs: AiAssistEvidenceRef[] = [];
+  const flat: Array<{ fact: string; ref: AiAssistEvidenceRef }> = [];
 
   for (const item of items) {
-    facts.push(issueFactLine(item.issue));
-    evidenceRefs.push({ type: 'issue', id: item.issue.id });
-    for (const entry of item.journalEntries.slice(0, 8)) {
-      facts.push(journalFactLine(entry));
-      evidenceRefs.push({ type: 'journal_entry', id: entry.id });
+    flat.push({
+      fact: issueFactLine(item.issue),
+      ref: { type: 'issue', id: item.issue.id },
+    });
+    for (const entry of item.journalEntries) {
+      flat.push({
+        fact: journalFactLine(entry),
+        ref: { type: 'journal_entry', id: entry.id },
+      });
     }
   }
 
-  return { facts, evidenceRefs };
+  const minimized = minimizeEvidenceItems(flat, maxEvidenceItems);
+  const facts = minimized.items.map((row) => row.fact);
+  const evidenceRefs = minimized.items.map((row) => row.ref);
+
+  if (minimized.truncated) {
+    facts.push(
+      `Resumen limitado a ${minimized.selectedCount} de ${minimized.totalAvailable} registros autorizados relevantes (límite de evidencia).`,
+    );
+  }
+
+  return {
+    facts,
+    evidenceRefs,
+    truncated: minimized.truncated,
+    selectedCount: minimized.selectedCount,
+    totalAvailable: minimized.totalAvailable,
+  };
 }
 
 export function toCommandIssue(record: {

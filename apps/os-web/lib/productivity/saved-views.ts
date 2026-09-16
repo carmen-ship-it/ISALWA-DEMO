@@ -19,6 +19,7 @@ const ALLOWED_PATHS = new Set([
   '/trabajo',
   '/aprobaciones',
   '/incidencias',
+  '/salud-datos',
 ]);
 const ALLOWED_KEYS = new Set([
   'q',
@@ -83,6 +84,20 @@ export const BUILT_IN_SAVED_VIEWS: readonly SavedView[] = [
     href: '/incidencias?view=assigned',
     source: 'built-in',
   },
+  {
+    id: 'approvals-pending',
+    label: 'Aprobaciones pendientes',
+    detail: 'Lista existente. Decisiones en espera.',
+    href: '/aprobaciones',
+    source: 'built-in',
+  },
+  {
+    id: 'data-health',
+    label: 'Datos por revisar',
+    detail: 'Hallazgos de salud de datos que usted puede ver.',
+    href: '/salud-datos',
+    source: 'built-in',
+  },
 ];
 
 export function savedViewsStorageKey(actorKey: string): string | null {
@@ -117,6 +132,7 @@ const PATH_LABEL: Record<string, string> = {
   '/trabajo': 'Trabajo',
   '/aprobaciones': 'Aprobaciones',
   '/incidencias': 'Incidencias',
+  '/salud-datos': 'Salud de datos',
 };
 
 export function labelForViewHref(href: string): string | null {
