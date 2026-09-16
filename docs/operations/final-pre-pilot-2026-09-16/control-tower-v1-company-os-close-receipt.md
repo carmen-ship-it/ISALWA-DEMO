@@ -184,7 +184,12 @@ Redeploy tip `f58ac12` (lane B) — deploy gate blocked in this agent session af
 
 ---
 
-Evidence roots:  
-`docs/operations/final-pre-pilot-2026-09-16/operating-loop-hosted-bv-receipt.md`  
-`docs/operations/final-pre-pilot-2026-09-16/entregas-ops-desk-integrate-receipt.md`  
-`docs/operations/final-pre-pilot-2026-09-16/lane-b-dossier-timeline-receipt.md`
+## Follow-up integrate (post-worker completions)
+
+| Worker | Action |
+|---|---|
+| [SYNTH re-BV ops write loop](be1e7d18-b2c0-48bb-987a-3aea9545bc0c) @ `5ca1472` | **Superseded** — later CT BV @ `095bb7f` proved Nota/Salida/Entrega/PDF from `/entregas` |
+| [Lane B dossier](85feddac-e740-4ff0-b319-31d56cd98e3d) | Already merged earlier |
+| [Lane D Work Attention](4b59c147-f810-4e22-a1ab-80ce6a578ebf) | **Merged** into tip |
+| [Lane B Pedido timeline+docs](18db1f43-1622-4f85-9959-1e1009af8c0b) | **Integrated** (libs + Pedido dossier/timeline projection; kept CT Entregas panel) |
+

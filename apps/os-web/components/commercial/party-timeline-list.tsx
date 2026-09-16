@@ -1,5 +1,6 @@
 import type { PartyTimelineEntryReadModel } from '@isalwa/os-contracts';
 import { formatTimestamp } from '@/lib/commercial/labels';
+import { timelineEntryHref } from '@/lib/commercial/pedido-timeline';
 import {
   HISTORIAL_SCOPE_COPY,
   timelineEntrySummary,
@@ -24,6 +25,7 @@ export function PartyTimelineList({ items, memberLabels }: PartyTimelineListProp
             entry.actorMemberId && memberLabels
               ? memberLabels.get(entry.actorMemberId)
               : null;
+          const href = timelineEntryHref(entry);
           return (
             <li key={entry.entryId} className="bg-white py-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -43,6 +45,16 @@ export function PartyTimelineList({ items, memberLabels }: PartyTimelineListProp
               <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
                 {timelineEntrySummary(entry)}
               </p>
+              {href ? (
+                <p className="mt-2">
+                  <a
+                    href={href}
+                    className="isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                  >
+                    Abrir
+                  </a>
+                </p>
+              ) : null}
             </li>
           );
         })}

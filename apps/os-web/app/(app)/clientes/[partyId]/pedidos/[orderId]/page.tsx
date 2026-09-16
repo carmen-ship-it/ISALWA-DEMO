@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
+import { DocumentDossierPanel } from '@/components/commercial/document-dossier-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
@@ -9,7 +10,6 @@ import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { OrderCasePanel } from '@/components/operations/order-case-panel';
 import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
 import { PageHeader } from '@/components/shell/page-header';
-import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -18,6 +18,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { composeDocumentDossier } from '@/lib/commercial/document-dossier';
 import {
   formatOrderStatus,
   formatTimestamp,
@@ -27,8 +28,10 @@ import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { orderNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { projectPedidoTimeline } from '@/lib/commercial/pedido-timeline';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { reportIssueContextFromOrder } from '@/lib/issue/report-context';
+import type { IssueListItem } from '@/lib/issue/types';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -75,12 +78,15 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     const issueContext = reportIssueContextFromOrder(order.orderId, order.orderNumber, partyId);
 
     let sourceQuoteNumber: string | null = null;
+    let sourceQuote: Awaited<ReturnType<typeof client.getQuote>>['quote'] | null = null;
     if (order.quoteId) {
       try {
-        const { quote } = await client.getQuote(order.quoteId);
-        sourceQuoteNumber = quote.quoteNumber;
+        const pack = await client.getQuote(order.quoteId);
+        sourceQuote = pack.quote;
+        sourceQuoteNumber = pack.quote.quoteNumber;
       } catch {
         sourceQuoteNumber = null;
+        sourceQuote = null;
       }
     }
     let approvalMemberLabels = new Map<string, string>();
@@ -150,12 +156,12 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         productRef: string | null;
       }>;
     }> = [];
-    let deliveryTimeline: Array<{
+    let deliveryEvents: Array<{
       id: string;
       eventType: string;
       occurredAt: string;
-      label: string;
-      detail: string;
+      payload?: Record<string, unknown>;
+      actorMemberId?: string | null;
     }> = [];
     try {
       const docs = await client.get<{
@@ -181,41 +187,71 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           eventType: string;
           occurredAt: string;
           payload?: Record<string, unknown>;
+          actorMemberId?: string | null;
         }>;
       }>('/delivery-notes', { orderId: order.orderId });
       deliveryNotes = docs.notes ?? [];
-      deliveryTimeline = (docs.timeline ?? []).map((event) => {
-        const payload = event.payload ?? {};
-        const label =
-          event.eventType === 'delivery_note.created'
-            ? 'Nota de entrega creada'
-            : event.eventType === 'warehouse_exit.recorded'
-              ? 'Salida de almacén'
-              : event.eventType === 'customer_delivery.recorded'
-                ? 'Entrega al cliente'
-                : event.eventType === 'delivery_note.corrected'
-                  ? 'Nota corregida'
-                  : 'Evento registrado';
-        const detail =
-          event.eventType === 'delivery_note.created'
-            ? `Documento ${typeof payload.internalDocumentRef === 'string' ? payload.internalDocumentRef : 'emitido'}`
-            : event.eventType === 'warehouse_exit.recorded'
-              ? 'Mercadería salió del almacén'
-              : event.eventType === 'customer_delivery.recorded'
-                ? typeof payload.receivedBy === 'string' && payload.receivedBy
-                  ? `Recibido por ${payload.receivedBy}`
-                  : 'Entrega registrada al cliente'
-                : event.eventType === 'delivery_note.corrected'
-                  ? typeof payload.reason === 'string' && payload.reason
-                    ? payload.reason
-                    : 'Documento corregido o anulado'
-                  : 'Evento del pedido';
-        return { id: event.id, eventType: event.eventType, occurredAt: event.occurredAt, label, detail };
-      });
+      deliveryEvents = docs.timeline ?? [];
     } catch {
       deliveryNotes = [];
-      deliveryTimeline = [];
+      deliveryEvents = [];
     }
+
+    let partyTimelineItems: Awaited<ReturnType<typeof client.listPartyTimeline>>['items'] = [];
+    try {
+      const timelinePage = await client.listPartyTimeline(partyId, { limit: 50 });
+      partyTimelineItems = timelinePage.items ?? [];
+    } catch {
+      partyTimelineItems = [];
+    }
+
+    let linkedIssues: IssueListItem[] = [];
+    try {
+      const issuePage = await client.listIssues({ view: 'all', partyId, limit: 20 });
+      linkedIssues = (issuePage.items ?? [])
+        .map((item) => ({
+          issueId: item.issueId,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          reporterMemberId: item.reporterMemberId,
+          ownerMemberId: item.ownerMemberId,
+          createdAt: item.createdAt,
+          references: item.references ?? [],
+        }))
+        .filter((item) =>
+          item.references.some(
+            (ref) => ref.referenceType === 'order' && ref.referenceId === order.orderId,
+          ),
+        );
+    } catch {
+      linkedIssues = [];
+    }
+
+    const pedidoTimeline = projectPedidoTimeline({
+      partyId,
+      orderId: order.orderId,
+      partyTimelineEntries: partyTimelineItems,
+      deliveryEvents,
+      linkedIssues,
+    });
+
+    const deliveryTimeline = pedidoTimeline.map((item) => ({
+      id: item.id,
+      eventType: item.eventType,
+      occurredAt: item.occurredAt,
+      label: item.label,
+      detail: item.detail,
+      href: item.href,
+    }));
+
+    const dossierItems = composeDocumentDossier({
+      partyId,
+      quotes: sourceQuote ? [sourceQuote] : [],
+      deliveryNotes,
+      timelineEntries: partyTimelineItems,
+      quoteIdFilter: order.quoteId,
+    });
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -342,6 +378,8 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </PageSection>
         ) : null}
 
+        <DocumentDossierPanel partyId={partyId} items={dossierItems} />
+
         <DeliveryDocumentsPanel
           partyId={partyId}
           orderId={order.orderId}
@@ -401,11 +439,8 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </p>
           <div className="mt-6">
             <ReportIssueTrigger
-              context={{
-                referenceType: 'order',
-                referenceId: order.orderId,
-                referenceLabel: order.orderNumber,
-              }}
+              context={issueContext}
+              reportedByLabel={reportedByLabel}
               variant="secondary"
             />
           </div>

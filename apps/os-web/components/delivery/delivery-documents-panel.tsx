@@ -36,6 +36,7 @@ export type DeliveryTimelineItemView = {
   occurredAt: string;
   label: string;
   detail: string;
+  href?: string | null;
 };
 
 export type DeliveryDocumentsPanelProps = {
@@ -385,7 +386,22 @@ export function DeliveryDocumentsPanel({
                 id: item.id,
                 label: item.label,
                 meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
-                body: <span>{item.detail}</span>,
+                body: (
+                  <span>
+                    {item.detail}
+                    {item.href ? (
+                      <>
+                        {' · '}
+                        <a
+                          href={item.href}
+                          className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                        >
+                          Abrir
+                        </a>
+                      </>
+                    ) : null}
+                  </span>
+                ),
               }))}
             />
           </div>
