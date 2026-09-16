@@ -2,6 +2,7 @@
 
 **When:** 2026-09-16  
 **Branch:** `agent2/post-sale-spine`  
+**SHA:** `2c6cd1185a2a53e85f20b322aa450ac3cdadcc18`  
 **Base / map tip:** `03745ab522bb6f4e83b27fbc3353efd598ab07ac` (fast-forwarded)  
 **Lane:** Pedido → Producción → Almacén physical receive (not allocate, not delivery)  
 **Deploy:** NO · **REAL_SEVEN_MUTATED:** NO
