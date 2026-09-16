@@ -16,6 +16,7 @@ import type {
   OwnedOrderRecord,
   OwnedQuoteRecord,
   PendingApprovalForMemberRecord,
+  ActiveCustomerCoverageRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -37,6 +38,7 @@ export type {
   OwnedQuoteRecord,
   OwnedOrderRecord,
   PendingApprovalForMemberRecord,
+  ActiveCustomerCoverageRecord,
   IdempotencyRecord,
 } from './store-types';
 
@@ -56,6 +58,7 @@ export class MemoryOsStore implements OsWorkforceStore {
   quotes: OwnedQuoteRecord[] = [];
   orders: OwnedOrderRecord[] = [];
   approvalRequests: PendingApprovalForMemberRecord[] = [];
+  customerCoverageGrants: ActiveCustomerCoverageRecord[] = [];
   businessEvents: StoredBusinessEvent[] = [];
   auditLogs: StoredAuditLog[] = [];
   outbox: StoredOutboxMessage[] = [];
@@ -249,6 +252,31 @@ export class MemoryOsStore implements OsWorkforceStore {
         d.startsAt <= asOf &&
         d.expiresAt > asOf,
     );
+  }
+
+  async listActiveCustomerCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<ActiveCustomerCoverageRecord[]> {
+    const active = this.customerCoverageGrants.filter(
+      (g) =>
+        g.organizationId === organizationId &&
+        g.revokedAt === null &&
+        g.startsAt <= asOf &&
+        (g.endsAt === null || g.endsAt > asOf) &&
+        (g.primaryOwnerMemberId === memberId || g.actingAdvisorMemberId === memberId),
+    );
+    const out: ActiveCustomerCoverageRecord[] = [];
+    for (const g of active) {
+      if (g.primaryOwnerMemberId === memberId) {
+        out.push({ ...g, role: 'primary' });
+      }
+      if (g.actingAdvisorMemberId === memberId) {
+        out.push({ ...g, role: 'acting' });
+      }
+    }
+    return out;
   }
 
   async listDelegationsInvolvingMember(

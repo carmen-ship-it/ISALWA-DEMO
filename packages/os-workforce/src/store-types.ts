@@ -135,6 +135,23 @@ export type PendingApprovalForMemberRecord = {
   status: string;
 };
 
+/**
+ * Active customer coverage grant involving the member as primary owner or acting advisor.
+ * Distinct from CommercialAccount.ownerMemberId.
+ */
+export type ActiveCustomerCoverageRecord = {
+  id: string;
+  organizationId: string;
+  customerPartyId: string;
+  customerDisplayName: string | null;
+  primaryOwnerMemberId: string;
+  actingAdvisorMemberId: string;
+  role: 'primary' | 'acting';
+  startsAt: Date;
+  endsAt: Date | null;
+  revokedAt: Date | null;
+};
+
 export type IdempotencyRecord = {
   organizationId: string;
   key: string;

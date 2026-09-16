@@ -283,4 +283,148 @@ describe('termination preflight fail-closed', () => {
       assert.doesNotMatch(cat.key, /member\.|quote\.|order\./);
     }
   });
+
+  it('blocks TerminateMember on active primary customer coverage', async () => {
+    const store = new MemoryOsStore();
+    const auth = new LocalAuthProviderPort();
+    const svc = new WorkforceCommandService(store, auth);
+    const org = await store.seedOrganization('ISALWA', 'isalwa');
+    const { admin, memberId } = await seedActiveMember(store, svc, org.id);
+    const other = await store.seedAdminMember(org.id, 'other@isalwa.bo', 'Other', 'User');
+    const asOf = new Date('2026-06-01T12:00:00.000Z');
+    const partyId = createId();
+
+    store.customerCoverageGrants.push({
+      id: createId(),
+      organizationId: org.id,
+      customerPartyId: partyId,
+      customerDisplayName: 'Cliente Cobertura',
+      primaryOwnerMemberId: memberId,
+      actingAdvisorMemberId: other.member.id,
+      role: 'primary',
+      startsAt: new Date('2026-01-01T00:00:00.000Z'),
+      endsAt: null,
+      revokedAt: null,
+    });
+
+    const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    assert.equal(impact.canTerminate, false);
+    const primary = impact.categories.find((c) => c.key === 'primary_customer_coverage')!;
+    assert.equal(primary.count, 1);
+    assert.equal(primary.label, 'Clientes bajo su responsabilidad');
+    assert.match(primary.items[0]!.summary, /Responsable principal · Cliente Cobertura/);
+    assert.ok(primary.foundationGaps?.[0]?.includes('FOUNDATION_GAP'));
+
+    await assert.rejects(
+      () =>
+        svc.execute(
+          'TerminateMember',
+          ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+          { memberId },
+        ),
+      /VALIDATION_FAILED/,
+    );
+  });
+
+  it('blocks on active acting coverage; expired and revoked do not block', async () => {
+    const store = new MemoryOsStore();
+    const auth = new LocalAuthProviderPort();
+    const svc = new WorkforceCommandService(store, auth);
+    const org = await store.seedOrganization('ISALWA', 'isalwa');
+    const { admin, memberId } = await seedActiveMember(store, svc, org.id);
+    const other = await store.seedAdminMember(org.id, 'other2@isalwa.bo', 'Other', 'Two');
+    const asOf = new Date('2026-06-01T12:00:00.000Z');
+
+    store.customerCoverageGrants.push({
+      id: createId(),
+      organizationId: org.id,
+      customerPartyId: createId(),
+      customerDisplayName: 'Temporal Activo',
+      primaryOwnerMemberId: other.member.id,
+      actingAdvisorMemberId: memberId,
+      role: 'acting',
+      startsAt: new Date('2026-01-01T00:00:00.000Z'),
+      endsAt: null,
+      revokedAt: null,
+    });
+    store.customerCoverageGrants.push({
+      id: createId(),
+      organizationId: org.id,
+      customerPartyId: createId(),
+      customerDisplayName: 'Expirado',
+      primaryOwnerMemberId: other.member.id,
+      actingAdvisorMemberId: memberId,
+      role: 'acting',
+      startsAt: new Date('2025-01-01T00:00:00.000Z'),
+      endsAt: new Date('2025-12-01T00:00:00.000Z'),
+      revokedAt: null,
+    });
+    store.customerCoverageGrants.push({
+      id: createId(),
+      organizationId: org.id,
+      customerPartyId: createId(),
+      customerDisplayName: 'Revocado',
+      primaryOwnerMemberId: other.member.id,
+      actingAdvisorMemberId: memberId,
+      role: 'acting',
+      startsAt: new Date('2026-01-01T00:00:00.000Z'),
+      endsAt: null,
+      revokedAt: new Date('2026-02-01T00:00:00.000Z'),
+    });
+
+    let impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    assert.equal(impact.canTerminate, false);
+    const acting = impact.categories.find((c) => c.key === 'acting_customer_coverage')!;
+    assert.equal(acting.count, 1);
+    assert.equal(acting.label, 'Cobertura temporal activa');
+    assert.match(acting.items[0]!.summary, /Cobertura temporal · Temporal Activo/);
+
+    // Clear active grant only — expired/revoked remain but must not block.
+    store.customerCoverageGrants = store.customerCoverageGrants.filter(
+      (g) => g.customerDisplayName !== 'Temporal Activo',
+    );
+    impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    assert.equal(impact.canTerminate, true);
+    assert.equal(impact.categories.find((c) => c.key === 'acting_customer_coverage')!.count, 0);
+
+    await svc.execute(
+      'TerminateMember',
+      ctx(org.id, admin.member.id, admin.person.id, admin.auth.id),
+      { memberId, reason: 'Cobertura resuelta' },
+    );
+    const terminated = store.businessEvents.find((e) => e.eventType === 'member.terminated');
+    assert.ok(terminated);
+    assert.equal(
+      (terminated!.payload as { reason?: string } | undefined)?.reason,
+      'Cobertura resuelta',
+    );
+  });
+
+  it('excludes cross-tenant customer coverage from termination impact', async () => {
+    const store = new MemoryOsStore();
+    const auth = new LocalAuthProviderPort();
+    const svc = new WorkforceCommandService(store, auth);
+    const org = await store.seedOrganization('ISALWA', 'isalwa');
+    const foreign = await store.seedOrganization('OTHER', 'other');
+    const { memberId } = await seedActiveMember(store, svc, org.id);
+    const other = await store.seedAdminMember(org.id, 'peer@isalwa.bo', 'Peer', 'User');
+    const asOf = new Date('2026-06-01T12:00:00.000Z');
+
+    store.customerCoverageGrants.push({
+      id: createId(),
+      organizationId: foreign.id,
+      customerPartyId: createId(),
+      customerDisplayName: 'Foreign',
+      primaryOwnerMemberId: memberId,
+      actingAdvisorMemberId: other.member.id,
+      role: 'primary',
+      startsAt: new Date('2026-01-01T00:00:00.000Z'),
+      endsAt: null,
+      revokedAt: null,
+    });
+
+    const impact = await collectTerminationImpact(store, org.id, memberId, asOf);
+    assert.equal(impact.canTerminate, true);
+    assert.equal(impact.categories.find((c) => c.key === 'primary_customer_coverage')!.count, 0);
+  });
 });

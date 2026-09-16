@@ -49,4 +49,18 @@ describe('admin commercial continuity (member detail)', () => {
     assert.match(impact, /\/aprobaciones/);
     assert.doesNotMatch(impact, /people\.admin|commercial\.account\.reassign|capability/);
   });
+
+  it('surfaces customer coverage blockers without inventing coverage commands', () => {
+    const impact = read('components/admin/termination-impact-panel.tsx');
+    assert.match(impact, /primary_customer_coverage/);
+    assert.match(impact, /acting_customer_coverage/);
+    assert.match(impact, /cobertura de clientes|cobertura temporal/i);
+    assert.match(impact, /quien administra la cobertura comercial/);
+    assert.doesNotMatch(impact, /GrantCustomerCoverage|RevokeCustomerCoverage|ReplacePrimary/);
+
+    const wrapper = read('components/admin/commercial-continuity-panel.tsx');
+    assert.match(wrapper, /Clientes bajo su responsabilidad/);
+    assert.match(wrapper, /Cobertura temporal activa/);
+    assert.doesNotMatch(wrapper, /GrantCustomerCoverage|OsCustomerCoverageGrant|capability/);
+  });
 });

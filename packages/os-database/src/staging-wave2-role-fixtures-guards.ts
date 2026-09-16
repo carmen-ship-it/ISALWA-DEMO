@@ -53,10 +53,22 @@ export const ALLOWED_SYNTHETIC_EMAILS = [
 
 export type AllowedSyntheticEmail = (typeof ALLOWED_SYNTHETIC_EMAILS)[number];
 
-/** Business roles (9) + dedicated fixture seed actor (1). */
+/** Business roles (9) + fixture seed + Wave A continuity fixture emails. */
+export const WAVE_A_CONTINUITY_FIXTURE_EMAILS = [
+  'w2.people-admin@isalwa.demo',
+  'w2.cont-a@isalwa.demo',
+  'w2.cont-b@isalwa.demo',
+  'w2.cont-commercial@isalwa.demo',
+  'w2.cont-approver@isalwa.demo',
+  'w2.cont-manager@isalwa.demo',
+  'w2.cont-report@isalwa.demo',
+  'w2.cont-coverage@isalwa.demo',
+] as const;
+
 export const ALLOWED_FIXTURE_TOOL_EMAILS = [
   ...ALLOWED_SYNTHETIC_EMAILS,
   WAVE2_FIXTURE_SEED_EMAIL,
+  ...WAVE_A_CONTINUITY_FIXTURE_EMAILS,
 ] as const;
 
 export const ROLE_EMAILS: Record<

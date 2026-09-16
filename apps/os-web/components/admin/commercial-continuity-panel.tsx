@@ -36,6 +36,15 @@ function commercialAccountLinks(impact: TerminationImpactResponse | null): Array
     .filter((row): row is { commercialAccountId: string; partyId: string } => row != null);
 }
 
+function coverageItems(
+  impact: TerminationImpactResponse | null,
+  key: 'primary_customer_coverage' | 'acting_customer_coverage',
+): Array<{ id: string; summary: string }> {
+  if (!impact) return [];
+  const category = impact.categories.find((c) => c.key === key);
+  return category?.items ?? [];
+}
+
 export function CommercialContinuityPanel({
   fromMemberId,
   fromMemberName,
@@ -45,11 +54,15 @@ export function CommercialContinuityPanel({
   terminationImpact,
 }: CommercialContinuityPanelProps) {
   const accounts = commercialAccountLinks(terminationImpact);
+  const primaryCoverage = coverageItems(terminationImpact, 'primary_customer_coverage');
+  const actingCoverage = coverageItems(terminationImpact, 'acting_customer_coverage');
   const hasAnything =
     opportunities.length > 0 ||
     accounts.length > 0 ||
     blockingQuotes.length > 0 ||
-    openOrders.length > 0;
+    openOrders.length > 0 ||
+    primaryCoverage.length > 0 ||
+    actingCoverage.length > 0;
 
   return (
     <PageSection card className="p-8" id="continuidad-comercial">
@@ -61,7 +74,8 @@ export function CommercialContinuityPanel({
 
       {!hasAnything ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">
-          No hay cuentas, oportunidades, cotizaciones ni pedidos activos detectados para esta persona.
+          No hay cuentas, oportunidades, cotizaciones, pedidos ni cobertura activa detectados para
+          esta persona.
         </p>
       ) : null}
 
@@ -87,6 +101,43 @@ export function CommercialContinuityPanel({
                 </Link>
               </li>
             ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {primaryCoverage.length > 0 ? (
+        <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
+          <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+            Clientes bajo su responsabilidad
+          </p>
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+            No hay reasignación de cobertura de clientes en el producto. Mientras esta persona siga
+            como responsable principal, no se puede finalizar el acceso. Quien administra la
+            cobertura comercial debe resolverlo — administración de personas no concede ese permiso.
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-[var(--isalwa-slate)]">
+            {primaryCoverage.slice(0, 8).map((item) => (
+              <li key={item.id}>{item.summary}</li>
+            ))}
+            {primaryCoverage.length > 8 ? (
+              <li>…y {primaryCoverage.length - 8} más</li>
+            ) : null}
+          </ul>
+        </div>
+      ) : null}
+
+      {actingCoverage.length > 0 ? (
+        <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
+          <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Cobertura temporal activa</p>
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+            No hay revocación de cobertura temporal en pantalla. Mientras siga activa, no se puede
+            finalizar el acceso. Pida a quien administra la cobertura comercial que la finalice.
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-[var(--isalwa-slate)]">
+            {actingCoverage.slice(0, 8).map((item) => (
+              <li key={item.id}>{item.summary}</li>
+            ))}
+            {actingCoverage.length > 8 ? <li>…y {actingCoverage.length - 8} más</li> : null}
           </ul>
         </div>
       ) : null}

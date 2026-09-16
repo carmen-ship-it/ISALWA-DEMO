@@ -1,4 +1,7 @@
-import type { TerminationImpactReadModel } from '@isalwa/os-contracts';
+import type {
+  TerminationImpactCategoryKey,
+  TerminationImpactReadModel,
+} from '@isalwa/os-contracts';
 import type { OsWorkforceStore } from './os-workforce-store';
 
 export type TerminationImpactLookup = Pick<
@@ -11,24 +14,10 @@ export type TerminationImpactLookup = Pick<
   | 'listPendingApprovalsForApprover'
   | 'listActiveDirectReportAssignments'
   | 'listActiveDelegationsInvolvingMember'
+  | 'listActiveCustomerCoverageInvolvingMember'
 >;
 
-/**
- * Stable category codes for termination preflight (not business-event keys).
- * Spanish labels are returned separately for UI.
- */
-export const TERMINATION_IMPACT_CATEGORY_KEYS = [
-  'open_work',
-  'commercial_accounts',
-  'open_opportunities',
-  'active_quotes',
-  'active_orders',
-  'pending_approvals',
-  'direct_reports',
-  'active_delegations',
-] as const;
-
-export type TerminationImpactCategoryKey = (typeof TERMINATION_IMPACT_CATEGORY_KEYS)[number];
+export type { TerminationImpactCategoryKey };
 
 export type TerminationImpactItem = {
   id: string;
@@ -47,6 +36,9 @@ export type TerminationImpactCategory = {
 
 export type TerminationImpact = TerminationImpactReadModel;
 
+/** Re-export contract keys for workforce callers that historically imported from here. */
+export { TERMINATION_IMPACT_CATEGORY_KEYS } from '@isalwa/os-contracts';
+
 const CATEGORY_LABELS: Record<TerminationImpactCategoryKey, string> = {
   open_work: 'Trabajos abiertos',
   commercial_accounts: 'Cuentas comerciales',
@@ -56,7 +48,12 @@ const CATEGORY_LABELS: Record<TerminationImpactCategoryKey, string> = {
   pending_approvals: 'Aprobaciones pendientes',
   direct_reports: 'Reportes directos',
   active_delegations: 'Delegaciones activas',
+  primary_customer_coverage: 'Clientes bajo su responsabilidad',
+  acting_customer_coverage: 'Cobertura temporal activa',
 };
+
+const COVERAGE_FOUNDATION_GAP =
+  'FOUNDATION_GAP: No governed Grant/Revoke/ReplaceCustomerCoverage command — terminate blocks on active coverage; resolution UI/command not productized.';
 
 /** Quote statuses that release ownership for terminate (product has no "closed" quote status). */
 export function isQuoteOwnershipReleased(status: string): boolean {
@@ -73,8 +70,13 @@ function category(
     label: CATEGORY_LABELS[key],
     count: items.length,
     items,
-    ...(foundationGaps && foundationGaps.length > 0 ? { foundationGaps } : {}),
+    ...(foundationGaps && foundationGaps.length > 0 ? { foundationGaps } : undefined),
   };
+}
+
+function coverageCustomerLabel(displayName: string | null, customerPartyId: string): string {
+  const name = displayName?.trim();
+  return name && name.length > 0 ? name : `Cliente ${customerPartyId}`;
 }
 
 /**
@@ -96,6 +98,7 @@ export async function collectTerminationImpact(
     approvals,
     directReports,
     delegations,
+    coverage,
   ] = await Promise.all([
     store.listOpenWorkItemsForMember(organizationId, memberId),
     store.listActiveCommercialAccountsForOwner(organizationId, memberId),
@@ -105,7 +108,11 @@ export async function collectTerminationImpact(
     store.listPendingApprovalsForApprover(organizationId, memberId),
     store.listActiveDirectReportAssignments(organizationId, memberId, asOf),
     store.listActiveDelegationsInvolvingMember(organizationId, memberId, asOf),
+    store.listActiveCustomerCoverageInvolvingMember(organizationId, memberId, asOf),
   ]);
+
+  const primaryCoverage = coverage.filter((c) => c.role === 'primary');
+  const actingCoverage = coverage.filter((c) => c.role === 'acting');
 
   const categories: TerminationImpactCategory[] = [
     category(
@@ -153,6 +160,22 @@ export async function collectTerminationImpact(
             : `recibida de ${d.delegatorMemberId}`;
         return { id: d.id, summary: `Delegación ${role}` };
       }),
+    ),
+    category(
+      'primary_customer_coverage',
+      primaryCoverage.map((c) => ({
+        id: c.id,
+        summary: `Responsable principal · ${coverageCustomerLabel(c.customerDisplayName, c.customerPartyId)}`,
+      })),
+      primaryCoverage.length > 0 ? [COVERAGE_FOUNDATION_GAP] : undefined,
+    ),
+    category(
+      'acting_customer_coverage',
+      actingCoverage.map((c) => ({
+        id: c.id,
+        summary: `Cobertura temporal · ${coverageCustomerLabel(c.customerDisplayName, c.customerPartyId)}`,
+      })),
+      actingCoverage.length > 0 ? [COVERAGE_FOUNDATION_GAP] : undefined,
     ),
   ];
 

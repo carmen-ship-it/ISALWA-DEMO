@@ -364,6 +364,8 @@ export const TERMINATION_IMPACT_CATEGORY_KEYS = [
   'pending_approvals',
   'direct_reports',
   'active_delegations',
+  'primary_customer_coverage',
+  'acting_customer_coverage',
 ] as const;
 
 export type TerminationImpactCategoryKey = (typeof TERMINATION_IMPACT_CATEGORY_KEYS)[number];

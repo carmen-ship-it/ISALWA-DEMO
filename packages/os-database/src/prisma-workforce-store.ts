@@ -18,6 +18,7 @@ import type {
   OwnedOrderRecord,
   OwnedQuoteRecord,
   PendingApprovalForMemberRecord,
+  ActiveCustomerCoverageRecord,
   PersonRecord,
   RoleAssignmentRecord,
   WorkItemRecord,
@@ -360,6 +361,57 @@ export class PrismaOsWorkforceStore implements OsWorkforceStore {
       expiresAt: d.expiresAt,
       revokedAt: d.revokedAt,
     }));
+  }
+
+  async listActiveCustomerCoverageInvolvingMember(
+    organizationId: string,
+    memberId: string,
+    asOf: Date,
+  ): Promise<ActiveCustomerCoverageRecord[]> {
+    const rows = await this.db().osCustomerCoverageGrant.findMany({
+      where: {
+        organizationId,
+        grantType: 'commercial.customer.coverage',
+        revokedAt: null,
+        startsAt: { lte: asOf },
+        OR: [{ endsAt: null }, { endsAt: { gt: asOf } }],
+        AND: [
+          {
+            OR: [{ primaryOwnerMemberId: memberId }, { actingAdvisorMemberId: memberId }],
+          },
+        ],
+      },
+    });
+    const partyIds = [...new Set(rows.map((r) => r.customerPartyId))];
+    const parties =
+      partyIds.length === 0
+        ? []
+        : await this.db().osParty.findMany({
+            where: { organizationId, id: { in: partyIds } },
+            select: { id: true, displayName: true },
+          });
+    const nameById = new Map(parties.map((p) => [p.id, p.displayName]));
+    const out: ActiveCustomerCoverageRecord[] = [];
+    for (const row of rows) {
+      const base = {
+        id: row.id,
+        organizationId: row.organizationId,
+        customerPartyId: row.customerPartyId,
+        customerDisplayName: nameById.get(row.customerPartyId) ?? null,
+        primaryOwnerMemberId: row.primaryOwnerMemberId,
+        actingAdvisorMemberId: row.actingAdvisorMemberId,
+        startsAt: row.startsAt,
+        endsAt: row.endsAt,
+        revokedAt: row.revokedAt,
+      };
+      if (row.primaryOwnerMemberId === memberId) {
+        out.push({ ...base, role: 'primary' });
+      }
+      if (row.actingAdvisorMemberId === memberId) {
+        out.push({ ...base, role: 'acting' });
+      }
+    }
+    return out;
   }
 
   async listDelegationsInvolvingMember(

@@ -180,7 +180,7 @@ describe('staging-wave2-role-fixtures guards', () => {
     assert.doesNotThrow(() => assertFixtureToolEmailAllowed(WAVE2_FIXTURE_SEED_EMAIL));
     assert.doesNotThrow(() => assertIsFixtureSeedEmail(WAVE2_FIXTURE_SEED_EMAIL));
     assert.throws(() => assertIsFixtureSeedEmail('w2.asesor@isalwa.demo'), /EXPECTED_FIXTURE_SEED_EMAIL/);
-    assert.equal(ALLOWED_FIXTURE_TOOL_EMAILS.length, 10);
+    assert.equal(ALLOWED_FIXTURE_TOOL_EMAILS.length, 18);
   });
 
   it('H: exact 9-role assignment set; seed actor not in V1 map', () => {

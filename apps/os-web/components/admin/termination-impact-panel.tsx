@@ -58,6 +58,18 @@ const RESOLUTION_HINTS: Partial<
     hash: 'continuidad-delegaciones',
     linkLabel: 'Delegaciones',
   },
+  primary_customer_coverage: {
+    text:
+      'No hay reasignación de cobertura de clientes en el producto. Mientras esta persona siga como responsable principal de un cliente, no se puede finalizar el acceso. Eso requiere quien administra la cobertura comercial — no se concede desde administración de personas. Enlaces en',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
+  },
+  acting_customer_coverage: {
+    text:
+      'No hay revocación de cobertura temporal en pantalla. Mientras la cobertura temporal siga activa, no se puede finalizar el acceso. Pida a quien administra la cobertura comercial que la finalice. Enlaces en',
+    hash: 'continuidad-comercial',
+    linkLabel: 'Continuidad comercial',
+  },
 };
 
 /**

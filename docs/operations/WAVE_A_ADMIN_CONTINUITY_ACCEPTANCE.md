@@ -1,7 +1,7 @@
 # WAVE A — Admin Continuity Acceptance
 
-**Date:** 2026-09-15  
-**Wave:** A — Admin Continuity + Safe Termination + Reassignment + Access Truth + Ops Dual Recovery  
+**Date:** 2026-09-15 / 2026-09-16 UTC  
+**Wave:** A — Admin Continuity + Safe Termination + Reassignment + Access Truth + Ops Dual Recovery + Customer Coverage Continuity  
 **Branch:** `wave-a/admin-continuity`  
 **Base SHA (hosted before wave):** `1fd0167aba1633a6978058b6f0e2ba3b6eb6c749`  
 **Hosted URL:** https://os-web-staging.onrender.com  
@@ -10,16 +10,54 @@
 
 ---
 
-## Verdict (post independent hosted verifier)
+## Verdict (current — post customer-coverage P0 close)
 
 | Gate | State |
 |------|--------|
-| Implementation | **IMPLEMENTED** (`b6a44f7`+) |
+| Implementation | **IMPLEMENTED** (coverage categories on termination impact + prior Wave A runtime) |
 | Automated tests | **TESTED** |
-| Integrated SHA (branch) | `941de265d8de589b25bb5225b733ac254b91ff2d` (`origin/wave-a/admin-continuity`) |
-| Deployed / Hosted Wave A | **NO** — live web still `1fd0167` |
-| Independent hosted BV | **CONDITIONAL** — access truth PASS; continuity E2E UNPROVEN ([receipt](wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md)) |
-| Overall Wave A | **CONDITIONAL** |
+| Exact deploy candidate | *(set at deploy — see close receipt)* |
+| Prior continuity runtime | `a97e17e156f58648beac4c0cd78d3245cc614e85` (hosted before this coverage pass) |
+| Independent hosted BV (continuity @ `a97e17e`) | **PASS** — SYNTH `w2.people-admin` ([synth close receipt](wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a-close-synth.md)) |
+| Customer coverage in preflight | **IMPLEMENTED** — awaiting this-pass deploy + BV |
+| Access-truth | **PASS** |
+| Thin-pilot recovery A/B | **OPEN** — Carmen decision (`thin-pilot-recovery-decision.md`) |
+| Overall Wave A technical close | **CONDITIONAL** until coverage deploy + hosted BV land |
+| Wave B | **NOT STARTED** |
+
+---
+
+## Evidence eras (do not collapse)
+
+### A — PRE-DEPLOY / EARLIER VERIFIER (historical)
+
+Receipt: [independent-verifier-wave-a.md](wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md) and early close attempt notes.
+
+At that time:
+
+| Item | Historical state |
+|------|------------------|
+| Hosted SHA | Often still `1fd0167` or pre-`a97e17e` |
+| SYNTH-scoped people.admin | **BLOCKED / UNPROVEN** |
+| ReassignWork → terminate → history | **UNPROVEN** |
+| Access-truth (system.admin ≠ people.admin; owner deny) | Already **PASS** |
+
+This era is **superseded** for continuity mutations. Keep as history only.
+
+### B — CURRENT POST-DEPLOY FINAL VERIFIER (continuity @ `a97e17e`)
+
+Receipt: [independent-verifier-wave-a-close-synth.md](wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a-close-synth.md)
+
+| Item | Current state |
+|------|---------------|
+| Hosted SHA | `a97e17e` web + api |
+| Actor | `w2.people-admin@isalwa.demo` on SYNTH only |
+| Continuity matrix (work reassign, terminate, blockers, mobile, cross-tenant, REAL none) | **PASS** |
+| Quote/order/approver reassignment commands | Still **FOUNDATION_GAP** (fail-closed; not invented) |
+
+### C — CUSTOMER COVERAGE P0 (this pass)
+
+Extends termination impact with `primary_customer_coverage` / `acting_customer_coverage`. Resolution command = **NONE** (**FOUNDATION_GAP**). Fail-closed required. Hosted BV for coverage follows deploy of this pass’s candidate SHA.
 
 ---
 
@@ -28,16 +66,10 @@
 | Item | Exact truth |
 |------|-------------|
 | OWNER ADMIN DENIAL | **EXPECTED** |
-| w2.owner email | `w2.owner@isalwa.demo` |
-| w2.owner roleKey (fixture plan) | Owner / `isalwa-manager` |
 | w2.owner scopes | `management.org.read`, `system.admin` — **no** `people.admin` |
-| `/administracion` gate | `probeAdminAccess` → `people.admin` / `GET /members` |
-| `/sistema` gate | exact `system.admin` via `mayOpenSystemControls` |
-| system.admin ⇒ people.admin | **NO** (`scopeImplies` identity-only; tests lock) |
-| Wave2 SYNTH fixtures with people.admin | **NONE** |
-| people.admin acceptance actor | Staging bootstrap admin (separate from Owner) **or** explicit SYNTH grant — not Owner |
-
-Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-05-owner-admin-truth.md`
+| `/administracion` gate | `people.admin` |
+| system.admin ⇒ people.admin | **NO** |
+| SYNTH people.admin acceptance actor | `w2.people-admin@isalwa.demo` (explicit SYNTH grant; not Owner; not REAL bootstrap) |
 
 ---
 
@@ -47,14 +79,11 @@ Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-05-owner-admi
 
 | Piece | Exact |
 |-------|--------|
-| Collector | `collectTerminationImpact` — `packages/os-workforce/src/termination-impact.ts` |
-| API | `GET /members/:memberId/termination-impact` — requires `people.admin` |
-| UI | `TerminationImpactPanel` on admin member detail (`#responsabilidades`) |
-| Gate | `TerminateMember` fail-closed when `!canTerminate` → `VALIDATION_FAILED` |
-| Spanish UX | “No puedes finalizar este acceso todavía. Esta persona todavía tiene responsabilidades activas que deben reasignarse.” |
-| Finalizar control | Disabled in UI when `terminationBlocked` |
+| Collector | `collectTerminationImpact` |
+| API | `GET /members/:memberId/termination-impact` — `people.admin` |
+| Gate | `TerminateMember` fail-closed when `!canTerminate` |
 
-### Categories inspected (fail-closed if count > 0)
+### Categories (fail-closed if count > 0)
 
 | Key | Spanish label |
 |-----|---------------|
@@ -66,159 +95,56 @@ Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-05-owner-admi
 | `pending_approvals` | Aprobaciones pendientes |
 | `direct_reports` | Reportes directos |
 | `active_delegations` | Delegaciones activas |
+| `primary_customer_coverage` | Clientes bajo su responsabilidad |
+| `acting_customer_coverage` | Cobertura temporal activa |
 
-### Historical attribution
-
-- Reassignment updates **current** owner only.
-- `createdByMemberId` / decision / audit / BusinessEvent history not rewritten.
-- Terminate reason (optional UI) now included in `member.terminated` payload when provided.
-- Suspend reason still **not** persisted in event payload (**gap**, not blocking terminate path).
-
----
-
-## ReassignWork
+### Customer coverage model (canonical)
 
 | Item | Exact |
 |------|--------|
-| Command | Existing `ReassignWork` only |
-| Authority | `people.admin` (`COMMAND_REQUIRED_SCOPES`) |
-| Web | Admin member detail — `ReassignWorkPanel` / **Trabajo activo** |
-| `/trabajo` | Still does **not** expose ReassignWork (by design this wave) |
-| Hosted BV | UNPROVEN until deploy |
+| Table | `OsCustomerCoverageGrant` |
+| Primary | `primaryOwnerMemberId` — responsible principal for customer party |
+| Acting | `actingAdvisorMemberId` — temporary coverer (≠ primary) |
+| Active | `revokedAt` null ∧ `startsAt ≤ asOf` ∧ (`endsAt` null ∨ `endsAt > asOf`) ∧ grantType `commercial.customer.coverage` |
+| Distinct from | `OsCommercialAccount.ownerMemberId` |
+| Authority to mutate | **NONE productized** — no Grant/Revoke/ReplaceCoverage command |
+| people.admin may resolve? | **NO** |
+| Terminate while active holder | **BLOCKED** (fail-closed) |
+| Expired/revoked | Do **not** block |
 
 ---
 
 ## Commercial continuity
 
-| Entity | Active rule | Governed reassignment | Admin UI this wave |
-|--------|-------------|----------------------|--------------------|
-| Commercial account | `status=active` + owner | `ReassignCommercialAccountOwner` (`commercial.account.reassign`) | Existing party reassign path; people.admin alone insufficient |
-| Opportunity | `status=open` | `AssignOpportunityOwner` (`people.admin` may) | `ReassignOpportunitiesPanel` on member detail |
-| Quote | not `cancelled` | **FOUNDATION_GAP** — no `AssignQuoteOwner` | Block terminate; cancel or wait |
-| Order | `status=open` | **FOUNDATION_GAP** — no `AssignOrderOwner` | Block terminate |
-
-Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-03-commercial-continuity.md`
+| Entity | Governed reassignment | Admin UI |
+|--------|----------------------|----------|
+| Commercial account | `ReassignCommercialAccountOwner` (`commercial.account.reassign`) | Continuidad comercial |
+| Opportunity | `AssignOpportunityOwner` | Reasignar oportunidades |
+| Quote / Order | **FOUNDATION_GAP** | Fail-closed copy |
+| Customer coverage | **FOUNDATION_GAP** | Fail-closed Spanish + Continuidad comercial listing |
 
 ---
 
-## Approval / manager / delegation
+## Thin-pilot recovery
 
-| Concern | Exact behavior |
-|---------|----------------|
-| Pending assigned approver | Blocks terminate; resolve via Approve/Reject; **no** ReassignApprover |
-| Manager | Optional in model; active direct reports **block** terminate; resolve via `ChangeManager` |
-| Delegation FROM/TO | Active (non-expired, non-revoked) **block** terminate; resolve via `RevokeDelegation` |
-| Suspend | Does **not** force reassignment |
+| Option | State |
+|--------|--------|
+| A — Dual recovery | **NOT DONE** |
+| B — Dated owner exception | **UNSIGNED** |
 
-Receipt: `docs/operations/wave-a-admin-continuity-2026-09-15/agent-04-approval-manager-delegation.md`
+Engineering does not choose for Carmen.
 
 ---
 
-## Access history
+## Remaining honest gaps (not Wave A continuity blockers once coverage BV passes)
 
-| Item | Exact |
-|------|--------|
-| State | **LIVE BUT PARTIAL** (bounded projection) |
-| Source | Existing BusinessEvents only (`MEMBER_ACCESS_HISTORY_EVENT_TYPES`) |
-| API | `GET /members/:memberId/access-history` — `people.admin` |
-| UI | `MemberAccessHistoryPanel` — capped 20 |
-| Full Audit Viewer | Deferred Wave C |
+1. Quote/Order owner reassignment — operational completeness / future foundation gap (fail-closed).
+2. ReassignApprover — future foundation gap (fail-closed via decide path).
+3. Coverage **resolution** command — still FOUNDATION_GAP; preflight closes the safety hole.
+4. Thin-pilot recovery A or B — Carmen only.
 
 ---
 
-## Role catalog
+## Next Company OS wave
 
-| Layer | Truth |
-|-------|--------|
-| Invite / ChangeRole UI | `<select>` from observed directory role keys — **no free-text field** |
-| Contract | `roleKey` still free-string |
-| Frozen governed enum | **FOUNDATION_GAP** — not invented from Cargo |
-
----
-
-## Ops dual recovery
-
-| Item | Exact |
-|------|--------|
-| Dual recovery today | **NOT EVIDENCED** |
-| Checklist | `docs/operations/ISALWA_OWNER_INFRASTRUCTURE_MAP.md` + `agent-08-ops-dual-recovery.md` |
-| External ownership mutated | **NO** |
-| BLOCKS THIN PILOT | Second Render admin + second Supabase Auth admin (or dated owner exception) |
-| BLOCKS PRODUCTION CLAIM | Company-owned accounts + billing + vault + production env (production still NOT EVIDENCED) |
-
----
-
-## Migrations
-
-**NONE.**
-
----
-
-## Tests (local gate — this wave)
-
-| Suite | Result (sample) |
-|-------|-----------------|
-| `@isalwa/os-contracts` | 162 pass |
-| `@isalwa/os-domain` | 232 pass |
-| `@isalwa/os-workforce` | 59 pass (incl. termination-preflight + adversarial) |
-| `@isalwa/os-work` | 10 pass |
-| `@isalwa/os-commercial` | 48 pass |
-| `@isalwa/os-database` (unit) | 34 pass |
-| os-web source-lock (reassign / ui-2b / follow-up / system-admin) | pass |
-| typecheck/build | os-api + os-web OK |
-
----
-
-## Deploy record
-
-| Service | SHA | Deploy ID | Status |
-|---------|-----|-----------|--------|
-| os-web-staging | `a97e17e156f58648beac4c0cd78d3245cc614e85` | `dep-dal04ie7bikc73dt380g` | **LIVE** |
-| os-api-staging | `a97e17e156f58648beac4c0cd78d3245cc614e85` | `dep-dal051740ujc7392vvr0` | **LIVE** |
-
-**Exact deploy candidate:** `a97e17e156f58648beac4c0cd78d3245cc614e85`  
-**Feature content SHA:** `b6a44f721bff2d1360d510127571818febb3efee` (ancestor)  
-**Health:** `/v1/health` + `/v1/health/ready` HTTP 200 after deploy  
-
-Migration: **NONE**
-
----
-
-## Independent hosted acceptance
-
-**Receipt (pre-deploy):** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a.md`  
-**Receipt (post-deploy close):** `docs/operations/wave-a-admin-continuity-2026-09-15/independent-verifier-wave-a-close.md`  
-**Tooling:** Playwright-core 1.51.1 + headless Google Chrome; Render CLI; isolation script; cursor-ide-browser **not** used.  
-**Overall (close):** **CONDITIONAL**
-
-| Check | Result |
-|-------|--------|
-| Hosted SHA matches candidate `a97e17e` | **PASS** (web + api) |
-| people.admin bootstrap (`carmen.staging@isalwa.demo`) | **PASS** admin reach — org = **REAL** only |
-| SYNTH-scoped people.admin | **BLOCKED** — none |
-| ReassignWork → terminate → history (SYNTH) | **UNPROVEN** |
-| Non-admin `/administracion` denied | **PASS** (`w2.asesor`) |
-| system.admin without people.admin | **PASS** (`w2.owner` deny admin; `/sistema` allow) |
-| Preflight + fail-closed (REAL read-only) | **PASS** |
-| Split-authority commercial copy | **PASS** |
-| Cross-tenant | **PASS** (17/17) |
-| Mobile 390 (panels) | **PASS** (read-only) |
-| REAL tenant mutations | **NONE** |
-| Protected seven | **UNCHANGED** |
-
----
-
-## Remaining Wave A blockers (honest)
-
-1. Hosted deploy + independent BV not yet done at doc write.
-2. SYNTH Wave2 personas lack `people.admin` — acceptance must use bootstrap admin or explicit SYNTH grant (not Owner).
-3. Quote/Order owner reassignment commands absent — terminate stays fail-closed (**FOUNDATION_GAP**).
-4. No ReassignApprover — pending approvals must be decided, not reassigned.
-5. Ops dual recovery not transferred — thin pilot needs exception or second admins.
-6. **Customer coverage grants** (`OsCustomerCoverageGrant` primary/acting advisor) are **not** in termination preflight — a terminated member can remain sole acting advisor (**FOUNDATION_GAP**; evidence `agent-03-commercial-continuity.md`).
-
----
-
-## Next Company OS wave (exact one)
-
-**Wave B — Attention / Commitments product honesty** (or Issues Memory if Control Tower reprioritizes — do not start both). Default next from recon: **Issue Memory** only after Continuity hosted BV closes P0 admin continuity.
+**Do not start Wave B** until Carmen recovery decision + this coverage pass hosted BV close.

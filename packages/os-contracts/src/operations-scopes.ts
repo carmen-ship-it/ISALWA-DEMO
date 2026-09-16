@@ -313,6 +313,14 @@ function coverageGrantIsActive(grant: CustomerCoverageGrant, asOf: Date): boolea
   return grant.grantType === COMMERCIAL_CUSTOMER_COVERAGE_GRANT_TYPE;
 }
 
+/** Public active-window check for termination preflight and commercial authority. */
+export function customerCoverageGrantIsActive(
+  grant: CustomerCoverageGrant,
+  asOf: Date,
+): boolean {
+  return coverageGrantIsActive(grant, asOf);
+}
+
 /**
  * A covering advisor may continue commercial work for one granted customer.
  * The primary owner stays. The acting advisor is recorded. Audit keeps the actor.
