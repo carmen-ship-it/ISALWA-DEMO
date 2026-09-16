@@ -85,7 +85,8 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 >  
 > No quiero que ustedes aprendan a trabajar “como ISALWA quiere”. Quiero que ISALWA aprenda cómo trabaja la empresa.  
 >  
-> *(Mapa / IA: **omitir** frases LIVE. Hoy: mapa NOT LIVE (basemap FAIL); IA NOT LIVE / HOSTED-UNPROVEN.)*  
+> El mapa permite ver geográficamente los clientes cuya ubicación ya está confirmada. No inventa ubicaciones: si faltan coordenadas, el sistema lo muestra como pendiente. (Hoy: 2 de 7 confirmados.)  
+> *(IA: **omitir** frase LIVE. Hoy: IA NOT LIVE / HOSTED-UNPROVEN.)*  
 >  
 > Les va a llegar una invitación a su correo para crear su propia contraseña.  
 > *(No afirmamos recuperación self-service desde el ingreso — **MISSING** hasta PASS verificado.)*  
@@ -94,7 +95,7 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 >  
 > ❤️ Carmen  
 
-`[PILOT POLICY]` · frases de producto `[CURRENT HOSTED STATE]` · Map/AI `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]`
+`[PILOT POLICY]` · frases de producto `[CURRENT HOSTED STATE]` · Map `[LIVE]` · `[BROWSER-VERIFIED]` · AI `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]`
 
 ---
 
@@ -109,7 +110,8 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 | First-week cadence | PILOT POLICY | [Source: Carmen briefing §16] |
 | Feedback prompts | PILOT POLICY | [Source: Carmen briefing §15] |
 | WhatsApp/email message tone | PILOT POLICY | [Source: Carmen briefing §17] |
-| Map/AI optional sentences | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: MAP ACCEPTANCE FAIL blank basemap; AI_ENABLED YES / assist FAIL max_completion_tokens pending] |
+| Map optional sentence | LIVE · BROWSER-VERIFIED | [Source: Mapbox hosted BV 23323f44] — Carmen-approved short map sentence OK to publish |
+| AI optional sentence | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI_ENABLED YES / assist FAIL max_completion_tokens pending re-BV] |
 | Password reset | MISSING | [Source: hosted `/login`] |
 | QA / Ver Como | never user feature | [Source: master TODAY rules] |
 
@@ -122,7 +124,7 @@ En el producto hay un canal de **feedback del producto** (distinto de “Reporta
 - [ ] Confirm Auth redirect allowlist includes invite complete URL  
 - [ ] After invite: verify login once each; do **not** store passwords  
 - [ ] Re-check password-reset UX before coaching self-service (current MISSING)  
-- [ ] Keep Map/AI as NOT LIVE until PASS (do not trust old PASS labels)  
+- [ ] Keep Map as LIVE / BROWSER-VERIFIED ([Source: Mapbox hosted BV 23323f44]); keep AI as NOT LIVE until re-BV PASS (do not trust old FAIL/PASS labels blindly)  
 - [ ] Never coach QA / Ver Como  
 
 **Editor bake-in:** PLANNED…USER-ACCEPTED separate; evidence priority; contradictions → NOT LIVE/HOSTED-UNPROVEN + EDITOR NOTES; no optimistic silent choice.

@@ -15,8 +15,8 @@
 | Motor / API | Reglas, guardados, recordatorios de fondo | Render · `[CURRENT HOSTED STATE]` |
 | Base de datos del negocio | Clientes, cotizaciones, pedidos, historial | PostgreSQL administrado en Render · `[CURRENT HOSTED STATE]` |
 | Acceso (login / invitaciones / sesiones) | Correo + contraseña por persona | Supabase Auth · **separado** de la base del negocio · `[CURRENT HOSTED STATE]` |
-| Mapa (baldosas en vivo) | Baldosas del mapa | Mapbox · **NOT LIVE** hoy (aceptación FAIL — basemap en blanco) · `[NOT LIVE]` · `[PENDING]` |
-| Asistencia IA | Resúmenes / borradores limitados | OpenAI · **NOT LIVE / HOSTED-UNPROVEN** (configurada; asistencia FAIL pendiente de patch) · `[NOT LIVE]` · `[HOSTED-UNPROVEN]` |
+| Mapa (baldosas en vivo) | Baldosas del mapa | Mapbox · **LIVE / BROWSER-VERIFIED** (aceptación PASS — basemap YES · 2/7 · inventados cero) · `[LIVE]` · `[BROWSER-VERIFIED]` |
+| Asistencia IA | Resúmenes / borradores limitados | OpenAI · **NOT LIVE / HOSTED-UNPROVEN** (configurada; asistencia FAIL pendiente de `max_completion_tokens` re-BV) · `[NOT LIVE]` · `[HOSTED-UNPROVEN]` |
 
 El piloto corre en un ambiente de **staging / piloto**. Es usable de verdad, pero **no** es todavía el entorno de producción formal con dominio de empresa.  
 `[CURRENT HOSTED STATE]` · `[PILOT POLICY]`
@@ -40,7 +40,7 @@ No es el modelo permanente. Si avanzan a producción formal, lo siguiente es: cu
 | Render Postgres | Verdad del negocio | Plan de base de datos | **VERIFY EXTERNALLY** | Staging ~USD 7–20 · `[ESTIMATE / PLANNING BAND]` | Prod + PITR ~USD 20–50 · `[ESTIMATE / PLANNING BAND]` |
 | Supabase Auth | Login / invitaciones | Free/Pro según volumen | **VERIFY EXTERNALLY** | ~USD 0–25 / ambiente · `[ESTIMATE / PLANNING BAND]` | Auth de producción empresa · `[FUTURE RECOMMENDATION]` |
 | GitHub | Código y revisiones | Asientos / org | **VERIFY EXTERNALLY** | No fijado en register OS · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` | Org de empresa · `[FUTURE RECOMMENDATION]` |
-| Mapbox | Baldosas mapa | Uso / plan | **VERIFY EXTERNALLY** si se compra | Banda Architect ~USD 0–50 · `[ESTIMATE / PLANNING BAND]` | Solo si mapa LIVE aprobado |
+| Mapbox | Baldosas mapa | Uso / plan | **VERIFY EXTERNALLY** si se compra | Banda Architect ~USD 0–50 · `[ESTIMATE / PLANNING BAND]` | Mapa LIVE aprobado · `[BROWSER-VERIFIED]` |
 | OpenAI | Asistencia limitada | Uso | **VERIFY EXTERNALLY** · no tratar como factura · `[UNVERIFIED / NEEDS EXTERNAL CONFIRMATION]` · *(runtime: `AI_ENABLED` YES pero assist NOT LIVE)* | Tope de política **USD 20 / mes** · `[PILOT POLICY]` · no es invoice | Proyecto de empresa + alertas · `[FUTURE RECOMMENDATION]` |
 | WhatsApp envío | Mensajes automáticos | — | No en registro de costo OS · `[PILOT POLICY]` | Diferido · `[FUTURE RECOMMENDATION]` | Decisión de negocio |
 | Email transaccional OS | Cotizaciones por mail | — | **$0** (no provisionado) · `[VERIFIED CURRENT FACT]` | Futuro ~USD 10–50 · `[ESTIMATE / PLANNING BAND]` | Cuando aprueben envío |
@@ -108,12 +108,12 @@ Más adelante, si ISALWA decide centralizar accesos de toda la empresa, usar ini
 | R2 off-host planned not provisioned | VERIFIED CURRENT FACT | [Source: owner infrastructure map] |
 | Monitoring not integrated | VERIFIED CURRENT FACT | [Source: owner infrastructure Monitoring] |
 | Auth wording (no scare “must replace”) | PILOT POLICY | [Source: Carmen briefing §8] |
-| Map LIVE | NOT LIVE · PENDING | [Source: mapbox-acceptance-fresh.json FAIL blank basemap] |
-| AI LIVE | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI configure — AI_ENABLED YES; assist FAIL max_tokens/luna] |
+| Map LIVE | LIVE · BROWSER-VERIFIED | [Source: Mapbox hosted BV 23323f44] — WEB SHA `23e50b0…` LIVE; basemap YES; 2 confirmed / 7 active; invented ZERO; Playwright `carmen.staging` `/mapa` PASS |
+| AI LIVE | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI configure — AI_ENABLED YES; assist FAIL max_tokens/luna; keep until max_completion_tokens re-BV PASS] |
 | QA / Ver Como | PILOT POLICY · never user feature | [Source: capability / QA surfaces; master TODAY rules] |
 | Costs = estimate unless invoice | ESTIMATE / PLANNING BAND | [Source: master evidence rules] |
 | ENVIRONMENT_MAP topology partially stale | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION for old lines | [Source: owner map says prefer Wave2/backup receipts over stale ENVIRONMENT_MAP hosting claims] |
 
 **Secret rule:** names only in technical appendix — **never values** in this owner doc either.
 
-**Editor bake-in:** keep PLANNED…USER-ACCEPTED separate; evidence priority hosted/browser → … → agent summary; contradictions → UNPROVEN/NOT LIVE/HOSTED-UNPROVEN with EDITOR NOTES; no optimistic silent choice. Older EXTERNAL_CREDENTIAL_GATE for Map/AI superseded by FAIL/HOSTED-UNPROVEN.
+**Editor bake-in:** keep PLANNED…USER-ACCEPTED separate; evidence priority hosted/browser → … → agent summary; contradictions → UNPROVEN/NOT LIVE/HOSTED-UNPROVEN with EDITOR NOTES; no optimistic silent choice. Older EXTERNAL_CREDENTIAL_GATE / interim Map FAIL superseded by BV 23323f44 PASS; AI remains HOSTED-UNPROVEN.

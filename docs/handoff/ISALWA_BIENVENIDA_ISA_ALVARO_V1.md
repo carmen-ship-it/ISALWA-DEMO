@@ -31,7 +31,11 @@ Versión 1 significa: **ya se puede entrar y usarlo de verdad en el piloto**, pe
 Lo que ya está armado para el trabajo diario (clientes, cotizaciones, trabajo, aprobaciones, incidencias, compromisos, feedback del producto) está disponible en el ambiente de piloto.  
 `[CURRENT HOSTED STATE]`
 
-Algunas cosas —como el mapa con baldosas en vivo o la asistencia de inteligencia artificial— **no están en vivo hoy** para el mensaje a ustedes. El mapa todavía falla la verificación de baldosas (basemap en blanco). La IA puede estar configurada en el servidor, pero la asistencia aún **no** está probada en vivo (falla pendiente de un ajuste técnico).  
+Algunas capacidades ya están en vivo en el piloto; otras todavía no.  
+El mapa permite ver geográficamente los clientes cuya ubicación ya está confirmada. No inventa ubicaciones: si faltan coordenadas, el sistema lo muestra como pendiente. Hoy: **2 de 7** con coordenadas confirmadas.  
+`[CURRENT HOSTED STATE]` · `[BROWSER-VERIFIED]` · *[Source: Mapbox hosted BV 23323f44]*
+
+La asistencia de inteligencia artificial **no** está en vivo hoy para el mensaje a ustedes. Puede estar configurada en el servidor, pero la asistencia aún **no** está probada en vivo (falla pendiente de un ajuste técnico y re-verificación).  
 `[CURRENT HOSTED STATE]` · `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]`
 
 ### Cómo es el acceso
@@ -71,7 +75,8 @@ Carmen
 | Ambiente piloto usable, no producción formal | CURRENT HOSTED STATE | [Source: `docs/operations/ISALWA_OWNER_INFRASTRUCTURE_MAP.md` — PRODUCTION NOT EVIDENCED; staging evidenciado] |
 | URL `os-web-staging.onrender.com` | VERIFIED CURRENT FACT | [Source: `docs/operations/final-pre-pilot-2026-09-16/control-tower-final-receipt.md`] |
 | Runtime SHA `23e50b0…` web+API same | VERIFIED CURRENT FACT | [Source: control-tower-final-receipt.md] |
-| Map / AI no vender como LIVE | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: MAP ACCEPTANCE FAIL blank basemap `mapbox-acceptance-fresh.json`; AI `AI_ENABLED` YES but assist FAIL luna `max_tokens`→needs `max_completion_tokens`] |
+| Map LIVE — frase corta Carmen | LIVE · BROWSER-VERIFIED | [Source: Mapbox hosted BV 23323f44] — WEB SHA `23e50b0…` LIVE; basemap YES; 2 confirmed / 7 active; invented ZERO; Playwright `carmen.staging` `/mapa` PASS |
+| AI no vender como LIVE | NOT LIVE · HOSTED-UNPROVEN · PENDING | [Source: AI `AI_ENABLED` YES but assist FAIL luna `max_tokens`→needs `max_completion_tokens` re-BV PASS] |
 | Cuentas Isa/Álvaro no creadas | VERIFIED CURRENT FACT | [Source: briefing DO NOT create accounts; capability map §10 constraints] |
 | Contraseñas individuales; Carmen no las conoce | PILOT POLICY | [Source: briefing Carmen; owner outline §7] |
 | Invite flow existe; no enviado a Isa/Álvaro | CURRENT HOSTED STATE | [Source: capability map Invite/Activate LIVE; briefing no invites] |
@@ -82,8 +87,8 @@ Carmen
 
 **Editor gaps to keep visible**
 
-- Map LIVE sentence: **omit** / keep **NOT LIVE** until MAP ACCEPTANCE PASS (current: **FAIL** blank basemap).  
-- AI LIVE sentence: **omit** / keep **NOT LIVE · HOSTED-UNPROVEN** until assist hosted-proven (current: configured, assist **FAIL** pending `max_completion_tokens`).  
+- Map LIVE sentence: **include** Carmen-approved short sentence (current: **PASS** · BROWSER-VERIFIED · [Source: Mapbox hosted BV 23323f44]).  
+- AI LIVE sentence: **omit** / keep **NOT LIVE · HOSTED-UNPROVEN** until assist hosted-proven (current: configured, assist **FAIL** pending `max_completion_tokens` re-BV).  
 - Password-reset human line (“pueden recuperarla desde el ingreso”): **omit** until `PASSWORD_RESET_HOSTED = PASS` (current: **MISSING**).  
 - QA / Ver Como: never in this welcome.  
 - Do not claim USER-ACCEPTED.  
@@ -92,7 +97,8 @@ Carmen
 
 **EDITOR NOTES — conflicts**
 
-- Older Control Tower “EXTERNAL_CREDENTIAL_GATE / PENDING PROVIDER RECEIPT” for Map/AI is **superseded** by newer hosted FAIL / HOSTED-UNPROVEN evidence. Do not revive LIVE from the older label.  
-- Coverage honesty (2 de 7) ≠ Map LIVE.
+- Older Control Tower “EXTERNAL_CREDENTIAL_GATE / PENDING PROVIDER RECEIPT” and interim FAIL blank basemap for Map are **superseded** by Mapbox hosted BV 23323f44 PASS. Publish Map **LIVE**.  
+- Older AI EXTERNAL_CREDENTIAL_GATE superseded by HOSTED-UNPROVEN FAIL; keep AI **NOT LIVE**.  
+- Coverage honesty (2 de 7) remains with LIVE basemap.
 
 **Bounded product gap (Control Tower):** self-service password reset on hosted login = **MISSING** (provider Auth exists; OS UI does not expose Forgot password).

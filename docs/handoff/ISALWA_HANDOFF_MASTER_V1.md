@@ -19,7 +19,7 @@ Este es el **índice maestro** de la Versión 1 del handoff para Isa y Álvaro. 
 
 | # | Documento | Para quién | Qué contiene |
 |---|---|---|---|
-| 1 | `ISALWA_BIENVENIDA_ISA_ALVARO_V1.md` | Isa / Álvaro | Bienvenida, Versión 1, acceso, honestidad Map/AI |
+| 1 | `ISALWA_BIENVENIDA_ISA_ALVARO_V1.md` | Isa / Álvaro | Bienvenida, Versión 1, acceso, Map LIVE + AI honestidad |
 | 2 | `ISALWA_QUE_PUEDE_HACER_HOY_V1.md` | Isa / Álvaro | Capacidades de hoy en una mirada |
 | 3 | `ISALWA_OPERACION_COSTOS_SEGURIDAD_V1.md` | Dueñas/os | Hosting, costos verificado vs banda, seguridad, backups |
 | 4 | `ISALWA_PRIMER_INGRESO_Y_FEEDBACK_V1.md` | Isa / Álvaro + Carmen | Primer ingreso, feedback, mensaje corto, checklist de cuentas (sin ejecutar) |
@@ -36,7 +36,7 @@ Cada archivo tiene **Section A** (borrador humano) y **Section B** (notas de edi
 | Producción formal | NOT EVIDENCED | `[VERIFIED CURRENT FACT]` |
 | Wave A / B técnicos | Cerrados / condicionales según receipts | `[VERIFIED CURRENT FACT]` |
 | Wave C | No iniciado | `[VERIFIED CURRENT FACT]` |
-| Map en handoff | **NOT LIVE** · MAP ACCEPTANCE **FAIL** (blank basemap) · **PENDING** re-BV | `[CURRENT HOSTED STATE]` · `[HOSTED-UNPROVEN]` |
+| Map en handoff | **LIVE** · MAP ACCEPTANCE **PASS** (Mapbox basemap YES · 2 confirmed / 7 active · invented ZERO · Playwright `carmen.staging` `/mapa`) · **BROWSER-VERIFIED** | `[CURRENT HOSTED STATE]` · `[BROWSER-VERIFIED]` |
 | AI en handoff | **NOT LIVE** · `AI_ENABLED` hosted YES · assist **FAIL** (luna `max_tokens` → needs `max_completion_tokens`) · **HOSTED-UNPROVEN** | `[CURRENT HOSTED STATE]` · `[HOSTED-UNPROVEN]` |
 | Password reset en `/login` | **MISSING** | `[VERIFIED CURRENT FACT]` |
 | Flujo invitación (producto) | Existe; Isa/Álvaro no invitados aún | `[CURRENT HOSTED STATE]` |
@@ -48,7 +48,7 @@ Cada archivo tiene **Section A** (borrador humano) y **Section B** (notas de edi
 
 ### Mensaje guía para la editora/or
 
-Editar con tono humano en español. No embellecer con marketing. **No confiar en etiquetas PASS sin evidencia.** No inventar LIVE de mapa/IA/costos/reset. Preferir **NOT LIVE / PENDING / HOSTED-UNPROVEN / MISSING**. Después de un re-BV PASS real, reconciliar **todos** los docs del paquete en el mismo commit editorial.
+Editar con tono humano en español. No embellecer con marketing. **No confiar en etiquetas PASS sin evidencia.** Mapa ya **LIVE / BROWSER-VERIFIED** (usar la frase corta aprobada). No inventar LIVE de IA/costos/reset. Preferir **NOT LIVE / PENDING / HOSTED-UNPROVEN / MISSING** donde aún falte prueba. Después de un re-BV PASS real (p. ej. AI), reconciliar **todos** los docs del paquete en el mismo commit editorial.
 
 ---
 
@@ -80,8 +80,8 @@ Do **not** promote a claim to user-facing TODAY using only a lower-priority sour
 
 | Claim | Publish LIVE / “ya en vivo” only if… | Current truth (2026-09-16) |
 |---|---|---|
-| **MAP LIVE** | Basemap browser-verified PASS | **NOT LIVE** — MAP ACCEPTANCE **FAIL** blank basemap (`basemapOk:false`) |
-| **AI LIVE** | Provider response hosted-proven (assist returns usable evidence-backed text) | **NOT LIVE / HOSTED-UNPROVEN** — `AI_ENABLED` YES but luna assist **FAIL** pending `max_completion_tokens` patch |
+| **MAP LIVE** | Basemap browser-verified PASS | **LIVE / BROWSER-VERIFIED** — MAP ACCEPTANCE **PASS** (Mapbox basemap YES · 2/7 · invented ZERO · Playwright `carmen.staging` `/mapa`) · [Source: Mapbox hosted BV 23323f44] |
+| **AI LIVE** | Provider response hosted-proven (assist returns usable evidence-backed text) | **NOT LIVE / HOSTED-UNPROVEN** — `AI_ENABLED` YES but luna assist **FAIL** pending `max_completion_tokens` re-BV PASS |
 | **Password reset** | Hosted `/login` UX verified | **MISSING** |
 | **QA / Ver Como** | Never a user feature | **Internal only** — never coach Isa/Álvaro |
 | **Costs** | Invoice / dashboard verified | **Estimate** unless invoice |
@@ -95,7 +95,7 @@ If sources disagree: prefer higher evidence; label **UNPROVEN / NOT LIVE / IMPLE
 
 | Topic | Older / lower evidence | Newer / higher evidence | Publish as |
 |---|---|---|---|
-| Map | Control Tower earlier: `EXTERNAL_CREDENTIAL_GATE` / PENDING PROVIDER RECEIPT | Hosted MAP ACCEPTANCE **FAIL** blank basemap (`~/.isalwa-secrets/_verifier-mapbox-out/mapbox-acceptance-fresh.json`) | **NOT LIVE** · **PENDING** re-BV |
+| Map | Control Tower earlier: `EXTERNAL_CREDENTIAL_GATE`; interim FAIL blank basemap | Hosted MAP ACCEPTANCE **PASS** (agent 23323f44) on WEB SHA `23e50b0…` LIVE | **LIVE** · **BROWSER-VERIFIED** |
 | AI | Control Tower earlier: keys absent / `AI_UNAVAILABLE` | Runtime: `AI_ENABLED` YES + key present; assist **FAIL** (`max_tokens` vs `max_completion_tokens` for `gpt-5.6-luna`) | **NOT LIVE** · **HOSTED-UNPROVEN** · **PENDING** product patch + re-BV |
 | Capability map header SHA `37a1ed7` | Doc table may lag | Prefer tip/runtime `23e50b0` for hosted truth | Prefer tip; note drift |
 
@@ -105,8 +105,8 @@ If sources disagree: prefer higher evidence; label **UNPROVEN / NOT LIVE / IMPLE
 |---|---|---|
 | Package file list | VERIFIED CURRENT FACT | [Source: this worktree `docs/handoff/*`] |
 | Runtime SHA tip (product pin) | VERIFIED CURRENT FACT | [Source: `docs/operations/final-pre-pilot-2026-09-16/control-tower-final-receipt.md` + Render live] |
-| Map FAIL blank basemap | CURRENT HOSTED STATE · NOT LIVE | [Source: `~/.isalwa-secrets/_verifier-mapbox-out/mapbox-acceptance-fresh.json` verdict FAIL `basemapOk:false`] |
-| AI configured / assist FAIL | CURRENT HOSTED STATE · HOSTED-UNPROVEN · NOT LIVE | [Source: OpenAI staging configure agent receipt — `AI LIVE HOSTED FAIL`; luna rejects `max_tokens`] |
+| Map LIVE / BROWSER-VERIFIED | CURRENT HOSTED STATE · BROWSER-VERIFIED | [Source: Mapbox hosted BV 23323f44] — WEB SHA `23e50b0…` LIVE; basemap YES; 2 confirmed / 7 active; invented ZERO; Playwright `carmen.staging` `/mapa` PASS |
+| AI configured / assist FAIL | CURRENT HOSTED STATE · HOSTED-UNPROVEN · NOT LIVE | [Source: OpenAI staging configure agent receipt — `AI LIVE HOSTED FAIL`; luna rejects `max_tokens`; keep until `max_completion_tokens` re-BV PASS] |
 | Capability truth (core desks) | CURRENT HOSTED STATE | [Source: `docs/product/ISALWA_COMPANY_OS_CAPABILITY_MAP.md` + Wave A/B acceptance — watch SHA drift] |
 | Ownership / costs | MIXED tags | [Source: `ISALWA_OWNER_INFRASTRUCTURE_MAP.md`, `PRODUCTION_OWNERSHIP_AND_COSTS.md`] |
 | Developer gaps | CURRENT HOSTED STATE | [Source: `ISALWA_DEVELOPER_HANDOFF_GAP_MAP.md`] |
@@ -129,8 +129,8 @@ For **every** claim that leaves the building (welcome, WhatsApp, owner cost shee
 |---|---|---|---|---|
 | Piloto usable (clientes / cotizaciones / trabajo / aprobaciones / compromisos / incidencias / feedback) | hosted + Wave B BV | Wave B acceptance + control-tower product intelligence on `23e50b0` | CURRENT HOSTED STATE | **YES** (as pilot usable — not “producción formal”) |
 | Producción formal lista | — | owner infrastructure map | NOT EVIDENCED | **NO** |
-| Map LIVE / baldosas en vivo | hosted/browser | `mapbox-acceptance-fresh.json` FAIL blank basemap | **NOT LIVE** · PENDING | **NO** |
-| AI LIVE / asistencia en vivo | provider + hosted assist | AI configure receipt: `AI_ENABLED` YES, assist FAIL `max_tokens` | **NOT LIVE** · HOSTED-UNPROVEN · PENDING patch | **NO** |
+| Map LIVE / baldosas en vivo | hosted/browser | Mapbox hosted BV 23323f44 · Playwright `carmen.staging` `/mapa` PASS · SHA `23e50b0…` | **LIVE** · BROWSER-VERIFIED | **YES** |
+| AI LIVE / asistencia en vivo | provider + hosted assist | AI configure receipt: `AI_ENABLED` YES, assist FAIL `max_tokens` | **NOT LIVE** · HOSTED-UNPROVEN · PENDING `max_completion_tokens` re-BV | **NO** |
 | Password reset self-service | hosted UX | `/login` read-only 2026-09-16 | MISSING | **NO** |
 | QA / Ver Como for owners | — | product QA surfaces | internal only | **NO** (never user feature) |
 | Invoice dollar amounts | invoice / dashboard | none in repo | VERIFY EXTERNALLY | **NO** as fact |
@@ -143,11 +143,11 @@ For **every** claim that leaves the building (welcome, WhatsApp, owner cost shee
 
 ### Provider / hosted re-proof
 
-- [ ] Map: MAP ACCEPTANCE **PASS** with basemap tiles **or** keep **NOT LIVE / PENDING** everywhere (current: **FAIL** blank basemap)  
-- [ ] AI: live assist **PASS** proven **or** keep **NOT LIVE / HOSTED-UNPROVEN** everywhere (current: configured, assist **FAIL** pending `max_completion_tokens`)  
-- [ ] No Map/AI “LIVE” / “ya en vivo” sentence in welcome / WhatsApp unless PASS  
-- [ ] Reconcile all six files after any provider/product close (no stale placeholders)  
-- [ ] Conflicting older Control Tower “EXTERNAL_CREDENTIAL_GATE” lines superseded — do not silently revive PASS
+- [x] Map: MAP ACCEPTANCE **PASS** with basemap tiles — **LIVE / BROWSER-VERIFIED** everywhere ([Source: Mapbox hosted BV 23323f44])  
+- [ ] AI: live assist **PASS** proven **or** keep **NOT LIVE / HOSTED-UNPROVEN** everywhere (current: configured, assist **FAIL** pending `max_completion_tokens` re-BV)  
+- [ ] No AI “LIVE” / “ya en vivo” sentence in welcome / WhatsApp unless PASS; Map LIVE sentence OK (Carmen-approved short map sentence)  
+- [x] Reconcile all six files after Map provider close (no stale Map placeholders)  
+- [x] Conflicting older Control Tower “EXTERNAL_CREDENTIAL_GATE” / interim FAIL blank basemap for Map superseded by BV 23323f44 PASS — do not revive FAIL
 
 ### Costs
 
@@ -179,7 +179,7 @@ For **every** claim that leaves the building (welcome, WhatsApp, owner cost shee
 - [ ] Production still NOT EVIDENCED unless new evidence  
 - [ ] Option B expiry 2026-09-30 visible to owners  
 - [ ] WhatsApp / email send / vanity “Ingresos” not claimed  
-- [ ] 2 de 7 map coverage + shared URL confirmation still honest (coverage ≠ LIVE basemap)  
+- [ ] 2 de 7 map coverage + shared URL confirmation still honest (coverage honesty **with** LIVE basemap)  
 - [ ] USER-ACCEPT not claimed by docs lane  
 - [ ] Proof states not collapsed (PLANNED…USER-ACCEPTED)
 
@@ -195,7 +195,7 @@ For **every** claim that leaves the building (welcome, WhatsApp, owner cost shee
 ### Sign-off (human)
 
 - [ ] Senior editor: language tone OK  
-- [ ] Carmen: facts OK vs latest receipts (Map NOT LIVE · AI NOT LIVE / HOSTED-UNPROVEN)  
+- [ ] Carmen: facts OK vs latest receipts (Map LIVE / BROWSER-VERIFIED · AI NOT LIVE / HOSTED-UNPROVEN)  
 - [ ] Externally shared claims matrix completed above  
 - [ ] Ready to send message / create accounts: **YES / NO** _______
 
@@ -203,6 +203,6 @@ For **every** claim that leaves the building (welcome, WhatsApp, owner cost shee
 
 ## READY FOR SENIOR HUMAN EDIT
 
-**YES** — source draft package updated 2026-09-16 with evidence-gated Map/AI (**NOT LIVE**), mandatory proof vocabulary, evidence priority, TODAY publish rules, contradiction notes, and externally shared claims matrix.
+**YES** — source draft package reconciled 2026-09-16: Map **LIVE / BROWSER-VERIFIED** ([Source: Mapbox hosted BV 23323f44]); AI kept **NOT LIVE / HOSTED-UNPROVEN**; password reset **MISSING**; evidence-standard rules unchanged; claims matrix SAFE TO PUBLISH **YES** for map live.
 
-**Still blocked for send / accounts / PDF:** Map LIVE, AI LIVE, password-reset coaching, invoice dollars, USER-ACCEPT, Isa/Álvaro identities, Wave C (out of scope).
+**Still blocked for send / accounts / PDF:** AI LIVE, password-reset coaching, invoice dollars, USER-ACCEPT, Isa/Álvaro identities, Wave C (out of scope).

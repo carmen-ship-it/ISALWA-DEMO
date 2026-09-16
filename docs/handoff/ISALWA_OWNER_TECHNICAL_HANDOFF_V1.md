@@ -40,8 +40,8 @@
 
 | Provider | State | Tag |
 |---|---|---|
-| Mapbox | **NOT LIVE** — MAP ACCEPTANCE FAIL blank basemap (`basemapOk:false`); token/config may exist but tiles not browser-proven | `[NOT LIVE]` · `[PENDING]` · `[CURRENT HOSTED STATE]` |
-| OpenAI OS | **NOT LIVE / HOSTED-UNPROVEN** — `AI_ENABLED` HOSTED YES + key present; assist FAIL (`gpt-5.6-luna` rejects `max_tokens`; needs `max_completion_tokens` patch) | `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]` · `[PILOT POLICY]` |
+| Mapbox | **LIVE / BROWSER-VERIFIED** — MAP ACCEPTANCE PASS (basemap YES · 2 confirmed / 7 active · invented ZERO · Playwright `carmen.staging` `/mapa` on WEB SHA `23e50b0…`) | `[LIVE]` · `[BROWSER-VERIFIED]` · `[CURRENT HOSTED STATE]` |
+| OpenAI OS | **NOT LIVE / HOSTED-UNPROVEN** — `AI_ENABLED` HOSTED YES + key present; assist FAIL (`gpt-5.6-luna` rejects `max_tokens`; needs `max_completion_tokens` re-BV PASS) | `[NOT LIVE]` · `[HOSTED-UNPROVEN]` · `[PENDING]` · `[PILOT POLICY]` |
 | WhatsApp send | Intentionally deferred | `[PILOT POLICY]` |
 | Transactional email OS | Not provisioned | `[VERIFIED CURRENT FACT]` |
 | Sentry / uptime | Not integrated | `[VERIFIED CURRENT FACT]` |
@@ -119,12 +119,12 @@ Live control plane = Render Dashboard/API. No Blueprint in repo. Staging ≠ pro
 | Note | Tag | [Source] |
 |---|---|---|
 | Prefer control-tower tip SHA over older capability-map header SHA | VERIFIED CURRENT FACT | [Source: `control-tower-final-receipt.md` vs capability map `37a1ed7` drift] |
-| Map NOT LIVE (blank basemap FAIL) | CURRENT HOSTED STATE · NOT LIVE | [Source: `~/.isalwa-secrets/_verifier-mapbox-out/mapbox-acceptance-fresh.json`] |
-| AI NOT LIVE / HOSTED-UNPROVEN | CURRENT HOSTED STATE · PENDING patch | [Source: AI staging configure agent — `AI LIVE HOSTED FAIL`; luna `max_tokens`] |
-| Older EXTERNAL_CREDENTIAL_GATE for Map/AI | SUPERSEDED — do not revive | [Source: conflict vs newer hosted FAIL evidence — flag, no optimistic silent choice] |
+| Map LIVE / BROWSER-VERIFIED | CURRENT HOSTED STATE · BROWSER-VERIFIED | [Source: Mapbox hosted BV 23323f44] — WEB SHA `23e50b0…` LIVE; basemap YES; 2/7; invented ZERO; Playwright `carmen.staging` `/mapa` PASS |
+| AI NOT LIVE / HOSTED-UNPROVEN | CURRENT HOSTED STATE · PENDING re-BV | [Source: AI staging configure agent — `AI LIVE HOSTED FAIL`; luna `max_tokens`; keep until `max_completion_tokens` re-BV PASS] |
+| Older EXTERNAL_CREDENTIAL_GATE / interim Map FAIL | SUPERSEDED for Map by BV 23323f44 PASS — do not revive FAIL | [Source: conflict vs newer hosted PASS evidence — flag, no optimistic silent choice] |
 | ENVIRONMENT_MAP hosting “not provisioned” lines are stale vs Wave2 truth | UNVERIFIED / NEEDS EXTERNAL CONFIRMATION if reused blindly | [Source: owner map warning; ENVIRONMENT_MAP topology status] |
 | Missing runbooks in this worktree vs main | CURRENT HOSTED STATE | [Source: developer handoff gap map § Gaps vs main] |
 | Do not paste service_role / DB URLs into chat | PILOT POLICY | [Source: owner outline §12] |
 | Proof vocabulary | PILOT POLICY | Keep PLANNED→USER-ACCEPTED (+ PUSHED) separate; evidence priority hosted/browser first; agent summary lowest |
 
-**Explicit non-claims:** no secret values; no production environment; no USER-ACCEPT; no Isa/Álvaro account creation from this lane; no Map LIVE; no AI LIVE; no password-reset self-service; QA/Ver Como not a user feature.
+**Explicit non-claims:** no secret values; no production environment; no USER-ACCEPT; no Isa/Álvaro account creation from this lane; Map **is** LIVE / BROWSER-VERIFIED; no AI LIVE; no password-reset self-service; QA/Ver Como not a user feature.
