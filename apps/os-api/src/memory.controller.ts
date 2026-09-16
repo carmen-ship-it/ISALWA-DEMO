@@ -21,8 +21,101 @@ import {
   type IssueRecord as CommandIssueRecord,
   type IssueJournalEntryRecord as CommandJournalRecord,
 } from '@isalwa/os-issue';
+import { getOsPrisma } from '@isalwa/os-database';
+import { memberHasGrantedScope, memberHasScope } from '@isalwa/os-domain';
+import { assertQueryTenantResource, buildQueryContext } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
 import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
+
+const MEMORY_CHANGES_MAX = 100;
+
+const BUSINESS_EVENT_LABELS: Record<string, string> = {
+  'party.created': 'Cliente creado',
+  'party.updated': 'Cliente actualizado',
+  'party.deactivated': 'Cliente desactivado',
+  'party.reactivated': 'Cliente reactivado',
+  'party.merged': 'Clientes fusionados',
+  'contact.updated': 'Contacto actualizado',
+  'lead.created': 'Prospecto registrado',
+  'lead.resolved': 'Prospecto resuelto',
+  'work_item.created': 'Trabajo creado',
+  'work_item.updated': 'Trabajo actualizado',
+  'work_item.completed': 'Trabajo completado',
+  'approval.requested': 'Aprobación solicitada',
+  'approval.approved': 'Aprobación concedida',
+  'approval.rejected': 'Aprobación rechazada',
+  'member.role.changed': 'Rol principal asignado',
+  'member.suspended': 'Acceso suspendido',
+  'member.activated': 'Acceso activado',
+  'member.terminated': 'Acceso finalizado',
+  'opportunity.created': 'Oportunidad creada',
+  'quote.created': 'Cotización creada',
+  'order.created': 'Pedido creado',
+  'issue.reported': 'Incidencia reportada',
+  'commitment.created': 'Compromiso registrado',
+};
+
+const ENTITY_TYPE_LABELS: Record<string, string> = {
+  party: 'Cliente',
+  contact: 'Contacto',
+  work_item: 'Trabajo',
+  approval_request: 'Aprobación',
+  member: 'Persona',
+  opportunity: 'Oportunidad',
+  quote: 'Cotización',
+  order: 'Pedido',
+  issue: 'Incidencia',
+  commitment: 'Compromiso',
+};
+
+function titleCaseKey(key: string): string {
+  return key.replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function humanizeEventType(eventType: string): string {
+  const t = eventType.trim();
+  return BUSINESS_EVENT_LABELS[t] ?? titleCaseKey(t);
+}
+
+function humanizeEntityType(entityType: string): string {
+  const t = entityType.trim();
+  return ENTITY_TYPE_LABELS[t] ?? titleCaseKey(t);
+}
+
+function entitySummaryLabel(entityType: string, entityId: string): string {
+  const label = humanizeEntityType(entityType);
+  const shortId = entityId.length > 8 ? `${entityId.slice(0, 8)}…` : entityId;
+  return `${label} · ${shortId}`;
+}
+
+function assertOrgMemoryScope(ctx: Awaited<ReturnType<typeof buildQueryContext>>): void {
+  if (
+    !memberHasScope(ctx.auth, 'people.admin') &&
+    !memberHasGrantedScope(ctx.auth, 'system.admin')
+  ) {
+    throw new Error('PERMISSION_DENIED');
+  }
+}
+
+type MemoryWindow = 'hoy' | '24h' | '7d';
+
+function parseMemoryWindow(raw: string | undefined): MemoryWindow {
+  const w = (raw ?? '24h').trim().toLowerCase();
+  if (w === 'hoy' || w === '24h' || w === '7d') return w;
+  throw new Error('VALIDATION_FAILED');
+}
+
+function windowStart(window: MemoryWindow, asOf: Date): Date {
+  if (window === '24h') {
+    return new Date(asOf.getTime() - 24 * 60 * 60 * 1000);
+  }
+  if (window === '7d') {
+    return new Date(asOf.getTime() - 7 * 24 * 60 * 60 * 1000);
+  }
+  const start = new Date(asOf);
+  start.setUTCHours(0, 0, 0, 0);
+  return start;
+}
 
 type EvidenceIssue = {
   id: string;
@@ -218,6 +311,55 @@ export class MemoryController {
       }));
 
       return { items };
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  /**
+   * GET /v1/memory/changes?window=hoy|24h|7d
+   * Org-wide recent changes from os_business_events. Admin read only.
+   */
+  @Get('changes')
+  async listChanges(@Req() req: Request, @Query('window') windowRaw?: string) {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const ctx = await buildQueryContext(session, this.workforceStore);
+      assertOrgMemoryScope(ctx);
+      assertQueryTenantResource(ctx, ctx.organizationId);
+
+      const window = parseMemoryWindow(windowRaw);
+      const prisma = getOsPrisma();
+      if (!prisma) {
+        throw new HttpException({ code: 'SERVICE_UNAVAILABLE' }, HttpStatus.SERVICE_UNAVAILABLE);
+      }
+
+      const since = windowStart(window, ctx.effectiveAt);
+      const rows = await prisma.osBusinessEvent.findMany({
+        where: {
+          organizationId: ctx.organizationId,
+          occurredAt: { gte: since, lte: ctx.effectiveAt },
+        },
+        orderBy: { occurredAt: 'desc' },
+        take: MEMORY_CHANGES_MAX,
+      });
+
+      return {
+        window,
+        boundary:
+          'Ventana de cambios recientes en la organización. No sustituye el registro de auditoría completo.',
+        items: rows.map((row) => ({
+          id: row.id,
+          occurredAt: row.occurredAt.toISOString(),
+          actorMemberId: row.actorMemberId,
+          eventLabel: humanizeEventType(row.eventType),
+          eventType: row.eventType,
+          entityLabel: entitySummaryLabel(row.primaryEntityType, row.primaryEntityId),
+          primaryEntityType: row.primaryEntityType,
+          primaryEntityId: row.primaryEntityId,
+          correlationId: row.correlationId,
+        })),
+      };
     } catch (err) {
       throw this.toHttp(err);
     }

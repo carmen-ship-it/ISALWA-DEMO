@@ -18,6 +18,8 @@ import { CommitmentsController } from './commitments.controller';
 import { IssuesController } from './issues.controller';
 import { ProductFeedbackController } from './product-feedback.controller';
 import { MemoryController } from './memory.controller';
+import { AiController } from './ai.controller';
+import { AuditController } from './audit.controller';
 import { OsStoreModule } from './os-store.module';
 import { isDevBootstrapEnabled } from './env-validation';
 
@@ -46,6 +48,8 @@ const devControllers = isDevBootstrapEnabled() ? [BootstrapController] : [];
     IssuesController,
     ProductFeedbackController,
     MemoryController,
+    AiController,
+    AuditController,
     ...devControllers,
   ],
 })

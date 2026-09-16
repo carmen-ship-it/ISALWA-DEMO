@@ -48,6 +48,8 @@ import type {
   IssueCommandResult,
 } from '@/lib/issue/types';
 import type { CommitmentState } from '@isalwa/os-contracts';
+import type { AiAssistResponse } from '@/lib/ai/types';
+import type { AuditListResponse, MemoryChangesResponse } from '@/lib/audit/types';
 
 export type CommitmentSummary = {
   id: string;
@@ -408,6 +410,16 @@ export function createOsApiClient(auth: OsAuthContext) {
         method: 'POST',
         body: payload,
         idempotencyKey,
+        retry: false,
+      }),
+    listAudit: (query?: Record<string, string | number | boolean>) =>
+      request<AuditListResponse>('/audit', { method: 'GET', query }),
+    listMemoryChanges: (query?: Record<string, string | number | boolean>) =>
+      request<MemoryChangesResponse>('/memory/changes', { method: 'GET', query }),
+    requestAiAssist: (body: { feature: string; subjectType: string; subjectId: string }) =>
+      request<AiAssistResponse>('/ai/assist', {
+        method: 'POST',
+        body,
         retry: false,
       }),
   };
