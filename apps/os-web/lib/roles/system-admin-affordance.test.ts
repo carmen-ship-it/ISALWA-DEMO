@@ -132,6 +132,9 @@ describe('PRIMARY_NAV authority classification audit', () => {
       entregas: 'VISIBLE+ACTIVE',
       coordinacion: 'VISIBLE+ACTIVE',
       aprobaciones: 'VISIBLE+ACTIVE',
+      'memoria-decisiones': 'VISIBLE+ACTIVE',
+      'salud-datos': 'VISIBLE+ACTIVE',
+      auditoria: 'HIDDEN',
       incidencias: 'VISIBLE+ACTIVE',
       administracion: 'HIDDEN',
     });
@@ -157,6 +160,8 @@ describe('PRIMARY_NAV authority classification audit', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'memoria-decisiones',
+      'salud-datos',
       'incidencias',
     ]);
   });

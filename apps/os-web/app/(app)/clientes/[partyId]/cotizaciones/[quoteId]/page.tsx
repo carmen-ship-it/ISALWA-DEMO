@@ -136,7 +136,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">
-            <p className="text-sm text-[var(--isalwa-slate)]">Cotización aceptada</p>
+            <p className="text-sm text-[var(--isalwa-slate)]">
+              Cliente aceptó · listo para pedido (estado sigue presentada hasta convertir)
+            </p>
             <a href="#convertir-pedido" className={documentLinkClass}>
               Ir a convertir a pedido
             </a>

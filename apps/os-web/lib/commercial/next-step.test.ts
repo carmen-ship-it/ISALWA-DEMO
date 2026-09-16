@@ -69,6 +69,24 @@ describe('commercial next-step', () => {
     assert.match(step?.statement ?? '', /no crea un pedido/i);
   });
 
+  it('asks for manual send on submitted without treating submit as external send', () => {
+    const step = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: true,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: true,
+      followUpHref: '/clientes/party-1#trabajo',
+    });
+    assert.equal(step?.waiting, false);
+    assert.match(step?.statement ?? '', /presentada/i);
+    assert.match(step?.statement ?? '', /envío manual/i);
+    assert.doesNotMatch(step?.statement ?? '', /creó un pedido/i);
+  });
+
   it('offers convert only when accepted and conversion is allowed', () => {
     const step = quoteNextStep({
       status: 'accepted',

@@ -425,7 +425,7 @@ function composeLatestActivity(
   }
   return {
     state: 'present',
-                label: timelineEventLabel(latest.eventType, latest.facts),
+    label: timelineEventLabel(latest.eventType, latest.facts),
     summary: timelineEntrySummary(latest),
     occurredAt: latest.occurredAt,
     occurredLabel: formatTimestamp(latest.occurredAt),

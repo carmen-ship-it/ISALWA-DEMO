@@ -52,6 +52,9 @@ describe('commercial-first primary nav', () => {
         'entregas',
         'coordinacion',
         'aprobaciones',
+        'memoria-decisiones',
+        'salud-datos',
+        'auditoria',
         'incidencias',
         'administracion',
       ],
@@ -74,6 +77,9 @@ describe('commercial-first primary nav', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'memoria-decisiones',
+      'salud-datos',
+      'auditoria',
       'incidencias',
       'administracion',
     ]);
@@ -92,6 +98,8 @@ describe('commercial-first primary nav', () => {
       'entregas',
       'coordinacion',
       'aprobaciones',
+      'memoria-decisiones',
+      'salud-datos',
       'incidencias',
     ]);
     assert.equal(
@@ -263,7 +271,8 @@ describe('commercial polish helpers', () => {
       canRegisterFollowUp: true,
       followUpHref: '/clientes/party-1#trabajo',
     });
-    assert.match(step?.statement ?? '', /enviada/i);
+    assert.match(step?.statement ?? '', /presentada/i);
+    assert.match(step?.statement ?? '', /envío/i);
     assert.doesNotMatch(step?.statement ?? '', /creó un pedido|convertir/i);
   });
 });

@@ -66,4 +66,14 @@ describe('quote manual send record', () => {
     assert.match(pdf, /\/api\/quotes\//);
     assert.match(pdf, /Descargar/);
   });
+
+  it('keeps convert sticky copy honest about submitted status', () => {
+    const page = readFileSync(
+      resolve(root, 'app/(app)/clientes/[partyId]/cotizaciones/[quoteId]/page.tsx'),
+      'utf8',
+    );
+    assert.match(page, /Cliente aceptó · listo para pedido/);
+    assert.match(page, /estado sigue presentada hasta convertir/);
+    assert.match(page, /createOrderAction|ConvertQuoteForm/);
+  });
 });
