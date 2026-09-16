@@ -39,11 +39,11 @@ Deploy repair commits after merge tip (hosted build/runtime): `00793e1` → `b90
 
 | Subfeature | Code | Automated test | Hosted | Browser-verified |
 |---|---|---|---|---|
-| RecordQuoteManualSend → `quote.send_recorded` | **IMPLEMENTED** | package tests PASS | **HOSTED** @ `8508b9c` | **PENDING** (SYNTH walk in flight) |
-| ReceiveFinishedGoods + Pedido context (not allocate) | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **PENDING** |
-| CreateNotaDeEntrega / RecordSalida / RecordEntrega | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **PENDING** |
-| Delivery note provisional PDF (NE-PILOT) | **IMPLEMENTED** | providers + panel copy tests | **HOSTED** | **PENDING** |
-| Inicio today / event work offers | **IMPLEMENTED** | lane tests | **HOSTED** | **PENDING** |
+| RecordQuoteManualSend → `quote.send_recorded` | **IMPLEMENTED** | package tests PASS | **HOSTED** @ `8508b9c` | **UNPROVEN** (AUTH_BLOCKED for automated password fill) |
+| ReceiveFinishedGoods + Pedido context (not allocate) | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **UNPROVEN** (same) |
+| CreateNotaDeEntrega / RecordSalida / RecordEntrega | **IMPLEMENTED** | package tests PASS | **HOSTED** + migration | **UNPROVEN** (same) |
+| Delivery note provisional PDF (NE-PILOT) | **IMPLEMENTED** | providers + panel copy tests | **HOSTED** | **UNPROVEN** (same) |
+| Inicio today / event work offers | **IMPLEMENTED** | lane tests | **HOSTED** | **UNPROVEN** (same) |
 | Map commercial lens (prior) | **IMPLEMENTED** | prior | **HOSTED** (ancestry) | **BROWSER-VERIFIED PASS** @ `03745ab` |
 | WhatsApp provider send | N/A | — | — | intentional manual only |
 | Official fiscal numbering | N/A | — | — | **HELD** NE-PILOT only |
@@ -122,8 +122,17 @@ Commercial close (PDF → record external send → convert to Pedido with lines)
 
 ---
 
+## Blocked lane (non-blocking for deploy)
+
+| Field | Value |
+|---|---|
+| **BLOCKED LANE** | Hosted interactive SYNTH / Carmen browser walk (password login automation) |
+| **BLOCKER TYPE** | AUTH_BLOCKED |
+| **EXACT EVIDENCE** | Browser fill of Contraseña rejected by session policy; login page reachable at `/login` |
+| **SAFE WORK COMPLETED** | Integrate · SAME SHA dual deploy LIVE · migrations applied · health ready · consolidated receipt |
+| **UNBLOCK REQUIREMENT** | Manual login (Carmen or operator) or approved credential-entry path for BV agent; then score `operating-loop-hosted-bv-receipt.md` |
+
 ## Next proof gate
 
-SYNTH desktop+mobile adversarial walk receipt:  
-`docs/operations/final-pre-pilot-2026-09-16/operating-loop-hosted-bv-receipt.md` (in flight).  
-Do not mark BROWSER-VERIFIED PASS until that file scores subfeatures.
+Do **not** mark BROWSER-VERIFIED PASS until interactive SYNTH/Carmen walk scores subfeatures after unblock.  
+Docs tip on branch may be ahead of runtime SHA (`3fbece9` docs-only); **runtime remains `8508b9c`**.
