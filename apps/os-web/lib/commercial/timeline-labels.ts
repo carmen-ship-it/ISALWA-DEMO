@@ -31,6 +31,10 @@ const EVENT_LABELS: Record<string, string> = {
   'quote.cancelled': 'Cotización cancelada',
   'order.created': 'Pedido creado',
   'order.cancelled': 'Pedido cancelado',
+  'delivery_note.created': 'Nota de entrega creada',
+  'delivery_note.corrected': 'Nota de entrega corregida',
+  'warehouse_exit.recorded': 'Salida de almacén',
+  'customer_delivery.recorded': 'Entrega al cliente',
   'commercial_account.owner_reassigned': 'Responsable comercial cambiado',
   'finished_goods.received': 'Ingreso a almacén de productos terminados',
   'finished_goods.corrected': 'Corrección de ingreso a almacén',
@@ -91,6 +95,11 @@ const HIDDEN_FACT_KEYS = new Set([
   'correlationId',
   'decision',
   'decidedAt',
+  'deliveryNoteId',
+  'correctsNoteId',
+  'warehouseExitId',
+  'deliveryId',
+  'numberingPolicy',
 ]);
 
 function factLine(
@@ -108,6 +117,14 @@ function factLine(
       return `Cotización: ${value}`;
     case 'orderNumber':
       return `Pedido: ${value}`;
+    case 'internalDocumentRef':
+      return `Documento: ${value}`;
+    case 'receivedBy':
+      return `Recibido por: ${value}`;
+    case 'quantity':
+      return `Cantidad: ${value}`;
+    case 'note':
+      return `Nota: ${value}`;
     case 'stage':
       return `Etapa: ${presentStage(String(value))}`;
     case 'status':

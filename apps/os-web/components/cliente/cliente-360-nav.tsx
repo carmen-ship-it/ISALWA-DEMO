@@ -15,6 +15,7 @@ const SECTIONS = [
   { id: 'trabajo', label: 'Seguimiento' },
   { id: 'incidencias', label: 'Incidencias' },
   { id: 'compromisos', label: 'Compromisos' },
+  { id: 'documentos', label: 'Documentos' },
   { id: 'historial', label: 'Historial' },
 ] as const;
 

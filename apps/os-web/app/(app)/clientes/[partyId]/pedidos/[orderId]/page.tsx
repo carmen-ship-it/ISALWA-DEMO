@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
+import { DocumentDossierPanel } from '@/components/commercial/document-dossier-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
@@ -21,11 +22,14 @@ import {
   formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
+import { composeDocumentDossier } from '@/lib/commercial/document-dossier';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
 import { orderNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
-import type { SubjectApprovalItem } from '@/lib/commercial/types';
+import { projectPedidoTimeline } from '@/lib/commercial/pedido-timeline';
+import type { PartyTimelineResponse, SubjectApprovalItem } from '@/lib/commercial/types';
+import type { IssueListItem } from '@/lib/issue/types';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -62,11 +66,14 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     const memberLabels = await resolveMemberLabels(client, [order.ownerMemberId]);
     const ownerLabel = memberLabel(memberLabels, order.ownerMemberId);
     let sourceQuoteNumber: string | null = null;
+    let sourceQuote: Awaited<ReturnType<typeof client.getQuote>>['quote'] | null = null;
     if (order.quoteId) {
       try {
         const { quote } = await client.getQuote(order.quoteId);
+        sourceQuote = quote;
         sourceQuoteNumber = quote.quoteNumber;
       } catch {
+        sourceQuote = null;
         sourceQuoteNumber = null;
       }
     }
@@ -134,12 +141,12 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         productRef: string | null;
       }>;
     }> = [];
-    let deliveryTimeline: Array<{
+    let deliveryEvents: Array<{
       id: string;
       eventType: string;
       occurredAt: string;
-      label: string;
-      detail: string;
+      payload?: Record<string, unknown>;
+      actorMemberId?: string | null;
     }> = [];
     try {
       const docs = await client.get<{
@@ -165,29 +172,62 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           eventType: string;
           occurredAt: string;
           payload?: Record<string, unknown>;
+          actorMemberId?: string | null;
         }>;
       }>('/delivery-notes', { orderId: order.orderId });
       deliveryNotes = docs.notes ?? [];
-      deliveryTimeline = (docs.timeline ?? []).map((event) => ({
-        id: event.id,
-        eventType: event.eventType,
-        occurredAt: event.occurredAt,
-        label:
-          event.eventType === 'delivery_note.created'
-            ? 'Nota de entrega creada'
-            : event.eventType === 'warehouse_exit.recorded'
-              ? 'Salida de almacén'
-              : event.eventType === 'customer_delivery.recorded'
-                ? 'Entrega al cliente'
-                : event.eventType === 'delivery_note.corrected'
-                  ? 'Nota corregida'
-                  : event.eventType,
-        detail: event.eventType,
-      }));
+      deliveryEvents = docs.timeline ?? [];
     } catch {
       deliveryNotes = [];
-      deliveryTimeline = [];
+      deliveryEvents = [];
     }
+
+    let partyTimelineItems: PartyTimelineResponse['items'] = [];
+    try {
+      const timelinePage = await client.listPartyTimeline(partyId, { limit: 50 });
+      partyTimelineItems = timelinePage.items ?? [];
+    } catch {
+      partyTimelineItems = [];
+    }
+
+    let linkedIssues: IssueListItem[] = [];
+    try {
+      const issuePage = await client.listIssues({ view: 'all', partyId, limit: 20 });
+      linkedIssues = (issuePage.items ?? [])
+        .map((item) => ({
+          issueId: item.issueId,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          reporterMemberId: item.reporterMemberId,
+          ownerMemberId: item.ownerMemberId,
+          createdAt: item.createdAt,
+          references: item.references ?? [],
+        }))
+        .filter((item) =>
+          item.references.some(
+            (ref) => ref.referenceType === 'order' && ref.referenceId === order.orderId,
+          ),
+        );
+    } catch {
+      linkedIssues = [];
+    }
+
+    const pedidoTimeline = projectPedidoTimeline({
+      partyId,
+      orderId: order.orderId,
+      partyTimelineEntries: partyTimelineItems,
+      deliveryEvents,
+      linkedIssues,
+    });
+
+    const dossierItems = composeDocumentDossier({
+      partyId,
+      quotes: sourceQuote ? [sourceQuote] : [],
+      deliveryNotes,
+      timelineEntries: partyTimelineItems,
+      quoteIdFilter: order.quoteId,
+    });
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -307,6 +347,8 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </PageSection>
         ) : null}
 
+        <DocumentDossierPanel partyId={partyId} items={dossierItems} />
+
         <DeliveryDocumentsPanel
           partyId={partyId}
           orderId={order.orderId}
@@ -321,7 +363,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             productRef: line.productRef ?? null,
           }))}
           notes={deliveryNotes}
-          timeline={deliveryTimeline}
+          timeline={pedidoTimeline}
           canMutate={canMutateDelivery}
         />
 

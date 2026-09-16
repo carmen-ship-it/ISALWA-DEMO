@@ -6,6 +6,7 @@ import { CommercialPageFrame } from '@/components/commercial/commercial-page-fra
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
 import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
+import { DocumentDossierPanel } from '@/components/commercial/document-dossier-panel';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
@@ -28,6 +29,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
+import { composeDocumentDossier } from '@/lib/commercial/document-dossier';
 import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
@@ -350,6 +352,37 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
       partyCommitments = [];
     }
 
+    const orderIds =
+      orders.status === 'ok'
+        ? orders.data.items.map((item) => item.orderId).slice(0, 10)
+        : [];
+    const deliveryNoteRows = (
+      await Promise.all(
+        orderIds.map(async (orderId) => {
+          try {
+            const docs = await client.get<{
+              notes: Array<{
+                id: string;
+                internalDocumentRef: string;
+                status: 'issued' | 'reversed';
+                bornAt: string;
+              }>;
+            }>('/delivery-notes', { orderId });
+            return docs.notes ?? [];
+          } catch {
+            return [];
+          }
+        }),
+      )
+    ).flat();
+
+    const dossierItems = composeDocumentDossier({
+      partyId,
+      quotes: quotes.status === 'ok' ? quotes.data.items : [],
+      deliveryNotes: deliveryNoteRows,
+      timelineEntries: timeline.status === 'ok' ? timeline.data.items : [],
+    });
+
     return (
       <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
         <PageHeader
@@ -626,6 +659,15 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 promptLabel="Preguntar sobre compromisos"
               />
             </div>
+          </PageSection>
+
+          <PageSection id="documentos" card className={sectionClass}>
+            <SectionHeader title="Documentos" />
+            <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              Cotizaciones PDF, notas de entrega PDF y evidencia de envío cuando el registro es durable.
+              Los PDF se generan al abrir; no hay archivo binario archivado aparte.
+            </p>
+            <DocumentDossierPanel embedded items={dossierItems} />
           </PageSection>
 
           <PageSection id="historial" card className={sectionClass}>
