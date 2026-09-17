@@ -38,6 +38,8 @@ type MapExperienceProps = {
   selectedNextAction?: string | null;
   selectedIssueCount?: number | null;
   selectedLastUpdatedIso?: string | null;
+  /** Datos reales | Demo — drives boundary attribute; filtering happens server-side. */
+  dataMode?: 'real' | 'demo';
 };
 
 type MobilePane = 'map' | 'list';
@@ -69,6 +71,7 @@ export function MapExperience({
   selectedNextAction = null,
   selectedIssueCount = null,
   selectedLastUpdatedIso = null,
+  dataMode = 'real',
 }: MapExperienceProps) {
   const router = useRouter();
   const [layer, setLayer] = useState<MapLayerId>(DEFAULT_MAP_LAYER);
@@ -119,7 +122,12 @@ export function MapExperience({
   };
 
   return (
-    <div className="space-y-5" data-map-desk="location">
+    <div
+      className="space-y-5"
+      data-map-desk="location"
+      data-demo-data-mode={dataMode}
+      data-map-demo-boundary={dataMode === 'demo' ? 'DEMO · DATOS FICTICIOS' : undefined}
+    >
       {selectedRow ? (
         <div className="hidden lg:contents">
           <MapPartyDrawer
@@ -142,18 +150,18 @@ export function MapExperience({
       >
         <p className="isalwa-kicker">Cartera comercial · lectura canónica</p>
         <div className="mt-3 flex flex-wrap gap-2">
+          <StatusPill tone="info">Clientes {portfolio.clientCount}</StatusPill>
           <StatusPill tone="info">Oportunidades {portfolio.opportunityCount}</StatusPill>
-          <StatusPill tone="info">Cotizaciones {portfolio.quoteCount}</StatusPill>
-          <StatusPill tone="info">Pedidos {portfolio.orderCount}</StatusPill>
-          {portfolio.opportunityValueLabel ? (
-            <StatusPill tone="neutral">Valor de oportunidades {portfolio.opportunityValueLabel}</StatusPill>
-          ) : null}
           {portfolio.quotedValueLabel ? (
             <StatusPill tone="neutral">Valor cotizado {portfolio.quotedValueLabel}</StatusPill>
-          ) : null}
+          ) : (
+            <StatusPill tone="neutral">Valor cotizado —</StatusPill>
+          )}
           {portfolio.orderValueLabel ? (
             <StatusPill tone="neutral">Valor de pedidos {portfolio.orderValueLabel}</StatusPill>
-          ) : null}
+          ) : (
+            <StatusPill tone="neutral">Valor de pedidos —</StatusPill>
+          )}
         </div>
         <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
           {MAP_COMMERCIAL_VALUE_DISCLAIMER}

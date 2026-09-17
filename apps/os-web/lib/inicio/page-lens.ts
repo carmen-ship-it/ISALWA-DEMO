@@ -16,7 +16,8 @@ export function resolveInicioPageLens(
   raw: string | undefined,
   input: InicioRoleLensInput,
 ): InicioPageLens {
-  if (raw === 'empresa' && canShowOrgLens(input)) return 'org';
+  // `gerencia` is the Story Mode / seeded deep-link alias for Empresa org metrics.
+  if ((raw === 'empresa' || raw === 'gerencia') && canShowOrgLens(input)) return 'org';
   if (raw === 'equipo' && canShowTeamLens(input)) return 'team';
   return 'personal';
 }

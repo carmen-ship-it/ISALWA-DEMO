@@ -55,6 +55,7 @@ describe('inicio command center UX-2', () => {
     assert.match(lens, /Empresa/);
     assert.match(lens, /params\.set\('lente', 'equipo'\)/);
     assert.match(lens, /params\.set\('lente', 'empresa'\)/);
+    assert.match(lens, /raw === 'gerencia'/);
   });
 
   it('mounts one command center without stacked role homes', () => {

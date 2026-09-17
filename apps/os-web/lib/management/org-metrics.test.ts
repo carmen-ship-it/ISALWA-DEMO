@@ -49,7 +49,7 @@ describe('composeOrgMetricCards', () => {
     assert.match(byId['order-value']?.tooltip ?? '', /No es ingreso/);
     assert.doesNotMatch(
       cards.map((card) => `${card.label} ${card.value} ${card.tooltip ?? ''}`).join(' '),
-      /revenue|ingresos oficiales|facturaci[oó]n/i,
+      /revenue|profit|margin|ingresos oficiales|facturaci[oó]n|beneficio|margen/i,
     );
 
     const funnel = composeCommercialFunnelCounts({
