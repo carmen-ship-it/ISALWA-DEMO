@@ -1,6 +1,14 @@
 /**
  * Owner Story Mode — "Recorrido completo de ISALWA" (20 steps).
  * CTAs resolve against seeded DEMO MADERAS ORIENTE ids when available.
+ *
+ * Demo company context:
+ * - App page deep links append `?datos=demo` so SSR desks keep the Demo filter
+ *   when Story CTAs navigate (parity with normal Demo navigation intent).
+ * - Raw PDF API routes (`/api/.../pdf`) are left unchanged — they are session/
+ *   auth scoped downloads, not app pages.
+ * - Effective company cookie (Demo → SYNTH org among memberships) is set by
+ *   OwnerDemoProvider (OA-1). This module does not rewrite the company resolver.
  */
 
 import type { DemoSeedIdMap } from '@/lib/demo/owner-demo-registry';
@@ -21,6 +29,29 @@ function maderas(ids: DemoSeedIdMap | null) {
   return ids?.clients.find((c) => c.key === 'maderas_oriente') ?? null;
 }
 
+/** True for product PDF download APIs — not app pages. */
+export function isStoryPdfApiHref(href: string): boolean {
+  const pathOnly = href.split('?')[0] ?? href;
+  return pathOnly.startsWith('/api/') && pathOnly.endsWith('/pdf');
+}
+
+/**
+ * Append `datos=demo` to Story Mode app-page CTAs.
+ * Leaves null and raw PDF API hrefs unchanged.
+ */
+export function withStoryDemoDatos(href: string | null): string | null {
+  if (href == null) return null;
+  if (isStoryPdfApiHref(href)) return href;
+  if (/(?:^|[?&])datos=/.test(href)) return href;
+  return href.includes('?') ? `${href}&datos=demo` : `${href}?datos=demo`;
+}
+
+function storyHref(
+  build: (ids: DemoSeedIdMap | null) => string | null,
+): StoryModeStep['hrefFor'] {
+  return (ids) => withStoryDemoDatos(build(ids));
+}
+
 export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
   {
     step: 1,
@@ -29,10 +60,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Conversación registrada como evidencia (no envía WhatsApp).',
     ctaLabel: 'Ver cliente demo',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m ? `/clientes/${encodeURIComponent(m.partyId)}` : '/conversaciones';
-    },
+    }),
   },
   {
     step: 2,
@@ -41,10 +72,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Cliente, contacto y ubicación confirmada.',
     ctaLabel: 'Abrir Cliente360',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m ? `/clientes/${encodeURIComponent(m.partyId)}` : null;
-    },
+    }),
   },
   {
     step: 3,
@@ -53,10 +84,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Sugerencia determinística — no crea sola el registro.',
     ctaLabel: 'Ver oportunidades',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m ? `/clientes/${encodeURIComponent(m.partyId)}?tab=comercial` : '/oportunidades';
-    },
+    }),
   },
   {
     step: 4,
@@ -65,11 +96,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Oportunidad con etapa y valor esperado.',
     ctaLabel: 'Abrir oportunidad',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.opportunityId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/oportunidades/${encodeURIComponent(m.opportunityId)}`;
-    },
+    }),
   },
   {
     step: 5,
@@ -78,11 +109,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Cotización + líneas + marca demo.',
     ctaLabel: 'Abrir cotización',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.quoteId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/cotizaciones/${encodeURIComponent(m.quoteId)}`;
-    },
+    }),
   },
   {
     step: 6,
@@ -91,10 +122,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Documento PDF generado desde la cotización real.',
     ctaLabel: 'Descargar PDF cotización',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m?.quoteId ? `/api/quotes/${encodeURIComponent(m.quoteId)}/pdf` : null;
-    },
+    }),
   },
   {
     step: 7,
@@ -103,11 +134,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Evidencia de envío manual.',
     ctaLabel: 'Ver cotización enviada',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.quoteId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/cotizaciones/${encodeURIComponent(m.quoteId)}`;
-    },
+    }),
   },
   {
     step: 8,
@@ -116,14 +147,14 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Trabajo de seguimiento vinculado al cliente.',
     ctaLabel: 'Ver trabajo',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m?.followUpWorkId
         ? `/trabajo/${encodeURIComponent(m.followUpWorkId)}`
         : m
           ? `/clientes/${encodeURIComponent(m.partyId)}`
           : '/inicio';
-    },
+    }),
   },
   {
     step: 9,
@@ -132,11 +163,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor / persona autorizada a convertir',
     whatIsalwaRecorded: 'Cotización aceptada → Pedido.',
     ctaLabel: 'Ver cotización aceptada',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.quoteId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/cotizaciones/${encodeURIComponent(m.quoteId)}`;
-    },
+    }),
   },
   {
     step: 10,
@@ -145,11 +176,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor',
     whatIsalwaRecorded: 'Pedido abierto con líneas.',
     ctaLabel: 'Abrir pedido',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.orderId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`;
-    },
+    }),
   },
   {
     step: 11,
@@ -158,11 +189,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor / coordinación',
     whatIsalwaRecorded: 'Trabajo de preparación operativa (producción).',
     ctaLabel: 'Ver preparación',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.orderId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`;
-    },
+    }),
   },
   {
     step: 12,
@@ -171,14 +202,14 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Producción',
     whatIsalwaRecorded: 'Revisión de producción solicitada.',
     ctaLabel: 'Ver revisión',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m?.orderPrepWorkId
         ? `/trabajo/${encodeURIComponent(m.orderPrepWorkId)}`
         : m?.orderId
           ? `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`
           : null;
-    },
+    }),
   },
   {
     step: 13,
@@ -187,11 +218,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Almacén',
     whatIsalwaRecorded: 'Recepción de productos terminados (FG).',
     ctaLabel: 'Ver pedido / FG',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.orderId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`;
-    },
+    }),
   },
   {
     step: 14,
@@ -200,12 +231,12 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Persona autorizada para entregas',
     whatIsalwaRecorded: 'Nota de entrega + PDF disponible.',
     ctaLabel: 'Descargar PDF nota',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m?.deliveryNoteId
         ? `/api/delivery-notes/${encodeURIComponent(m.deliveryNoteId)}/pdf`
         : null;
-    },
+    }),
   },
   {
     step: 15,
@@ -214,11 +245,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Almacén',
     whatIsalwaRecorded: 'Salida vinculada al pedido.',
     ctaLabel: 'Ver pedido',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.orderId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`;
-    },
+    }),
   },
   {
     step: 16,
@@ -227,11 +258,11 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Persona autorizada para entregas',
     whatIsalwaRecorded: 'Entrega registrada con receptor.',
     ctaLabel: 'Ver entrega',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       if (!m?.orderId) return null;
       return `/clientes/${encodeURIComponent(m.partyId)}/pedidos/${encodeURIComponent(m.orderId)}`;
-    },
+    }),
   },
   {
     step: 17,
@@ -240,10 +271,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor / Gerencia',
     whatIsalwaRecorded: 'PDFs en Documentos.',
     ctaLabel: 'Abrir documentos',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m ? `/clientes/${encodeURIComponent(m.partyId)}?tab=documentos` : null;
-    },
+    }),
   },
   {
     step: 18,
@@ -252,10 +283,10 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Asesor / Gerencia',
     whatIsalwaRecorded: 'Timeline / Cliente360 del demo.',
     ctaLabel: 'Abrir historial',
-    hrefFor: (ids) => {
+    hrefFor: storyHref((ids) => {
       const m = maderas(ids);
       return m ? `/clientes/${encodeURIComponent(m.partyId)}?tab=historial` : null;
-    },
+    }),
   },
   {
     step: 19,
@@ -264,7 +295,7 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Gerencia',
     whatIsalwaRecorded: 'Cambios recientes en Inicio.',
     ctaLabel: 'Ver Inicio',
-    hrefFor: () => '/inicio',
+    hrefFor: storyHref(() => '/inicio'),
   },
   {
     step: 20,
@@ -273,7 +304,7 @@ export const STORY_MODE_STEPS: readonly StoryModeStep[] = [
     whoNormallyActs: 'Gerencia',
     whatIsalwaRecorded: 'Métricas con filtro Datos reales / Demo.',
     ctaLabel: 'Ver gerencia',
-    hrefFor: () => '/inicio?lente=gerencia',
+    hrefFor: storyHref(() => '/inicio?lente=gerencia'),
   },
 ] as const;
 
