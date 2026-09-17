@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageSection, SectionHeader } from '@isalwa/ui';
+import { ListRow, PageSection, SectionHeader } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
 import { Cliente360Sticky } from '@/components/cliente/cliente-360-sticky';
+import { Cliente360Header } from '@/components/cliente/cliente-360-header';
+import { Cliente360Intelligence } from '@/components/cliente/cliente-360-intelligence';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
 import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-surfaces';
@@ -10,27 +12,25 @@ import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { QuoteList } from '@/components/commercial/quote-list';
-import { ManualOperationsPanel } from '@/components/operations/manual-operations-panel';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
-import { CommercialOwnerLine } from '@/components/party/commercial-owner-line';
-import { CustomerEditForms } from '@/components/party/customer-edit-forms';
+import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { PartyRoleBadges, PartyStatusBadge } from '@/components/party/party-role-badges';
 import { WorkList } from '@/components/work/work-list';
-import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { Cliente360Issues } from '@/components/issue/cliente-360-issues';
 import { Cliente360Documentos } from '@/components/cliente/cliente-360-documentos';
 import { Cliente360Finanzas } from '@/components/cliente/cliente-360-finanzas';
 import { CommitmentList } from '@/components/commitments/commitment-list';
-import { CommitmentRecordForm } from '@/components/commitments/commitment-record-form';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
-import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
+import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
+import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
+import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import type { IssueListItem } from '@/lib/issue/types';
@@ -51,10 +51,10 @@ import {
 import { partyHref, trabajoForPartyHref } from '@/lib/party/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
-import type { Cliente360Composition } from '@/lib/party/next-action';
-import type { PartyDetailResponse } from '@/lib/party/types';
+import { reportIssueContextFromParty } from '@/lib/issue/report-context';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { AiAssistShell } from '@/components/ai/ai-assist-shell';
+import { isAiEnabled } from '@/lib/ai/limits';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -62,93 +62,11 @@ type PartyDetailPageProps = {
 
 const sectionClass = 'scroll-mt-40 p-8';
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
-const secondaryActionClass =
-  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+
+const CLOSED_ISSUE_STATUSES = new Set(['resolved', 'closed']);
 
 function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['detail']): string[] {
   return detail.roles.map((role) => role.roleKey);
-}
-
-function CustomerCompactHeader({
-  displayName,
-  status,
-  ownerLabel,
-  hasCoordinates,
-  contactName,
-  phone,
-  maps,
-  partyId,
-  nextAction,
-}: {
-  displayName: string;
-  status: string;
-  ownerLabel: string | null;
-  hasCoordinates: boolean;
-  contactName: string | null;
-  phone: string | null;
-  maps: { href: string; label: string } | null;
-  partyId: string;
-  nextAction: Cliente360Composition['nextAction'] | null;
-}) {
-  const facts = [
-    ownerLabel ? `Responsable comercial: ${ownerLabel}` : null,
-    hasCoordinates ? 'Ubicación disponible' : null,
-    contactName,
-    phone,
-  ].filter((fact): fact is string => Boolean(fact));
-
-  const showNext =
-    nextAction &&
-    nextAction.kind !== 'insufficient' &&
-    nextAction.statement.trim().length > 0;
-
-  return (
-    <div className="flex flex-col gap-2 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <div className="min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-medium text-[var(--isalwa-kiln)]">{displayName}</p>
-            <PartyStatusBadge status={status} />
-          </div>
-          {facts.length > 0 ? (
-            <p className="mt-1 break-words text-xs leading-4 text-[var(--isalwa-slate)]">{facts.join(' · ')}</p>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          {maps ? (
-            <a href={maps.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-              {maps.label}
-            </a>
-          ) : null}
-          <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
-            Nueva oportunidad
-          </Link>
-          <Link href={clienteSectionHref(partyId, 'trabajo')} className={secondaryActionClass}>
-            {FOLLOW_UP_COPY.action}
-          </Link>
-        </div>
-      </div>
-      {showNext ? (
-        <p className="text-sm text-[var(--isalwa-kiln)]" data-tour="cliente360-next-action">
-          <span className="font-medium">{FOLLOW_UP_COPY.nextAction}</span>
-          {' · '}
-          {nextAction.href ? (
-            <Link href={nextAction.href} className={linkClass}>
-              {nextAction.statement}
-            </Link>
-          ) : (
-            <span>{nextAction.statement}</span>
-          )}
-          {nextAction.dueText ? (
-            <span className="text-[var(--isalwa-slate)]"> · {nextAction.dueText}</span>
-          ) : null}
-          {nextAction.overdue ? (
-            <span className="text-[var(--isalwa-slate)]"> · Vencido</span>
-          ) : null}
-        </p>
-      ) : null}
-    </div>
-  );
 }
 
 function CustomerNotFound() {
@@ -170,105 +88,6 @@ function CustomerNotFound() {
   );
 }
 
-function IdentityLetterhead({
-  party,
-  contacts,
-  contact,
-  owner,
-  partyId,
-  commercialAccount,
-  canEditParty,
-  composition,
-}: {
-  party: PartyDetailResponse['party'];
-  contacts: PartyDetailResponse['contacts'];
-  contact: PartyDetailResponse['contacts'][number] | null;
-  owner: ReturnType<typeof commercialOwnerView>;
-  partyId: string;
-  commercialAccount: PartyDetailResponse['commercialAccount'];
-  canEditParty: boolean;
-  composition: Cliente360Composition;
-}) {
-  const contactName = contact ? contactDisplayName(contact.givenName, contact.familyName) : null;
-  const accountLabel = commercialAccount
-    ? formatCommercialAccountStatus(commercialAccount.status)
-    : null;
-
-  return (
-    <div
-      id="resumen"
-      className="scroll-mt-40 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-6 shadow-[var(--isalwa-shadow-soft)] md:p-8"
-      data-tour="cliente360-identity"
-    >
-      <Cliente360Now composition={composition} />
-      <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
-        {party.legalName ? (
-          <div className="min-w-0 sm:col-span-2">
-            <dt className="isalwa-section-label">Razón social</dt>
-            <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{party.legalName}</dd>
-          </div>
-        ) : null}
-        <div>
-          <dt className="isalwa-section-label">Estado</dt>
-          <dd className="mt-2">
-            <PartyStatusBadge status={party.status} />
-          </dd>
-        </div>
-        <div>
-          <dt className="isalwa-section-label">Tipo</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatPartyKind(party.partyKind)}</dd>
-        </div>
-        {contactName ? (
-          <div className="min-w-0">
-            <dt className="isalwa-section-label">Contacto</dt>
-            <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{contactName}</dd>
-            {contact?.title ? (
-              <dd className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">{contact.title}</dd>
-            ) : null}
-          </div>
-        ) : null}
-        {contact?.phone ? (
-          <div className="min-w-0">
-            <dt className="isalwa-section-label">Teléfono</dt>
-            <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{contact.phone}</dd>
-          </div>
-        ) : null}
-        {contact?.whatsapp ? (
-          <div className="min-w-0">
-            <dt className="isalwa-section-label">WhatsApp</dt>
-            <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{contact.whatsapp}</dd>
-          </div>
-        ) : null}
-      </dl>
-
-      {commercialAccount ? (
-        <CommercialOwnerLine
-          owner={owner}
-          partyId={partyId}
-          commercialAccountId={commercialAccount.id}
-          currentOwnerMemberId={commercialAccount.ownerMemberId}
-          note={composition.owner.note}
-        />
-      ) : (
-        <CommercialOwnerLine owner={owner} note={composition.owner.note} />
-      )}
-
-      {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
-
-      {party.status === 'merged' && party.mergedIntoPartyId ? (
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          Este registro fue fusionado.{' '}
-          <Link href={partyHref(party.mergedIntoPartyId)} className={linkClass}>
-            Ver registro principal
-          </Link>
-        </p>
-      ) : null}
-
-      <CustomerEditForms party={party} contacts={contacts} canEditParty={canEditParty} canEditContacts={false} />
-    </div>
-  );
-}
-
 export default async function PartyDetailPage({ params }: PartyDetailPageProps) {
   const { partyId } = await params;
   const auth = await getServerOsAuthContext();
@@ -278,7 +97,18 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
 
   try {
     const data = await loadCliente360(client, partyId);
-    const { detail, opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary, memberLabels } = data;
+    const {
+      detail,
+      opportunities,
+      quotes,
+      orders,
+      timeline,
+      relatedWork,
+      locations,
+      documentLinks,
+      financeSummary,
+      memberLabels,
+    } = data;
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
@@ -312,8 +142,8 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
       orders,
       staleProjection: data.staleFreshness,
     });
-    const primaryContact =
-      contacts.find((item) => item.id === composition.primaryContact.id) ?? null;
+    const accountLabel = commercialAccount ? formatCommercialAccountStatus(commercialAccount.status) : null;
+
     const webSession = await getServerWebSession();
     const reportedByLabel = webSession?.displayLabel?.trim() ?? '';
     let actorMemberId = '';
@@ -325,6 +155,7 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     }
     const manualSubjectId = party.id.trim();
     const manualOrganizationId = party.organizationId.trim();
+    const issueContext = reportIssueContextFromParty(partyId, displayName);
 
     let partyIssues: IssueListItem[] = [];
     try {
@@ -343,6 +174,8 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
       partyIssues = [];
     }
 
+    const openIssueCount = partyIssues.filter((item) => !CLOSED_ISSUE_STATUSES.has(item.status)).length;
+
     let partyCommitments: Awaited<ReturnType<typeof client.listCommitments>>['items'] = [];
     try {
       const commitmentPage = await client.listCommitments({ partyId });
@@ -350,6 +183,15 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
     } catch {
       partyCommitments = [];
     }
+
+    const intelligence = buildCliente360Intelligence({
+      opportunities,
+      quotes,
+      orders,
+      documentLinks,
+      openIssues: openIssueCount,
+      composition,
+    });
 
     return (
       <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
@@ -371,187 +213,189 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
         ) : null}
 
         <Cliente360Sticky>
-          <CustomerCompactHeader
+          <Cliente360Header
+            partyId={partyId}
             displayName={displayName}
             status={party.status}
-            ownerLabel={composition.owner.assigned ? composition.owner.label : null}
-            hasCoordinates={composition.location.state === 'coordinates'}
-            contactName={composition.primaryContact.name}
-            phone={composition.primaryContact.phone}
-            maps={composition.location.provenance}
-            partyId={partyId}
-            nextAction={composition.nextAction}
+            composition={composition}
+            party={party}
+            contacts={contacts}
+            canEditParty={canEditParty}
+            canEditContacts={canEditContacts}
+            canReassignOwner={canReassignOwner}
+            ownerLabel={owner.label}
+            commercialAccountId={commercialAccount?.id ?? null}
+            currentOwnerMemberId={commercialAccount?.ownerMemberId ?? null}
+            issueContext={issueContext}
+            reportedByLabel={reportedByLabel || undefined}
+            organizationId={manualOrganizationId || party.organizationId}
+            actorMemberId={actorMemberId}
+            manualSubjectLabel={displayName}
+            manualOrganizationId={manualOrganizationId}
+            manualSubjectId={manualSubjectId}
           />
           <Cliente360Nav partyId={partyId} embedded />
         </Cliente360Sticky>
 
-        <IdentityLetterhead
-          party={party}
-          contacts={contacts}
-          contact={primaryContact}
-          owner={owner}
-          partyId={partyId}
-          commercialAccount={commercialAccount}
-          canEditParty={canEditParty}
-          composition={composition}
-        />
-
-        {reportedByLabel && manualOrganizationId && manualSubjectId ? (
-          <PageSection card className="mt-10 max-w-xl p-8">
-            <ManualOperationsPanel
-              organizationId={manualOrganizationId}
-              subjectType="party"
-              subjectId={manualSubjectId}
-              subjectLabel={displayName}
-              reportedByLabel={reportedByLabel}
-            />
-          </PageSection>
-        ) : null}
-
         <div className="mt-10 min-w-0 space-y-12">
-          <PageSection id="contactos" card className={sectionClass}>
-            <SectionHeader title="Contactos" />
-            {contacts.length === 0 ? (
-              <EmptyState title="No hay contactos" description="Esta empresa no tiene contactos registrados." />
-            ) : (
-              <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                {contacts.map((item) => (
-                  <ListRow key={item.id} as="li" className="min-w-0 px-1 py-1">
-                    <div className="min-w-0 max-w-full flex-1">
-                      <p className="break-words font-medium text-[var(--isalwa-kiln)]">
-                        {contactDisplayName(item.givenName, item.familyName)}
-                      </p>
-                      {item.title ? (
-                        <p className="mt-1 break-words text-sm text-[var(--isalwa-slate)]">{item.title}</p>
-                      ) : null}
-                      <dl className="mt-3 grid min-w-0 gap-3 text-sm sm:grid-cols-2">
-                        {item.email ? (
-                          <div className="min-w-0">
-                            <dt className="isalwa-section-label">Correo</dt>
-                            <dd className="mt-1 break-words text-[var(--isalwa-kiln)] [overflow-wrap:anywhere]">
-                              {item.email}
-                            </dd>
-                          </div>
-                        ) : null}
+          <PageSection id="resumen" card className={sectionClass} data-tour="cliente360-identity">
+            <SectionHeader title="Resumen" />
+            <div className="space-y-8">
+              <Cliente360Now composition={composition} />
+              <Cliente360Intelligence facts={intelligence} />
+              <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
+                {party.legalName ? (
+                  <div className="min-w-0 sm:col-span-2">
+                    <dt className="isalwa-section-label">Razón social</dt>
+                    <dd className="mt-2 break-words text-[var(--isalwa-kiln)]">{party.legalName}</dd>
+                  </div>
+                ) : null}
+                <div>
+                  <dt className="isalwa-section-label">Estado</dt>
+                  <dd className="mt-2">
+                    <PartyStatusBadge status={party.status} />
+                  </dd>
+                </div>
+                <div>
+                  <dt className="isalwa-section-label">Tipo</dt>
+                  <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatPartyKind(party.partyKind)}</dd>
+                </div>
+              </dl>
+              <Cliente360OwnerLine owner={owner} note={composition.owner.note} />
+              {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
+              {party.status === 'merged' && party.mergedIntoPartyId ? (
+                <p className="text-sm text-[var(--isalwa-slate)]">
+                  Este registro fue fusionado.{' '}
+                  <Link href={partyHref(party.mergedIntoPartyId)} className={linkClass}>
+                    Ver registro principal
+                  </Link>
+                </p>
+              ) : null}
+              <div>
+                <p className="isalwa-section-label">Contactos</p>
+                {contacts.length === 0 ? (
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>
+                ) : (
+                  <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
+                    {contacts.map((item) => (
+                      <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
+                        <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                          {contactDisplayName(item.givenName, item.familyName)}
+                        </p>
                         {item.phone ? (
-                          <div className="min-w-0">
-                            <dt className="isalwa-section-label">Teléfono</dt>
-                            <dd className="mt-1 break-words text-[var(--isalwa-kiln)]">{item.phone}</dd>
-                          </div>
+                          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
                         ) : null}
-                        {item.whatsapp ? (
-                          <div className="min-w-0">
-                            <dt className="isalwa-section-label">WhatsApp</dt>
-                            <dd className="mt-1 break-words text-[var(--isalwa-kiln)]">{item.whatsapp}</dd>
-                          </div>
-                        ) : null}
-                      </dl>
-                    </div>
-                  </ListRow>
-                ))}
-              </ul>
-            )}
-            <CustomerEditForms
-              party={party}
-              contacts={contacts}
-              canEditParty={false}
-              canEditContacts={canEditContacts}
-            />
+                      </ListRow>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="isalwa-section-label">Relaciones</p>
+                <div className="mt-2">
+                  <PartyRoleBadges roleKeys={roleKeys} />
+                </div>
+              </div>
+            </div>
           </PageSection>
 
-          <PageSection id="ubicaciones" card className={sectionClass}>
-            <SectionHeader title="Ubicaciones" />
-            {locations.status === 'ok' ? (
-              <CustomerLocationPanel
-                partyId={partyId}
-                locations={locations.data.locations}
-                canMutate={canEditParty}
-              />
-            ) : locations.status === 'unavailable' ? (
-              <ServiceUnavailableState />
-            ) : locations.status === 'forbidden' ? (
-              <AccessDeniedState />
-            ) : (
-              <p className="text-sm text-[var(--isalwa-slate)]" role="alert">
-                {locations.message}
-              </p>
-            )}
-          </PageSection>
-
-          <PageSection id="relaciones" card className={sectionClass}>
-            <SectionHeader title="Relaciones" />
-            <p className="mb-6 text-sm text-[var(--isalwa-slate)]">
-              Todas las relaciones comerciales de esta misma empresa.
-            </p>
-            <PartyRoleBadges roleKeys={roleKeys} />
-          </PageSection>
-
-          <PageSection id="oportunidades" card className={sectionClass}>
+          <PageSection id="comercial" card className={sectionClass}>
             <SectionHeader
-              title="Oportunidades"
+              title="Comercial"
               action={
                 <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
                   Nueva oportunidad
                 </Link>
               }
             />
-            <CommercialSectionState
-              outcome={opportunities}
-              emptyTitle="Todavía no hay oportunidades activas para este cliente"
-              emptyDescription="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
-              emptyExample="Un cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
-              emptyAction={
-                <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
-                  Nueva oportunidad
-                </Link>
-              }
-            >
-              {(list) => (
-                <>
-                  <StaleProjectionBanner freshness={list.freshness} />
-                  <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} />
-                </>
-              )}
-            </CommercialSectionState>
+            <div className="space-y-10">
+              <div>
+                <SectionHeader title="Oportunidades" />
+                <CommercialSectionState
+                  outcome={opportunities}
+                  emptyTitle="Todavía no hay oportunidades activas para este cliente"
+                  emptyDescription="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
+                  emptyExample="Un cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
+                  emptyAction={
+                    <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
+                      Nueva oportunidad
+                    </Link>
+                  }
+                >
+                  {(list) => (
+                    <>
+                      <StaleProjectionBanner freshness={list.freshness} />
+                      <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                    </>
+                  )}
+                </CommercialSectionState>
+              </div>
+              <div>
+                <SectionHeader title="Cotizaciones" />
+                <CommercialSectionState
+                  outcome={quotes}
+                  emptyTitle="Todavía no hay cotizaciones activas"
+                  emptyDescription="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
+                  emptyExample="Todavía no hay cotizaciones es esperado si aún no hay oportunidad con borrador o envío."
+                >
+                  {(list) => (
+                    <>
+                      <StaleProjectionBanner freshness={list.freshness} />
+                      <QuoteList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                    </>
+                  )}
+                </CommercialSectionState>
+              </div>
+              <div>
+                <SectionHeader title="Pedidos" />
+                <CommercialSectionState
+                  outcome={orders}
+                  emptyTitle="Sin pedidos todavía"
+                  emptyDescription="Cuando se registren pedidos para esta empresa, aparecerán aquí."
+                  emptyExample="Un cliente activo puede no tener pedidos. El vacío es intencional hasta que exista una cotización convertida."
+                >
+                  {(list) => (
+                    <>
+                      <StaleProjectionBanner freshness={list.freshness} />
+                      <OrderList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                    </>
+                  )}
+                </CommercialSectionState>
+              </div>
+            </div>
           </PageSection>
 
-          <PageSection id="cotizaciones" card className={sectionClass}>
-            <SectionHeader title="Cotizaciones" />
-            <CommercialSectionState
-              outcome={quotes}
-              emptyTitle="Todavía no hay cotizaciones activas"
-              emptyDescription="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
-              emptyExample="Todavía no hay cotizaciones es esperado si aún no hay oportunidad con borrador o envío."
-            >
-              {(list) => (
-                <>
-                  <StaleProjectionBanner freshness={list.freshness} />
-                  <QuoteList partyId={partyId} items={list.items} memberLabels={memberLabels} />
-                </>
-              )}
-            </CommercialSectionState>
-          </PageSection>
-
-          <PageSection id="pedidos" card className={sectionClass}>
-            <SectionHeader title="Pedidos" />
-            <CommercialSectionState
-              outcome={orders}
-              emptyTitle="Sin pedidos todavía"
-              emptyDescription="Cuando se registren pedidos para esta empresa, aparecerán aquí."
-              emptyExample="Un cliente activo puede no tener pedidos. El vacío es intencional hasta que exista una cotización convertida."
-            >
-              {(list) => (
-                <>
-                  <StaleProjectionBanner freshness={list.freshness} />
-                  <OrderList partyId={partyId} items={list.items} memberLabels={memberLabels} />
-                </>
-              )}
-            </CommercialSectionState>
+          <PageSection id="operacion" card className={sectionClass}>
+            <SectionHeader title="Operación" />
+            <p className="mb-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{CLIENTE360_UX_COPY.operacionHint}</p>
+            <div className="space-y-10">
+              <div>
+                <SectionHeader title="Ubicaciones" />
+                {locations.status === 'ok' ? (
+                  <CustomerLocationPanel
+                    partyId={partyId}
+                    locations={locations.data.locations}
+                    canMutate={false}
+                  />
+                ) : locations.status === 'unavailable' ? (
+                  <ServiceUnavailableState />
+                ) : locations.status === 'forbidden' ? (
+                  <AccessDeniedState />
+                ) : (
+                  <p className="text-sm text-[var(--isalwa-slate)]" role="alert">
+                    {locations.message}
+                  </p>
+                )}
+              </div>
+              <div id="finanzas">
+                <Cliente360Finanzas outcome={financeSummary} />
+              </div>
+            </div>
           </PageSection>
 
           <PageSection id="trabajo" card className={sectionClass}>
             <SectionHeader
-              title={FOLLOW_UP_COPY.section}
+              title="Trabajo"
               action={
                 relatedWork.status === 'ok' && relatedWork.data.items.length > 0 ? (
                   <Link href={trabajoForPartyHref(partyId)} className={linkClass}>
@@ -560,79 +404,52 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 ) : undefined
               }
             />
-            <RegisterFollowUpForm partyId={partyId} />
-            <CommercialSectionState
-              outcome={relatedWork}
-              emptyTitle={FOLLOW_UP_COPY.emptyTitle}
-              emptyDescription={FOLLOW_UP_COPY.emptyDescription}
-            >
-              {(workData) => (
-                <>
-                  <StaleProjectionBanner freshness={workData.freshness} />
-                  <WorkList items={workData.items} memberLabels={memberLabels} presentation="follow-up" />
-                </>
-              )}
-            </CommercialSectionState>
-          </PageSection>
-
-          <PageSection id="incidencias" card className={sectionClass}>
-            <Cliente360Issues
-              items={partyIssues}
-              partyId={partyId}
-              partyLabel={displayName}
-              reportedByLabel={reportedByLabel || undefined}
-            />
-          </PageSection>
-
-          <PageSection id="documentos" card className={sectionClass}>
-            <Cliente360Documentos outcome={documentLinks} />
-          </PageSection>
-
-          <PageSection id="finanzas" card className={sectionClass}>
-            <Cliente360Finanzas outcome={financeSummary} />
-          </PageSection>
-
-          <div className="mt-6">
-            <AiAssistShell
-              title="Ayuda con este cliente"
-              feature="summarize_customer"
-              subjectType="party"
-              subjectId={partyId}
-              surface="cliente360"
-              promptLabel="Preguntar sobre este cliente"
-            />
-          </div>
-
-          <PageSection id="compromisos" card className={sectionClass}>
-            <SectionHeader title={COMMITMENT_COPY.title} />
-            <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              {COMMITMENT_COPY.sectionHint}
-            </p>
-            {actorMemberId ? (
-              <CommitmentRecordForm
-                organizationId={manualOrganizationId || party.organizationId}
-                ownerMemberId={actorMemberId}
+            <div className="space-y-10">
+              <div>
+                <SectionHeader title={FOLLOW_UP_COPY.section} />
+                <CommercialSectionState
+                  outcome={relatedWork}
+                  emptyTitle={FOLLOW_UP_COPY.emptyTitle}
+                  emptyDescription={FOLLOW_UP_COPY.emptyDescription}
+                >
+                  {(workData) => (
+                    <>
+                      <StaleProjectionBanner freshness={workData.freshness} />
+                      <WorkList items={workData.items} memberLabels={memberLabels} presentation="follow-up" />
+                    </>
+                  )}
+                </CommercialSectionState>
+              </div>
+              <Cliente360Issues
+                items={partyIssues}
                 partyId={partyId}
-              />
-            ) : null}
-            <div className="mt-6">
-              <CommitmentList
-                items={partyCommitments}
-                memberLabels={memberLabels}
                 partyLabel={displayName}
-                showOrigin
+                reportedByLabel={reportedByLabel || undefined}
               />
-            </div>
-            <div className="mt-6">
+              <div>
+                <SectionHeader title={COMMITMENT_COPY.title} />
+                <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">{COMMITMENT_COPY.sectionHint}</p>
+                <CommitmentList
+                  items={partyCommitments}
+                  memberLabels={memberLabels}
+                  partyLabel={displayName}
+                  showOrigin
+                />
+              </div>
               <AiAssistShell
                 title="Ayuda con compromisos"
                 feature="summarize_commitments"
                 subjectType="party"
                 subjectId={partyId}
                 surface="commitment"
+                aiEnabled={isAiEnabled()}
                 promptLabel="Preguntar sobre compromisos"
               />
             </div>
+          </PageSection>
+
+          <PageSection id="documentos" card className={sectionClass}>
+            <Cliente360Documentos outcome={documentLinks} />
           </PageSection>
 
           <PageSection id="historial" card className={sectionClass}>
@@ -650,6 +467,16 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               )}
             </CommercialSectionState>
           </PageSection>
+
+          <AiAssistShell
+            title="Ayuda con este cliente"
+            feature="summarize_customer"
+            subjectType="party"
+            subjectId={partyId}
+            surface="cliente360"
+            aiEnabled={isAiEnabled()}
+            promptLabel="Preguntar sobre este cliente"
+          />
         </div>
       </CommercialPageFrame>
     );
