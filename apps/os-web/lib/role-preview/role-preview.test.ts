@@ -18,14 +18,15 @@ import { previewScopesForPersona } from '@/lib/role-preview/presets';
 import { parseStoredRolePreview, rolePreviewStorageKey } from '@/lib/role-preview/storage';
 
 describe('role preview access gate', () => {
-  it('allows owner / people admin only — not plain commercial scopes', () => {
+  it('allows people.admin or management.org.read — not plain commercial scopes', () => {
     assert.equal(canUseRolePreview([PEOPLE_ADMIN_SCOPE]), true);
+    assert.equal(canUseRolePreview([MANAGEMENT_ORG_READ_SCOPE]), true);
     assert.equal(
       canUseRolePreview([MANAGEMENT_ORG_READ_SCOPE, SYSTEM_ADMIN_SCOPE]),
       true,
     );
     assert.equal(canUseRolePreview([COMMERCIAL_CUSTOMER_CREATE_SCOPE]), false);
-    assert.equal(canUseRolePreview([MANAGEMENT_ORG_READ_SCOPE]), false);
+    assert.equal(canUseRolePreview([SYSTEM_ADMIN_SCOPE]), false);
   });
 });
 

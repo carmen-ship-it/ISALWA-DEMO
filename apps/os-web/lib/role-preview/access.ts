@@ -1,20 +1,21 @@
 import {
   MANAGEMENT_ORG_READ_SCOPE,
   PEOPLE_ADMIN_SCOPE,
-  SYSTEM_ADMIN_SCOPE,
 } from '@isalwa/os-contracts';
 import { previewScopesForPersona } from '@/lib/role-preview/presets';
 import type { RolePreviewPersonaId } from '@/lib/role-preview/types';
 
-/** Owner / people admin may open Vista de evaluación (UI preview only). */
+/**
+ * Vista de evaluación (UI projection preview only — not impersonation).
+ * Allowed for:
+ * - people.admin (workforce evaluators)
+ * - management.org.read (owner / Gerencia evaluation — includes Carmen SYNTH owner-eval)
+ *
+ * Does not require system.admin (technical admin is not a View As prerequisite).
+ */
 export function canUseRolePreview(grantedScopes: readonly string[]): boolean {
   if (grantedScopes.includes(PEOPLE_ADMIN_SCOPE)) return true;
-  if (
-    grantedScopes.includes(MANAGEMENT_ORG_READ_SCOPE) &&
-    grantedScopes.includes(SYSTEM_ADMIN_SCOPE)
-  ) {
-    return true;
-  }
+  if (grantedScopes.includes(MANAGEMENT_ORG_READ_SCOPE)) return true;
   return false;
 }
 
