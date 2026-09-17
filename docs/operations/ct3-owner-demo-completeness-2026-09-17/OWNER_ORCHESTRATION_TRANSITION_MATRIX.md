@@ -87,6 +87,30 @@ TRIGGER → PRECONDITIONS → AUTHORIZED ACTOR → RECORD CHANGED → RELATED �
 
 ---
 
+## Ownership / coverage / handoff triggers (addendum)
+
+| TRIGGER | WORK CREATED? | OWNER CHANGE? | UNKNOWN COMPANY POLICY |
+|---|---|---|---|
+| Client owner assigned | no | yes (canonical) | default when blank — **BUSINESS_DECISION_REQUIRED** |
+| Client owner reassigned | review open Work | yes (explicit) | who may reassign — **BUSINESS_DECISION_REQUIRED** |
+| Temporary coverage assigned | optional delegated Work | **NO** (owner remains) | convert via coverage grant only if configured |
+| Temporary coverage removed | resolve helper Work | **NO** | — |
+| Quote follow-up scheduled | yes (due date required) | no | no invented SLA |
+| Approval requested | attention for approver | no (approver ≠ owner) | threshold matrix |
+| Approval decided | approver attention clears | no | — |
+| Quote accepted | no auto Pedido | no | — |
+| Quote converted | Pedido; order keeps quote owner provenance | no silent owner rewrite | — |
+| Production / Warehouse / Purchasing review requested | yes | no | when obligatory — **BUSINESS_DECISION_REQUIRED** |
+| Production / Warehouse fact recorded | may resolve related Work | no | — |
+| Delivery Note / Salida / Entrega | separate explicit facts | no | no cascade inference |
+| Issue / Commitment confirmed | if assigned/due | no | default assignee |
+| Work reassigned | preserves ORIGINAL→NEW | assignee only | — |
+| Conversation suggestion confirmed | depends on confirmed type | no auto | — |
+
+**Negatives locked:** OTHER_ADVISOR_AUTOMATIC_TAKEOVER=NO · Pedido⇏auto Production/Warehouse/Purchasing · OVERDUE auto-escalation=NO · UNOWNED random assign=NO
+
+---
+
 ## Cascade checklist (every closed transition)
 
 - [ ] Domain record

@@ -31,3 +31,13 @@ When no eligible same-company approver can be chosen for a needed approval type:
 > Falta asignar quién aprueba este tipo de solicitud
 
 Do not fabricate an assignee.
+
+## REAL staff Cargo (DATOS CLIENTES) — display context only
+
+See `REAL_STAFF_RESPONSIBILITY_RECONCILIATION.md`.
+
+- 2 × ASESOR DE VENTA — YUSELKA JUSTINIANO DURAN · JOSE LUIS VARGAS ALMANZA
+- 1 × JEFE COMERCIAL — EDWIN YAMIL CALERO VALDEZ
+- 2 × GERENTE GENERAL — ISABELA RODA GUTIEREZ · ALVARO MARTIN SANDOVAL MONTES
+
+`REAL_STAFF_AUTO_GRANTED_AUTH = NO` · `RANDOM_APPROVER_SELECTION = NO` · `CARGO_ALONE_GRANTS_AUTHORITY = NO`

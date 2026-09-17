@@ -315,12 +315,12 @@ async function resolvePostApprovalContinue(
     });
   }
   try {
-    const { quote } = await client.getQuote(approval.subjectId);
+    const { quote, authority } = await client.getQuote(approval.subjectId);
     return postApprovalContinue({
       approvalStatus: approval.status,
       subjectType: approval.subjectType,
       quoteStatus: quote.status,
-      canConvertToOrder: Boolean(quote.canConvertToOrder),
+      canConvertToOrder: authority?.canConvertToOrder === true,
       partyId: quote.partyId,
       quoteId: quote.quoteId,
     });

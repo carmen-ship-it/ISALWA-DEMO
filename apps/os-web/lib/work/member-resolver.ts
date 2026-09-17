@@ -1,12 +1,13 @@
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import type { MemberDetailResponse } from '@/lib/workforce/types';
 import { memberDisplayName } from '@/lib/workforce/labels';
+import { resolveCargoForDisplay } from '@/lib/work/staff-display';
 
 export type MemberLabelMap = Map<string, string>;
 
 export type MemberResponsibilityLabel = {
   displayName: string;
-  /** Evidenced department name — display context only, never authority. */
+  /** Evidenced Cargo / department — display context only, never authority. */
   businessRoleLabel: string | null;
 };
 
@@ -27,6 +28,13 @@ function personLabelFromResponse(response: MemberDetailResponse): string {
   return name || 'Miembro del equipo';
 }
 
+function cargoFromResponse(response: MemberDetailResponse): string | null {
+  return resolveCargoForDisplay({
+    roleKeys: response.summary?.roleKeys ?? [],
+    departmentName: response.summary?.departmentName ?? null,
+  });
+}
+
 export async function resolveMemberLabels(
   client: OsApiClient,
   memberIds: Iterable<string>,
@@ -36,7 +44,7 @@ export async function resolveMemberLabels(
 }
 
 /**
- * Name + evidenced department for responsibility display.
+ * Name + evidenced Cargo/department for responsibility display.
  * Does not map Cargo/title to scopes.
  */
 export async function resolveMemberResponsibilityLabels(
@@ -52,7 +60,7 @@ export async function resolveMemberResponsibilityLabels(
           memberId,
           {
             displayName: personLabelFromResponse(response),
-            businessRoleLabel: response.summary?.departmentName?.trim() || null,
+            businessRoleLabel: cargoFromResponse(response),
           },
         ] as const;
       } catch {
@@ -68,4 +76,14 @@ export async function resolveMemberResponsibilityLabels(
 
 export function memberLabel(map: MemberLabelMap, memberId: string): string {
   return map.get(memberId) ?? 'Miembro del equipo';
+}
+
+export function memberWithCargoLine(
+  map: MemberResponsibilityMap,
+  memberId: string,
+): string {
+  const row = map.get(memberId);
+  if (!row) return 'Miembro del equipo';
+  if (row.businessRoleLabel) return `${row.displayName} · ${row.businessRoleLabel}`;
+  return row.displayName;
 }
