@@ -9,13 +9,21 @@ import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-wor
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
-import { OrderCasePanel } from '@/components/operations/order-case-panel';
-import { PedidoOperatingSummary } from '@/components/operations/pedido-operating-summary';
+import { PedidoDetailHero } from '@/components/operations/pedido-detail-hero';
+import { PedidoKnownStateCard } from '@/components/operations/pedido-known-state-card';
+import { PedidoLifecycleStrip } from '@/components/operations/pedido-lifecycle-strip';
+import { PedidoOpsLaneCards } from '@/components/operations/pedido-ops-lane-cards';
 import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
-import { canRecordDelivery, canRecordProduction, canRecordPurchasing, canRecordWarehouseOutbound, canReceiveFinishedGoods } from '@isalwa/os-contracts';
+import {
+  canRecordDelivery,
+  canRecordProduction,
+  canRecordPurchasing,
+  canRecordWarehouseOutbound,
+  canReceiveFinishedGoods,
+} from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -34,6 +42,8 @@ import { projectPedidoTimeline } from '@/lib/commercial/pedido-timeline';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { reportIssueContextFromOrder } from '@/lib/issue/report-context';
 import type { IssueListItem } from '@/lib/issue/types';
+import { buildPedidoKnownState } from '@/lib/operations/pedido-known-state';
+import { buildPedidoLifecycle } from '@/lib/operations/pedido-lifecycle';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -256,6 +266,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     });
 
     let openPrepReviews: ReturnType<typeof findOpenOrderPrepReviews> = {};
+    let openWorkCount = 0;
     try {
       const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
       openPrepReviews = findOpenOrderPrepReviews(
@@ -263,8 +274,12 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         order.orderId,
         partyId,
       );
+      openWorkCount = (workPage.items ?? []).filter(
+        (row) => row.subjectType === 'party' && row.subjectId === partyId,
+      ).length;
     } catch {
       openPrepReviews = {};
+      openWorkCount = 0;
     }
 
     const finishedGoodsEvidence = partyTimelineItems.some((item) => {
@@ -281,9 +296,51 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         item.primaryEntityId === order.orderId ||
         (typeof facts.orderNumber === 'string' && facts.orderNumber === order.orderNumber)
       );
-    })
-      ? 'Hay un ingreso de productos terminados registrado vinculado a este pedido (hecho reportado; no indica stock disponible).'
-      : null;
+    });
+
+    const hasSalidaFact = deliveryEvents.some((e) => e.eventType === 'warehouse_exit.recorded')
+      || pedidoTimeline.some((e) => e.eventType === 'warehouse_exit.recorded');
+    const hasEntregaFact = deliveryEvents.some((e) => e.eventType === 'customer_delivery.recorded')
+      || pedidoTimeline.some((e) => e.eventType === 'customer_delivery.recorded');
+    const hasDeliveryNote = deliveryNotes.some((note) => note.status === 'issued');
+    const hasOpenPrep = Object.keys(openPrepReviews).length > 0;
+
+    const lifecycle = buildPedidoLifecycle({
+      hasSourceQuote: Boolean(order.quoteId),
+      orderRecorded: true,
+      hasPreparacionFact: hasOpenPrep || finishedGoodsEvidence,
+      hasSalidaFact,
+      hasEntregaFact,
+    });
+
+    const totalLabel = formatCentavos(order.totalCentavos, order.currency);
+    const createdAtLabel = formatTimestamp(order.createdAt) ?? '—';
+    const nextStep = orderNextStep({
+      status: order.status,
+      partyId,
+      orderId: order.orderId,
+      customerHref: partyHref(partyId),
+    });
+
+    const knownState = buildPedidoKnownState({
+      orderNumber: order.orderNumber,
+      customerName,
+      ownerLabel,
+      statusLabel: formatOrderStatus(order.status),
+      sourceQuoteNumber,
+      totalLabel,
+      createdAtLabel,
+      hasOpenPrepReviews: hasOpenPrep,
+      finishedGoodsEvidence,
+      hasDeliveryNote,
+      hasSalida: hasSalidaFact,
+      hasEntrega: hasEntregaFact,
+      nextSafeAction: nextStep?.statement ?? operating.nextAction,
+      whoToAsk: ownerLabel,
+    });
+
+    const boundedTimeline = pedidoTimeline.slice(0, 8);
+    const boundedDossier = dossierItems.slice(0, 12);
 
     return (
       <PageContainer label={order.orderNumber}>
@@ -320,89 +377,35 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         />
 
         <StaleProjectionBanner freshness={freshness} />
-        <RecordNextStep
-          step={orderNextStep({
-            status: order.status,
-            partyId,
-            orderId: order.orderId,
-            customerHref: partyHref(partyId),
-          })}
+        <RecordNextStep step={nextStep} />
+
+        <PedidoDetailHero
+          orderNumber={order.orderNumber}
+          statusLabel={formatOrderStatus(order.status)}
+          statusTone={statusTone(order.status)}
+          customerName={customerName}
+          customerHref={partyHref(partyId)}
+          sourceQuoteNumber={sourceQuoteNumber}
+          sourceQuoteHref={order.quoteId ? quoteHref(partyId, order.quoteId) : null}
+          totalLabel={totalLabel}
+          createdAtLabel={createdAtLabel}
+          responsibleLabel={ownerLabel}
         />
 
-        <PedidoOperatingSummary view={operating} />
+        {resultado === 'pedido' ? (
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+            {sourceQuoteNumber
+              ? `Pedido creado desde Cotización ${sourceQuoteNumber}`
+              : 'Pedido creado desde la cotización'}
+            . La relación se conserva. No se emitió factura ni nota de entrega.
+          </p>
+        ) : null}
 
-        <div className="mt-10">
-          <OrderCasePanel
-            organizationId={order.organizationId}
-            orderId={order.orderId}
-            facts={[]}
-            releases={[]}
-            availability="unavailable"
-          />
+        <div className="mt-6">
+          <PedidoLifecycleStrip steps={lifecycle} />
         </div>
 
-        <PageSection card className="mt-10 bg-white p-8 md:p-10">
-          <StatusPill tone={statusTone(order.status)}>
-            {formatOrderStatus(order.status)}
-          </StatusPill>
-
-          {resultado === 'pedido' ? (
-            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-              {sourceQuoteNumber
-                ? `Pedido creado desde Cotización ${sourceQuoteNumber}`
-                : 'Pedido creado desde la cotización'}
-              . La relación se conserva. No se emitió factura ni nota de entrega.
-            </p>
-          ) : (
-            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              {sourceQuoteNumber
-                ? `Pedido creado desde Cotización ${sourceQuoteNumber}`
-                : 'Pedido registrado desde una cotización'}
-              .
-            </p>
-          )}
-
-          <dl className="mt-10 grid gap-8 sm:grid-cols-2">
-            <div>
-              <dt className="isalwa-section-label">Cliente</dt>
-              <dd className="mt-2">
-                <Link href={partyHref(partyId)} className={documentLinkClass}>
-                  {customerName}
-                </Link>
-              </dd>
-            </div>
-            <div>
-              <dt className="isalwa-section-label">Responsable</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
-            </div>
-            {order.quoteId ? (
-              <div>
-                <dt className="isalwa-section-label">Cotización de origen</dt>
-                <dd className="mt-2">
-                  <Link href={quoteHref(partyId, order.quoteId)} className={documentLinkClass}>
-                    {sourceQuoteNumber ?? 'Ver cotización'}
-                  </Link>
-                </dd>
-              </div>
-            ) : null}
-            <div>
-              <dt className="isalwa-section-label">Total</dt>
-              <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
-                {formatCentavos(order.totalCentavos, order.currency)}
-              </dd>
-            </div>
-            <div>
-              <dt className="isalwa-section-label">Creado</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.createdAt)}</dd>
-            </div>
-            {order.cancelledAt ? (
-              <div>
-                <dt className="isalwa-section-label">Cancelado</dt>
-                <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(order.cancelledAt)}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </PageSection>
+        <PedidoKnownStateCard view={knownState} />
 
         {actorMemberId ? (
           <OrderPrepCard
@@ -411,8 +414,6 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             actorMemberId={actorMemberId}
             orderLabel={order.orderNumber}
             assignees={{
-              // Only route to the acting member when they hold the department scope —
-              // never invent a third-party owner from an empty directory guess.
               production: canRecordProduction(scopes) ? actorMemberId : null,
               warehouse:
                 canReceiveFinishedGoods(scopes) || canRecordWarehouseOutbound(scopes)
@@ -421,10 +422,16 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
               purchasing: canRecordPurchasing(scopes) ? actorMemberId : null,
             }}
             openReviews={openPrepReviews}
-            warehouseEvidence={finishedGoodsEvidence}
+            warehouseEvidence={
+              finishedGoodsEvidence
+                ? 'Hay un ingreso de productos terminados registrado vinculado a este pedido (hecho reportado; no indica stock disponible).'
+                : null
+            }
             canMutate={order.status === 'open'}
           />
         ) : null}
+
+        <PedidoOpsLaneCards orderId={order.orderId} />
 
         {operating.sections.lines ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
@@ -432,28 +439,73 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </PageSection>
         ) : null}
 
-        <DocumentDossierPanel partyId={partyId} items={dossierItems} />
+        <details className="mt-10 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-6 md:p-8">
+          <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
+            Documentos ({boundedDossier.length}
+            {dossierItems.length > boundedDossier.length ? ` de ${dossierItems.length}` : ''})
+          </summary>
+          <div className="mt-6">
+            <DocumentDossierPanel partyId={partyId} items={boundedDossier} />
+          </div>
+        </details>
 
-        <DeliveryDocumentsPanel
-          partyId={partyId}
-          orderId={order.orderId}
-          orderNumber={order.orderNumber}
-          customerName={customerName}
-          actorMemberId={actorMemberId}
-          orderLines={(order.lines ?? []).map((line) => ({
-            orderLineId: line.orderLineId,
-            description: line.description,
-            quantity: line.quantity,
-            unitLabel: line.unitLabel ?? null,
-            productRef: line.productRef ?? null,
-          }))}
-          notes={deliveryNotes}
-          timeline={deliveryTimeline}
-          canMutate={canMutateDelivery}
-          canCreateNote={canCreateNote}
-          canRecordSalida={canRecordSalida}
-          canRecordEntrega={canRecordEntrega}
-        />
+        <details className="mt-6 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-6 md:p-8">
+          <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
+            Trabajo vinculado
+            {openWorkCount > 0 ? ` (${openWorkCount} abiertos en el cliente)` : ''}
+          </summary>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Las revisiones operativas y actualizaciones aparecen en Trabajo. No se inventa un dueño de área.
+          </p>
+          <Link href="/trabajo" className={`${documentLinkClass} mt-3 inline-block`}>
+            Abrir Trabajo
+          </Link>
+        </details>
+
+        <details className="mt-6 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-6 md:p-8">
+          <summary className="cursor-pointer text-sm font-medium text-[var(--isalwa-kiln)]">
+            Historial ({boundedTimeline.length}
+            {pedidoTimeline.length > boundedTimeline.length ? ` de ${pedidoTimeline.length}` : ''})
+          </summary>
+          {boundedTimeline.length === 0 ? (
+            <p className="mt-4 text-sm text-[var(--isalwa-slate)]">Sin eventos registrados para este pedido.</p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {boundedTimeline.map((item) => (
+                <li key={item.id} className="text-sm">
+                  <p className="font-medium text-[var(--isalwa-kiln)]">{item.label}</p>
+                  <p className="text-[var(--isalwa-slate)]">
+                    {formatTimestamp(item.occurredAt) ?? item.occurredAt}
+                    {item.detail ? ` · ${item.detail}` : ''}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </details>
+
+        <div className="mt-10">
+          <DeliveryDocumentsPanel
+            partyId={partyId}
+            orderId={order.orderId}
+            orderNumber={order.orderNumber}
+            customerName={customerName}
+            actorMemberId={actorMemberId}
+            orderLines={(order.lines ?? []).map((line) => ({
+              orderLineId: line.orderLineId,
+              description: line.description,
+              quantity: line.quantity,
+              unitLabel: line.unitLabel ?? null,
+              productRef: line.productRef ?? null,
+            }))}
+            notes={deliveryNotes}
+            timeline={deliveryTimeline}
+            canMutate={canMutateDelivery}
+            canCreateNote={canCreateNote}
+            canRecordSalida={canRecordSalida}
+            canRecordEntrega={canRecordEntrega}
+          />
+        </div>
 
         {order.status === 'open' || approvals.length > 0 ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
@@ -480,24 +532,34 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           </PageSection>
         ) : null}
 
-        <PageSection card className="mt-10 bg-white p-8 md:p-10">
-          <SectionHeader
-            title={
-              <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-                Incidencias
-              </h2>
-            }
-          />
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Reporte un problema relacionado con este pedido. La incidencia queda vinculada al pedido y al cliente.
-          </p>
-          <div className="mt-6">
+        <PageSection card className="mt-10 bg-white p-6 md:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="isalwa-section-label">Incidencias</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                {linkedIssues.length === 0
+                  ? 'Sin incidencias vinculadas a este pedido.'
+                  : `${linkedIssues.length} vinculada${linkedIssues.length === 1 ? '' : 's'}.`}
+              </p>
+            </div>
             <ReportIssueTrigger
               context={issueContext}
               reportedByLabel={reportedByLabel}
               variant="secondary"
             />
           </div>
+          {linkedIssues.length > 0 ? (
+            <ul className="mt-4 space-y-2">
+              {linkedIssues.slice(0, 5).map((issue) => (
+                <li key={issue.issueId} className="flex flex-wrap items-center gap-2 text-sm">
+                  <StatusPill tone="warning">{issue.status}</StatusPill>
+                  <span className="text-[var(--isalwa-kiln)]">
+                    {issue.title?.trim() || issue.description.slice(0, 80)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </PageSection>
       </PageContainer>
     );

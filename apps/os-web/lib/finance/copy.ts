@@ -9,8 +9,8 @@ import { FINANCE_OPERATIONAL_RECORD_SCOPE } from '@isalwa/os-contracts';
  */
 export const FINANCE_DESK_COPY = {
   kicker: 'Contabilidad',
-  title: 'Finanzas',
-  intro: 'Registro financiero operativo.',
+  title: 'Registro financiero operativo',
+  intro: 'Sujeto seleccionado, pago reportado e historial de sesión.',
   disclaimerBanner:
     'ISALWA registra información reportada aquí. La contabilidad oficial continúa en su sistema contable.',
   boundaryOfficial:

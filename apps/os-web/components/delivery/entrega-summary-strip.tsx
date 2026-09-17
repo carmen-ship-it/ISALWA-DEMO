@@ -1,29 +1,41 @@
 import { StatGroup } from '@isalwa/ui';
+import {
+  computeEntregaSummaryCounts,
+  type EntregaSummaryCounts,
+} from '@/lib/delivery/delivery-progress';
 import { countDeliveriesToday } from '@/lib/delivery/count-deliveries-today';
 
-export { countDeliveriesToday };
+export { countDeliveriesToday, computeEntregaSummaryCounts };
+export type { EntregaSummaryCounts };
 
 type EntregaSummaryStripProps = {
-  warehouseExitCount: number;
-  deliveryCount: number;
-  deliveriesToday: number;
+  /** Canonical delivery-note count when available; otherwise 0 (honest empty). */
+  notesPreparedCount: number;
+  warehouseExits: readonly { orderId: string }[];
+  deliveries: readonly { orderId: string; deliveredAt: string }[];
 };
 
 /**
- * Counts from mounted fulfillment reads only — no invented operational state.
+ * Notas preparadas / Salidas sin entrega / Entregas hoy — only from canonical reads.
  */
 export function EntregaSummaryStrip({
-  warehouseExitCount,
-  deliveryCount,
-  deliveriesToday,
+  notesPreparedCount,
+  warehouseExits,
+  deliveries,
 }: EntregaSummaryStripProps) {
+  const counts = computeEntregaSummaryCounts({
+    noteCount: notesPreparedCount,
+    exits: warehouseExits,
+    deliveries,
+  });
+
   return (
     <StatGroup
       className="mb-6"
       items={[
-        { label: 'Salidas registradas', value: String(warehouseExitCount) },
-        { label: 'Entregas registradas', value: String(deliveryCount) },
-        { label: 'Entregas hoy', value: String(deliveriesToday) },
+        { label: 'Notas preparadas', value: String(counts.notasPreparadas) },
+        { label: 'Salidas sin entrega', value: String(counts.salidasSinEntrega) },
+        { label: 'Entregas hoy', value: String(counts.entregasHoy) },
       ]}
     />
   );

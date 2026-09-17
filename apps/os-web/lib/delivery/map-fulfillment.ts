@@ -98,6 +98,7 @@ export function mapFulfillmentDeliveriesToPanel(
 ): EntregaPanelProps['deliveries'] {
   return items.map((item) => ({
     id: item.id,
+    orderId: item.orderId,
     deliveredAt: item.deliveredAt,
     deliveredTo: item.deliveredTo,
     recordedByLabel: item.recordedByMemberId,
@@ -113,6 +114,7 @@ export function mapFulfillmentExitsToPanel(
 ): EntregaPanelProps['warehouseExits'] {
   return items.map((item) => ({
     id: item.id,
+    orderId: item.orderId,
     exitedAt: item.exitedAt,
     recordedByLabel: item.recordedByMemberId,
     sourceLabel: item.source,

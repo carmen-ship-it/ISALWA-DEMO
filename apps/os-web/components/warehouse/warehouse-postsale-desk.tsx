@@ -149,7 +149,7 @@ export function WarehousePostSaleDesk({
             </label>
             <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
               <Button type="submit" disabled={pending}>
-                {pending ? 'Registrando…' : 'Registrar ingreso físico'}
+                {pending ? 'Registrando…' : 'Registrar ingreso de producto terminado'}
               </Button>
             </div>
           </form>

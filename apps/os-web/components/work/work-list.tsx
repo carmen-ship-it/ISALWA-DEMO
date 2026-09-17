@@ -1,9 +1,10 @@
-import { OperatingRow, StatusPill } from '@isalwa/ui';
+import { OperatingRow, StatusPill, cx } from '@isalwa/ui';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import { OperatingListFrame } from '@/components/lists/operating-list-frame';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import type { ListDensity } from '@/lib/productivity/list-controls';
 import { formatWorkDueLine } from '@/lib/work/due-order';
+import { workDueRailClass, workDueVisualTone } from '@/lib/work/due-visual';
 import { followUpStatusLabel, FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import {
   formatWorkApprovalStatus,
@@ -79,8 +80,11 @@ export function WorkList({
           .filter((part): part is string => Boolean(part))
           .join(' · ');
 
+        const dueTone = workDueVisualTone(work);
+        const rail = workDueRailClass(dueTone);
+
         return (
-          <li key={work.workItemId} className="list-none">
+          <li key={work.workItemId} className={cx('list-none', rail)}>
             <OperatingRow
               href={workItemHref(work.workItemId)}
               density={density}
