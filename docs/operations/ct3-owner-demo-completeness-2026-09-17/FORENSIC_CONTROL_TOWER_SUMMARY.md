@@ -51,6 +51,7 @@
 8. Orphan pending approval on cancelled Q-000015.
 9. Strengthen BV to assert named DEMO rows + cookie-only nav + Carmen-equivalent org path.
 10. Pedidos index / commercial graph normal-nav proofs.
+11. Conversaciones densify: **0** `os_customer_conversations` rows — UI uses JSON fixtures only (`DEMO_SEED_ACTUAL_STATE.md`).
 
 ## P2 — polish
 
