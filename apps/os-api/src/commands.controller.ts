@@ -288,24 +288,39 @@ export class CommandsController {
         const store = createPrismaFinishedGoodsWriteStore(
           prisma as unknown as Parameters<typeof createPrismaFinishedGoodsWriteStore>[0],
         );
-        const result = await receiveFinishedGoods({
-          session: {
-            organizationId: session.organizationId,
-            actorMemberId: session.actorMemberId,
-            actorLabel,
-            accessStatus: member.accessStatus,
-            grantedScopes: session.grantedScopes,
-          },
-          store,
-          command: {
-            ...payload,
-            receivedAt: payload.receivedAt ?? session.effectiveAt.toISOString(),
-            idempotencyKey: idempotencyKey?.trim() || null,
-            correlationId: session.correlationId,
-          },
-          now: session.effectiveAt,
-          id: createId(),
-        });
+        let result;
+        try {
+          result = await receiveFinishedGoods({
+            session: {
+              organizationId: session.organizationId,
+              actorMemberId: session.actorMemberId,
+              actorLabel,
+              accessStatus: member.accessStatus,
+              grantedScopes: session.grantedScopes,
+            },
+            store,
+            command: {
+              ...payload,
+              receivedAt: payload.receivedAt ?? session.effectiveAt.toISOString(),
+              idempotencyKey: idempotencyKey?.trim() || null,
+              correlationId: session.correlationId,
+            },
+            now: session.effectiveAt,
+            id: createId(),
+          });
+        } catch (err) {
+          // Surface durable-write failures without dumping Prisma stacks to clients.
+          const message = err instanceof Error ? err.message : String(err);
+          console.error(
+            JSON.stringify({
+              level: 'error',
+              component: 'ReceiveFinishedGoods',
+              organizationId: session.organizationId,
+              message: message.slice(0, 500),
+            }),
+          );
+          throw mapError(err);
+        }
         if (!result.ok) {
           throw mapReceiveDenial(result.reason);
         }

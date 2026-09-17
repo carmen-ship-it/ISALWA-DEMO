@@ -566,9 +566,12 @@ function toPrismaEventData(event: FinishedGoodsEventRecord): Record<string, unkn
 function isUniqueViolation(err: unknown): boolean {
   if (!err || typeof err !== 'object') return false;
   const code = 'code' in err ? String((err as { code?: unknown }).code ?? '') : '';
+  // Prisma unique violations only. Do NOT match bare "idempotency" — Prisma dumps
+  // field names in unrelated errors and that falsely returned idempotent_replay,
+  // which then threw finished_goods_receive_persist_failed (HTTP 500).
   if (code === 'P2002') return true;
   const message = err instanceof Error ? err.message : String(err);
-  return /unique|idempotency/i.test(message);
+  return /unique constraint failed/i.test(message);
 }
 
 export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaPort): FinishedGoodsWriteStore {

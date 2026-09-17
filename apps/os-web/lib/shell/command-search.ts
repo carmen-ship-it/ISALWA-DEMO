@@ -515,16 +515,20 @@ async function collectCommitments(
 }
 
 const DOCUMENT_ORDER_SCAN_LIMIT = 20;
+const DOCUMENT_REF_ORDER_SCAN_LIMIT = 50;
 
 /**
  * Nota / delivery-document hits via existing order + notes reads.
  * Prefer delivery-ops when available; otherwise commercial open orders + /delivery-notes.
+ * Document-ref queries (NE-*) widen the order scan so pilot refs are not missed.
  */
 async function collectDeliveryDocuments(
   client: OsApiClient,
   query: string,
 ): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
   const q = query.toLocaleLowerCase('es');
+  const docRefQuery = /^ne[\s_-]?/i.test(query.trim()) || /\bnota\b/i.test(query.trim());
+  const seedLimit = docRefQuery ? DOCUMENT_REF_ORDER_SCAN_LIMIT : DOCUMENT_ORDER_SCAN_LIMIT;
   type OrderSeed = { orderId: string; partyId: string; orderNumber: string };
   const seeds: OrderSeed[] = [];
   let partial = false;
@@ -538,7 +542,7 @@ async function collectDeliveryDocuments(
         partyId: order.partyId,
         orderNumber: order.orderNumber,
       });
-      if (seeds.length >= DOCUMENT_ORDER_SCAN_LIMIT) break;
+      if (seeds.length >= seedLimit) break;
     }
   } catch (err) {
     if (isSessionFailure(err)) return { items: [], session: true, partial: false };
@@ -547,7 +551,7 @@ async function collectDeliveryDocuments(
 
   if (seeds.length === 0) {
     try {
-      const page = await client.listOrders({ status: 'open', limit: DOCUMENT_ORDER_SCAN_LIMIT });
+      const page = await client.listOrders({ status: 'open', limit: seedLimit });
       for (const order of page.items ?? []) {
         if (order.status === 'cancelled') continue;
         seeds.push({

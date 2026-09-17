@@ -485,4 +485,80 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
     );
     assert.equal(outcome, 'idempotent_replay');
   });
+
+  it('does not treat Prisma field dumps that mention idempotencyKey as unique conflicts', async () => {
+    const { createPrismaFinishedGoodsWriteStore } = await import('./receive');
+    const store = createPrismaFinishedGoodsWriteStore({
+      osFinishedGoodsReceipt: {
+        async findFirst() {
+          return null;
+        },
+        async create() {
+          throw new Error(
+            'Invalid `prisma.osFinishedGoodsReceipt.create()` invocation:\n\n{\n  data: {\n    idempotencyKey: "idem-1",\n    quantity: "1"\n  }\n}\n\nForeign key constraint failed',
+          );
+        },
+      },
+      osBusinessEvent: {
+        async create() {
+          throw new Error('should not reach event create');
+        },
+      },
+    });
+    const now = new Date('2026-09-16T12:00:00.000Z').toISOString();
+    await assert.rejects(
+      () =>
+        store.persistReceiptAndEvent(
+          {
+            id: 'fgr-y',
+            organizationId: 'org-a',
+            productId: 'prod-1',
+            quantity: '1',
+            warehouseLabel: 'Almacén de Productos Terminados',
+            receivedAt: now,
+            recordedAt: now,
+            actorMemberId: null,
+            actorLabel: 'Almacén',
+            source: 'explicit_command',
+            productionTraceEntryId: null,
+            quemaId: null,
+            contextOrderId: null,
+            contextOrderLineId: null,
+            contextPartyId: null,
+            note: null,
+            correctsReceiptId: null,
+            correctionReason: null,
+            idempotencyKey: 'idem-1',
+            allocatesToOrder: false,
+            postsStock: false,
+            officialStock: false,
+          },
+          {
+            id: 'evt-y',
+            organizationId: 'org-a',
+            eventType: 'finished_goods.received',
+            occurredAt: now,
+            recordedAt: now,
+            actorMemberId: null,
+            primaryEntityType: 'finished_goods_receipt',
+            primaryEntityId: 'fgr-y',
+            capabilityKey: 'warehouse.finished_goods.receive',
+            correlationId: 'corr-y',
+            idempotencyKey: 'idem-1',
+            provenance: 'command',
+            payload: {
+              productId: 'prod-1',
+              quantity: '1',
+              allocatesToOrder: false,
+              postsStock: false,
+              orderId: null,
+              orderLineId: null,
+              partyId: null,
+              note: null,
+            },
+          },
+        ),
+      /Foreign key constraint failed/,
+    );
+  });
 });
