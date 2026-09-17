@@ -1,0 +1,110 @@
+'use client';
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import {
+  DEMO_DATA_MODE_STORAGE_KEY,
+  loadDemoDataMode,
+  saveDemoDataMode,
+  type DemoDataMode,
+} from '@/lib/demo/owner-demo-identity';
+
+type OwnerDemoContextValue = {
+  dataMode: DemoDataMode;
+  setDataMode: (mode: DemoDataMode) => void;
+  storyOpen: boolean;
+  openStory: () => void;
+  closeStory: () => void;
+  canUseOwnerDemo: boolean;
+};
+
+const OwnerDemoContext = createContext<OwnerDemoContextValue | null>(null);
+
+export function OwnerDemoProvider({
+  children,
+  canUseOwnerDemo,
+}: {
+  children: ReactNode;
+  canUseOwnerDemo: boolean;
+}) {
+  const [dataMode, setDataModeState] = useState<DemoDataMode>('real');
+  const [storyOpen, setStoryOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('datos') === 'demo' ? 'demo' : loadDemoDataMode(window.localStorage);
+    setDataModeState(fromUrl);
+    setReady(true);
+    if (params.get('story') === '1' && canUseOwnerDemo) {
+      setStoryOpen(true);
+      setDataModeState('demo');
+      saveDemoDataMode(window.localStorage, 'demo');
+    }
+  }, [canUseOwnerDemo]);
+
+  const setDataMode = useCallback((mode: DemoDataMode) => {
+    setDataModeState(mode);
+    saveDemoDataMode(window.localStorage, mode);
+  }, []);
+
+  const openStory = useCallback(() => {
+    setDataMode('demo');
+    setStoryOpen(true);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('datos', 'demo');
+      url.searchParams.set('story', '1');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [setDataMode]);
+
+  const closeStory = useCallback(() => {
+    setStoryOpen(false);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('story');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      dataMode: ready ? dataMode : 'real',
+      setDataMode,
+      storyOpen,
+      openStory,
+      closeStory,
+      canUseOwnerDemo,
+    }),
+    [ready, dataMode, setDataMode, storyOpen, openStory, closeStory, canUseOwnerDemo],
+  );
+
+  return <OwnerDemoContext.Provider value={value}>{children}</OwnerDemoContext.Provider>;
+}
+
+export function useOwnerDemo(): OwnerDemoContextValue {
+  const ctx = useContext(OwnerDemoContext);
+  if (!ctx) {
+    return {
+      dataMode: 'real',
+      setDataMode: () => undefined,
+      storyOpen: false,
+      openStory: () => undefined,
+      closeStory: () => undefined,
+      canUseOwnerDemo: false,
+    };
+  }
+  return ctx;
+}
+
+export function demoDataModeStorageKey(): string {
+  return DEMO_DATA_MODE_STORAGE_KEY;
+}

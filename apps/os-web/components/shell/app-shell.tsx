@@ -17,6 +17,11 @@ import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
 import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
 import { RolePreviewMenu } from '@/components/shell/role-preview-menu';
 import { canUseRolePreview } from '@/lib/role-preview/access';
+import { OwnerDemoProvider } from '@/components/demo/owner-demo-provider';
+import { DemoFictitiousBanner } from '@/components/demo/demo-fictitious-banner';
+import { DemoDataFilterToggle } from '@/components/demo/demo-data-filter-toggle';
+import { OwnerStoryMode } from '@/components/demo/owner-story-mode';
+import { VerEjemploCompletoButton } from '@/components/demo/ver-ejemplo-completo-button';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 import { loadUiPreferences, saveUiPreferences } from '@/lib/shell/ui-preferences';
@@ -149,6 +154,7 @@ export function AppShell({
 
   return (
     <RolePreviewProvider actorKey={actorKey} grantedScopes={grantedScopes}>
+    <OwnerDemoProvider canUseOwnerDemo={showRolePreview}>
     <ShellIdentityContext.Provider value={givenName}>
       <div
         className={cx(
@@ -259,6 +265,8 @@ export function AppShell({
                   setPaletteOpen(true);
                 }}
               />
+              {showRolePreview ? <DemoDataFilterToggle /> : null}
+              {showRolePreview ? <VerEjemploCompletoButton /> : null}
               <RolePreviewDesktopControl grantedScopes={grantedScopes} />
               {notificationSlot}
               <UserMenu displayLabel={actorLabel} />
@@ -266,6 +274,8 @@ export function AppShell({
           </header>
 
           <RolePreviewBanner />
+          <DemoFictitiousBanner />
+          <OwnerStoryMode />
 
           <ShellBreadcrumbs />
 
@@ -353,6 +363,7 @@ export function AppShell({
         </div>
       </div>
     </ShellIdentityContext.Provider>
+    </OwnerDemoProvider>
     </RolePreviewProvider>
   );
 }
