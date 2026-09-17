@@ -13,7 +13,7 @@
 
 | Field | Value |
 |---|---|
-| LOCAL_HEAD | `8cbadca` (ahead of remote; **not pushed**) |
+| LOCAL_HEAD | `9f596c6` (ahead of remote; **not pushed**) |
 | REMOTE_HEAD | `5032e6c017de10514212487662f25191bc6ac0dd` |
 | DIRTY_TREE | clean (unexplained implementation dirt = 0) |
 | WEB_RUNTIME_SHA | `8e24b7f73971cb538377371d4670897930bcd250` |
@@ -56,7 +56,7 @@
 ### Control-tower handoff
 
 ```
-CURRENT_LOCAL_HEAD = 8cbadca
+CURRENT_LOCAL_HEAD = 9f596c6
 CURRENT_REMOTE_HEAD = 5032e6c
 CURRENT_WEB_RUNTIME = 8e24b7f
 CURRENT_API_RUNTIME = 8e24b7f
@@ -189,9 +189,9 @@ Stages never collapse.
   "snapshotAt": "2026-09-17T13:10:00Z",
   "canonicalFile": "RELEASE_TRAIN_STATE.md",
   "branch": "ct3/owner-demo-completeness",
-  "localHead": "8cbadca",
+  "localHead": "9f596c6",
   "remoteHead": "5032e6c017de10514212487662f25191bc6ac0dd",
-  "localAheadOfRemote": 3,
+  "localAheadOfRemote": 4,
   "dirtyTree": false,
   "v1OwnerReviewRcSha": null,
   "readyToCutRc": false,
@@ -223,7 +223,7 @@ Stages never collapse.
   "ownerAccepted": false,
   "safeToInviteIsaAlvaro": false,
   "deploymentPolicy": "NO_MICRO_DEPLOYS_RELEASE_TRAIN",
-  "committedNotDeployed": ["a225dfa", "62cb866", "5032e6c", "2a4c969", "f5a3d92", "8cbadca"],
+  "committedNotDeployed": ["a225dfa", "62cb866", "5032e6c", "2a4c969", "f5a3d92", "8cbadca", "9f596c6"],
   "rcPrerequisites": [
     "view_as_narrowing_map_search_conversations_ops_ai",
     "push_when_rc_cut",
