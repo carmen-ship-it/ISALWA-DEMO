@@ -777,7 +777,7 @@ async function ensureOpenCommitment(
         partyId: input.partyId,
         ownerMemberId: session.actorMemberId,
         text: input.text,
-        origin: input.partyId ? 'customer_said' : 'employee_entered',
+        origin: input.partyId ? 'customer_reported' : 'employee_entered',
         lifecycle: 'open',
         dueAt: input.dueAt,
         createdByMemberId: session.actorMemberId,

@@ -1,7 +1,7 @@
 {
   "organizationId": "01M2JKF77TXMJNDTKNCYNHH9G5",
   "REAL_SEVEN_MUTATED": "NO",
-  "seededAt": "2026-09-17T02:53:12.658Z",
+  "seededAt": "2026-09-17T04:09:03.115Z",
   "clients": [
     {
       "key": "maderas_oriente",
@@ -19,9 +19,9 @@
     {
       "key": "constructora_andina",
       "partyId": "01M2PMDY71EDWHJG3AFK36TDZ2",
-      "opportunityId": null,
-      "quoteId": null,
-      "quoteNumber": null,
+      "opportunityId": "01M2PRQZ90J8R9M9363C2A6N3Y",
+      "quoteId": "01M2PRR24KVC8EXSNWT5MVQPT6",
+      "quoteNumber": "Q-000006",
       "orderId": null,
       "deliveryNoteId": null,
       "finishedGoodsReceiptId": null,
