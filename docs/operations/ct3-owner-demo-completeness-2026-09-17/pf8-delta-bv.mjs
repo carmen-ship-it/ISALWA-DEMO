@@ -11,7 +11,7 @@ const require = createRequire('/Users/carmen/projects/isalwa/.tmp/pw-agent4/pack
 const { chromium } = require('playwright-core');
 
 const BASE = 'https://os-web-staging.onrender.com';
-const TIP = '8ac27378001a8603b425726dfab9c51090712892';
+const TIP = '6abd70820475104adfd936905f2cdb21852079e5';
 const ORG = '01M2JKF77TXMJNDTKNCYNHH9G5';
 const seeded = JSON.parse(
   readFileSync(
