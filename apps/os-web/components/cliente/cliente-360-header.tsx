@@ -97,9 +97,9 @@ export function Cliente360Header({
         <div className="min-w-0 flex-1">
           <p className="isalwa-kicker">Cliente</p>
           <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="isalwa-page-title truncate text-[clamp(1.35rem,2.2vw,1.75rem)]">
+            <h1 className="isalwa-page-title truncate text-[clamp(1.35rem,2.2vw,1.75rem)]">
               {displayName}
-            </h2>
+            </h1>
             <PartyStatusBadge status={status} />
           </div>
           {facts.length > 0 ? (
