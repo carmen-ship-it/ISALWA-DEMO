@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ListRow, PageSection, SectionHeader } from '@isalwa/ui';
+import { ListRow, PageSection, SectionHeader, EmptyState } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
 import { Cliente360Sticky } from '@/components/cliente/cliente-360-sticky';
 import { Cliente360Header } from '@/components/cliente/cliente-360-header';
@@ -24,12 +24,15 @@ import { Cliente360Issues } from '@/components/issue/cliente-360-issues';
 import { Cliente360Documentos } from '@/components/cliente/cliente-360-documentos';
 import { Cliente360Finanzas } from '@/components/cliente/cliente-360-finanzas';
 import { CommitmentList } from '@/components/commitments/commitment-list';
+import { ScaledListReveal } from '@/components/ui/scaled-list-reveal';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
+import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
+import { LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
@@ -57,6 +60,7 @@ import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const sectionClass = 'scroll-mt-40 p-8';
@@ -87,8 +91,9 @@ function CustomerNotFound() {
   );
 }
 
-export default async function PartyDetailPage({ params }: PartyDetailPageProps) {
+export default async function PartyDetailPage({ params, searchParams }: PartyDetailPageProps) {
   const { partyId } = await params;
+  const tab = parseCliente360Tab((await searchParams).tab);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -233,10 +238,11 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             manualOrganizationId={manualOrganizationId}
             manualSubjectId={manualSubjectId}
           />
-          <Cliente360Nav partyId={partyId} embedded />
+          <Cliente360Nav partyId={partyId} activeTab={tab} embedded />
         </Cliente360Sticky>
 
         <div className="mt-10 min-w-0 space-y-12">
+          {tab === 'resumen' ? (
           <PageSection id="resumen" card className={sectionClass} data-tour="cliente360-identity">
             <SectionHeader title="Resumen" />
             <div className="space-y-8">
@@ -275,18 +281,25 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 {contacts.length === 0 ? (
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>
                 ) : (
-                  <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                    {contacts.map((item) => (
-                      <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
-                        <p className="break-words font-medium text-[var(--isalwa-kiln)]">
-                          {contactDisplayName(item.givenName, item.familyName)}
-                        </p>
-                        {item.phone ? (
-                          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
-                        ) : null}
-                      </ListRow>
-                    ))}
-                  </ul>
+                  <ScaledListReveal
+                    items={contacts}
+                    empty={<p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>}
+                  >
+                    {(visible) => (
+                      <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
+                        {visible.map((item) => (
+                          <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
+                            <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                              {contactDisplayName(item.givenName, item.familyName)}
+                            </p>
+                            {item.phone ? (
+                              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
+                            ) : null}
+                          </ListRow>
+                        ))}
+                      </ul>
+                    )}
+                  </ScaledListReveal>
                 )}
               </div>
               <div>
@@ -297,7 +310,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               </div>
             </div>
           </PageSection>
+          ) : null}
 
+          {tab === 'comercial' ? (
           <PageSection id="comercial" card className={sectionClass}>
             <SectionHeader
               title="Comercial"
@@ -324,7 +339,20 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   {(list) => (
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
-                      <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                      <ScaledListReveal
+                        items={list.items}
+                        previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        empty={
+                          <EmptyState
+                            title="Todavía no hay oportunidades activas para este cliente"
+                            description="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
+                          />
+                        }
+                      >
+                        {(visible) => (
+                          <OpportunityList partyId={partyId} items={visible} memberLabels={memberLabels} />
+                        )}
+                      </ScaledListReveal>
                     </>
                   )}
                 </CommercialSectionState>
@@ -340,7 +368,20 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   {(list) => (
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
-                      <QuoteList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                      <ScaledListReveal
+                        items={list.items}
+                        previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        empty={
+                          <EmptyState
+                            title="Todavía no hay cotizaciones activas"
+                            description="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
+                          />
+                        }
+                      >
+                        {(visible) => (
+                          <QuoteList partyId={partyId} items={visible} memberLabels={memberLabels} />
+                        )}
+                      </ScaledListReveal>
                     </>
                   )}
                 </CommercialSectionState>
@@ -356,14 +397,29 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   {(list) => (
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
-                      <OrderList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                      <ScaledListReveal
+                        items={list.items}
+                        previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        empty={
+                          <EmptyState
+                            title="Sin pedidos todavía"
+                            description="Cuando se registren pedidos para esta empresa, aparecerán aquí."
+                          />
+                        }
+                      >
+                        {(visible) => (
+                          <OrderList partyId={partyId} items={visible} memberLabels={memberLabels} />
+                        )}
+                      </ScaledListReveal>
                     </>
                   )}
                 </CommercialSectionState>
               </div>
             </div>
           </PageSection>
+          ) : null}
 
+          {tab === 'operacion' ? (
           <PageSection id="operacion" card className={sectionClass}>
             <SectionHeader title="Operación" />
             <p className="mb-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{CLIENTE360_UX_COPY.operacionHint}</p>
@@ -391,7 +447,9 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               </div>
             </div>
           </PageSection>
+          ) : null}
 
+          {tab === 'trabajo' ? (
           <PageSection id="trabajo" card className={sectionClass}>
             <SectionHeader
               title="Trabajo"
@@ -414,7 +472,19 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   {(workData) => (
                     <>
                       <StaleProjectionBanner freshness={workData.freshness} />
-                      <WorkList items={workData.items} memberLabels={memberLabels} presentation="follow-up" />
+                      <ScaledListReveal
+                        items={workData.items}
+                        empty={
+                          <EmptyState
+                            title={FOLLOW_UP_COPY.emptyTitle}
+                            description={FOLLOW_UP_COPY.emptyDescription}
+                          />
+                        }
+                      >
+                        {(visible) => (
+                          <WorkList items={visible} memberLabels={memberLabels} presentation="follow-up" />
+                        )}
+                      </ScaledListReveal>
                     </>
                   )}
                 </CommercialSectionState>
@@ -433,6 +503,8 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                   memberLabels={memberLabels}
                   partyLabel={displayName}
                   showOrigin
+                  scale
+                  hideHeader
                 />
               </div>
               <AiAssistShell
@@ -445,11 +517,15 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               />
             </div>
           </PageSection>
+          ) : null}
 
+          {tab === 'documentos' ? (
           <PageSection id="documentos" card className={sectionClass}>
             <Cliente360Documentos outcome={documentLinks} />
           </PageSection>
+          ) : null}
 
+          {tab === 'historial' ? (
           <PageSection id="historial" card className={sectionClass}>
             <SectionHeader title="Historial" />
             <CommercialSectionState
@@ -460,11 +536,25 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               {(list) => (
                 <>
                   <StaleProjectionBanner freshness={list.freshness} />
-                  <PartyTimelineList items={list.items} memberLabels={memberLabels} />
+                  <ScaledListReveal
+                    items={list.items}
+                    previewCount={LIST_SCALE_PREVIEW_LARGE}
+                    empty={
+                      <EmptyState
+                        title="Sin actividad comercial todavía"
+                        description="La actividad comercial y del cliente aparecerá aquí cuando exista."
+                      />
+                    }
+                  >
+                    {(visible) => (
+                      <PartyTimelineList items={visible} memberLabels={memberLabels} />
+                    )}
+                  </ScaledListReveal>
                 </>
               )}
             </CommercialSectionState>
           </PageSection>
+          ) : null}
 
           <AiAssistShell
             title="Ayuda con este cliente"

@@ -177,7 +177,7 @@ describe('Cliente 360 next action', () => {
 
     assert.equal(allowed.nextAction.kind, 'assign_owner');
     assert.equal(allowed.nextAction.statement, CLIENTE_360_COPY.assignOwner);
-    assert.equal(allowed.nextAction.href, '/clientes/party-1#resumen');
+    assert.equal(allowed.nextAction.href, '/clientes/party-1?tab=resumen');
   });
 
   it('points a merged record at the stored principal, not a commercial action', () => {

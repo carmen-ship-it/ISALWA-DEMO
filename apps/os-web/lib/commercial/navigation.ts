@@ -18,6 +18,13 @@ export function newQuoteHref(partyId: string, opportunityId: string): string {
   return `/clientes/${encodeURIComponent(partyId)}/oportunidades/${encodeURIComponent(opportunityId)}/cotizaciones/nueva`;
 }
 
-export function clienteSectionHref(partyId: string, section: string): string {
-  return `/clientes/${encodeURIComponent(partyId)}#${section}`;
+/**
+ * Cliente360 tab deep link. Uses `?tab=` so refresh preserves the panel.
+ * Optional in-panel hash (e.g. finanzas under Operación) is appended after the query.
+ */
+export function clienteSectionHref(partyId: string, section: string, hash?: string): string {
+  const base = `/clientes/${encodeURIComponent(partyId)}?tab=${encodeURIComponent(section)}`;
+  if (!hash) return base;
+  const clean = hash.replace(/^#/, '').trim();
+  return clean ? `${base}#${encodeURIComponent(clean)}` : base;
 }

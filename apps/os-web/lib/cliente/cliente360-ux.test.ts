@@ -1,9 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
-import { isCliente360NavSection, CLIENTE360_NAV_SECTIONS } from '@/lib/cliente/nav-sections';
+import {
+  isCliente360NavSection,
+  CLIENTE360_NAV_SECTIONS,
+  parseCliente360Tab,
+} from '@/lib/cliente/nav-sections';
 import { displayCliente360NextAction } from '@/lib/cliente/next-action-display';
+import { clienteSectionHref } from '@/lib/commercial/navigation';
 import type { Cliente360Composition } from '@/lib/party/next-action';
+import { PRIMARY_NAV } from '@/lib/navigation/nav-config';
 
 function nextAction(
   overrides: Partial<Cliente360Composition['nextAction']>,
@@ -32,6 +38,30 @@ describe('Cliente360 UX nav', () => {
   it('recognizes valid section ids', () => {
     assert.equal(isCliente360NavSection('comercial'), true);
     assert.equal(isCliente360NavSection('contactos'), false);
+  });
+
+  it('parses ?tab= with default resumen', () => {
+    assert.equal(parseCliente360Tab('trabajo'), 'trabajo');
+    assert.equal(parseCliente360Tab(['historial']), 'historial');
+    assert.equal(parseCliente360Tab('nope'), 'resumen');
+    assert.equal(parseCliente360Tab(undefined), 'resumen');
+  });
+
+  it('builds deep links with ?tab= that survive refresh', () => {
+    assert.equal(clienteSectionHref('pty_1', 'comercial'), '/clientes/pty_1?tab=comercial');
+    assert.equal(
+      clienteSectionHref('pty 1', 'operacion', 'finanzas'),
+      '/clientes/pty%201?tab=operacion#finanzas',
+    );
+  });
+});
+
+describe('Compromisos nav destination', () => {
+  it('points Compromisos at /compromisos not /inicio', () => {
+    const item = PRIMARY_NAV.find((entry) => entry.id === 'compromisos');
+    assert.ok(item);
+    assert.equal(item.href, '/compromisos');
+    assert.notEqual(item.href, '/inicio');
   });
 });
 

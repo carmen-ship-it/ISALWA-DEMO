@@ -66,6 +66,7 @@ export async function saveCommitmentAction(input: {
     if (input.partyId) {
       revalidatePath(`/clientes/${input.partyId}`);
     }
+    revalidatePath('/compromisos');
 
     return { ok: true, persisted: true, commitmentId };
   } catch (err) {
@@ -119,6 +120,8 @@ export async function fulfillCommitmentAction(commitmentId: string): Promise<Com
       { commitmentId },
       createId(),
     );
+
+    revalidatePath('/compromisos');
 
     return { ok: true };
   } catch (err) {

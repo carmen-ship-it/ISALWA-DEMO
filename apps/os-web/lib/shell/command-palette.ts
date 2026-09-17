@@ -406,10 +406,9 @@ export function commitmentPaletteItem(input: {
   partyId: string | null;
 }): PaletteItem {
   const label = input.text.slice(0, 50).trim() || 'Compromiso';
-  // Link to party page with commitments anchor if partyId exists, else to incidencias
   const href = input.partyId
-    ? `/clientes/${encodeURIComponent(input.partyId)}#compromisos`
-    : '/incidencias';
+    ? clienteSectionHref(input.partyId, 'trabajo')
+    : '/compromisos';
   return {
     key: `commitment:${input.commitmentId}`,
     kind: 'commitment',

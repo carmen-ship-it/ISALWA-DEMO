@@ -32,6 +32,8 @@ const ROOT_LABELS: Record<string, string> = {
   ayuda: 'Ayuda',
   mensajes: 'Mensajes',
   sistema: 'Controles del sistema',
+  compromisos: 'Compromisos',
+  incidencias: 'Incidencias',
 };
 
 function cleanPath(pathname: string): string {
