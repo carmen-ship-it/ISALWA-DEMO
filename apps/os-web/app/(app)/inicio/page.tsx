@@ -8,11 +8,13 @@ import { InicioManagementLens } from '@/components/management/inicio-management-
 import { ManagementExamplePreviewTrigger } from '@/components/management/management-example-preview';
 import { ManagementInsightsPanel } from '@/components/management/management-insights-panel';
 import { ManagementOrgMetrics } from '@/components/management/management-org-metrics';
+import { ManagementCommercialFunnel } from '@/components/management/management-commercial-funnel';
 import { ManagementTeamTable } from '@/components/management/management-team-table';
 import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
 import { InicioLensTabs } from '@/components/inicio/inicio-lens-tabs';
 import { InicioMiDia } from '@/components/inicio/inicio-mi-dia';
 import { InicioSummaryCards } from '@/components/inicio/inicio-summary-cards';
+import { InicioVisualBand } from '@/components/inicio/inicio-visual-band';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
 import { InicioOwnerDemoCard } from '@/components/demo/inicio-owner-demo-card';
 import type { MemoryChangesResponse } from '@/lib/audit/types';
@@ -43,7 +45,8 @@ import {
   buildOportunidadesDeMejora,
   buildParaRevisarInsights,
 } from '@/lib/management/improvement-insights';
-import { composeOrgMetricCards, resolveManagementPeriod } from '@/lib/management/org-metrics';
+import { composeOrgMetricCards, composeCommercialFunnelCounts, formatManagementPeriodLabel, resolveManagementPeriod } from '@/lib/management/org-metrics';
+import { buildCommercialFunnelSteps } from '@/lib/management/commercial-funnel';
 import { partyCountByOwner } from '@/lib/management/party-count-by-owner';
 import { viewerHasManagementOrgRead } from '@/lib/management/scope';
 import { composeTeamMetricsRows } from '@/lib/management/team-metrics';
@@ -115,8 +118,10 @@ function allowPartyForDataMode(
 }
 
 function orgMetricsSparse(cards: ReturnType<typeof composeOrgMetricCards>): boolean {
-  const numeric = cards.filter((card) => card.id !== 'quote-to-order-rate');
-  return numeric.every((card) => (card.count ?? 0) === 0);
+  return cards.every((card) => {
+    if (card.count != null) return card.count === 0;
+    return card.value === '—' || card.value.trim() === '';
+  });
 }
 
 export default async function InicioPage({ searchParams }: InicioPageProps) {
@@ -354,6 +359,18 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
           })
         : null;
 
+    const commercialFunnelSteps =
+      activeLens === 'org' && orgData
+        ? buildCommercialFunnelSteps(
+            composeCommercialFunnelCounts({
+              period: managementPeriod,
+              opportunities: orgData.opportunities,
+              quotes: orgData.quotesSubmitted,
+              orders,
+            }),
+          )
+        : null;
+
     const teamRows =
       activeLens === 'team' && teamData
         ? composeTeamMetricsRows({
@@ -395,13 +412,17 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
 
         <div className="min-w-0 space-y-10">
           {showOwnerDemoCard ? <InicioOwnerDemoCard /> : null}
-          <InicioSummaryCards cards={summaryCards} />
-          <InicioMiDia items={miDiaItems} />
+          <InicioVisualBand tone="recent" label="Resumen">
+            <InicioSummaryCards cards={summaryCards} />
+          </InicioVisualBand>
+          <InicioVisualBand tone="mi-dia" label="Mi día">
+            <InicioMiDia items={miDiaItems} />
+          </InicioVisualBand>
 
           <InicioLensTabs active={activeLens} available={availableLenses} periodo={periodPreset} />
 
           {activeLens === 'personal' ? (
-            <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_55%,var(--isalwa-porcelain))] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
+            <InicioVisualBand tone="attention" label="Centro de mando" className="space-y-8">
               <div>
                 <p className="isalwa-kicker">Centro de mando</p>
                 <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)] md:text-3xl">
@@ -410,7 +431,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
               </div>
 
               {showResponsibility ? (
-                <section aria-label="Comercial" className="min-w-0 space-y-6">
+                <InicioVisualBand tone="commercial" label="Comercial" className="space-y-6 border-0 bg-transparent p-0 shadow-none">
                   <p className="isalwa-kicker">Comercial</p>
                   {responsibilityOpportunities.length > 0 ? (
                     <PageSection card className="min-w-0 p-5 md:p-6">
@@ -458,7 +479,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                       ) : null}
                     </div>
                   ) : null}
-                </section>
+                </InicioVisualBand>
               ) : null}
 
               <InicioManagementLens model={management} />
@@ -471,13 +492,15 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
               />
 
               {memoryChanges !== 'unauthorized' && memoryChanges !== 'unavailable' ? (
-                <InicioWhatChanged items={memoryChanges.items} windowLabel="Hoy" />
+                <InicioVisualBand tone="recent" label="Qué cambió">
+                  <InicioWhatChanged items={memoryChanges.items} windowLabel="Hoy" />
+                </InicioVisualBand>
               ) : null}
-            </div>
+            </InicioVisualBand>
           ) : null}
 
           {activeLens === 'team' && teamRows ? (
-            <div className="min-w-0 space-y-10">
+            <InicioVisualBand tone="operations" label="Equipo" className="space-y-10">
               <ManagementTeamTable rows={teamRows} memberLabels={memberLabels} />
               {insightBundle ? (
                 <>
@@ -493,11 +516,17 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                   />
                 </>
               ) : null}
-            </div>
+            </InicioVisualBand>
           ) : null}
 
           {activeLens === 'org' && orgMetricCards ? (
-            <div className="min-w-0 space-y-10">
+            <InicioVisualBand tone="commercial" label="Empresa" className="space-y-10">
+              {commercialFunnelSteps ? (
+                <ManagementCommercialFunnel
+                  steps={commercialFunnelSteps}
+                  periodLabel={formatManagementPeriodLabel(managementPeriod)}
+                />
+              ) : null}
               <ManagementOrgMetrics
                 cards={orgMetricCards}
                 period={periodPreset}
@@ -523,7 +552,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                   <ManagementExamplePreviewTrigger kind="team-table" />
                 </div>
               ) : null}
-            </div>
+            </InicioVisualBand>
           ) : null}
         </div>
       </PageContainer>

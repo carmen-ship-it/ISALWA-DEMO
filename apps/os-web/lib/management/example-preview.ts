@@ -9,15 +9,17 @@ export type ExampleOrgMetricCard = {
 export function exampleOrgMetricsPreview(): { cards: ExampleOrgMetricCard[] } {
   return {
     cards: [
-      { label: 'Oportunidades abiertas', value: '12', hint: 'Bs. 48.500,00' },
-      { label: 'Cotizaciones emitidas', value: '9', hint: 'Bs. 31.200,00' },
-      { label: 'Cotizaciones convertidas a pedido', value: '4' },
+      { label: 'Oportunidades abiertas', value: '12' },
+      { label: 'Valor de oportunidades', value: 'Bs. 48.500,00', hint: 'No es ingreso.' },
+      { label: 'Cotizaciones emitidas', value: '9' },
+      { label: 'Valor cotizado', value: 'Bs. 31.200,00', hint: 'No es ingreso.' },
       {
-        label: 'Tasa cotización → pedido',
+        label: 'Cotización → Pedido',
         value: '44%',
         hint: 'Porcentaje de cotizaciones del período que terminaron convertidas en pedido.',
       },
-      { label: 'Pedidos', value: '4', hint: 'Bs. 28.900,00' },
+      { label: 'Pedidos', value: '4' },
+      { label: 'Valor de pedidos', value: 'Bs. 28.900,00', hint: 'No es ingreso ni cobranza.' },
       { label: 'Pedidos entregados', value: '2' },
       { label: 'Seguimientos vencidos', value: '1' },
       { label: 'Incidencias abiertas', value: '0' },

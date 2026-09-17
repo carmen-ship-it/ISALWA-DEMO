@@ -27,14 +27,15 @@ describe('map provider status', () => {
 });
 
 describe('map layers', () => {
-  it('only clientes is available; future layers do not activate', () => {
+  it('exposes clientes + attention + commercial count layers; future layers do not activate', () => {
     const available = MAP_LAYER_REGISTRY.filter((layer) => layer.truthClass === 'available');
     assert.deepEqual(
       available.map((layer) => layer.id),
-      ['clientes', 'oportunidades', 'cotizaciones', 'pedidos'],
+      ['clientes', 'atencion', 'oportunidades', 'cotizaciones', 'pedidos'],
     );
     assert.equal(resolveMapLayer('cobranza'), 'clientes');
-    assert.equal(resolveMapLayer('atencion'), 'clientes');
+    assert.equal(resolveMapLayer('atencion'), 'atencion');
+    assert.equal(resolveMapLayer('ingresos'), 'clientes');
     assert.equal(resolveMapLayer('clientes'), 'clientes');
     assert.equal(resolveMapLayer('oportunidades'), 'oportunidades');
   });

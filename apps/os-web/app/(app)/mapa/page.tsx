@@ -152,31 +152,29 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const memberLabels =
     ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
 
-  const hoverByPartyId = new Map<string, MapHoverSnapshot>();
+  const hoverByPartyId: Record<string, MapHoverSnapshot> = {};
   for (const row of model.all) {
     const ownerLabel =
       row.commercialOwnerMemberId && memberLabels
         ? (memberLabels.get(row.commercialOwnerMemberId) ?? null)
         : null;
-    hoverByPartyId.set(
-      row.partyId,
-      buildMapHoverSnapshot({
-        row,
-        ownerLabel,
-        commercial: buildMapPartyCommercialSnapshot(row.partyId, commercialInput),
-        attention: attentionItems,
-        overdueWork,
-      }),
-    );
+    hoverByPartyId[row.partyId] = buildMapHoverSnapshot({
+      row,
+      ownerLabel,
+      commercial: buildMapPartyCommercialSnapshot(row.partyId, commercialInput),
+      attention: attentionItems,
+      overdueWork,
+    });
   }
 
-  const selectedHover = selectedPartyId ? hoverByPartyId.get(selectedPartyId) ?? null : null;
+  const selectedHover = selectedPartyId ? hoverByPartyId[selectedPartyId] ?? null : null;
   const issueItems = Array.isArray(issuesResult?.items) ? issuesResult.items : [];
   const selectedIssueCount = selectedPartyId
     ? issueItems.filter((item) =>
         item.references.some((ref) => ref.referenceType === 'party' && ref.referenceId === selectedPartyId),
       ).length
     : null;
+  const attentionPartyIdList = [...attentionPartyIds];
 
   return (
     <PageContainer
@@ -206,8 +204,8 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         memberLabels={memberLabels}
         portfolio={portfolio}
         selectedCommercial={selectedCommercial}
-        hoverByPartyId={Object.fromEntries(hoverByPartyId)}
-        attentionPartyIds={[...attentionPartyIds]}
+        hoverByPartyId={hoverByPartyId}
+        attentionPartyIds={attentionPartyIdList}
         selectedNextAction={selectedHover?.nextAttention ?? null}
         selectedIssueCount={selectedIssueCount}
         selectedLastUpdatedIso={null}
