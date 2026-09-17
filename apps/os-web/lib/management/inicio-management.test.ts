@@ -167,7 +167,8 @@ describe('Inicio management lens', () => {
     }
 
     assert.match(page, /InicioManagementLens/);
-    assert.match(page, /InicioAttentionPanel/);
+    assert.match(page, /InicioSummaryCards/);
+    assert.match(page, /buildTodayQueue/);
     assert.doesNotMatch(page, /data-tour=/);
     assert.match(walkthrough, /target: 'home-attention'/);
     assert.doesNotMatch(surface, FORBIDDEN_LABEL);

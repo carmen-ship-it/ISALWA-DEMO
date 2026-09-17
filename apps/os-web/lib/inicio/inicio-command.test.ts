@@ -266,7 +266,8 @@ describe('Inicio page fail-closed per section', () => {
     assert.match(page, /safeInicioSectionFetch/);
     assert.match(page, /PageHeader/);
     assert.match(page, /Centro de mando/);
-    assert.match(page, /OperatingHomes/);
+    assert.match(page, /InicioSummaryCards/);
+    assert.doesNotMatch(page, /OperatingHomes/);
     assert.match(page, /safeInicioSectionFetch\(\(\) =>\s*client\.listAttention/);
     assert.match(page, /QuerySurfaceState error=\{classifyQueryError\(err\)\}/);
     assert.doesNotMatch(page, /async function safeFetch/);
