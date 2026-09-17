@@ -10,7 +10,7 @@
 
 | Field | Value |
 |---|---|
-| FINAL_CT3_SOURCE_SHA | `a7deff81ef3677837cf1b2664b36fe983ed03df3` (pre-artifact commit; artifact commit follows) |
+| FINAL_CT3_SOURCE_SHA | **NOT DECLARED** — tip `b4a5a759fc04b2e58e1ed198931d8ba489a404ec` is mid-pass (artifacts+incomplete lanes); not a finished FINAL SHA |
 | WEB_RUNTIME_SHA | still CT2 `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b` — **CT3 not deployed** |
 | API_RUNTIME_SHA | still CT2 `4b85b11` — **CT3 not deployed** |
 | SAME_SHA_PROOF | **N/A for CT3** (CT2 SAME_SHA was PASS; CT3 push/deploy pending) |
