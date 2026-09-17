@@ -4,6 +4,7 @@
 **Branch:** `ct3/lane-e-demo`  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-lane-e-demo`  
 **Base:** `4b85b11`  
+**Lane SHA:** `dcd43262a7d4b3e1a987710e502102e79f039ae7` (`dcd4326`)  
 **At:** 2026-09-17  
 
 ## Scope delivered
