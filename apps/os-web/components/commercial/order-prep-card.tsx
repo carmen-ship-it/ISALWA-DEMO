@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { Button, Panel, SectionHeader } from '@isalwa/ui';
 import {
   ORDER_PREP_COPY,
-  buildOrderPrepReviewWork,
+  canRequestOrderPrepReview,
   type OrderPrepDepartment,
+  type OrderPrepOpenReview,
 } from '@/components/commercial/order-prep-work';
+import { requestOrderPrepReviewAction } from '@/lib/commercial/order-prep-actions';
+import { AppToast, AppToastRegion } from '@/components/states/app-toast';
+import { workItemHref } from '@/lib/work/navigation';
 
 export type OrderPrepCardProps = {
   orderId: string;
@@ -14,12 +20,10 @@ export type OrderPrepCardProps = {
   actorMemberId: string;
   orderLabel?: string | null;
   assignees?: Partial<Record<OrderPrepDepartment, string | null>>;
-  onRequestReview?: (input: {
-    department: OrderPrepDepartment;
-    command: 'CreateWorkItem';
-    payload: Record<string, unknown>;
-  }) => void | Promise<void>;
-  onAssignResponsible?: (department: OrderPrepDepartment) => void;
+  openReviews?: Partial<Record<OrderPrepDepartment, OrderPrepOpenReview>>;
+  /** Optional factual warehouse evidence — never stock yes/no claims. */
+  warehouseEvidence?: string | null;
+  canMutate?: boolean;
 };
 
 const DEPARTMENTS: OrderPrepDepartment[] = ['production', 'warehouse', 'purchasing'];
@@ -30,89 +34,130 @@ export function OrderPrepCard({
   actorMemberId,
   orderLabel,
   assignees,
-  onRequestReview,
-  onAssignResponsible,
+  openReviews: initialOpen,
+  warehouseEvidence,
+  canMutate = true,
 }: OrderPrepCardProps) {
-  const [pending, setPending] = useState<OrderPrepDepartment | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [busyDept, setBusyDept] = useState<OrderPrepDepartment | null>(null);
+  const [openReviews, setOpenReviews] = useState(initialOpen ?? {});
+  const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleReview(department: OrderPrepDepartment) {
-    const built = buildOrderPrepReviewWork({
-      department,
-      orderId,
-      partyId,
-      actorMemberId,
-      assigneeMemberId: assignees?.[department] ?? null,
-      orderLabel,
-    });
-    if (!built.ok) {
-      setNotice('No se pudo preparar la solicitud de revisión.');
+  function handleReview(department: OrderPrepDepartment) {
+    if (openReviews[department]) return;
+    const assignee = assignees?.[department] ?? null;
+    if (!canRequestOrderPrepReview(department, assignee)) {
+      setError(ORDER_PREP_COPY[department].noAssignee);
       return;
     }
-    if (!onRequestReview) {
-      setNotice('La solicitud de revisión no está conectada en esta vista.');
-      return;
-    }
-    setPending(department);
-    try {
-      await onRequestReview({
+    setBusyDept(department);
+    setError(null);
+    startTransition(async () => {
+      const result = await requestOrderPrepReviewAction({
         department,
-        command: built.command,
-        payload: built.payload,
+        orderId,
+        partyId,
+        actorMemberId,
+        assigneeMemberId: assignee,
+        orderLabel,
       });
-      setNotice(null);
-    } finally {
-      setPending(null);
-    }
+      setBusyDept(null);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setOpenReviews((prev) => ({
+        ...prev,
+        [department]: {
+          department,
+          workItemId: result.workItemId,
+          title: ORDER_PREP_COPY[department].requested,
+        },
+      }));
+      if (!result.alreadyOpen) {
+        setToast(ORDER_PREP_COPY.toastOk);
+      }
+      router.refresh();
+    });
   }
 
   return (
-    <Panel className="mt-4">
+    <Panel className="mt-10">
       <SectionHeader
         kicker="Pedido"
         title={
-          <h3 className="font-[var(--isalwa-font-display)] text-lg text-[var(--isalwa-kiln)] italic">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
             {ORDER_PREP_COPY.cardTitle}
-          </h3>
+          </h2>
         }
       />
-      <p className="mb-4 text-sm leading-relaxed text-[var(--isalwa-slate)]">{ORDER_PREP_COPY.cardIntro}</p>
+      <p className="mb-6 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {ORDER_PREP_COPY.cardIntro}
+      </p>
       <ul className="space-y-4">
         {DEPARTMENTS.map((department) => {
           const copy = ORDER_PREP_COPY[department];
           const assignee = assignees?.[department]?.trim() ?? '';
-          const needsAssignee = !assignee;
+          const open = openReviews[department];
+          const mayRequest = canRequestOrderPrepReview(department, assignee);
           return (
-            <li key={department} className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] p-4">
+            <li
+              key={department}
+              className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-4"
+            >
               <p className="isalwa-section-label">{copy.title}</p>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{copy.body}</p>
-              {needsAssignee ? (
-                <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{ORDER_PREP_COPY.noAssignee}</p>
+              {department === 'warehouse' && warehouseEvidence ? (
+                <p className="mt-2 text-sm text-[var(--isalwa-kiln)]">{warehouseEvidence}</p>
               ) : null}
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  disabled={pending === department}
-                  onClick={() => handleReview(department)}
-                >
-                  {copy.action}
-                </Button>
-                {needsAssignee && onAssignResponsible ? (
-                  <Button type="button" size="sm" variant="ghost" onClick={() => onAssignResponsible(department)}>
-                    {ORDER_PREP_COPY.assignOwner}
+              {open ? (
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]" role="status">
+                    {copy.requested}
+                  </p>
+                  <Link
+                    href={workItemHref(open.workItemId)}
+                    className="isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                  >
+                    {ORDER_PREP_COPY.viewWork}
+                  </Link>
+                </div>
+              ) : !mayRequest ? (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">{copy.noAssignee}</p>
+              ) : canMutate ? (
+                <div className="mt-3">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={pending && busyDept === department}
+                    onClick={() => handleReview(department)}
+                  >
+                    {copy.action}
                   </Button>
-                ) : null}
-              </div>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]">Sin solicitud de revisión.</p>
+              )}
             </li>
           );
         })}
       </ul>
-      {notice ? (
+      {error ? (
         <p className="mt-4 text-sm text-[var(--isalwa-slate)]" role="status">
-          {notice}
+          {error}
         </p>
+      ) : null}
+      {toast ? (
+        <AppToastRegion className="fixed bottom-4 right-4 z-50" label="Confirmación">
+          <AppToast
+            tone="success"
+            title={toast}
+            onDismiss={() => setToast(null)}
+          />
+        </AppToastRegion>
       ) : null}
     </Panel>
   );

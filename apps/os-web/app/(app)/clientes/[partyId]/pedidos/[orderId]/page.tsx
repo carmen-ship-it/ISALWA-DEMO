@@ -4,6 +4,8 @@ import { CommercialApprovalPanel } from '@/components/commercial/commercial-appr
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { DocumentDossierPanel } from '@/components/commercial/document-dossier-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
+import { OrderPrepCard } from '@/components/commercial/order-prep-card';
+import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
@@ -13,7 +15,7 @@ import { PageHeader } from '@/components/shell/page-header';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
-import { canRecordDelivery, canRecordWarehouseOutbound } from '@isalwa/os-contracts';
+import { canRecordDelivery, canRecordProduction, canRecordPurchasing, canRecordWarehouseOutbound, canReceiveFinishedGoods } from '@isalwa/os-contracts';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -253,6 +255,36 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       quoteIdFilter: order.quoteId,
     });
 
+    let openPrepReviews: ReturnType<typeof findOpenOrderPrepReviews> = {};
+    try {
+      const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
+      openPrepReviews = findOpenOrderPrepReviews(
+        workPage.items ?? [],
+        order.orderId,
+        partyId,
+      );
+    } catch {
+      openPrepReviews = {};
+    }
+
+    const finishedGoodsEvidence = partyTimelineItems.some((item) => {
+      if (item.eventType !== 'finished_goods.received') return false;
+      const facts = item.facts ?? {};
+      const contextOrderId =
+        typeof facts.contextOrderId === 'string'
+          ? facts.contextOrderId
+          : typeof facts.orderId === 'string'
+            ? facts.orderId
+            : null;
+      return (
+        contextOrderId === order.orderId ||
+        item.primaryEntityId === order.orderId ||
+        (typeof facts.orderNumber === 'string' && facts.orderNumber === order.orderNumber)
+      );
+    })
+      ? 'Hay un ingreso de productos terminados registrado vinculado a este pedido (hecho reportado; no indica stock disponible).'
+      : null;
+
     return (
       <PageContainer label={order.orderNumber}>
         <CommercialPath
@@ -371,6 +403,28 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             ) : null}
           </dl>
         </PageSection>
+
+        {actorMemberId ? (
+          <OrderPrepCard
+            orderId={order.orderId}
+            partyId={partyId}
+            actorMemberId={actorMemberId}
+            orderLabel={order.orderNumber}
+            assignees={{
+              // Only route to the acting member when they hold the department scope —
+              // never invent a third-party owner from an empty directory guess.
+              production: canRecordProduction(scopes) ? actorMemberId : null,
+              warehouse:
+                canReceiveFinishedGoods(scopes) || canRecordWarehouseOutbound(scopes)
+                  ? actorMemberId
+                  : null,
+              purchasing: canRecordPurchasing(scopes) ? actorMemberId : null,
+            }}
+            openReviews={openPrepReviews}
+            warehouseEvidence={finishedGoodsEvidence}
+            canMutate={order.status === 'open'}
+          />
+        ) : null}
 
         {operating.sections.lines ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
