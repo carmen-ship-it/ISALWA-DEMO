@@ -13,7 +13,7 @@ BASE = `1244d84` SAME SHA live · Integrator `ct2/exec-ux-intelligence`
 | UX-5 | [UX-5](2f2f2a5d-db63-4a81-abc6-16eb93ed1e14) | ct2-lane-ux5-notif | ct2/lane-ux5-notifications | FORCE IMPLEMENT |
 | UX-6 | [UX-6](8ad949ab-93a1-4701-8787-da340c3d92d1) | ct2-lane-ux6-audit | ct2/lane-ux6-audit | FORCE IMPLEMENT |
 | UX-7 | [UX-7](d719aac5-6cc2-41ec-a2d3-80b1554bab9c) | ct2-lane-ux7-ops | ct2/lane-ux7-ops-density | FORCE IMPLEMENT |
-| UX-8 | [UX-8](87568bdf-ec98-4a13-9efe-77504674b398) | ct2-lane-ux8-ai | ct2/lane-ux8-ai | **PARKED** — user aborted; do not resume unless Carmen asks. Partial dirty work preserved in worktree. |
+| UX-8 | [UX-8](87568bdf-ec98-4a13-9efe-77504674b398) | ct2-lane-ux8-ai | ct2/lane-ux8-ai | **INTEGRATED** (was parked; agent completed SHA) |
 | UX-9 | Control Tower 2 | ct2-exec-ux-intel | ct2/exec-ux-intelligence | INTEGRATOR |
 
 Prior stalled best-of-n agents superseded and **stopped** (confirmed).
