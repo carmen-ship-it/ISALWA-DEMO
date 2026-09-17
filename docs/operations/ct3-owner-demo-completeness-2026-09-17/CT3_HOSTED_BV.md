@@ -46,3 +46,22 @@
 - Asesor DN PDF → 403 (expected without delivery.record).
 - Asesor Story Mode card may be absent (expected without role-preview).
 - Do not collapse UNPROVEN AI into PASS.
+
+---
+
+## Post-finish PF-8 delta BV (2026-09-17T04:16Z)
+
+**FINAL_CT3_POST_DEMO_SHA / LIVE:** `e5f6d3aaabf95c49d5358caee5dba9058d97197f`  
+**WEB:** `dep-dalmg1p42hec73d09g60` · **API:** `dep-dalmg261egvs73f493qg` · **SAME_SHA:** PASS  
+**Script:** `pf8-delta-bv.mjs` · **Results:** `pf8-results.json` · **33 pass / 0 fail**
+
+| Check family | Result |
+|---|---|
+| Old walkthrough removed | PASS |
+| Story Mode launcher + open | PASS |
+| Demo banner + toggle | PASS |
+| 15-page demo coverage cues | PASS (15/15) |
+| DEMO MADERAS cross-page coherence | PASS |
+| Quote PDF HTTP | PASS 200 application/pdf |
+| DN PDF HTTP (coordinacion) | PASS 200 application/pdf |
+| REAL_SEVEN artifact | PASS NO |
