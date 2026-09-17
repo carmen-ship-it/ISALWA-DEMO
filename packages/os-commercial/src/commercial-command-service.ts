@@ -902,7 +902,7 @@ export class CommercialCommandService {
     this.assertCanEditQuote(snap, quote);
 
     const channel = String(payload.channel ?? '');
-    if (channel !== 'whatsapp' && channel !== 'otro') {
+    if (channel !== 'whatsapp' && channel !== 'email' && channel !== 'otro') {
       throw new Error('VALIDATION_FAILED');
     }
     const noteRaw = payload.note != null ? String(payload.note).trim() : '';

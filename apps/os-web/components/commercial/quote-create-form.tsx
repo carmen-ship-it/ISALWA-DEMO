@@ -13,9 +13,15 @@ type QuoteCreateFormProps = {
   partyId: string;
   opportunityId: string;
   opportunityTitle: string;
+  customerName: string;
 };
 
-export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: QuoteCreateFormProps) {
+export function QuoteCreateForm({
+  partyId,
+  opportunityId,
+  opportunityTitle,
+  customerName,
+}: QuoteCreateFormProps) {
   const router = useRouter();
   const [state, formAction] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
@@ -32,11 +38,18 @@ export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: Qu
 
   return (
     <PageSection card className="bg-white p-8 md:p-10">
-      <p className="text-sm text-[var(--isalwa-slate)]">
-        Oportunidad: <span className="font-medium text-[var(--isalwa-kiln)]">{opportunityTitle}</span>
-      </p>
+      <dl className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt className="isalwa-section-label">Cliente</dt>
+          <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{customerName}</dd>
+        </div>
+        <div>
+          <dt className="isalwa-section-label">Oportunidad</dt>
+          <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{opportunityTitle}</dd>
+        </div>
+      </dl>
       <FormFeedback error={state?.error} />
-      <form action={formAction} className="mt-4 space-y-4">
+      <form action={formAction} className="mt-6 space-y-4">
         <GuidanceNotes notes={guidanceForCreateQuote()} />
         <input type="hidden" name="partyId" value={partyId} />
         <input type="hidden" name="opportunityId" value={opportunityId} />
@@ -52,7 +65,7 @@ export function QuoteCreateForm({ partyId, opportunityId, opportunityTitle }: Qu
             placeholder="Opcional"
           />
         </div>
-        <CommandSubmitButton label="Nueva cotización" pendingLabel="Creando…" />
+        <CommandSubmitButton label="Crear cotización" pendingLabel="Creando…" />
       </form>
     </PageSection>
   );

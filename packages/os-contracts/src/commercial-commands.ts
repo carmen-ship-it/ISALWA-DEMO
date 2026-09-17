@@ -104,7 +104,7 @@ export const SubmitQuotePayloadSchema = z.object({
 });
 
 /** Human evidence that a quote was sent outside ISALWA. Does not call a provider. */
-export const QUOTE_MANUAL_SEND_CHANNELS = ['whatsapp', 'otro'] as const;
+export const QUOTE_MANUAL_SEND_CHANNELS = ['whatsapp', 'email', 'otro'] as const;
 export type QuoteManualSendChannel = (typeof QUOTE_MANUAL_SEND_CHANNELS)[number];
 
 export const RecordQuoteManualSendPayloadSchema = z.object({

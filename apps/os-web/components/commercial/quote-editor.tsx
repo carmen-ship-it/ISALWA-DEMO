@@ -314,7 +314,11 @@ export function QuoteEditor({
           <input type="hidden" name="quoteId" value={quote.quoteId} />
           <CommandSubmitButton label="Enviar cotización" pendingLabel="Enviando…" />
         </form>
-        <form action={cancelAction} className="mt-10 space-y-4 border-t border-[var(--isalwa-mist)] pt-8">
+        <form
+          id="cancelar-cotizacion"
+          action={cancelAction}
+          className="mt-10 scroll-mt-32 space-y-4 border-t border-[var(--isalwa-mist)] pt-8"
+        >
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="quoteId" value={quote.quoteId} />
           <FormFeedback error={cancelState.error} success={cancelState.success} />

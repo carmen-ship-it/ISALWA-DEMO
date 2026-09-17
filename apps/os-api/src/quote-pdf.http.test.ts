@@ -198,7 +198,7 @@ describeHttp('os-api quote PDF (Cotización)', () => {
     const res = await fetch(`${baseUrl}/v1/quotes/${quoteId}/pdf`, { headers });
     assert.equal(res.status, 200);
     assert.match(res.headers.get('content-type') ?? '', /application\/pdf/);
-    assert.match(res.headers.get('content-disposition') ?? '', /attachment; filename="cotizacion-Q-/);
+    assert.match(res.headers.get('content-disposition') ?? '', /attachment; filename="Cotizacion-Q-/);
     const buf = Buffer.from(await res.arrayBuffer());
     assert.equal(buf.subarray(0, 4).toString('utf8'), '%PDF');
     void commercialSvc;

@@ -375,7 +375,7 @@ export async function createOrderAction(formData: FormData): Promise<CreateRedir
 export async function recordQuoteManualSendAction(
   formData: FormData,
 ): Promise<
-  | { ok: true; channel: 'whatsapp' | 'otro' }
+  | { ok: true; channel: 'whatsapp' | 'email' | 'otro' }
   | { ok: false; error: string }
 > {
   const partyId = String(formData.get('partyId') ?? '').trim();
@@ -383,7 +383,7 @@ export async function recordQuoteManualSendAction(
   const channel = String(formData.get('channel') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
   if (!quoteId) return { ok: false, error: 'Cotización no válida.' };
-  if (channel !== 'whatsapp' && channel !== 'otro') {
+  if (channel !== 'whatsapp' && channel !== 'email' && channel !== 'otro') {
     return { ok: false, error: 'Seleccione el canal de envío.' };
   }
 

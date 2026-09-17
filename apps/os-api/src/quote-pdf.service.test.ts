@@ -124,7 +124,7 @@ describe('QuotePdfService render', () => {
     );
     const rendered = await service.renderAuthorizedQuote(quote({ status: 'submitted' }));
     assert.equal(rendered.contentType, 'application/pdf');
-    assert.equal(rendered.filename, 'cotizacion-Q-000010.pdf');
+    assert.equal(rendered.filename, 'Cotizacion-Q-000010.pdf');
     assert.equal(
       String.fromCharCode(
         rendered.bytes[0]!,

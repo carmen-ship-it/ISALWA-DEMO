@@ -2,14 +2,15 @@ import Link from 'next/link';
 import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
+import { CommercialProgressStrip } from '@/components/commercial/commercial-progress-strip';
 import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
+import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
+import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
-import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
+import { QuoteEnvioSection } from '@/components/commercial/quote-envio-section';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
-import { RecordQuoteManualSendForm } from '@/components/commercial/record-quote-manual-send-form';
 import { PageHeader } from '@/components/shell/page-header';
-import { RegisterFollowUpForm } from '@/components/work/register-follow-up-form';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -17,16 +18,15 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { commercialProgressSteps } from '@/lib/commercial/commercial-progress';
 import {
   formatQuoteStatus,
   formatTimestamp,
   statusTone,
 } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
-import {
-  canRecordQuoteManualSend,
-  QUOTE_MANUAL_SEND_COPY,
-} from '@/lib/commercial/quote-manual-send';
+import { canRecordQuoteManualSend } from '@/lib/commercial/quote-manual-send';
+import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
@@ -34,7 +34,6 @@ import { quoteNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
-import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { offerAfterQuoteSent } from '@/lib/work/event-work-offer';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -91,10 +90,26 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         approvals = [];
       }
     }
+
+    let sendRecord = null as ReturnType<typeof findLatestQuoteSendRecord>;
+    let sendActorLabel: string | null = null;
+    if (quote.status === 'submitted' || quote.status === 'accepted') {
+      try {
+        const timeline = await client.listPartyTimeline(partyId, { limit: 50 });
+        sendRecord = findLatestQuoteSendRecord(timeline.items, quote.quoteId);
+        if (sendRecord?.actorMemberId) {
+          const actors = await resolveMemberLabels(client, [sendRecord.actorMemberId]);
+          sendActorLabel = memberLabel(actors, sendRecord.actorMemberId);
+        }
+      } catch {
+        sendRecord = null;
+      }
+    }
+
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
     const hasPendingApproval = approvals.some((row) => row.status === 'pending');
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
-    const manualSendAllowed = canRecordQuoteManualSend(quote.status);
+    const manualSendAllowed = canRecordQuoteManualSend(quote.status) && !sendRecord;
     const quoteWorkOffer = offerAfterQuoteSent({
       quoteStatus: quote.status,
       partyId: quote.partyId,
@@ -123,18 +138,33 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         : []),
       { label: quote.quoteNumber },
     ];
+    const progress = commercialProgressSteps({
+      hasQuote: true,
+      onQuote: true,
+      hasOrder: Boolean(relatedOrder),
+    });
+    const isDraft = quote.status === 'draft';
+    const totalLabel = formatCentavos(quote.totalCentavos, quote.currency);
 
     return (
       <PageContainer label={quote.quoteNumber}>
         <CommercialPath crumbs={pathCrumbs} />
+        <CommercialProgressStrip steps={progress} />
         <PageHeader
           kicker="Cotización"
           title={quote.quoteNumber}
           description={customerName}
           action={
-            <Link href={partyHref(partyId)} className={documentLinkClass}>
-              Volver al cliente
-            </Link>
+            <QuoteDetailActions
+              quoteId={quote.quoteId}
+              quoteNumber={quote.quoteNumber}
+              quoteStatus={quote.status}
+              canRecordSend={manualSendAllowed}
+              canRegisterFollowUp={followUpAllowed}
+              canEdit={isDraft}
+              canCancel={isDraft}
+              canConvertToOrder={authority?.canConvertToOrder === true}
+            />
           }
         />
 
@@ -153,12 +183,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         ) : null}
 
         <PageSection card className="bg-white p-8 md:p-10">
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <StatusPill tone={statusTone(quote.status)} data-tour={TOUR_TARGET.quoteStatus}>
-              {formatQuoteStatus(quote.status)}
-            </StatusPill>
-            <QuotePdfDownloadButton quoteId={quote.quoteId} quoteNumber={quote.quoteNumber} />
-          </div>
+          <StatusPill tone={statusTone(quote.status)} data-tour={TOUR_TARGET.quoteStatus}>
+            {formatQuoteStatus(quote.status)}
+          </StatusPill>
 
           <dl className="mt-10 grid gap-8 sm:grid-cols-2">
             <div>
@@ -204,7 +231,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             <div>
               <dt className="isalwa-section-label">Total</dt>
               <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
-                {formatCentavos(quote.totalCentavos, quote.currency)}
+                {totalLabel}
               </dd>
             </div>
           </dl>
@@ -218,6 +245,33 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </div>
           ) : null}
         </PageSection>
+
+        <div className="mt-10">
+          <QuoteDocumentoCard
+            quoteId={quote.quoteId}
+            quoteNumber={quote.quoteNumber}
+            quoteStatus={quote.status}
+            createdAt={quote.createdAt}
+          />
+        </div>
+
+        {quote.status === 'submitted' || sendRecord ? (
+          <PageSection card className="mt-10 bg-white p-8 md:p-10">
+            <QuoteEnvioSection
+              partyId={partyId}
+              quoteId={quote.quoteId}
+              quoteNumber={quote.quoteNumber}
+              canRecordSend={manualSendAllowed}
+              sendRecord={sendRecord}
+              actorLabel={sendActorLabel}
+            />
+            {quoteWorkOffer.offered && !sendRecord ? (
+              <div className="mt-6">
+                <EventWorkOfferPanel offer={quoteWorkOffer} />
+              </div>
+            ) : null}
+          </PageSection>
+        ) : null}
 
         <PageSection card className="mt-10 bg-white p-8 md:p-10">
           <SectionHeader title={documentTitle} />
@@ -298,39 +352,6 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           )}
         </PageSection>
 
-        {manualSendAllowed ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
-            <SectionHeader
-              title={
-                <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-                  {QUOTE_MANUAL_SEND_COPY.section}
-                </h2>
-              }
-            />
-            <div className="mt-6">
-              <RecordQuoteManualSendForm
-                partyId={partyId}
-                quoteId={quote.quoteId}
-                quoteNumber={quote.quoteNumber}
-              />
-            </div>
-          </PageSection>
-        ) : null}
-
-        {followUpAllowed ? (
-          <PageSection card className="mt-10 bg-white p-8 md:p-10">
-            <SectionHeader title={FOLLOW_UP_COPY.section} />
-            <div className="mt-6 space-y-4">
-              {quoteWorkOffer.offered ? <EventWorkOfferPanel offer={quoteWorkOffer} /> : null}
-              <RegisterFollowUpForm
-                partyId={quote.partyId}
-                quoteId={quote.quoteId}
-                quoteNumber={quote.quoteNumber}
-              />
-            </div>
-          </PageSection>
-        ) : null}
-
         {authority?.canConvertToOrder ? (
           <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
             <SectionHeader
@@ -341,7 +362,14 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
               }
             />
             <div className="mt-6">
-              <ConvertQuoteForm partyId={partyId} quoteId={quote.quoteId} quoteStatus={quote.status} />
+              <ConvertQuoteForm
+                partyId={partyId}
+                quoteId={quote.quoteId}
+                quoteNumber={quote.quoteNumber}
+                customerName={customerName}
+                totalLabel={totalLabel}
+                quoteStatus={quote.status}
+              />
             </div>
           </PageSection>
         ) : null}
@@ -389,7 +417,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           </PageSection>
         ) : null}
 
-        <QuoteEditor partyId={partyId} quote={quote} />
+        <div id="editar-cotizacion" className="scroll-mt-32">
+          <QuoteEditor partyId={partyId} quote={quote} />
+        </div>
       </PageContainer>
     );
   } catch (err) {

@@ -3,11 +3,22 @@
 import { useRef, useState } from 'react';
 import { Button } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import {
+  isQuotePdfReady,
+  QUOTE_PDF_COPY,
+  quotePdfDownloadFilename,
+} from '@/lib/commercial/quote-pdf-ready';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type QuotePdfDownloadButtonProps = {
   quoteId: string;
   quoteNumber: string;
+  quoteStatus: string;
+  /** When true, render only primary download (no Ver PDF). */
+  downloadOnly?: boolean;
+  /** Button hierarchy for the download action. */
+  downloadVariant?: 'primary' | 'secondary' | 'ghost';
+  className?: string;
 };
 
 async function staffPdfError(response: Response): Promise<string> {
@@ -34,13 +45,21 @@ async function staffPdfError(response: Response): Promise<string> {
   return 'No se pudo preparar la cotización. Intente de nuevo.';
 }
 
-export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloadButtonProps) {
+export function QuotePdfDownloadButton({
+  quoteId,
+  quoteNumber,
+  quoteStatus,
+  downloadOnly = false,
+  downloadVariant = 'primary',
+  className,
+}: QuotePdfDownloadButtonProps) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const locked = useRef(false);
+  const ready = isQuotePdfReady(quoteStatus);
 
   async function download(disposition: 'attachment' | 'inline') {
-    if (locked.current) return;
+    if (!ready || locked.current) return;
     locked.current = true;
     setPending(true);
     setError(null);
@@ -65,7 +84,7 @@ export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloa
       } else {
         const anchor = document.createElement('a');
         anchor.href = objectUrl;
-        anchor.download = `cotizacion-${quoteNumber.replace(/[^a-zA-Z0-9._-]+/g, '_')}.pdf`;
+        anchor.download = quotePdfDownloadFilename(quoteNumber);
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
@@ -79,31 +98,43 @@ export function QuotePdfDownloadButton({ quoteId, quoteNumber }: QuotePdfDownloa
     }
   }
 
-  return (
-    <div className="flex flex-col items-start gap-3" data-tour={TOUR_TARGET.quotePdf}>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={pending}
-          aria-busy={pending}
-          style={{ color: 'var(--isalwa-glaze)' }}
-          onClick={() => void download('attachment')}
-        >
-          {pending ? 'Preparando…' : 'Descargar cotización'}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={pending}
-          aria-busy={pending}
-          style={{ color: 'var(--isalwa-glaze)' }}
-          onClick={() => void download('inline')}
-        >
-          Vista previa
-        </Button>
+  if (!ready) {
+    return (
+      <div className={className} data-tour={TOUR_TARGET.quotePdf}>
+        <p className="max-w-sm text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          {QUOTE_PDF_COPY.notReady}
+        </p>
       </div>
-      <FormFeedback error={error} />
+    );
+  }
+
+  return (
+    <div className={className} data-tour={TOUR_TARGET.quotePdf}>
+      <div className="flex flex-col items-stretch gap-3 sm:items-end">
+        <div className="flex flex-wrap justify-end gap-2">
+          {!downloadOnly ? (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={pending}
+              aria-busy={pending}
+              onClick={() => void download('inline')}
+            >
+              {pending ? QUOTE_PDF_COPY.preparing : QUOTE_PDF_COPY.view}
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant={downloadVariant}
+            disabled={pending}
+            aria-busy={pending}
+            onClick={() => void download('attachment')}
+          >
+            {pending ? QUOTE_PDF_COPY.preparing : QUOTE_PDF_COPY.download}
+          </Button>
+        </div>
+        <FormFeedback error={error} />
+      </div>
     </div>
   );
 }

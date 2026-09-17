@@ -65,5 +65,5 @@ export function sanitizeQuotePdfFilename(quoteNumber: string): string {
     .replace(/[^a-zA-Z0-9._-]+/g, '_')
     .replace(/^\.+/, '')
     .replace(/^_+|_+$/g, '');
-  return `cotizacion-${safe || 'documento'}.pdf`;
+  return `Cotizacion-${safe || 'documento'}.pdf`;
 }

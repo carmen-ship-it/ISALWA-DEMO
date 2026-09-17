@@ -85,6 +85,10 @@ export function RecordQuoteManualSendForm({
                 {QUOTE_MANUAL_SEND_COPY.channelWhatsapp}
               </label>
               <label className="inline-flex items-center gap-2">
+                <input type="radio" name="channel" value="email" required />
+                {QUOTE_MANUAL_SEND_COPY.channelEmail}
+              </label>
+              <label className="inline-flex items-center gap-2">
                 <input type="radio" name="channel" value="otro" required />
                 {QUOTE_MANUAL_SEND_COPY.channelOther}
               </label>

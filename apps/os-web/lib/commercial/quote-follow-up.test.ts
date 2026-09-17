@@ -47,14 +47,17 @@ describe('CC-4 submitted quote follow-up', () => {
     }
 
     assert.match(quotePage, /canRegisterQuoteFollowUp\(quote\.status\)/);
-    assert.match(quotePage, /RegisterFollowUpForm/);
-    assert.match(quotePage, /partyId=\{quote\.partyId\}/);
+    assert.match(quotePage, /QuoteEnvioSection|RegisterFollowUpForm/);
     assert.match(quotePage, /quoteId=\{quote\.quoteId\}/);
     assert.match(followUpForm, /FOLLOW_UP_COPY\.action/);
     assert.match(followUpForm, /name="title"/);
     assert.match(followUpForm, /name="description"/);
     assert.match(followUpForm, /name="dueAt"/);
     assert.match(followUpForm, /createFollowUpAction/);
+    const envio = readFileSync(resolve('components/commercial/quote-envio-section.tsx'), 'utf8');
+    assert.match(envio, /RegisterFollowUpForm/);
+    assert.match(envio, /partyId=\{partyId\}/);
+    assert.match(envio, /quoteId=\{quoteId\}/);
   });
 
   it('keeps draft quote behavior honest and does not attach follow-up to the editor', () => {
@@ -158,11 +161,11 @@ describe('CC-4 submitted quote follow-up', () => {
   });
 
   it('preserves PDF preview and download and adds no API or schema', () => {
-    assert.match(quotePage, /QuotePdfDownloadButton/);
-    assert.match(pdfButton, /Descargar cotización/);
-    assert.match(pdfButton, /Vista previa/);
+    assert.match(quotePage, /QuotePdfDownloadButton|QuoteDetailActions|QuoteDocumentoCard/);
+    assert.match(pdfButton, /QUOTE_PDF_COPY\.download|Descargar PDF/);
+    assert.match(pdfButton, /QUOTE_PDF_COPY\.view|Ver PDF/);
     assert.match(pdfButton, /\/api\/quotes\//);
-    assert.deepEqual(FOLLOW_UP_UI_COMMANDS, ['CreateWorkItem', 'CompleteWork']);
+    assert.deepEqual(FOLLOW_UP_UI_COMMANDS, ['CreateWorkItem', 'CompleteWork', 'CancelWorkItem']);
     for (const command of FOLLOW_UP_UI_COMMANDS) {
       assert.equal(WORK_COMMAND_NAMES.includes(command), true);
     }

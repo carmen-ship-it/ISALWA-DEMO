@@ -45,5 +45,5 @@ export function sanitizeDeliveryNotePdfFilename(internalDocumentRef: string): st
     .replace(/[^a-zA-Z0-9._-]+/g, '_')
     .replace(/^\.+/, '')
     .replace(/^_+|_+$/g, '');
-  return `nota-entrega-${safe || 'documento'}.pdf`;
+  return `Nota-Entrega-${safe || 'documento'}.pdf`;
 }
