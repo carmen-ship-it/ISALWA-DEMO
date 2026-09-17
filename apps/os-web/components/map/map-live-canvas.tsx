@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type { MapViewConfig } from '@isalwa/providers';
 import { StatusPill } from '@isalwa/ui';
+import { MapMarkerTooltip } from '@/components/map/map-marker-tooltip';
 
 export type MapConfirmedMarker = {
   partyId: string;
@@ -78,6 +79,7 @@ export function MapLiveCanvas({
   const didFitBounds = useRef(false);
   const [bundle, setBundle] = useState<MapBundle | null>(null);
   const [cursor, setCursor] = useState<'grab' | 'pointer'>('grab');
+  const [hoverLabel, setHoverLabel] = useState<{ name: string; x: number; y: number } | null>(null);
 
   const geojson = useMemo(() => toGeoJSON(markers), [markers]);
 
@@ -128,11 +130,17 @@ export function MapLiveCanvas({
     [onSelectPartyId],
   );
 
-  const onMoveHover = useCallback((e: { point: unknown }) => {
+  const onMoveHover = useCallback((e: { point: { x: number; y: number } }) => {
     const map = mapRef.current?.getMap();
     if (!map) return;
     const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
     setCursor(feats.length ? 'pointer' : 'grab');
+    const name = feats[0]?.properties?.name;
+    if (typeof name === 'string' && name.trim()) {
+      setHoverLabel({ name: name.trim(), x: e.point.x, y: e.point.y });
+    } else {
+      setHoverLabel(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -200,6 +208,14 @@ export function MapLiveCanvas({
     >
       {/* Absolute fill: percent height alone can collapse; never paint porcelain over basemap tiles. */}
       <div className="relative min-h-[260px] flex-1 md:min-h-[380px]">
+        {hoverLabel ? (
+          <MapMarkerTooltip
+            name={hoverLabel.name}
+            x={hoverLabel.x}
+            y={hoverLabel.y}
+            visible
+          />
+        ) : null}
         <Map
           ref={mapRef}
           mapLib={mapLib}
@@ -218,7 +234,10 @@ export function MapLiveCanvas({
           attributionControl
           onClick={onClick}
           onMouseMove={onMoveHover}
-          onMouseLeave={() => setCursor('grab')}
+          onMouseLeave={() => {
+            setCursor('grab');
+            setHoverLabel(null);
+          }}
           onLoad={(e: { target: MapHandle['getMap'] extends () => infer M ? M : never }) => {
             try {
               e.target.resize();

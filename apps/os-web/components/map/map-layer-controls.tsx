@@ -1,6 +1,7 @@
 'use client';
 
 import { Chip, StatusPill } from '@isalwa/ui';
+import { AUTHORITATIVE_REVENUE_LAYER_NOTE } from '@/lib/map/authoritative-revenue';
 import { MAP_LAYER_REGISTRY, type MapLayerId } from '@/lib/map/layers';
 
 type MapLayerControlsProps = {
@@ -56,10 +57,11 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
         <StatusPill tone="info">Clientes · disponible</StatusPill>
         <StatusPill tone="info">Oportunidades / Cotizaciones / Pedidos · filtro por registro</StatusPill>
         <StatusPill tone="manual">Atención / cobranza · futuro o manual</StatusPill>
+        <StatusPill tone="manual">Ingresos · desactivado (AUTHORITATIVE_REVENUE_LAYER=NO)</StatusPill>
       </div>
       <p className="hidden text-xs leading-relaxed text-[var(--isalwa-slate)] sm:block">
         Las capas comerciales filtran clientes con registros canónicos. No inventan pines, ingresos ni
-        geografía.
+        geografía. {AUTHORITATIVE_REVENUE_LAYER_NOTE}
       </p>
     </div>
   );

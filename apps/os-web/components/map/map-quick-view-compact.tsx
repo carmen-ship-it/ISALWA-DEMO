@@ -5,6 +5,7 @@ import {
   MAP_COMMERCIAL_VALUE_DISCLAIMER,
   type MapPartyCommercialSnapshot,
 } from '@/lib/map/commercial-lens';
+import { pendingLocationCta } from '@/lib/map/pending-location';
 import { partyHref } from '@/lib/party/navigation';
 
 type MapQuickViewCompactProps = {
@@ -12,6 +13,8 @@ type MapQuickViewCompactProps = {
   ownerLabel: string | null;
   onCloseHref: string;
   commercial?: MapPartyCommercialSnapshot | null;
+  /** Drawer host supplies its own chrome; omit inline Cerrar. */
+  variant?: 'inline' | 'drawer';
 };
 
 /**
@@ -23,6 +26,7 @@ export function MapQuickViewCompact({
   ownerLabel,
   onCloseHref,
   commercial = null,
+  variant = 'inline',
 }: MapQuickViewCompactProps) {
   const locationTone = row.hasCoordinates ? 'info' : row.hasProvenance ? 'manual' : 'warning';
   const locationLabel = row.hasCoordinates
@@ -30,26 +34,36 @@ export function MapQuickViewCompact({
     : row.hasProvenance
       ? 'Ubicación registrada — coordenadas pendientes'
       : 'Sin ubicación registrada';
+  const locationPending = pendingLocationCta(row);
+  const isDrawer = variant === 'drawer';
+
+  const shellClass = isDrawer
+    ? 'space-y-4'
+    : 'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-4 shadow-[var(--isalwa-shadow-lift)]';
 
   return (
     <aside
-      className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_40%,white)] p-4 shadow-[var(--isalwa-shadow-lift)]"
+      className={shellClass}
       aria-label="Vista rápida del mapa"
-      data-map-quick-view="compact"
+      data-map-quick-view={isDrawer ? 'drawer' : 'compact'}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="isalwa-kicker">Vista rápida</p>
-          <h3 className="mt-1 truncate font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]">
+          {!isDrawer ? <p className="isalwa-kicker">Vista rápida</p> : null}
+          <h3
+            className={`truncate font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)] ${isDrawer ? '' : 'mt-1'}`}
+          >
             {row.displayName}
           </h3>
         </div>
-        <Link
-          href={onCloseHref}
-          className="shrink-0 text-xs font-medium text-[var(--isalwa-slate)] hover:text-[var(--isalwa-kiln)] hover:underline"
-        >
-          Cerrar
-        </Link>
+        {!isDrawer && onCloseHref ? (
+          <Link
+            href={onCloseHref}
+            className="shrink-0 text-xs font-medium text-[var(--isalwa-slate)] hover:text-[var(--isalwa-kiln)] hover:underline"
+          >
+            Cerrar
+          </Link>
+        ) : null}
       </div>
 
       <dl className="mt-4 space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white p-3 text-sm">
@@ -66,6 +80,17 @@ export function MapQuickViewCompact({
           <dd className="mt-1">
             <StatusPill tone={locationTone}>{locationLabel}</StatusPill>
           </dd>
+          {locationPending ? (
+            <dd className="mt-2">
+              <Link
+                href={locationPending.href}
+                className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-btn-secondary-border)] bg-[var(--isalwa-btn-secondary-bg)] px-3 text-xs font-medium text-[var(--isalwa-btn-secondary-fg)] hover:border-[var(--isalwa-btn-secondary-border-hover)] hover:bg-[var(--isalwa-btn-secondary-bg-hover)]"
+                data-map-pending-location-cta={locationPending.tone}
+              >
+                {locationPending.label}
+              </Link>
+            </dd>
+          ) : null}
         </div>
       </dl>
 
