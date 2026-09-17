@@ -41,6 +41,7 @@ import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver'
 import { projectPedidoTimeline } from '@/lib/commercial/pedido-timeline';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { reportIssueContextFromOrder } from '@/lib/issue/report-context';
+import { formatIssueStatus, statusToneForIssue } from '@/lib/issue/labels';
 import type { IssueListItem } from '@/lib/issue/types';
 import { buildPedidoKnownState } from '@/lib/operations/pedido-known-state';
 import { buildPedidoLifecycle } from '@/lib/operations/pedido-lifecycle';
@@ -552,7 +553,9 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             <ul className="mt-4 space-y-2">
               {linkedIssues.slice(0, 5).map((issue) => (
                 <li key={issue.issueId} className="flex flex-wrap items-center gap-2 text-sm">
-                  <StatusPill tone="warning">{issue.status}</StatusPill>
+                  <StatusPill tone={statusToneForIssue(issue.status)}>
+                    {formatIssueStatus(issue.status)}
+                  </StatusPill>
                   <span className="text-[var(--isalwa-kiln)]">
                     {issue.title?.trim() || issue.description.slice(0, 80)}
                   </span>
