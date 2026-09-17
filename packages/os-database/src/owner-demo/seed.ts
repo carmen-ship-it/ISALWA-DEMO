@@ -17,7 +17,6 @@
 import { mkdirSync, writeFileSync, chmodSync, existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createId } from '@isalwa/ts-utils';
 import type { RequestContext } from '@isalwa/os-contracts';
 import {
@@ -28,12 +27,10 @@ import {
 import { PartyCommandService, LocationCommandService } from '@isalwa/os-party';
 import { CommercialCommandService } from '@isalwa/os-commercial';
 import { WorkCommandService } from '@isalwa/os-work';
-import { CommitmentCommandService } from '@isalwa/os-commitment';
 import { getOsPrisma } from '../client';
 import { PrismaOsPartyStore } from '../prisma-party-store';
 import { PrismaOsCommercialStore } from '../prisma-commercial-store';
 import { PrismaOsWorkStore } from '../prisma-work-store';
-import { PrismaOsCommitmentStore } from '../prisma-commitment-store';
 import {
   STAGING_DATABASE_NAME,
   STAGING_DATABASE_HOST_MARKER,
@@ -60,7 +57,7 @@ import {
   withOwnerDemoNotesTag,
 } from './guards';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
+const HERE = dirname(__filename);
 
 function log(line: string): void {
   // eslint-disable-next-line no-console
@@ -289,7 +286,7 @@ async function ensureQuoteLoop(
     });
     if (rm) {
       await prisma.osQuoteReadModel.update({
-        where: { id: rm.id },
+        where: { quoteId: rm.quoteId },
         data: { quoteNumber: input.quoteNumber },
       });
     }
@@ -383,7 +380,6 @@ async function ensureFollowUpAndPrep(
 }
 
 async function ensureCommitment(
-  commitmentSvc: CommitmentCommandService,
   session: RequestContext,
   prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
   partyId: string,
@@ -397,17 +393,34 @@ async function ensureCommitment(
     },
   });
   if (!row) {
-    const created = await commitmentSvc.execute('CreateEmployeeCommitment', session, {
-      text,
-      ownerMemberId: session.actorMemberId,
-      partyId,
+    const id = createId();
+    const now = new Date();
+    row = await prisma.osCommitment.create({
+      data: {
+        id,
+        organizationId: session.organizationId,
+        partyId,
+        ownerMemberId: session.actorMemberId,
+        text,
+        origin: 'employee',
+        lifecycle: 'fulfilled',
+        createdByMemberId: session.actorMemberId,
+        createdAt: now,
+        fulfilledAt: now,
+        fulfilledByMemberId: session.actorMemberId,
+      },
     });
-    const id = String(created.data.commitmentId);
-    await commitmentSvc.execute('FulfillCommitment', session, { commitmentId: id });
-    return id;
+    return row.id;
   }
   if (row.lifecycle !== 'fulfilled') {
-    await commitmentSvc.execute('FulfillCommitment', session, { commitmentId: row.id });
+    await prisma.osCommitment.update({
+      where: { id: row.id },
+      data: {
+        lifecycle: 'fulfilled',
+        fulfilledAt: new Date(),
+        fulfilledByMemberId: session.actorMemberId,
+      },
+    });
   }
   return row.id;
 }
@@ -643,12 +656,10 @@ async function main(): Promise<void> {
   const partyStore = new PrismaOsPartyStore(prisma);
   const commercialStore = new PrismaOsCommercialStore(prisma);
   const workStore = new PrismaOsWorkStore(prisma);
-  const commitmentStore = new PrismaOsCommitmentStore(prisma);
   const partySvc = new PartyCommandService(partyStore);
   const locationSvc = new LocationCommandService(partyStore);
   const commercialSvc = new CommercialCommandService(commercialStore);
   const workSvc = new WorkCommandService(workStore);
-  const commitmentSvc = new CommitmentCommandService(commitmentStore);
 
   const clients: ClientIds[] = [];
 
@@ -704,7 +715,7 @@ async function main(): Promise<void> {
         );
         ids.followUpWorkId = work.followUpWorkId;
         ids.orderPrepWorkId = work.orderPrepWorkId;
-        ids.commitmentId = await ensureCommitment(commitmentSvc, session, prisma, party.partyId);
+        ids.commitmentId = await ensureCommitment(session, prisma, party.partyId);
         const ops = await ensureOpsLoop(prisma, session, {
           partyId: party.partyId,
           orderId: loop.orderId,
