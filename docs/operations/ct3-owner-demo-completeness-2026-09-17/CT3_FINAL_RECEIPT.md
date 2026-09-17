@@ -109,7 +109,7 @@ Bounded delta on top of `FINAL_CT3_SOURCE_SHA` `f2740d12b405807c5f7b7c9602b91dcf
 | DELIVERY_NOTE_PDF_SCOPE | **NORMAL PRODUCT** — `apps/os-web/app/api/delivery-notes/[id]/pdf/route.ts` → os-api delivery-note PDF (`DeliveryNotePdfService`) |
 | DEMO_USES_SAME_PDF_IMPLEMENTATION | **YES** |
 | REAL_SEVEN_MUTATED | **NO** |
-| FINAL_CT3_POST_DEMO_SHA | `b60f9a8784baff3736b367b26b28f33ea1630134` |
+| FINAL_CT3_POST_DEMO_SHA | `8ee0cfd3779e60c6c0ad6464a0e2669ab522ec4f` |
 | FINAL_RUNTIME_SHA | _(filled after same-SHA LIVE)_ |
 | WEB_RUNTIME_SHA | _(filled after LIVE)_ |
 | API_RUNTIME_SHA | _(filled after LIVE)_ |
