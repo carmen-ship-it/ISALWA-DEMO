@@ -17,3 +17,9 @@ BASE = `1244d84` SAME SHA live · Integrator `ct2/exec-ux-intelligence`
 | UX-9 | Control Tower 2 | ct2-exec-ux-intel | ct2/exec-ux-intelligence | INTEGRATOR |
 
 Prior stalled best-of-n agents superseded (no SHAs produced).
+
+## Collision check (2026-09-16)
+
+Integrator product edits on UX-1 boundary: **NONE**.  
+UX-1 sole writer retained. See `COLLISION_CHECK_UX1.md`.  
+Integrator will not implement nav/role-preview — merge-only when UX-1 SHA lands.
