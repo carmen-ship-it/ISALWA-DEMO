@@ -1,6 +1,7 @@
 import { PageContainer } from '@isalwa/ui';
 import { SessionGuard } from '@/components/shell/session-guard';
 import { AppShell } from '@/components/shell/app-shell';
+import { ShellNotificationSlot } from '@/components/shell/shell-notification-slot';
 import {
   AccessDeniedState,
   AccountInactiveState,
@@ -60,6 +61,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
         actorKey={shell.actorKey}
         grantedScopes={shell.grantedScopes}
         capabilities={shell.capabilities}
+        notificationSlot={<ShellNotificationSlot />}
       >
         {children}
       </AppShell>

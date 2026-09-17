@@ -32,6 +32,8 @@ type AppShellProps = {
   /** Trusted scopes for nav labeling only — never used to hide destinations. */
   grantedScopes: readonly string[];
   capabilities: CapabilityStateReadModel[];
+  /** UX-5 notification bell/drawer slot (integrator mount while UX-1 parked). */
+  notificationSlot?: ReactNode;
 };
 
 export function AppShell({
@@ -43,6 +45,7 @@ export function AppShell({
   actorKey,
   grantedScopes,
   capabilities,
+  notificationSlot,
 }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -249,6 +252,7 @@ export function AppShell({
                   setPaletteOpen(true);
                 }}
               />
+              {notificationSlot}
               <UserMenu displayLabel={actorLabel} />
             </div>
           </header>
