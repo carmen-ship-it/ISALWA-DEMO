@@ -4,13 +4,13 @@
 **Committed tip:** `5032e6c` (+ pending integration commit for View As / convert)  
 **LIVE staging:** WEB+API **`8e24b7f`** (`dep-daltmtu5vjqs738kr0vg` / `dep-daltofv40ujc73f83nig`)  
 **V1_OWNER_REVIEW_RC_SHA:** **NOT CUT**  
-**Policy:** [`DEPLOYMENT_POLICY_RELEASE_TRAIN.md`](./DEPLOYMENT_POLICY_RELEASE_TRAIN.md) — **NO MICRO-DEPLOYS**
+**Policy:** [`RELEASE_TRAIN_STATE.md`](./RELEASE_TRAIN_STATE.md) — **NO MICRO-DEPLOYS**
 
 ## Status bus
 
 | Lane | Status | Notes |
 |---|---|---|
-| Freeze / live-vs-local ledger | **DONE** | `CURRENT_V1_STATE_SNAPSHOT.*`, `LIVE_VS_LOCAL_CAPABILITY_LEDGER.md` |
+| Freeze / live-vs-local ledger | **DONE** | single artifact: `RELEASE_TRAIN_STATE.md` |
 | CR-2 View As | **IN PROGRESS (local)** | projection + Asesor subject + mutation gate; lists: opp/quote only |
 | CR-3 convert.own | **LOCAL TESTED** | coverage≠convert; scopes.ts owns convert.own constant |
 | CR-1 scopes clarify | **LOCAL** | full V1 business-eval (not admin bypass) |
@@ -36,8 +36,5 @@ Only **independent** docs/gap receipts or non-shared leaf surfaces. If work touc
 
 ## Artifacts
 
-- `CURRENT_V1_STATE_SNAPSHOT.md` / `.json`
-- `LIVE_VS_LOCAL_CAPABILITY_LEDGER.md`
-- `SUPERSESSION_MAP.md`
-- `EXACT_LOCAL_DELTA.md` / `EXACT_INTEGRATED_DELTA.md`
-- `DEPLOYMENT_POLICY_RELEASE_TRAIN.md`
+- **`RELEASE_TRAIN_STATE.md`** — canonical snapshot + capability ledger + supersession + deploy policy + JSON block
+- `EXACT_LOCAL_DELTA.md` / `EXACT_INTEGRATED_DELTA.md` (supporting)

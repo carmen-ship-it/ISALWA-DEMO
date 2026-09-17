@@ -27,10 +27,7 @@
 | `apps/os-web/app/(app)/layout.tsx` | wire asesorOptions | CR-2 | same | LOW |
 | `apps/os-web/app/(app)/oportunidades/page.tsx` | list narrowing | CR-2 | same | LOW |
 | `apps/os-web/app/(app)/cotizaciones/page.tsx` | list narrowing | CR-2 | same | LOW |
-| `docs/.../CURRENT_V1_STATE_SNAPSHOT.*` | release-train freeze | evidence | same or docs commit | NONE |
-| `docs/.../LIVE_VS_LOCAL_CAPABILITY_LEDGER.md` | capability stages | evidence | same | NONE |
-| `docs/.../SUPERSESSION_MAP.md` | old SHA claims | evidence | same | NONE |
-| `docs/.../DEPLOYMENT_POLICY_RELEASE_TRAIN.md` | no micro-deploy | evidence | same | NONE |
+| `docs/.../RELEASE_TRAIN_STATE.md` | release-train freeze (consolidated) | evidence | same or docs commit | NONE |
 | `docs/.../workers/CR7_*.md` | gap receipt | CR-7 | same | NONE |
 
 **UNCOMMITTED_DIFF_SUMMARY:** View As EvaluationProjection (Asesor person-specific) + commercial list filters + mutation cookie gate + V1 convert.own wiring + release-train state ledger. **Not deployed.**
