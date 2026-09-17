@@ -2,10 +2,14 @@
 
 export const GUIDE_CHROME = {
   kicker: 'Modo guiado',
+  /** Legacy multi-journey title — not used as a full-tour launcher after CT3 PF-6. */
   title: 'Recorrido del piloto',
   continue: 'Continuar',
   close: 'Cerrar',
-  /** Retired floating full-tour launcher — Story Mode owns the full recorrido. */
+  /**
+   * Canonical full-walkthrough label (Story Mode).
+   * Do not reintroduce a floating "Mostrar recorrido" GuidePanel launcher.
+   */
   show: 'Ver recorrido completo',
   reset: 'Restablecer recorrido',
   replay: 'Repetir',

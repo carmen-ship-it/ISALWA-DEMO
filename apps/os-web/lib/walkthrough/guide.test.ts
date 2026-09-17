@@ -352,13 +352,28 @@ describe('modo guiado', () => {
   it('retires floating GuidePanel full-tour launcher in favor of Story Mode', () => {
     const panel = readFileSync(join(here, '../../components/walkthrough/guide-panel.tsx'), 'utf8');
     const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
+    const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
+    const appShell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
     const copy = readFileSync(join(here, 'copy.ts'), 'utf8');
     assert.doesNotMatch(panel, /Mostrar recorrido/);
     assert.doesNotMatch(panel, /fixed bottom-4 right-4/);
     assert.match(panel, /return null/);
     assert.doesNotMatch(shell, /<GuidePanel/);
+    assert.doesNotMatch(appShell, /<GuidePanel/);
+    assert.match(appShell, /OwnerStoryMode/);
+    assert.match(appShell, /DemoFictitiousBanner/);
+    assert.match(appShell, /DemoDataFilterToggle/);
     assert.doesNotMatch(copy, /show: 'Mostrar recorrido'/);
+    assert.match(copy, /show: 'Ver recorrido completo'/);
     assert.match(shell, /Story Mode/);
+    // Ayuda must not relaunch legacy multi-journey Recorrido del piloto chrome.
+    assert.doesNotMatch(help, /api\?\.replay\(/);
+    assert.doesNotMatch(help, /GUIDE_CHROME\.title/);
+    assert.doesNotMatch(help, /GUIDE_CHROME\.reset/);
+    assert.doesNotMatch(help, /replayLabel/);
+    assert.match(help, /Ver recorrido completo/);
+    assert.match(help, /openStory/);
+    assert.match(help, /LearningModeToggle/);
   });
 
   it('keeps shell header sticky so mobile logout stays reachable', () => {
