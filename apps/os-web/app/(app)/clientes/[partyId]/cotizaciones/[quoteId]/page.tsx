@@ -30,7 +30,7 @@ import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
-import { quoteNextStep } from '@/lib/commercial/next-step';
+import { latestQuoteApprovalDecision, quoteNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
@@ -108,6 +108,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
     const hasPendingApproval = approvals.some((row) => row.status === 'pending');
+    const latestApprovalDecision = latestQuoteApprovalDecision(approvals);
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
     const manualSendAllowed = canRecordQuoteManualSend(quote.status) && !sendRecord;
     const quoteWorkOffer = offerAfterQuoteSent({
@@ -125,6 +126,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       hasPendingApproval,
       canRegisterFollowUp: followUpAllowed,
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
+      latestApprovalDecision,
     });
     const pathCrumbs = [
       { label: customerName, href: partyHref(partyId) },

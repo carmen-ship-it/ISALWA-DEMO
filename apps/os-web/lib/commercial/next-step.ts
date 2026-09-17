@@ -20,6 +20,8 @@ type OpportunityNextStepInput = {
   newQuoteHref: string;
 };
 
+export type QuoteApprovalDecision = 'approved' | 'rejected';
+
 type QuoteNextStepInput = {
   status: string;
   partyId: string;
@@ -30,7 +32,16 @@ type QuoteNextStepInput = {
   hasPendingApproval: boolean;
   canRegisterFollowUp: boolean;
   followUpHref: string | null;
+  /**
+   * Latest non-pending approval decision on this quote (recorded status only).
+   * Does not invent convert eligibility — convert still requires accepted + canConvert.
+   */
+  latestApprovalDecision?: QuoteApprovalDecision | null;
 };
+
+/** Safe CTA copy when approval attention has cleared after a recorded decision. */
+export const APPROVAL_ATTENTION_RESOLVED_COPY =
+  'La atención pendiente del aprobador se cierra al registrar la decisión.';
 
 type OrderNextStepInput = {
   status: string;
@@ -38,6 +49,28 @@ type OrderNextStepInput = {
   orderId: string;
   customerHref: string;
 };
+
+
+/**
+ * Latest recorded approval decision from already-loaded rows.
+ * Ignores pending; does not invent assignees or SLAs.
+ */
+export function latestQuoteApprovalDecision(
+  approvals: ReadonlyArray<{ status: string; decidedAt?: string | null }>,
+): QuoteApprovalDecision | null {
+  const decided = approvals
+    .filter((row): row is { status: QuoteApprovalDecision; decidedAt?: string | null } =>
+      row.status === 'approved' || row.status === 'rejected',
+    )
+    .slice()
+    .sort((a, b) => {
+      const aAt = a.decidedAt?.trim() || '';
+      const bAt = b.decidedAt?.trim() || '';
+      if (aAt === bAt) return 0;
+      return aAt < bAt ? 1 : -1;
+    });
+  return decided[0]?.status ?? null;
+}
 
 export function opportunityNextStep(input: OpportunityNextStepInput): CommercialNextStep | null {
   switch (input.status) {
@@ -83,6 +116,30 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
           statement: 'Hay una aprobación pendiente. La decisión no crea un pedido.',
           href: null,
           hrefLabel: null,
+          waiting: true,
+        };
+      }
+      if (input.latestApprovalDecision === 'approved') {
+        if (input.canRegisterFollowUp && input.followUpHref) {
+          return {
+            statement: `Aprobación registrada. ${APPROVAL_ATTENTION_RESOLVED_COPY} Continúe con el envío y el seguimiento; la aprobación no crea un pedido.`,
+            href: input.followUpHref,
+            hrefLabel: 'Registrar seguimiento',
+            waiting: false,
+          };
+        }
+        return {
+          statement: `Aprobación registrada. ${APPROVAL_ATTENTION_RESOLVED_COPY} Continúe el trabajo comercial en esta cotización; la aprobación no crea un pedido.`,
+          href: null,
+          hrefLabel: null,
+          waiting: false,
+        };
+      }
+      if (input.latestApprovalDecision === 'rejected') {
+        return {
+          statement: `Aprobación rechazada. ${APPROVAL_ATTENTION_RESOLVED_COPY} Revise la cotización; no se creó un pedido.`,
+          href: `/clientes/${input.partyId}`,
+          hrefLabel: 'Ver cliente',
           waiting: true,
         };
       }

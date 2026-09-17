@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  APPROVAL_ATTENTION_RESOLVED_COPY,
   COMMERCIAL_NEXT_STEP_LABEL,
+  latestQuoteApprovalDecision,
   opportunityNextStep,
   orderNextStep,
   quoteNextStep,
@@ -128,4 +130,57 @@ describe('commercial next-step', () => {
     assert.match(step?.statement ?? '', /registrado/i);
     assert.doesNotMatch(step?.statement ?? '', /fake|demo|invent/i);
   });
+
+  it('surfaces post-approval next step without inventing convert or assignees', () => {
+    const step = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: true,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: true,
+      followUpHref: '/clientes/party-1#trabajo',
+      latestApprovalDecision: 'approved',
+    });
+    assert.equal(step?.waiting, false);
+    assert.match(step?.statement ?? '', /aprobación registrada/i);
+    assert.match(step?.statement ?? '', /no crea un pedido/i);
+    assert.ok((step?.statement ?? '').includes(APPROVAL_ATTENTION_RESOLVED_COPY));
+    assert.equal(step?.hrefLabel, 'Registrar seguimiento');
+    assert.doesNotMatch(step?.statement ?? '', /convertir|assignee|SLA/i);
+  });
+
+  it('explains rejection after decision without creating a pedido', () => {
+    const step = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: true,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: false,
+      followUpHref: null,
+      latestApprovalDecision: 'rejected',
+    });
+    assert.equal(step?.waiting, true);
+    assert.match(step?.statement ?? '', /rechazada/i);
+    assert.match(step?.statement ?? '', /no se creó un pedido/i);
+    assert.equal(step?.hrefLabel, 'Ver cliente');
+  });
+
+  it('picks the latest recorded approval decision without inventing pending ones', () => {
+    assert.equal(
+      latestQuoteApprovalDecision([
+        { status: 'pending', decidedAt: null },
+        { status: 'approved', decidedAt: '2026-09-01T10:00:00.000Z' },
+        { status: 'rejected', decidedAt: '2026-09-02T10:00:00.000Z' },
+      ]),
+      'rejected',
+    );
+    assert.equal(latestQuoteApprovalDecision([{ status: 'pending' }]), null);
+  });
+
 });
