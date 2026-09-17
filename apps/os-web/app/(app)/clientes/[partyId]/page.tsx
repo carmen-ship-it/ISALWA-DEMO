@@ -10,7 +10,7 @@ import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-s
 import '@/components/commercial/commercial-surfaces.css';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
-import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
+import { Cliente360Historial } from '@/components/cliente/cliente-360-historial';
 import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
@@ -573,22 +573,10 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
               {(list) => (
                 <>
                   <StaleProjectionBanner freshness={list.freshness} />
-                  <ScaledListReveal
-                    total={list.items.length}
-                    previewCount={LIST_SCALE_PREVIEW_LARGE}
-                    empty={
-                      <EmptyState
-                        title="Sin actividad comercial todavía"
-                        description="La actividad comercial y del cliente aparecerá aquí cuando exista."
-                      />
-                    }
-                    preview={
-                      <PartyTimelineList
-                        items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
-                        memberLabels={memberLabels}
-                      />
-                    }
-                    full={<PartyTimelineList items={list.items} memberLabels={memberLabels} />}
+                  <Cliente360Historial
+                    partyId={partyId}
+                    items={list.items}
+                    memberLabels={memberLabels}
                   />
                 </>
               )}
