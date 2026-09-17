@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } 
 import type { MapViewConfig } from '@isalwa/providers';
 import { StatusPill } from '@isalwa/ui';
 import { MapMarkerTooltip } from '@/components/map/map-marker-tooltip';
+import type { MapHoverSnapshot } from '@/lib/map/hover-model';
 
 export type MapConfirmedMarker = {
   partyId: string;
@@ -51,6 +52,8 @@ type MapLiveCanvasProps = {
   total: number;
   selectedPartyId: string | null;
   onSelectPartyId: (partyId: string | null) => void;
+  /** Hover enrichment keyed by partyId — never invents geography. */
+  hoverByPartyId?: Readonly<Record<string, MapHoverSnapshot>>;
 };
 
 function toGeoJSON(markers: readonly MapConfirmedMarker[]) {
@@ -74,12 +77,17 @@ export function MapLiveCanvas({
   total,
   selectedPartyId,
   onSelectPartyId,
+  hoverByPartyId,
 }: MapLiveCanvasProps) {
   const mapRef = useRef<MapHandle | null>(null);
   const didFitBounds = useRef(false);
   const [bundle, setBundle] = useState<MapBundle | null>(null);
   const [cursor, setCursor] = useState<'grab' | 'pointer'>('grab');
-  const [hoverLabel, setHoverLabel] = useState<{ name: string; x: number; y: number } | null>(null);
+  const [hoverLabel, setHoverLabel] = useState<{
+    snapshot: MapHoverSnapshot;
+    x: number;
+    y: number;
+  } | null>(null);
 
   const geojson = useMemo(() => toGeoJSON(markers), [markers]);
 
@@ -131,19 +139,38 @@ export function MapLiveCanvas({
     [onSelectPartyId],
   );
 
-  const onMoveHover = useCallback((e: { point: { x: number; y: number } }) => {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
-    setCursor(feats.length ? 'pointer' : 'grab');
-    const props = feats[0]?.properties as Record<string, unknown> | null | undefined;
-    const name = props?.name;
-    if (typeof name === 'string' && name.trim()) {
-      setHoverLabel({ name: name.trim(), x: e.point.x, y: e.point.y });
-    } else {
-      setHoverLabel(null);
-    }
-  }, []);
+  const onMoveHover = useCallback(
+    (e: { point: { x: number; y: number } }) => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
+      setCursor(feats.length ? 'pointer' : 'grab');
+      const props = feats[0]?.properties as Record<string, unknown> | null | undefined;
+      const id = props?.id;
+      const name = props?.name;
+      if (typeof id === 'string' && id.trim()) {
+        const fromMap = hoverByPartyId?.[id];
+        const snapshot: MapHoverSnapshot =
+          fromMap ??
+          ({
+            partyId: id,
+            clientName: typeof name === 'string' && name.trim() ? name.trim() : id,
+            responsible: null,
+            opportunityCount: 0,
+            quotedValueLabel: null,
+            orderCount: 0,
+            orderValueLabel: null,
+            nextAttention: null,
+            statusLabel: 'Ubicación confirmada',
+            statusTone: 'success',
+          } satisfies MapHoverSnapshot);
+        setHoverLabel({ snapshot, x: e.point.x, y: e.point.y });
+      } else {
+        setHoverLabel(null);
+      }
+    },
+    [hoverByPartyId],
+  );
 
   useEffect(() => {
     if (!selectedPartyId || !mapRef.current) return;
@@ -212,7 +239,7 @@ export function MapLiveCanvas({
       <div className="relative min-h-[260px] flex-1 md:min-h-[380px]">
         {hoverLabel ? (
           <MapMarkerTooltip
-            name={hoverLabel.name}
+            snapshot={hoverLabel.snapshot}
             x={hoverLabel.x}
             y={hoverLabel.y}
             visible

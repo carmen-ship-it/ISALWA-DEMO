@@ -1,11 +1,14 @@
 import Link from 'next/link';
-import { StatusPill } from '@isalwa/ui';
+import { Button, StatusPill } from '@isalwa/ui';
+import { FreshnessLabel } from '@/components/freshness/freshness-label';
+import { MapPendingLocationCard } from '@/components/map/map-pending-location-card';
+import { clienteSectionHref } from '@/lib/commercial/navigation';
 import type { MapCustomerRow } from '@/lib/map/build-view-model';
 import {
   MAP_COMMERCIAL_VALUE_DISCLAIMER,
   type MapPartyCommercialSnapshot,
 } from '@/lib/map/commercial-lens';
-import { pendingLocationCta } from '@/lib/map/pending-location';
+import { pendingLocationCardCopy } from '@/lib/map/pending-location';
 import { partyHref } from '@/lib/party/navigation';
 
 type MapQuickViewCompactProps = {
@@ -15,6 +18,9 @@ type MapQuickViewCompactProps = {
   commercial?: MapPartyCommercialSnapshot | null;
   /** Drawer host supplies its own chrome; omit inline Cerrar. */
   variant?: 'inline' | 'drawer';
+  nextActionLabel?: string | null;
+  issueCount?: number | null;
+  lastUpdatedIso?: string | null;
 };
 
 /**
@@ -27,15 +33,14 @@ export function MapQuickViewCompact({
   onCloseHref,
   commercial = null,
   variant = 'inline',
+  nextActionLabel = null,
+  issueCount = null,
+  lastUpdatedIso = null,
 }: MapQuickViewCompactProps) {
-  const locationTone = row.hasCoordinates ? 'info' : row.hasProvenance ? 'manual' : 'warning';
-  const locationLabel = row.hasCoordinates
-    ? 'Coordenadas registradas'
-    : row.hasProvenance
-      ? 'Ubicación registrada — coordenadas pendientes'
-      : 'Sin ubicación registrada';
-  const locationPending = pendingLocationCta(row);
+  const locationPending = pendingLocationCardCopy(row);
   const isDrawer = variant === 'drawer';
+  const followUpHref = clienteSectionHref(row.partyId, 'trabajo');
+  const conversationStubHref = `/conversaciones?partyId=${encodeURIComponent(row.partyId)}`;
 
   const shellClass = isDrawer
     ? 'space-y-4'
@@ -72,26 +77,39 @@ export function MapQuickViewCompact({
           <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{ownerLabel ?? 'Sin responsable asignado'}</dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--isalwa-slate)]">Teléfono</dt>
+          <dt className="text-xs text-[var(--isalwa-slate)]">Contacto</dt>
           <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{row.primaryPhone ?? 'Sin teléfono'}</dd>
         </div>
         <div>
           <dt className="text-xs text-[var(--isalwa-slate)]">Ubicación</dt>
           <dd className="mt-1">
-            <StatusPill tone={locationTone}>{locationLabel}</StatusPill>
+            {locationPending ? (
+              <MapPendingLocationCard copy={locationPending} />
+            ) : (
+              <StatusPill tone="info">Ubicación confirmada</StatusPill>
+            )}
           </dd>
-          {locationPending ? (
-            <dd className="mt-2">
-              <Link
-                href={locationPending.href}
-                className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-btn-secondary-border)] bg-[var(--isalwa-btn-secondary-bg)] px-3 text-xs font-medium text-[var(--isalwa-btn-secondary-fg)] hover:border-[var(--isalwa-btn-secondary-border-hover)] hover:bg-[var(--isalwa-btn-secondary-bg-hover)]"
-                data-map-pending-location-cta={locationPending.tone}
-              >
-                {locationPending.label}
-              </Link>
-            </dd>
-          ) : null}
         </div>
+        {nextActionLabel ? (
+          <div>
+            <dt className="text-xs text-[var(--isalwa-slate)]">Próxima acción</dt>
+            <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{nextActionLabel}</dd>
+          </div>
+        ) : null}
+        {issueCount != null ? (
+          <div>
+            <dt className="text-xs text-[var(--isalwa-slate)]">Incidencias</dt>
+            <dd className="mt-0.5 text-[var(--isalwa-kiln)]">{issueCount}</dd>
+          </div>
+        ) : null}
+        {lastUpdatedIso ? (
+          <div>
+            <dt className="text-xs text-[var(--isalwa-slate)]">Última actualización</dt>
+            <dd className="mt-0.5">
+              <FreshnessLabel lastUpdatedIso={lastUpdatedIso} />
+            </dd>
+          </div>
+        ) : null}
       </dl>
 
       {commercial ? (
@@ -140,12 +158,25 @@ export function MapQuickViewCompact({
         </p>
       )}
 
-      <nav className="mt-4 flex flex-col items-start gap-2 border-t border-[var(--isalwa-mist)] pt-3">
+      <nav className="mt-4 flex flex-col gap-2 border-t border-[var(--isalwa-mist)] pt-3">
+        <Link href={partyHref(row.partyId)} className="inline-flex">
+          <Button type="button" variant="primary" size="sm">
+            Ver Cliente360
+          </Button>
+        </Link>
+        <Link href={followUpHref} className="inline-flex">
+          <Button type="button" variant="secondary" size="sm">
+            Programar seguimiento
+          </Button>
+        </Link>
         <Link
-          href={partyHref(row.partyId)}
-          className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+          href={conversationStubHref}
+          className="inline-flex"
+          data-map-conversation-stub="lane-c"
         >
-          Abrir Cliente 360
+          <Button type="button" variant="tertiary" size="sm">
+            Registrar conversación
+          </Button>
         </Link>
       </nav>
     </aside>
