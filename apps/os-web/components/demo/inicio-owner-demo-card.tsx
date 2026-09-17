@@ -27,7 +27,7 @@ export function InicioOwnerDemoCard() {
         <Button type="button" variant="primary" size="sm" onClick={openStory}>
           Ver recorrido completo
         </Button>
-        <Link href="/inicio?story=1" className="inline-flex">
+        <Link href="/inicio?datos=demo&story=1" className="inline-flex">
           <Button type="button" variant="tertiary" size="sm">
             Abrir con enlace
           </Button>

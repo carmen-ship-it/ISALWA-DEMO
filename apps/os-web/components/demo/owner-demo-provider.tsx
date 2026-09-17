@@ -40,14 +40,17 @@ export function OwnerDemoProvider({
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get('datos') === 'demo' ? 'demo' : loadDemoDataMode(window.localStorage);
-    setDataModeState(fromUrl);
+    const storyRequested = params.get('story') === '1' && canUseOwnerDemo;
+    // Prefer explicit ?datos=demo, else last local choice (default real).
+    let mode: DemoDataMode =
+      params.get('datos') === 'demo' || storyRequested
+        ? 'demo'
+        : loadDemoDataMode(window.localStorage);
+    if (storyRequested) setStoryOpen(true);
+    setDataModeState(mode);
+    // Keep cookie + localStorage aligned so SSR desks honor the same mode across nav.
+    saveDemoDataMode(window.localStorage, mode);
     setReady(true);
-    if (params.get('story') === '1' && canUseOwnerDemo) {
-      setStoryOpen(true);
-      setDataModeState('demo');
-      saveDemoDataMode(window.localStorage, 'demo');
-    }
   }, [canUseOwnerDemo]);
 
   const setDataMode = useCallback((mode: DemoDataMode) => {

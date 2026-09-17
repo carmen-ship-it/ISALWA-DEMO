@@ -9,9 +9,9 @@ import {
   PAGE_TOUR_ROUTES,
   canViewMicroTour,
   getMicroTourForPage,
-  replayLabel,
 } from '@/lib/walkthrough/copy';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 import { useGuide } from './guide-provider';
 import { LearningModeToggle } from './learning-mode-toggle';
 
@@ -32,10 +32,15 @@ const PAGE_LABELS: Record<string, string> = {
   pedidos: 'Pedidos',
 };
 
+/**
+ * Ayuda affordances: intro replay, short section micro-tours, learning mode.
+ * Full guided owner walkthrough is Story Mode only ("Ver recorrido completo").
+ * Legacy multi-journey Recorrido del piloto launchers are retired.
+ */
 export function WalkthroughHelpPanel() {
   const api = useGuide();
   const router = useRouter();
-  const journeys = api?.journeys ?? [];
+  const { canUseOwnerDemo, openStory } = useOwnerDemo();
   const [navHrefs, setNavHrefs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -82,6 +87,23 @@ export function WalkthroughHelpPanel() {
         </p>
       </div>
 
+      {canUseOwnerDemo ? (
+        <div className="border-t border-[var(--isalwa-mist)] pt-6">
+          <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">
+            Recorrido completo de evaluación
+          </h3>
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+            El recorrido guiado completo usa Story Mode con datos DEMO · ficticios. No sustituye la
+            introducción corta ni los recorridos de sección.
+          </p>
+          <div className="mt-4">
+            <Button type="button" variant="primary" size="sm" onClick={openStory}>
+              Ver recorrido completo
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       {sectionTours.length > 0 ? (
         <div className="border-t border-[var(--isalwa-mist)] pt-6">
           <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">Recorridos de sección</h3>
@@ -110,29 +132,6 @@ export function WalkthroughHelpPanel() {
       <div className="border-t border-[var(--isalwa-mist)] pt-6">
         <LearningModeToggle />
       </div>
-
-      {journeys.length > 0 ? (
-        <div className="border-t border-[var(--isalwa-mist)] pt-6">
-          <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{GUIDE_CHROME.title}</h3>
-          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{GUIDE_CHROME.localNote}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {journeys.map((journey) => (
-              <Button
-                key={journey.id}
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => api?.replay(journey.id)}
-              >
-                {replayLabel(journey.title)}
-              </Button>
-            ))}
-            <Button type="button" variant="ghost" size="sm" onClick={() => api?.reset()}>
-              {GUIDE_CHROME.reset}
-            </Button>
-          </div>
-        </div>
-      ) : null}
     </Panel>
   );
 }
