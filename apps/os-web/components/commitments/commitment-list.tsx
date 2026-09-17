@@ -8,6 +8,7 @@ import type { CommitmentSummary } from '@/lib/api/os-api-client';
 import { COMMITMENT_COPY, commitmentStateLabel } from '@/lib/commitments/copy';
 import { fulfillCommitmentAction } from '@/lib/commitments/persistence';
 import { formatCommitmentDue } from '@/lib/commitments/view';
+import { sliceForListScale } from '@/lib/ui/list-scaling';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { CommitmentState } from '@isalwa/os-contracts';
 
@@ -188,9 +189,12 @@ export function CommitmentList({
         </p>
       ) : null}
       {scale ? (
-        <ScaledListReveal items={rows} empty={empty}>
-          {(visible) => renderRows(visible)}
-        </ScaledListReveal>
+        <ScaledListReveal
+          total={rows.length}
+          empty={empty}
+          preview={renderRows(sliceForListScale(rows, false))}
+          full={renderRows(rows)}
+        />
       ) : rows.length === 0 ? (
         empty
       ) : (

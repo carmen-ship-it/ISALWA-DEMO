@@ -21,7 +21,7 @@ describe('nav icon category tones', () => {
     const health = navIconTone({ id: 'salud-datos', group: 'comercial' });
     assert.match(health.chip, /teal-100/);
 
-    const issues = navIconTone({ id: 'incidencias', group: 'decisiones' });
+    const issues = navIconTone({ id: 'incidencias', group: 'trabajo' });
     assert.match(issues.ink, /kiln/);
     assert.match(issues.chip, /warning|sky-100/);
   });

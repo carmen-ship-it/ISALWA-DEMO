@@ -32,7 +32,7 @@ import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
-import { LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
+import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
@@ -282,12 +282,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>
                 ) : (
                   <ScaledListReveal
-                    items={contacts}
+                    total={contacts.length}
                     empty={<p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>}
-                  >
-                    {(visible) => (
+                    preview={
                       <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                        {visible.map((item) => (
+                        {contacts.slice(0, LIST_SCALE_PREVIEW_DEFAULT).map((item) => (
                           <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
                             <p className="break-words font-medium text-[var(--isalwa-kiln)]">
                               {contactDisplayName(item.givenName, item.familyName)}
@@ -298,8 +297,22 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                           </ListRow>
                         ))}
                       </ul>
-                    )}
-                  </ScaledListReveal>
+                    }
+                    full={
+                      <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
+                        {contacts.map((item) => (
+                          <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
+                            <p className="break-words font-medium text-[var(--isalwa-kiln)]">
+                              {contactDisplayName(item.givenName, item.familyName)}
+                            </p>
+                            {item.phone ? (
+                              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{item.phone}</p>
+                            ) : null}
+                          </ListRow>
+                        ))}
+                      </ul>
+                    }
+                  />
                 )}
               </div>
               <div>
@@ -340,7 +353,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
                       <ScaledListReveal
-                        items={list.items}
+                        total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
                         empty={
                           <EmptyState
@@ -348,11 +361,17 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             description="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
                           />
                         }
-                      >
-                        {(visible) => (
-                          <OpportunityList partyId={partyId} items={visible} memberLabels={memberLabels} />
-                        )}
-                      </ScaledListReveal>
+                        preview={
+                          <OpportunityList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                          />
+                        }
+                        full={
+                          <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                        }
+                      />
                     </>
                   )}
                 </CommercialSectionState>
@@ -369,7 +388,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
                       <ScaledListReveal
-                        items={list.items}
+                        total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
                         empty={
                           <EmptyState
@@ -377,11 +396,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             description="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
                           />
                         }
-                      >
-                        {(visible) => (
-                          <QuoteList partyId={partyId} items={visible} memberLabels={memberLabels} />
-                        )}
-                      </ScaledListReveal>
+                        preview={
+                          <QuoteList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                          />
+                        }
+                        full={<QuoteList partyId={partyId} items={list.items} memberLabels={memberLabels} />}
+                      />
                     </>
                   )}
                 </CommercialSectionState>
@@ -398,7 +421,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     <>
                       <StaleProjectionBanner freshness={list.freshness} />
                       <ScaledListReveal
-                        items={list.items}
+                        total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
                         empty={
                           <EmptyState
@@ -406,11 +429,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             description="Cuando se registren pedidos para esta empresa, aparecerán aquí."
                           />
                         }
-                      >
-                        {(visible) => (
-                          <OrderList partyId={partyId} items={visible} memberLabels={memberLabels} />
-                        )}
-                      </ScaledListReveal>
+                        preview={
+                          <OrderList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                          />
+                        }
+                        full={<OrderList partyId={partyId} items={list.items} memberLabels={memberLabels} />}
+                      />
                     </>
                   )}
                 </CommercialSectionState>
@@ -473,18 +500,28 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     <>
                       <StaleProjectionBanner freshness={workData.freshness} />
                       <ScaledListReveal
-                        items={workData.items}
+                        total={workData.items.length}
                         empty={
                           <EmptyState
                             title={FOLLOW_UP_COPY.emptyTitle}
                             description={FOLLOW_UP_COPY.emptyDescription}
                           />
                         }
-                      >
-                        {(visible) => (
-                          <WorkList items={visible} memberLabels={memberLabels} presentation="follow-up" />
-                        )}
-                      </ScaledListReveal>
+                        preview={
+                          <WorkList
+                            items={workData.items.slice(0, LIST_SCALE_PREVIEW_DEFAULT)}
+                            memberLabels={memberLabels}
+                            presentation="follow-up"
+                          />
+                        }
+                        full={
+                          <WorkList
+                            items={workData.items}
+                            memberLabels={memberLabels}
+                            presentation="follow-up"
+                          />
+                        }
+                      />
                     </>
                   )}
                 </CommercialSectionState>
@@ -537,7 +574,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 <>
                   <StaleProjectionBanner freshness={list.freshness} />
                   <ScaledListReveal
-                    items={list.items}
+                    total={list.items.length}
                     previewCount={LIST_SCALE_PREVIEW_LARGE}
                     empty={
                       <EmptyState
@@ -545,11 +582,14 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                         description="La actividad comercial y del cliente aparecerá aquí cuando exista."
                       />
                     }
-                  >
-                    {(visible) => (
-                      <PartyTimelineList items={visible} memberLabels={memberLabels} />
-                    )}
-                  </ScaledListReveal>
+                    preview={
+                      <PartyTimelineList
+                        items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                        memberLabels={memberLabels}
+                      />
+                    }
+                    full={<PartyTimelineList items={list.items} memberLabels={memberLabels} />}
+                  />
                 </>
               )}
             </CommercialSectionState>
