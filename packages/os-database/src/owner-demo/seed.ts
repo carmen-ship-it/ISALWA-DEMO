@@ -402,7 +402,7 @@ async function ensureCommitment(
         partyId,
         ownerMemberId: session.actorMemberId,
         text,
-        origin: 'employee',
+        origin: 'employee_entered',
         lifecycle: 'fulfilled',
         createdByMemberId: session.actorMemberId,
         createdAt: now,
