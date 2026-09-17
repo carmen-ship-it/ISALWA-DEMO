@@ -10,6 +10,7 @@ export type ComprasLinkedOrder = {
   orderNumber: string;
   partyId: string;
   status: string;
+  customerLabel: string;
 };
 
 /**
@@ -35,6 +36,7 @@ export async function loadComprasLinkedOrders(): Promise<ComprasLinkedOrder[]> {
       orderNumber: item.orderNumber,
       partyId: item.partyId,
       status: item.status,
+      customerLabel: partyLabel(partyLabels, item.partyId),
     }));
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {

@@ -129,10 +129,13 @@ async function loadProductionDeskData(): Promise<{
         lastUpdateLabel: pedido.statusLabel ?? 'Sin último hecho de planta',
         responsibleLabel: pedido.ownerLabel ?? 'Sin responsable canónico',
         dateLabel: '—',
-        nextAction: openUpdate
-          ? 'Esperar respuesta de producción'
-          : 'Solicitar actualización si el cliente pregunta',
+        nextAction: prep.production
+          ? 'Completar revisión de producción'
+          : openUpdate
+            ? 'Esperar respuesta de producción'
+            : 'Solicitar actualización si el cliente pregunta',
         openUpdate,
+        openProductionReviewWorkId: prep.production?.workItemId ?? null,
         productionOwnerMemberId: null,
       };
     });

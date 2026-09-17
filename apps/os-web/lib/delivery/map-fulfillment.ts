@@ -53,6 +53,8 @@ export type LinkedOrderFact = {
   orderNumber: string;
   partyId: string;
   status: string;
+  /** Optional display name when party labels are resolved upstream. */
+  customerLabel?: string | null;
 };
 
 const EVIDENCE_ROLES = new Set([
