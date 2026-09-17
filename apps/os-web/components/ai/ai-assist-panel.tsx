@@ -4,12 +4,12 @@ import { useState, useTransition, type FormEvent } from 'react';
 import { Button, Chip, InsightCard, PageSection, SearchField, SectionHeader } from '@isalwa/ui';
 import { requestAiAssistAction } from '@/lib/ai/actions';
 import type { AiAssistResponse } from '@/lib/ai/types';
-import { AI_UNAVAILABLE_COPY } from '@/lib/ai/limits';
 import {
   AI_FREE_TEXT_MAX_CHARS,
   type AiAssistSurface,
   suggestedPromptsForSurface,
 } from '@/lib/ai/suggested-prompts';
+import { AiEvidenceCitations } from './ai-evidence-citations';
 
 export type AiAssistPanelProps = {
   title: string;
@@ -19,6 +19,9 @@ export type AiAssistPanelProps = {
   subjectId: string;
   surface: AiAssistSurface;
   aiEnabled: boolean;
+  /** When false (mock pilot), footnotes omit live-model citation claim. */
+  citationsLive?: boolean;
+  suggestedPrompts?: readonly string[];
   promptLabel?: string;
 };
 
@@ -30,6 +33,8 @@ export function AiAssistPanel({
   subjectId,
   surface,
   aiEnabled,
+  citationsLive = false,
+  suggestedPrompts,
   promptLabel = 'Preguntar',
 }: AiAssistPanelProps) {
   const [pending, startTransition] = useTransition();
@@ -37,7 +42,11 @@ export function AiAssistPanel({
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
-  const prompts = suggestedPromptsForSurface(surface);
+  const prompts = suggestedPrompts ?? suggestedPromptsForSurface(surface);
+
+  if (!aiEnabled) {
+    return null;
+  }
 
   function runAssist(question?: string) {
     setError(null);
@@ -82,43 +91,39 @@ export function AiAssistPanel({
           La IA solo resume evidencia autorizada. No aprueba, no envía y no cambia registros. El texto
           libre solo cambia la pregunta, no el alcance de datos.
         </InsightCard>
-        {!aiEnabled ? (
-          <p className="text-sm text-[var(--isalwa-slate)]">{AI_UNAVAILABLE_COPY}</p>
-        ) : (
-          <div className="space-y-4">
-            <div>
-              <h3 className="isalwa-section-label">Sugerencias</h3>
-              <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Preguntas sugeridas">
-                {prompts.map((prompt) => (
-                  <Chip
-                    key={prompt}
-                    active={activePrompt === prompt}
-                    disabled={pending}
-                    onClick={() => onSuggested(prompt)}
-                  >
-                    {prompt}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-            <form className="space-y-3" onSubmit={onSubmit}>
-              <label className="block space-y-2">
-                <span className="isalwa-section-label">Pregunta acotada</span>
-                <SearchField
-                  value={draft}
-                  maxLength={AI_FREE_TEXT_MAX_CHARS}
+        <div className="space-y-4">
+          <div>
+            <h3 className="isalwa-section-label">Sugerencias</h3>
+            <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Preguntas sugeridas">
+              {prompts.map((prompt) => (
+                <Chip
+                  key={prompt}
+                  active={activePrompt === prompt}
                   disabled={pending}
-                  placeholder="Pregunte solo sobre esta evidencia autorizada…"
-                  aria-label="Pregunta acotada para asistencia"
-                  onChange={(event) => setDraft(event.target.value)}
-                />
-              </label>
-              <Button type="submit" variant="secondary" disabled={pending}>
-                {pending ? 'Consultando…' : promptLabel}
-              </Button>
-            </form>
+                  onClick={() => onSuggested(prompt)}
+                >
+                  {prompt}
+                </Chip>
+              ))}
+            </div>
           </div>
-        )}
+          <form className="space-y-3" onSubmit={onSubmit}>
+            <label className="block space-y-2">
+              <span className="isalwa-section-label">Pregunta acotada</span>
+              <SearchField
+                value={draft}
+                maxLength={AI_FREE_TEXT_MAX_CHARS}
+                disabled={pending}
+                placeholder="Pregunte solo sobre esta evidencia autorizada…"
+                aria-label="Pregunta acotada para asistencia"
+                onChange={(event) => setDraft(event.target.value)}
+              />
+            </label>
+            <Button type="submit" variant="secondary" disabled={pending}>
+              {pending ? 'Consultando…' : promptLabel}
+            </Button>
+          </form>
+        </div>
         {error ? (
           <p className="text-sm text-[var(--isalwa-slate)]" role="status">
             {error}
@@ -144,12 +149,14 @@ export function AiAssistPanel({
                 </ul>
               </div>
             ) : null}
+            <AiEvidenceCitations
+              refs={result.evidenceRefs}
+              citationsLive={citationsLive && result.modelCalled}
+            />
             <p className="text-xs text-[var(--isalwa-slate)]">
-              {result.modelCalled
+              {result.modelCalled && citationsLive
                 ? 'Modelo consultado con evidencia autorizada.'
-                : 'Modo piloto sin llamada al proveedor.'}
-              {' · '}
-              Referencias: {result.evidenceRefs.length}
+                : 'Modo piloto sin llamada al proveedor en vivo.'}
             </p>
           </div>
         ) : null}

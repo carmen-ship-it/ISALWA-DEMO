@@ -3,6 +3,7 @@
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { OsApiError } from '@/lib/api/os-api-errors';
+import { resolveAiHostedVisibility } from '@/components/ai/hosted-state';
 import {
   AI_UNAVAILABLE_COPY,
   assertAiAssistRequest,
@@ -18,7 +19,8 @@ export async function requestAiAssistAction(input: {
   subjectId: string;
   question?: string;
 }): Promise<AiAssistActionResult> {
-  if (!isAiEnabled()) {
+  const hosted = resolveAiHostedVisibility();
+  if (!hosted.show || !isAiEnabled()) {
     return { ok: false, code: 'disabled', message: AI_UNAVAILABLE_COPY };
   }
 
