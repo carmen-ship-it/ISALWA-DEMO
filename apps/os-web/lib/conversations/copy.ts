@@ -1,0 +1,30 @@
+export const CONVERSATIONS_COPY = {
+  kicker: 'Trabajo',
+  title: 'Conversaciones',
+  description:
+    'Registros de lo hablado con clientes. WhatsApp no está conectado; un mensaje es evidencia, no un envío.',
+  register: 'Registrar conversación',
+  listLabel: 'Lista de conversaciones',
+  threadLabel: 'Hilo',
+  contextLabel: 'Contexto ISALWA',
+  emptyList: 'Sin conversaciones todavía',
+  emptyListHint:
+    'Cuando registre una conversación o carguen ejemplos de demostración, aparecerán aquí.',
+  emptyThread: 'Seleccione una conversación',
+  emptyThreadHint: 'El hilo y el contexto se muestran al elegir un registro de la lista.',
+  backToList: 'Conversaciones',
+  openContext: 'Contexto',
+  closeContext: 'Cerrar contexto',
+  channelClosedBanner: 'Canal no conectado. Nada se envía ni se recibe desde ISALWA.',
+  sections: {
+    cliente: 'Cliente',
+    comercial: 'Comercial',
+    operacion: 'Operación',
+    trabajo: 'Trabajo',
+    informacion: 'Información a confirmar',
+    recomendacion: 'Recomendación',
+    acciones: 'Acciones',
+  },
+  stubWaiting: 'Pendiente de contexto inteligente',
+  noReadTicks: 'Sin marcas de lectura. ISALWA no inventa entregas ni lecturas.',
+} as const;

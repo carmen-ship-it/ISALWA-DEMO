@@ -40,23 +40,27 @@ describe('commercial-first primary nav', () => {
       [
         'inicio',
         'clientes',
-        'mapa',
         'oportunidades',
         'cotizaciones',
+        'pedidos',
+        'mapa',
         'trabajo',
-        'productos',
+        'conversaciones',
+        'aprobaciones',
+        'incidencias',
+        'compromisos',
         'produccion',
         'almacen',
         'compras',
-        'finanzas',
         'entregas',
-        'coordinacion',
-        'aprobaciones',
-        'memoria-decisiones',
+        'finanzas',
         'salud-datos',
         'auditoria',
-        'incidencias',
+        'productos',
+        'coordinacion',
+        'memoria-decisiones',
         'administracion',
+        'ayuda',
       ],
     );
   });
@@ -65,42 +69,50 @@ describe('commercial-first primary nav', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: true }), [
       'inicio',
       'clientes',
-      'mapa',
       'oportunidades',
       'cotizaciones',
+      'pedidos',
+      'mapa',
       'trabajo',
-      'productos',
+      'conversaciones',
+      'aprobaciones',
+      'incidencias',
+      'compromisos',
       'produccion',
       'almacen',
       'compras',
-      'finanzas',
       'entregas',
-      'coordinacion',
-      'aprobaciones',
-      'memoria-decisiones',
+      'finanzas',
       'salud-datos',
       'auditoria',
-      'incidencias',
+      'productos',
+      'coordinacion',
+      'memoria-decisiones',
       'administracion',
+      'ayuda',
     ]);
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
       'clientes',
-      'mapa',
       'oportunidades',
       'cotizaciones',
+      'pedidos',
+      'mapa',
       'trabajo',
-      'productos',
+      'conversaciones',
+      'aprobaciones',
+      'incidencias',
+      'compromisos',
       'produccion',
       'almacen',
       'compras',
-      'finanzas',
       'entregas',
-      'coordinacion',
-      'aprobaciones',
-      'memoria-decisiones',
+      'finanzas',
       'salud-datos',
-      'incidencias',
+      'productos',
+      'coordinacion',
+      'memoria-decisiones',
+      'ayuda',
     ]);
     assert.equal(
       filterNavByAccess(PRIMARY_NAV, { showAdmin: false }).some(
@@ -110,10 +122,11 @@ describe('commercial-first primary nav', () => {
     );
   });
 
-  it('keeps Mensajes out of primary nav; Finanzas is the operational desk', () => {
+  it('keeps Mensajes out of primary nav; Conversaciones is under Trabajo', () => {
     const primaryIds = new Set(PRIMARY_NAV.map((item) => item.id));
     assert.equal(primaryIds.has('finanzas'), true);
     assert.equal(primaryIds.has('mensajes'), false);
+    assert.equal(primaryIds.has('conversaciones'), true);
     for (const id of HIDDEN_PRIMARY_NAV_IDS) {
       assert.equal(primaryIds.has(id), false);
     }
@@ -129,6 +142,7 @@ describe('commercial-first primary nav', () => {
     assert.equal(t('nav.mapa'), 'Mapa');
     assert.equal(t('nav.finanzas'), 'Finanzas');
     assert.equal(t('nav.mensajes'), 'Mensajes');
+    assert.equal(t('nav.conversaciones'), 'Conversaciones');
   });
 });
 

@@ -1,6 +1,17 @@
 import { partyHref } from '@/lib/party/navigation';
 import { customerPaletteItem, type PaletteItem } from '@/lib/shell/command-palette';
 import { phoneIncludes, textIncludes } from './phone-match';
+import {
+  conversationPaletteItems,
+  registerConversationActionItem,
+} from '@/lib/conversations/search';
+import type { Conversation } from '@/lib/conversations/model';
+
+export {
+  conversationPaletteItems,
+  registerConversationActionItem,
+};
+export type { Conversation };
 
 export type SearchPartyHit = {
   partyId: string;

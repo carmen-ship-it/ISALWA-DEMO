@@ -19,6 +19,7 @@ const ALLOWED_PATHS = new Set([
   '/trabajo',
   '/aprobaciones',
   '/incidencias',
+  '/conversaciones',
   '/salud-datos',
 ]);
 const ALLOWED_KEYS = new Set([
@@ -132,6 +133,7 @@ const PATH_LABEL: Record<string, string> = {
   '/trabajo': 'Trabajo',
   '/aprobaciones': 'Aprobaciones',
   '/incidencias': 'Incidencias',
+  '/conversaciones': 'Conversaciones',
   '/salud-datos': 'Salud de datos',
 };
 

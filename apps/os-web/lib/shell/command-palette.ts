@@ -148,6 +148,13 @@ export function paletteActions(access: PaletteAccess): PaletteItem[] {
       detail: 'Nueva incidencia',
       href: '/incidencias/reportar',
     },
+    {
+      key: 'action:register-conversation',
+      kind: 'action',
+      label: 'Registrar conversación',
+      detail: 'Registro de la empresa. Canal no conectado.',
+      href: '/conversaciones?registrar=1',
+    },
   );
   if (access.canInvite) {
     items.push({
