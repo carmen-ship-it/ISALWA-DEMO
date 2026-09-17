@@ -4,6 +4,7 @@
 **Branch:** `ct2/lane-ux6-audit`  
 **Base tip:** `1244d84ef75142d973c8f7aa44caeadd66361768` (CT2 handoff live SHA)  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct2-lane-ux6-audit`  
+**SHA:** `62396334eae345b500e6ab91ac9685ed7cf38d77`  
 **Lane:** Auditoría viewer — search, Fecha/Persona/Cliente/Tipo/Acción, human labels, detail drawer, server pagination, AI ask stub (gated off)  
 **Deploy:** NO · **REAL_SEVEN_MUTATED:** NO
 
