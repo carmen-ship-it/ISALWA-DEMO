@@ -38,8 +38,12 @@ import { offerAfterQuoteSent } from '@/lib/work/event-work-offer';
 import { memberLabel, resolveMemberLabels, resolveMemberResponsibilityLabels, memberWithCargoLine } from '@/lib/work/member-resolver';
 import { commercialOwnerLine } from '@/lib/work/staff-display';
 import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
+import { WhoHasTheBallCard } from '@/components/work/who-has-the-ball-card';
 import { whoHasTheBallView } from '@/lib/work/who-has-the-ball';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
+import { AccessDeniedState } from '@/components/states/app-states';
 
 type QuoteDetailPageProps = {
   params: Promise<{ partyId: string; quoteId: string }>;
@@ -58,11 +62,19 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
   const { partyId, quoteId } = await params;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
 
   const client = createOsApiClient(auth);
 
   try {
     const { quote, freshness, authority } = await client.getQuote(quoteId);
+    if (evaluationBlocksDirectParty(evaluation, quote.ownerMemberId)) {
+      return (
+        <PageContainer label="Cotización">
+          <AccessDeniedState />
+        </PageContainer>
+      );
+    }
     const partyLabels = await resolvePartyLabels(client, [quote.partyId]);
     const customerName = partyLabel(partyLabels, quote.partyId);
     const ownerResponsibility = await resolveMemberResponsibilityLabels(client, [quote.ownerMemberId]);
@@ -242,40 +254,11 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         <StaleProjectionBanner freshness={freshness} />
         <RecordNextStep step={nextStep} />
-        <PageSection card className="mb-6 p-6 md:p-8" data-tour="who-has-the-ball">
-          <p className="isalwa-section-label">Quién tiene la pelota</p>
-          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-[var(--isalwa-slate)]">Responsable</dt>
-              <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.principalLine}</dd>
-            </div>
-            {ball.temporarySupportLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Apoyo</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.temporarySupportLine}</dd>
-              </div>
-            ) : null}
-            {ball.waitingLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Esperando</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.waitingLine}</dd>
-              </div>
-            ) : null}
-            {ball.nextSafeLine ? (
-              <div>
-                <dt className="text-sm text-[var(--isalwa-slate)]">Siguiente paso</dt>
-                <dd className="mt-1 text-sm text-[var(--isalwa-kiln)]">{ball.nextSafeLine}</dd>
-              </div>
-            ) : null}
-          </dl>
-          {ball.requestHref && ball.requestLabel ? (
-            <p className="mt-4">
-              <Link href={ball.requestHref} className={documentLinkClass}>
-                {ball.requestLabel}
-              </Link>
-            </p>
-          ) : null}
-        </PageSection>
+        <WhoHasTheBallCard
+          className="mb-6"
+          view={ball}
+          waiting={Boolean(ball.waitingLine)}
+        />
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">

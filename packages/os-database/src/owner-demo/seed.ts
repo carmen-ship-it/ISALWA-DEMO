@@ -11,8 +11,12 @@
  * Run:
  *   STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database exec node --import tsx src/owner-demo/seed.ts
  *
+ * Conversation dry-run (no DB):
+ *   corepack pnpm --filter @isalwa/os-database run fixture:owner-demo:conversations-dry-run
+ *
  * Receipt (no secrets): ~/.isalwa-secrets/isalwa-os-owner-demo-seed.json
  * Also copies a non-secret id map to packages/os-database/fixtures/owner-demo/last-seed-ids.json when writable.
+ * Seeds 5 OsCustomerConversation rows (one per DEMO client) via ensureOwnerDemoConversation.
  */
 import { mkdirSync, writeFileSync, chmodSync, existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -50,8 +54,10 @@ import {
 } from './catalog';
 import {
   admitOwnerDemoConversation,
+  OWNER_DEMO_CONVERSATION_SEED_COUNT,
   ownerDemoConversationCreateData,
   ownerDemoConversationNaturalKey,
+  planOwnerDemoConversationSeeds,
 } from './conversations';
 import {
   OWNER_DEMO_REAL_ORG,
@@ -111,6 +117,7 @@ type ClientIds = {
   orderPrepWorkId: string | null;
   commitmentId: string | null;
   conversation: (typeof OWNER_DEMO_CONVERSATIONS)[number] | null;
+  conversationId: string | null;
 };
 
 async function resolveMemberByEmail(
@@ -549,7 +556,7 @@ async function ensureOwnerDemoConversation(
     enteredByMemberId: string;
     links: { opportunityId: string | null; quoteId: string | null; orderId: string | null };
   },
-): Promise<string | null> {
+): Promise<string> {
   const naturalId = ownerDemoConversationNaturalKey(args.client.key);
   const existing = await prisma.osCustomerConversation.findUnique({
     where: { id: naturalId },
@@ -561,6 +568,11 @@ async function ensureOwnerDemoConversation(
         opportunityId: args.links.opportunityId,
         quoteId: args.links.quoteId,
         orderId: args.links.orderId,
+        summary: args.conversation.summary,
+        pastedEvidence: args.conversation.pastedEvidence,
+        customerQuestion: args.conversation.customerQuestion,
+        customerLabel: args.client.displayName,
+        contactLabel: `${args.client.contact.givenName} ${args.client.contact.familyName}`.trim(),
       },
     });
     return existing.id;
@@ -575,7 +587,7 @@ async function ensureOwnerDemoConversation(
     links: args.links,
   });
   if (!admitted.ok) {
-    return null;
+    throw new Error(`OWNER_DEMO_CONVERSATION_ADMIT_FAILED:${args.client.key}:${admitted.reason}`);
   }
   const data = ownerDemoConversationCreateData(admitted.record, new Date().toISOString());
   const created = await prisma.osCustomerConversation.create({ data });
@@ -1196,12 +1208,21 @@ async function main(): Promise<void> {
   const workSvc = new WorkCommandService(workStore);
 
   const clients: ClientIds[] = [];
+  const conversationPlan = planOwnerDemoConversationSeeds();
+  log(
+    `OWNER_DEMO_CONVERSATION_PLAN count=${conversationPlan.length} ids=${conversationPlan
+      .map((r) => r.conversationId)
+      .join(',')}`,
+  );
 
   for (const spec of OWNER_DEMO_CLIENTS) {
     const party = await ensureParty(partySvc, locationSvc, partySession, prisma, spec);
     log(`PARTY ${party.created ? 'CREATED' : 'REUSED'} key=${spec.key} partyId=${party.partyId}`);
 
     const conversation = OWNER_DEMO_CONVERSATIONS.find((c) => c.clientKey === spec.key) ?? null;
+    if (!conversation) {
+      throw new Error(`OWNER_DEMO_CONVERSATION_MISSING:${spec.key}`);
+    }
     const ids: ClientIds = {
       key: spec.key,
       partyId: party.partyId,
@@ -1220,6 +1241,7 @@ async function main(): Promise<void> {
       orderPrepWorkId: null,
       commitmentId: null,
       conversation,
+      conversationId: null,
     };
 
     if (spec.key === 'maderas_oriente') {
@@ -1357,7 +1379,7 @@ async function main(): Promise<void> {
     }
 
     if (ids.conversation) {
-      await ensureOwnerDemoConversation(prisma, {
+      ids.conversationId = await ensureOwnerDemoConversation(prisma, {
         organizationId: session.organizationId,
         client: spec,
         conversation: ids.conversation,
@@ -1369,10 +1391,19 @@ async function main(): Promise<void> {
           orderId: ids.orderId,
         },
       });
+      log(`CONVERSATION UPSERTED key=${spec.key} id=${ids.conversationId}`);
     }
 
     clients.push(ids);
   }
+
+  const conversationIds = clients.map((c) => c.conversationId).filter((id): id is string => Boolean(id));
+  if (conversationIds.length !== OWNER_DEMO_CONVERSATION_SEED_COUNT) {
+    throw new Error(
+      `OWNER_DEMO_CONVERSATION_SEED_INCOMPLETE:expected=${OWNER_DEMO_CONVERSATION_SEED_COUNT} got=${conversationIds.length}`,
+    );
+  }
+  log(`OWNER_DEMO_CONVERSATIONS_SEEDED count=${conversationIds.length}`);
 
   await ensureDemoDeskDensity(workSvc, session, prisma, clients);
   await ensureCommercialDensityExtras(commercialSvc, session, prisma, clients);
@@ -1391,6 +1422,8 @@ async function main(): Promise<void> {
     realSevenProof: proof,
     confirm: STAGING_FIXTURE_CONFIRM_VALUE,
     clients,
+    conversationCount: conversationIds.length,
+    conversationIds,
     storyModePrimaryPartyId: maderas?.partyId ?? null,
     hrefHints: maderas
       ? {
@@ -1438,9 +1471,11 @@ async function main(): Promise<void> {
         followUpWorkId: c.followUpWorkId,
         orderPrepWorkId: c.orderPrepWorkId,
         commitmentId: c.commitmentId,
+        conversationId: c.conversationId,
       })),
       storyModePrimaryPartyId: maderas?.partyId ?? null,
       hrefHints: receipt.hrefHints,
+      conversationCount: conversationIds.length,
     };
     writeFileSync(join(fixtureDir, 'last-seed-ids.json'), JSON.stringify(publicIds, null, 2));
     log(`OWNER_DEMO_IDS_WRITTEN ${join(fixtureDir, 'last-seed-ids.json')}`);
@@ -1451,7 +1486,14 @@ async function main(): Promise<void> {
     log(`OWNER_DEMO_IDS_SKIP ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  log(JSON.stringify({ ok: true, REAL_SEVEN_MUTATED: 'NO', clientCount: clients.length }));
+  log(
+    JSON.stringify({
+      ok: true,
+      REAL_SEVEN_MUTATED: 'NO',
+      clientCount: clients.length,
+      conversationCount: conversationIds.length,
+    }),
+  );
 }
 
 main().catch((err) => {

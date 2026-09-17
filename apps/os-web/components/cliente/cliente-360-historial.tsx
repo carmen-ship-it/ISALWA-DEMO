@@ -1,6 +1,6 @@
 import type { PartyTimelineEntryReadModel } from '@isalwa/os-contracts';
 import Link from 'next/link';
-import { EmptyState } from '@isalwa/ui';
+import { EmptyState, Timeline, type TimelineItem } from '@isalwa/ui';
 import { PartyTimelineList } from '@/components/commercial/party-timeline-list';
 import { ScaledListReveal } from '@/components/ui/scaled-list-reveal';
 import { presentBusinessEventLabel } from '@/lib/audit/present';
@@ -26,7 +26,7 @@ function isConversationOriginEvent(eventType: string): boolean {
 
 /**
  * Cliente360 Historial — BusinessEvent timeline plus audit/provenance coherence affordances.
- * Does not own Documentos (PF-4).
+ * Does not own Documentos (PF-4). Visual-only: origin callouts stay on white ops surface.
  */
 export function Cliente360Historial({
   partyId,
@@ -39,13 +39,42 @@ export function Cliente360Historial({
   });
 
   const originEntries = items.filter((entry) => isConversationOriginEvent(entry.eventType));
+  const originTimeline: TimelineItem[] = originEntries.map((entry) => {
+    const facts = (entry.facts ?? {}) as Record<string, unknown>;
+    const conversationId = conversationIdFromFacts(facts);
+    const kind = provenanceKindFromEventType(entry.eventType);
+    const provenance = conversationProvenanceView(
+      conversationId ? { conversationId, kind } : null,
+    );
+    return {
+      id: `origin-${entry.entryId}`,
+      label: presentBusinessEventLabel(entry.eventType),
+      tone: 'var(--isalwa-info)',
+      body: provenance ? (
+        <p className="text-sm text-[var(--isalwa-slate)]">
+          {provenance.origenLabel}
+          {' · '}
+          <Link
+            href={provenance.href}
+            className="font-medium text-[var(--isalwa-glaze)] hover:underline"
+          >
+            {provenance.verLabel}
+          </Link>
+        </p>
+      ) : (
+        <p className="text-sm text-[var(--isalwa-slate)]">
+          Origen: Conversación (sin enlace durable todavía)
+        </p>
+      ),
+    };
+  });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <p className="text-sm text-[var(--isalwa-slate)]">
         <Link
           href={auditHref}
-          className="font-medium text-[var(--isalwa-glaze)] hover:underline"
+          className="font-medium text-[var(--isalwa-info)] hover:underline"
         >
           Ver en Auditoría
         </Link>
@@ -53,43 +82,15 @@ export function Cliente360Historial({
         los cambios vinculados a este cliente.
       </p>
 
-      {originEntries.length > 0 ? (
-        <ul
-          className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)] p-4"
+      {originTimeline.length > 0 ? (
+        <div
+          className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-ops)] p-4 shadow-[var(--isalwa-shadow-soft)]"
           aria-label="Origen desde conversación"
+          data-historial-origin="conversation"
         >
-          {originEntries.map((entry) => {
-            const facts = (entry.facts ?? {}) as Record<string, unknown>;
-            const conversationId = conversationIdFromFacts(facts);
-            const kind = provenanceKindFromEventType(entry.eventType);
-            const provenance = conversationProvenanceView(
-              conversationId ? { conversationId, kind } : null,
-            );
-            return (
-              <li key={`origin-${entry.entryId}`} data-historial-origin="conversation">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                  {presentBusinessEventLabel(entry.eventType)}
-                </p>
-                {provenance ? (
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {provenance.origenLabel}
-                    {' · '}
-                    <Link
-                      href={provenance.href}
-                      className="font-medium text-[var(--isalwa-glaze)] hover:underline"
-                    >
-                      {provenance.verLabel}
-                    </Link>
-                  </p>
-                ) : (
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    Origen: Conversación (sin enlace durable todavía)
-                  </p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+          <p className="isalwa-section-label mb-3">Origen desde conversación</p>
+          <Timeline items={originTimeline} />
+        </div>
       ) : null}
 
       <ScaledListReveal

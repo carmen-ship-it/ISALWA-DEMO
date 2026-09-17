@@ -19,7 +19,7 @@ type Cliente360NavProps = {
 };
 
 /**
- * Cliente360 section tabs — only one panel is shown by the page.
+ * Cliente360 workspace tabs — only one panel is shown by the page.
  * Deep links use `?tab=`; legacy `#section` hashes redirect once to `?tab=`.
  * Mobile: horizontal scroll tabs + select.
  */
@@ -39,8 +39,8 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
       aria-label="Secciones del cliente"
       className={
         embedded
-          ? 'max-w-full'
-          : 'sticky top-14 z-10 mt-10 max-w-full border-b border-[var(--isalwa-mist)] bg-white'
+          ? 'max-w-full border-t border-[var(--isalwa-mist)] pt-1'
+          : 'sticky top-14 z-10 mt-6 max-w-full border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-surface-ops)_92%,transparent)] shadow-[var(--isalwa-glass-light-edge)] backdrop-blur-md'
       }
     >
       <div className="sm:hidden">
@@ -49,7 +49,7 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
         </label>
         <select
           id="cliente360-tab-select"
-          className="mb-2 h-10 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+          className="mb-2 h-10 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-ops)] px-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           value={activeTab}
           onChange={(event) => {
             const next = event.target.value;
@@ -66,8 +66,8 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
         </select>
       </div>
 
-      <div className="hidden overflow-x-auto overscroll-x-contain sm:block">
-        <ul className="flex w-max" role="tablist">
+      <div className="hidden overflow-x-auto overscroll-x-contain sm:block" role="presentation">
+        <ul className="flex w-max gap-0.5" role="tablist">
           {CLIENTE360_NAV_SECTIONS.map((section) => {
             const active = activeTab === section.id;
             return (

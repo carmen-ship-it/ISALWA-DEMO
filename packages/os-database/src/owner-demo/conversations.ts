@@ -8,11 +8,20 @@ import {
   type ManualCustomerConversation,
   type RecordCustomerConversationInput,
 } from '@isalwa/os-contracts';
-import type { OwnerDemoClientKey, OwnerDemoClientSpec, OwnerDemoConversationSpec } from './catalog';
+import {
+  OWNER_DEMO_CLIENTS,
+  OWNER_DEMO_CONVERSATIONS,
+  type OwnerDemoClientKey,
+  type OwnerDemoClientSpec,
+  type OwnerDemoConversationSpec,
+} from './catalog';
 import { assertOwnerDemoSynthOrg, OWNER_DEMO_SYNTH_ORG } from './guards';
 
 export const OWNER_DEMO_CONVERSATION_OCCURRED_AT = '2026-09-16T15:00:00.000Z' as const;
 export const OWNER_DEMO_CONVERSATION_ENTERED_BY_LABEL = 'Owner demo seed' as const;
+
+/** Expected OsCustomerConversation rows from owner-demo seed (one per DEMO client). */
+export const OWNER_DEMO_CONVERSATION_SEED_COUNT = 5 as const;
 
 export type OwnerDemoConversationLinks = {
   opportunityId: string | null;
@@ -22,6 +31,39 @@ export type OwnerDemoConversationLinks = {
 
 export function ownerDemoConversationNaturalKey(clientKey: OwnerDemoClientKey): string {
   return `owner-demo-conversation:${clientKey}`;
+}
+
+export type OwnerDemoConversationSeedPlanRow = {
+  clientKey: OwnerDemoClientKey;
+  displayName: string;
+  conversationId: string;
+  summary: string;
+};
+
+/**
+ * Dry-run plan for durable conversation seed — no DB I/O.
+ * Matches what `ensureOwnerDemoConversation` writes for each DEMO client.
+ */
+export function planOwnerDemoConversationSeeds(): OwnerDemoConversationSeedPlanRow[] {
+  const rows: OwnerDemoConversationSeedPlanRow[] = [];
+  for (const client of OWNER_DEMO_CLIENTS) {
+    const conversation = OWNER_DEMO_CONVERSATIONS.find((c) => c.clientKey === client.key);
+    if (!conversation) {
+      throw new Error(`OWNER_DEMO_CONVERSATION_MISSING:${client.key}`);
+    }
+    rows.push({
+      clientKey: client.key,
+      displayName: client.displayName,
+      conversationId: ownerDemoConversationNaturalKey(client.key),
+      summary: conversation.summary,
+    });
+  }
+  if (rows.length !== OWNER_DEMO_CONVERSATION_SEED_COUNT) {
+    throw new Error(
+      `OWNER_DEMO_CONVERSATION_SEED_COUNT_MISMATCH:expected=${OWNER_DEMO_CONVERSATION_SEED_COUNT} got=${rows.length}`,
+    );
+  }
+  return rows;
 }
 
 export function buildOwnerDemoConversationInput(args: {

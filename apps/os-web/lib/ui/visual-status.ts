@@ -24,13 +24,17 @@ export const visualStatusSurfaceClass: Record<VisualStatusTone, string> = {
   neutral: 'bg-[var(--isalwa-mist)] text-[var(--isalwa-slate)]',
 };
 
-/** Tab chrome — inactive vs selected (soft teal). */
+/** Tab chrome — inactive vs selected (soft teal active operational). */
 export const clienteTabInactiveClass =
-  'inline-flex h-11 items-center border-b-2 border-transparent px-3 text-sm text-[var(--isalwa-slate)] outline-none hover:text-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'inline-flex h-11 items-center rounded-t-[var(--isalwa-radius-control)] border-b-2 border-transparent px-3.5 text-sm text-[var(--isalwa-slate)] outline-none hover:bg-[color-mix(in_srgb,var(--isalwa-teal-100)_55%,transparent)] hover:text-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export const clienteTabActiveClass =
-  'inline-flex h-11 items-center border-b-2 border-[var(--isalwa-glaze)] bg-[var(--isalwa-surface-active)] px-3 text-sm font-medium text-[var(--isalwa-glaze)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'inline-flex h-11 items-center rounded-t-[var(--isalwa-radius-control)] border-b-2 border-[var(--isalwa-glaze)] bg-[var(--isalwa-surface-active)] px-3.5 text-sm font-medium text-[var(--isalwa-glaze)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
-/** Panel separation on porcelain. */
+/** White work surface on porcelain canvas. */
 export const deskPanelClass =
-  'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] shadow-[var(--isalwa-shadow-soft)]';
+  'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-ops,var(--isalwa-white))] shadow-[var(--isalwa-shadow-card-resting)]';
+
+/** Sky contextual help link (not primary navy, not teal ops). */
+export const helpLinkClass =
+  'text-sm font-medium text-[var(--isalwa-info)] underline-offset-4 hover:underline';

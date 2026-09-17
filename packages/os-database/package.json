@@ -19,7 +19,8 @@
     "migrate:dev": "prisma migrate dev",
     "test": "node --import tsx --test --test-concurrency=1 src/**/*.test.ts",
     "fixture:wave2-roles": "node --import tsx src/staging-wave2-role-fixtures.ts",
-    "fixture:owner-demo": "node --import tsx src/owner-demo/seed.ts"
+    "fixture:owner-demo": "node --import tsx src/owner-demo/seed.ts",
+    "fixture:owner-demo:conversations-dry-run": "node --import tsx src/owner-demo/seed-conversations-dry-run.ts"
   },
   "dependencies": {
     "@isalwa/os-contracts": "workspace:*",

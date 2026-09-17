@@ -426,6 +426,7 @@ export function ownerDemoCatalogMeta() {
     prefix: OWNER_DEMO_PREFIX.trim(),
     notesTag: OWNER_DEMO_NOTES_TAG,
     clientCount: OWNER_DEMO_CLIENTS.length,
+    conversationCount: OWNER_DEMO_CONVERSATIONS.length,
     storyStepCount: OWNER_DEMO_STORY_STEPS.length,
     quoteNumberProyectos: OWNER_DEMO_QUOTE_NUMBER_PROYECTOS,
     commercialDensity: {

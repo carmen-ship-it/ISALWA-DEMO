@@ -44,7 +44,7 @@ export function ProcessStepIndicator({
   return (
     <section
       className={cx(
-        'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-soft)]',
+        'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-ops,var(--isalwa-white))] p-4 shadow-[var(--isalwa-shadow-card-resting)]',
         className,
       )}
       aria-label={title}

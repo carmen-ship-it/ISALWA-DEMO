@@ -26,7 +26,8 @@
     "fixture:wave2-roles:prepare": "corepack pnpm --filter @isalwa/os-database^... run build",
     "fixture:wave2-roles": "corepack pnpm run fixture:wave2-roles:prepare && corepack pnpm --filter @isalwa/os-database run fixture:wave2-roles",
     "fixture:owner-demo:prepare": "corepack pnpm --filter @isalwa/os-database^... run build",
-    "fixture:owner-demo": "corepack pnpm run fixture:owner-demo:prepare && STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database run fixture:owner-demo"
+    "fixture:owner-demo": "corepack pnpm run fixture:owner-demo:prepare && STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database run fixture:owner-demo",
+    "fixture:owner-demo:conversations-dry-run": "corepack pnpm --filter @isalwa/os-database run fixture:owner-demo:conversations-dry-run"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

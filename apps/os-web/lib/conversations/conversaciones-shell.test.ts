@@ -68,4 +68,17 @@ describe('conversaciones route shell', () => {
     assert.match(thread, /noReadTicks/);
     assert.doesNotMatch(thread, /✓✓|read receipt|leído/i);
   });
+
+  it('prefers durable API rows and skips JSON demo fixtures when durableRows exist', () => {
+    const page = readFileSync(join(root, 'app/(app)/conversaciones/page.tsx'), 'utf8');
+    assert.match(page, /listCustomerConversations/);
+    assert.match(page, /projectManualConversation/);
+    assert.match(page, /durableRows\.length === 0/);
+    assert.match(page, /ownerDemoConversationFixtures/);
+    // JSON fixtures only when durable list is empty — never merge alongside durable rows.
+    assert.match(
+      page,
+      /dataMode === 'demo' && organizationId && durableRows\.length === 0/,
+    );
+  });
 });

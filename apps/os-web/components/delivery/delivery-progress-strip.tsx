@@ -6,7 +6,7 @@ type DeliveryProgressStripProps = {
   className?: string;
 };
 
-/** Compact Pedido ✓ · Nota ○ · Salida ○ · Entrega ○ indicator. */
+/** Compact Pedido ✓ · Nota ○ · Salida ○ · Entrega ○ — green confirmed, slate pending. */
 export function DeliveryProgressStrip({ steps, className }: DeliveryProgressStripProps) {
   return (
     <ol
@@ -17,11 +17,13 @@ export function DeliveryProgressStrip({ steps, className }: DeliveryProgressStri
         const done = step.mark === 'done';
         return (
           <li key={step.id} className="flex items-center gap-1.5">
-            {index > 0 ? <span aria-hidden className="text-[var(--isalwa-slate)]">·</span> : null}
+            {index > 0 ? <span aria-hidden className="text-[var(--isalwa-mist)]">·</span> : null}
             <span
               className={cx(
-                'inline-flex items-center gap-1 font-medium',
-                done ? 'text-[var(--isalwa-kiln)]' : 'text-[var(--isalwa-slate)]',
+                'inline-flex items-center gap-1 rounded-[var(--isalwa-radius-control)] border px-2 py-1 font-medium',
+                done
+                  ? 'border-[color-mix(in_srgb,var(--isalwa-success)_28%,var(--isalwa-mist))] bg-[var(--isalwa-tint-green)] text-[var(--isalwa-tint-green-ink)]'
+                  : 'border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-mist)_35%,white)] text-[var(--isalwa-slate)]',
               )}
             >
               <span aria-hidden>{done ? '✓' : '○'}</span>

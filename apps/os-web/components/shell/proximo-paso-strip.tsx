@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { cx, StatusPill } from '@isalwa/ui';
 
-const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
+const linkClass =
+  'text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline';
 
 export type ProximoPasoStripProps = {
   /** Heading label — caller supplies registered vs empty copy. */
@@ -19,6 +21,7 @@ export type ProximoPasoStripProps = {
 
 /**
  * Reusable PRÓXIMO PASO / siguiente paso strip shell.
+ * Sky context band by default; amber attention when overdue.
  * Accepts only deterministic props — does not invent actions.
  */
 export function ProximoPasoStrip({
@@ -33,24 +36,39 @@ export function ProximoPasoStrip({
 }: ProximoPasoStripProps) {
   return (
     <div
-      className={
-        className ??
-        'rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-context)] px-3 py-2 text-sm text-[var(--isalwa-kiln)]'
-      }
-      data-tour={dataTour}
-    >
-      <span className="font-medium">{heading}</span>
-      {' · '}
-      {href ? (
-        <Link href={href} className={linkClass}>
-          {text}
-        </Link>
-      ) : (
-        <span>{text}</span>
+      className={cx(
+        'rounded-[var(--isalwa-radius-panel)] border px-4 py-3 shadow-[var(--isalwa-shadow-soft)]',
+        overdue
+          ? 'border-[var(--isalwa-tint-amber-border)] bg-[var(--isalwa-surface-attention)]'
+          : 'border-[color-mix(in_srgb,var(--isalwa-sky-200)_80%,var(--isalwa-mist))] bg-[var(--isalwa-surface-context)]',
+        className,
       )}
-      {dueText ? <span className="text-[var(--isalwa-slate)]"> · {dueText}</span> : null}
-      {overdue ? <span className="text-[var(--isalwa-danger)]"> · Vencido</span> : null}
-      {trailing ? <> · {trailing}</> : null}
+      data-tour={dataTour}
+      role="status"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="isalwa-section-label">{heading}</p>
+        {overdue ? <StatusPill tone="danger">Vencido</StatusPill> : null}
+        {!overdue && dueText ? <StatusPill tone="warning">Pendiente</StatusPill> : null}
+      </div>
+      <p className="mt-1.5 font-[family-name:var(--isalwa-font-display)] text-base italic leading-snug text-[var(--isalwa-kiln)] md:text-lg">
+        {href ? (
+          <Link href={href} className="text-[var(--isalwa-kiln)] underline-offset-4 hover:underline">
+            {text}
+          </Link>
+        ) : (
+          text
+        )}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--isalwa-slate)]">
+        {dueText ? <span>{dueText}</span> : null}
+        {trailing ? <span className="text-[var(--isalwa-kiln)]">{trailing}</span> : null}
+        {href ? (
+          <Link href={href} className={linkClass}>
+            Abrir
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }

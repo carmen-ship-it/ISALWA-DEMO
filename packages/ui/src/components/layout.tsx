@@ -121,7 +121,7 @@ export function ActionBar({ children, className, sticky, ...rest }: ActionBarPro
       className={cx(
         'flex flex-wrap items-center justify-between gap-3',
         sticky &&
-          'sticky top-0 z-20 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_90%,white)] px-4 py-3 backdrop-blur-md md:px-6',
+          'sticky top-0 z-20 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-surface-ops,var(--isalwa-white))_92%,transparent)] px-4 py-3 shadow-[var(--isalwa-glass-light-edge)] backdrop-blur-md md:px-6',
         className,
       )}
       {...rest}

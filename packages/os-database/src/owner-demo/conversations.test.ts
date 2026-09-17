@@ -1,23 +1,60 @@
 /**
- * Owner-demo durable conversation admission (no DB).
+ * Owner-demo durable conversation admission + seed plan (no DB).
  */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { OWNER_DEMO_CLIENTS, OWNER_DEMO_CONVERSATIONS } from './catalog';
 import { OWNER_DEMO_SYNTH_ORG } from './guards';
 import {
   admitOwnerDemoConversation,
   buildOwnerDemoConversationInput,
+  OWNER_DEMO_CONVERSATION_OCCURRED_AT,
+  OWNER_DEMO_CONVERSATION_SEED_COUNT,
   ownerDemoConversationCreateData,
   ownerDemoConversationNaturalKey,
-  OWNER_DEMO_CONVERSATION_OCCURRED_AT,
+  planOwnerDemoConversationSeeds,
 } from './conversations';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 describe('owner-demo durable conversations', () => {
   it('defines a natural key per DEMO client', () => {
     assert.equal(
       ownerDemoConversationNaturalKey('constructora_andina'),
       'owner-demo-conversation:constructora_andina',
+    );
+  });
+
+  it('plans exactly five OsCustomerConversation rows for all required DEMO clients', () => {
+    const plan = planOwnerDemoConversationSeeds();
+    assert.equal(plan.length, OWNER_DEMO_CONVERSATION_SEED_COUNT);
+    assert.equal(OWNER_DEMO_CLIENTS.length, OWNER_DEMO_CONVERSATION_SEED_COUNT);
+    assert.equal(OWNER_DEMO_CONVERSATIONS.length, OWNER_DEMO_CONVERSATION_SEED_COUNT);
+
+    const requiredNames = [
+      'MADERAS ORIENTE',
+      'CONSTRUCTORA ANDINA',
+      'PROYECTOS DEL SUR',
+      'HOTEL CENTRAL',
+      'FERRETERÍA NORTE',
+    ];
+    for (const name of requiredNames) {
+      assert.ok(
+        plan.some((row) => row.displayName.includes(name)),
+        `missing plan row for ${name}`,
+      );
+    }
+
+    assert.deepEqual(
+      plan.map((r) => r.clientKey),
+      OWNER_DEMO_CLIENTS.map((c) => c.key),
+    );
+    assert.deepEqual(
+      plan.map((r) => r.conversationId),
+      OWNER_DEMO_CLIENTS.map((c) => ownerDemoConversationNaturalKey(c.key)),
     );
   });
 
@@ -70,5 +107,16 @@ describe('owner-demo durable conversations', () => {
       links: { opportunityId: 'o', quoteId: 'q', orderId: 'ord' },
     });
     assert.equal(input.channel, 'manual');
+  });
+
+  it('owner-demo seed upserts one conversation per client and fails if incomplete', () => {
+    const seedSrc = readFileSync(join(here, 'seed.ts'), 'utf8');
+    assert.match(seedSrc, /ensureOwnerDemoConversation/);
+    assert.match(seedSrc, /planOwnerDemoConversationSeeds/);
+    assert.match(seedSrc, /OWNER_DEMO_CONVERSATION_SEED_COUNT/);
+    assert.match(seedSrc, /OWNER_DEMO_CONVERSATION_SEED_INCOMPLETE/);
+    assert.match(seedSrc, /osCustomerConversation\.create/);
+    assert.match(seedSrc, /conversationId/);
+    assert.match(seedSrc, /OWNER_DEMO_CONVERSATIONS_SEEDED/);
   });
 });

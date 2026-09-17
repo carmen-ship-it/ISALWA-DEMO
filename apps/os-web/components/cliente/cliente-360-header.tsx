@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ActionBar } from '@isalwa/ui';
 import { PartyStatusBadge } from '@/components/party/party-role-badges';
 import { ProximoPasoStrip } from '@/components/shell/proximo-paso-strip';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
@@ -13,7 +14,8 @@ import type { ReportIssueContext } from '@/lib/issue/types';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { actionPrimaryClass, actionSecondaryClass } from '@/lib/ui/action-hierarchy';
 
-const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
+const helpLinkClass =
+  'text-sm font-medium text-[var(--isalwa-info)] underline-offset-4 hover:underline';
 
 export type Cliente360HeaderProps = {
   partyId: string;
@@ -64,9 +66,10 @@ export function Cliente360Header({
   const locationSummary = composition.location.summary;
 
   const facts = [
-    phone ? `📞 ${phone}` : null,
-    contactName ? `👤 ${contactName}` : null,
-    locationSummary ? `📍 ${locationSummary}` : null,
+    phone ? phone : null,
+    contactName ? contactName : null,
+    locationSummary ? locationSummary : null,
+    ownerLabel ? `Resp. ${ownerLabel}` : null,
   ].filter((fact): fact is string => Boolean(fact));
 
   const menuProps = {
@@ -90,14 +93,19 @@ export function Cliente360Header({
 
   return (
     <div className="flex flex-col gap-3 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <div className="min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-medium text-[var(--isalwa-kiln)]">{displayName}</p>
+      <ActionBar className="items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="isalwa-kicker">Cliente</p>
+          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="isalwa-page-title truncate text-[clamp(1.35rem,2.2vw,1.75rem)]">
+              {displayName}
+            </h2>
             <PartyStatusBadge status={status} />
           </div>
           {facts.length > 0 ? (
-            <p className="mt-1 break-words text-xs leading-4 text-[var(--isalwa-slate)]">{facts.join(' · ')}</p>
+            <p className="mt-1.5 break-words text-xs leading-relaxed text-[var(--isalwa-slate)]">
+              {facts.join(' · ')}
+            </p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -109,7 +117,7 @@ export function Cliente360Header({
           </Link>
           <Cliente360ActionsMenu {...menuProps} />
         </div>
-      </div>
+      </ActionBar>
 
       <ProximoPasoStrip
         heading={next.isRegisteredAction ? CLIENTE360_UX_COPY.nextActionHeading : FOLLOW_UP_COPY.nextAction}
@@ -122,7 +130,7 @@ export function Cliente360Header({
           !next.isRegisteredAction ? (
             <button
               type="button"
-              className={linkClass}
+              className={helpLinkClass}
               onClick={() => {
                 document.dispatchEvent(new CustomEvent('cliente360:open-drawer', { detail: { kind: 'follow_up' } }));
               }}

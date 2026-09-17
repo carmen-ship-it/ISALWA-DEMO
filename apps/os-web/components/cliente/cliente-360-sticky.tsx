@@ -5,12 +5,15 @@ type Cliente360StickyProps = {
 };
 
 /**
- * Keeps customer identity, primary actions, and section nav visible while scrolling Cliente 360.
- * Sits under the shell header (top-14).
+ * White ops command chrome on porcelain canvas — identity, next step, tabs.
+ * Sits under the shell header (top-14). Porcelain stays page canvas only.
  */
 export function Cliente360Sticky({ children }: Cliente360StickyProps) {
   return (
-    <div className="sticky top-14 z-20 -mx-1 mb-8 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_94%,white)] px-3 shadow-[var(--isalwa-shadow-soft)] backdrop-blur-md md:px-4">
+    <div
+      id="cliente360-command"
+      className="sticky top-14 z-20 -mx-1 mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-surface-ops)_92%,transparent)] px-3 shadow-[var(--isalwa-shadow-card-resting)] backdrop-blur-md md:mb-5 md:px-4"
+    >
       {children}
     </div>
   );
