@@ -21,6 +21,20 @@ import { commitmentStateLabel } from '@/lib/commitments/copy';
 import type { CommitmentState } from '@isalwa/os-contracts';
 import type { IssueStatus } from '@/lib/issue/types';
 
+export const PALETTE_SEARCH_PLACEHOLDER =
+  'Buscar clientes, cotizaciones, pedidos, documentos…';
+
+/** Entity groups shown in ⌘K before the user types (search contract). */
+export const PALETTE_ENTITY_GROUP_LABELS = [
+  'Clientes',
+  'Cotizaciones',
+  'Pedidos',
+  'Notas',
+  'Documentos',
+  'Incidencias',
+  'Compromisos',
+] as const;
+
 export const PALETTE_MIN_QUERY = 2;
 export const PALETTE_GROUP_LIMIT = 6;
 export const RECENTS_LIMIT = 6;

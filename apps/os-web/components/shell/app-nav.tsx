@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   AlertCircle,
   Briefcase,
@@ -15,15 +15,11 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
+import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { cx } from '@isalwa/ui';
-import {
-  filterNavByAccess,
-  groupNavItems,
-  HIDDEN_PRIMARY_NAV_IDS,
-  isNavItemDisabled,
-  PRIMARY_NAV,
-  type NavItem,
-} from '@/lib/navigation/nav-config';
+import { useRolePreview } from '@/components/shell/role-preview-provider';
+import { resolveShellNavSections } from '@/lib/capabilities/resolve-nav';
+import { navItemLabel, type NavItem } from '@/lib/navigation/nav-config';
 import { navIconTone, navIconToneActive } from '@/lib/navigation/nav-icon-tone';
 import {
   labelForNavItem,
@@ -51,13 +47,21 @@ type AppNavProps = {
   showAdmin: boolean;
   /** Trusted scopes for display labeling only — never used to hide nav. */
   grantedScopes?: readonly string[];
-  /** Kept for shell API stability; future capability nav is intentionally not rendered. */
-  capabilities?: unknown;
+  capabilities?: CapabilityStateReadModel[];
   mobile?: boolean;
   /** Desktop icon-rail mode — labels become tooltips. */
   collapsed?: boolean;
   onNavigate?: () => void;
 };
+
+function navHrefActive(pathname: string, search: string, href: string): boolean {
+  const [path, query] = href.split('?');
+  if (query) {
+    const normalized = search.startsWith('?') ? search.slice(1) : search;
+    return pathname === path && normalized === query;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 function NavLink({
   item,
@@ -65,6 +69,7 @@ function NavLink({
   label,
   emphasized,
   collapsed,
+  locked,
   onNavigate,
 }: {
   item: NavItem;
@@ -72,6 +77,7 @@ function NavLink({
   label: string;
   emphasized: boolean;
   collapsed?: boolean;
+  locked?: boolean;
   onNavigate?: () => void;
 }) {
   const Icon = ICONS[item.icon];
@@ -80,6 +86,7 @@ function NavLink({
   const className = cx(
     'isalwa-t-fast group relative flex items-center rounded-[var(--isalwa-radius-control)] text-sm outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
     collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-3',
+    locked ? 'cursor-not-allowed opacity-70' : '',
     active
       ? cx(
           'border-l-[3px] border-l-[var(--isalwa-glaze)] font-semibold text-[var(--isalwa-kiln)]',
@@ -90,6 +97,24 @@ function NavLink({
         ? 'font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-white)]'
         : 'font-normal text-[var(--isalwa-slate)] hover:bg-[var(--isalwa-white)] hover:text-[var(--isalwa-kiln)]',
   );
+
+  if (locked) {
+    return (
+      <span className={className} aria-disabled="true" title={`${label} · Próximamente`}>
+        <span
+          aria-hidden
+          className={cx(
+            'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)]',
+            tone.chip,
+            tone.ink,
+          )}
+        >
+          <Icon size={18} strokeWidth={1.5} />
+        </span>
+        {collapsed ? null : <span className="min-w-0 flex-1 truncate">{label}</span>}
+      </span>
+    );
+  }
 
   return (
     <Link
@@ -126,22 +151,21 @@ function NavLink({
   );
 }
 
-const HIDDEN_NAV_IDS = new Set<string>(HIDDEN_PRIMARY_NAV_IDS);
-
 export function AppNav({
   showAdmin,
   grantedScopes = [],
+  capabilities = [],
   mobile,
   collapsed = false,
   onNavigate,
 }: AppNavProps) {
   const pathname = usePathname();
-  const presentation: RoleNavPresentation = roleNavPresentation(grantedScopes);
+  const searchParams = useSearchParams();
+  const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  const { presentationScopes } = useRolePreview();
+  const presentation: RoleNavPresentation = roleNavPresentation(presentationScopes);
   const emphasized = new Set(presentation.emphasizedIds);
-  const items = filterNavByAccess(PRIMARY_NAV, { showAdmin }).filter(
-    (item) => !HIDDEN_NAV_IDS.has(item.id) && !isNavItemDisabled(item) && Boolean(item.href),
-  );
-  const sections = groupNavItems(items);
+  const sections = resolveShellNavSections({ showAdmin }, capabilities);
 
   return (
     <nav
@@ -154,13 +178,13 @@ export function AppNav({
       ) : null}
       {sections.map((section) => (
         <div key={section.group} className="flex flex-col gap-1">
-          {section.label && !collapsed ? (
+          {!collapsed ? (
             <p className="px-3.5 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
               {section.label}
             </p>
           ) : null}
           {section.items.map((item) => {
-            const defaultLabel = t(item.labelKey);
+            const defaultLabel = navItemLabel(item, t);
             const label = labelForNavItem(item.id, defaultLabel, presentation);
             return (
               <NavLink
@@ -168,8 +192,9 @@ export function AppNav({
                 item={item}
                 label={label}
                 emphasized={emphasized.has(item.id)}
+                locked={item.state === 'locked'}
                 collapsed={collapsed && !mobile}
-                active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                active={navHrefActive(pathname, search, item.href)}
                 onNavigate={onNavigate}
               />
             );

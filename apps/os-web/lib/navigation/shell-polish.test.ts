@@ -65,21 +65,24 @@ describe('role-aware nav labeling (no authority change)', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
       'clientes',
-      'mapa',
       'oportunidades',
       'cotizaciones',
+      'pedidos',
+      'mapa',
       'trabajo',
-      'productos',
+      'aprobaciones',
+      'incidencias',
+      'compromisos',
       'produccion',
       'almacen',
       'compras',
-      'finanzas',
       'entregas',
-      'coordinacion',
-      'aprobaciones',
-      'memoria-decisiones',
+      'finanzas',
       'salud-datos',
-      'incidencias',
+      'productos',
+      'coordinacion',
+      'memoria-decisiones',
+      'ayuda',
     ]);
   });
 
@@ -116,7 +119,7 @@ describe('nav hierarchy groups', () => {
     const sections = groupNavItems(visible);
     assert.deepEqual(
       sections.map((s) => s.group),
-      ['principal', 'comercial', 'operaciones', 'decisiones', 'admin'],
+      ['inicio', 'comercial', 'trabajo', 'operaciones', 'control', 'mas'],
     );
     assert.equal(sections.find((s) => s.group === 'comercial')?.label, 'Comercial');
     assert.equal(sections.find((s) => s.group === 'operaciones')?.label, 'Operaciones');
@@ -125,23 +128,26 @@ describe('nav hierarchy groups', () => {
       [
         'inicio',
         'clientes',
-        'mapa',
         'oportunidades',
         'cotizaciones',
+        'pedidos',
+        'mapa',
         'trabajo',
-        'salud-datos',
-        'productos',
+        'aprobaciones',
+        'incidencias',
+        'compromisos',
         'produccion',
         'almacen',
         'compras',
-        'finanzas',
         'entregas',
-        'coordinacion',
-        'aprobaciones',
-        'memoria-decisiones',
-        'incidencias',
+        'finanzas',
+        'salud-datos',
         'auditoria',
+        'productos',
+        'coordinacion',
+        'memoria-decisiones',
         'administracion',
+        'ayuda',
       ],
     );
     assert.deepEqual(

@@ -54,7 +54,6 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { reportIssueContextFromParty } from '@/lib/issue/report-context';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { AiAssistShell } from '@/components/ai/ai-assist-shell';
-import { isAiEnabled } from '@/lib/ai/limits';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -442,7 +441,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
                 subjectType="party"
                 subjectId={partyId}
                 surface="commitment"
-                aiEnabled={isAiEnabled()}
                 promptLabel="Preguntar sobre compromisos"
               />
             </div>
@@ -474,7 +472,6 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
             subjectType="party"
             subjectId={partyId}
             surface="cliente360"
-            aiEnabled={isAiEnabled()}
             promptLabel="Preguntar sobre este cliente"
           />
         </div>

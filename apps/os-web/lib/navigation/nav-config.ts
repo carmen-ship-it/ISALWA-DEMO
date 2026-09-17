@@ -10,28 +10,32 @@ export type NavItemState = 'active' | 'locked' | 'future';
 export type NavAccessClass = 'VISIBLE+ACTIVE' | 'READ-ONLY' | 'HIDDEN' | 'FUTURE';
 
 /** Visual grouping only — does not authorize or hide destinations. */
-export type NavGroup = 'principal' | 'comercial' | 'operaciones' | 'decisiones' | 'admin';
+export type NavGroup = 'inicio' | 'comercial' | 'trabajo' | 'operaciones' | 'control' | 'mas';
 
-export const NAV_GROUP_LABEL: Record<NavGroup, string | null> = {
-  principal: null,
+export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
+  inicio: 'Inicio',
   comercial: 'Comercial',
+  trabajo: 'Trabajo',
   operaciones: 'Operaciones',
-  decisiones: 'Decisiones',
-  admin: null,
+  control: 'Control',
+  mas: 'Más',
 };
 
 export const NAV_GROUP_ORDER: readonly NavGroup[] = [
-  'principal',
+  'inicio',
   'comercial',
+  'trabajo',
   'operaciones',
-  'decisiones',
-  'admin',
+  'control',
+  'mas',
 ];
 
 export type NavItem = {
   id: string;
   href: string;
   labelKey: string;
+  /** Shell label when i18n key is absent or product copy differs from nav.inicio keys. */
+  shellLabel?: string;
   icon:
     | 'home'
     | 'users'
@@ -54,10 +58,12 @@ export type NavItem = {
    */
   accessClass: NavAccessClass;
   /** Display section in the shell. Never used as an authority gate. */
-  group?: NavGroup;
+  group: NavGroup;
+  /** Product capability key for lifecycle badges — does not hide ops desks. */
+  capabilityKey?: string;
 };
 
-/** Commercial-first production IA — employee vocabulary. */
+/** Executive UX IA — employee vocabulary; order within array defines order inside each group. */
 export const PRIMARY_NAV: NavItem[] = [
   {
     id: 'inicio',
@@ -65,21 +71,13 @@ export const PRIMARY_NAV: NavItem[] = [
     labelKey: 'nav.inicio',
     icon: 'home',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'principal',
+    group: 'inicio',
   },
   {
     id: 'clientes',
     href: '/clientes',
     labelKey: 'nav.clientes',
     icon: 'users',
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'comercial',
-  },
-  {
-    id: 'mapa',
-    href: '/mapa',
-    labelKey: 'nav.mapa',
-    icon: 'map',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'comercial',
   },
@@ -100,27 +98,61 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'comercial',
   },
   {
-    id: 'trabajo',
-    href: '/trabajo',
-    labelKey: 'nav.trabajo',
-    icon: 'briefcase',
+    id: 'pedidos',
+    href: '/cotizaciones?status=accepted',
+    labelKey: 'nav.pedidos',
+    shellLabel: 'Pedidos',
+    icon: 'fileText',
     accessClass: 'VISIBLE+ACTIVE',
     group: 'comercial',
   },
   {
-    id: 'productos',
-    href: '/productos',
-    labelKey: 'nav.productos',
-    icon: 'fileText',
+    id: 'mapa',
+    href: '/mapa',
+    labelKey: 'nav.mapa',
+    icon: 'map',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'operaciones',
+    group: 'comercial',
+  },
+  {
+    id: 'trabajo',
+    href: '/trabajo',
+    labelKey: 'nav.trabajo',
+    shellLabel: 'Mi trabajo',
+    icon: 'briefcase',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
+  },
+  {
+    id: 'aprobaciones',
+    href: '/aprobaciones',
+    labelKey: 'nav.aprobaciones',
+    icon: 'check',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
+  },
+  {
+    id: 'incidencias',
+    href: '/incidencias',
+    labelKey: 'nav.incidencias',
+    icon: 'alertCircle',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
+  },
+  {
+    id: 'compromisos',
+    href: '/inicio',
+    labelKey: 'nav.compromisos',
+    shellLabel: 'Compromisos',
+    icon: 'check',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
   },
   {
     id: 'produccion',
     href: '/produccion',
     labelKey: 'nav.produccion',
     icon: 'briefcase',
-    // Desk stays visible; write/record authority is enforced inside the page.
     accessClass: 'VISIBLE+ACTIVE',
     group: 'operaciones',
   },
@@ -141,16 +173,6 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'operaciones',
   },
   {
-    id: 'finanzas',
-    href: '/finanzas',
-    labelKey: 'nav.finanzas',
-    icon: 'wallet',
-    // Operational desk gated by finance.operational.record inside the page.
-    // Product capability finance stays LOCKED (no official ledger).
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'operaciones',
-  },
-  {
     id: 'entregas',
     href: '/entregas',
     labelKey: 'nav.entregas',
@@ -159,28 +181,12 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'operaciones',
   },
   {
-    id: 'coordinacion',
-    href: '/coordinacion',
-    labelKey: 'nav.coordinacion',
-    icon: 'check',
+    id: 'finanzas',
+    href: '/finanzas',
+    labelKey: 'nav.finanzas',
+    icon: 'wallet',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'decisiones',
-  },
-  {
-    id: 'aprobaciones',
-    href: '/aprobaciones',
-    labelKey: 'nav.aprobaciones',
-    icon: 'check',
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'decisiones',
-  },
-  {
-    id: 'memoria-decisiones',
-    href: '/memoria-decisiones',
-    labelKey: 'nav.memoriaDecisiones',
-    icon: 'fileText',
-    accessClass: 'VISIBLE+ACTIVE',
-    group: 'decisiones',
+    group: 'control',
   },
   {
     id: 'salud-datos',
@@ -188,7 +194,7 @@ export const PRIMARY_NAV: NavItem[] = [
     labelKey: 'nav.saludDatos',
     icon: 'alertCircle',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'comercial',
+    group: 'control',
   },
   {
     id: 'auditoria',
@@ -197,15 +203,31 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: 'settings',
     requiresAdminProbe: true,
     accessClass: 'HIDDEN',
-    group: 'admin',
+    group: 'control',
   },
   {
-    id: 'incidencias',
-    href: '/incidencias',
-    labelKey: 'nav.incidencias',
-    icon: 'alertCircle',
+    id: 'productos',
+    href: '/productos',
+    labelKey: 'nav.productos',
+    icon: 'fileText',
     accessClass: 'VISIBLE+ACTIVE',
-    group: 'decisiones',
+    group: 'mas',
+  },
+  {
+    id: 'coordinacion',
+    href: '/coordinacion',
+    labelKey: 'nav.coordinacion',
+    icon: 'check',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'mas',
+  },
+  {
+    id: 'memoria-decisiones',
+    href: '/memoria-decisiones',
+    labelKey: 'nav.memoriaDecisiones',
+    icon: 'fileText',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'mas',
   },
   {
     id: 'administracion',
@@ -213,9 +235,17 @@ export const PRIMARY_NAV: NavItem[] = [
     labelKey: 'nav.administracion',
     icon: 'settings',
     requiresAdminProbe: true,
-    // people.admin only. system.admin Controles del sistema uses /sistema, not this link.
     accessClass: 'HIDDEN',
-    group: 'admin',
+    group: 'mas',
+  },
+  {
+    id: 'ayuda',
+    href: '/ayuda',
+    labelKey: 'nav.ayuda',
+    shellLabel: 'Ayuda',
+    icon: 'message',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'mas',
   },
 ];
 
@@ -232,7 +262,8 @@ export const FUTURE_NAV: NavItem[] = [
     icon: 'message',
     state: 'locked',
     accessClass: 'FUTURE',
-    group: 'operaciones',
+    group: 'mas',
+    capabilityKey: 'messaging',
   },
 ];
 
@@ -267,17 +298,24 @@ export function classifyNavItem(item: NavItem, access: { showAdmin: boolean }): 
   return item.accessClass;
 }
 
+export function navItemLabel(item: NavItem, translate: (key: string) => string): string {
+  if (item.shellLabel) return item.shellLabel;
+  const translated = translate(item.labelKey);
+  return translated === item.labelKey && item.labelKey.startsWith('nav.')
+    ? item.labelKey.slice('nav.'.length)
+    : translated;
+}
+
 /** Group visible items for shell hierarchy. Order within each group matches PRIMARY_NAV. */
 export function groupNavItems(items: readonly NavItem[]): Array<{
   group: NavGroup;
-  label: string | null;
+  label: string;
   items: NavItem[];
 }> {
   const buckets = new Map<NavGroup, NavItem[]>();
   for (const group of NAV_GROUP_ORDER) buckets.set(group, []);
   for (const item of items) {
-    const group = item.group ?? 'principal';
-    const list = buckets.get(group) ?? buckets.get('principal')!;
+    const list = buckets.get(item.group) ?? buckets.get('inicio')!;
     list.push(item);
   }
   return NAV_GROUP_ORDER.map((group) => ({

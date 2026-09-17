@@ -12,6 +12,11 @@ import { WalkthroughShell } from '@/components/walkthrough/walkthrough-shell';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/command-palette';
 import { UserMenu } from '@/components/shell/user-menu';
+import { RolePreviewProvider } from '@/components/shell/role-preview-provider';
+import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
+import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
+import { RolePreviewMenu } from '@/components/shell/role-preview-menu';
+import { canUseRolePreview } from '@/lib/role-preview/access';
 import { signOutAction } from '@/lib/auth/actions';
 import { t } from '@/lib/i18n/es';
 import { loadUiPreferences, saveUiPreferences } from '@/lib/shell/ui-preferences';
@@ -140,8 +145,10 @@ export function AppShell({
 
   const actorLabel = givenName ?? displayLabel;
   const railCollapsed = prefsReady && sidebarCollapsed;
+  const showRolePreview = canUseRolePreview(grantedScopes);
 
   return (
+    <RolePreviewProvider actorKey={actorKey} grantedScopes={grantedScopes}>
     <ShellIdentityContext.Provider value={givenName}>
       <div
         className={cx(
@@ -252,10 +259,13 @@ export function AppShell({
                   setPaletteOpen(true);
                 }}
               />
+              <RolePreviewDesktopControl grantedScopes={grantedScopes} />
               {notificationSlot}
               <UserMenu displayLabel={actorLabel} />
             </div>
           </header>
+
+          <RolePreviewBanner />
 
           <ShellBreadcrumbs />
 
@@ -314,6 +324,11 @@ export function AppShell({
                   mobile
                   onNavigate={() => setMobileOpen(false)}
                 />
+                {showRolePreview ? (
+                  <div className="border-t border-[var(--isalwa-mist)] px-4 py-3">
+                    <RolePreviewMenu onSelect={() => setMobileOpen(false)} />
+                  </div>
+                ) : null}
                 <div className="mt-auto border-t border-[var(--isalwa-mist)] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                   <button
                     type="button"
@@ -338,5 +353,6 @@ export function AppShell({
         </div>
       </div>
     </ShellIdentityContext.Provider>
+    </RolePreviewProvider>
   );
 }
