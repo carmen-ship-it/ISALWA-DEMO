@@ -244,6 +244,7 @@ describe('finance operational desk access', () => {
 
     assert.match(page, /resolveFinancePageAccess/);
     assert.match(page, /FinanceOperationalDesk/);
+    assert.match(page, /FinanceDisclaimer/);
     assert.match(page, /loadFinanceSubjectOptions/);
     assert.match(desk, /SearchableSelect/);
     assert.match(desk, /ServerPartyTypeahead/);

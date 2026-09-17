@@ -3,6 +3,10 @@ import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusP
 import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-operational-write-desk';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
 import {
+  EntregaSummaryStrip,
+  countDeliveriesToday,
+} from '@/components/delivery/entrega-summary-strip';
+import {
   OWNER_REVIEW_V1_COPY,
   V1FlowValidateNotice,
 } from '@/components/owner-review/v1-flow-validate-notice';
@@ -52,6 +56,11 @@ export default async function EntregasPage({
           <EventWorkOfferPanel offer={deliveryOffer} />
         </div>
       ) : null}
+      <EntregaSummaryStrip
+        warehouseExitCount={view.warehouseExits.length}
+        deliveryCount={view.deliveries.length}
+        deliveriesToday={countDeliveriesToday(view.deliveries.map((row) => row.deliveredAt))}
+      />
       <EntregaOperationalWriteDesk selectedOrderId={params?.orderId ?? null} />
       <LinkedOrdersSection orders={view.linkedOrders} />
       <EntregaPanel
@@ -65,7 +74,7 @@ export default async function EntregasPage({
 
 function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
   return (
-    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedidos vinculados">
+    <PageSection card className="mb-6 p-5 md:p-6" aria-label="Pedidos vinculados">
       <SectionHeader
         kicker="Pedido"
         title={

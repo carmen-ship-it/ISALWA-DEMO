@@ -1,4 +1,5 @@
-import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { PageContainer, StatusPill } from '@isalwa/ui';
+import { FinanceDisclaimer } from '@/components/finance/finance-disclaimer';
 import { FinanceOperationalDesk } from '@/components/finance/finance-operational-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { OsApiError } from '@/lib/api/os-api-errors';
@@ -77,18 +78,7 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
         description={FINANCE_DESK_COPY.intro}
         action={<StatusPill tone="manual">Dato manual</StatusPill>}
       />
-      <PageSection
-        card
-        className="mb-6 border-[color-mix(in_srgb,var(--isalwa-glaze)_10%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_50%,white)] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5"
-      >
-        <div className="flex flex-wrap gap-2">
-          <StatusPill tone="manual">Registro manual</StatusPill>
-          <StatusPill tone="neutral">No es contabilidad oficial</StatusPill>
-        </div>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {FINANCE_DESK_COPY.boundaryConfirm} {FINANCE_DESK_COPY.boundaryManual}
-        </p>
-      </PageSection>
+      <FinanceDisclaimer />
       {access.status === 'ready' ? (
         <FinanceOperationalDesk
           status="ready"

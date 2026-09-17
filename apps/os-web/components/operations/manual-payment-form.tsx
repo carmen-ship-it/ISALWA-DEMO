@@ -17,10 +17,25 @@ type ManualPaymentFormProps = ManualOperationSubject & {
   onRecorded: (result: ReportedFactWriteResult) => void;
 };
 
+function defaultReportedDate(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+function reportedAtFromDateInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return new Date().toISOString();
+  const parsed = new Date(`${trimmed}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString();
+  return parsed.toISOString();
+}
+
 export function ManualPaymentForm(props: ManualPaymentFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('');
+  const [reportedDate, setReportedDate] = useState(defaultReportedDate);
   const [note, setNote] = useState('');
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,7 +46,7 @@ export function ManualPaymentForm(props: ManualPaymentFormProps) {
         organizationId: props.organizationId,
         subjectType: props.subjectType,
         subjectId: props.subjectId,
-        reportedAt: new Date().toISOString(),
+        reportedAt: reportedAtFromDateInput(reportedDate),
         reportedByLabel: props.reportedByLabel,
         kind: 'payment',
         amountCentavos: parseReportedAmountToCentavos(amount),
@@ -42,6 +57,7 @@ export function ManualPaymentForm(props: ManualPaymentFormProps) {
       setError(null);
       setAmount('');
       setMethod('');
+      setReportedDate(defaultReportedDate());
       setNote('');
       props.onRecorded(recorded);
     } catch (caught) {
@@ -50,15 +66,13 @@ export function ManualPaymentForm(props: ManualPaymentFormProps) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 border-t border-[var(--isalwa-mist)] pt-4">
+    <form onSubmit={submit} className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{MANUAL_PAYMENT_COPY.title}</h3>
         <StatusPill tone="manual">Dato manual</StatusPill>
         <StatusPill tone="warning">Pendiente de confirmar</StatusPill>
       </div>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{subjectLine(props)}</p>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_PAYMENT_COPY.intro}</p>
-      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_PAYMENT_COPY.boundary}</p>
       <FormFeedback error={error} />
       <div>
         <label htmlFor="manual-payment-amount" className="isalwa-section-label">
@@ -86,6 +100,20 @@ export function ManualPaymentForm(props: ManualPaymentFormProps) {
           onChange={(event) => setMethod(event.target.value)}
           className={fieldClass}
           autoComplete="off"
+        />
+      </div>
+      <div>
+        <label htmlFor="manual-payment-date" className="isalwa-section-label">
+          {MANUAL_PAYMENT_COPY.date}
+        </label>
+        <input
+          id="manual-payment-date"
+          name="reportedDate"
+          type="date"
+          required
+          value={reportedDate}
+          onChange={(event) => setReportedDate(event.target.value)}
+          className={fieldClass}
         />
       </div>
       <div>

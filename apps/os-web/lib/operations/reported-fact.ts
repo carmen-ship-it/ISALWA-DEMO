@@ -372,12 +372,13 @@ export const PROVENANCE_LIMITS = [
 ] as const;
 
 export const MANUAL_PAYMENT_COPY = {
-  title: 'Pago reportado',
-  intro: 'Anote el monto que alguien informa. No confirma el pago y no entra a cobranza.',
-  amount: 'Monto reportado (Bs.)',
-  method: 'Medio reportado',
+  title: 'Registrar pago reportado',
+  intro: 'Anote lo que alguien informó. Queda pendiente de confirmar.',
+  amount: 'Monto',
+  method: 'Medio',
+  date: 'Fecha',
   note: 'Nota',
-  submit: 'Anotar pago reportado',
+  submit: 'Registrar pago reportado',
   boundary: PAYMENT_BOUNDARY,
 } as const;
 

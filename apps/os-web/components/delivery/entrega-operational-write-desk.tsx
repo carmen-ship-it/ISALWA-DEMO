@@ -34,7 +34,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       return (
-        <PageSection card className="mb-6 p-6 md:p-8" aria-label="Registro operativo">
+        <PageSection card className="mb-6 p-5 md:p-6" aria-label="Registro operativo">
           <p className="text-sm text-[var(--isalwa-slate)]">
             No tienes permiso para registrar notas, salidas o entregas en esta empresa.
           </p>
@@ -42,7 +42,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
       );
     }
     return (
-      <PageSection card className="mb-6 p-6 md:p-8" aria-label="Registro operativo">
+      <PageSection card className="mb-6 p-5 md:p-6" aria-label="Registro operativo">
         <p className="text-sm text-[var(--isalwa-slate)]">
           No se pudieron cargar los pedidos para registro operativo. Intente de nuevo.
         </p>
@@ -52,7 +52,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
 
   if (orders.length === 0) {
     return (
-      <PageSection card className="mb-6 p-6 md:p-8" aria-label="Registro operativo">
+      <PageSection card className="mb-6 p-5 md:p-6" aria-label="Registro operativo">
         <SectionHeader
           kicker="Operación"
           title={
@@ -132,7 +132,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
 
   return (
     <div className="mb-6" data-entrega-ops-desk="1">
-      <PageSection card className="mb-4 p-6 md:p-8" aria-label="Pedidos disponibles para registrar">
+      <PageSection card className="mb-4 p-5 md:p-6" aria-label="Pedidos disponibles para registrar">
         <SectionHeader
           kicker="Operación"
           title={
