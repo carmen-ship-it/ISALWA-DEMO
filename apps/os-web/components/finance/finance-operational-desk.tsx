@@ -50,9 +50,6 @@ export function FinanceOperationalDesk(props: FinanceOperationalDeskProps) {
     return (
       <div data-finance-status="denied" role="alert" className="max-w-2xl">
         <EmptyState title={copy.title} description={copy.description} />
-        <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {FINANCE_DESK_COPY.boundaryOfficial}
-        </p>
       </div>
     );
   }

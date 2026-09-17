@@ -1,7 +1,10 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
 import { PageHeader } from '@/components/shell/page-header';
+import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
+import { createOsApiClient } from '@/lib/api/os-api-client';
+import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { orderHref } from '@/lib/commercial/navigation';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
@@ -23,9 +26,10 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const query = await searchParams;
   const q = one(query.q);
   const estado = one(query.estado);
-  const [queue, linkedOrders] = await Promise.all([
+  const [queue, linkedOrders, abastecimientoCount] = await Promise.all([
     loadComprasQueue({ q, buyer: one(query.buyer), estado }),
     loadComprasLinkedOrders(),
+    loadAbastecimientoReviewCount(),
   ]);
 
   return (
@@ -42,9 +46,26 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
         action={
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill tone="manual">No es inventario</StatusPill>
+            <StatusPill tone="neutral">Sin OC automática</StatusPill>
           </div>
         }
       />
+      {queue.state === 'ready' || queue.state === 'permission' ? (
+        <StatGroup
+          className="mb-6"
+          items={[
+            {
+              label: 'Revisiones de abastecimiento solicitadas',
+              value: String(abastecimientoCount),
+            },
+            {
+              label: 'Pendientes en cola',
+              value: queue.state === 'ready' ? String(queue.count) : '—',
+            },
+            { label: 'Pedidos vinculados', value: String(linkedOrders.length) },
+          ]}
+        />
+      ) : null}
       {queue.state === 'ready' || queue.state === 'permission' ? (
         <LinkedOrdersSection orders={linkedOrders} />
       ) : null}
@@ -64,10 +85,34 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   );
 }
 
+async function loadAbastecimientoReviewCount(): Promise<number> {
+  try {
+    const auth = await getServerOsAuthContext();
+    if (!auth) return 0;
+    const client = createOsApiClient(auth);
+    const [orders, workPage] = await Promise.all([
+      loadComprasLinkedOrders(),
+      client.listWorkItems({ status: 'open', limit: 100 }),
+    ]);
+    let count = 0;
+    for (const order of orders) {
+      const open = findOpenOrderPrepReviews(
+        workPage.items ?? [],
+        order.orderId,
+        order.partyId,
+      );
+      if (open.purchasing) count += 1;
+    }
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
 /**
  * Honest order picker surface. Purchase request SoR write remains FOUNDATION_GAP
  * (no hosted API command / prisma write registered). Operators link by orderId
- * instead of retyping pedido lines.
+ * instead of retyping pedido lines. No automatic PO.
  */
 function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
   return (
@@ -82,7 +127,7 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. No reescriba las
-        líneas del pedido aquí. La cola de compras no inventa inventario.
+        líneas del pedido aquí. La cola de compras no inventa inventario ni genera OC automática.
       </p>
       {orders.length === 0 ? (
         <div data-owner-review-state="no-data" className="mt-6">
@@ -98,7 +143,9 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
             <ListRow key={order.orderId} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                <p className="mt-1 font-mono text-xs text-[var(--isalwa-slate)]">{order.orderId}</p>
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  Pedido abierto · sin obligación automática de compra
+                </p>
               </div>
               <Link
                 href={orderHref(order.partyId, order.orderId)}

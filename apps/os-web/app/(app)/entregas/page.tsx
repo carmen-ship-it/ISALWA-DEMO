@@ -2,16 +2,15 @@ import Link from 'next/link';
 import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
 import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-operational-write-desk';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
-import {
-  EntregaSummaryStrip,
-  countDeliveriesToday,
-} from '@/components/delivery/entrega-summary-strip';
+import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
+import { EntregaSummaryStrip } from '@/components/delivery/entrega-summary-strip';
 import {
   OWNER_REVIEW_V1_COPY,
   V1FlowValidateNotice,
 } from '@/components/owner-review/v1-flow-validate-notice';
 import { PageHeader } from '@/components/shell/page-header';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
+import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
 import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
@@ -32,6 +31,13 @@ export default async function EntregasPage({
     partyId: view.linkedOrders[0]?.partyId ?? null,
   });
 
+  const deliveredOrderIds = new Set(
+    view.deliveries.map((row) => row.orderId?.trim()).filter((id): id is string => Boolean(id)),
+  );
+  const exitOrderIds = new Set(
+    view.warehouseExits.map((row) => row.orderId?.trim()).filter((id): id is string => Boolean(id)),
+  );
+
   return (
     <PageContainer label="Entregas">
       <PageHeader
@@ -42,7 +48,6 @@ export default async function EntregasPage({
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="neutral">Sin número oficial</StatusPill>
             <StatusPill tone="manual">Registro interno</StatusPill>
-            <StatusPill tone="manual">Versión 1 · por validar</StatusPill>
           </div>
         }
       />
@@ -57,12 +62,21 @@ export default async function EntregasPage({
         </div>
       ) : null}
       <EntregaSummaryStrip
-        warehouseExitCount={view.warehouseExits.length}
-        deliveryCount={view.deliveries.length}
-        deliveriesToday={countDeliveriesToday(view.deliveries.map((row) => row.deliveredAt))}
+        notesPreparedCount={0}
+        warehouseExits={view.warehouseExits.map((row) => ({
+          orderId: row.orderId?.trim() || '',
+        }))}
+        deliveries={view.deliveries.map((row) => ({
+          orderId: row.orderId?.trim() || '',
+          deliveredAt: row.deliveredAt,
+        }))}
       />
       <EntregaOperationalWriteDesk selectedOrderId={params?.orderId ?? null} />
-      <LinkedOrdersSection orders={view.linkedOrders} />
+      <LinkedOrdersSection
+        orders={view.linkedOrders}
+        exitOrderIds={exitOrderIds}
+        deliveredOrderIds={deliveredOrderIds}
+      />
       <EntregaPanel
         status={panelStatus}
         warehouseExits={view.warehouseExits}
@@ -72,7 +86,15 @@ export default async function EntregasPage({
   );
 }
 
-function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
+function LinkedOrdersSection({
+  orders,
+  exitOrderIds,
+  deliveredOrderIds,
+}: {
+  orders: LinkedOrderFact[];
+  exitOrderIds: Set<string>;
+  deliveredOrderIds: Set<string>;
+}) {
   return (
     <PageSection card className="mb-6 p-5 md:p-6" aria-label="Pedidos vinculados">
       <SectionHeader
@@ -96,20 +118,29 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderFact[] }) {
         </div>
       ) : (
         <ul className="mt-6">
-          {orders.map((order) => (
-            <ListRow key={order.orderId} as="li">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Pedido abierto</p>
-              </div>
-              <Link
-                href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-              >
-                Registrar en Entregas
-              </Link>
-            </ListRow>
-          ))}
+          {orders.map((order) => {
+            const progress = buildDeliveryProgress({
+              orderRecorded: true,
+              hasNote: false,
+              hasSalida: exitOrderIds.has(order.orderId),
+              hasEntrega: deliveredOrderIds.has(order.orderId),
+            });
+            return (
+              <ListRow key={order.orderId} as="li" className="items-start gap-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Pedido abierto</p>
+                  <DeliveryProgressStrip className="mt-2" steps={progress} />
+                </div>
+                <Link
+                  href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
+                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                >
+                  Registrar en Entregas
+                </Link>
+              </ListRow>
+            );
+          })}
         </ul>
       )}
     </PageSection>

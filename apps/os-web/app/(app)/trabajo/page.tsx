@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageContainer, PageSection, cx } from '@isalwa/ui';
+import { Button, EmptyState, PageContainer, PageSection, StatGroup, cx } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -18,6 +18,7 @@ import {
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { probeWorkOrgLens, probeWorkTeamLens } from '@/lib/work/trabajo-lens';
+import { summarizeTrabajoOpen } from '@/lib/work/trabajo-summary';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 const PAGE_LIMIT = 25;
@@ -71,6 +72,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       result.items.filter((item) => !isEngineeringFixtureCopy(item.title)),
       controls,
     );
+    const summary = summarizeTrabajoOpen(items);
     const memberLabels = await resolveMemberLabels(
       client,
       items.flatMap((item) => [item.ownerMemberId, item.createdByMemberId]),
@@ -81,10 +83,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
     );
 
     return (
-      <PageContainer label={t('pages.trabajo.title')}>
+      <PageContainer label="Mi trabajo">
         <PageHeader
           kicker={t('pages.trabajo.kicker')}
-          title={t('pages.trabajo.title')}
+          title="Mi trabajo"
           description={t('pages.trabajo.description')}
           action={
             filteredByParty && subjectId ? (
@@ -93,6 +95,16 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
               </Link>
             ) : undefined
           }
+        />
+
+        <StatGroup
+          className="mb-4"
+          items={[
+            { label: 'Para hoy', value: String(summary.paraHoy) },
+            { label: 'Vencido', value: String(summary.vencido) },
+            { label: 'Próximo', value: String(summary.proximo) },
+            { label: 'Sin fecha', value: String(summary.sinFecha) },
+          ]}
         />
 
         <TrabajoViewTabs
@@ -147,10 +159,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
     );
   } catch (err) {
     return (
-      <PageContainer label={t('pages.trabajo.title')}>
+      <PageContainer label="Mi trabajo">
         <PageHeader
           kicker={t('pages.trabajo.kicker')}
-          title={t('pages.trabajo.title')}
+          title="Mi trabajo"
           description={t('pages.trabajo.description')}
         />
         <TrabajoViewTabs active={view} state={listState} canTeamLens={false} canOrgLens={false} />
@@ -172,7 +184,7 @@ function TrabajoViewTabs({
   canOrgLens: boolean;
 }) {
   const tabs: Array<{ id: TrabajoView; label: string }> = [
-    { id: 'mine', label: 'Míos' },
+    { id: 'mine', label: 'Mío' },
     { id: 'overdue', label: 'Vencidos' },
   ];
   if (canTeamLens || active === 'team') tabs.splice(1, 0, { id: 'team', label: 'Equipo' });

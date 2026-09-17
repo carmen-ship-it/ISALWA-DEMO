@@ -76,7 +76,7 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
         kicker={FINANCE_DESK_COPY.kicker}
         title={FINANCE_DESK_COPY.title}
         description={FINANCE_DESK_COPY.intro}
-        action={<StatusPill tone="manual">Dato manual</StatusPill>}
+        action={<StatusPill tone="warning">Pendiente de confirmar</StatusPill>}
       />
       <FinanceDisclaimer />
       {access.status === 'ready' ? (

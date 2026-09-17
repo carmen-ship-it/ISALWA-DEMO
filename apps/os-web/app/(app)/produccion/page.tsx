@@ -1,15 +1,20 @@
-import { PageContainer, StatusPill } from '@isalwa/ui';
+import { PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
+import { ProductionOpsTable, type ProductionOpsRow } from '@/components/production/production-ops-table';
 import { ProductionPostSaleDesk } from '@/components/production/production-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
-import { PRODUCTION_PAGE_COPY, PRODUCTION_STEP_LABELS } from '@/lib/production/copy';
+import { PRODUCTION_PAGE_COPY } from '@/lib/production/copy';
 import { loadProductionCatalog } from '@/lib/production/load-catalog';
+import {
+  findOpenProductionUpdateRequest,
+} from '@/lib/production/update-request-work';
 import { createPostSaleExpectedWorkAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
+import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
@@ -24,7 +29,7 @@ export const revalidate = 0;
 export default async function ProduccionPage() {
   const identity = await loadProductionIdentity();
   const catalog = loadProductionCatalog();
-  const pedidos = await loadPedidosSafe();
+  const { pedidos, rows, summary } = await loadProductionDeskData();
 
   return (
     <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
@@ -39,20 +44,23 @@ export default async function ProduccionPage() {
           </div>
         }
       />
-      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <StatGroup
+        className="mb-6"
+        items={[
+          { label: 'Revisiones solicitadas', value: String(summary.revisiones) },
+          { label: 'Actualizaciones recientes', value: String(summary.actualizaciones) },
+          { label: 'Pedidos en cola', value: String(pedidos.length) },
+        ]}
+      />
+      <ProductionOpsTable
+        rows={rows}
+        actorMemberId={identity.memberId}
+        canMutate={identity.status === 'ready'}
+      />
+      <p className="mb-4 mt-8 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
         producto; no hay SLA automático de fábrica.
       </p>
-      <ol
-        className="mb-6 max-w-2xl space-y-0.5 text-sm text-[var(--isalwa-kiln)]"
-        aria-label="Pasos de planta"
-      >
-        {PRODUCTION_STEP_LABELS.map((label, index) => (
-          <li key={label}>
-            <span className="text-[var(--isalwa-slate)]">{index + 1}.</span> {label}
-          </li>
-        ))}
-      </ol>
       {identity.status === 'error' ? (
         <div className="mt-6">
           <ServiceUnavailableState />
@@ -76,16 +84,63 @@ export default async function ProduccionPage() {
   );
 }
 
-async function loadPedidosSafe(): Promise<PostSalePedidoOption[]> {
+async function loadProductionDeskData(): Promise<{
+  pedidos: PostSalePedidoOption[];
+  rows: ProductionOpsRow[];
+  summary: { revisiones: number; actualizaciones: number };
+}> {
   try {
     const auth = await getServerOsAuthContext();
-    if (!auth) return [];
+    if (!auth) {
+      return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 } };
+    }
     const caps = await loadMemberCapabilities();
-    return await loadPostSalePedidos(createOsApiClient(auth), {
+    const client = createOsApiClient(auth);
+    const pedidos = await loadPostSalePedidos(client, {
       organizationId: caps?.organizationId ?? null,
     });
+
+    let workItems: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];
+    try {
+      const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
+      workItems = workPage.items ?? [];
+    } catch {
+      workItems = [];
+    }
+
+    let revisiones = 0;
+    let actualizaciones = 0;
+    const rows: ProductionOpsRow[] = pedidos.map((pedido) => {
+      const prep = findOpenOrderPrepReviews(workItems, pedido.orderId, pedido.partyId);
+      if (prep.production) revisiones += 1;
+      const openUpdate = findOpenProductionUpdateRequest(workItems, pedido.orderId);
+      if (openUpdate) actualizaciones += 1;
+
+      return {
+        pedido,
+        requestedAction: prep.production
+          ? 'Revisión de producción abierta'
+          : openUpdate
+            ? 'Actualización solicitada'
+            : 'Sin solicitud abierta',
+        lastUpdateLabel: pedido.statusLabel ?? 'Sin último hecho de planta',
+        responsibleLabel: pedido.ownerLabel ?? 'Sin responsable canónico',
+        dateLabel: '—',
+        nextAction: openUpdate
+          ? 'Esperar respuesta de producción'
+          : 'Solicitar actualización si el cliente pregunta',
+        openUpdate,
+        productionOwnerMemberId: null,
+      };
+    });
+
+    return {
+      pedidos,
+      rows,
+      summary: { revisiones, actualizaciones },
+    };
   } catch {
-    return [];
+    return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 } };
   }
 }
 

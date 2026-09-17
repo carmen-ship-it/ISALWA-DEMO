@@ -32,6 +32,7 @@ export type EntregaPanelProps = {
   status?: EntregaPanelStatus;
   warehouseExits: Array<{
     id?: string;
+    orderId?: string | null;
     exitedAt: string;
     recordedByLabel: string;
     sourceLabel?: string;
@@ -40,6 +41,7 @@ export type EntregaPanelProps = {
   }>;
   deliveries: Array<{
     id?: string;
+    orderId?: string | null;
     deliveredAt: string;
     deliveredTo: string | null;
     recordedByLabel: string;
