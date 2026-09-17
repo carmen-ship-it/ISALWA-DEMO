@@ -9,6 +9,17 @@ export const CLIENTE360_NAV_SECTIONS = [
 
 export type Cliente360NavSectionId = (typeof CLIENTE360_NAV_SECTIONS)[number]['id'];
 
+export const CLIENTE360_DEFAULT_TAB: Cliente360NavSectionId = 'resumen';
+
 export function isCliente360NavSection(id: string): id is Cliente360NavSectionId {
   return CLIENTE360_NAV_SECTIONS.some((section) => section.id === id);
+}
+
+/** Parse `?tab=` (or legacy hash-mapped value). Invalid → resumen. */
+export function parseCliente360Tab(
+  raw: string | string[] | undefined | null,
+): Cliente360NavSectionId {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof value === 'string' && isCliente360NavSection(value)) return value;
+  return CLIENTE360_DEFAULT_TAB;
 }

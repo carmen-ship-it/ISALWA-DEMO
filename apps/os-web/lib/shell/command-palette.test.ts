@@ -89,7 +89,7 @@ describe('command palette authorization', () => {
     const opportunity = applyPick(customer, 'customer-opportunity');
     assert.equal(opportunity?.href, '/clientes/pty%201/oportunidades/nueva');
     const followUp = applyPick(customer, 'customer-follow-up');
-    assert.equal(followUp?.href, '/clientes/pty%201#trabajo');
+    assert.equal(followUp?.href, '/clientes/pty%201?tab=trabajo');
     assert.equal(applyPick(customer, 'opportunity-quote'), null);
   });
 
@@ -162,7 +162,7 @@ describe('contextual palette actions', () => {
     assert.equal(opportunity?.pick, undefined);
     assert.equal(opportunity?.detail, undefined);
     assert.equal(opportunity?.label.includes('pty_1'), false);
-    assert.equal(followUp?.href, '/clientes/pty_1#trabajo');
+    assert.equal(followUp?.href, '/clientes/pty_1?tab=trabajo');
     assert.equal(followUp?.pick, undefined);
     assert.equal(quote?.pick, 'opportunity-quote');
     assert.equal(quote?.detail, 'Elija la oportunidad');
@@ -196,7 +196,7 @@ describe('contextual palette actions', () => {
     const opportunity = items.find((item) => item.key === 'action:opportunity');
     const followUp = items.find((item) => item.key === 'action:follow-up');
     assert.equal(opportunity?.href, '/clientes/pty%201/oportunidades/nueva');
-    assert.equal(followUp?.href, '/clientes/pty%201#trabajo');
+    assert.equal(followUp?.href, '/clientes/pty%201?tab=trabajo');
     assert.equal(opportunity?.label, 'Nueva oportunidad');
     assert.equal(followUp?.label, 'Registrar seguimiento');
   });
@@ -308,18 +308,18 @@ describe('issue and commitment palette items', () => {
     assert.equal(commitment.kind, 'commitment');
     assert.equal(commitment.label, 'Entregar mañana a las 9am');
     assert.equal(commitment.detail, 'Pendiente');
-    assert.equal(commitment.href, '/clientes/pty_abc#compromisos');
+    assert.equal(commitment.href, '/clientes/pty_abc?tab=trabajo');
     assert.equal(commitment.key, 'commitment:cmt_789');
   });
 
-  it('falls back to /incidencias when no partyId', () => {
+  it('falls back to /compromisos when no partyId', () => {
     const commitment = commitmentPaletteItem({
       commitmentId: 'cmt_000',
       text: 'Resolver el problema',
       state: 'overdue',
       partyId: null,
     });
-    assert.equal(commitment.href, '/incidencias');
+    assert.equal(commitment.href, '/compromisos');
     assert.equal(commitment.detail, 'Vencido');
   });
 

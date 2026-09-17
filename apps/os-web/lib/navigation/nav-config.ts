@@ -141,7 +141,7 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     id: 'compromisos',
-    href: '/inicio',
+    href: '/compromisos',
     labelKey: 'nav.compromisos',
     shellLabel: 'Compromisos',
     icon: 'check',

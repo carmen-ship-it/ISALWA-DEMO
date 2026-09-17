@@ -1,28 +1,38 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
-import { CLIENTE360_NAV_SECTIONS, isCliente360NavSection } from '@/lib/cliente/nav-sections';
+import {
+  CLIENTE360_NAV_SECTIONS,
+  isCliente360NavSection,
+  type Cliente360NavSectionId,
+} from '@/lib/cliente/nav-sections';
+import { clienteTabActiveClass, clienteTabInactiveClass } from '@/lib/ui/visual-status';
 
 type Cliente360NavProps = {
   partyId: string;
+  activeTab: Cliente360NavSectionId;
   /** When nested under Cliente360Sticky, drop the own sticky chrome. */
   embedded?: boolean;
 };
 
-export function Cliente360Nav({ partyId, embedded = false }: Cliente360NavProps) {
-  const [activeId, setActiveId] = useState<string>('resumen');
+/**
+ * Cliente360 section tabs — only one panel is shown by the page.
+ * Deep links use `?tab=`; legacy `#section` hashes redirect once to `?tab=`.
+ * Mobile: horizontal scroll tabs + select.
+ */
+export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente360NavProps) {
+  const router = useRouter();
 
   useEffect(() => {
-    const fromHash = () => {
-      const hash = window.location.hash.replace(/^#/, '');
-      if (isCliente360NavSection(hash)) setActiveId(hash);
-    };
-    fromHash();
-    window.addEventListener('hashchange', fromHash);
-    return () => window.removeEventListener('hashchange', fromHash);
-  }, []);
+    const hash = window.location.hash.replace(/^#/, '');
+    if (!isCliente360NavSection(hash)) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === hash) return;
+    router.replace(clienteSectionHref(partyId, hash));
+  }, [partyId, router]);
 
   return (
     <nav
@@ -33,21 +43,41 @@ export function Cliente360Nav({ partyId, embedded = false }: Cliente360NavProps)
           : 'sticky top-14 z-10 mt-10 max-w-full border-b border-[var(--isalwa-mist)] bg-white'
       }
     >
-      <div className="overflow-x-auto overscroll-x-contain">
-        <ul className="flex w-max">
+      <div className="sm:hidden">
+        <label className="sr-only" htmlFor="cliente360-tab-select">
+          Sección del cliente
+        </label>
+        <select
+          id="cliente360-tab-select"
+          className="mb-2 h-10 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+          value={activeTab}
+          onChange={(event) => {
+            const next = event.target.value;
+            if (isCliente360NavSection(next)) {
+              router.push(clienteSectionHref(partyId, next));
+            }
+          }}
+        >
+          {CLIENTE360_NAV_SECTIONS.map((section) => (
+            <option key={section.id} value={section.id}>
+              {section.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="hidden overflow-x-auto overscroll-x-contain sm:block">
+        <ul className="flex w-max" role="tablist">
           {CLIENTE360_NAV_SECTIONS.map((section) => {
-            const active = activeId === section.id;
+            const active = activeTab === section.id;
             return (
-              <li key={section.id}>
+              <li key={section.id} role="presentation">
                 <Link
                   href={clienteSectionHref(partyId, section.id)}
-                  aria-current={active ? 'true' : undefined}
-                  onClick={() => setActiveId(section.id)}
-                  className={
-                    active
-                      ? 'inline-flex h-11 items-center border-b-2 border-[var(--isalwa-glaze)] px-3 text-sm font-medium text-[var(--isalwa-glaze)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]'
-                      : 'inline-flex h-11 items-center border-b-2 border-transparent px-3 text-sm text-[var(--isalwa-slate)] outline-none hover:text-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]'
-                  }
+                  role="tab"
+                  aria-selected={active}
+                  aria-current={active ? 'page' : undefined}
+                  className={active ? clienteTabActiveClass : clienteTabInactiveClass}
                 >
                   {section.label}
                 </Link>

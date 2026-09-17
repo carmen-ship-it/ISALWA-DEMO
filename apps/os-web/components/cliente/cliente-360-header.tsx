@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { PartyStatusBadge } from '@/components/party/party-role-badges';
-import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-surfaces';
+import { ProximoPasoStrip } from '@/components/shell/proximo-paso-strip';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { displayCliente360NextAction } from '@/lib/cliente/next-action-display';
 import { clienteSectionHref, newOpportunityHref } from '@/lib/commercial/navigation';
@@ -11,10 +11,9 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { Cliente360ActionsMenu } from '@/components/cliente/cliente-360-actions-menu';
 import type { ReportIssueContext } from '@/lib/issue/types';
 import type { PartyDetailResponse } from '@/lib/party/types';
+import { actionPrimaryClass, actionSecondaryClass } from '@/lib/ui/action-hierarchy';
 
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
-const secondaryActionClass =
-  'isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export type Cliente360HeaderProps = {
   partyId: string;
@@ -102,33 +101,25 @@ export function Cliente360Header({
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
+          <Link href={newOpportunityHref(partyId)} className={actionPrimaryClass}>
             Nueva oportunidad
           </Link>
-          <Link href={clienteSectionHref(partyId, 'trabajo')} className={secondaryActionClass}>
+          <Link href={clienteSectionHref(partyId, 'trabajo')} className={actionSecondaryClass}>
             {FOLLOW_UP_COPY.action}
           </Link>
           <Cliente360ActionsMenu {...menuProps} />
         </div>
       </div>
 
-      <div className="text-sm text-[var(--isalwa-kiln)]" data-tour="cliente360-next-action">
-        <span className="font-medium">
-          {next.isRegisteredAction ? CLIENTE360_UX_COPY.nextActionHeading : FOLLOW_UP_COPY.nextAction}
-        </span>
-        {' · '}
-        {next.href ? (
-          <Link href={next.href} className={linkClass}>
-            {next.text}
-          </Link>
-        ) : (
-          <span>{next.text}</span>
-        )}
-        {next.dueText ? <span className="text-[var(--isalwa-slate)]"> · {next.dueText}</span> : null}
-        {next.overdue ? <span className="text-[var(--isalwa-slate)]"> · Vencido</span> : null}
-        {!next.isRegisteredAction ? (
-          <>
-            {' · '}
+      <ProximoPasoStrip
+        heading={next.isRegisteredAction ? CLIENTE360_UX_COPY.nextActionHeading : FOLLOW_UP_COPY.nextAction}
+        text={next.text}
+        href={next.href}
+        dueText={next.dueText}
+        overdue={next.overdue}
+        data-tour="cliente360-next-action"
+        trailing={
+          !next.isRegisteredAction ? (
             <button
               type="button"
               className={linkClass}
@@ -138,9 +129,9 @@ export function Cliente360Header({
             >
               {CLIENTE360_UX_COPY.scheduleFollowUp}
             </button>
-          </>
-        ) : null}
-      </div>
+          ) : null
+        }
+      />
     </div>
   );
 }

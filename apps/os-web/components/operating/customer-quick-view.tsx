@@ -2,7 +2,7 @@ import { locationHasCoordinates, selectLocationProvenanceUrl } from '@isalwa/os-
 import { FeedbackNote } from '@isalwa/ui';
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
-import { newOpportunityHref } from '@/lib/commercial/navigation';
+import { newOpportunityHref, clienteSectionHref } from '@/lib/commercial/navigation';
 import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { QuickViewHost } from '@/components/operating/quick-view-host';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
@@ -159,7 +159,7 @@ function CustomerQuickViewBody({
 }) {
   const { party } = detail;
   const legalName = party.legalName && party.legalName !== displayName ? party.legalName : null;
-  const followUpHref = `${partyHref(partyId)}#trabajo`;
+  const followUpHref = clienteSectionHref(partyId, 'trabajo');
 
   return (
     <div className="space-y-4" data-tour={TOUR_TARGET.customerQuickView}>
