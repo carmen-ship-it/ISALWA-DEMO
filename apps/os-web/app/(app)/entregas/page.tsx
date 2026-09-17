@@ -61,6 +61,7 @@ export default async function EntregasPage({
           <EventWorkOfferPanel offer={deliveryOffer} />
         </div>
       ) : null}
+      {/* Notas preparadas stays 0 until an org-wide delivery-notes list is mounted. */}
       <EntregaSummaryStrip
         notesPreparedCount={0}
         warehouseExits={view.warehouseExits.map((row) => ({
