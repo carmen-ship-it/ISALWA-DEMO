@@ -413,6 +413,92 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
     assert.ok(created[0]?.receivedAt instanceof Date);
   });
 
+  it('calls $transaction as a method so Prisma this-binding is preserved', async () => {
+    const { createPrismaFinishedGoodsWriteStore } = await import('./receive');
+    const created: Record<string, unknown>[] = [];
+    const events: Record<string, unknown>[] = [];
+    const prisma = {
+      _tracingHelper: { getActiveContext() { return null; } },
+      async $transaction(this: { _tracingHelper?: unknown }, ops: Promise<unknown>[]) {
+        // Mirror live Prisma failure mode when $transaction is extracted unbound.
+        if (this == null || this._tracingHelper == null) {
+          throw new Error("Cannot read properties of undefined (reading '_tracingHelper')");
+        }
+        return Promise.all(ops);
+      },
+      osFinishedGoodsReceipt: {
+        async findFirst() {
+          return null;
+        },
+        async create({ data }: { data: Record<string, unknown> }) {
+          created.push(data);
+          return data;
+        },
+      },
+      osBusinessEvent: {
+        async create({ data }: { data: Record<string, unknown> }) {
+          events.push(data);
+          return data;
+        },
+      },
+    };
+    const store = createPrismaFinishedGoodsWriteStore(prisma);
+    const now = new Date('2026-09-16T12:00:00.000Z').toISOString();
+    const outcome = await store.persistReceiptAndEvent(
+      {
+        id: 'fgr-bind',
+        organizationId: 'org-a',
+        productId: 'prod-1',
+        quantity: '1',
+        warehouseLabel: 'Almacén de Productos Terminados',
+        receivedAt: now,
+        recordedAt: now,
+        actorMemberId: null,
+        actorLabel: 'Almacén',
+        source: 'explicit_command',
+        productionTraceEntryId: null,
+        quemaId: null,
+        contextOrderId: null,
+        contextOrderLineId: null,
+        contextPartyId: null,
+        note: null,
+        correctsReceiptId: null,
+        correctionReason: null,
+        idempotencyKey: 'idem-bind',
+        allocatesToOrder: false,
+        postsStock: false,
+        officialStock: false,
+      },
+      {
+        id: 'evt-fgr-bind',
+        organizationId: 'org-a',
+        eventType: 'finished_goods.received',
+        occurredAt: now,
+        recordedAt: now,
+        actorMemberId: null,
+        primaryEntityType: 'finished_goods_receipt',
+        primaryEntityId: 'fgr-bind',
+        capabilityKey: 'warehouse.finished_goods.receive',
+        correlationId: 'corr-bind',
+        idempotencyKey: 'idem-bind',
+        provenance: 'command',
+        payload: {
+          productId: 'prod-1',
+          quantity: '1',
+          allocatesToOrder: false,
+          postsStock: false,
+          orderId: null,
+          orderLineId: null,
+          partyId: null,
+          note: null,
+        },
+      },
+    );
+    assert.equal(outcome, 'inserted');
+    assert.equal(created.length, 1);
+    assert.equal(events.length, 1);
+  });
+
   it('treats unique idempotency conflict as replay without throwing', async () => {
     const { createPrismaFinishedGoodsWriteStore } = await import('./receive');
     const store = createPrismaFinishedGoodsWriteStore({

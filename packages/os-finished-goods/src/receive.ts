@@ -469,7 +469,7 @@ export type FinishedGoodsPrismaPort = {
   osFinishedGoodsReceipt: PrismaReceiptDelegate;
   osBusinessEvent: PrismaEventDelegate;
   /** Present on PrismaClient — used for atomic receipt + event persist. */
-  $transaction?: (...args: never[]) => Promise<unknown>;
+  $transaction?: (ops: Promise<unknown>[]) => Promise<unknown>;
   osProductionTraceEntry?: {
     findFirst(args: { where: Record<string, unknown> }): Promise<{ id: string } | null>;
   };
@@ -633,11 +633,10 @@ export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaP
       const receiptData = toPrismaReceiptData(receipt);
       const eventData = toPrismaEventData(event);
       try {
-        const runTx = prisma.$transaction as
-          | undefined
-          | ((ops: Promise<unknown>[]) => Promise<unknown>);
-        if (typeof runTx === 'function') {
-          await runTx([
+        // Call $transaction as a method (never extract unbound). Unbound calls lose
+        // Prisma `this` and throw: Cannot read properties of undefined (reading '_tracingHelper').
+        if (typeof prisma.$transaction === 'function') {
+          await prisma.$transaction([
             prisma.osFinishedGoodsReceipt.create({ data: receiptData }),
             prisma.osBusinessEvent.create({ data: eventData }),
           ]);
