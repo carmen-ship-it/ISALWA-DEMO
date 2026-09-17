@@ -1,3 +1,2 @@
-FINAL_CT3_SOURCE_SHA=5e3c4adccb320abc22802fbf149a61237a31e424
+FINAL_CT3_SOURCE_SHA=9012a248210ebb5e2907589ba32edfb5ff45819f
 BRANCH=ct3/owner-demo-completeness
-NOTE=Tip after web green build; API packages build next.
