@@ -12,6 +12,7 @@ export const AUDIT_RESOURCE_TYPE_KEYS = [
   'order',
   'issue',
   'commitment',
+  'conversation',
   'organization',
 ] as const;
 
@@ -34,9 +35,18 @@ export const AUDIT_ACTION_FILTER_KEYS = [
   'member.terminated',
   'work_item.created',
   'work_item.updated',
+  'work_item.created_from_conversation',
   'issue.reported',
+  'issue.created_from_conversation',
+  'opportunity.created',
+  'opportunity.created_from_conversation',
   'quote.created',
+  'quote.send_recorded',
   'order.created',
+  'commitment.created',
+  'commitment.created_from_conversation',
+  'conversation.recorded',
+  'follow_up.created_from_conversation',
 ] as const;
 
 export type AuditActionFilterKey = (typeof AUDIT_ACTION_FILTER_KEYS)[number];

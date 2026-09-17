@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ListRow } from '@isalwa/ui';
+import { presentAuditActionLabel, presentAuditResourceLabel } from '@/lib/audit/present';
 import type { AuditLogItem } from '@/lib/audit/types';
 import { auditoriaEntryHref, type AuditQueryState } from '@/lib/audit/url-state';
 
@@ -49,7 +50,9 @@ export function AuditList({
               aria-current={selected ? 'true' : undefined}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{item.actionLabel}</p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                  {presentAuditActionLabel(item)}
+                </p>
                 <time className="shrink-0 text-xs text-[var(--isalwa-slate)]" dateTime={item.occurredAt}>
                   {new Date(item.occurredAt).toLocaleString('es-BO', {
                     dateStyle: 'medium',
@@ -58,7 +61,7 @@ export function AuditList({
                 </time>
               </div>
               <p className="text-sm text-[var(--isalwa-slate)]">
-                {item.resourceLabel}
+                {presentAuditResourceLabel(item)}
                 {cliente ? ` · ${cliente}` : null}
                 {' · '}
                 {actorLabel(item, memberLabels)}

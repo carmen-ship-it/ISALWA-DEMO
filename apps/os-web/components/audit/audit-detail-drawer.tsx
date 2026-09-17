@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ContextDrawer, StatusPill } from '@isalwa/ui';
 import { AuditAiAskStub } from '@/components/audit/audit-ai-ask-stub';
 import { formatAuditSnapshot, snapshotSectionTitle } from '@/lib/audit/format-snapshot';
+import { presentAuditActionLabel, presentAuditResourceLabel } from '@/lib/audit/present';
+import { auditResourceHrefForEntry } from '@/lib/audit/resource-href';
 import type { AuditLogItem } from '@/lib/audit/types';
 import { auditoriaHrefCloseEntry, type AuditQueryState } from '@/lib/audit/url-state';
 import { partyHref } from '@/lib/party/navigation';
@@ -28,6 +30,16 @@ export function AuditDetailDrawer({
 }: AuditDetailDrawerProps) {
   const router = useRouter();
   const closeHref = auditoriaHrefCloseEntry(path, listState);
+  const actionLabel = entry ? presentAuditActionLabel(entry) : 'Registro de auditoría';
+  const resourceLabel = entry ? presentAuditResourceLabel(entry) : '';
+  const resourceHref = entry
+    ? auditResourceHrefForEntry({
+        resourceType: entry.resourceType,
+        resourceId: entry.resourceId,
+        beforeJson: entry.beforeJson,
+        afterJson: entry.afterJson,
+      })
+    : null;
 
   function closeDrawer() {
     router.push(closeHref);
@@ -36,7 +48,7 @@ export function AuditDetailDrawer({
   return (
     <ContextDrawer
       open={open && Boolean(entry)}
-      title={entry?.actionLabel ?? 'Registro de auditoría'}
+      title={actionLabel}
       onClose={closeDrawer}
     >
       {entry ? (
@@ -65,13 +77,13 @@ export function AuditDetailDrawer({
               <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
                 Tipo
               </dt>
-              <dd className="mt-1">{entry.resourceLabel}</dd>
+              <dd className="mt-1">{resourceLabel}</dd>
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
                 Acción
               </dt>
-              <dd className="mt-1">{entry.actionLabel}</dd>
+              <dd className="mt-1">{actionLabel}</dd>
             </div>
             {clientLabel ? (
               <div className="sm:col-span-2">
@@ -84,6 +96,21 @@ export function AuditDetailDrawer({
                     className="font-medium text-[var(--isalwa-glaze)] hover:underline"
                   >
                     {clientLabel}
+                  </Link>
+                </dd>
+              </div>
+            ) : null}
+            {resourceHref && entry.resourceType !== 'party' ? (
+              <div className="sm:col-span-2">
+                <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
+                  Recurso
+                </dt>
+                <dd className="mt-1">
+                  <Link
+                    href={resourceHref}
+                    className="font-medium text-[var(--isalwa-glaze)] hover:underline"
+                  >
+                    Abrir {resourceLabel.toLocaleLowerCase('es')}
                   </Link>
                 </dd>
               </div>
