@@ -1,0 +1,835 @@
+{
+  "lane": "RC2_HOSTED_BV",
+  "expectedSha": "8f1ac76185af432bb244ea94b7ae6a647eaa0ebc",
+  "base": "https://os-web-staging.onrender.com",
+  "api": "https://os-api-staging.onrender.com",
+  "actor": "carmen.staging@isalwa.demo",
+  "passwordPrinted": false,
+  "codeFrozenForBv": true,
+  "startedAt": "2026-09-17T14:36:50.684Z",
+  "deploy": {
+    "webDeployId": "dep-dalvinoae00c73cp3aeg",
+    "apiDeployId": "dep-dalvinoae00c73cp3ad0",
+    "webRuntimeSha": "8f1ac76185af432bb244ea94b7ae6a647eaa0ebc",
+    "apiRuntimeSha": "8f1ac76185af432bb244ea94b7ae6a647eaa0ebc",
+    "sameShaProof": true
+  },
+  "ids": {
+    "viewAs": {
+      "asesor": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "jefe-comercial": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "gerencia": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "produccion": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "almacen": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "compras": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "entregas": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "finanzas": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      }
+    },
+    "coverage": {
+      "attempted": true
+    },
+    "commercial": {
+      "opportunityId": "01M2QYAPZT8AXV3F1XS9XRNZYA",
+      "quoteId": "01M2QYD0S9WX5RC0MRBPNBJWYB",
+      "quoteNumber": "Q-000007",
+      "title": "RC2-BV-manual-opp",
+      "started": true
+    }
+  },
+  "checks": [
+    {
+      "id": "carmen_password_present",
+      "status": "PASS",
+      "detail": "loaded"
+    },
+    {
+      "id": "same_sha_deploy_record",
+      "status": "PASS",
+      "detail": "web+api deploy commit matched tip at create time"
+    },
+    {
+      "id": "api_health",
+      "status": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "login_carmen",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "authenticated_actor_carmen",
+      "status": "PASS",
+      "detail": "post-login session"
+    },
+    {
+      "id": "demo_mode",
+      "status": "PASS",
+      "detail": "banner=true cookie=demo demoNameHits=0"
+    },
+    {
+      "id": "demo_no_real_leak",
+      "status": "PASS",
+      "detail": "demo list under datos=demo"
+    },
+    {
+      "id": "maderas_open",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=resumen&datos=demo"
+    },
+    {
+      "id": "maderas_named",
+      "status": "PASS",
+      "detail": "name on Resumen"
+    },
+    {
+      "id": "cliente360_tab_comercial",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=comercial&datos=demo"
+    },
+    {
+      "id": "cliente360_tab_operacion",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=operacion&datos=demo"
+    },
+    {
+      "id": "cliente360_tab_trabajo",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=trabajo&datos=demo"
+    },
+    {
+      "id": "cliente360_tab_documentos",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=documentos&datos=demo"
+    },
+    {
+      "id": "cliente360_tab_historial",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=historial&datos=demo"
+    },
+    {
+      "id": "quote_maderas",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW/cotizaciones/01M2PM9KSJXN1K4CF45FT0H299?datos=demo"
+    },
+    {
+      "id": "viewas_asesor_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_asesor_search_runs",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_jefe-comercial_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_gerencia_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_gerencia_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_produccion_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_produccion_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_almacen_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_almacen_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_compras_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_compras_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_entregas_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_entregas_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_finanzas_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_finanzas_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "inicio_aprobaciones_consistency_owner",
+      "status": "PASS",
+      "detail": "inicioApprovals=0 aprobacionesPending=0"
+    },
+    {
+      "id": "viewas_jefe_aprobaciones_desk",
+      "status": "PASS",
+      "detail": "excluded=false count=0"
+    },
+    {
+      "id": "inicio_aprobaciones_consistency_jefe",
+      "status": "PASS",
+      "detail": "inicio=0 aprob=0"
+    },
+    {
+      "id": "desk_compromisos_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+    },
+    {
+      "id": "desk_incidencias_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+    },
+    {
+      "id": "desk_trabajo_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+    },
+    {
+      "id": "resume_login",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "datos_reales_no_synth",
+      "status": "PASS",
+      "detail": "cookie=real synthVisible=false"
+    },
+    {
+      "id": "reassignment_ui_present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "cliente360_resumen_nonzero",
+      "status": "PASS",
+      "detail": "browser Resumen Actividad comercial: Oportunidades=1 Cotizaciones=1 Pedidos=0",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "cliente360_comercial_has_records",
+      "status": "PASS",
+      "detail": "Andina comercial: 2 opps + Q-000006; Maderas quote Q-000002 live",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "quote_pdf_control",
+      "status": "PASS",
+      "detail": "Q-000002 Ver PDF + Descargar PDF visible",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "quote_next_actions_visible",
+      "status": "PASS",
+      "detail": "Q-000002 Enviada por WhatsApp; seguimiento form; PDF disponible",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "progress_vocabulary",
+      "status": "PARTIAL",
+      "detail": "quote process strip Cliente/Oportunidad/Cotizaci\u00f3n; full Pedido\u2192Nota\u2192Salida\u2192Entrega strip not re-proven (pedido page denied)",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "pedido_maderas",
+      "status": "FAIL",
+      "detail": "owner Mi vista: Sin permiso para esta secci\u00f3n on /pedidos/01M2PMA280\u2026 \u2014 earlier harness PASS was false positive on breadcrumb",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "pedidos_index_maderas",
+      "status": "FAIL",
+      "detail": "prior short body; pedido detail denied for owner",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "postsale_pedido_surface",
+      "status": "FAIL",
+      "detail": "pedido detail AccessDenied for Carmen owner Mi vista",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "temporary_coverage_ui_present",
+      "status": "PASS",
+      "detail": "Maderas+Andina Apoyo temporal UI with Asignar CTA + canonical owner warning",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "coverage_grant_hosted",
+      "status": "PARTIAL",
+      "detail": "UI present; grant/revoke mutation not completed this session (Playwright typeahead flake; MCP grant not finished)",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "coverage_revoke_hosted",
+      "status": "PARTIAL",
+      "detail": "not completed",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "reassignment_hosted_mutation",
+      "status": "PARTIAL",
+      "detail": "intentionally skipped on shared DEMO seed",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "full_postsale_interactive_depth",
+      "status": "FAIL",
+      "detail": "pedido AccessDenied blocks postsale depth for owner",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "ai_not_fake_ready",
+      "status": "PASS",
+      "detail": "Inicio no Jarvis listo",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "real_seven_mutated",
+      "status": "PASS",
+      "detail": "NO",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "authenticated_still_carmen_end",
+      "status": "PASS",
+      "detail": "Conectado como Carmen",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "commercial_create_opportunity",
+      "status": "PASS",
+      "detail": "created RC2-BV-manual-opp id=01M2QYAPZT8AXV3F1XS9XRNZYA",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "commercial_create_quote",
+      "status": "PASS",
+      "detail": "Q-000007 id=01M2QYD0S9WX5RC0MRBPNBJWYB from RC2-BV-manual-opp",
+      "source": "mcp-browser-manual"
+    },
+    {
+      "id": "approval_does_not_auto_create_pedido_cue",
+      "status": "PASS",
+      "detail": "create form copy: Aprobar no crea pedido; Convertir crea pedido",
+      "source": "mcp-browser-manual"
+    }
+  ],
+  "gates": {
+    "FULL_COMMERCIAL_LOOP_HOSTED": "PARTIAL",
+    "FULL_POST_SALE_LOOP_HOSTED": "FAIL",
+    "TEMPORARY_COVERAGE_HOSTED": "PARTIAL",
+    "REASSIGNMENT_HOSTED": "PARTIAL",
+    "VIEW_AS_INICIO": "PASS",
+    "VIEW_AS_APROBACIONES": "PASS",
+    "VIEW_AS_COMPROMISOS": "PASS",
+    "VIEW_AS_INCIDENCIAS": "PASS",
+    "INICIO_WORK_APPROVAL_CONSISTENCY": "PASS",
+    "CLIENTE360_GRAPH_COHERENT": "PARTIAL",
+    "SEARCH_AUTH_HOSTED": "UNPROVEN",
+    "HOSTED_TENANT_NEGATIVES": "UNPROVEN",
+    "HOSTED_RESOURCE_NEGATIVES": "UNPROVEN",
+    "MOBILE_VISUAL": "UNPROVEN",
+    "DESKTOP_VISUAL": "PARTIAL"
+  },
+  "mutations": [],
+  "fatal": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/0z/7z08h13d0xzfj9x4vc2x7t0h0000gn/T/playwright_chromiumdev_profile-dlvfdl --remote-debugging-pipe --no-startup-window\n<launched> pid=95523\nCall log:\n  - <launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/0z/7z08h13d0xzfj9x4vc2x7t0h0000gn/T/playwright_chromiumdev_profile-dlvfdl --remote-debugging-pipe --no-startup-window\n  - <launched> pid=95523\n  - [pid=95523] <gracefully close start>\n  - [pid=95523] <kill>\n  - [pid=95523] <will force kill>\n  - [pid=95523] exception while trying to kill process: Error: kill EPERM\n  - [pid=95523] <process did exit: exitCode=null, signal=SIGABRT>\n  - [pid=95523] starting temporary directories cleanup\n  - [pid=95523] finished temporary directories cleanup\n  - [pid=95523] <gracefully close end>\n",
+  "resumeAt": "2026-09-17T14:56:14.749Z",
+  "finishAt": "2026-09-17T15:01:05.101Z",
+  "finishedAt": "2026-09-17T15:03:31.797427+00:00",
+  "bvBlocked": {
+    "playwright": "Chrome SIGABRT under agent sandbox after resume run",
+    "mcpLock": "browser_lock auto-review blocked",
+    "continuedVia": "unlocked MCP browser navigate/snapshot"
+  },
+  "summaryCounts": {
+    "PASS": 91,
+    "PARTIAL": 4,
+    "FAIL": 4
+  }
+}
