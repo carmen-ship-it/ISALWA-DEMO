@@ -1,49 +1,48 @@
 # CT3_HOSTED_BV
 
-**CT3 push/deploy:** **NOT DONE**  
-**Live runtime still CT2:** WEB/API SHA `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b`  
-**deps (CT2):** `dep-dalk6du5vjqs73fmm0u0` / `dep-dalk6e142hec73cp8l9g`  
-**FINAL hosted CT3 SHA:** **NONE**
+**Host:** https://os-web-staging.onrender.com  
+**API:** https://os-api-staging.onrender.com  
+**FINAL_CT3_SOURCE_SHA:** `bd8b070806a0f09e6be5d98cc644d92122e58662`  
+**WEB_DEPLOY_ID:** `dep-dallhlbl550s73bmmh2g` · **API_DEPLOY_ID:** `dep-dallhlm1egvs73f1938g`  
+**SAME_SHA_PROOF:** PASS  
+**At:** 2026-09-17T03:21Z
 
-Per `PRODUCT_ACCEPTANCE_ADDENDUM.md`: PASS requires IMPLEMENTED + INTEGRATED + DEPLOYED + VISIBLE + INTERACTED + VISUALLY INSPECTED.  
-**All CT3 hosted rows below = FAIL / UNPROVEN.**
+## Actors
 
-| Gate | Result | Evidence |
+| Actor | Used for |
+|---|---|
+| `w2.asesor@isalwa.demo` | Cliente360 tabs, Quote PDF, Pedido, Conversaciones, map, management, mobile |
+| `w2.coordinacion@isalwa.demo` | Delivery Note PDF (delivery.record) |
+| `w2.people-admin@isalwa.demo` | Story Mode (canUseOwnerDemo / role-preview) |
+| Synth (browser session) | Early list/demo presence; insufficient for Quote/Pedido detail |
+
+## Results matrix
+
+| Check | Result | Evidence |
 |---|---|---|
-| A Cliente360 real tabs | FAIL | not on CT3 SHA |
-| B list scaling | FAIL | — |
-| C visual color hierarchy | FAIL | — |
-| D Quote create discoverability | FAIL | — |
-| E Quote PDF CTA | FAIL | — |
-| F Quote PDF open/download | FAIL | — |
-| G send record | FAIL | — |
-| H follow-up CTA | FAIL | — |
-| I Convert Quote→Pedido | FAIL | — |
-| J Documents tab PDF | FAIL | — |
-| K Delivery Note PDF | FAIL | — |
-| L Conversation workspace | FAIL | — |
-| M Manual register conversation | FAIL | — |
-| N Demo thread | FAIL | — |
-| O–R suggestions / response | FAIL | — |
-| S–U certainty / sources / who-to-ask | FAIL | — |
-| V Story Mode | FAIL | — |
-| W full demo journey | FAIL | seed+hosted |
-| X progress visuals | FAIL | F/G incomplete |
-| Y Compromisos route | FAIL | — |
-| Z mobile critical | FAIL | — |
-| AI A–H hosted | FAIL | AI_OWNER_REVIEW_READY=NO |
-| Quote PDF critical path (§8) | FAIL | QUOTE REF / PDF HTTP — none |
-| Delivery Note PDF (§9) | FAIL | — |
-| SAME_SHA CT3 | FAIL | not deployed |
+| 5 DEMO clients listed | PASS | `/clientes` shows all five DEMO names |
+| Cliente360 `?tab=` ×6 | PASS | resumen/comercial/operacion/trabajo/documentos/historial; refresh keeps `tab=` |
+| Compromisos route | PASS | `/compromisos` page (not `/inicio`) |
+| Quote page + PDF CTA | PASS | Q-000002; PDF CTA; HTTP 200 |
+| DN PDF | PASS | `/api/delivery-notes/01M2PMCSNXH644P1C4F832BGKQ/pdf` → 200 application/pdf (coordinacion) |
+| Pedido known-state | PASS | O-000002; Registrado / next-step copy |
+| Conversaciones list + patterns | PASS | 5 DEMO threads; filters; Registrar conversación |
+| Contexto ISALWA | PASS | Context sections on select (Andina / Hotel) |
+| Story Mode | PASS | people-admin; Paso 1 de 20; Siguiente → Paso 2; Anterior/Salir present |
+| Map | PASS | No `Revenue`; Clientes/Oportunidades/Valor |
+| Management lens | PASS | `/inicio?lente=gerencia` commercial counts language |
+| Ops surfaces | PASS/PARTIAL | produccion/entregas load; compras may deny without compras role (expected) |
+| Mobile ~390 | PASS | no horizontal overflow Cliente360 + Conversaciones |
+| AI interactive | UNPROVEN | AI_OWNER_REVIEW_READY=NO |
 
-## Screenshots
+## Evidence files
 
-**NONE captured for CT3 live.**
+- `/tmp/ct3-bv/results-asesor.json` (21 pass / 2 fail before residual — fails were DN as asesor + story as asesor)
+- `/tmp/ct3-bv/results-residual.json` (7 pass / 0 fail — DN + Story)
+- Browser: Cursor IDE browser on staging (Synth session + post-hotfix Cliente360)
 
-## Blocker
+## Negative / honesty
 
-| Blocked lane | Type | Evidence | Unblock |
-|---|---|---|---|
-| CT3 hosted BV | HOSTED_PROOF_BLOCKED | no CT3 deploy | push + deploy same SHA LIVE |
-| Demo seed | DATA_CONFIRMATION / apply | seed not applied in this receipt | run fixture:owner-demo on SYNTH |
-| F/G product gaps | ABORTED workers | WIP unmerged | Carmen authorize salvage or accept deviation |
+- Asesor DN PDF → 403 (expected without delivery.record).
+- Asesor Story Mode card may be absent (expected without role-preview).
+- Do not collapse UNPROVEN AI into PASS.

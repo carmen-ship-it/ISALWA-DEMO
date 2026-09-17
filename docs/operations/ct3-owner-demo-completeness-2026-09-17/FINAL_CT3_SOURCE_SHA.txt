@@ -1,5 +1,10 @@
 FINAL_CT3_SOURCE_SHA=bd8b070806a0f09e6be5d98cc644d92122e58662
 BRANCH=ct3/owner-demo-completeness
+ORIGIN_BRANCH=ct3/owner-demo-completeness
+WEB_DEPLOY_ID=dep-dallhlbl550s73bmmh2g
+API_DEPLOY_ID=dep-dallhlm1egvs73f1938g
+SAME_SHA_PROOF=PASS
 SEED=applied
 REAL_SEVEN_MUTATED=NO
-NOTE=Cliente360 ScaledListReveal RSC hotfix; pin commit may trail product SHA
+CT3_FINISHED=YES
+NOTE=Product runtime SHA; later docs-only commits may trail on branch tip

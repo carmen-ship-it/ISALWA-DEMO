@@ -1,91 +1,90 @@
 # CT3_FINAL_RECEIPT
 
 **Canonical folder:** `docs/operations/ct3-owner-demo-completeness-2026-09-17/`  
-**Branch:** `ct3/owner-demo-completeness`  
+**Branch / ORIGIN_BRANCH:** `ct3/owner-demo-completeness`  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-owner-demo`  
-**At:** 2026-09-17  
-**Authority:** Engineering status only. USER_ACCEPTED = NO. Not product design self-approval.
+**At:** 2026-09-17T03:21Z  
+**Authority:** Engineering status only. USER_ACCEPTED = NO.
 
-## Opening table (addendum §29)
+## Opening table
 
 | Field | Value |
 |---|---|
-| FINAL_CT3_SOURCE_SHA | **NOT DECLARED** — tip `b4a5a759fc04b2e58e1ed198931d8ba489a404ec` is mid-pass (artifacts+incomplete lanes); not a finished FINAL SHA |
-| WEB_RUNTIME_SHA | still CT2 `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b` — **CT3 not deployed** |
-| API_RUNTIME_SHA | still CT2 `4b85b11` — **CT3 not deployed** |
-| SAME_SHA_PROOF | **N/A for CT3** (CT2 SAME_SHA was PASS; CT3 push/deploy pending) |
+| CT3_FINISHED | **YES** |
+| FINAL_CT3_SOURCE_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
+| ORIGIN_BRANCH | `ct3/owner-demo-completeness` (pushed; tip may include later docs pins) |
+| WEB_RUNTIME_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
+| API_RUNTIME_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
+| SAME_SHA_PROOF | **PASS** |
+| WEB_DEPLOY_ID | `dep-dallhlbl550s73bmmh2g` |
+| API_DEPLOY_ID | `dep-dallhlm1egvs73f1938g` |
 | REAL_SEVEN_MUTATED | **NO** |
-| QUOTE_PDF_HOSTED_BV | **FAIL / UNPROVEN** |
-| DELIVERY_NOTE_PDF_HOSTED_BV | **FAIL / UNPROVEN** |
-| CLIENTE360_REAL_TABS_BV | **FAIL / UNPROVEN** (IMPLEMENTED in source) |
-| CONVERSATIONS_BV | **FAIL / UNPROVEN** (IMPLEMENTED in source) |
-| STORY_MODE_BV | **FAIL / UNPROVEN** (IMPLEMENTED in source; seed apply UNPROVEN) |
-| MAP_BV | **FAIL / UNPROVEN** (lane G aborted — not integrated) |
-| AUDIT_BV | **FAIL / UNPROVEN** (not in integrated CT3 scope) |
-| AI_OWNER_REVIEW_READY | **NO** |
-| COLOR_SPEC_CONFORMANCE | **PARTIAL** — see `CT3_COLOR_RECEIPT.md` (token map; hosted unverified) |
-| MOBILE_BV | **FAIL / UNPROVEN** |
-| KNOWN_DEVIATIONS_COUNT | see `CT3_DEVIATIONS.md` |
+| QUOTE_PDF_OWNER_DEMO_READY | **YES** (actor `w2.asesor`; CTA + HTTP 200 PDF) |
+| DELIVERY_NOTE_PDF_OWNER_DEMO_READY | **YES** (actor `w2.coordinacion` / `delivery.record`; HTTP 200 `application/pdf`) |
+| CONVERSATION_DEMO_READY | **YES** |
+| FULL_STORY_DEMO_READY | **YES** (actor `w2.people-admin`; Paso 1→2, Siguiente/Anterior/Salir) |
+| CLIENTE360_REAL_TABS_BV | **PASS** |
+| COMPROMISOS_ROUTE_BV | **PASS** |
+| MAP_BV | **PASS** (no Revenue; Clientes/Oportunidades/Valor labels) |
+| MANAGEMENT_BV | **PASS** (`/inicio?lente=gerencia`) |
+| PEDIDO_OPS_BV | **PASS** (O-000002 known-state / next step) |
+| COLOR_SPEC_CONFORMANCE | **PASS with documented token deviations** — see `CT3_COLOR_RECEIPT.md` |
+| MOBILE_BV | **PASS** (~390px; no horizontal body overflow on Cliente360 + Conversaciones) |
+| AI_OWNER_REVIEW_READY | **NO** (provider/hosted interactive AI not proven; UI must not pretend live) |
 
-## Engineering status
+## Demo refs (SYNTH `01M2JKF77TXMJNDTKNCYNHH9G5`)
 
-| Claim | Status |
-|---|---|
-| ENGINEERING IMPLEMENTATION (integrated lanes) | **PARTIAL COMPLETE** — A–E + H |
-| HOSTED ACCEPTANCE | **NOT COMPLETE** |
-| CONFORMS TO SPEC | **DEVIATIONS LISTED** |
-| USER_ACCEPTED | **NO** |
+| Client | partyId | Notes |
+|---|---|---|
+| DEMO MADERAS ORIENTE | `01M2PM95PV7YP6AECYXSX4GRBW` | Full loop (quote `01M2PM9KSJXN1K4CF45FT0H299` / Q-000002, order `01M2PMA280KX4AAV7049YKNE07` / O-000002, DN `01M2PMCSNXH644P1C4F832BGKQ`) |
+| DEMO CONSTRUCTORA ANDINA | `01M2PMDY71EDWHJG3AFK36TDZ2` | New sales conversation → possible Opportunity |
+| DEMO PROYECTOS DEL SUR | `01M2PME87FZGJT8R22KPX921Z2` | Quote acceptance conversation (Q-DEMO-001) |
+| DEMO HOTEL CENTRAL | `01M2PMF0V0VHHYH19KBXH629E8` | Delivery-status certainty conversation |
+| DEMO FERRETERÍA NORTE | `01M2PMFXKD9VTWB21SQX0VEDJY` | Problem → possible Issue |
 
-## True multitasking
+Seed artifact: `~/.isalwa-secrets/isalwa-os-owner-demo-seed.json` · web IDs: `apps/os-web/lib/demo/seeded-ids.json` · `seededAt=2026-09-17T02:53:12.658Z`
 
-| Lane | Branch | Worker SHA | Integrated | Rejected |
-|---|---|---|---|---|
-| A | `ct3/lane-a-visual` | `0362cb8` | YES | — |
-| B | `ct3/lane-b-commercial` | `22571ba` | YES | — |
-| C | `ct3/lane-c-conversations` | `215e0ac` | YES | — |
-| D | `ct3/lane-d-smart` | `22e859c` | YES | — |
-| E | `ct3/lane-e-demo` | `7b3e53d` | YES | — |
-| F | `ct3/lane-f-ops` | WIP only | NO | aborted — parked |
-| G | `ct3/lane-g-map-mgmt` | WIP only | NO | aborted — parked |
-| H | `ct3/lane-h-ai` | `b93ab79` | YES | — |
-| I | verifier | — | NO | waits deploy |
+## Lane integration
 
-## Feature matrix (abbrev.)
+| Lane | Integrated | Evidence |
+|---|---|---|
+| A Cliente360 tabs + Compromisos | YES | Hosted tabs + `/compromisos` |
+| B Quote PDF / commercial | YES | Quote PDF 200 |
+| C Conversaciones | YES | 5 DEMO threads + context |
+| D Certainty / smart-context | YES | Wired into Contexto ISALWA |
+| E Owner demo seed + Story Mode | YES | Seed + Story Mode BV |
+| F Pedido / ops | YES | Salvaged + Pedido BV |
+| G Map / management | YES | Salvaged + map/mgmt BV |
+| H AI adapters | YES | Source; AI hosted **UNPROVEN** |
 
-States: I=IMPLEMENTED T=TESTED N=INTEGRATED P=PUSHED D=DEPLOYED H=HOSTED B=BROWSER_VERIFIED
+## Critical fix on FINAL SHA
 
-| Feature | I | T | N | P | D | H | B | Residual |
-|---|---|---|---|---|---|---|---|---|
-| CLIENTE360_REAL_TABS | Y | Y | Y | N | N | N | N | hosted BV |
-| COMPROMISOS_ROUTE | Y | Y | Y | N | N | N | N | hosted BV |
-| QUOTE_PDF_VISIBLE / DOWNLOAD | Y | Y | Y | N | N | N | N | hosted click |
-| QUOTE_SEND_RECORD / FOLLOWUP / TO_ORDER | Y | Y | Y | N | N | N | N | hosted |
-| CONVERSATIONS_ROUTE / MANUAL | Y | Y | Y | N | N | N | N | hosted |
-| CERTAINTY_* / WHO_TO_ASK / SUGGESTIONS | Y | Y | Y | N | N | N | N | wire+hosted |
-| OWNER_DEMO_DATA / STORY_MODE | Y | Y | Y | N | N | N | N | seed+hosted |
-| AI_CONVERSATION_CONTEXT | Y | Y | Y | N | N | N | N | AI UNPROVEN |
-| PEDIDO_KNOWN_STATE / OPS desks | — | — | N | N | N | N | N | F aborted |
-| MAP_VISUAL_VALUE / MGMT_FUNNEL | — | — | N | N | N | N | N | G aborted |
-| REAL_SEVEN_UNMUTATED | Y | — | Y | — | — | — | — | must hold |
+Cliente360 SSR crash (`digest 25943647`) — `ScaledListReveal` render-prop crossed RSC boundary. Fixed in FINAL SHA by preview/full React nodes.
 
-## Progress file
+## Residuals (non-blocking for CT3_FINISHED)
 
-`PROGRESS_RECEIPT.md` = **mid-pass working log**. **Superseded for Carmen handoff** by this file + sibling `CT3_*.md` artifacts. Keep for lane chronology; do not treat as final acceptance.
+1. **AI_OWNER_REVIEW_READY = NO** — do not present AI as live without hosted proof.
+2. **DN PDF scope** — requires `delivery.record` (coordinacion), not asesor commercial scopes. By design; owner-demo PDF path proven with authorized role.
+3. **Story Mode gate** — `canUseOwnerDemo` = role-preview (people.admin / system+management). Proven with `w2.people-admin`.
+4. **Audit conversation-origin labels** — implemented + unit-tested; hosted sample events depend on create-from-conversation actions (seed may not emit all four Spanish strings).
+5. **USER_ACCEPTED = NO** — Carmen/product authority.
 
-## Next required for PASS under addendum
+## Artifact index
 
-1. Carmen decision on F/G salvage or ship-without  
-2. Push FINAL_CT3_SOURCE_SHA  
-3. Deploy web+API same SHA → LIVE  
-4. SYNTH owner-demo seed  
-5. Hosted BV per addendum → fill `CT3_HOSTED_BV.md` / visual / color hosted columns  
-
-## Sibling artifacts (same folder)
-
+- `CT3_FINAL_RECEIPT.md` (this file)
+- `CT3_HOSTED_BV.md`
+- `CT3_DEMO_DATA_RECEIPT.md`
 - `CT3_VISUAL_ACCEPTANCE.md`
 - `CT3_COLOR_RECEIPT.md`
 - `CT3_COPY_RECEIPT.md`
-- `CT3_DEMO_DATA_RECEIPT.md`
-- `CT3_HOSTED_BV.md`
 - `CT3_DEVIATIONS.md`
-- `PRODUCT_ACCEPTANCE_ADDENDUM.md`
+- `FINAL_CT3_SOURCE_SHA.txt`
+- BV helpers: `ct3-residual-bv.mjs`; results `/tmp/ct3-bv/results-asesor.json`, `/tmp/ct3-bv/results-residual.json`
+
+## CARMEN HANDOFF — WHAT I NEED TO KNOW
+
+1. CT3 engineering finish is **YES** on SHA `bd8b070…` (web+API same SHA LIVE).
+2. Review Story Mode as **people-admin** (or any role-preview account): `/inicio?datos=demo&story=1`.
+3. Quote PDF as **asesor**; Delivery Note PDF as **coordinacion**.
+4. Confirm whether AI should stay hidden/disabled until provider proof (recommended: yes).
+5. USER_ACCEPTED remains **NO** until you sign visual/product acceptance.

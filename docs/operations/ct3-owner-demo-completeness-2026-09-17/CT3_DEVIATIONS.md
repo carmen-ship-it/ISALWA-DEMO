@@ -1,31 +1,17 @@
 # CT3_DEVIATIONS
 
-Do not hide differences inside residuals. Format: REQUESTED / ACTUAL / MATCH|DEVIATION / WHY / RECOMMENDED ACTION.
+**FINAL_CT3_SOURCE_SHA:** `bd8b070806a0f09e6be5d98cc644d92122e58662`  
+**At:** 2026-09-17
 
-| # | REQUESTED | ACTUAL | MATCH / DEVIATION | WHY | RECOMMENDED ACTION |
+| # | REQUESTED | ACTUAL | MATCH / DEVIATION | WHY | BLOCKS OWNER REVIEW |
 |---|---|---|---|---|---|
-| 1 | CT3 same-SHA deploy + hosted BV PASS | CT3 not pushed/deployed; live still CT2 `4b85b11` | **DEVIATION** | integrator mid-pass; aborts | Push/deploy after F/G decision; run addendum BV |
-| 2 | All lanes A–I complete | F + G aborted; WIP not integrated | **DEVIATION** | user stop — no re-dispatch | Carmen: salvage WIP or accept gap |
-| 3 | Navy literal `#12324A` | `--isalwa-kiln #18324b` | **DEVIATION** | frozen design tokens | Accept token map or retune tokens with design approval |
-| 4 | Teal literal `#2C8C88` | `--isalwa-glaze #287a78` | **DEVIATION** | frozen tokens | same |
-| 5 | Soft teal `#EAF6F4` | `--isalwa-teal-100 #e2f0ed` | **DEVIATION** | frozen tokens | same |
-| 6 | Amber fills `#FFF5DB`/`#F6E3A6` | warning `#b8872e` + color-mix tints | **DEVIATION** | no literal amber fill tokens | map or add tokens |
-| 7 | Soft green/red literal fills | success/danger color-mix | **DEVIATION** | token system | hosted verify after deploy |
-| 8 | Pedido known-state + ops desk CT3 density | F not merged | **DEVIATION** | abort | salvage F or CT finish |
-| 9 | Map valor labels / mgmt funnel / Inicio bands | G not merged | **DEVIATION** | abort | salvage G or CT finish |
-| 10 | Conversaciones Contexto ISALWA fully smart | stubs + D helpers not fully wired in panel | **DEVIATION** | C stubWaiting; D library ready | integrator wire D into C panel |
-| 11 | Durable DB conversation Message table | reused manual/evidence model; demo JSON fixtures | **DEVIATION** | smallest reuse | OK for V1 if accepted; else migrate |
-| 12 | Demo seed applied + Story CTAs durable | seed script only; `seeded-ids.json` may be empty until run | **DEVIATION** | not applied | run SYNTH fixture |
-| 13 | AI_OWNER_REVIEW_READY YES | NO — UNPROVEN; controls hide when blocked | **MATCH** to fail-safe rule | provider/hosted not proven | hosted reverify or keep hidden |
-| 14 | Quote/DN PDF hosted click proof | UNPROVEN | **DEVIATION** | no CT3 live | BV after deploy+seed |
-| 15 | Demo banner copy “Conversación de ejemplo. Datos ficticios.” | `Hilo de demostración. WhatsApp no está conectado…` + `DEMO·WHATSAPP` | **DEVIATION** | lane C wording | product approve or align copy |
-| 16 | USER_ACCEPTED | NO | **MATCH** (required) | authority | Carmen only |
-| 17 | Final artifacts before this commit | missing | **FIXED** | created now | this folder |
+| 1 | Navy ~`#12324A` | `--isalwa-kiln` `#18324b` | DEVIATION (semantic OK) | Established ISALWA navy token | NO |
+| 2 | Soft teal token | Mixes / Story hex; `--isalwa-glaze-soft` empty on :root | DEVIATION | Soft teal via color-mix + literals | NO |
+| 3 | DN PDF for commercial asesor | 403 without `delivery.record` | DEVIATION vs naive “any staff” | Scope isolation; proven via coordinacion | NO |
+| 4 | Story Mode for any demo viewer | Gated to role-preview (people.admin / system+management) | DEVIATION | `canUseOwnerDemo` = `canUseRolePreview` | NO (eval path uses people-admin) |
+| 5 | AI owner review live | AI_OWNER_REVIEW_READY=NO | DEVIATION / residual | Provider/hosted interactive unproven | NO for CT3_FINISHED if UI does not pretend live |
+| 6 | Audit “desde conversación” hosted samples | Labels implemented+tested; seed may lack all four event rows | PARTIAL | Needs create-from-conversation or seed events | NO (source delivered; sample soft) |
+| 7 | Long-list Ver todos at 6+ | Implemented (ScaledListReveal); demo volumes usually compact | MATCH (logic) / soft hosted | Threshold not always hit with 5 demos | NO |
+| 8 | Docs pin commits after FINAL product SHA | FINAL points at product hotfix `bd8b070`; branch tip may include docs | MATCH (intended pin pattern) | Runtime = product SHA | NO |
 
-## KNOWN_DEVIATIONS_COUNT
-
-**16 open product/engineering deviations** (row 17 closed by creating artifacts).
-
-## Progress file
-
-`PROGRESS_RECEIPT.md` superseded for handoff by `CT3_FINAL_RECEIPT.md` + this set.
+No deviation hides REAL_SEVEN mutation (none). No fake Revenue. No false AI-live claim.
