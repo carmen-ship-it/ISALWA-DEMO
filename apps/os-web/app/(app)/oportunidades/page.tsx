@@ -85,11 +85,12 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
   const client = createOsApiClient(auth);
 
   try {
+    const demoQ = dataMode === 'demo' && !listState.q ? 'DEMO' : listState.q;
     const result = await client.listOpportunities({
       status,
-      limit: LIST_LIMIT,
-      ...(listState.q ? { q: listState.q } : {}),
-      ...(listState.cursor ? { cursor: listState.cursor } : {}),
+      limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
+      ...(demoQ ? { q: demoQ } : {}),
+      ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
       ...(stage ? { stage } : {}),
     });
     const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
@@ -108,7 +109,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
     );
     const hasQuery = Boolean(listState.q);
     const nextHref =
-      result.meta.hasMore && result.meta.nextCursor
+      dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor
         ? withExactStage(
             listHref(LIST_PATH, { ...listState, cursor: result.meta.nextCursor }, ['panel']),
             stage,

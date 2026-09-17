@@ -366,6 +366,60 @@ export const OWNER_DEMO_STORY_STEPS: readonly OwnerDemoStoryStepDef[] = [
   },
 ] as const;
 
+/**
+ * PF-1 commercial density contract — seed materializes these shapes in SYNTH.
+ * Inicio / list desks derive counts from filtered records (never hardcoded totals).
+ */
+export const OWNER_DEMO_COMMERCIAL_DENSITY = {
+  /** Open opportunities across stages after seed (primary + secondary). */
+  minOpenOpportunities: 4,
+  minWonOpportunities: 1,
+  minLostOpportunities: 1,
+  /** Quote statuses that must appear among DEMO parties. */
+  requiredQuoteStates: ['draft', 'submitted', 'accepted'] as const,
+  /** Pedido lifecycle stories covered by linked DEMO records. */
+  pedidoLifecycleStories: [
+    'delivered_full_loop', // maderas_oriente
+    'fg_note_without_salida', // hotel_central
+    'order_open_early', // ferreteria_norte
+  ] as const,
+  clients: {
+    maderas_oriente: {
+      opportunityTitle: 'DEMO MADERAS — loop sano',
+      stage: 'propuesta',
+      closeAs: 'won' as const,
+      quote: { submit: true, manualSend: true, convert: true },
+    },
+    constructora_andina: {
+      opportunityTitle: 'DEMO ANDINA — obra nueva',
+      stage: 'calificacion',
+      closeAs: null,
+      secondaryOpportunityTitle: 'DEMO ANDINA — ampliación futura',
+      secondaryStage: 'propuesta',
+      quote: { submit: false, manualSend: false, convert: false },
+    },
+    proyectos_del_sur: {
+      opportunityTitle: 'DEMO PROYECTOS — aceptación',
+      stage: 'negociacion',
+      closeAs: null,
+      quote: { submit: true, manualSend: true, convert: false, quoteNumber: OWNER_DEMO_QUOTE_NUMBER_PROYECTOS },
+    },
+    hotel_central: {
+      opportunityTitle: 'DEMO HOTEL — pedido sin salida',
+      stage: 'propuesta',
+      closeAs: null,
+      lostOpportunityTitle: 'DEMO HOTEL — oportunidad perdida',
+      quote: { submit: true, manualSend: true, convert: true },
+    },
+    ferreteria_norte: {
+      opportunityTitle: 'DEMO FERRETERÍA — pedido con incidencia',
+      stage: 'propuesta',
+      closeAs: null,
+      quote: { submit: true, manualSend: false, convert: true },
+    },
+  },
+} as const;
+
 export function ownerDemoCatalogMeta() {
   return {
     organizationId: OWNER_DEMO_SYNTH_ORG,
@@ -374,6 +428,13 @@ export function ownerDemoCatalogMeta() {
     clientCount: OWNER_DEMO_CLIENTS.length,
     storyStepCount: OWNER_DEMO_STORY_STEPS.length,
     quoteNumberProyectos: OWNER_DEMO_QUOTE_NUMBER_PROYECTOS,
+    commercialDensity: {
+      minOpenOpportunities: OWNER_DEMO_COMMERCIAL_DENSITY.minOpenOpportunities,
+      minWonOpportunities: OWNER_DEMO_COMMERCIAL_DENSITY.minWonOpportunities,
+      minLostOpportunities: OWNER_DEMO_COMMERCIAL_DENSITY.minLostOpportunities,
+      requiredQuoteStates: [...OWNER_DEMO_COMMERCIAL_DENSITY.requiredQuoteStates],
+      pedidoLifecycleStories: [...OWNER_DEMO_COMMERCIAL_DENSITY.pedidoLifecycleStories],
+    },
   };
 }
 

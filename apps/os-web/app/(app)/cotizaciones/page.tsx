@@ -91,11 +91,12 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
   const filters = quoteStatusFilterOptions(status);
 
   try {
+    // Demo densify: wider page so party-name filter can see SYNTH quotes (q is quoteNumber-only).
     const result = await client.listQuotes({
       status,
-      limit: LIST_LIMIT,
+      limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
       ...(listState.q ? { q: listState.q } : {}),
-      ...(listState.cursor ? { cursor: listState.cursor } : {}),
+      ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
     });
     const memberLabels = await resolveMemberLabels(
       client,
@@ -125,7 +126,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
     const statusLabel =
       filters.find((filter) => filter.status === status)?.label ?? status;
     const nextHref =
-      result.meta.hasMore && result.meta.nextCursor
+      dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor
         ? workingHref({ ...listState, cursor: result.meta.nextCursor }, ['panel'])
         : null;
 

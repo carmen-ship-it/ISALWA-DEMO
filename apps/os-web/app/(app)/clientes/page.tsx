@@ -46,12 +46,14 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const canAddCustomer = await actorCanMutateMasterData(client);
 
   try {
+    // Demo mode: prefer DEMO-prefixed search so SYNTH fixtures are not buried under REAL pages.
+    const effectiveQ = q || (dataMode === 'demo' ? 'DEMO' : undefined);
     const result = await client.searchParties({
-      ...(q ? { q } : {}),
+      ...(effectiveQ ? { q: effectiveQ } : {}),
       ...(roleKey ? { roleKey } : {}),
       status: status || 'active',
-      ...(cursor ? { cursor } : {}),
-      limit: 25,
+      ...(dataMode === 'demo' ? {} : cursor ? { cursor } : {}),
+      limit: dataMode === 'demo' ? 50 : 25,
     });
 
     const filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>

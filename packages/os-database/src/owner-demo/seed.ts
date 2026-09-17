@@ -41,17 +41,16 @@ import {
 } from '../staging-wave2-role-fixtures-guards';
 import {
   OWNER_DEMO_CLIENTS,
+  OWNER_DEMO_COMMERCIAL_DENSITY,
   OWNER_DEMO_CONVERSATIONS,
   ownerDemoCatalogMeta,
   type OwnerDemoClientKey,
 } from './catalog';
 import {
-  OWNER_DEMO_QUOTE_NUMBER_PROYECTOS,
   OWNER_DEMO_REAL_ORG,
   OWNER_DEMO_SYNTH_ORG,
   assertNotProtectedRealSevenName,
   assertOwnerDemoConfirm,
-  assertOwnerDemoNotRealOrg,
   assertOwnerDemoSynthOrg,
   realSevenMutationProof,
   withOwnerDemoNotesTag,
@@ -210,6 +209,81 @@ async function ensureParty(
   return { partyId, contactId, locationId, created: true };
 }
 
+async function ensureOpportunityStage(
+  commercialSvc: CommercialCommandService,
+  session: RequestContext,
+  opportunityId: string,
+  stage: string,
+): Promise<void> {
+  const row = await prismaOpportunity(session, opportunityId);
+  if (!row || row.status !== 'open' || row.stage === stage) return;
+  try {
+    await commercialSvc.execute('ChangeOpportunityStage', session, { opportunityId, stage });
+  } catch {
+    // Idempotent seed — stage change may be unauthorized on re-run; leave existing.
+  }
+}
+
+async function prismaOpportunity(
+  session: RequestContext,
+  opportunityId: string,
+): Promise<{ id: string; stage: string; status: string } | null> {
+  const prisma = getOsPrisma();
+  if (!prisma) return null;
+  return prisma.osOpportunity.findFirst({
+    where: { organizationId: session.organizationId, id: opportunityId },
+    select: { id: true, stage: true, status: true },
+  });
+}
+
+async function ensureOpportunityClosed(
+  commercialSvc: CommercialCommandService,
+  session: RequestContext,
+  opportunityId: string,
+  outcome: 'won' | 'lost',
+): Promise<void> {
+  const row = await prismaOpportunity(session, opportunityId);
+  if (!row || row.status !== 'open') return;
+  try {
+    await commercialSvc.execute('CloseOpportunity', session, { opportunityId, outcome });
+  } catch {
+    // Leave open if close is blocked; densify re-apply can retry.
+  }
+}
+
+async function ensureSecondaryOpportunity(
+  commercialSvc: CommercialCommandService,
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  input: {
+    partyId: string;
+    title: string;
+    stage: string;
+    expectedValueCentavos: number;
+    closeAs?: 'won' | 'lost' | null;
+  },
+): Promise<string> {
+  let opportunity = await prisma.osOpportunity.findFirst({
+    where: { organizationId: session.organizationId, partyId: input.partyId, title: input.title },
+  });
+  let opportunityId = opportunity?.id;
+  if (!opportunityId) {
+    const opp = await commercialSvc.execute('CreateOpportunity', session, {
+      partyId: input.partyId,
+      title: input.title,
+      stage: input.stage,
+      expectedValueCentavos: input.expectedValueCentavos,
+    });
+    opportunityId = String(opp.data.opportunityId);
+  } else {
+    await ensureOpportunityStage(commercialSvc, session, opportunityId, input.stage);
+  }
+  if (input.closeAs) {
+    await ensureOpportunityClosed(commercialSvc, session, opportunityId, input.closeAs);
+  }
+  return opportunityId;
+}
+
 async function ensureQuoteLoop(
   commercialSvc: CommercialCommandService,
   session: RequestContext,
@@ -226,6 +300,8 @@ async function ensureQuoteLoop(
     recordManualSend: boolean;
     /** When false, leave quote as draft (no SubmitQuote). Default true. */
     submitQuote?: boolean;
+    /** Opportunity stage (default propuesta). */
+    stage?: string;
   },
 ): Promise<{
   opportunityId: string;
@@ -234,6 +310,7 @@ async function ensureQuoteLoop(
   orderId: string | null;
   orderNumber: string | null;
 }> {
+  const stage = input.stage ?? 'propuesta';
   let opportunity = await prisma.osOpportunity.findFirst({
     where: { organizationId: session.organizationId, partyId: input.partyId, title: input.title },
   });
@@ -242,10 +319,12 @@ async function ensureQuoteLoop(
     const opp = await commercialSvc.execute('CreateOpportunity', session, {
       partyId: input.partyId,
       title: input.title,
-      stage: 'propuesta',
+      stage,
       expectedValueCentavos: input.unitPriceCentavos * input.quantity,
     });
     opportunityId = String(opp.data.opportunityId);
+  } else {
+    await ensureOpportunityStage(commercialSvc, session, opportunityId, stage);
   }
 
   let quote = await prisma.osQuote.findFirst({
@@ -278,6 +357,25 @@ async function ensureQuoteLoop(
           note: withOwnerDemoNotesTag('Envío manual demo'),
         });
       }
+    }
+  } else if (shouldSubmit && quote?.status === 'draft') {
+    await commercialSvc.execute('SubmitQuote', session, { quoteId });
+    if (input.recordManualSend) {
+      await commercialSvc.execute('RecordQuoteManualSend', session, {
+        quoteId,
+        channel: 'whatsapp',
+        note: withOwnerDemoNotesTag('Envío manual demo'),
+      });
+    }
+  } else if (shouldSubmit && input.recordManualSend && quote?.status === 'submitted') {
+    try {
+      await commercialSvc.execute('RecordQuoteManualSend', session, {
+        quoteId,
+        channel: 'whatsapp',
+        note: withOwnerDemoNotesTag('Envío manual demo'),
+      });
+    } catch {
+      // Already recorded on a prior seed pass.
     }
   }
 
@@ -932,6 +1030,46 @@ async function ensureDemoDeskDensity(
   log('OWNER_DEMO_DESK_DENSITY ok');
 }
 
+/**
+ * PF-1 commercial density extras — secondary open opp, lost opp, stage variety.
+ * Idempotent; SYNTH only.
+ */
+async function ensureCommercialDensityExtras(
+  commercialSvc: CommercialCommandService,
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  clients: ClientIds[],
+): Promise<void> {
+  assertOwnerDemoSynthOrg(session.organizationId);
+
+  const andina = clients.find((c) => c.key === 'constructora_andina');
+  const hotel = clients.find((c) => c.key === 'hotel_central');
+  const andinaSpec = OWNER_DEMO_COMMERCIAL_DENSITY.clients.constructora_andina;
+  const hotelSpec = OWNER_DEMO_COMMERCIAL_DENSITY.clients.hotel_central;
+
+  if (andina?.partyId) {
+    await ensureSecondaryOpportunity(commercialSvc, session, prisma, {
+      partyId: andina.partyId,
+      title: andinaSpec.secondaryOpportunityTitle,
+      stage: andinaSpec.secondaryStage,
+      expectedValueCentavos: 180000,
+      closeAs: null,
+    });
+  }
+
+  if (hotel?.partyId) {
+    await ensureSecondaryOpportunity(commercialSvc, session, prisma, {
+      partyId: hotel.partyId,
+      title: hotelSpec.lostOpportunityTitle,
+      stage: 'propuesta',
+      expectedValueCentavos: 90000,
+      closeAs: 'lost',
+    });
+  }
+
+  log('OWNER_DEMO_COMMERCIAL_DENSITY ok');
+}
+
 async function main(): Promise<void> {
   assertOwnerDemoConfirm(process.env.STAGING_FIXTURE_CONFIRM);
   if (!process.env.OS_DATABASE_URL?.trim()) {
@@ -1031,15 +1169,18 @@ async function main(): Promise<void> {
     };
 
     if (spec.key === 'maderas_oriente') {
+      const density = OWNER_DEMO_COMMERCIAL_DENSITY.clients.maderas_oriente;
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
-        title: 'DEMO MADERAS — loop sano',
+        title: density.opportunityTitle,
         notes: 'Cotización loop completo',
         lineDescription: 'Inodoro estándar DEMO',
         quantity: 10,
         unitPriceCentavos: 45000,
-        convertToOrder: true,
-        recordManualSend: true,
+        stage: density.stage,
+        convertToOrder: density.quote.convert,
+        recordManualSend: density.quote.manualSend,
+        submitQuote: density.quote.submit,
       });
       ids.opportunityId = loop.opportunityId;
       ids.quoteId = loop.quoteId;
@@ -1069,31 +1210,40 @@ async function main(): Promise<void> {
         ids.deliveryId = ops.deliveryId;
         ids.finishedGoodsReceiptId = ops.finishedGoodsReceiptId;
       }
+      if (density.closeAs) {
+        await ensureOpportunityClosed(commercialSvc, session, loop.opportunityId, density.closeAs);
+      }
     } else if (spec.key === 'proyectos_del_sur') {
+      const density = OWNER_DEMO_COMMERCIAL_DENSITY.clients.proyectos_del_sur;
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
-        title: 'DEMO PROYECTOS — aceptación',
+        title: density.opportunityTitle,
         notes: 'Cotización para aceptación Q-DEMO-001',
         lineDescription: 'Lavamanos DEMO',
         quantity: 6,
         unitPriceCentavos: 28000,
-        quoteNumber: OWNER_DEMO_QUOTE_NUMBER_PROYECTOS,
-        convertToOrder: false,
-        recordManualSend: true,
+        stage: density.stage,
+        quoteNumber: density.quote.quoteNumber,
+        convertToOrder: density.quote.convert,
+        recordManualSend: density.quote.manualSend,
+        submitQuote: density.quote.submit,
       });
       ids.opportunityId = loop.opportunityId;
       ids.quoteId = loop.quoteId;
-      ids.quoteNumber = OWNER_DEMO_QUOTE_NUMBER_PROYECTOS;
+      ids.quoteNumber = density.quote.quoteNumber;
     } else if (spec.key === 'hotel_central') {
+      const density = OWNER_DEMO_COMMERCIAL_DENSITY.clients.hotel_central;
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
-        title: 'DEMO HOTEL — pedido sin salida',
+        title: density.opportunityTitle,
         notes: 'Pedido con FG, sin Salida/Entrega',
         lineDescription: 'Bidé DEMO',
         quantity: 4,
         unitPriceCentavos: 52000,
-        convertToOrder: true,
-        recordManualSend: true,
+        stage: density.stage,
+        convertToOrder: density.quote.convert,
+        recordManualSend: density.quote.manualSend,
+        submitQuote: density.quote.submit,
       });
       ids.opportunityId = loop.opportunityId;
       ids.quoteId = loop.quoteId;
@@ -1115,30 +1265,35 @@ async function main(): Promise<void> {
       }
     } else if (spec.key === 'constructora_andina') {
       // Open opportunity + draft quote (possible Opportunity story + Cotizaciones draft).
+      const density = OWNER_DEMO_COMMERCIAL_DENSITY.clients.constructora_andina;
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
-        title: 'DEMO ANDINA — obra nueva',
+        title: density.opportunityTitle,
         notes: 'Borrador cotización obra Warnes',
         lineDescription: 'Inodoro obra DEMO',
         quantity: 20,
         unitPriceCentavos: 42000,
-        convertToOrder: false,
-        recordManualSend: false,
-        submitQuote: false,
+        stage: density.stage,
+        convertToOrder: density.quote.convert,
+        recordManualSend: density.quote.manualSend,
+        submitQuote: density.quote.submit,
       });
       ids.opportunityId = loop.opportunityId;
       ids.quoteId = loop.quoteId;
       ids.quoteNumber = loop.quoteNumber;
     } else if (spec.key === 'ferreteria_norte') {
+      const density = OWNER_DEMO_COMMERCIAL_DENSITY.clients.ferreteria_norte;
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
-        title: 'DEMO FERRETERÍA — pedido con incidencia',
+        title: density.opportunityTitle,
         notes: 'Pedido relacionado a piezas quebradas',
         lineDescription: 'Pieza cerámica DEMO',
         quantity: 12,
         unitPriceCentavos: 15000,
-        convertToOrder: true,
-        recordManualSend: false,
+        stage: density.stage,
+        convertToOrder: density.quote.convert,
+        recordManualSend: density.quote.manualSend,
+        submitQuote: density.quote.submit,
       });
       ids.opportunityId = loop.opportunityId;
       ids.quoteId = loop.quoteId;
@@ -1151,6 +1306,7 @@ async function main(): Promise<void> {
   }
 
   await ensureDemoDeskDensity(workSvc, session, prisma, clients);
+  await ensureCommercialDensityExtras(commercialSvc, session, prisma, clients);
 
   const maderas = clients.find((c) => c.key === 'maderas_oriente');
   const proof = realSevenMutationProof();
