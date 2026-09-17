@@ -1,12 +1,14 @@
 # LANE UX-6 — Auditoría (receipt)
 
+**STATUS: DRAFT ONLY — NOT INTEGRATED** (lane still dirty at base `1244d84`; no HEAD SHA yet)
+
 | Field | Value |
 |---|---|
 | LANE | UX-6 |
 | BRANCH | `ct2/lane-ux6-audit` |
 | WORKTREE | `/Users/carmen/projects/isalwa/.worktrees/ct2-lane-ux6-audit` |
 | BASE_SHA | `1244d84ef75142d973c8f7aa44caeadd66361768` |
-| COMMIT_SHA | _(filled at commit)_ |
+| COMMIT_SHA | _(pending lane commit)_ |
 
 ## Scope delivered
 
