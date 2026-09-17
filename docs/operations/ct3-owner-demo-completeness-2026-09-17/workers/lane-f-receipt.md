@@ -4,7 +4,7 @@
 **Lane:** CT3-F (PEDIDO / OPERATIONS NEXT-STEP GUIDANCE)  
 **Branch:** `ct3/lane-f-ops`  
 **Base:** `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b`  
-**Tip:** _(set after final commit)_  
+**Tip:** `8985e3eb9510de20bd751209be801b4797bdeaa7`  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-lane-f-ops`  
 **REAL_SEVEN_MUTATED:** **NO**  
 **Deploy:** not performed (worker lane)  
