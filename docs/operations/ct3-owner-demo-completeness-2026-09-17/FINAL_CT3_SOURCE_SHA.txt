@@ -1,5 +1,5 @@
-FINAL_CT3_SOURCE_SHA=0230e27b60671607034ee5b1ab20920401ba1112
+FINAL_CT3_SOURCE_SHA=bd8b070806a0f09e6be5d98cc644d92122e58662
 BRANCH=ct3/owner-demo-completeness
 SEED=applied
 REAL_SEVEN_MUTATED=NO
-NOTE=post-Cliente360-RSC-hotfix
+NOTE=Cliente360 ScaledListReveal RSC hotfix; pin commit may trail product SHA
