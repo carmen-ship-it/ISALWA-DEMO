@@ -18,7 +18,7 @@ export function Panel({
   return (
     <div
       className={cx(
-        'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)]',
+        'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-surface-ops,var(--isalwa-white))]',
         /* Resting-rich so white cards lift off porcelain canvas, not float on white. */
         'shadow-[var(--isalwa-shadow-card-resting)]',
         'transition-[box-shadow,transform,border-color] duration-[var(--isalwa-motion-base)] ease-[var(--isalwa-ease-out)]',

@@ -65,8 +65,9 @@ type PartyDetailPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const sectionClass = 'scroll-mt-40 p-8';
+const sectionClass = 'scroll-mt-40 p-5 md:p-6';
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
+const helpLinkClass = 'text-sm font-medium text-[var(--isalwa-info)] hover:underline';
 
 const CLOSED_ISSUE_STATUSES = new Set(['resolved', 'closed']);
 
@@ -213,19 +214,17 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
 
     return (
       <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
-        <PageHeader
-          kicker="Cliente"
-          title={displayName}
-          description={roleHint ?? undefined}
-          action={
-            <Link href="/clientes" className={linkClass}>
-              Volver
-            </Link>
-          }
-        />
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 md:mb-4">
+          <p className="text-sm text-[var(--isalwa-slate)]">
+            {roleHint ? roleHint : 'Ficha del cliente'}
+          </p>
+          <Link href="/clientes" className={helpLinkClass}>
+            Volver a clientes
+          </Link>
+        </div>
 
         {data.staleFreshness ? (
-          <div className="mb-6">
+          <div className="mb-4">
             <StaleProjectionBanner stale />
           </div>
         ) : null}
@@ -255,14 +254,14 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           <Cliente360Nav partyId={partyId} activeTab={tab} embedded />
         </Cliente360Sticky>
 
-        <div className="mt-10 min-w-0 space-y-12">
+        <div className="mt-5 min-w-0 space-y-6 md:mt-6 md:space-y-8">
           {tab === 'resumen' ? (
           <PageSection id="resumen" card className={sectionClass} data-tour="cliente360-identity">
-            <SectionHeader title="Resumen" />
-            <div className="space-y-8">
-              <Cliente360Now composition={composition} />
+            <SectionHeader title="Resumen" className="mb-4" />
+            <div className="space-y-6">
               <Cliente360Intelligence facts={intelligence} />
-              <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
+              <Cliente360Now composition={composition} />
+              <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
                 {party.legalName ? (
                   <div className="min-w-0 sm:col-span-2">
                     <dt className="isalwa-section-label">Razón social</dt>
