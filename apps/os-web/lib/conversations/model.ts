@@ -43,9 +43,18 @@ export const DEMO_WHATSAPP_BANNER =
 export type ConversationRelated = {
   opportunityId: string | null;
   quoteId: string | null;
+  /** Human quote code when known (e.g. Q-DEMO-001); may differ from opaque quoteId. */
+  quoteNumber: string | null;
   orderId: string | null;
   issueId: string | null;
   workItemId: string | null;
+};
+
+/** Canonical RESPONSABLE hint for Contexto ISALWA (demo or assigned). Never Cargo inference. */
+export type ConversationResponsibleHint = {
+  memberId: string;
+  displayName: string;
+  teamLabel: string | null;
 };
 
 export type ConversationProvenance =
@@ -97,6 +106,8 @@ export type Conversation = {
   nextAction: string | null;
   customerQuestion: string | null;
   commitmentCandidate: string | null;
+  /** Assigned RESPONSABLE for who-to-ask; null when not yet recorded. */
+  responsible: ConversationResponsibleHint | null;
 };
 
 export type ConversationContextHooks = {

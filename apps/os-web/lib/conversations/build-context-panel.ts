@@ -9,6 +9,7 @@ import {
   whoToAskView,
   type CanonicalResponsible,
 } from '@/lib/certainty';
+import { quoteHref } from '@/lib/commercial/navigation';
 import {
   demoRecommendedReplyFor,
   matchDemoSuggestionRules,
@@ -73,11 +74,23 @@ function lastInboundText(conversation: Conversation): string {
 }
 
 function relatedQuoteCode(conversation: Conversation): string | null {
+  if (conversation.related.quoteNumber?.trim()) {
+    return conversation.related.quoteNumber.trim().toUpperCase();
+  }
   const fromRelated = conversation.related.quoteId?.includes('Q-DEMO')
     ? conversation.related.quoteId.replace(/^demo-quote-/, '')
     : null;
   const match = lastInboundText(conversation).match(/\bQ-[A-Z0-9][\w-]*/i);
   return fromRelated ?? (match ? match[0].toUpperCase() : null);
+}
+
+function isRealPartyId(partyId: string): boolean {
+  return Boolean(partyId.trim()) && !partyId.startsWith('demo-party-');
+}
+
+function isRealRecordId(id: string | null | undefined): id is string {
+  const value = id?.trim() ?? '';
+  return Boolean(value) && !value.startsWith('demo-');
 }
 
 /** Demo/hotel delivery question: confirmed FG vs missing salida/entrega. */
@@ -103,6 +116,64 @@ function deliveryQuestionFacts(conversation: Conversation): ContextFactRow[] {
   ];
 }
 
+function scenarioCertaintyFacts(
+  conversation: Conversation,
+  suggestions: ConversationSuggestion[],
+): ContextFactRow[] {
+  const facts: ContextFactRow[] = [];
+  if (suggestions.some((s) => s.type === 'possible_opportunity')) {
+    facts.push({
+      certainty: 'pending',
+      label: CERTAINTY_LABEL.pending,
+      detail: 'Consulta comercial detectada; la oportunidad aún no está creada en ISALWA.',
+    });
+    facts.push({
+      certainty: 'not_recorded',
+      label: CERTAINTY_LABEL.not_recorded,
+      detail: 'Disponibilidad y plazo de entrega para la próxima semana no están confirmados.',
+    });
+  }
+  if (suggestions.some((s) => s.type === 'possible_acceptance')) {
+    facts.push({
+      certainty: 'confirmed',
+      label: CERTAINTY_LABEL.confirmed,
+      detail: `Cotización ${relatedQuoteCode(conversation) ?? 'mencionada'} existe en el ejemplo DEMO.`,
+    });
+    facts.push({
+      certainty: 'pending',
+      label: CERTAINTY_LABEL.pending,
+      detail: 'La conversión a pedido requiere confirmación humana (no automática).',
+    });
+  }
+  if (suggestions.some((s) => s.type === 'possible_issue')) {
+    facts.push({
+      certainty: 'pending',
+      label: CERTAINTY_LABEL.pending,
+      detail: 'Reporte de piezas quebradas detectado; la incidencia aún no está registrada.',
+    });
+    facts.push({
+      certainty: 'not_recorded',
+      label: CERTAINTY_LABEL.not_recorded,
+      detail: 'No hay incidencia canónica vinculada a este hilo todavía.',
+    });
+  }
+  if (suggestions.some((s) => s.type === 'possible_follow_up')) {
+    facts.push({
+      certainty: 'confirmed',
+      label: CERTAINTY_LABEL.confirmed,
+      detail: conversation.related.orderId
+        ? 'Hay pedido vinculado en el ejemplo DEMO para dar seguimiento.'
+        : 'El cliente pide confirmación del estado del pedido.',
+    });
+    facts.push({
+      certainty: 'pending',
+      label: CERTAINTY_LABEL.pending,
+      detail: 'Respuesta de seguimiento aún no registrada como enviada.',
+    });
+  }
+  return facts;
+}
+
 export function buildConversationContextView(input: {
   conversation: Conversation;
   responsible?: CanonicalResponsible | null;
@@ -117,7 +188,15 @@ export function buildConversationContextView(input: {
     relatedQuoteCode: quoteCode,
   });
 
-  const responsible = input.responsible ?? null;
+  const responsible =
+    input.responsible ??
+    (conversation.responsible
+      ? {
+          memberId: conversation.responsible.memberId,
+          displayName: conversation.responsible.displayName,
+          teamLabel: conversation.responsible.teamLabel,
+        }
+      : null);
   const who = whoToAskView({
     responsible,
     canAssignResponsible: input.canAssignResponsible ?? false,
@@ -125,9 +204,18 @@ export function buildConversationContextView(input: {
   });
 
   const deliveryFacts = deliveryQuestionFacts(conversation);
-  const informacion: ContextFactRow[] = [...deliveryFacts];
+  const informacion: ContextFactRow[] = [
+    ...deliveryFacts,
+    ...scenarioCertaintyFacts(conversation, suggestions),
+  ];
 
-  if (!conversation.nextAction) {
+  if (conversation.nextAction) {
+    informacion.push({
+      certainty: 'pending',
+      label: CERTAINTY_LABEL.pending,
+      detail: `Próxima acción sugerida: ${conversation.nextAction}`,
+    });
+  } else {
     informacion.push({
       certainty: 'not_recorded',
       label: CERTAINTY_LABEL.not_recorded,
@@ -154,20 +242,37 @@ export function buildConversationContextView(input: {
       body: 'Lamento lo ocurrido. Voy a registrar la incidencia con lo que nos indica y le confirmo el seguimiento.',
       badges: ['pending'],
     };
+  } else if (suggestions.some((s) => s.type === 'possible_follow_up')) {
+    recommendedReply = {
+      body: 'Recibido. Voy a revisar el estado del pedido en ISALWA y le confirmo lo que tengamos registrado.',
+      badges: ['pending'],
+    };
   }
 
-  const partyHref = conversation.partyId.startsWith('demo-party-')
-    ? null
-    : `/clientes/${encodeURIComponent(conversation.partyId)}`;
+  const partyHref = isRealPartyId(conversation.partyId)
+    ? `/clientes/${encodeURIComponent(conversation.partyId)}`
+    : null;
 
   const acciones: ContextLink[] = [];
   if (partyHref) {
     acciones.push({ label: 'Abrir Cliente360', href: partyHref });
   }
-  if (conversation.related.orderId && !conversation.related.orderId.startsWith('demo-')) {
+  if (isRealRecordId(conversation.related.quoteId) && partyHref) {
+    acciones.push({
+      label: quoteCode ? `Abrir cotización ${quoteCode}` : 'Abrir cotización',
+      href: quoteHref(conversation.partyId, conversation.related.quoteId),
+    });
+  }
+  if (isRealRecordId(conversation.related.orderId) && partyHref) {
     acciones.push({
       label: 'Abrir Pedido',
       href: `/clientes/${encodeURIComponent(conversation.partyId)}/pedidos/${encodeURIComponent(conversation.related.orderId)}`,
+    });
+  }
+  if (isRealRecordId(conversation.related.opportunityId) && partyHref) {
+    acciones.push({
+      label: 'Abrir oportunidad',
+      href: `/clientes/${encodeURIComponent(conversation.partyId)}/oportunidades/${encodeURIComponent(conversation.related.opportunityId)}`,
     });
   }
   if (suggestions.some((s) => s.type === 'possible_opportunity')) {
@@ -188,13 +293,26 @@ export function buildConversationContextView(input: {
   });
 
   const recomendacion =
-    suggestions[0]?.explanation ??
     conversation.nextAction ??
+    suggestions[0]?.explanation ??
     'Revise el hilo y confirme la siguiente acción humana. ISALWA no crea registros solos.';
 
   const freshnessLabel = conversation.lastOccurredAt
     ? `Última actualización: ${formatFreshness(conversation.lastOccurredAt)}`
     : null;
+
+  const comercialLinks: ContextLink[] = [];
+  if (quoteCode && isRealRecordId(conversation.related.quoteId) && partyHref) {
+    comercialLinks.push({
+      label: `Revisar ${quoteCode}`,
+      href: quoteHref(conversation.partyId, conversation.related.quoteId),
+    });
+  } else if (quoteCode) {
+    comercialLinks.push({
+      label: `Revisar ${quoteCode}`,
+      href: partyHref ? `${partyHref}?tab=comercial` : '/cotizaciones',
+    });
+  }
 
   return {
     cliente: {
@@ -222,12 +340,13 @@ export function buildConversationContextView(input: {
         : deliveryFacts.length
           ? 'Pedido de ejemplo DEMO (verificar ficha)'
           : 'Sin pedido vinculado en este hilo',
-      links: quoteCode
-        ? [{ label: `Revisar ${quoteCode}`, href: partyHref ? `${partyHref}?tab=comercial` : '/cotizaciones' }]
-        : [],
+      links: comercialLinks,
     },
     operacion: {
-      pedidoState: deliveryFacts[0]?.detail ?? 'Sin estado operativo confirmado en este hilo',
+      pedidoState: deliveryFacts[0]?.detail
+        ?? (conversation.related.orderId
+          ? 'Pedido vinculado — verificar ficha operativa'
+          : 'Sin estado operativo confirmado en este hilo'),
       production: deliveryFacts.length
         ? 'Evidencia de preparación / PT en demo (confirmar en Pedido)'
         : 'Sin evidencia de producción en este hilo',

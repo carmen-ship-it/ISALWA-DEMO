@@ -143,7 +143,10 @@ export function ConversationsWorkspace({
           <ConversationThread conversation={selected} />
         </Panel>
         <Panel className="min-h-0 overflow-hidden p-4">
-          <ConversationContextPanel conversation={selected} />
+          <ConversationContextPanel
+            conversation={selected}
+            responsible={selected?.responsible ?? null}
+          />
         </Panel>
       </div>
 
@@ -183,7 +186,10 @@ export function ConversationsWorkspace({
         title={CONVERSATIONS_COPY.contextLabel}
         onClose={() => setContextOpen(false)}
       >
-        <ConversationContextPanel conversation={selected} />
+        <ConversationContextPanel
+          conversation={selected}
+          responsible={selected?.responsible ?? null}
+        />
       </ContextDrawer>
 
       <ContextDrawer

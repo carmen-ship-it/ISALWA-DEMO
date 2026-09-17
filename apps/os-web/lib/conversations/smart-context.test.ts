@@ -77,6 +77,15 @@ describe('deterministic demo suggestion rules', () => {
     assert.ok(ids.includes('demo-acceptance-q-demo-001'));
     assert.ok(ids.includes('demo-issue-broken-pieces'));
     assert.ok(ids.includes('demo-followup-llamame-lunes'));
+    assert.ok(ids.includes('demo-followup-estado-pedido'));
+  });
+
+  it('matches MADERAS-style pedido follow-up without delivery-when phrasing', () => {
+    const hits = matchDemoSuggestionRules({
+      messageText: 'Buenos días. Confirmamos el pedido de sanitarios para el depósito Oriente. Gracias.',
+    });
+    assert.equal(hits[0]?.type, 'possible_follow_up');
+    assert.equal(hits[0]?.id, 'demo-followup-estado-pedido');
   });
 });
 

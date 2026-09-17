@@ -156,6 +156,25 @@ const RULES: readonly Rule[] = [
     },
   },
   {
+    id: 'demo-followup-estado-pedido',
+    type: 'possible_follow_up',
+    test: (n) =>
+      (n.includes('estado del pedido') || n.includes('confirmamos el pedido')) &&
+      !((n.includes('cuando') || n.includes('cuándo')) && n.includes('llega')),
+    build: (_input, snippet) => ({
+      id: 'demo-followup-estado-pedido',
+      type: 'possible_follow_up',
+      explanation: 'El cliente pide un seguimiento normal del estado del pedido.',
+      snippet,
+      signal: 'clear',
+      relatedLabel: null,
+      detected: ['Seguimiento de pedido', 'Confirmación solicitada'],
+      unknown: ['detalle operativo exacto si no está en la ficha'],
+      primaryActionLabel: 'Responder seguimiento',
+      isDemo: true,
+    }),
+  },
+  {
     id: 'demo-commitment-confirmo-manana',
     type: 'possible_commitment',
     test: (n) => n.includes('confirmo') && (n.includes('manana') || n.includes('mañana')),
