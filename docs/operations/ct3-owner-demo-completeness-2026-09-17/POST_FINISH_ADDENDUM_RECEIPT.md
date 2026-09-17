@@ -25,7 +25,7 @@
 | CODE_READY | **YES** |
 | SEED_APPLIED | **YES** (authorized densify `2026-09-17T04:09:03Z`) |
 | DEMO_DATA_VISIBLE_HOSTED | **YES** (PF-8: 15/15 pages with demo cue) |
-| DEMO_MODE_POPULATED_ACROSS_PRODUCT | **YES** |
+| DEMO_MODE_POPULATED_ACROSS_PRODUCT | **YES** (page-visibility after densify; see workers/pf8-receipt.md CT reconciliation) |
 | PF-8_BV | **PASS** 33/33 (`pf8-results.json`) |
 | USER_ACCEPTED | **NO** |
 
