@@ -14,6 +14,9 @@ import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import seededIds from '@/lib/demo/seeded-ids.json';
 import { createReportedOperationalFact } from '@/lib/operations/reported-fact';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'financeProvenance' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const FINANCE_PROVENANCE_TARGET = 'finance-provenance';
@@ -40,6 +43,10 @@ function one(value: string | string[] | undefined): string | null {
  * Product capability `finance` remains LOCKED (no official ledger / Ingresos).
  */
 export default async function FinanzasPage({ searchParams }: FinanzasPageProps) {
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'finanzas')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Finanzas" />;
+  }
   const params = await searchParams;
   const dataMode = await resolveDemoDataMode(params);
   const access = await loadFinanceAccess();

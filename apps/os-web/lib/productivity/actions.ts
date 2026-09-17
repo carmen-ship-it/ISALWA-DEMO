@@ -17,7 +17,8 @@ import {
 } from './search-extensions';
 import type { PaletteItem } from '@/lib/shell/command-palette';
 import { whatChangedFromTimeline, type WhatChangedItem } from './what-changed';
-
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { filterByCommercialOwner } from '@/lib/role-preview/evaluation-resource-access';
 
 const COVERAGE_LIMIT = 8;
 const LOOKUP_LIMIT = 8;
@@ -78,9 +79,15 @@ export async function extendPaletteSearch(query: string): Promise<
 
   for (const text of queries) {
     try {
-      const page = await client.searchParties({ q: text, status: 'active', limit: PALETTE_GROUP_LIMIT });
+      const evaluation = await getEvaluationProjection();
+      const page = await client.searchParties({ q: text, status: 'active', limit: PALETTE_GROUP_LIMIT * 2 });
       if (page.meta.hasMore) partial = true;
-      for (const party of page.items) {
+      const visible = filterByCommercialOwner(
+        evaluation,
+        page.items,
+        (party) => party.commercialOwnerMemberId,
+      ).slice(0, PALETTE_GROUP_LIMIT);
+      for (const party of visible) {
         const hit = toPartyHit(party);
         if (hit) parties.push(hit);
       }
@@ -130,10 +137,16 @@ export async function lookupCustomers(query: string): Promise<
   const ready = await clientOrSession();
   if (!ready.ok) return ready;
   try {
-    const page = await ready.client.searchParties({ q, status: 'active', limit: LOOKUP_LIMIT });
+    const evaluation = await getEvaluationProjection();
+    const page = await ready.client.searchParties({ q, status: 'active', limit: LOOKUP_LIMIT * 3 });
+    const visible = filterByCommercialOwner(
+      evaluation,
+      page.items,
+      (party) => party.commercialOwnerMemberId,
+    ).slice(0, LOOKUP_LIMIT);
     return {
       ok: true,
-      items: page.items.flatMap((party) => {
+      items: visible.flatMap((party) => {
         const hit = toPartyHit(party);
         if (!hit) return [];
         const phone = hit.primaryPhone?.trim();

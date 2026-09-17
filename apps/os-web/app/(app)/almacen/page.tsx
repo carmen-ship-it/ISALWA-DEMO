@@ -15,6 +15,9 @@ import { demoFinishedGoodsOrderIds } from '@/lib/warehouse/demo-fg-citations';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { workItemHref } from '@/lib/work/navigation';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
@@ -28,6 +31,10 @@ type PedidoWarehouseContext = {
 };
 
 export default async function AlmacenPage() {
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'almacen')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Almacén" />;
+  }
   const access = await loadAlmacenAccess();
   const pedidos = access.pedidos;
   const summary = access.summary;

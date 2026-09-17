@@ -25,6 +25,13 @@ import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import {
+  evaluationAllowsDesk,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type MapaPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -72,12 +79,19 @@ async function loadConfirmedMarkers(
   return settled.filter((marker): marker is MapConfirmedMarker => marker !== null);
 }
 
-async function loadCommercialLens(client: ReturnType<typeof createOsApiClient>) {
+async function loadCommercialLens(
+  client: ReturnType<typeof createOsApiClient>,
+  listQuery: Record<string, string> = {},
+) {
   try {
     const [opportunities, quotes, orders] = await Promise.all([
-      client.listOpportunities({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
-      client.listQuotes({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
-      client.listOrders({ limit: 100 }).catch(() => ({ items: [], meta: { hasMore: false } })),
+      client
+        .listOpportunities({ limit: 100, ...listQuery })
+        .catch(() => ({ items: [], meta: { hasMore: false } })),
+      client
+        .listQuotes({ limit: 100, ...listQuery })
+        .catch(() => ({ items: [], meta: { hasMore: false } })),
+      client.listOrders({ limit: 100, ...listQuery }).catch(() => ({ items: [], meta: { hasMore: false } })),
     ]);
     return {
       opportunities: opportunities.items ?? [],
@@ -118,6 +132,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'map')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Mapa" />;
+  }
 
   const client = createOsApiClient(auth);
   const result = await client.searchParties({ status: 'active', limit: 100 });
@@ -126,8 +144,13 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
       .filter((item) => isDemoDisplayName(item.displayName || item.legalName))
       .map((item) => item.partyId),
   );
-  const parties = filterByDemoDataMode(result.items, dataMode, (item) =>
+  let parties = filterByDemoDataMode(result.items, dataMode, (item) =>
     isDemoDisplayName(item.displayName || item.legalName),
+  );
+  parties = filterByCommercialOwner(
+    evaluation,
+    parties,
+    (item) => item.commercialOwnerMemberId,
   );
   const model = buildMapDeskViewModel(parties, {
     partial: dataMode === 'demo' ? false : result.meta.hasMore,
@@ -135,6 +158,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const mapEnv = readMapProviderEnv();
   const provider = resolveMapProviderStatus(mapEnv);
   const viewConfig = resolveMapViewConfig(mapEnv);
+  const commercialQuery = commercialListQueryFromProjection(evaluation);
   const [markers, commercialInput, attentionResult, overdueResult, issuesResult] = await Promise.all([
     provider.kind === 'live'
       ? loadConfirmedMarkers(
@@ -142,7 +166,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
           model.plottable.map((row) => ({ partyId: row.partyId, displayName: row.displayName })),
         )
       : Promise.resolve([] as MapConfirmedMarker[]),
-    loadCommercialLens(client),
+    loadCommercialLens(client, commercialQuery),
     client.listAttention({ activeOnly: true, limit: 100 }).catch(() => ({ items: [] as AttentionItemReadModel[] })),
     client
       .listWorkItems({ status: 'open', overdue: true, limit: 100 })
@@ -150,8 +174,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     client.listIssues({ status: 'open', limit: 100 }).catch(() => ({ items: [] as IssueListItem[] })),
   ]);
 
+  const allowedPartyIds = new Set(parties.map((p) => p.partyId));
   const inMode = (partyId: string) =>
-    dataMode === 'demo' ? allDemoPartyIds.has(partyId) : !allDemoPartyIds.has(partyId);
+    (dataMode === 'demo' ? allDemoPartyIds.has(partyId) : !allDemoPartyIds.has(partyId)) &&
+    allowedPartyIds.has(partyId);
   const filteredCommercial = {
     opportunities: commercialInput.opportunities.filter((o) => inMode(o.partyId)),
     quotes: commercialInput.quotes.filter((q) => inMode(q.partyId)),

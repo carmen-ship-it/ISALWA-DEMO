@@ -16,6 +16,9 @@ import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
@@ -28,9 +31,15 @@ export const revalidate = 0;
  * Manufacturing annotation remains product-keyed — no Order→ProductionRun invented.
  */
 export default async function ProduccionPage() {
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'produccion')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Producción" />;
+  }
+
   const identity = await loadProductionIdentity();
   const catalog = loadProductionCatalog();
   const { pedidos, rows, summary } = await loadProductionDeskData();
+  const canMutate = !evaluation.active && identity.status === 'ready';
 
   return (
     <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
@@ -56,7 +65,7 @@ export default async function ProduccionPage() {
       <ProductionOpsTable
         rows={rows}
         actorMemberId={identity.memberId}
-        canMutate={identity.status === 'ready'}
+        canMutate={canMutate}
       />
       <p className="mb-4 mt-8 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
@@ -66,6 +75,10 @@ export default async function ProduccionPage() {
         <div className="mt-6">
           <ServiceUnavailableState />
         </div>
+      ) : evaluation.active ? (
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+          Vista de evaluación: solo lectura. Las anotaciones de producción están deshabilitadas.
+        </p>
       ) : (
         <div className="mt-0">
           <ProductionPostSaleDesk

@@ -23,6 +23,27 @@ describe('buildDeliveryProgress', () => {
       ],
     );
   });
+
+  it('never infers Salida or Entrega from Nota alone', () => {
+    const steps = buildDeliveryProgress({
+      orderRecorded: true,
+      hasNote: true,
+      hasSalida: false,
+      hasEntrega: false,
+    });
+    assert.equal(steps.find((s) => s.id === 'salida')?.mark, 'pending');
+    assert.equal(steps.find((s) => s.id === 'entrega')?.mark, 'pending');
+  });
+
+  it('never marks Pedido done without orderRecorded fact', () => {
+    const steps = buildDeliveryProgress({
+      orderRecorded: false,
+      hasNote: true,
+      hasSalida: true,
+      hasEntrega: true,
+    });
+    assert.equal(steps.find((s) => s.id === 'pedido')?.mark, 'pending');
+  });
 });
 
 describe('computeEntregaSummaryCounts', () => {

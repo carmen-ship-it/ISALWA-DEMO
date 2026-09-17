@@ -18,6 +18,9 @@ import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
 import { loadComprasLinkedOrders, type ComprasLinkedOrder } from '@/lib/purchasing/load-linked-orders';
 import { workItemHref } from '@/lib/work/navigation';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'comprasFilter' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const COMPRAS_FILTER_TARGET = 'compras-filter';
@@ -36,6 +39,10 @@ function one(value: string | string[] | undefined): string | null {
 }
 
 export default async function ComprasPage({ searchParams }: ComprasPageProps) {
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'compras')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Compras" />;
+  }
   const query = await searchParams;
   const q = one(query.q);
   const estado = one(query.estado);

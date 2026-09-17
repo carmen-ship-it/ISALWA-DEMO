@@ -25,6 +25,8 @@ import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-i
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type OportunidadesPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -84,6 +86,9 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'commercial')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Oportunidades" />;
+  }
   const client = createOsApiClient(auth);
 
   try {

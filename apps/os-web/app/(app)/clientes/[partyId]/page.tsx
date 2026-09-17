@@ -57,6 +57,8 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import { reportIssueContextFromParty } from '@/lib/issue/report-context';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { AiAssistShell } from '@/components/ai/ai-assist-shell';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -96,6 +98,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
   const tab = parseCliente360Tab((await searchParams).tab);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
 
   const client = createOsApiClient(auth);
 
@@ -116,8 +119,19 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
+
+    if (evaluationBlocksDirectParty(evaluation, commercialAccount?.ownerMemberId)) {
+      return (
+        <CommercialPageFrame label="Cliente">
+          <AccessDeniedState />
+        </CommercialPageFrame>
+      );
+    }
+
     const displayName = party.displayName || party.legalName || 'Sin nombre';
-    const actorIsMasterDataAdmin = await actorCanMutateMasterData(client);
+    const actorIsMasterDataAdmin = evaluation.active
+      ? false
+      : await actorCanMutateMasterData(client);
     const canEditParty = canMutateActiveParty(party.status, actorIsMasterDataAdmin ? ['master_data.admin'] : []);
     const canEditContacts = canManageContacts(
       party.partyKind,

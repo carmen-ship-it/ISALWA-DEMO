@@ -14,12 +14,19 @@ import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
 import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 export default async function EntregasPage({
   searchParams,
 }: {
   searchParams?: Promise<{ orderId?: string }>;
 }) {
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'entregas')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Entregas" />;
+  }
   const params = searchParams ? await searchParams : undefined;
   const view = await loadEntregaPage();
   const panelStatus =

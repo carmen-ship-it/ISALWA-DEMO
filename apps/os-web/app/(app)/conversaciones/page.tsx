@@ -12,6 +12,12 @@ import { projectManualConversation } from '@/lib/conversations/project-manual';
 import type { Conversation } from '@/lib/conversations/model';
 import seededIds from '@/lib/demo/seeded-ids.json';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import {
+  evaluationAllowsDesk,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 export default async function ConversacionesPage({
   searchParams,
@@ -22,10 +28,15 @@ export default async function ConversacionesPage({
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'conversations')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Conversaciones" />;
+  }
 
   let actor: ManualConversationActor | null = null;
   let organizationId = '';
   let durableRows: Conversation[] = [];
+  let allowedPartyIds: Set<string> | null = null;
 
   try {
     const client = createOsApiClient(auth);
@@ -35,11 +46,24 @@ export default async function ConversacionesPage({
     const memberId = session.memberId?.trim() ?? '';
     const enteredByLabel = web?.displayLabel?.trim() || 'Alguien de la empresa';
     if (organizationId && memberId && session.accessStatus === 'active') {
-      actor = { organizationId, memberId, enteredByLabel };
+      actor = evaluation.active
+        ? null
+        : { organizationId, memberId, enteredByLabel };
+    }
+    if (evaluation.active && evaluation.persona === 'asesor') {
+      const parties = await client.searchParties({ status: 'active', limit: 100 }).catch(() => ({ items: [] }));
+      const owned = filterByCommercialOwner(
+        evaluation,
+        parties.items ?? [],
+        (item) => item.commercialOwnerMemberId,
+      );
+      allowedPartyIds = new Set(owned.map((p) => p.partyId));
     }
     try {
       const listed = await client.listCustomerConversations();
-      durableRows = (listed.items ?? []).map(projectManualConversation);
+      durableRows = (listed.items ?? [])
+        .map(projectManualConversation)
+        .filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId));
     } catch {
       // API may be unavailable; fall back below.
     }
@@ -68,7 +92,9 @@ export default async function ConversacionesPage({
   // Prefer durable domain rows. JSON fixtures only fill gaps when Demo and no durable rows yet.
   const demoFixtures =
     dataMode === 'demo' && organizationId && durableRows.length === 0
-      ? ownerDemoConversationFixtures(organizationId, seededClients)
+      ? ownerDemoConversationFixtures(organizationId, seededClients).filter(
+          (row) => !allowedPartyIds || allowedPartyIds.has(row.partyId),
+        )
       : [];
 
   const initialConversations = organizationId
@@ -76,7 +102,7 @@ export default async function ConversacionesPage({
         ...durableRows,
         ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
         ...demoFixtures,
-      ]
+      ].filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId))
     : [];
 
   return (

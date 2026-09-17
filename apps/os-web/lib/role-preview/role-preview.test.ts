@@ -20,6 +20,11 @@ import {
   parseEvaluationProjectionCookie,
   type EvaluationProjection,
 } from '@/lib/role-preview/evaluation-projection';
+import {
+  evaluationAllowsDesk,
+  evaluationBlocksDirectParty,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
 import { previewScopesForPersona } from '@/lib/role-preview/presets';
 import { parseStoredRolePreview, rolePreviewStorageKey } from '@/lib/role-preview/storage';
 
@@ -119,6 +124,53 @@ describe('evaluation projection cookie + commercial list narrowing', () => {
         presentationScopes: [],
       }),
       { visibility: 'org' },
+    );
+  });
+});
+
+describe('evaluation resource access', () => {
+  const asesor: EvaluationProjection = {
+    active: true,
+    persona: 'asesor',
+    subjectMemberId: 'mem_a',
+    readOnly: true,
+    commercialVisibility: 'own',
+    presentationScopes: [],
+  };
+
+  it('blocks Asesor direct party when owner differs; allows subject match', () => {
+    assert.equal(evaluationBlocksDirectParty(asesor, 'mem_b'), true);
+    assert.equal(evaluationBlocksDirectParty(asesor, 'mem_a'), false);
+    assert.equal(evaluationBlocksDirectParty({ ...asesor, active: false }, 'mem_b'), false);
+  });
+
+  it('desk allow-list: Producción not for Asesor; Entregas for entregas/gerencia', () => {
+    assert.equal(evaluationAllowsDesk(asesor, 'produccion'), false);
+    assert.equal(evaluationAllowsDesk(asesor, 'commercial'), true);
+    assert.equal(
+      evaluationAllowsDesk(
+        { ...asesor, persona: 'produccion', subjectMemberId: null, commercialVisibility: null },
+        'produccion',
+      ),
+      true,
+    );
+    assert.equal(
+      evaluationAllowsDesk(
+        { ...asesor, persona: 'entregas', subjectMemberId: null, commercialVisibility: null },
+        'entregas',
+      ),
+      true,
+    );
+  });
+
+  it('filters commercial owner lists for Asesor subject', () => {
+    const rows = [
+      { id: '1', ownerMemberId: 'mem_a' },
+      { id: '2', ownerMemberId: 'mem_b' },
+    ];
+    assert.deepEqual(
+      filterByCommercialOwner(asesor, rows, (r) => r.ownerMemberId).map((r) => r.id),
+      ['1'],
     );
   });
 });
