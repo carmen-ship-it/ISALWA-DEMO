@@ -4,7 +4,7 @@
 **Lane:** OA-5 (STORY NAV)  
 **Branch:** `ct3/oa5-story-nav`  
 **Base tip:** `9ce5303a4925fbd985eb84646b1852fef6fbce0d`  
-**Lane tip:** `48bc5915440fb80fb4155e5e3012766823cb611a` (`48bc591`)  
+**Lane tip:** `21bb6a4273689d83096c3e36a154072e1793aea9` (`21bb6a4`) — docs self-pin; code at Implementation  
 **Implementation:** `fb2330e51c0b040e26753e3a4095d4a155ff8ad5` (`fb2330e`)  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-oa5-story-nav`  
 **REAL_SEVEN_MUTATED:** **NO**  
