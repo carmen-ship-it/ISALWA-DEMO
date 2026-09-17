@@ -34,9 +34,19 @@ export function ConversationContextPanel({
     );
   }
 
+  const resolvedResponsible =
+    responsible ??
+    (conversation.responsible
+      ? {
+          memberId: conversation.responsible.memberId,
+          displayName: conversation.responsible.displayName,
+          teamLabel: conversation.responsible.teamLabel,
+        }
+      : null);
+
   const view = buildConversationContextView({
     conversation,
-    responsible,
+    responsible: resolvedResponsible,
     canAssignResponsible,
   });
 
@@ -56,9 +66,9 @@ export function ConversationContextPanel({
         ) : null}
         <div className="mt-3">
           <WhoToAskCard
-            responsible={responsible}
+            responsible={resolvedResponsible}
             canAssignResponsible={canAssignResponsible}
-            canRequestUpdate={Boolean(responsible)}
+            canRequestUpdate={Boolean(resolvedResponsible)}
           />
         </div>
       </section>
@@ -117,9 +127,9 @@ export function ConversationContextPanel({
         <h3 className="isalwa-section-label">A quién preguntar</h3>
         <div className="mt-2">
           <WhoToAskCard
-            responsible={responsible}
+            responsible={resolvedResponsible}
             canAssignResponsible={canAssignResponsible}
-            canRequestUpdate={Boolean(responsible)}
+            canRequestUpdate={Boolean(resolvedResponsible)}
           />
         </div>
       </section>

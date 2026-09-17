@@ -52,6 +52,7 @@ export function projectManualConversation(
   const related = {
     opportunityId: record.opportunityId,
     quoteId: record.quoteId,
+    quoteNumber: null,
     orderId: record.orderId,
     issueId: null,
     workItemId: null,
@@ -85,5 +86,6 @@ export function projectManualConversation(
     nextAction: record.nextAction,
     customerQuestion: record.customerQuestion,
     commitmentCandidate: record.commitmentCandidate,
+    responsible: null,
   };
 }

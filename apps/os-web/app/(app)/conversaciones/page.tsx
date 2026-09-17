@@ -38,17 +38,27 @@ export default async function ConversacionesPage({
     // Session-bound page still renders; register form needs an active actor.
   }
 
-  const partyIdByKey: Record<string, string> = {};
-  for (const client of seededIds.clients ?? []) {
-    const key = (client as { key?: string; clientKey?: string }).key
-      ?? (client as { key?: string; clientKey?: string }).clientKey;
-    const partyId = (client as { partyId?: string }).partyId;
-    if (key && partyId) partyIdByKey[key] = partyId;
-  }
+  const seededClients = (seededIds.clients ?? [])
+    .map((client) => {
+      const key = (client as { key?: string; clientKey?: string }).key
+        ?? (client as { key?: string; clientKey?: string }).clientKey;
+      const partyId = (client as { partyId?: string }).partyId;
+      if (!key || !partyId) return null;
+      return {
+        key,
+        partyId,
+        opportunityId: (client as { opportunityId?: string | null }).opportunityId ?? null,
+        quoteId: (client as { quoteId?: string | null }).quoteId ?? null,
+        quoteNumber: (client as { quoteNumber?: string | null }).quoteNumber ?? null,
+        orderId: (client as { orderId?: string | null }).orderId ?? null,
+        followUpWorkId: (client as { followUpWorkId?: string | null }).followUpWorkId ?? null,
+      };
+    })
+    .filter((row): row is NonNullable<typeof row> => row != null);
 
   const demoFixtures =
     dataMode === 'demo' && organizationId
-      ? ownerDemoConversationFixtures(organizationId, partyIdByKey)
+      ? ownerDemoConversationFixtures(organizationId, seededClients)
       : [];
 
   const initialConversations = organizationId
