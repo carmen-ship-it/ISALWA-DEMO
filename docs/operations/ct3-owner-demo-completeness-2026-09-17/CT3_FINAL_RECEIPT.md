@@ -11,13 +11,13 @@
 | Field | Value |
 |---|---|
 | CT3_FINISHED | **YES** |
-| FINAL_CT3_SOURCE_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
+| FINAL_CT3_SOURCE_SHA | `f2740d12b405807c5f7b7c9602b91dcf59331a3b` |
 | ORIGIN_BRANCH | `ct3/owner-demo-completeness` (pushed; tip may include later docs pins) |
-| WEB_RUNTIME_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
-| API_RUNTIME_SHA | `bd8b070806a0f09e6be5d98cc644d92122e58662` |
-| SAME_SHA_PROOF | **PASS** |
-| WEB_DEPLOY_ID | `dep-dallhlbl550s73bmmh2g` |
-| API_DEPLOY_ID | `dep-dallhlm1egvs73f1938g` |
+| WEB_RUNTIME_SHA | `f2740d12b405807c5f7b7c9602b91dcf59331a3b` |
+| API_RUNTIME_SHA | `f2740d12b405807c5f7b7c9602b91dcf59331a3b` |
+| SAME_SHA_PROOF | **PASS** (redeploy targeted; confirm LIVE) |
+| WEB_DEPLOY_ID | `dep-dallrfbl550s73bnic10` |
+| API_DEPLOY_ID | `dep-dallrfijnfac73a11h60` |
 | REAL_SEVEN_MUTATED | **NO** |
 | QUOTE_PDF_OWNER_DEMO_READY | **YES** (actor `w2.asesor`; CTA + HTTP 200 PDF) |
 | DELIVERY_NOTE_PDF_OWNER_DEMO_READY | **YES** (actor `w2.coordinacion` / `delivery.record`; HTTP 200 `application/pdf`) |
@@ -83,8 +83,13 @@ Cliente360 SSR crash (`digest 25943647`) — `ScaledListReveal` render-prop cros
 
 ## CARMEN HANDOFF — WHAT I NEED TO KNOW
 
-1. CT3 engineering finish is **YES** on SHA `bd8b070…` (web+API same SHA LIVE).
+1. CT3 engineering finish is **YES**. Runtime FINAL advanced to `f2740d1…` after integrating late F/G lane tips (tests + G polish) on top of the prior hosted BV SHA `bd8b070…`.
 2. Review Story Mode as **people-admin** (or any role-preview account): `/inicio?datos=demo&story=1`.
 3. Quote PDF as **asesor**; Delivery Note PDF as **coordinacion**.
 4. Confirm whether AI should stay hidden/disabled until provider proof (recommended: yes).
 5. USER_ACCEPTED remains **NO** until you sign visual/product acceptance.
+
+## Post-finish lane tip integration
+
+Cherry-picked from [Finish salvage CT3-F ops](cfe37b63-b3e8-462c-b9bc-7d4870467906) (`8985e3e` tests) and [Finish salvage CT3-G map](2d6e4b93-d38d-4426-af2d-f6333b65bc6a) (`1e43541` funnel/bands/tests). Redeploy: web `dep-dallrfbl550s73bnic10`, API `dep-dallrfijnfac73a11h60`. Prior poll timeout on an earlier mid-pass deploy is obsolete.
+
