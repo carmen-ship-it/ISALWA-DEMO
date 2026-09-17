@@ -3,8 +3,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SearchableOption } from '@/lib/experience/searchable-select';
-import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
-import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { filterByDemoDataMode, isDemoDisplayName, type DemoDataMode } from '@/lib/demo/owner-demo-identity';
 
 export type FinanceSubjectOptions = {
   orders: SearchableOption[];
@@ -15,13 +14,13 @@ export type FinanceSubjectOptions = {
  * Authorized open orders + quotes for finance subject selects.
  * Fail closed: empty lists on auth/session/API failure. No invented rows.
  */
-export async function loadFinanceSubjectOptions(): Promise<FinanceSubjectOptions> {
+export async function loadFinanceSubjectOptions(
+  dataMode: DemoDataMode = 'real',
+): Promise<FinanceSubjectOptions> {
   try {
     const auth = await getServerOsAuthContext();
     if (!auth) return { orders: [], quotes: [] };
     const client = createOsApiClient(auth);
-    const dataMode = await resolveDemoDataMode({});
-
     const [orderPage, quotePage] = await Promise.all([
       client.listOrders({ status: 'open', limit: 50 }).catch((err: unknown) => {
         if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {

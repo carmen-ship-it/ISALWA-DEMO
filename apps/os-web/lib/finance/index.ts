@@ -8,7 +8,4 @@ export {
   type FinancePageAccess,
 } from './desk';
 export { FINANCE_DESK_COPY, FINANCE_FORBIDDEN_COPY } from './copy';
-export {
-  loadFinanceSubjectOptions,
-  type FinanceSubjectOptions,
-} from './load-subject-options';
+/** Server-only loaders (cookies / next/headers) — import from `./load-subject-options` in RSC pages, not this barrel. */

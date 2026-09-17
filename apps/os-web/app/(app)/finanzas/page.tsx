@@ -7,9 +7,9 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import {
   FINANCE_DESK_COPY,
-  loadFinanceSubjectOptions,
   resolveFinancePageAccess,
 } from '@/lib/finance';
+import { loadFinanceSubjectOptions } from '@/lib/finance/load-subject-options';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import seededIds from '@/lib/demo/seeded-ids.json';
@@ -44,7 +44,7 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
   const dataMode = await resolveDemoDataMode(params);
   const access = await loadFinanceAccess();
   const subjectOptions =
-    access.status === 'ready' ? await loadFinanceSubjectOptions() : { orders: [], quotes: [] };
+    access.status === 'ready' ? await loadFinanceSubjectOptions(dataMode) : { orders: [], quotes: [] };
 
   let prefillOrderId = one(params.orderId);
   const prefillPartyId = one(params.partyId);
