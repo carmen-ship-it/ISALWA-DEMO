@@ -1,7 +1,7 @@
 {
   "organizationId": "01M2JKF77TXMJNDTKNCYNHH9G5",
   "REAL_SEVEN_MUTATED": "NO",
-  "seededAt": "2026-09-17T12:04:20.677Z",
+  "seededAt": "2026-09-17T13:10:41.619Z",
   "clients": [
     {
       "key": "maderas_oriente",
@@ -14,7 +14,8 @@
       "finishedGoodsReceiptId": "01M2PMBKNGK4K5W4TVAENE1HE6",
       "followUpWorkId": "01M2PMA7E1B2P82AJA8YK7KT3P",
       "orderPrepWorkId": "01M2PMAB52J9J61RRY8S0N1YGR",
-      "commitmentId": "01M2PMBJFR51CQ579NQECY0JN4"
+      "commitmentId": "01M2PMBJFR51CQ579NQECY0JN4",
+      "conversationId": "owner-demo-conversation:maderas_oriente"
     },
     {
       "key": "constructora_andina",
@@ -27,7 +28,8 @@
       "finishedGoodsReceiptId": null,
       "followUpWorkId": null,
       "orderPrepWorkId": null,
-      "commitmentId": null
+      "commitmentId": null,
+      "conversationId": "owner-demo-conversation:constructora_andina"
     },
     {
       "key": "proyectos_del_sur",
@@ -40,7 +42,8 @@
       "finishedGoodsReceiptId": null,
       "followUpWorkId": null,
       "orderPrepWorkId": null,
-      "commitmentId": null
+      "commitmentId": null,
+      "conversationId": "owner-demo-conversation:proyectos_del_sur"
     },
     {
       "key": "hotel_central",
@@ -53,7 +56,8 @@
       "finishedGoodsReceiptId": "01M2PMFTWP925CRMWGHP5K488B",
       "followUpWorkId": null,
       "orderPrepWorkId": null,
-      "commitmentId": null
+      "commitmentId": null,
+      "conversationId": "owner-demo-conversation:hotel_central"
     },
     {
       "key": "ferreteria_norte",
@@ -66,7 +70,8 @@
       "finishedGoodsReceiptId": null,
       "followUpWorkId": null,
       "orderPrepWorkId": null,
-      "commitmentId": null
+      "commitmentId": null,
+      "conversationId": "owner-demo-conversation:ferreteria_norte"
     }
   ],
   "storyModePrimaryPartyId": "01M2PM95PV7YP6AECYXSX4GRBW",
@@ -79,5 +84,6 @@
     "documents": "/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=documentos",
     "management": "/inicio?lente=gerencia",
     "audit": "/inicio"
-  }
+  },
+  "conversationCount": 5
 }

@@ -59,6 +59,7 @@ import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
+import { filterTimelineItemsForProjection, filterDocumentLinksForProjection } from '@/lib/role-preview/evaluation-history-filter';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -571,7 +572,16 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
 
           {tab === 'documentos' ? (
           <PageSection id="documentos" card className={sectionClass}>
-            <Cliente360Documentos outcome={documentLinks} />
+            <Cliente360Documentos
+              outcome={
+                documentLinks.status === 'ok'
+                  ? {
+                      ...documentLinks,
+                      links: filterDocumentLinksForProjection(evaluation, documentLinks.links),
+                    }
+                  : documentLinks
+              }
+            />
           </PageSection>
           ) : null}
 
@@ -588,7 +598,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                   <StaleProjectionBanner freshness={list.freshness} />
                   <Cliente360Historial
                     partyId={partyId}
-                    items={list.items}
+                    items={filterTimelineItemsForProjection(evaluation, list.items)}
                     memberLabels={memberLabels}
                   />
                 </>

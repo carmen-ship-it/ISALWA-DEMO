@@ -18,6 +18,17 @@ import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { mayOpenSystemControls } from '@/lib/roles/system-controls';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { viewerHasManagementOrgRead } from '@/lib/management/scope';
+import { COMMERCIAL_ORG_READ_SCOPE } from '@isalwa/os-contracts';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import {
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import {
+  evaluationBlocksAuditResource,
+  filterAuditItemsForProjection,
+} from '@/lib/role-preview/evaluation-history-filter';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type AuditoriaPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -33,8 +44,14 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
   const peopleAdmin = await client.probeAdminAccess();
   const grantedScopes = await loadActorRoleKeys(client);
   const systemAdmin = mayOpenSystemControls(grantedScopes);
+  const ownerEvalRead =
+    viewerHasManagementOrgRead(grantedScopes) ||
+    grantedScopes.includes(COMMERCIAL_ORG_READ_SCOPE);
+  const evaluation = await getEvaluationProjection();
 
-  if (!peopleAdmin && !systemAdmin) {
+  // Owner-eval business audit via management/commercial org read — not people.admin bypass.
+  // View As never elevates; filters below narrow the projection.
+  if (!peopleAdmin && !systemAdmin && !ownerEvalRead) {
     return (
       <PageContainer label="Auditoría" className="flex min-h-[50vh] items-center justify-center">
         <AccessDeniedState />
@@ -42,24 +59,82 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
     );
   }
 
+  if (evaluation.active && evaluation.persona === 'asesor' && !evaluation.subjectMemberId) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Auditoría" />;
+  }
+
+  let allowedResourceIds: Set<string> | undefined;
+  if (evaluation.active && evaluation.persona === 'asesor' && evaluation.subjectMemberId) {
+    const parties = await client.searchParties({ status: 'active', limit: 100 }).catch(() => ({ items: [] }));
+    const owned = filterByCommercialOwner(
+      evaluation,
+      parties.items ?? [],
+      (p) => p.commercialOwnerMemberId,
+    );
+    allowedResourceIds = new Set(owned.map((p) => p.partyId));
+    // Also allow commercial records owned by subject via list queries
+    const [opps, quotes, orders] = await Promise.all([
+      client
+        .listOpportunities({
+          visibility: 'org',
+          ownerMemberId: evaluation.subjectMemberId,
+          limit: 100,
+        })
+        .catch(() => ({ items: [] })),
+      client
+        .listQuotes({
+          visibility: 'org',
+          ownerMemberId: evaluation.subjectMemberId,
+          limit: 100,
+        })
+        .catch(() => ({ items: [] })),
+      client.listOrders({ limit: 100 }).catch(() => ({ items: [] })),
+    ]);
+    for (const o of opps.items ?? []) allowedResourceIds.add(o.opportunityId);
+    for (const q of quotes.items ?? []) {
+      allowedResourceIds.add(q.quoteId);
+      if (q.partyId) allowedResourceIds.add(q.partyId);
+    }
+    for (const ord of orders.items ?? []) {
+      if (ord.ownerMemberId === evaluation.subjectMemberId) {
+        allowedResourceIds.add(ord.orderId);
+        if (ord.partyId) allowedResourceIds.add(ord.partyId);
+      }
+    }
+  }
+
   const result = await client.listAudit(auditListQuery(listState));
+  const filteredItems = filterAuditItemsForProjection(evaluation, result.items, {
+    allowedResourceIds,
+  });
   const entryId = listState.entry;
-  let detailEntry = entryId ? result.items.find((item) => item.id === entryId) : undefined;
+  let detailEntry = entryId ? filteredItems.find((item) => item.id === entryId) : undefined;
   if (entryId && !detailEntry) {
     try {
       const detailResult = await client.listAudit({ id: entryId, limit: 1 });
-      detailEntry = detailResult.items[0];
+      const candidate = detailResult.items[0];
+      if (
+        candidate &&
+        !evaluationBlocksAuditResource(
+          evaluation,
+          candidate.resourceType,
+          candidate.resourceId,
+          allowedResourceIds,
+        )
+      ) {
+        detailEntry = candidate;
+      }
     } catch {
       detailEntry = undefined;
     }
   }
 
   const actorIds = [
-    ...result.items.map((item) => item.actorMemberId),
+    ...filteredItems.map((item) => item.actorMemberId),
     detailEntry?.actorMemberId,
   ].filter((id): id is string => Boolean(id));
   const partyIds = [
-    ...result.items.filter((item) => item.resourceType === 'party').map((item) => item.resourceId),
+    ...filteredItems.filter((item) => item.resourceType === 'party').map((item) => item.resourceId),
     ...(detailEntry?.resourceType === 'party' ? [detailEntry.resourceId] : []),
     ...(listState.resourceId ? [listState.resourceId] : []),
   ];
@@ -115,7 +190,7 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
         />
       </PageSection>
 
-      {result.items.length === 0 ? (
+      {filteredItems.length === 0 ? (
         <EmptyState
           title="Sin registros con estos filtros"
           description="Cuando existan cambios auditados en su organización, aparecerán aquí."
@@ -124,7 +199,7 @@ export default async function AuditoriaPage({ searchParams }: AuditoriaPageProps
         <>
           <PageSection card className="overflow-hidden p-0" aria-label="Registros de auditoría">
             <AuditList
-              items={result.items}
+              items={filteredItems}
               listState={listStateWithoutEntry(listState)}
               memberLabels={memberLabels}
               partyLabels={partyLabels}
