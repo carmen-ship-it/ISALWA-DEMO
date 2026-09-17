@@ -61,6 +61,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
         actorKey={shell.actorKey}
         grantedScopes={shell.grantedScopes}
         capabilities={shell.capabilities}
+        asesorOptions={shell.asesorOptions}
         notificationSlot={<ShellNotificationSlot />}
       >
         {children}

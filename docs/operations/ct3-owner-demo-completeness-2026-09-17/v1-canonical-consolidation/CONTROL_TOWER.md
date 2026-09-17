@@ -1,59 +1,43 @@
 # V1 CANONICAL CONSOLIDATION — CONTROL TOWER
 
-**Started:** 2026-09-17  
-**Worktree tip:** `62cb866` (docs may advance; live staging still pin separately)  
-**LIVE staging (pre-consolidation):** WEB+API `8e24b7f`  
-**Baseline:** 2026-09-16T00:00:00-04:00  
-**Authority:** Canonical V1 prompt (role map + resource visibility + cascades + View As + AI + visual addendum + since-yesterday evidence)
+**Updated:** 2026-09-17 (release-train discipline)  
+**Committed tip:** `5032e6c` (+ pending integration commit for View As / convert)  
+**LIVE staging:** WEB+API **`8e24b7f`** (`dep-daltmtu5vjqs738kr0vg` / `dep-daltofv40ujc73f83nig`)  
+**V1_OWNER_REVIEW_RC_SHA:** **NOT CUT**  
+**Policy:** [`DEPLOYMENT_POLICY_RELEASE_TRAIN.md`](./DEPLOYMENT_POLICY_RELEASE_TRAIN.md) — **NO MICRO-DEPLOYS**
 
 ## Status bus
 
 | Lane | Status | Notes |
 |---|---|---|
-| Freeze / commit ledger | **RUNNING→DONE** | 239 commits; `SINCE_YESTERDAY_COMMIT_LEDGER.md` |
-| CR-GAP / CR-2 View As | **RUNNING** | explorer worker |
-| CR-3/4 Ownership+Approval | **RUNNING** | explorer worker |
-| CR-1/5/6 Tenant+Ops+AI | **RUNNING** | explorer worker |
-| CR-7 Cliente360/Inicio/Map | PLANNED | after gap |
-| CR-8 Audit+verifier | PLANNED | after gap |
-| Visual hierarchy | PLANNED | after gap; reuse `@isalwa/ui` + tokens |
-| Evidence package | IN PROGRESS | artifacts under `v1-canonical-consolidation/` |
-| Ship/BV | BLOCKED until gaps closed | do not fake PASS |
+| Freeze / live-vs-local ledger | **DONE** | `CURRENT_V1_STATE_SNAPSHOT.*`, `LIVE_VS_LOCAL_CAPABILITY_LEDGER.md` |
+| CR-2 View As | **IN PROGRESS (local)** | projection + Asesor subject + mutation gate; lists: opp/quote only |
+| CR-3 convert.own | **LOCAL TESTED** | coverage≠convert; scopes.ts owns convert.own constant |
+| CR-1 scopes clarify | **LOCAL** | full V1 business-eval (not admin bypass) |
+| CR-4..8 / visual | **PARKED for serial** | after View As surfaces + RC |
+| Ship/BV | **BLOCKED** | wait RC; do not micro-deploy |
+| USER_ACCEPTED | **NO** | |
 
-## Locked REAL staff (workbook; INVENTED=0)
+## Carmen SYNTH architecture (locked)
 
-| Name | Cargo |
-|---|---|
-| YUSELKA JUSTINIANO DURAN | ASESOR DE VENTA |
-| JOSE LUIS VARGAS ALMANZA | ASESOR DE VENTA |
-| EDWIN YAMIL CALERO VALDEZ | JEFE COMERCIAL |
-| ISABELA RODA GUTIEREZ | GERENTE GENERAL |
-| ALVARO MARTIN SANDOVAL MONTES | GERENTE GENERAL |
-
-Login/membership NOT auto-granted from Cargo.
-
-## Non-negotiables in force
-
-AUTH person → company → membership → capabilities → resource → projection → UI → AI  
-View As narrows only; mutations off; no impersonation  
-Approval ≠ Pedido; convert explicit  
-No auto dept Work from Pedido alone  
-AI filter before retrieval; UNAUTHORIZED = no existence leak  
+- Membership = **full V1 business-evaluation** coverage across departments
+- Forbidden: people.admin / master_data.admin / qa.access / system.admin (and equivalents)
+- Owner-eval view (no View As) = **broad** intentional Company OS surface
+- View As = **narrow projection only**; identity stays Carmen; mutations **off**
+- Asesor View As = **person-specific** synthetic advisor subject
 
 ## Collision boundaries (one writer)
 
-| Boundary | Owner lane |
-|---|---|
-| `getServerOsAuthContext` / org cookie | CR-1 |
-| View As / role-preview / mutation gate | CR-2 |
-| coverage / reassign / convert.own | CR-3 |
-| approval routing / escalate | CR-4 |
-| progress strip / delivery facts | CR-5 |
-| AI gateway | CR-6 |
-| Cliente360 tabs / Inicio lenses | CR-7 |
-| audit event types / verifier | CR-8 |
-| tokens / next-action visual | Visual |
+Unchanged — see prior table. Main agent = control tower / integrator. No parallel writers on auth resolver, role-projection, global shell, migrations, or shared transition engine.
 
-## Supersedes
+## Safe parallel work remaining
 
-Where prior CT3/OA receipts conflict with this prompt, mark SUPERSEDED in `SUPERSEDED_CLAIM_REGISTER.md` — do not delete history.
+Only **independent** docs/gap receipts or non-shared leaf surfaces. If work touches shared projection/shell → **serial integration**.
+
+## Artifacts
+
+- `CURRENT_V1_STATE_SNAPSHOT.md` / `.json`
+- `LIVE_VS_LOCAL_CAPABILITY_LEDGER.md`
+- `SUPERSESSION_MAP.md`
+- `EXACT_LOCAL_DELTA.md` / `EXACT_INTEGRATED_DELTA.md`
+- `DEPLOYMENT_POLICY_RELEASE_TRAIN.md`

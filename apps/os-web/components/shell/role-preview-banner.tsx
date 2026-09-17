@@ -4,7 +4,7 @@ import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { rolePreviewPresetLabel } from '@/lib/role-preview/presets';
 
 export function RolePreviewBanner() {
-  const { active, persona, resetToMyView } = useRolePreview();
+  const { active, persona, blocksMutations, resetToMyView } = useRolePreview();
   if (!active) return null;
 
   const label = rolePreviewPresetLabel(persona);
@@ -16,15 +16,19 @@ export function RolePreviewBanner() {
     >
       <div className="mx-auto flex max-w-[90rem] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--isalwa-kiln)]">
-          <span className="font-medium">Vista previa de rol · {label}</span>
-          <span className="text-[var(--isalwa-slate)]"> · No estás actuando como esta persona</span>
+          <span className="font-medium">Vista de evaluación · {label}</span>
+          <span className="text-[var(--isalwa-slate)]">
+            {' '}
+            · Sigue siendo Carmen · Solo lectura
+            {blocksMutations ? ' · Las acciones están deshabilitadas' : ''}
+          </span>
         </p>
         <button
           type="button"
           className="isalwa-t-fast shrink-0 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-3 py-1.5 text-sm font-medium text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-porcelain)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           onClick={resetToMyView}
         >
-          Volver a mi vista
+          Volver a vista de evaluación
         </button>
       </div>
     </div>

@@ -26,6 +26,7 @@ export const COMMERCIAL_ORG_READ_SCOPE: CommercialReadScopeKey = 'commercial.org
  */
 export const COMMERCIAL_AUTHORITY_SCOPE_KEYS = [
   'commercial.order.convert',
+  'commercial.quote.convert.own',
   'commercial.account.reassign',
 ] as const;
 
@@ -33,6 +34,8 @@ export type CommercialAuthorityScopeKey = (typeof COMMERCIAL_AUTHORITY_SCOPE_KEY
 
 export const COMMERCIAL_ORDER_CONVERT_SCOPE: CommercialAuthorityScopeKey =
   'commercial.order.convert';
+export const COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE: CommercialAuthorityScopeKey =
+  'commercial.quote.convert.own';
 export const COMMERCIAL_ACCOUNT_REASSIGN_SCOPE: CommercialAuthorityScopeKey =
   'commercial.account.reassign';
 

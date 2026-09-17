@@ -14,6 +14,12 @@ import {
   effectiveNavScopes,
   rolePreviewBlocksMutations,
 } from '@/lib/role-preview/access';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import {
+  commercialVisibilityForPersona,
+  parseEvaluationProjectionCookie,
+  type EvaluationProjection,
+} from '@/lib/role-preview/evaluation-projection';
 import { previewScopesForPersona } from '@/lib/role-preview/presets';
 import { parseStoredRolePreview, rolePreviewStorageKey } from '@/lib/role-preview/storage';
 
@@ -57,6 +63,66 @@ describe('role preview storage safety', () => {
   });
 });
 
+describe('evaluation projection cookie + commercial list narrowing', () => {
+  it('parses Asesor subject member from cookie', () => {
+    const parsed = parseEvaluationProjectionCookie('asesor::mem_synth_asesor_a');
+    assert.equal(parsed.persona, 'asesor');
+    assert.equal(parsed.subjectMemberId, 'mem_synth_asesor_a');
+    assert.equal(commercialVisibilityForPersona('asesor'), 'own');
+    assert.equal(commercialVisibilityForPersona('jefe-comercial'), 'team');
+    assert.equal(commercialVisibilityForPersona('gerencia'), 'org');
+    assert.equal(commercialVisibilityForPersona('produccion'), null);
+  });
+
+  it('narrows Asesor lists to subject owner; fails closed without subject', () => {
+    const withSubject: EvaluationProjection = {
+      active: true,
+      persona: 'asesor',
+      subjectMemberId: 'mem_a',
+      readOnly: true,
+      commercialVisibility: 'own',
+      presentationScopes: [],
+    };
+    assert.deepEqual(commercialListQueryFromProjection(withSubject), {
+      visibility: 'org',
+      ownerMemberId: 'mem_a',
+    });
+    const withoutSubject: EvaluationProjection = {
+      ...withSubject,
+      subjectMemberId: null,
+    };
+    assert.equal(
+      commercialListQueryFromProjection(withoutSubject).ownerMemberId,
+      '__evaluation_asesor_subject_required__',
+    );
+  });
+
+  it('uses team visibility for Jefe Comercial and org for Gerencia', () => {
+    assert.deepEqual(
+      commercialListQueryFromProjection({
+        active: true,
+        persona: 'jefe-comercial',
+        subjectMemberId: null,
+        readOnly: true,
+        commercialVisibility: 'team',
+        presentationScopes: [],
+      }),
+      { visibility: 'team' },
+    );
+    assert.deepEqual(
+      commercialListQueryFromProjection({
+        active: true,
+        persona: 'gerencia',
+        subjectMemberId: null,
+        readOnly: true,
+        commercialVisibility: 'org',
+        presentationScopes: [],
+      }),
+      { visibility: 'org' },
+    );
+  });
+});
+
 describe('role preview shell contract', () => {
   it('banner states non-impersonation and exit affordance', () => {
     const here = dirname(fileURLToPath(import.meta.url));
@@ -64,8 +130,16 @@ describe('role preview shell contract', () => {
       resolve(here, '../../components/shell/role-preview-banner.tsx'),
       'utf8',
     );
-    assert.match(banner, /Vista previa de rol/);
-    assert.match(banner, /No estás actuando como esta persona/);
-    assert.match(banner, /Volver a mi vista/);
+    assert.match(banner, /Vista de evaluación/);
+    assert.match(banner, /Sigue siendo Carmen/);
+    assert.match(banner, /Solo lectura/);
+    assert.match(banner, /Volver a vista de evaluación/);
+  });
+
+  it('commercial actions gate mutations via assertRolePreviewAllowsMutation', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const actions = readFileSync(resolve(here, '../commercial/actions.ts'), 'utf8');
+    assert.match(actions, /assertRolePreviewAllowsMutation/);
+    assert.match(actions, /createOrderAction/);
   });
 });

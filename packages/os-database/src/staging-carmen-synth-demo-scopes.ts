@@ -1,6 +1,7 @@
 /**
- * Owner-demo SYNTH membership scope policy.
- * Business capabilities only — never admin/QA/system bypass.
+ * Carmen SYNTH = FULL V1 BUSINESS-EVALUATION membership (one login).
+ * Covers all approved Company OS business views across departments.
+ * Forbidden: technical / security / admin / QA bypass only — not business coverage.
  */
 
 /** Hard-forbidden on Carmen SYNTH owner-evaluation membership. */
@@ -13,7 +14,8 @@ export const OWNER_DEMO_SYNTH_FORBIDDEN_SCOPES = [
 ] as const;
 
 /**
- * Business scopes sufficient for canonical owner-demo Company OS flows in SYNTH.
+ * Full approved V1 business-evaluation capability set for SYNTH.
+ * Broad owner-eval view uses these; Vista de evaluación narrows projection only.
  * Does not invent new scope strings — only keys already used in product.
  */
 export const OWNER_DEMO_SYNTH_BUSINESS_SCOPES = [

@@ -17,11 +17,19 @@ const OWNER = 'mem-owner';
 const OTHER = 'mem-other';
 
 describe('provisional commercial authority', () => {
-  it('lets the quote owner convert without an extra capability', () => {
+  it('lets the quote owner convert only with commercial.quote.convert.own', () => {
     assert.equal(
       canConvertQuoteToOrder({
         actorMemberId: OWNER,
         grantedScopes: ['sales_rep'],
+        quoteOwnerMemberId: OWNER,
+      }),
+      false,
+    );
+    assert.equal(
+      canConvertQuoteToOrder({
+        actorMemberId: OWNER,
+        grantedScopes: [COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE],
         quoteOwnerMemberId: OWNER,
       }),
       true,
@@ -64,8 +72,8 @@ describe('provisional commercial authority', () => {
     }
   });
 
-  it('keeps commercial.quote.convert.own unwired from CreateOrder live gate', () => {
-    assert.equal(QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER, false);
+  it('wires commercial.quote.convert.own into CreateOrder for the own-quote path only', () => {
+    assert.equal(QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER, true);
     assert.equal(
       canConvertQuoteToOrder({
         actorMemberId: OTHER,
@@ -85,7 +93,7 @@ describe('provisional commercial authority', () => {
     );
   });
 
-  it('lets active coverage authorize convert without shared ownership', () => {
+  it('does not let temporary coverage authorize convert', () => {
     const coverage = {
       allowed: true as const,
       customerPartyId: 'party-1',
@@ -101,7 +109,7 @@ describe('provisional commercial authority', () => {
         quoteOwnerMemberId: OWNER,
         coverage,
       }),
-      true,
+      false,
     );
   });
 

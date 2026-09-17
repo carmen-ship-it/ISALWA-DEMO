@@ -1,6 +1,7 @@
 import {
   COMMERCIAL_ACCOUNT_REASSIGN_SCOPE,
   COMMERCIAL_ORDER_CONVERT_SCOPE,
+  COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
 } from './scopes';
 import {
   continueCoveredCustomerWorkflow,
@@ -9,9 +10,9 @@ import {
 } from './operations-scopes';
 
 /**
- * Provisional V1 pilot predicates. Not final Isa/Álvaro policy.
- * Ownership, explicit coverage, and commercial.order.convert only.
- * people.admin, leadership read scopes, Cargo, and title never satisfy these checks.
+ * V1 commercial convert / reassignment predicates (canonical consolidation).
+ * Cargo and title never satisfy these checks.
+ * Temporary coverage does NOT authorize Quote → Pedido (§9 / §37).
  */
 export function grantedScopeSet(grantedScopes: readonly string[]): Set<string> {
   return new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
@@ -22,34 +23,35 @@ export function hasExplicitScope(grantedScopes: readonly string[], scope: string
 }
 
 /**
- * Live CreateOrder gate:
- * 1. actor is quote owner, OR
- * 2. actor has active customer coverage for the quote's customer (primary owner stays), OR
- * 3. actor holds commercial.order.convert
+ * Live CreateOrder gate (V1):
+ * 1. actor is quote owner AND holds commercial.quote.convert.own, OR
+ * 2. actor holds commercial.order.convert (explicit cross-owner / leadership convert)
  *
- * commercial.quote.convert.own is NOT this gate (own-quote semantics only).
+ * Temporary coverage alone does not authorize convert.
+ * people.admin / leadership read scopes never authorize convert.
  */
 export function canConvertQuoteToOrder(input: {
   actorMemberId: string;
   grantedScopes: readonly string[];
   quoteOwnerMemberId: string;
-  /** Result of continueCoveredCustomerWorkflow for this customer/owner/actor. */
+  /** Retained for callers; ignored for convert authorization (coverage ≠ convert). */
   coverage?: CoverageWorkflowAudit | null;
 }): boolean {
+  void input.coverage;
   if (!input.actorMemberId || !input.quoteOwnerMemberId) return false;
-  if (input.actorMemberId === input.quoteOwnerMemberId) return true;
+  if (hasExplicitScope(input.grantedScopes, COMMERCIAL_ORDER_CONVERT_SCOPE)) {
+    return true;
+  }
   if (
-    input.coverage?.allowed === true &&
-    input.coverage.sharedOwnership === false &&
-    input.coverage.actingAdvisorMemberId === input.actorMemberId &&
-    input.coverage.auditActorMemberId === input.actorMemberId
+    input.actorMemberId === input.quoteOwnerMemberId &&
+    hasExplicitScope(input.grantedScopes, COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE)
   ) {
     return true;
   }
-  return hasExplicitScope(input.grantedScopes, COMMERCIAL_ORDER_CONVERT_SCOPE);
+  return false;
 }
 
-/** Evaluate coverage for convert using persisted grant rows (never client-asserted alone). */
+/** Evaluate coverage for workflow continuation (not convert). */
 export function coverageAuditForConvert(input: {
   actorMemberId: string;
   organizationId: string;
@@ -61,12 +63,9 @@ export function coverageAuditForConvert(input: {
   return continueCoveredCustomerWorkflow(input);
 }
 
-/**
- * commercial.quote.convert.own remains own-quote semantics only.
- * Not covering-advisor convert. Not wired into CreateOrder.
- */
-export const QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER = false as const;
-export const QUOTE_CONVERT_OWN_DISPOSITION = 'DEPRECATE_LATER' as const;
+/** commercial.quote.convert.own is wired into CreateOrder for the own-quote path. */
+export const QUOTE_CONVERT_OWN_WIRED_INTO_CREATE_ORDER = true as const;
+export const QUOTE_CONVERT_OWN_DISPOSITION = 'WIRED_OWN_PATH' as const;
 
 export function canReassignCommercialAccountOwner(grantedScopes: readonly string[]): boolean {
   return hasExplicitScope(grantedScopes, COMMERCIAL_ACCOUNT_REASSIGN_SCOPE);

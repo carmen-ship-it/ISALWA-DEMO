@@ -1,5 +1,9 @@
 import { hasExplicitScope } from './commercial-authority';
-import { COMMERCIAL_ORDER_CONVERT_SCOPE, COMMERCIAL_TEAM_READ_SCOPE } from './scopes';
+import {
+  COMMERCIAL_ORDER_CONVERT_SCOPE,
+  COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
+  COMMERCIAL_TEAM_READ_SCOPE,
+} from './scopes';
 
 /**
  * Operational access scopes. Explicit assignment only.
@@ -22,7 +26,8 @@ export const INTEGRATION_ADMIN_SCOPE = 'integration.admin' as const;
 
 export const COMMERCIAL_CUSTOMER_CREATE_SCOPE = 'commercial.customer.create' as const;
 export const MANAGEMENT_ORG_READ_SCOPE = 'management.org.read' as const;
-export const COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE = 'commercial.quote.convert.own' as const;
+/** Re-export canonical convert.own — single definition lives in scopes.ts. */
+export { COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE };
 export const COMMERCIAL_PRICE_APPROVE_SCOPE = 'commercial.price.approve' as const;
 
 /**

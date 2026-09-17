@@ -96,7 +96,15 @@ function storeFor(input: {
       return { id: memberId, organizationId, accessStatus: 'active' };
     },
     async listRoleAssignmentsForMember(memberId) {
-      if (memberId === OWNER) return [];
+      if (memberId === OWNER) {
+        return [
+          {
+            roleKey: 'commercial.quote.convert.own',
+            effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+            endedAt: null,
+          },
+        ];
+      }
       return actorScopes.map((roleKey) => ({
         roleKey,
         effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -223,7 +231,7 @@ describe('CreateOrder provisional authority', () => {
     assert.equal(result.data.quoteId, QUOTE_ID);
   });
 
-  it('lets an active covering advisor convert without becoming owner or using convert.own', async () => {
+  it('denies temporary coverage convert without commercial.order.convert (V1)', async () => {
     const store = storeFor({
       coverageGrants: [
         {
@@ -238,16 +246,11 @@ describe('CreateOrder provisional authority', () => {
         },
       ],
     });
-    const events = (store as unknown as { events: string[] }).events;
     const service = new CommercialCommandService(store);
-    const result = await service.execute('CreateOrder', ctx(OTHER), { quoteId: QUOTE_ID });
-    assert.equal(result.data.quoteId, QUOTE_ID);
-    assert.equal(result.data.sharedOwnership, false);
-    assert.equal(result.data.primaryOwnerMemberId, OWNER);
-    assert.equal(result.data.actingAdvisorMemberId, OTHER);
-    assert.equal(result.data.convertingActorMemberId, OTHER);
-    assert.equal(result.data.coverageSource, 'commercial.customer.coverage');
-    assert.deepEqual(events, ['order.created']);
+    await assert.rejects(
+      () => service.execute('CreateOrder', ctx(OTHER), { quoteId: QUOTE_ID }),
+      /PERMISSION_DENIED/,
+    );
   });
 
   it('denies expired or revoked coverage and emits no success event', async () => {

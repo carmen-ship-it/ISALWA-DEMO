@@ -11,10 +11,13 @@ import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { resolveAddQuoteLineDraft } from '@/lib/commercial/product-picker';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 async function runCommand(
   fn: (client: ReturnType<typeof createOsApiClient>) => Promise<Record<string, unknown> | undefined>,
 ): Promise<CommandActionResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
   const auth = await getServerOsAuthContext();
   if (!auth) {
     return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
@@ -54,6 +57,9 @@ export async function createOpportunityAction(formData: FormData): Promise<Creat
     }
     payload.expectedValueCentavos = centavos;
   }
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
@@ -354,6 +360,9 @@ export async function createOrderAction(formData: FormData): Promise<CreateRedir
   const quoteId = String(formData.get('quoteId') ?? '').trim();
   if (!quoteId) return { ok: false, error: 'Cotización no válida.' };
 
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
 
@@ -386,6 +395,9 @@ export async function recordQuoteManualSendAction(
   if (channel !== 'whatsapp' && channel !== 'email' && channel !== 'otro') {
     return { ok: false, error: 'Seleccione el canal de envío.' };
   }
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const payload: Record<string, unknown> = { quoteId, channel };
   if (note) payload.note = note;

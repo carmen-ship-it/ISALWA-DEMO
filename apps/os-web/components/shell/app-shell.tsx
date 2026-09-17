@@ -44,6 +44,8 @@ type AppShellProps = {
   capabilities: CapabilityStateReadModel[];
   /** UX-5 notification bell/drawer slot (integrator mount while UX-1 parked). */
   notificationSlot?: ReactNode;
+  /** Person-specific Asesor options for Vista de evaluación. */
+  asesorOptions?: readonly { memberId: string; label: string }[];
 };
 
 export function AppShell({
@@ -56,6 +58,7 @@ export function AppShell({
   grantedScopes,
   capabilities,
   notificationSlot,
+  asesorOptions = [],
 }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -153,7 +156,11 @@ export function AppShell({
   const showRolePreview = canUseRolePreview(grantedScopes);
 
   return (
-    <RolePreviewProvider actorKey={actorKey} grantedScopes={grantedScopes}>
+    <RolePreviewProvider
+      actorKey={actorKey}
+      grantedScopes={grantedScopes}
+      asesorOptions={asesorOptions}
+    >
     <OwnerDemoProvider canUseOwnerDemo={showRolePreview}>
     <ShellIdentityContext.Provider value={givenName}>
       <div

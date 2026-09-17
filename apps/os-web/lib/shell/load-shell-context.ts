@@ -5,6 +5,8 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { actorCanMutateMasterData, loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { resolveQaShellOverlay } from '@/lib/qa/shell-overlay';
+import { canUseRolePreview } from '@/lib/role-preview/access';
+import { loadEvaluationAsesorOptions } from '@/lib/role-preview/load-asesor-options';
 import { usableGivenName } from '@/lib/shell/greeting';
 
 const PERMISSION_DENIAL_CODES = new Set([
@@ -24,6 +26,8 @@ export type ShellContext = {
   grantedScopes: string[];
   osAccess: 'ok' | 'revoked' | 'unavailable' | 'unauthorized' | 'denied';
   capabilities: CapabilityStateReadModel[];
+  /** SYNTH/REAL commercial owners for Vista de evaluación · Asesor picker. */
+  asesorOptions: Array<{ memberId: string; label: string }>;
 };
 
 function displayLabelOf(label: string | undefined): string {
@@ -38,6 +42,7 @@ function shell(
   return {
     displayLabel: displayLabelOf(displayLabel),
     givenName: null,
+    asesorOptions: [],
     showAdmin: false,
     canCreateCustomer: false,
     actorKey: null,
@@ -86,6 +91,7 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
   let givenName: string | null = null;
   let grantedScopes: string[] = [];
   let capabilities: CapabilityStateReadModel[] = [];
+  let asesorOptions: ShellContext['asesorOptions'] = [];
 
   try {
     await client.listAttention({ limit: '1' });
@@ -142,6 +148,10 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
     } catch {
       capabilities = [];
     }
+
+    if (canUseRolePreview(grantedScopes)) {
+      asesorOptions = await loadEvaluationAsesorOptions(client);
+    }
   }
 
   return {
@@ -153,6 +163,7 @@ export const loadShellContext = cache(async function loadShellContext(): Promise
     grantedScopes,
     osAccess,
     capabilities,
+    asesorOptions,
   };
 });
 

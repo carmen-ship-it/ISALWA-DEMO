@@ -17,6 +17,7 @@ import {
   resolveFollowUpSubject,
 } from '@/lib/work/follow-up';
 import { workItemHref } from '@/lib/work/navigation';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type FollowUpActionResult =
   | {
@@ -67,6 +68,9 @@ export async function createFollowUpAction(formData: FormData): Promise<FollowUp
   const dueAt = String(formData.get('dueAt') ?? '');
 
   if (!partyId) return { ok: false, error: FOLLOW_UP_COPY.customerMissing };
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
@@ -134,6 +138,9 @@ export async function completeFollowUpAction(formData: FormData): Promise<{ ok: 
   const built = buildCompleteWorkPayload(workItemId);
   if (!built.ok) return built;
 
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
 
@@ -153,6 +160,9 @@ export async function cancelFollowUpAction(formData: FormData): Promise<{ ok: tr
   const reason = String(formData.get('reason') ?? '');
   const built = buildCancelWorkPayload(workItemId, reason);
   if (!built.ok) return built;
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };

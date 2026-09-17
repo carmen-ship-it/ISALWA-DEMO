@@ -23,6 +23,8 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 
 type OportunidadesPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -81,7 +83,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
-
+  const evaluation = await getEvaluationProjection();
   const client = createOsApiClient(auth);
 
   try {
@@ -92,6 +94,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
       ...(demoQ ? { q: demoQ } : {}),
       ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
       ...(stage ? { stage } : {}),
+      ...commercialListQueryFromProjection(evaluation),
     });
     const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
     const memberLabels = await resolveMemberLabels(
