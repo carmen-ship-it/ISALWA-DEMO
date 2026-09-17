@@ -9,6 +9,7 @@ import { MapConfirmedMarker, MapLiveCanvas } from '@/components/map/map-live-can
 import { MapCoverageBanner } from '@/components/map/map-coverage-banner';
 import { MapCustomerLists } from '@/components/map/map-customer-lists';
 import { MapLayerControls } from '@/components/map/map-layer-controls';
+import { MapPartyDrawer } from '@/components/map/map-party-drawer';
 import { MapQuickViewCompact } from '@/components/map/map-quick-view-compact';
 import type { MapDeskViewModel } from '@/lib/map/build-view-model';
 import {
@@ -92,13 +93,27 @@ export function MapExperience({
   const showLiveMap = isLiveMapProvider(provider) && viewConfig !== null;
 
   const handleSelectParty = (partyId: string | null) => {
-    if (!partyId) return;
-    router.push(panelHref('/mapa', listQuery, `party:${partyId}`));
+    if (!partyId) {
+      router.push(hrefWithoutPanel('/mapa', listQuery));
+      return;
+    }
+    router.push(panelHref('/mapa', listQuery, `party:${partyId}`), { scroll: false });
     setMobilePane('list');
   };
 
   return (
     <div className="space-y-5" data-map-desk="location">
+      {selectedRow ? (
+        <div className="hidden lg:contents">
+          <MapPartyDrawer
+            open
+            row={selectedRow}
+            ownerLabel={ownerLabel}
+            listQuery={listQuery}
+            commercial={selectedCommercial}
+          />
+        </div>
+      ) : null}
       <MapCoverageBanner coverage={model.coverage} provider={provider} partial={model.partial} />
 
       <div
@@ -175,12 +190,14 @@ export function MapExperience({
 
         <div className={`space-y-4 ${mobilePane === 'list' ? 'block' : 'hidden md:block'}`}>
           {selectedRow ? (
-            <MapQuickViewCompact
-              row={selectedRow}
-              ownerLabel={ownerLabel}
-              onCloseHref={hrefWithoutPanel('/mapa', listQuery)}
-              commercial={selectedCommercial}
-            />
+            <div className="lg:hidden">
+              <MapQuickViewCompact
+                row={selectedRow}
+                ownerLabel={ownerLabel}
+                onCloseHref={hrefWithoutPanel('/mapa', listQuery)}
+                commercial={selectedCommercial}
+              />
+            </div>
           ) : null}
           <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)] md:p-5">
             <p className="isalwa-kicker mb-3">Cartera · lectura honesta</p>

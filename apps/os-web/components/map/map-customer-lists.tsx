@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ListRow, StatusPill } from '@isalwa/ui';
 import type { MapCustomerRow } from '@/lib/map/build-view-model';
+import { pendingLocationCta } from '@/lib/map/pending-location';
 import { panelHref, type ListQueryState } from '@/lib/lists/url-state';
 import { partyHref } from '@/lib/party/navigation';
 
@@ -41,6 +42,7 @@ function CustomerRow({
 }) {
   const owner = ownerLabel(row, memberLabels);
   const href = panelHref('/mapa', listQuery, `party:${row.partyId}`);
+  const pendingCta = pendingLocationCta(row);
   return (
     <ListRow
       as="li"
@@ -69,6 +71,15 @@ function CustomerRow({
               .filter(Boolean)
               .join(' · ') || 'Sin teléfono ni responsable en esta lectura'}
           </p>
+          {pendingCta ? (
+            <Link
+              href={pendingCta.href}
+              className="mt-1.5 inline-block text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+              data-map-pending-location-cta={pendingCta.tone}
+            >
+              {pendingCta.label}
+            </Link>
+          ) : null}
         </div>
         <Link
           href={partyHref(row.partyId)}

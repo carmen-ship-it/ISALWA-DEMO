@@ -12,6 +12,7 @@ export type MapLayerId =
   | 'oportunidades'
   | 'cotizaciones'
   | 'pedidos'
+  | 'ingresos'
   | 'equipo'
   | 'cobranza'
   | 'despacho'
@@ -55,6 +56,12 @@ export const MAP_LAYER_REGISTRY: readonly MapLayerDefinition[] = [
     label: 'Pedidos',
     truthClass: 'available',
     note: 'Clientes con pedido canónico. El valor del pedido no es cobranza.',
+  },
+  {
+    id: 'ingresos',
+    label: 'Ingresos',
+    truthClass: 'future',
+    note: 'Desactivado. AUTHORITATIVE_REVENUE_LAYER=NO — no hay ingresos oficiales en el mapa.',
   },
   {
     id: 'equipo',

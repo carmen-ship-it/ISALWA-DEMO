@@ -17,6 +17,10 @@ export {
   buildMapPartyCommercialSnapshot,
   MAP_COMMERCIAL_VALUE_DISCLAIMER,
 } from './commercial-lens';
+
+export { isAuthoritativeRevenueLayerEnabled, AUTHORITATIVE_REVENUE_LAYER_NOTE } from './authoritative-revenue';
+export { partyMapLocationHref, pendingLocationCta } from './pending-location';
+export type { PendingLocationCta } from './pending-location';
 export type {
   MapCommercialLensInput,
   MapCommercialPortfolio,
