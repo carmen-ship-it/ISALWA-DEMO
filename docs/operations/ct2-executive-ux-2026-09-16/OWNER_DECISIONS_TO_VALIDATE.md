@@ -21,4 +21,25 @@ Owner validation for Isa / Álvaro. **Not engineering blockers.** Do not block d
 16. ¿Qué debe aprender primero una persona nueva de almacén?
 17. ¿Qué información necesita Gerencia para intervenir antes de que un problema sea grave?
 
+## CT3 — Communication + certainty (owner validate; not blockers)
+
+18. ¿Qué preguntas de clientes son las más comunes por WhatsApp?
+19. ¿Qué conversaciones deben saltar automáticamente a la atención del asesor?
+20. ¿Qué información puede responder ventas sin consultar a otro departamento?
+21. ¿Qué información debe confirmar ventas siempre antes de responder?
+22. ¿A quién debe preguntar ventas por: tiempo de producción / disponibilidad en almacén / timing de entrega / especificación de producto?
+23. ¿Qué significa un "cliente exitoso" (definir con Isa/Álvaro)?
+24. ¿Qué patrones de cliente debe ver Gerencia?
+25. ¿Con qué frecuencia la información operativa llega tarde o no se registra?
+26. ¿Debe ISALWA recordar primero a la persona responsable antes de escalar a un jefe?
+27. ¿Cuándo debe aparecer trabajo vencido para un gerente?
+28. ¿Qué información de producto debe volverse autoritativa en ISALWA?
+29. ¿Qué preguntas la IA nunca debe responder sin confirmación humana?
+30. ¿WhatsApp en vivo futuro debe permitir: solo recibir / borrador / enviar?
+31. ¿Quién debe aprobar respuestas sugeridas al cliente, si alguien?
+32. ¿Qué departamentos deben recibir alerta informativa al crear un Pedido?
+33. ¿Qué pasa cuando nadie está asignado?
+34. ¿Cuál es el dashboard matutino más importante para Álvaro?
+35. ¿Cuál es el dashboard matutino más importante para Isa?
+
 Also still open from prior Company OS (unchanged): official Nota numbering; Nota trigger timing; Pedido↔Producción ownership; special-price threshold; cross-owner convert; Coordinación auto criteria; real catalog if found later.
