@@ -1,49 +1,66 @@
-# LANE UX-6 — Auditoría (receipt)
+# LANE UX-6 — Auditoría search, filters, drawer receipt
 
-**STATUS: DRAFT ONLY — NOT INTEGRATED** (lane still dirty at base `1244d84`; no HEAD SHA yet)
+**When:** 2026-09-17  
+**Branch:** `ct2/lane-ux6-audit`  
+**Base tip:** `1244d84ef75142d973c8f7aa44caeadd66361768` (CT2 handoff live SHA)  
+**Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct2-lane-ux6-audit`  
+**SHA:** `62396334eae345b500e6ab91ac9685ed7cf38d77`  
+**Lane:** Auditoría viewer — search, Fecha/Persona/Cliente/Tipo/Acción, human labels, detail drawer, server pagination, AI ask stub (gated off)  
+**Deploy:** NO · **REAL_SEVEN_MUTATED:** NO
 
-| Field | Value |
-|---|---|
-| LANE | UX-6 |
-| BRANCH | `ct2/lane-ux6-audit` |
-| WORKTREE | `/Users/carmen/projects/isalwa/.worktrees/ct2-lane-ux6-audit` |
-| BASE_SHA | `1244d84ef75142d973c8f7aa44caeadd66361768` |
-| COMMIT_SHA | _(pending lane commit)_ |
+---
 
-## Scope delivered
+## Mission outcomes
 
-- Searchable **Auditoría** with filters: Fecha (desde/hasta), Persona, Cliente, Tipo, Acción, plus free-text `q`.
-- Human labels via existing `lib/audit/humanize` (server + list copy).
-- **Detail drawer** (`entry` query) with before/after JSON when loaded by id.
-- **Server-backed pagination** (`cursor`, `meta.hasMore`, `meta.nextCursor`) on `GET /v1/audit`.
-- Optional **AI ask stub** in drawer, gated off (`AUDIT_AI_ASK_STUB_ENABLED = false`).
+| # | Requirement | Result |
+|---|-------------|--------|
+| 1 | Searchable `/auditoria` with date, persona, cliente, tipo, acción filters | **IMPLEMENTED** |
+| 2 | Spanish human labels (no raw keys as primary copy) | **IMPLEMENTED** · **TESTED** |
+| 3 | Detail drawer with before/after snapshots when `id` fetch | **IMPLEMENTED** |
+| 4 | Server-backed cursor pagination (`meta.hasMore` / `nextCursor`) | **IMPLEMENTED** · **TESTED** (API cursor unit) |
+| 5 | AI “preguntar sobre registro” stub gated off | **IMPLEMENTED** |
 
-## Files (exclusive + additive API)
+---
+
+## Proof matrix (do not collapse)
+
+| Capability | IMPLEMENTED | TESTED | INTEGRATED | DEPLOYED | HOSTED | BROWSER-VERIFIED |
+|------------|-------------|--------|------------|----------|--------|------------------|
+| Audit list filters + URL state | yes | yes (unit) | branch | no | no | no |
+| Cursor pagination API | yes | yes (unit) | branch | no | no | no |
+| Detail drawer + snapshots via `?id=` | yes | logic | branch | no | no | no |
+| AI ask stub (off) | yes | n/a | branch | no | no | no |
+
+---
+
+## Key paths
 
 - `apps/os-web/app/(app)/auditoria/page.tsx`
 - `apps/os-web/components/audit/**`
-- `apps/os-web/lib/audit/**` (url-state, format-snapshot, filter-options, audit-ai-stub, types)
-- `apps/os-api/src/audit.controller.ts` (pagination, search, id snapshot read)
-- `apps/os-api/src/audit.controller.test.ts`
+- `apps/os-web/lib/audit/**`
+- `apps/os-api/src/audit.controller.ts` (additive query: `q`, `cursor`, `resourceId`, `id` + snapshots)
+- `apps/os-api/src/audit-cursor.ts`
 
-## Tests
+---
 
-- `apps/os-web/lib/audit/humanize.test.ts` (existing)
-- `apps/os-web/lib/audit/url-state.test.ts`
-- `apps/os-web/lib/audit/format-snapshot.test.ts`
-- `apps/os-web/lib/audit/audit-ai-stub.test.ts`
-- `apps/os-api/src/audit.controller.test.ts`
+## Tests run
 
-## Proof matrix
+```text
+cd apps/os-web && pnpm exec tsx --test \
+  lib/audit/humanize.test.ts \
+  lib/audit/url-state.test.ts \
+  lib/audit/filter-options.test.ts \
+  lib/audit/format-snapshot.test.ts
+→ 11 pass / 0 fail
 
-| Capability | PLANNED | IMPLEMENTED | TESTED | HOSTED |
-|---|---|---|---|---|
-| Filtered audit list | YES | YES | YES (unit) | UNPROVEN |
-| Cursor pagination | YES | YES | YES (unit) | UNPROVEN |
-| Detail drawer + snapshots | YES | YES | YES (unit/helpers) | UNPROVEN |
-| AI ask stub | YES | YES (gated off) | YES | N/A |
+cd apps/os-api && pnpm exec tsx --test src/audit.controller.test.ts
+→ 2 pass / 0 fail
+```
 
-## Notes
+---
 
-- Default page size 25; “Cargar más” uses opaque cursor.
-- Non-admin still fail-closed via existing people.admin / system.admin gate.
+## Residual (honest)
+
+1. **Hosted BV:** admin `/auditoria` with filters and drawer not browser-verified on this lane commit.
+2. **Search `q`:** server matches action/resource/correlation fields only; persona/cliente display names are not full-text indexed server-side.
+3. **Export:** still no bulk export (by design).

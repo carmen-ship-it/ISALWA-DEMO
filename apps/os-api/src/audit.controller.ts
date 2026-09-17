@@ -15,11 +15,12 @@ import {
   assertQueryTenantResource,
   buildQueryContext,
 } from '@isalwa/os-query';
+import { decodeAuditCursor, encodeAuditCursor } from './audit-cursor';
 import { resolveSession } from './os-session';
 import { OS_STORE } from './os-store.module';
 
 const MAX_LIMIT = 100;
-const DEFAULT_LIMIT = 50;
+const DEFAULT_LIMIT = 25;
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
   'party.created': 'Cliente creado',
@@ -96,7 +97,7 @@ export class AuditController {
   constructor(@Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore) {}
 
   /**
-   * GET /v1/audit?from&to&actorMemberId&resourceType&action&limit
+   * GET /v1/audit?from&to&actorMemberId&resourceType&resourceId&action&q&cursor&limit&id
    * Tenant-scoped audit read. people.admin or system.admin only. No export.
    */
   @Get()
@@ -106,8 +107,12 @@ export class AuditController {
     @Query('to') to?: string,
     @Query('actorMemberId') actorMemberId?: string,
     @Query('resourceType') resourceType?: string,
+    @Query('resourceId') resourceId?: string,
     @Query('action') action?: string,
+    @Query('q') q?: string,
+    @Query('cursor') cursorRaw?: string,
     @Query('limit') limitRaw?: string,
+    @Query('id') id?: string,
   ) {
     try {
       const session = await resolveSession(req, this.workforceStore);
@@ -123,6 +128,44 @@ export class AuditController {
       const fromDate = parseIsoDate(from, 'from');
       const toDate = parseIsoDate(to, 'to');
       const limit = parseLimit(limitRaw);
+      const includeSnapshots = Boolean(id?.trim());
+
+      if (id?.trim()) {
+        const row = await prisma.osAuditLog.findFirst({
+          where: { organizationId: ctx.organizationId, id: id.trim() },
+        });
+        if (!row) {
+          throw new HttpException({ code: 'NOT_FOUND' }, HttpStatus.NOT_FOUND);
+        }
+        return {
+          boundary:
+            'Lectura acotada en pantalla. No hay exportación masiva ni edición desde aquí.',
+          items: [this.mapRow(row, includeSnapshots)],
+          meta: { hasMore: false },
+        };
+      }
+
+      const cursor = decodeAuditCursor(cursorRaw);
+      const qTrim = q?.trim();
+      const searchFilter = qTrim
+        ? {
+            OR: [
+              { action: { contains: qTrim, mode: 'insensitive' as const } },
+              { resourceType: { contains: qTrim, mode: 'insensitive' as const } },
+              { resourceId: { contains: qTrim, mode: 'insensitive' as const } },
+              { correlationId: { contains: qTrim, mode: 'insensitive' as const } },
+            ],
+          }
+        : {};
+
+      const cursorFilter = cursor
+        ? {
+            OR: [
+              { createdAt: { lt: new Date(cursor.t) } },
+              { createdAt: new Date(cursor.t), id: { lt: cursor.id } },
+            ],
+          }
+        : {};
 
       const rows = await prisma.osAuditLog.findMany({
         where: {
@@ -137,32 +180,66 @@ export class AuditController {
             : {}),
           ...(actorMemberId?.trim() ? { actorMemberId: actorMemberId.trim() } : {}),
           ...(resourceType?.trim() ? { resourceType: resourceType.trim() } : {}),
+          ...(resourceId?.trim() ? { resourceId: resourceId.trim() } : {}),
           ...(action?.trim() ? { action: action.trim() } : {}),
+          ...searchFilter,
+          ...cursorFilter,
         },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
       });
+
+      const hasMore = rows.length > limit;
+      const page = hasMore ? rows.slice(0, limit) : rows;
+      const last = page[page.length - 1];
 
       return {
         boundary:
           'Lectura acotada en pantalla. No hay exportación masiva ni edición desde aquí.',
-        items: rows.map((row) => ({
-          id: row.id,
-          occurredAt: row.createdAt.toISOString(),
-          actorMemberId: row.actorMemberId,
-          actionLabel: humanizeAuditAction(row.action),
-          resourceLabel: humanizeResourceType(row.resourceType),
-          resourceType: row.resourceType,
-          resourceId: row.resourceId,
-          action: row.action,
-          hasBefore: row.beforeJson != null,
-          hasAfter: row.afterJson != null,
-          correlationId: row.correlationId,
-        })),
+        items: page.map((row) => this.mapRow(row, false)),
+        meta: {
+          hasMore,
+          ...(hasMore && last ? { nextCursor: encodeAuditCursor(last.createdAt, last.id) } : {}),
+        },
       };
     } catch (err) {
       throw this.toHttp(err);
     }
+  }
+
+  private mapRow(
+    row: {
+      id: string;
+      createdAt: Date;
+      actorMemberId: string | null;
+      action: string;
+      resourceType: string;
+      resourceId: string;
+      beforeJson: unknown;
+      afterJson: unknown;
+      correlationId: string;
+    },
+    includeSnapshots: boolean,
+  ) {
+    return {
+      id: row.id,
+      occurredAt: row.createdAt.toISOString(),
+      actorMemberId: row.actorMemberId,
+      actionLabel: humanizeAuditAction(row.action),
+      resourceLabel: humanizeResourceType(row.resourceType),
+      resourceType: row.resourceType,
+      resourceId: row.resourceId,
+      action: row.action,
+      hasBefore: row.beforeJson != null,
+      hasAfter: row.afterJson != null,
+      correlationId: row.correlationId,
+      ...(includeSnapshots
+        ? {
+            beforeJson: row.beforeJson ?? undefined,
+            afterJson: row.afterJson ?? undefined,
+          }
+        : {}),
+    };
   }
 
   private toHttp(err: unknown): HttpException {
