@@ -196,7 +196,10 @@ export function approvalSubjectLabel(approval: ApprovalSummaryReadModel): string
   return subject ?? 'Solicitud de aprobación';
 }
 
-export function isWorkOverdue(work: WorkSummaryReadModel, asOf = new Date()): boolean {
+export function isWorkOverdue(
+  work: Pick<WorkSummaryReadModel, 'status' | 'dueAt'> | { status: string; dueAt: string | null },
+  asOf = new Date(),
+): boolean {
   if (work.status !== 'open' || !work.dueAt) return false;
   return new Date(work.dueAt) < asOf;
 }

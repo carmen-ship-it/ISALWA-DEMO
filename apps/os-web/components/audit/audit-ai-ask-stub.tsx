@@ -12,10 +12,13 @@ export function AuditAiAskStub({ entryId }: AuditAiAskStubProps) {
   if (!isAuditAiAskStubVisible()) return null;
 
   return (
-    <InsightCard
-      title="Preguntar sobre este registro"
-      description={AUDIT_AI_ASK_STUB_COPY}
-      meta={`Registro ${entryId.slice(0, 8)}…`}
-    />
+    <InsightCard>
+      <span className="not-italic font-[family-name:var(--isalwa-font-sans)] text-xs uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
+        Preguntar sobre este registro · {entryId.slice(0, 8)}…
+      </span>
+      <p className="mt-2 not-italic font-[family-name:var(--isalwa-font-sans)] text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        {AUDIT_AI_ASK_STUB_COPY}
+      </p>
+    </InsightCard>
   );
 }

@@ -124,7 +124,8 @@ export function MapLiveCanvas({
       const map = mapRef.current?.getMap();
       if (!map) return;
       const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
-      const id = feats[0]?.properties?.id;
+      const props = feats[0]?.properties as Record<string, unknown> | null | undefined;
+      const id = props?.id;
       onSelectPartyId(typeof id === 'string' ? id : null);
     },
     [onSelectPartyId],
@@ -135,7 +136,8 @@ export function MapLiveCanvas({
     if (!map) return;
     const feats = map.queryRenderedFeatures(e.point, { layers: ['confirmed-clients'] });
     setCursor(feats.length ? 'pointer' : 'grab');
-    const name = feats[0]?.properties?.name;
+    const props = feats[0]?.properties as Record<string, unknown> | null | undefined;
+    const name = props?.name;
     if (typeof name === 'string' && name.trim()) {
       setHoverLabel({ name: name.trim(), x: e.point.x, y: e.point.y });
     } else {
