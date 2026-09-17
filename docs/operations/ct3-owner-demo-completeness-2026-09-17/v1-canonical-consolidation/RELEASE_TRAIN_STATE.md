@@ -1,10 +1,19 @@
 # V1 release-train state (canonical)
 
-**SNAPSHOT_AT:** 2026-09-17T13:20:00Z  
+**SNAPSHOT_AT:** 2026-09-17T13:25:00Z  
 **BRANCH:** `ct3/owner-demo-completeness`  
 **Policy:** NO MICRO-DEPLOYS · one RC only
 
-## Pre-RC reconcile (this pass)
+## RC tip
+
+| Field | Value |
+|---|---|
+| V1_OWNER_REVIEW_RC_SHA | *(set after build-fix push — tip must build)* |
+| Prior tip (build_failed web) | `6c0262e6dbaf9e0505b5f0d60d471ea885fb3268` |
+| WEB_FAIL_DEPLOY | `dep-daluhr61egvs73ftatr0` — `next/headers` via mutation-gate → role-preview-provider |
+| API_LIVE_PRIOR | `dep-daluhrad0e5s738ma2fg` @ `6c0262e` (will redeploy with fixed tip) |
+
+## Pre-RC reconcile
 
 | Field | Value |
 |---|---|
@@ -13,9 +22,8 @@
 | LATEST_REPO_MIGRATION | `20260920120000_os_finished_goods_receipt_pedido_context` |
 | LATEST_STAGING_MIGRATION | `20260920120000_os_finished_goods_receipt_pedido_context` |
 | SCHEMA_DRIFT | **NO** |
-| AUDIT_HISTORY_VIEW_AS | local filter + auditoria gate (management.org.read) |
-| DOCUMENT/HISTORY/AUDIT NEGATIVES | unit pack PASS (17 role-preview + history filter tests) |
-| LIVE_WEB / LIVE_API | `8e24b7f` until RC deploy |
+| AUDIT_HISTORY_VIEW_AS | PASS (filter + auditoria gate) |
+| DOCUMENT/HISTORY/AUDIT NEGATIVES | PASS (A–J unit pack) |
 
 ## Conversation IDs (canonical)
 
@@ -26,7 +34,3 @@
 5. `owner-demo-conversation:ferreteria_norte` → party `01M2PMFXKD9VTWB21SQX0VEDJY`
 
 REAL_SEVEN_MUTATED = NO
-
-## Gate
-
-Update after push/deploy with exact RC SHA.

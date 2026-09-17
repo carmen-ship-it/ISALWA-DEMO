@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { effectiveNavScopes, rolePreviewBlocksMutations } from '@/lib/role-preview/access';
-import { syncRolePreviewPersonaCookie } from '@/lib/role-preview/mutation-gate';
+import { syncRolePreviewPersonaCookie } from '@/lib/role-preview/persona-cookie';
 import { ROLE_PREVIEW_PRESETS } from '@/lib/role-preview/presets';
 import {
   parseStoredRolePreview,

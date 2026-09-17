@@ -9,7 +9,7 @@ import {
   MANAGEMENT_ORG_READ_SCOPE,
   OPERATIONS_COORDINATOR_RECORD_SCOPE,
 } from '@isalwa/os-contracts';
-import { ROLE_PREVIEW_PERSONA_COOKIE } from '@/lib/role-preview/mutation-gate';
+import { ROLE_PREVIEW_PERSONA_COOKIE } from '@/lib/role-preview/persona-cookie';
 import { parseStoredRolePreview } from '@/lib/role-preview/storage';
 import type { RolePreviewPersonaId } from '@/lib/role-preview/types';
 import { previewScopesForPersona } from '@/lib/role-preview/presets';
