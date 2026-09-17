@@ -17,6 +17,7 @@ import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
 import { QA_VIEW_COOKIE_NAME } from '@/lib/qa/constants';
 import {
   OWNER_EFFECTIVE_COMPANY_COOKIE,
+  companyForDemoDataMode,
   organizationIdForCompany,
   parseOwnerEffectiveCompany,
 } from '@/lib/demo/owner-company-context';
@@ -377,18 +378,16 @@ export async function getServerOsAuthContext(options?: { skipQaView?: boolean })
   const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
 
   // Owner Demo company context: select among proven memberships (Carmen REAL↔SYNTH).
-  // Prefer explicit company cookie; else derive from demo-data-mode cookie; default real when either cookie exists.
+  // Demo/Datos reales cookie is authoritative when present (keeps company selector in sync
+  // even if login previously defaulted OWNER_EFFECTIVE_COMPANY to REAL). Else company cookie.
+  const demoModeRaw = store.get(DEMO_DATA_MODE_COOKIE)?.value;
   const companyExplicit = parseOwnerEffectiveCompany(
     store.get(OWNER_EFFECTIVE_COMPANY_COOKIE)?.value,
   );
-  const demoMode = parseDemoDataMode(store.get(DEMO_DATA_MODE_COOKIE)?.value);
   const company =
-    companyExplicit ??
-    (store.get(DEMO_DATA_MODE_COOKIE)?.value != null
-      ? demoMode === 'demo'
-        ? 'synth'
-        : 'real'
-      : null);
+    demoModeRaw != null
+      ? companyForDemoDataMode(parseDemoDataMode(demoModeRaw))
+      : companyExplicit;
   const organizationId = company ? organizationIdForCompany(company) : undefined;
 
   const withOrg =
