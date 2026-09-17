@@ -1,11 +1,11 @@
 # CT3 WORKER STATUS BUS
 
-BASE product = `4b85b11` · Integrator `ct3/owner-demo-completeness`
-Worktree: `/Users/carmen/projects/isalwa/.worktrees/ct3-owner-demo`
+BASE product = `4b85b11` · Integrator `ct3/owner-demo-completeness` @ `9d12eb6`  
+Acceptance: `PRODUCT_ACCEPTANCE_ADDENDUM.md` — hosted visual PASS required.
 
 | Lane | Branch | Worker SHA | Integrated | Status |
 |---|---|---|---|---|
-| CT3-A | ct3/lane-a-visual | — | NO | RUNNING |
+| CT3-A | ct3/lane-a-visual | `1030394` | YES @ merge → `9d12eb6` | INTEGRATED |
 | CT3-B | ct3/lane-b-commercial | — | NO | RUNNING |
 | CT3-C | ct3/lane-c-conversations | — | NO | RUNNING |
 | CT3-D | ct3/lane-d-smart | `22e859c` | YES | INTEGRATED |
@@ -15,5 +15,5 @@ Worktree: `/Users/carmen/projects/isalwa/.worktrees/ct3-owner-demo`
 | CT3-H | ct3/lane-h-ai | — | NO | RUNNING |
 | CT3-I | verifier | — | — | WAITS_DEPLOY + ADDENDUM_BV |
 
-**Acceptance standard:** PRODUCT_ACCEPTANCE_ADDENDUM.md (hosted visual PASS required).  
-REAL_SEVEN_MUTATED: NO
+REAL_SEVEN_MUTATED: NO  
+USER_ACCEPTED: NO (always this pass)
