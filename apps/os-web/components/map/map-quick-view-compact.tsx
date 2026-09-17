@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Button, StatusPill } from '@isalwa/ui';
 import { FreshnessLabel } from '@/components/freshness/freshness-label';
 import { MapPendingLocationCard } from '@/components/map/map-pending-location-card';
+import { ProcessStepIndicator } from '@/components/progress/process-step-indicator';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
 import type { MapCustomerRow } from '@/lib/map/build-view-model';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@/lib/map/commercial-lens';
 import { pendingLocationCardCopy } from '@/lib/map/pending-location';
 import { partyHref } from '@/lib/party/navigation';
+import { resolveCommercialProcessSteps } from '@/lib/progress/process-steps';
 
 type MapQuickViewCompactProps = {
   row: MapCustomerRow;
@@ -41,6 +43,13 @@ export function MapQuickViewCompact({
   const isDrawer = variant === 'drawer';
   const followUpHref = clienteSectionHref(row.partyId, 'trabajo');
   const conversationStubHref = `/conversaciones?partyId=${encodeURIComponent(row.partyId)}`;
+  const processSteps = resolveCommercialProcessSteps({
+    hasClient: true,
+    hasOpportunity: (commercial?.opportunityCount ?? 0) > 0,
+    hasQuote: (commercial?.quoteCount ?? 0) > 0,
+    hasOrder: (commercial?.orderCount ?? 0) > 0,
+    hasDelivery: false,
+  });
 
   const shellClass = isDrawer
     ? 'space-y-4'
@@ -111,6 +120,13 @@ export function MapQuickViewCompact({
           </div>
         ) : null}
       </dl>
+
+      <ProcessStepIndicator
+        kicker="Progreso comercial"
+        title="Hechos registrados"
+        steps={processSteps}
+        className="mt-3 shadow-none"
+      />
 
       {commercial ? (
         <dl

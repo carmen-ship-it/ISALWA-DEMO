@@ -1,33 +1,51 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { isAuthoritativeRevenueLayerEnabled } from './authoritative-revenue';
-import { pendingLocationCta, partyMapLocationHref } from './pending-location';
+import {
+  partyMapLocationHref,
+  pendingLocationCardCopy,
+  pendingLocationCta,
+} from './pending-location';
 import { MAP_LAYER_REGISTRY, resolveMapLayer } from './layers';
 
-describe('pending location CTAs', () => {
-  it('links to Cliente 360 ubicaciones — never geocodes on map', () => {
-    assert.equal(partyMapLocationHref('party-1'), '/clientes/party-1#ubicaciones');
-    const provenance = pendingLocationCta({
-      partyId: 'p1',
+describe('pending location helpers', () => {
+  it('returns null CTA/card when coordinates are confirmed', () => {
+    const row = { partyId: 'p1', hasCoordinates: true, hasProvenance: true };
+    assert.equal(pendingLocationCta(row), null);
+    assert.equal(pendingLocationCardCopy(row), null);
+  });
+
+  it('uses human pending copy and Completar ubicación CTA without jargon', () => {
+    const withProvenance = pendingLocationCardCopy({
+      partyId: 'p2',
       hasCoordinates: false,
       hasProvenance: true,
     });
-    assert.ok(provenance);
-    assert.match(provenance!.label, /Completar coordenadas/i);
-    assert.equal(provenance!.href, '/clientes/p1#ubicaciones');
+    assert.ok(withProvenance);
+    assert.equal(withProvenance.title, 'Ubicación por confirmar');
+    assert.equal(withProvenance.cta, 'Completar ubicación');
+    assert.equal(withProvenance.href, partyMapLocationHref('p2'));
+    assert.doesNotMatch(withProvenance.helper, /provenance|geocod|latitud|longitud/i);
 
-    const none = pendingLocationCta({
-      partyId: 'p2',
+    const without = pendingLocationCardCopy({
+      partyId: 'p3',
       hasCoordinates: false,
       hasProvenance: false,
     });
-    assert.ok(none);
-    assert.match(none!.label, /Registrar ubicación/i);
+    assert.ok(without);
+    assert.equal(without.tone, 'warning');
+    assert.match(without.helper, /Todavía no hay un punto confirmado/);
+  });
 
-    assert.equal(
-      pendingLocationCta({ partyId: 'p3', hasCoordinates: true, hasProvenance: false }),
-      null,
-    );
+  it('keeps Completar ubicación CTA href on Cliente 360 ubicaciones', () => {
+    const cta = pendingLocationCta({
+      partyId: 'party-1',
+      hasCoordinates: false,
+      hasProvenance: false,
+    });
+    assert.ok(cta);
+    assert.equal(cta.label, 'Completar ubicación');
+    assert.equal(cta.href, '/clientes/party-1#ubicaciones');
   });
 });
 
@@ -42,7 +60,7 @@ describe('authoritative revenue layer', () => {
   it('keeps ingresos layer out of available filters', () => {
     const ingresos = MAP_LAYER_REGISTRY.find((layer) => layer.id === 'ingresos');
     assert.ok(ingresos);
-    assert.notEqual(ingresos!.truthClass, 'available');
+    assert.notEqual(ingresos.truthClass, 'available');
     assert.equal(resolveMapLayer('ingresos'), 'clientes');
   });
 });

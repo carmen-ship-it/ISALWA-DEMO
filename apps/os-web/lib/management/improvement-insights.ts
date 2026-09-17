@@ -73,6 +73,24 @@ export function buildParaRevisarInsights(input: ImprovementInsightInput): Manage
     });
   }
 
+  if (input.exitsWithoutDelivery != null && input.exitsWithoutDelivery > 0) {
+    insights.push({
+      id: 'exits-without-delivery',
+      message: `${input.exitsWithoutDelivery} salida${input.exitsWithoutDelivery === 1 ? '' : 's'} de almacén sin entrega registrada.`,
+      href: '/entregas',
+      cta: 'Ver entregas',
+    });
+  }
+
+  if (input.pendingConfirmations != null && input.pendingConfirmations > 0) {
+    insights.push({
+      id: 'pending-confirmations',
+      message: `${input.pendingConfirmations} registro${input.pendingConfirmations === 1 ? '' : 's'} espera${input.pendingConfirmations === 1 ? '' : 'n'} confirmación humana.`,
+      href: '/trabajo',
+      cta: 'Revisar pendientes',
+    });
+  }
+
   return insights;
 }
 
