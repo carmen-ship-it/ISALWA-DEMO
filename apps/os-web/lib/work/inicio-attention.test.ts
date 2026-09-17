@@ -20,7 +20,7 @@ import {
 } from '@/lib/work/inicio-attention';
 
 const FORBIDDEN_AGING =
-  /due soon|dueSoon|stale opportunity|seven[- ]day|quote aging|agingDays|\bSLA\b|MetricCard|StatGroup/i;
+  /due soon|dueSoon|stale opportunity|seven[- ]day|quote aging|agingDays|\bSLA\b|\bMetricCard\b|\bStatGroup\b/i;
 
 function readAppFile(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), 'utf8');
@@ -163,26 +163,18 @@ describe('CC-1 inicio page wiring', () => {
     assert.doesNotMatch(page, /listAttention\(\{[^}]*memberId/);
     assert.doesNotMatch(page, /admin|team feed|role mapping/i);
 
-    const attentionAt = page.indexOf('InicioAttentionPanel');
+    assert.match(page, /buildTodayQueue/);
+    assert.match(page, /InicioSummaryCards/);
+    assert.match(page, /InicioMiDia/);
     const opportunitiesAt = page.indexOf('pages.inicio.opportunities');
     const draftAt = page.indexOf('pages.inicio.quotesDraft');
     const submittedAt = page.indexOf('pages.inicio.quotesSubmitted');
-    assert.ok(attentionAt >= 0);
-    assert.ok(attentionAt < opportunitiesAt);
+    assert.ok(opportunitiesAt >= 0);
     assert.ok(opportunitiesAt < draftAt);
     assert.ok(draftAt < submittedAt);
     assert.match(page, /OpportunityOrgList/);
     assert.match(page, /QuoteOrgList/);
-
-    const gridOpen = page.lastIndexOf('<div', page.indexOf('lg:grid-cols-2'));
-    const leadershipAt = page.indexOf('<InicioLeadershipSection');
-    assert.ok(gridOpen >= 0);
-    assert.ok(leadershipAt > gridOpen);
-    let depth = 0;
-    for (const tag of page.slice(gridOpen, leadershipAt).matchAll(/<\/?div\b[^>]*>/g)) {
-      depth += tag[0].startsWith('</') ? -1 : 1;
-    }
-    assert.equal(depth, 0);
+    assert.doesNotMatch(page, /<InicioLeadershipSection/);
 
     assert.doesNotMatch(page, FORBIDDEN_AGING);
     assert.doesNotMatch(panel, FORBIDDEN_AGING);

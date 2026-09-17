@@ -1,49 +1,73 @@
 import Link from 'next/link';
-import { Button, OperatingRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
-import type { QuoteSummaryReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
+import { Button, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
-import { InicioLeadershipSection } from '@/components/commercial/inicio-leadership-section';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import { InicioManagementLens } from '@/components/management/inicio-management-lens';
-import { OperatingHomes } from '@/components/management/operating-homes';
+import { ManagementExamplePreviewTrigger } from '@/components/management/management-example-preview';
+import { ManagementInsightsPanel } from '@/components/management/management-insights-panel';
+import { ManagementOrgMetrics } from '@/components/management/management-org-metrics';
+import { ManagementTeamTable } from '@/components/management/management-team-table';
 import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
-import { InicioTodayQueue } from '@/components/inicio/inicio-today-queue';
+import { InicioLensTabs } from '@/components/inicio/inicio-lens-tabs';
+import { InicioMiDia } from '@/components/inicio/inicio-mi-dia';
+import { InicioSummaryCards } from '@/components/inicio/inicio-summary-cards';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
 import type { MemoryChangesResponse } from '@/lib/audit/types';
-import { InicioAttentionPanel } from '@/components/work/inicio-attention-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { INICIO_SECTION_LIMIT } from '@/lib/commercial/inicio-home';
-import { commitmentAgingAdapter } from '@/lib/inicio/commitment-aging';
+import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
+import {
+  buildInicioSummaryCounts,
+  summaryCardsFromCounts,
+} from '@/lib/inicio/build-summary-cards';
 import { loadInicioCommandQueues, safeInicioSectionFetch } from '@/lib/inicio/load-command-queues';
+import { flattenMiDia } from '@/lib/inicio/mi-dia';
+import {
+  availableInicioPageLenses,
+  parseManagementPeriodPreset,
+  resolveInicioPageLens,
+  type InicioPageLens,
+} from '@/lib/inicio/page-lens';
 import { resolveInicioApprovalSubjects } from '@/lib/inicio/resolve-approval-subjects';
 import { buildTodayQueue } from '@/lib/inicio/today-queue';
-import { partyLabel, resolvePartyLabels, type PartyLabelMap } from '@/lib/commercial/party-resolver';
 import { loadInicioLeadership } from '@/lib/leadership/load-inicio-leadership';
 import { loadInicioManagement } from '@/lib/management/load-inicio-management';
-import { loadOperatingHomes } from '@/lib/roles/load-operating-homes';
+import {
+  buildOportunidadesDeMejora,
+  buildParaRevisarInsights,
+} from '@/lib/management/improvement-insights';
+import { composeOrgMetricCards, resolveManagementPeriod } from '@/lib/management/org-metrics';
+import { partyCountByOwner } from '@/lib/management/party-count-by-owner';
+import { viewerHasManagementOrgRead } from '@/lib/management/scope';
+import { composeTeamMetricsRows } from '@/lib/management/team-metrics';
+import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { t } from '@/lib/i18n/es';
 import { greetingLine } from '@/lib/shell/greeting';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
-import { formatWorkDueLine } from '@/lib/work/due-order';
 import { INICIO_ATTENTION_LIMIT } from '@/lib/work/inicio-attention';
-import { formatWorkStatus, isWorkOverdue, statusToneForWork } from '@/lib/work/labels';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
-import { APPROVAL_ROW_SUBJECT_FALLBACK } from '@/lib/work/approval-row-subject';
-import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
-import { isEngineeringFixtureCopy, staffFacingSubject } from '@/lib/work/staff-subject';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
 
-/** Contract max. A page with more is not the complete upcoming set. */
 const PERSONAL_OPEN_WORK_LIMIT = 100;
+const HERO_SUBTITLE = 'Esto es lo que necesita atención hoy.';
 
-/** Org What Changed is authority-gated. Forbidden is omitted, not fabricated. */
+type InicioPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function paramOne(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 async function safeMemoryChanges(
   fn: () => Promise<MemoryChangesResponse>,
 ): Promise<MemoryChangesResponse | 'unavailable' | 'unauthorized'> {
@@ -76,32 +100,19 @@ function hideFixtureParty(partyId: string, partyLabels: PartyLabelMap): boolean 
   return !isEngineeringFixtureCopy(partyLabel(partyLabels, partyId));
 }
 
-/**
- * Personal open work with a stored due date that the existing rule does not treat as overdue.
- * A partial page is not returned: callers must omit the stack rather than call it complete.
- */
-function upcomingPersonalWork(items: WorkSummaryReadModel[], asOf: Date): WorkSummaryReadModel[] {
-  return items
-    .filter(
-      (work) =>
-        work.status === 'open' &&
-        Boolean(work.dueAt) &&
-        !isWorkOverdue(work, asOf) &&
-        !isEngineeringFixtureCopy(work.title) &&
-        !isEngineeringFixtureCopy(work.description),
-    )
-    .sort((left, right) => {
-      const delta = new Date(left.dueAt ?? 0).getTime() - new Date(right.dueAt ?? 0).getTime();
-      return delta || left.workItemId.localeCompare(right.workItemId);
-    });
+function orgMetricsSparse(cards: ReturnType<typeof composeOrgMetricCards>): boolean {
+  const numeric = cards.filter((card) => card.id !== 'quote-to-order-rate');
+  return numeric.every((card) => (card.count ?? 0) === 0);
 }
 
-export default async function InicioPage() {
+export default async function InicioPage({ searchParams }: InicioPageProps) {
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
+  const params = await searchParams;
   const client = createOsApiClient(auth);
   const limit = INICIO_SECTION_LIMIT;
+  const asOf = new Date();
 
   try {
     const [
@@ -113,6 +124,8 @@ export default async function InicioPage() {
       personalWorkResult,
       management,
       memoryChanges,
+      leadership,
+      roleKeys,
     ] = await Promise.all([
       loadShellContext(),
       safeInicioSectionFetch(() =>
@@ -124,6 +137,8 @@ export default async function InicioPage() {
       safeInicioSectionFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
       loadInicioManagement(client),
       safeMemoryChanges(() => client.listMemoryChanges({ window: 'hoy' })),
+      loadInicioLeadership(client),
+      loadActorRoleKeys(client),
     ]);
 
     const allUnavailable = [
@@ -152,18 +167,24 @@ export default async function InicioPage() {
       quotesSubmittedResult === 'unavailable'
         ? []
         : quotesSubmittedResult.items.filter(hideFixtureQuote);
-    const upcoming =
-      personalWorkResult !== 'unavailable' && !personalWorkResult.meta.hasMore
-        ? upcomingPersonalWork(personalWorkResult.items, new Date())
-        : [];
 
-    const leadership = await loadInicioLeadership(client);
-    const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
-    const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
+    const lensInput = {
+      roleKeys,
+      leadershipTeamReady: leadership.team.kind === 'ready',
+      leadershipOrgReady: leadership.org.kind === 'ready',
+    };
+    const availableLenses = availableInicioPageLenses(lensInput);
+    const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
+    const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
+    const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
+
     const commandQueues = await loadInicioCommandQueues(client, {
       leadershipTeamReady: leadership.team.kind === 'ready',
       leadershipOrgReady: leadership.org.kind === 'ready',
     });
+
+    const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
+    const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
 
     const memberLabels = await resolveMemberLabels(client, [
       ...opportunities.map((item) => item.ownerMemberId),
@@ -178,18 +199,11 @@ export default async function InicioPage() {
         item.approverMemberId,
       ]),
       ...(teamData?.opportunities ?? []).map((item) => item.ownerMemberId),
-      ...(teamData?.quotesDraft ?? []).map((item) => item.ownerMemberId),
       ...(teamData?.quotesSubmitted ?? []).map((item) => item.ownerMemberId),
-      ...(teamData?.openWork ?? []).map((item) => item.ownerMemberId),
-      ...(teamData?.overdueWork ?? []).map((item) => item.ownerMemberId),
-      ...(teamData?.followUps ?? []).map((item) => item.ownerMemberId),
       ...(orgData?.opportunities ?? []).map((item) => item.ownerMemberId),
-      ...(orgData?.quotesDraft ?? []).map((item) => item.ownerMemberId),
       ...(orgData?.quotesSubmitted ?? []).map((item) => item.ownerMemberId),
-      ...(orgData?.openWork ?? []).map((item) => item.ownerMemberId),
-      ...(orgData?.overdueWork ?? []).map((item) => item.ownerMemberId),
-      ...(orgData?.followUps ?? []).map((item) => item.ownerMemberId),
     ]);
+
     const attentionSubjects =
       attentionResult === 'unavailable'
         ? new Map<string, string>()
@@ -201,28 +215,21 @@ export default async function InicioPage() {
             const subject = attentionSubjects.get(item.attentionKey) ?? '';
             return subject.trim().length > 0 && !isEngineeringFixtureCopy(subject);
           });
+
     const commandApprovalSubjects = await resolveInicioApprovalSubjects(
       client,
       commandQueues.pendingApprovals,
     );
+
     const partyLabels = await resolvePartyLabels(client, [
       ...opportunities.map((item) => item.partyId),
       ...quotesDraft.map((item) => item.partyId),
       ...quotesSubmitted.map((item) => item.partyId),
-      ...upcoming.flatMap((item) =>
-        item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
-      ),
       ...commandQueues.pendingWork.flatMap((item) =>
         item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
       ),
-      ...commandQueues.commitmentsOverdue.flatMap((item) => (item.partyId ? [item.partyId] : [])),
-      ...commandQueues.commitmentsOpen.flatMap((item) => (item.partyId ? [item.partyId] : [])),
       ...(teamData?.opportunities ?? []).map((item) => item.partyId),
-      ...(teamData?.quotesDraft ?? []).map((item) => item.partyId),
-      ...(teamData?.quotesSubmitted ?? []).map((item) => item.partyId),
       ...(orgData?.opportunities ?? []).map((item) => item.partyId),
-      ...(orgData?.quotesDraft ?? []).map((item) => item.partyId),
-      ...(orgData?.quotesSubmitted ?? []).map((item) => item.partyId),
     ]);
 
     const responsibilityOpportunities = opportunities.filter((item) =>
@@ -232,10 +239,6 @@ export default async function InicioPage() {
     const responsibilitySubmitted = quotesSubmitted.filter((item) =>
       hideFixtureParty(item.partyId, partyLabels),
     );
-    const upcomingRows = upcoming.filter((work) => {
-      if (work.subjectType !== 'party' || !work.subjectId) return true;
-      return hideFixtureParty(work.subjectId, partyLabels);
-    });
     const showResponsibility =
       responsibilityOpportunities.length > 0 ||
       responsibilityDraft.length > 0 ||
@@ -253,42 +256,104 @@ export default async function InicioPage() {
       (personalWorkResult !== 'unavailable' &&
         isProjectionStale(personalWorkResult.freshness));
 
-    const showLenses = leadership.team.kind === 'ready' || leadership.org.kind === 'ready';
-    const greeting = greetingLine(shellContext?.givenName);
     const session = await client.getAuthenticatedSession();
+    const personalWork =
+      personalWorkResult === 'unavailable' ? [] : personalWorkResult.items;
+    const openIssues = commandQueues.unavailable.issues ? [] : commandQueues.openIssues;
+
     const todayQueue = buildTodayQueue({
       memberId: session.memberId,
-      asOf: new Date(),
+      asOf,
       attention: visibleAttention,
-      work: personalWorkResult === 'unavailable' ? [] : personalWorkResult.items,
+      work: personalWork,
       approvals: commandQueues.pendingApprovals,
       commitments: commandQueues.unavailable.commitments
         ? []
         : [...commandQueues.commitmentsOverdue, ...commandQueues.commitmentsOpen],
-      issues: commandQueues.unavailable.issues ? [] : commandQueues.openIssues,
+      issues: openIssues,
       partyLabels,
       approvalSubjects: commandApprovalSubjects,
     });
-    const operatingHomes = await loadOperatingHomes(client, {
-      ownQuotes: [...quotesDraft, ...quotesSubmitted],
-      teamQuotes: [...(teamData?.quotesDraft ?? []), ...(teamData?.quotesSubmitted ?? [])],
-      ownWork: upcomingRows,
-      teamWork: teamData?.followUps ?? [],
+
+    const summaryCounts = buildInicioSummaryCounts({
       attention: visibleAttention,
+      work: personalWork,
+      approvals: commandQueues.pendingApprovals,
+      issues: openIssues,
+      memberId: session.memberId,
+      asOf,
     });
+    const summaryCards = summaryCardsFromCounts(
+      summaryCounts,
+      commandQueues.unavailable.issues,
+    );
+    const miDiaItems = flattenMiDia(todayQueue);
+    const greeting = greetingLine(shellContext?.givenName);
+
+    const ordersResult =
+      activeLens === 'personal'
+        ? null
+        : await safeInicioSectionFetch(() => client.listOrders({ limit: 100 }));
+    const orders = ordersResult && ordersResult !== 'unavailable' ? ordersResult.items : [];
+
+    const insightBundle =
+      activeLens === 'team' && teamData
+        ? {
+            submittedQuotes: teamData.quotesSubmitted,
+            openFollowUpWork: teamData.openWork,
+            overdueFollowUps: teamData.overdueWork,
+            pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
+              (row) => row.status === 'pending' && row.subjectType === 'quote',
+            ).length,
+            clientsMissingLocation: null as number | null,
+          }
+        : activeLens === 'org' && orgData
+          ? {
+              submittedQuotes: orgData.quotesSubmitted,
+              openFollowUpWork: orgData.openWork,
+              overdueFollowUps: orgData.overdueWork,
+              pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
+                (row) => row.status === 'pending' && row.subjectType === 'quote',
+              ).length,
+              clientsMissingLocation: null as number | null,
+            }
+          : null;
+
+    const orgMetricCards =
+      activeLens === 'org' && orgData
+        ? composeOrgMetricCards({
+            period: managementPeriod,
+            opportunities: orgData.opportunities,
+            quotes: orgData.quotesSubmitted,
+            orders,
+            overdueFollowUps: orgData.overdueWork,
+            openIssues,
+            pendingApprovals: commandQueues.pendingApprovals,
+          })
+        : null;
+
+    const teamRows =
+      activeLens === 'team' && teamData
+        ? composeTeamMetricsRows({
+            period: managementPeriod,
+            opportunities: teamData.opportunities,
+            quotes: teamData.quotesSubmitted,
+            orders,
+            overdueWork: teamData.overdueWork,
+            openIssues,
+            partyCountByOwner: partyCountByOwner(teamData.opportunities, teamData.quotesSubmitted),
+          })
+        : null;
+
+    const showExampleAffordance = viewerHasManagementOrgRead(roleKeys);
 
     return (
       <PageContainer label={t('pages.inicio.title')}>
         <PageHeader
           kicker={t('pages.inicio.kicker')}
           title={greeting}
-          description={t('pages.inicio.description')}
-          action={
-            <div className="flex flex-wrap items-center gap-2">
-              {destinationLink('/trabajo', t('states.viewWork'), 'primary')}
-              {destinationLink('/clientes', t('states.goToClientes'), 'secondary')}
-            </div>
-          }
+          description={HERO_SUBTITLE}
+          action={destinationLink('/trabajo', 'Ver mi trabajo', 'primary')}
         />
 
         {staleFreshness ? (
@@ -307,177 +372,135 @@ export default async function InicioPage() {
         ) : null}
 
         <div className="min-w-0 space-y-10">
-          <OperatingHomes model={operatingHomes} />
+          <InicioSummaryCards cards={summaryCards} />
+          <InicioMiDia items={miDiaItems} />
 
-          <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_55%,var(--isalwa-porcelain))] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
-            <div>
-              <p className="isalwa-kicker">Centro de mando</p>
-              <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)] md:text-3xl">
-                ¿Qué necesita mi atención hoy?
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                Solo trabajo, aprobaciones, incidencias y compromisos con fecha o responsable.
-                Sin puntajes de urgencia. El recordatorio es esta pantalla — no correo, push ni
-                WhatsApp.
-              </p>
-            </div>
-            <InicioTodayQueue queue={todayQueue} />
-            <InicioAttentionPanel
-              items={visibleAttention}
-              subjects={attentionSubjects}
-              unavailable={attentionResult === 'unavailable'}
-              hasMore={attentionResult !== 'unavailable' && attentionResult.meta.hasMore}
-              work={
-                personalWorkResult === 'unavailable' ? undefined : personalWorkResult.items
-              }
-              approvals={commandQueues.pendingApprovals.map((item) => ({
-                approvalRequestId: item.approvalRequestId,
-                status: item.status,
-                requestedAt: null,
-                subject:
-                  commandApprovalSubjects.get(item.approvalRequestId) ??
-                  APPROVAL_ROW_SUBJECT_FALLBACK,
-              }))}
-              commitments={
-                commandQueues.unavailable.commitments
-                  ? null
-                  : commitmentAgingAdapter([
-                      ...commandQueues.commitmentsOverdue,
-                      ...commandQueues.commitmentsOpen,
-                    ])
-              }
-            />
+          <InicioLensTabs active={activeLens} available={availableLenses} periodo={periodPreset} />
 
-            <InicioManagementLens model={management} />
+          {activeLens === 'personal' ? (
+            <div className="min-w-0 space-y-8 rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_55%,var(--isalwa-porcelain))] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5">
+              <div>
+                <p className="isalwa-kicker">Centro de mando</p>
+                <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-tight text-[var(--isalwa-kiln)] md:text-3xl">
+                  Atención de hoy
+                </h2>
+              </div>
 
-            <InicioCommandQueueSections
-              model={commandQueues}
-              memberLabels={memberLabels}
-              partyLabels={partyLabels}
-              approvalSubjects={commandApprovalSubjects}
-            />
-
-            {memoryChanges !== 'unauthorized' && memoryChanges !== 'unavailable' ? (
-              <InicioWhatChanged items={memoryChanges.items} windowLabel="Hoy" />
-            ) : null}
-          </div>
-
-          {upcomingRows.length > 0 ? (
-            <section aria-label="Próximos" className="min-w-0 space-y-3">
-              <p className="isalwa-kicker">Próximos</p>
-              <PageSection card className="min-w-0 p-2">
-                <ul className="min-w-0" aria-label="Trabajo con fecha que aún no vence">
-                  {upcomingRows.map((work) => {
-                    const customer =
-                      work.subjectType === 'party' && work.subjectId
-                        ? partyLabel(partyLabels, work.subjectId)
-                        : null;
-                    const subject = staffFacingSubject({
-                      title: work.title,
-                      description: work.description,
-                      subjectType: work.subjectType,
-                      customerName: customer,
-                    });
-                    const due = formatWorkDueLine(work);
-                    return (
-                      <li key={work.workItemId}>
-                        <OperatingRow
-                          className="py-tight !py-1"
-                          href={workItemHref(work.workItemId)}
-                          subject={subject}
-                          meta={due.text}
-                          status={
-                            <StatusPill tone={statusToneForWork(work.status)} className="shrink-0">
-                              {formatWorkStatus(work.status)}
-                            </StatusPill>
-                          }
-                        />
-                      </li>
-                    );
-                  })}
-                </ul>
-              </PageSection>
-            </section>
-          ) : null}
-
-          {showResponsibility ? (
-            <section aria-label="Su responsabilidad" className="min-w-0 space-y-8">
-              <p className="isalwa-kicker">Su responsabilidad</p>
-              {responsibilityOpportunities.length > 0 ? (
-                <PageSection card className="min-w-0 p-5 md:p-6">
-                  <SectionHeader
-                    title={t('pages.inicio.opportunities')}
-                    action={destinationLink('/oportunidades', 'Ver todas')}
-                  />
-                  <OpportunityOrgList
-                    items={responsibilityOpportunities}
-                    memberLabels={memberLabels}
-                    partyLabels={partyLabels}
-                    compact
-                  />
-                </PageSection>
+              {showResponsibility ? (
+                <section aria-label="Comercial" className="min-w-0 space-y-6">
+                  <p className="isalwa-kicker">Comercial</p>
+                  {responsibilityOpportunities.length > 0 ? (
+                    <PageSection card className="min-w-0 p-5 md:p-6">
+                      <SectionHeader
+                        title={t('pages.inicio.opportunities')}
+                        action={destinationLink('/oportunidades', 'Ver todas')}
+                      />
+                      <OpportunityOrgList
+                        items={responsibilityOpportunities}
+                        memberLabels={memberLabels}
+                        partyLabels={partyLabels}
+                        compact
+                      />
+                    </PageSection>
+                  ) : null}
+                  {responsibilityDraft.length > 0 || responsibilitySubmitted.length > 0 ? (
+                    <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
+                      {responsibilityDraft.length > 0 ? (
+                        <PageSection card className="min-w-0 p-5 md:p-6">
+                          <SectionHeader
+                            title={t('pages.inicio.quotesDraft')}
+                            action={destinationLink('/cotizaciones?status=draft', 'Ver todas')}
+                          />
+                          <QuoteOrgList
+                            items={responsibilityDraft}
+                            memberLabels={memberLabels}
+                            partyLabels={partyLabels}
+                            compact
+                          />
+                        </PageSection>
+                      ) : null}
+                      {responsibilitySubmitted.length > 0 ? (
+                        <PageSection card className="min-w-0 p-5 md:p-6">
+                          <SectionHeader
+                            title={t('pages.inicio.quotesSubmitted')}
+                            action={destinationLink('/cotizaciones?status=submitted', 'Ver todas')}
+                          />
+                          <QuoteOrgList
+                            items={responsibilitySubmitted}
+                            memberLabels={memberLabels}
+                            partyLabels={partyLabels}
+                            compact
+                          />
+                        </PageSection>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </section>
               ) : null}
 
-              {responsibilityDraft.length > 0 || responsibilitySubmitted.length > 0 ? (
-                <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-2">
-                  {responsibilityDraft.length > 0 ? (
-                    <PageSection card className="min-w-0 p-5 md:p-6">
-                      <SectionHeader
-                        title={t('pages.inicio.quotesDraft')}
-                        action={destinationLink('/cotizaciones?status=draft', 'Ver todas')}
-                      />
-                      <QuoteOrgList
-                        items={responsibilityDraft}
-                        memberLabels={memberLabels}
-                        partyLabels={partyLabels}
-                        compact
-                      />
-                    </PageSection>
-                  ) : null}
-                  {responsibilitySubmitted.length > 0 ? (
-                    <PageSection card className="min-w-0 p-5 md:p-6">
-                      <SectionHeader
-                        title={t('pages.inicio.quotesSubmitted')}
-                        action={destinationLink('/cotizaciones?status=submitted', 'Ver todas')}
-                      />
-                      <QuoteOrgList
-                        items={responsibilitySubmitted}
-                        memberLabels={memberLabels}
-                        partyLabels={partyLabels}
-                        compact
-                      />
-                    </PageSection>
-                  ) : null}
+              <InicioManagementLens model={management} />
+
+              <InicioCommandQueueSections
+                model={commandQueues}
+                memberLabels={memberLabels}
+                partyLabels={partyLabels}
+                approvalSubjects={commandApprovalSubjects}
+              />
+
+              {memoryChanges !== 'unauthorized' && memoryChanges !== 'unavailable' ? (
+                <InicioWhatChanged items={memoryChanges.items} windowLabel="Hoy" />
+              ) : null}
+            </div>
+          ) : null}
+
+          {activeLens === 'team' && teamRows ? (
+            <div className="min-w-0 space-y-10">
+              <ManagementTeamTable rows={teamRows} memberLabels={memberLabels} />
+              {insightBundle ? (
+                <>
+                  <ManagementInsightsPanel
+                    kicker="Revisión"
+                    title="Para revisar"
+                    insights={buildParaRevisarInsights(insightBundle)}
+                  />
+                  <ManagementInsightsPanel
+                    kicker="Coaching"
+                    title="Oportunidades de mejora"
+                    insights={buildOportunidadesDeMejora(insightBundle)}
+                  />
+                </>
+              ) : null}
+            </div>
+          ) : null}
+
+          {activeLens === 'org' && orgMetricCards ? (
+            <div className="min-w-0 space-y-10">
+              <ManagementOrgMetrics
+                cards={orgMetricCards}
+                period={periodPreset}
+                showExampleAffordance={showExampleAffordance}
+                sparseLiveData={orgMetricsSparse(orgMetricCards)}
+              />
+              {insightBundle ? (
+                <>
+                  <ManagementInsightsPanel
+                    kicker="Revisión"
+                    title="Para revisar"
+                    insights={buildParaRevisarInsights(insightBundle)}
+                  />
+                  <ManagementInsightsPanel
+                    kicker="Coaching"
+                    title="Oportunidades de mejora"
+                    insights={buildOportunidadesDeMejora(insightBundle)}
+                  />
+                </>
+              ) : null}
+              {showExampleAffordance ? (
+                <div className="flex justify-end">
+                  <ManagementExamplePreviewTrigger kind="team-table" />
                 </div>
               ) : null}
-            </section>
-          ) : null}
-
-          {showLenses ? (
-            <section
-              aria-label="Lecturas de equipo y empresa"
-              className="min-w-0 space-y-10 border-t border-[var(--isalwa-mist)] pt-10"
-            >
-              <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                Equipo y empresa son lecturas de esta misma página. Solo lectura.
-              </p>
-              {leadership.team.kind === 'ready' ? (
-                <InicioLeadershipSection
-                  variant="team"
-                  data={leadership.team.data}
-                  memberLabels={memberLabels}
-                  partyLabels={partyLabels}
-                />
-              ) : null}
-              {leadership.org.kind === 'ready' ? (
-                <InicioLeadershipSection
-                  variant="org"
-                  data={leadership.org.data}
-                  memberLabels={memberLabels}
-                  partyLabels={partyLabels}
-                />
-              ) : null}
-            </section>
+            </div>
           ) : null}
         </div>
       </PageContainer>
