@@ -1,0 +1,894 @@
+{
+  "lane": "RC3_HOSTED_BV",
+  "expectedSha": "fe66f0353d83223033710ee535163080c72b8959",
+  "base": "https://os-web-staging.onrender.com",
+  "api": "https://os-api-staging.onrender.com",
+  "actor": "carmen.staging@isalwa.demo",
+  "passwordPrinted": false,
+  "codeFrozenForBv": true,
+  "startedAt": "2026-09-17T19:09:54.951Z",
+  "deploy": {
+    "webDeployId": "dep-dam3jpoae00c73cvncqg",
+    "apiDeployId": "dep-dam3jpe7bikc7386r090",
+    "webRuntimeSha": "fe66f0353d83223033710ee535163080c72b8959",
+    "apiRuntimeSha": "fe66f0353d83223033710ee535163080c72b8959",
+    "sameShaProof": true
+  },
+  "ids": {
+    "viewAs": {
+      "asesor": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "jefe-comercial": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "gerencia": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "produccion": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "almacen": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "compras": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "entregas": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      },
+      "finanzas": {
+        "inicio": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/inicio?datos=demo"
+        },
+        "aprobaciones": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo"
+        },
+        "compromisos": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+        },
+        "incidencias": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+        },
+        "trabajo": {
+          "loaded": true,
+          "excluded": true,
+          "stillCarmen": true,
+          "url": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+        }
+      }
+    },
+    "coverage": {
+      "attempted": false
+    },
+    "commercial": {
+      "started": true,
+      "title": "RC2-BV-mu5wx57g",
+      "opportunityUrl": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2/oportunidades/nueva",
+      "opportunityId": "nueva",
+      "convertVisibleOnAndina": false
+    }
+  },
+  "checks": [
+    {
+      "id": "carmen_password_present",
+      "status": "PASS",
+      "detail": "loaded"
+    },
+    {
+      "id": "same_sha_deploy_record",
+      "status": "PASS",
+      "detail": "web+api deploy commit matched tip at create time"
+    },
+    {
+      "id": "api_health",
+      "status": "PASS",
+      "detail": "status=200"
+    },
+    {
+      "id": "login_carmen",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "authenticated_actor_carmen",
+      "status": "PASS",
+      "detail": "post-login session"
+    },
+    {
+      "id": "demo_mode",
+      "status": "PASS",
+      "detail": "banner=true cookie=demo demoNameHits=0"
+    },
+    {
+      "id": "demo_no_real_leak",
+      "status": "PASS",
+      "detail": "demo list under datos=demo"
+    },
+    {
+      "id": "datos_reales_no_synth",
+      "status": "FAIL",
+      "detail": "cookie=demo synthVisible=true"
+    },
+    {
+      "id": "maderas_open",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?tab=resumen&datos=demo"
+    },
+    {
+      "id": "maderas_named",
+      "status": "PASS",
+      "detail": "name on Resumen"
+    },
+    {
+      "id": "cliente360_resumen_nonzero",
+      "status": "PASS",
+      "detail": "opp=1 quote=1 pedido=n/a zeroFlags=false/false/false"
+    },
+    {
+      "id": "cliente360_tab_comercial",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "cliente360_tab_operacion",
+      "status": "FAIL",
+      "detail": "missing_resource_id"
+    },
+    {
+      "id": "cliente360_tab_trabajo",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "cliente360_tab_documentos",
+      "status": "PASS",
+      "detail": "pdf_control_present"
+    },
+    {
+      "id": "cliente360_tab_historial",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "quote_maderas",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "pedido_maderas",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "progress_vocabulary",
+      "status": "PASS",
+      "detail": "lifecycle_labels_in_main"
+    },
+    {
+      "id": "pedidos_index_maderas",
+      "status": "FAIL",
+      "detail": "seeded order visible in demo"
+    },
+    {
+      "id": "viewas_asesor_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_asesor_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_asesor_search_runs",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_jefe-comercial_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_jefe-comercial_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_gerencia_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_gerencia_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_gerencia_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_produccion_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_produccion_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_produccion_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_almacen_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_almacen_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_almacen_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_compras_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_compras_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_compras_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "viewas_entregas_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_entregas_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_entregas_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true"
+    },
+    {
+      "id": "viewas_finanzas_inicio",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_aprobaciones",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_compromisos",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_incidencias",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_trabajo",
+      "status": "PASS",
+      "detail": "excluded=true carmen=true"
+    },
+    {
+      "id": "viewas_finanzas_mutation_blocked_or_readonly",
+      "status": "PASS",
+      "detail": "coverage CTA hidden or eval banner under View As"
+    },
+    {
+      "id": "viewas_finanzas_search_maderas",
+      "status": "PASS",
+      "detail": "hit=true (ops may narrow)"
+    },
+    {
+      "id": "inicio_aprobaciones_consistency_owner",
+      "status": "PASS",
+      "detail": "inicioApprovals=0 aprobacionesPending=0"
+    },
+    {
+      "id": "viewas_jefe_aprobaciones_desk",
+      "status": "PASS",
+      "detail": "excluded=false count=0"
+    },
+    {
+      "id": "inicio_aprobaciones_consistency_jefe",
+      "status": "PASS",
+      "detail": "inicio=0 aprob=0"
+    },
+    {
+      "id": "desk_compromisos_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/compromisos?datos=demo"
+    },
+    {
+      "id": "desk_incidencias_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/incidencias?datos=demo"
+    },
+    {
+      "id": "desk_trabajo_loads",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/trabajo?datos=demo"
+    },
+    {
+      "id": "temporary_coverage_ui_present",
+      "status": "PASS",
+      "detail": "Andina resumen"
+    },
+    {
+      "id": "coverage_grant_hosted",
+      "status": "PARTIAL",
+      "detail": "UI present; typeahead not visible/interactable — grant mutation skipped"
+    },
+    {
+      "id": "reassignment_ui_present",
+      "status": "PASS",
+      "detail": "owner line / reassign"
+    },
+    {
+      "id": "reassignment_hosted_mutation",
+      "status": "PARTIAL",
+      "detail": "UI/owner line verified; skipped permanent owner swap on shared seed to avoid contaminating DEMO graph"
+    },
+    {
+      "id": "commercial_create_opportunity",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2/oportunidades/nueva"
+    },
+    {
+      "id": "commercial_create_quote",
+      "status": "PARTIAL",
+      "detail": "no new quote CTA after opp create"
+    },
+    {
+      "id": "quote_pdf_control",
+      "status": "FAIL",
+      "detail": "no PDF control (Documento chrome ignored)"
+    },
+    {
+      "id": "quote_next_actions_visible",
+      "status": "PARTIAL",
+      "detail": "quote-scoped CTA only"
+    },
+    {
+      "id": "approval_does_not_auto_create_pedido_cue",
+      "status": "PASS",
+      "detail": "explicit convert or copy in quote main"
+    },
+    {
+      "id": "quote_register_sent",
+      "status": "PARTIAL",
+      "detail": "button not shown (already sent or ineligible)"
+    },
+    {
+      "id": "postsale_pedido_surface",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "postsale_dn_affordance",
+      "status": "PASS",
+      "detail": "exact Nota de Entrega or role"
+    },
+    {
+      "id": "produccion_desk",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "almacen_desk",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "entregas_vocab",
+      "status": "PASS",
+      "detail": "Nota de Entrega vocabulary"
+    },
+    {
+      "id": "search_owner_maderas",
+      "status": "PASS",
+      "detail": "carmen owner"
+    },
+    {
+      "id": "search_no_existence_leak_noise",
+      "status": "PASS",
+      "detail": "empty query handled"
+    },
+    {
+      "id": "search_produccion_commercial",
+      "status": "PASS",
+      "detail": "hit=true (narrowing expected)"
+    },
+    {
+      "id": "neg_cross_company_direct_url",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2DV9F0V5DXS4G89AKF4D5SR?datos=demo"
+    },
+    {
+      "id": "neg_asesor_without_subject_client",
+      "status": "PASS",
+      "detail": "asesor preview without subject"
+    },
+    {
+      "id": "neg_produccion_quote_direct",
+      "status": "PARTIAL",
+      "detail": "ops must show AccessDenied/exclusion (absence of convert alone insufficient)"
+    },
+    {
+      "id": "neg_viewas_mutation_blocked_coverage",
+      "status": "FAIL",
+      "detail": "assignButtons=1"
+    },
+    {
+      "id": "neg_unauthorized_convert_cta",
+      "status": "PASS",
+      "detail": "convert=0"
+    },
+    {
+      "id": "historial_maderas",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "auditoria_desk",
+      "status": "FAIL",
+      "detail": "denied_or_error:Application error|Something went wrong|Unhandled Runtime Error|This page couldn."
+    },
+    {
+      "id": "neg_asesor_audit_desk",
+      "status": "PARTIAL",
+      "detail": "missing_exclusion_banner"
+    },
+    {
+      "id": "conversaciones_desk",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "gerencia_lens",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "mobile_mobile-inicio",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/inicio?datos=demo"
+    },
+    {
+      "id": "mobile_mobile-cliente360",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "mobile_mobile-conversation",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "mobile_mobile-pedido",
+      "status": "PASS",
+      "detail": "anchored_id_and_content"
+    },
+    {
+      "id": "ai_not_fake_ready",
+      "status": "PASS",
+      "detail": "no live Jarvis advertising"
+    },
+    {
+      "id": "authenticated_still_carmen_end",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "real_seven_mutated",
+      "status": "PASS",
+      "detail": "NO mutations against REAL org in this BV"
+    }
+  ],
+  "gates": {
+    "FULL_COMMERCIAL_LOOP_HOSTED": "FAIL",
+    "FULL_POST_SALE_LOOP_HOSTED": "PARTIAL",
+    "TEMPORARY_COVERAGE_HOSTED": "PARTIAL",
+    "REASSIGNMENT_HOSTED": "PARTIAL",
+    "VIEW_AS_INICIO": "PASS",
+    "VIEW_AS_APROBACIONES": "PASS",
+    "VIEW_AS_COMPROMISOS": "PASS",
+    "VIEW_AS_INCIDENCIAS": "PASS",
+    "INICIO_WORK_APPROVAL_CONSISTENCY": "PASS",
+    "CLIENTE360_GRAPH_COHERENT": "PASS",
+    "SEARCH_AUTH_HOSTED": "PASS",
+    "HOSTED_TENANT_NEGATIVES": "FAIL",
+    "HOSTED_RESOURCE_NEGATIVES": "FAIL",
+    "MOBILE_VISUAL": "PASS",
+    "DESKTOP_VISUAL": "PASS"
+  },
+  "mutations": [],
+  "apiErrorsSample": [],
+  "finishedAt": "2026-09-17T19:21:07.405Z"
+}

@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "id": "datos_real_after_cookie_set",
+      "status": "PASS",
+      "detail": "cookie=real synth=false realHint=true url=https://os-web-staging.onrender.com/clientes?datos=real"
+    },
+    {
+      "id": "viewas_coverage_buttons",
+      "status": "FAIL",
+      "detail": "[{\"text\":\"Asignar apoyo temporal\",\"disabled\":false,\"ariaDisabled\":null,\"type\":\"submit\",\"form\":true}]"
+    },
+    {
+      "id": "viewas_banner",
+      "status": "FAIL",
+      "detail": "banner present?"
+    },
+    {
+      "id": "issue_links",
+      "status": "PASS",
+      "detail": "[\"/incidencias/01M2PRV5H1JTARSF3APN57PP0Y\"]"
+    },
+    {
+      "id": "resolve_on_detail",
+      "status": "FAIL",
+      "detail": "resolve=0 url=https://os-web-staging.onrender.com/incidencias/01M2PRV5H1JTARSF3APN57PP0Y?datos=demo snippet=ISALWA  Sistema operativo de su empresa  PRODUCCIÓN  INICIO  Excepciones de la empresa  COMERCIAL  Clientes Oportunidades Cotizaciones Pedidos Mapa  TRABAJO  Mi trabajo Conversaciones Aprobaciones Incidencias Compromisos  OPERACIONES  Producción Almacén Compras Entregas  CONTROL  Finanzas Salud de d"
+    },
+    {
+      "id": "story_entry",
+      "status": "PASS",
+      "detail": "count=2"
+    },
+    {
+      "id": "story_opened",
+      "status": "PASS",
+      "detail": "steps=n/a url=https://os-web-staging.onrender.com/inicio?datos=demo"
+    },
+    {
+      "id": "story_advance",
+      "status": "PARTIAL",
+      "detail": "advanced=0 demoMismatches=0"
+    },
+    {
+      "id": "auditoria",
+      "status": "FAIL",
+      "detail": "Application error: a server-side exception has occurred while loading os-web-staging.onrender.com (see the server logs for more information).  Digest: 3919104780"
+    }
+  ]
+}

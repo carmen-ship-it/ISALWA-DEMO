@@ -7,6 +7,7 @@
  *
  *   STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-carmen-synth-demo-membership-scope-correct.ts
  */
+import { randomUUID } from 'node:crypto';
 import { getOsPrisma } from './client';
 import {
   STAGING_DATABASE_NAME,
@@ -84,6 +85,30 @@ async function main(): Promise<void> {
     removed.push(row.roleKey);
   }
 
+  // Also grant any missing owner-eval business scopes (e.g. issue.manage) so
+  // SYNTH is not stuck after REAL was expanded and intersection sync lagged.
+  const remaining = await prisma.osRoleAssignment.findMany({
+    where: { memberId: synthMember.id, organizationId: SYNTH_ORG, endedAt: null },
+    select: { roleKey: true },
+  });
+  const have = new Set(remaining.map((r) => r.roleKey));
+  const added: string[] = [];
+  for (const roleKey of OWNER_DEMO_SYNTH_BUSINESS_SCOPES) {
+    if (have.has(roleKey) || forbidden.has(roleKey)) continue;
+    await prisma.osRoleAssignment.create({
+      data: {
+        id: randomUUID(),
+        organizationId: SYNTH_ORG,
+        memberId: synthMember.id,
+        roleKey,
+        effectiveAt: new Date('2020-01-01T00:00:00.000Z'),
+        endedAt: null,
+      },
+    });
+    added.push(roleKey);
+    have.add(roleKey);
+  }
+
   const afterRows = await prisma.osRoleAssignment.findMany({
     where: { memberId: synthMember.id, organizationId: SYNTH_ORG, endedAt: null },
     select: { roleKey: true },
@@ -92,6 +117,7 @@ async function main(): Promise<void> {
   const after = afterRows.map((r) => r.roleKey).sort();
 
   log(`CARMEN_SYNTH_SCOPES_REMOVED count=${removed.length} keys=${removed.sort().join(',')}`);
+  log(`CARMEN_SYNTH_SCOPES_ADDED count=${added.length} keys=${added.sort().join(',')}`);
   log(`CARMEN_SYNTH_SCOPES_AFTER count=${after.length} keys=${after.join(',')}`);
   log(
     JSON.stringify({
@@ -105,10 +131,11 @@ async function main(): Promise<void> {
       MASTER_DATA_ADMIN_PRESENT: after.includes('master_data.admin') ? 'YES' : 'NO',
       QA_ACCESS_PRESENT: after.includes('qa.access') ? 'YES' : 'NO',
       SYSTEM_ADMIN_PRESENT: after.includes('system.admin') ? 'YES' : 'NO',
+      ISSUE_MANAGE_PRESENT: after.includes('issue.manage') ? 'YES' : 'NO',
       before,
       after,
       removed: removed.sort(),
-      added: [],
+      added: added.sort(),
     }),
   );
 }

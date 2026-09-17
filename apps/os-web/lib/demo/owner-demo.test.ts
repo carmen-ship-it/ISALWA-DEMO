@@ -79,6 +79,14 @@ describe('owner-demo identity', () => {
       }
     }
   });
+  it('explicit datos= wins over sticky cookie (RC4 data-mode honesty)', async () => {
+    const { resolveDemoDataModeFromParts } = await import('./resolve-demo-data-mode');
+    assert.equal(resolveDemoDataModeFromParts({ datos: 'real', cookie: 'demo' }), 'real');
+    assert.equal(resolveDemoDataModeFromParts({ datos: 'demo', cookie: 'real' }), 'demo');
+    assert.equal(resolveDemoDataModeFromParts({ datos: null, cookie: 'demo' }), 'demo');
+    assert.equal(resolveDemoDataModeFromParts({ datos: undefined, cookie: 'real' }), 'real');
+    assert.equal(resolveDemoDataModeFromParts({}), 'real');
+  });
 });
 
 describe('story mode steps', () => {

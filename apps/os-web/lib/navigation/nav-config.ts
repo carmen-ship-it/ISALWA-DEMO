@@ -99,7 +99,7 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     id: 'pedidos',
-    href: '/cotizaciones?status=accepted',
+    href: '/pedidos',
     labelKey: 'nav.pedidos',
     shellLabel: 'Pedidos',
     icon: 'fileText',

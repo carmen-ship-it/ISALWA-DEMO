@@ -70,6 +70,8 @@ export async function createOpportunityAction(formData: FormData): Promise<Creat
     revalidateCliente360(partyId);
     const opportunityId = String(result.data.opportunityId ?? '');
     if (opportunityId) {
+      revalidatePath(opportunityHref(partyId, opportunityId));
+      revalidatePath('/oportunidades');
       return { ok: true, redirectTo: opportunityHref(partyId, opportunityId) };
     }
     return { ok: true, redirectTo: partyHref(partyId) };
@@ -174,6 +176,9 @@ export async function createQuoteAction(formData: FormData): Promise<CreateRedir
   const payload: Record<string, unknown> = { partyId };
   if (opportunityId) payload.opportunityId = opportunityId;
   if (notes) payload.notes = notes;
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
@@ -524,6 +529,9 @@ export async function escalateCommercialApprovalAction(
 export async function reassignCommercialAccountOwnerAction(
   formData: FormData,
 ): Promise<CommandActionResult> {
+  const gate = await assertRolePreviewAllowsMutation();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
   const partyId = String(formData.get('partyId') ?? '').trim();
   const commercialAccountId = String(formData.get('commercialAccountId') ?? '').trim();
   const ownerMemberId = String(formData.get('ownerMemberId') ?? '').trim();

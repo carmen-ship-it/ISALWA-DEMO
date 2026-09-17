@@ -203,6 +203,25 @@ describe('role preview shell contract', () => {
     assert.match(actions, /createOrderAction/);
   });
 
+  it('reassignCommercialAccountOwnerAction is evaluation-gated (RC4 View As)', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const actions = readFileSync(resolve(here, '../commercial/actions.ts'), 'utf8');
+    const reassignIdx = actions.indexOf('export async function reassignCommercialAccountOwnerAction');
+    assert.ok(reassignIdx >= 0);
+    const slice = actions.slice(reassignIdx, reassignIdx + 450);
+    assert.match(slice, /assertRolePreviewAllowsMutation/);
+    const createQuoteIdx = actions.indexOf('export async function createQuoteAction');
+    assert.ok(createQuoteIdx >= 0);
+    assert.match(actions.slice(createQuoteIdx, createQuoteIdx + 900), /assertRolePreviewAllowsMutation/);
+    const cliente = readFileSync(
+      resolve(here, '../../app/(app)/clientes/[partyId]/page.tsx'),
+      'utf8',
+    );
+    assert.match(cliente, /!evaluation\.active/);
+    assert.match(cliente, /allowMutations=\{!evaluation\.active\}/);
+    assert.match(cliente, /canReassignOwner/);
+  });
+
   it('commitments and postsale mutations gate via assertRolePreviewAllowsMutation', () => {
     const here = dirname(fileURLToPath(import.meta.url));
     const commitments = readFileSync(resolve(here, '../commitments/persistence.ts'), 'utf8');

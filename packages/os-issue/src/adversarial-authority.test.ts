@@ -605,8 +605,7 @@ describe('adversarial: reopen preserves resolution cycle', () => {
     assert.ok(issue?.reopenedAt);
   });
 
-  it('reopened issue must go through in_progress before resolved again', async () => {
-    // Setup: create, resolve, close, reopen
+  it('reopened issue can one-shot resolve again without in_progress (V1)', async () => {
     const reported = await service.execute('ReportIssue', ctx(REPORTER), {
       description: 'Bug',
     });
@@ -637,27 +636,10 @@ describe('adversarial: reopen preserves resolution cycle', () => {
       expectedVersion: 5,
     });
 
-    // Cannot directly resolve from reopened
-    await assert.rejects(
-      service.execute('ResolveIssue', ctx(WORK_ACTOR), {
-        issueId: reported.data.issueId,
-        resolution: 'Second fix',
-        expectedVersion: 6,
-      }),
-      /VALIDATION_FAILED/,
-    );
-
-    // Must go through in_progress first
-    await service.execute('StartIssueProgress', ctx(WORK_ACTOR), {
-      issueId: reported.data.issueId,
-      expectedVersion: 6,
-    });
-
-    // Now can resolve
     await service.execute('ResolveIssue', ctx(WORK_ACTOR), {
       issueId: reported.data.issueId,
       resolution: 'Second fix',
-      expectedVersion: 7,
+      expectedVersion: 6,
     });
 
     const issue = store.issues.get(reported.data.issueId as string);

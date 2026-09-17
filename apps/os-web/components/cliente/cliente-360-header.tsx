@@ -27,6 +27,8 @@ export type Cliente360HeaderProps = {
   canEditParty: boolean;
   canEditContacts: boolean;
   canReassignOwner: boolean;
+  /** When false (Vista de evaluación), hide mutating CTAs. */
+  allowMutations?: boolean;
   ownerLabel: string;
   commercialAccountId: string | null;
   currentOwnerMemberId: string | null;
@@ -49,6 +51,7 @@ export function Cliente360Header({
   canEditParty,
   canEditContacts,
   canReassignOwner,
+  allowMutations = true,
   ownerLabel,
   commercialAccountId,
   currentOwnerMemberId,
@@ -76,19 +79,20 @@ export function Cliente360Header({
     partyId,
     party,
     contacts,
-    canEditParty,
-    canEditContacts,
-    canReassignOwner,
+    canEditParty: allowMutations && canEditParty,
+    canEditContacts: allowMutations && canEditContacts,
+    canReassignOwner: allowMutations && canReassignOwner,
+    allowMutations,
     ownerLabel,
     commercialAccountId,
     currentOwnerMemberId,
     issueContext,
-    reportedByLabel,
+    reportedByLabel: allowMutations ? reportedByLabel : undefined,
     organizationId,
-    actorMemberId,
+    actorMemberId: allowMutations ? actorMemberId : '',
     manualSubjectLabel,
-    manualOrganizationId,
-    manualSubjectId,
+    manualOrganizationId: allowMutations ? manualOrganizationId : '',
+    manualSubjectId: allowMutations ? manualSubjectId : '',
   };
 
   return (
@@ -109,12 +113,16 @@ export function Cliente360Header({
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={newOpportunityHref(partyId)} className={actionPrimaryClass}>
-            Nueva oportunidad
-          </Link>
-          <Link href={clienteSectionHref(partyId, 'trabajo')} className={actionSecondaryClass}>
-            {FOLLOW_UP_COPY.action}
-          </Link>
+          {allowMutations ? (
+            <>
+              <Link href={newOpportunityHref(partyId)} className={actionPrimaryClass}>
+                Nueva oportunidad
+              </Link>
+              <Link href={clienteSectionHref(partyId, 'trabajo')} className={actionSecondaryClass}>
+                {FOLLOW_UP_COPY.action}
+              </Link>
+            </>
+          ) : null}
           <Cliente360ActionsMenu {...menuProps} />
         </div>
       </ActionBar>
@@ -127,7 +135,7 @@ export function Cliente360Header({
         overdue={next.overdue}
         data-tour="cliente360-next-action"
         trailing={
-          !next.isRegisteredAction ? (
+          allowMutations && !next.isRegisteredAction ? (
             <button
               type="button"
               className={helpLinkClass}

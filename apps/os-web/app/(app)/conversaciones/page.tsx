@@ -104,19 +104,21 @@ export default async function ConversacionesPage({
     })
     .filter((row): row is NonNullable<typeof row> => row != null);
 
-  // Prefer durable domain rows. JSON fixtures only fill gaps when Demo and no durable rows yet.
+  // Prefer durable domain rows. In Demo mode also keep SYNTH fixtures so Review/Ignore
+  // suggestion cards remain reachable when only manual threads exist without match phrases.
   const demoFixtures =
-    dataMode === 'demo' && organizationId && durableRows.length === 0
+    dataMode === 'demo' && organizationId
       ? ownerDemoConversationFixtures(organizationId, seededClients).filter(
           (row) => !allowedPartyIds || allowedPartyIds.has(row.partyId),
         )
       : [];
 
+  const durableIds = new Set(durableRows.map((row) => row.id));
   const initialConversations = organizationId
     ? [
         ...durableRows,
         ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
-        ...demoFixtures,
+        ...demoFixtures.filter((row) => !durableIds.has(row.id)),
       ].filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId))
     : [];
 

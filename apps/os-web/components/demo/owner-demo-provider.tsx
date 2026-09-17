@@ -45,11 +45,11 @@ export function OwnerDemoProvider({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const storyRequested = params.get('story') === '1' && canUseOwnerDemo;
-    // Prefer explicit ?datos=demo, else last local choice (default real).
-    let mode: DemoDataMode =
-      params.get('datos') === 'demo' || storyRequested
-        ? 'demo'
-        : loadDemoDataMode(window.localStorage);
+    const datos = params.get('datos')?.trim().toLowerCase();
+    // Explicit ?datos=demo|real wins; Story forces demo; else last local choice.
+    let mode: DemoDataMode = loadDemoDataMode(window.localStorage);
+    if (storyRequested || datos === 'demo') mode = 'demo';
+    else if (datos === 'real') mode = 'real';
     if (storyRequested) setStoryOpen(true);
     setDataModeState(mode);
     // Keep cookie + localStorage aligned so SSR desks honor the same mode across nav.

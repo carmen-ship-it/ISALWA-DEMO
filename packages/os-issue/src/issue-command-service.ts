@@ -530,7 +530,10 @@ export class IssueCommandService {
       throw new Error('PERMISSION_DENIED');
     }
 
-    this.assertTransition(issue.status, 'resolved');
+    // V1 one-shot resolve: any non-terminal status may go directly to resolved.
+    if (issue.status === 'resolved' || issue.status === 'closed') {
+      throw new Error('VALIDATION_FAILED');
+    }
 
     const before = { status: issue.status, resolution: issue.resolution };
     await store.updateIssue(

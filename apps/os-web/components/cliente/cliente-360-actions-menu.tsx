@@ -31,6 +31,8 @@ export type Cliente360ActionsMenuProps = {
   canEditParty: boolean;
   canEditContacts: boolean;
   canReassignOwner: boolean;
+  /** When false, hide all mutating menu entries (Vista de evaluación). */
+  allowMutations?: boolean;
   ownerLabel: string;
   commercialAccountId: string | null;
   currentOwnerMemberId: string | null;
@@ -72,6 +74,7 @@ export function Cliente360ActionsMenu(props: Cliente360ActionsMenuProps) {
 
   const showManual =
     Boolean(props.manualOrganizationId && props.manualSubjectId && props.reportedByLabel?.trim());
+  const allowMutations = props.allowMutations !== false;
 
   return (
     <>
@@ -81,6 +84,12 @@ export function Cliente360ActionsMenu(props: Cliente360ActionsMenuProps) {
         </Button>
         {menuOpen ? (
           <div className="absolute right-0 z-20 mt-2 min-w-[14rem] rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white py-2 shadow-[var(--isalwa-shadow-soft)]">
+            {!allowMutations ? (
+              <p className="px-3 py-2 text-sm text-[var(--isalwa-slate)]">
+                Vista de evaluación: sin acciones de cambio.
+              </p>
+            ) : (
+              <>
             <button type="button" className={menuItemClass} onClick={() => open('issue')}>
               {ISSUE_COPY.reportAction}
             </button>
@@ -117,6 +126,8 @@ export function Cliente360ActionsMenu(props: Cliente360ActionsMenuProps) {
                 {CLIENTE360_UX_COPY.manualOpsDrawer}
               </button>
             ) : null}
+              </>
+            )}
           </div>
         ) : null}
       </div>

@@ -69,16 +69,32 @@ describe('conversaciones route shell', () => {
     assert.doesNotMatch(thread, /✓✓|read receipt|leído/i);
   });
 
-  it('prefers durable API rows and skips JSON demo fixtures when durableRows exist', () => {
+  it('prefers durable API rows and still merges demo fixtures in demo mode', () => {
     const page = readFileSync(join(root, 'app/(app)/conversaciones/page.tsx'), 'utf8');
+    const workspace = readFileSync(
+      join(root, 'components/conversations/conversations-workspace.tsx'),
+      'utf8',
+    );
+    const panel = readFileSync(
+      join(root, 'components/conversations/conversation-context-panel.tsx'),
+      'utf8',
+    );
     assert.match(page, /listCustomerConversations/);
     assert.match(page, /projectManualConversation/);
-    assert.match(page, /durableRows\.length === 0/);
     assert.match(page, /ownerDemoConversationFixtures/);
-    // JSON fixtures only when durable list is empty — never merge alongside durable rows.
+    assert.match(page, /dataMode === 'demo' && organizationId/);
+    assert.doesNotMatch(page, /durableRows\.length === 0/);
+    assert.match(page, /demoFixtures\.filter\(\(row\) => !durableIds\.has\(row\.id\)\)/);
     assert.match(
       page,
-      /dataMode === 'demo' && organizationId && durableRows\.length === 0/,
+      /Review\/Ignore[\s\S]*suggestion cards remain reachable when only manual threads exist without match phrases/,
     );
+    assert.match(workspace, /attention\.possibleOpportunity|attention\.possibleIssue/);
+    assert.match(workspace, /Auto-select first thread/);
+    assert.match(panel, /SuggestionCard/);
+    assert.match(panel, /onReview=\{navigateToSuggestionAction\}/);
+    assert.match(panel, /onIgnore=\{onIgnoreSuggestion\}/);
+    assert.match(panel, /ignoreConversationSuggestionAction/);
+    assert.match(panel, /Optimistic hide; durable write when actor is available/);
   });
 });

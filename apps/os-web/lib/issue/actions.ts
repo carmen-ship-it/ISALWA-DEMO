@@ -6,6 +6,7 @@ import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope } from '@isalwa/os-contr
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import { ISSUE_COPY } from './labels';
 import { issueHref, issueListHref } from './navigation';
@@ -177,11 +178,13 @@ export async function resolveIssueAction(formData: FormData): Promise<ResolveIss
     return { ok: false, error: ISSUE_COPY.sessionExpired };
   }
 
-  const capabilities = await loadMemberCapabilities();
-  const scopes = capabilities?.grantedScopes ?? [];
-  const canManage = hasAssignedOperationsScope(scopes, ISSUE_MANAGE_SCOPE);
-
   const client = createOsApiClient(auth);
+  const capabilities = await loadMemberCapabilities();
+  let scopes = capabilities?.grantedScopes ?? [];
+  if (scopes.length === 0) {
+    scopes = await loadActorRoleKeys(client);
+  }
+  const canManage = hasAssignedOperationsScope(scopes, ISSUE_MANAGE_SCOPE);
 
   let references: Array<{ referenceType: string; referenceId: string }> = [];
   try {

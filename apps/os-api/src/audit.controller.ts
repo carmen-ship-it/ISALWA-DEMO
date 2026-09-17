@@ -65,13 +65,21 @@ function humanizeResourceType(resourceType: string): string {
   return RESOURCE_TYPE_LABELS[trimmed] ?? titleCaseFromKey(trimmed);
 }
 
+/**
+ * Business audit read for owner-eval (commercial.org.read / management.org.read)
+ * plus technical admins. Carmen SYNTH forbids people.admin by design — org/management
+ * read is the intentional owner-evaluation path. View As still narrows in os-web.
+ */
 function assertAuditViewerScope(ctx: Awaited<ReturnType<typeof buildQueryContext>>): void {
   if (
-    !memberHasScope(ctx.auth, 'people.admin') &&
-    !memberHasGrantedScope(ctx.auth, 'system.admin')
+    memberHasScope(ctx.auth, 'people.admin') ||
+    memberHasGrantedScope(ctx.auth, 'system.admin') ||
+    memberHasGrantedScope(ctx.auth, 'management.org.read') ||
+    memberHasGrantedScope(ctx.auth, 'commercial.org.read')
   ) {
-    throw new Error('PERMISSION_DENIED');
+    return;
   }
+  throw new Error('PERMISSION_DENIED');
 }
 
 function parseIsoDate(value: string | undefined, field: string): Date | undefined {

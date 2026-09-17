@@ -23,7 +23,7 @@ describe('Lane D V1 close — Work / Attention / Issue', () => {
     assert.match(panel, /inicioAttentionEmptyMessage/);
     assert.doesNotMatch(panel, /quotes\?:/);
     assert.doesNotMatch(page, /quotes=\{quotesSubmitted/);
-    assert.match(page, /necesita mi atención hoy/i);
+    assert.match(page, /necesita atención hoy/i);
   });
 
   it('Pedido inherits order relation for Reportar incidencia', () => {
@@ -52,10 +52,23 @@ describe('Lane D V1 close — Work / Attention / Issue', () => {
   it('Issue resolve gates owner or issue.manage and calls ResolveIssue', () => {
     const detail = readApp('app/(app)/incidencias/[issueId]/page.tsx');
     const actions = readApp('lib/issue/actions.ts');
+    const commandService = readFileSync(
+      join(process.cwd(), '../../packages/os-issue/src/issue-command-service.ts'),
+      'utf8',
+    );
     assert.match(detail, /ResolveIssueForm/);
     assert.match(detail, /canResolve/);
+    assert.match(detail, /getEvaluationProjection/);
+    assert.match(detail, /!evaluation\.active/);
+    assert.match(detail, /loadMemberCapabilities/);
+    assert.match(detail, /loadActorRoleKeys/);
+    assert.match(detail, /ISSUE_COPY\.resolveIssue/);
+    assert.equal((detail.match(/<ResolveIssueForm/g) ?? []).length, 1);
     assert.match(actions, /resolveIssueAction/);
     assert.match(actions, /ResolveIssue/);
+    assert.match(actions, /assertRolePreviewAllowsMutation/);
+    assert.doesNotMatch(commandService, /assertTransition\(issue\.status, 'resolved'\)/);
+    assert.match(commandService, /one-shot resolve|non-terminal/i);
     assert.equal(ISSUE_COPY.resolveIssue, 'Resolver incidencia');
     assert.equal(ISSUE_COPY.resolutionRequired, 'Describa la resolución.');
   });

@@ -2,8 +2,9 @@
  * Staging-only: ensure Carmen has an active SYNTH membership so Demo can select
  * company context via x-os-organization-id (not QA Ver-como impersonation).
  *
- * Intersects Carmen's REAL membership scopes with OWNER_DEMO_SYNTH_BUSINESS_SCOPES.
- * Never grants system.admin / integration.admin / people.admin / master_data.admin / qa.access.
+ * Grants the full OWNER_DEMO_SYNTH_BUSINESS_SCOPES allowlist on SYNTH (not only
+ * REAL∩allowlist) so Demo desks stay complete when REAL grants lag — e.g.
+ * issue.manage for Resolver incidencia. Still never copies forbidden admin scopes.
  * Never mutates REAL customer truth / REAL_SEVEN.
  *
  *   STAGING_FIXTURE_CONFIRM=1 corepack pnpm --filter @isalwa/os-database exec node --import tsx src/staging-carmen-synth-demo-membership.ts
@@ -17,7 +18,7 @@ import {
   assertMigrationCount,
   requireEnvFrom,
 } from './staging-wave2-role-fixtures-guards';
-import { filterOwnerDemoSynthScopes } from './staging-carmen-synth-demo-scopes';
+import { OWNER_DEMO_SYNTH_BUSINESS_SCOPES } from './staging-carmen-synth-demo-scopes';
 
 const SYNTH_ORG = '01M2JKF77TXMJNDTKNCYNHH9G5';
 
@@ -61,12 +62,10 @@ async function main(): Promise<void> {
   });
   if (!realMember) throw new Error(`STAGING_ADMIN_MEMBER_NOT_FOUND:${adminEmail}:non_synth`);
 
-  const realRoles = await prisma.osRoleAssignment.findMany({
-    where: { memberId: realMember.id, organizationId: realMember.organizationId, endedAt: null },
-    select: { roleKey: true },
-  });
-  const scopeKeys = filterOwnerDemoSynthScopes(realRoles.map((r) => r.roleKey));
+  // Owner-eval SYNTH gets the full business allowlist (still never forbidden admin keys).
+  const scopeKeys = [...OWNER_DEMO_SYNTH_BUSINESS_SCOPES];
   log(`CARMEN_SYNTH_SOURCE_SCOPES count=${scopeKeys.length} keys=${scopeKeys.join(',')}`);
+  log(`CARMEN_REAL_MEMBER_PRESENT org=${realMember.organizationId} id=${realMember.id}`);
 
   let synthMember = await prisma.osOrganizationMember.findFirst({
     where: {

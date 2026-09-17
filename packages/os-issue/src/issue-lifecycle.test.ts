@@ -317,6 +317,42 @@ describe('IssueCommandService', () => {
       assert.equal(issue?.status, 'resolved');
       assert.equal(issue?.resolution, 'Fixed the cache logic');
     });
+
+    it('issue.manage can resolve directly from reported without triage or progress', async () => {
+      const reported = await service.execute('ReportIssue', ctx(), {
+        description: 'Open reported issue',
+      });
+
+      await service.execute('ResolveIssue', ctx(MANAGER), {
+        issueId: reported.data.issueId,
+        resolution: 'Corrected on first visit',
+        expectedVersion: 0,
+      });
+
+      const issue = store.issues.get(reported.data.issueId as string);
+      assert.equal(issue?.status, 'resolved');
+      assert.equal(issue?.resolution, 'Corrected on first visit');
+    });
+
+    it('rejects resolve from terminal statuses', async () => {
+      const reported = await service.execute('ReportIssue', ctx(), {
+        description: 'Test',
+      });
+      await service.execute('ResolveIssue', ctx(MANAGER), {
+        issueId: reported.data.issueId,
+        resolution: 'Done',
+        expectedVersion: 0,
+      });
+
+      await assert.rejects(
+        service.execute('ResolveIssue', ctx(MANAGER), {
+          issueId: reported.data.issueId,
+          resolution: 'Again',
+          expectedVersion: 1,
+        }),
+        /VALIDATION_FAILED/,
+      );
+    });
   });
 
   describe('CloseIssue', () => {

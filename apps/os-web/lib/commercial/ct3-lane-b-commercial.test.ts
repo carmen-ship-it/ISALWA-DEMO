@@ -93,4 +93,16 @@ describe('CT3-B commercial completeness helpers', () => {
     assert.match(documentos, /viewPdf|DOCUMENTOS_COPY\.viewPdf/);
     assert.match(documentos, /<table/);
   });
+
+  it('fresh opportunity without linked quote keeps Crear cotización (RC4 opp→quote)', () => {
+    const opportunity = readFileSync(
+      resolve('app/(app)/clientes/[partyId]/oportunidades/[opportunityId]/page.tsx'),
+      'utf8',
+    );
+    // Must not treat party-level quotes as linked unless opportunityId matches.
+    assert.match(opportunity, /preferred\.opportunityId === opportunityId/);
+    assert.match(opportunity, /isOpen && !linkedQuote/);
+    assert.match(opportunity, /Crear cotización/);
+    assert.match(opportunity, /newQuoteHref\(partyId, opportunityId\)/);
+  });
 });

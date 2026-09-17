@@ -11,6 +11,8 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { loadActorRoleKeys } from '@/lib/party/master-data-access';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import {
   ISSUE_COPY,
   formatIssueStatus,
@@ -147,14 +149,17 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
     ].filter((id): id is string => Boolean(id));
     const memberLabels = await resolveMemberLabels(client, memberIds);
 
+    const evaluation = await getEvaluationProjection();
     const capabilities = await loadMemberCapabilities();
-    const canAssignOwner = hasAssignedOperationsScope(
-      capabilities?.grantedScopes ?? [],
-      ISSUE_MANAGE_SCOPE,
-    );
+    let grantedScopes = capabilities?.grantedScopes ?? [];
+    if (grantedScopes.length === 0) {
+      grantedScopes = await loadActorRoleKeys(client);
+    }
+    const canAssignOwner = hasAssignedOperationsScope(grantedScopes, ISSUE_MANAGE_SCOPE);
     const memberId = capabilities?.memberId ?? null;
     const isTerminalStatus = issue.status === 'resolved' || issue.status === 'closed';
     const canResolve =
+      !evaluation.active &&
       !isTerminalStatus &&
       (canAssignOwner || Boolean(issue.ownerMemberId && memberId && issue.ownerMemberId === memberId));
     const ownerName = issue.ownerMemberId
@@ -183,6 +188,13 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             </div>
           }
         />
+
+        {canResolve ? (
+          <PageSection card className="p-6 md:p-8">
+            <SectionHeader kicker="Acción" title={ISSUE_COPY.resolveIssue} />
+            <ResolveIssueForm issueId={issue.issueId} expectedVersion={issue.version} />
+          </PageSection>
+        ) : null}
 
         {/* Status and key dates */}
         <PageSection card className="p-6 md:p-8">
@@ -319,9 +331,6 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
               </div>
             ) : null}
           </dl>
-          {canResolve ? (
-            <ResolveIssueForm issueId={issue.issueId} expectedVersion={issue.version} />
-          ) : null}
         </PageSection>
 
         {/* Linked work */}

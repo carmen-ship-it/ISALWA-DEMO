@@ -1,0 +1,177 @@
+{
+  "lane": "RC3_HOSTED_BV_SUPPLEMENT",
+  "expectedSha": "fe66f0353d83223033710ee535163080c72b8959",
+  "startedAt": "2026-09-17T19:23:17.565Z",
+  "ids": {
+    "oppTitle": "RC3-BV-mu5x8zmo",
+    "oppUrl": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2/oportunidades/nueva"
+  },
+  "checks": [
+    {
+      "id": "password",
+      "status": "PASS",
+      "detail": "loaded"
+    },
+    {
+      "id": "login",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "walkthrough_violations",
+      "status": "PASS",
+      "detail": "0"
+    },
+    {
+      "id": "story_mode_entry_present",
+      "status": "PASS",
+      "detail": "count=2"
+    },
+    {
+      "id": "fresh_session_nav",
+      "status": "FAIL",
+      "detail": "crashes=/auditoria"
+    },
+    {
+      "id": "demo_context_persistence",
+      "status": "PASS",
+      "detail": "breaks=0"
+    },
+    {
+      "id": "auditoria_crash_recheck",
+      "status": "FAIL",
+      "detail": "Application error"
+    },
+    {
+      "id": "demo_survives_refresh",
+      "status": "PASS",
+      "detail": "cookie=demo"
+    },
+    {
+      "id": "browser_back_forward",
+      "status": "PASS",
+      "detail": "exercised"
+    },
+    {
+      "id": "view_as_persists_refresh",
+      "status": "PASS",
+      "detail": "banner=true afterReload=true"
+    },
+    {
+      "id": "view_as_exit_restores_owner",
+      "status": "PASS",
+      "detail": "owner eval restored"
+    },
+    {
+      "id": "action_escalar_a_gerencia",
+      "status": "PASS",
+      "detail": "escalateControls=0"
+    },
+    {
+      "id": "action_resolver_incidencia",
+      "status": "FAIL",
+      "detail": "resolveVisible=false listResolve=0"
+    },
+    {
+      "id": "action_registrar_conversacion",
+      "status": "PASS",
+      "detail": "register=2"
+    },
+    {
+      "id": "action_review_ignore_suggestion",
+      "status": "PARTIAL",
+      "detail": "review=0 ignore=0"
+    },
+    {
+      "id": "pedido_surface",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW/pedidos/01M2PMA280KX4AAV7049YKNE07?datos=demo"
+    },
+    {
+      "id": "postsale_ctas_pedido",
+      "status": "PASS",
+      "detail": "prod=0 alm=0 com=0 nota=1 salida=1 entrega=1"
+    },
+    {
+      "id": "pedido_deeplink_produccion",
+      "status": "PASS",
+      "detail": "orderVisible=true"
+    },
+    {
+      "id": "pedido_deeplink_almacen",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/almacen?orderId=01M2PMA280KX4AAV7049YKNE07&datos=demo"
+    },
+    {
+      "id": "action_coverage_reassign_ctas",
+      "status": "PASS",
+      "detail": "assign=1 revoke=0 reassign=0"
+    },
+    {
+      "id": "viewas_coverage_mutation_disabled",
+      "status": "FAIL",
+      "detail": "enabledAssign=1 reassign=0"
+    },
+    {
+      "id": "viewas_palette_mutations_absent",
+      "status": "PASS",
+      "detail": "no mutation Acciones cluster"
+    },
+    {
+      "id": "action_commitment_create",
+      "status": "PASS",
+      "detail": "create=0"
+    },
+    {
+      "id": "action_issue_create",
+      "status": "PASS",
+      "detail": "create=1"
+    },
+    {
+      "id": "commercial_nav_nueva_oportunidad",
+      "status": "PASS",
+      "detail": "cta=1"
+    },
+    {
+      "id": "commercial_opp_created",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2/oportunidades/nueva"
+    },
+    {
+      "id": "quote_pdf_surface",
+      "status": "PASS",
+      "detail": "pdfControls=4"
+    },
+    {
+      "id": "quote_pdf_bytes",
+      "status": "PASS",
+      "detail": "status=200 ct=application/pdf"
+    },
+    {
+      "id": "maderas_cross_page_truth",
+      "status": "PASS",
+      "detail": "opp=1 quote=1 pedido=undefined comercialQuote=true pedidosIndex=false"
+    },
+    {
+      "id": "datos_reales_no_synth_recheck",
+      "status": "FAIL",
+      "detail": "cookie=demo synthVisible=true url=https://os-web-staging.onrender.com/clientes?datos=real"
+    },
+    {
+      "id": "mobile_interaction",
+      "status": "PASS",
+      "detail": "overflow=true menu=1"
+    }
+  ],
+  "gates": {
+    "WALKTHROUGH_VIOLATIONS": 0,
+    "FRESH_SESSION": "FAIL",
+    "DEMO_CONTEXT_PERSISTENCE_HOSTED": "PASS",
+    "VIEW_AS_STATE_BEHAVIOR_HOSTED": "PASS",
+    "VIEW_AS_COVERAGE_MUTATION": "FAIL",
+    "AUDITORIA_DESK": "FAIL",
+    "DATOS_REALES_ISOLATION": "FAIL",
+    "RECOVERED_ACTIONS_REACHABLE": "FAIL"
+  },
+  "finishedAt": "2026-09-17T19:28:50.208Z"
+}

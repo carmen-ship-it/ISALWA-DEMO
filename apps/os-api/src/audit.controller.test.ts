@@ -17,6 +17,15 @@ describe('AuditController', () => {
     assert.match(controller, /beforeJson/);
   });
 
+  it('allows owner-eval business audit via management/commercial org read (not people.admin only)', () => {
+    const controller = readFileSync(join(root, 'audit.controller.ts'), 'utf8');
+    assert.match(controller, /function assertAuditViewerScope/);
+    assert.match(controller, /management\.org\.read/);
+    assert.match(controller, /commercial\.org\.read/);
+    assert.match(controller, /people\.admin/);
+    assert.match(controller, /system\.admin/);
+  });
+
   it('round-trips audit cursors', () => {
     const at = new Date('2026-09-16T12:00:00.000Z');
     const encoded = encodeAuditCursor(at, 'audit-1');

@@ -82,6 +82,24 @@ export function ConversationsWorkspace({
     if (selectedId) setMobilePane('thread');
   }, [selectedId]);
 
+  // Auto-select first thread likely to surface suggestions when none selected.
+  useEffect(() => {
+    if (selectedId || visible.length === 0) return;
+    const withSignal =
+      visible.find(
+        (row) =>
+          row.attention.possibleOpportunity ||
+          row.attention.possibleIssue ||
+          row.attention.needsResponse ||
+          row.attention.followUp,
+      ) ?? visible[0];
+    if (!withSignal) return;
+    replaceParams((params) => {
+      params.set('c', withSignal.id);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- first-select only
+  }, [selectedId, visible.length]);
+
   function replaceParams(mutate: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams.toString());
     mutate(params);

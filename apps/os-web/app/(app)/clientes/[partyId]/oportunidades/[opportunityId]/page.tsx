@@ -56,12 +56,15 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
         opportunityId,
         limit: 10,
       });
+      const forOpportunity = (quotes.items ?? []).filter(
+        (item) => !item.opportunityId || item.opportunityId === opportunityId,
+      );
       const preferred =
-        quotes.items.find((item) => item.status === 'submitted' || item.status === 'accepted') ??
-        quotes.items.find((item) => item.status === 'draft') ??
-        quotes.items[0] ??
+        forOpportunity.find((item) => item.status === 'submitted' || item.status === 'accepted') ??
+        forOpportunity.find((item) => item.status === 'draft') ??
+        forOpportunity[0] ??
         null;
-      if (preferred) {
+      if (preferred && preferred.opportunityId === opportunityId) {
         linkedQuote = { quoteId: preferred.quoteId, quoteNumber: preferred.quoteNumber };
       }
     } catch {

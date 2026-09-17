@@ -154,7 +154,8 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       party.status,
       actorIsMasterDataAdmin ? ['master_data.admin'] : [],
     );
-    const canReassignOwner = detail.commercialAuthority?.canReassignOwner === true;
+    const canReassignOwner =
+      !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
     const owner = commercialOwnerView(
       commercialAccount?.ownerMemberId,
       commercialAccount?.ownerMemberId
@@ -255,6 +256,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             canEditParty={canEditParty}
             canEditContacts={canEditContacts}
             canReassignOwner={canReassignOwner}
+            allowMutations={!evaluation.active}
             ownerLabel={owner.label}
             commercialAccountId={commercialAccount?.id ?? null}
             currentOwnerMemberId={commercialAccount?.ownerMemberId ?? null}

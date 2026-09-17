@@ -3,6 +3,7 @@ import { DEFAULT_POST_LOGIN, OS_DEV_SESSION_COOKIE, PUBLIC_PATHS } from '@/lib/a
 import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { decodeDevSession } from '@/lib/auth/dev-session';
 import { updateSupabaseSession } from '@/lib/auth/supabase/middleware';
+import { DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -53,6 +54,19 @@ export async function middleware(request: NextRequest) {
     }
     loginUrl.searchParams.set('next', pathname);
     return applyPrivateNoStore(NextResponse.redirect(loginUrl));
+  }
+
+  // Explicit ?datos=demo|real wins over sticky cookie and keeps sidebar nav honest.
+  const datos = request.nextUrl.searchParams.get('datos')?.trim().toLowerCase();
+  if (datos === 'demo' || datos === 'real') {
+    const current = request.cookies.get(DEMO_DATA_MODE_COOKIE)?.value;
+    if (current !== datos) {
+      response.cookies.set(DEMO_DATA_MODE_COOKIE, datos, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'lax',
+      });
+    }
   }
 
   return applyPrivateNoStore(response);
