@@ -480,7 +480,7 @@ async function ensureOpsLoop(
     where: {
       organizationId: session.organizationId,
       orderId: input.orderId,
-      internalDocumentRef: { startsWith: 'NE-DEMO-' },
+      internalDocumentRef: { startsWith: 'NE-PILOT-DEMO-' },
     },
   });
   if (!note) {
@@ -493,7 +493,7 @@ async function ensureOpsLoop(
         partyId: input.partyId,
         documentKind: CUSTOMER_DELIVERY_NOTE_KIND,
         numberingPolicy: DELIVERY_NOTE_NUMBERING_POLICY,
-        internalDocumentRef: `NE-DEMO-${noteId.slice(0, 8)}`,
+        internalDocumentRef: `NE-PILOT-DEMO-${noteId.slice(0, 10)}`,
         displayDocumentNumber: 'NE-DEMO-MADERAS',
         status: 'issued',
         recipient: 'Elena Rocha',
