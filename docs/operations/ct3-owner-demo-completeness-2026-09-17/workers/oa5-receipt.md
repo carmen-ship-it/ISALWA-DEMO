@@ -3,7 +3,8 @@
 **Date:** 2026-09-17  
 **Lane:** OA-5 (STORY NAV)  
 **Branch:** `ct3/oa5-story-nav`  
-**Base:** `origin/ct3/owner-demo-completeness` (synced at commit time)  
+**Base tip:** `9ce5303a4925fbd985eb84646b1852fef6fbce0d`  
+**Implementation:** `fb2330e51c0b040e26753e3a4095d4a155ff8ad5` (`fb2330e`)  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-oa5-story-nav`  
 **REAL_SEVEN_MUTATED:** **NO**  
 **Deploy:** not performed (worker lane)  
