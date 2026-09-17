@@ -6,11 +6,11 @@
 
 | Field | Value |
 |---|---|
-| FORENSIC_RECONCILIATION | **PARTIAL→COMPLETE for P0 causes** (hosted cookie-only re-login blocked in-agent; DB+code+PF-8 artifact sufficient for owner gaps) |
+| FORENSIC_RECONCILIATION | **COMPLETE for P0 causes** (hosted repro + DB + nav audit landed) |
 | PRIOR_FINAL_RECEIPT_ACCURACY | **MATERIAL_OVERCLAIM** |
-| CARMEN_CLIENTES_DEMO_REPRO | **FAIL** |
-| DEMO_CONTEXT_PERSISTENCE | **FAIL** (URL) / **PARTIAL** (cookie design) |
-| ROOT_CAUSE_OF_ZERO_CLIENTS | Demo filter on **REAL Staging S.R.L.** org (`01M2DV9F…`) which has **0** DEMO parties; SYNTH has 5. Banner/toggle ≠ list. |
+| CARMEN_CLIENTES_DEMO_REPRO | **FAIL** (`carmen.staging` / REAL Staging S.R.L.) · **PASS** contrast (`w2.people-admin` / SYNTH) — see `CARMEN_OWNER_PATH_REPRO.md` |
+| DEMO_CONTEXT_PERSISTENCE | **FAIL** (URL/`datos=` dropped) · **PASS** cookie bridge on SYNTH people-admin sidebar nav · **N/A to fix Carmen empty** (wrong org) |
+| ROOT_CAUSE_OF_ZERO_CLIENTS | Demo filter on **REAL Staging S.R.L.** (`01M2DV9F…`) = **0** DEMO parties; SYNTH has 5. Hosted: same Demo chrome, empty list. Banner/toggle ≠ rows. |
 | APPROVAL_Q000015_SEMANTICS | Exception/request decision on quote subject; **does not create Pedido**; quote is **cancelled** smoke on REAL org |
 | APPROVAL_SHOULD_CREATE_PEDIDO | **NO** |
 | POST_APPROVAL_JOURNEY | **DEAD_END** (refresh + Volver to list; no Ver cotización / Convertir) |
@@ -27,8 +27,8 @@
 | PF8_TRUE_USER_INTERACTIONS | **~5 / 33** |
 | PF8_ACTUAL_CONTENT_ASSERTIONS | **~4 / 33** |
 | STORY_MODE_NORMAL_NAV_PARITY | **FAIL** (Carmen) / PARTIAL (SYNTH) |
-| DEMO_NAV_LINKS_AUDITED | 20+ sidebar |
-| DEMO_NAV_LINKS_DROPPING_STATE | **all sidebar hrefs** drop `datos=` |
+| DEMO_NAV_LINKS_AUDITED | **89** |
+| DEMO_NAV_LINKS_DROPPING_STATE | **82** (4 PRESERVE query; cookie may still carry SSR demo) |
 | OWNER_JOURNEY_DEAD_ENDS | ≥3 |
 | QUOTE_PDF_SCOPE | **NORMAL PRODUCT** |
 | DELIVERY_NOTE_PDF_SCOPE | **NORMAL PRODUCT** |
@@ -38,9 +38,9 @@
 
 ## P0 — blocks owner/demo use
 
-1. **Demo mode is org-local filter, not SYNTH switch** — Carmen Staging cannot see densify data; Story Mode still advertises SYNTH deep links.
-2. **Sidebar drops `datos=demo`**; sessions flip to Datos reales → empty accepted/trabajo vs demo expectations.
-3. **PF-8 overclaim** — demoCue/HTTP ≠ populated lists; wrong actor vs Carmen.
+1. **Demo mode is org-local filter, not SYNTH switch** — `carmen.staging` cannot see densify data; Story CTA → “Cliente no disponible”. people-admin on SYNTH lists DEMO clients (hosted PASS).
+2. **82/89 navigations drop `datos=demo`** — cookie bridge works on SYNTH; still fragile; owner screenshots showed Datos reales on accepted/trabajo.
+3. **PF-8 overclaim** — demoCue/HTTP ≠ populated lists; actor was people-admin SYNTH, not Carmen.
 4. **Approval UX dead-end** after correct non-Pedido semantics (missing continue-to-quote CTA).
 
 ## P1 — before Isa/Álvaro
