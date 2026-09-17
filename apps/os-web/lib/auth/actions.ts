@@ -74,29 +74,57 @@ async function getSupabaseAccessToken(): Promise<string> {
   return session.access_token;
 }
 
-/** Probe os-api with an explicit token when possible (avoids cookie race after sign-in). */
-async function validateOsMembershipWithToken(accessToken: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  const client = createOsApiClient({ mode: 'supabase', accessToken });
-  const attempt = async () => {
-    await client.listAttention({ limit: '1' });
-  };
+/**
+ * Probe os-api with an explicit token when possible (avoids cookie race after sign-in).
+ * When the actor has multiple proven memberships, canonical session fails closed without
+ * x-os-organization-id — try REAL then SYNTH selectors (owner-demo company context),
+ * never invent memberships.
+ */
+async function validateOsMembershipWithToken(
+  accessToken: string,
+): Promise<{ ok: true; organizationId?: string } | { ok: false; error: string }> {
+  const orgCandidates: Array<string | undefined> = [
+    undefined,
+    organizationIdForCompany('real'),
+    organizationIdForCompany('synth'),
+  ];
 
-  try {
-    await attempt();
-    return { ok: true };
-  } catch (first) {
-    // Free-tier cold start / brief blip — retry once before failing closed.
-    if (first instanceof OsApiError && first.kind === 'unavailable') {
-      try {
-        await new Promise((r) => setTimeout(r, 1500));
-        await attempt();
-        return { ok: true };
-      } catch (second) {
-        return { ok: false, error: membershipProbeError(second) };
+  let lastError: unknown;
+  for (const organizationId of orgCandidates) {
+    const client = createOsApiClient({
+      mode: 'supabase',
+      accessToken,
+      ...(organizationId ? { organizationId } : {}),
+    });
+    const attempt = async () => {
+      await client.listAttention({ limit: '1' });
+    };
+    try {
+      await attempt();
+      return { ok: true, organizationId };
+    } catch (first) {
+      lastError = first;
+      // Free-tier cold start / brief blip — retry once before next candidate.
+      if (first instanceof OsApiError && first.kind === 'unavailable') {
+        try {
+          await new Promise((r) => setTimeout(r, 1500));
+          await attempt();
+          return { ok: true, organizationId };
+        } catch (second) {
+          lastError = second;
+        }
       }
+      // unauthorized/forbidden: try next org selector (multi-membership ambiguity).
+      if (
+        first instanceof OsApiError &&
+        (first.kind === 'forbidden' || first.kind === 'unauthorized')
+      ) {
+        continue;
+      }
+      return { ok: false, error: membershipProbeError(first) };
     }
-    return { ok: false, error: membershipProbeError(first) };
   }
+  return { ok: false, error: membershipProbeError(lastError) };
 }
 
 function membershipProbeError(err: unknown): string {
@@ -138,6 +166,21 @@ export async function signInAction(formData: FormData): Promise<{ error?: string
       if (!membership.ok) {
         await supabase.auth.signOut();
         return { error: membership.error };
+      }
+
+      // Persist company selector when multi-membership required an org header.
+      // Default proven REAL; Demo toggle later switches to SYNTH. Does not impersonate.
+      if (membership.organizationId) {
+        const cookieStore = await cookies();
+        const company =
+          membership.organizationId === organizationIdForCompany('synth') ? 'synth' : 'real';
+        cookieStore.set(OWNER_EFFECTIVE_COMPANY_COOKIE, company, {
+          httpOnly: false,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+        });
       }
 
       return { redirectTo: DEFAULT_POST_LOGIN };
