@@ -134,6 +134,7 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
           initialSubjectId={initialSubjectId}
           initialSubjectLabel={initialSubjectLabel}
           initialFacts={initialFacts}
+          mutationsBlocked={evaluation.active}
         />
       ) : (
         <FinanceOperationalDesk status="denied" reason={access.reason} />

@@ -13,6 +13,7 @@ import {
 } from '@/components/commercial/order-prep-work';
 import { partyHref } from '@/lib/party/navigation';
 import { workItemHref } from '@/lib/work/navigation';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type RequestOrderPrepReviewResult =
   | {
@@ -38,6 +39,8 @@ export async function requestOrderPrepReviewAction(input: {
 }): Promise<RequestOrderPrepReviewResult> {
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error };
 
   const built = buildOrderPrepReviewWork({
     department: input.department,

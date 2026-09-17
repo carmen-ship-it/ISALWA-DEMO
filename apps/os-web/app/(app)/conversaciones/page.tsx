@@ -10,6 +10,10 @@ import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import { ownerDemoConversationFixtures } from '@/lib/conversations/demo-fixtures';
 import { projectManualConversation } from '@/lib/conversations/project-manual';
 import type { Conversation } from '@/lib/conversations/model';
+import {
+  ignoredSuggestionIdsFromRecords,
+  isSuggestionDecisionRecord,
+} from '@/lib/conversations/suggestion-decision';
 import seededIds from '@/lib/demo/seeded-ids.json';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
@@ -36,6 +40,7 @@ export default async function ConversacionesPage({
   let actor: ManualConversationActor | null = null;
   let organizationId = '';
   let durableRows: Conversation[] = [];
+  let ignoredSuggestionIdsByConversation: Record<string, string[]> = {};
   let allowedPartyIds: Set<string> | null = null;
 
   try {
@@ -61,7 +66,17 @@ export default async function ConversacionesPage({
     }
     try {
       const listed = await client.listCustomerConversations();
-      durableRows = (listed.items ?? [])
+      const items = listed.items ?? [];
+      const decisionRows = items.filter(isSuggestionDecisionRecord);
+      const threadRows = items.filter((row) => !isSuggestionDecisionRecord(row));
+      for (const row of threadRows) {
+        if (allowedPartyIds && !allowedPartyIds.has(row.customerId)) continue;
+        const ignored = ignoredSuggestionIdsFromRecords(decisionRows, row.id);
+        if (ignored.size > 0) {
+          ignoredSuggestionIdsByConversation[row.id] = [...ignored];
+        }
+      }
+      durableRows = threadRows
         .map(projectManualConversation)
         .filter((row) => !allowedPartyIds || allowedPartyIds.has(row.partyId));
     } catch {
@@ -114,7 +129,11 @@ export default async function ConversacionesPage({
         action={<StatusPill tone="demo">Canal no conectado</StatusPill>}
       />
       <Suspense fallback={<p className="text-sm text-[var(--isalwa-slate)]">Cargando conversaciones…</p>}>
-        <ConversationsWorkspace actor={actor} initialConversations={initialConversations} />
+        <ConversationsWorkspace
+          actor={actor}
+          initialConversations={initialConversations}
+          ignoredSuggestionIdsByConversation={ignoredSuggestionIdsByConversation}
+        />
       </Suspense>
     </PageContainer>
   );

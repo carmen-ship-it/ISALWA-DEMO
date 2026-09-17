@@ -235,6 +235,27 @@ describe('palette search stays on the session', () => {
     assert.match(source, /listApprovals/);
     assert.match(source, /if \(isDenied\(result\.err\)\) continue/);
   });
+
+  it('narrows Pedido search via evaluation + visibility lenses (RC3 org.read)', () => {
+    const source = readFileSync(new URL('./command-search.ts', import.meta.url), 'utf8');
+    // Evaluation projection + commercial list query (Asesor subject / Jefe team / Gerencia org).
+    assert.match(source, /getEvaluationProjection/);
+    assert.match(source, /commercialListQueryFromProjection\(evaluation\)/);
+    assert.match(source, /evaluationAllowsDesk\(evaluation, 'commercial'\)/);
+    // Own/team evaluation must not probe org; org probe only when commercial desk allowed.
+    assert.match(source, /commercialVisibility === 'own'/);
+    assert.match(source, /commercialVisibility === 'team' && visibility === 'org'/);
+    // Orders fan-out mirrors quotes: default + team/org lenses, then owner filter.
+    assert.match(
+      source,
+      /client\.listOrders\(\{\s*q,\s*limit: PALETTE_GROUP_LIMIT,\s*\.\.\.commercialQuery\s*\}\)/,
+    );
+    assert.match(
+      source,
+      /client\.listOrders\(\{\s*q,\s*visibility,\s*limit: PALETTE_GROUP_LIMIT,\s*\.\.\.commercialQuery\s*\}\)/,
+    );
+    assert.match(source, /filterByCommercialOwner\(evaluation, page\.items/);
+  });
 });
 
 describe('live entity kinds', () => {

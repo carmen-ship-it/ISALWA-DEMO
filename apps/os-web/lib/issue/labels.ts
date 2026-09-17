@@ -131,6 +131,10 @@ export const ISSUE_COPY = {
   assignOwner: 'Asignar',
   assignOwnerPending: 'Asignando…',
   assignOwnerSuccess: 'Responsable asignado.',
+  resolveIssue: 'Resolver incidencia',
+  resolveIssuePending: 'Resolviendo…',
+  resolveSuccess: 'Incidencia resuelta.',
+  resolutionPlaceholder: 'Describa cómo se resolvió el problema.',
   cause: 'Causa confirmada',
   possibleCauses: 'Causas posibles',
   resolution: 'Resolución',
@@ -151,6 +155,9 @@ export const ISSUE_COPY = {
   commandFailed: 'No se pudo reportar la incidencia. Intente de nuevo.',
   assignFailed: 'No se pudo asignar el responsable. Intente de nuevo.',
   unauthorizedAssign: 'No tiene permiso para asignar un responsable.',
+  resolutionRequired: 'Describa la resolución.',
+  resolveFailed: 'No se pudo resolver la incidencia. Intente de nuevo.',
+  unauthorizedResolve: 'No tiene permiso para resolver esta incidencia.',
 
   // Empty panel for Cliente 360
   cliente360Empty: 'Todavía no hay incidencias registradas para este cliente.',

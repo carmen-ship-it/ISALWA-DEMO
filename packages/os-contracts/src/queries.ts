@@ -295,6 +295,7 @@ export const ListOrdersQuerySchema = CursorPaginationSchema.extend({
   partyId: z.string().trim().optional(),
   quoteId: z.string().trim().optional(),
   ownerMemberId: z.string().trim().optional(),
+  visibility: z.enum(COMMERCIAL_VISIBILITY_MODES).optional(),
 });
 
 export type ListOrdersQuery = z.infer<typeof ListOrdersQuerySchema>;

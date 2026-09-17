@@ -43,6 +43,8 @@ function mockClient(overrides: Partial<OsApiClient> = {}): OsApiClient {
         },
       ],
       nextCursor: null,
+      meta: { nextCursor: null, limit: 50, hasMore: false },
+      freshness: null,
     }),
     getOpportunity: async () => ({
       opportunity: {
@@ -119,6 +121,8 @@ describe('PF-4 document links — normal product PDF routes', () => {
             },
           ],
           nextCursor: null,
+          meta: { nextCursor: null, limit: 50, hasMore: false },
+          freshness: null,
         }),
         get: async () => ({
           notes: [
@@ -130,7 +134,7 @@ describe('PF-4 document links — normal product PDF routes', () => {
             },
           ],
         }),
-      } as Partial<OsApiClient>),
+      } as unknown as Partial<OsApiClient>),
       MADERAS_PARTY,
     );
     assert.equal(outcome.status, 'ok');

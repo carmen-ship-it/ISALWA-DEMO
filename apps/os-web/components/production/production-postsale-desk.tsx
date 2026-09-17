@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   ActionBar,
   Button,
@@ -42,6 +42,7 @@ type ProductionPostSaleDeskProps = {
   scopesConfirmed: boolean;
   catalog: readonly CatalogProductId[] | null;
   pedidos: readonly PostSalePedidoOption[];
+  initialOrderId?: string | null;
   onCreateExpectedWork?: (payload: Record<string, unknown>) => Promise<{ ok: boolean; error?: string }>;
 };
 
@@ -59,9 +60,10 @@ export function ProductionPostSaleDesk({
   scopesConfirmed,
   catalog,
   pedidos,
+  initialOrderId = null,
   onCreateExpectedWork,
 }: ProductionPostSaleDeskProps) {
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(initialOrderId?.trim() || null);
   const [orderLineId, setOrderLineId] = useState<string | null>(null);
   const [annotation, setAnnotation] = useState('');
   const [note, setNote] = useState('');
@@ -77,6 +79,15 @@ export function ProductionPostSaleDesk({
     [organizationId, memberId, grantedScopes, actorLabel],
   );
   const canEnter = scopesConfirmed && canEnterProductionWorkspace(session);
+
+  useEffect(() => {
+    const target = initialOrderId?.trim();
+    if (!target) return;
+    if (pedidos.some((row) => row.orderId === target)) {
+      setOrderId(target);
+    }
+  }, [initialOrderId, pedidos]);
+
   const pedido = pedidos.find((row) => row.orderId === orderId) ?? null;
   const line = resolveLineProduct(pedido, orderLineId);
   const productFromCatalog = line ? catalogContainsProductId(catalog, line.productId) : false;

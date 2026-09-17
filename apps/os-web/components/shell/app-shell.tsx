@@ -17,7 +17,8 @@ import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
 import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
 import { RolePreviewMenu } from '@/components/shell/role-preview-menu';
 import { canUseRolePreview } from '@/lib/role-preview/access';
-import { OwnerDemoProvider } from '@/components/demo/owner-demo-provider';
+import { OwnerDemoProvider, useOwnerDemo } from '@/components/demo/owner-demo-provider';
+import { withStoryDemoDatos } from '@/lib/demo/story-mode-steps';
 import { DemoFictitiousBanner } from '@/components/demo/demo-fictitious-banner';
 import { DemoDataFilterToggle } from '@/components/demo/demo-data-filter-toggle';
 import { OwnerStoryMode } from '@/components/demo/owner-story-mode';
@@ -30,6 +31,36 @@ const ShellIdentityContext = createContext<string | null>(null);
 
 export function useShellGivenName(): string | null {
   return useContext(ShellIdentityContext);
+}
+
+function ShellBrandHomeLink({ collapsed }: { collapsed: boolean }) {
+  const { dataMode } = useOwnerDemo();
+  const href = dataMode === 'demo' ? (withStoryDemoDatos('/inicio') ?? '/inicio') : '/inicio';
+  return (
+    <Link
+      href={href}
+      className="block rounded-[var(--isalwa-radius-control)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+      title={t('app.name')}
+    >
+      {collapsed ? (
+        <p
+          aria-label={t('app.name')}
+          className="flex h-10 items-center justify-center font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-none text-[var(--isalwa-kiln)]"
+        >
+          I
+        </p>
+      ) : (
+        <>
+          <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
+            {t('app.name')}
+          </p>
+          <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {t('app.tagline')}
+          </p>
+        </>
+      )}
+    </Link>
+  );
 }
 
 type AppShellProps = {
@@ -179,29 +210,7 @@ export function AppShell({
           data-sidebar={railCollapsed ? 'collapsed' : 'expanded'}
         >
           <div className={cx(railCollapsed ? 'px-2 pb-3 pt-6' : 'px-6 pb-4 pt-8')}>
-            <Link
-              href="/inicio"
-              className="block rounded-[var(--isalwa-radius-control)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-              title={t('app.name')}
-            >
-              {railCollapsed ? (
-                <p
-                  aria-label={t('app.name')}
-                  className="flex h-10 items-center justify-center font-[family-name:var(--isalwa-font-display)] text-2xl italic leading-none text-[var(--isalwa-kiln)]"
-                >
-                  I
-                </p>
-              ) : (
-                <>
-                  <p className="font-[family-name:var(--isalwa-font-display)] text-[1.65rem] italic leading-none text-[var(--isalwa-kiln)]">
-                    {t('app.name')}
-                  </p>
-                  <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                    {t('app.tagline')}
-                  </p>
-                </>
-              )}
-            </Link>
+            <ShellBrandHomeLink collapsed={railCollapsed} />
           </div>
           <div className={cx('flex-1 pb-4 pt-2', railCollapsed ? 'px-1.5' : 'px-4')}>
             <AppNav

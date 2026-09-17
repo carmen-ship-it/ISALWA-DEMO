@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import type { ProjectionFreshness } from '@isalwa/os-contracts';
 import type { OsApiClient } from '@/lib/api/os-api-client';
@@ -179,5 +180,20 @@ describe('loadCliente360 null freshness', () => {
     }
     assert.equal(data.quotes.status, 'ok');
     assert.equal(data.staleFreshness, false);
+  });
+});
+
+describe('loadCliente360 Pedido graph (RC3)', () => {
+  it('requests party orders with visibility=org before own-lens fallback', () => {
+    const source = readFileSync(new URL('./load-cliente-360.ts', import.meta.url), 'utf8');
+    assert.match(source, /listPartyScoped/);
+    assert.match(
+      source,
+      /client\.listOrders\(\{\s*partyId,\s*limit: 10,\s*visibility: 'org',/,
+    );
+    assert.match(
+      source,
+      /client\.listOrders\(\{\s*partyId,\s*limit: 10,\s*\.\.\.commercialQuery\s*\}\)/,
+    );
   });
 });

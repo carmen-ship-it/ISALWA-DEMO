@@ -105,6 +105,11 @@ export function recentsStorageKey(actorKey: string): string | null {
   return `${RECENTS_STORAGE_PREFIX}:${key}`;
 }
 
+/** Vista de evaluación suppresses mutation shortcuts; search and nav stay available. */
+export function paletteIncludesActions(blocksMutations: boolean): boolean {
+  return !blocksMutations;
+}
+
 export function paletteActions(access: PaletteAccess): PaletteItem[] {
   const items: PaletteItem[] = [];
   if (access.canCreateCustomer) {

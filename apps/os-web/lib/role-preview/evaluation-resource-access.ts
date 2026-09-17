@@ -65,6 +65,57 @@ export function evaluationAllowsDesk(
   return DESK_PERSONAS[desk].includes(projection.persona);
 }
 
+/** Shell nav ids that stay visible under Vista de evaluación regardless of desk. */
+const EVALUATION_ALWAYS_VISIBLE_NAV_IDS = new Set([
+  'inicio',
+  'trabajo',
+  'compromisos',
+  'incidencias',
+  'ayuda',
+]);
+
+/** Maps primary shell nav ids to evaluation desk gates (null = not desk-gated). */
+export function navItemEvaluationDesk(navId: string): EvaluationOpsDesk | null {
+  switch (navId) {
+    case 'clientes':
+    case 'oportunidades':
+    case 'cotizaciones':
+    case 'pedidos':
+      return 'commercial';
+    case 'mapa':
+      return 'map';
+    case 'conversaciones':
+      return 'conversations';
+    case 'aprobaciones':
+      return 'aprobaciones';
+    case 'produccion':
+      return 'produccion';
+    case 'almacen':
+      return 'almacen';
+    case 'compras':
+      return 'compras';
+    case 'entregas':
+      return 'entregas';
+    case 'finanzas':
+      return 'finanzas';
+    case 'auditoria':
+      return 'gerencia';
+    default:
+      return null;
+  }
+}
+
+export function evaluationNavItemVisible(
+  projection: EvaluationProjection,
+  navId: string,
+): boolean {
+  if (!projection.active) return true;
+  if (EVALUATION_ALWAYS_VISIBLE_NAV_IDS.has(navId)) return true;
+  const desk = navItemEvaluationDesk(navId);
+  if (!desk) return true;
+  return evaluationAllowsDesk(projection, desk);
+}
+
 export function evaluationAllowsCommercialOwner(
   projection: EvaluationProjection,
   ownerMemberId: string | null | undefined,

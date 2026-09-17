@@ -126,6 +126,9 @@ export class WorkCommandService {
       case 'Reject':
         result = await this.reject(ctx, payload, store);
         break;
+      case 'EscalateApproval':
+        result = await this.escalateApproval(ctx, payload, store);
+        break;
       default:
         throw new Error('VALIDATION_FAILED');
       }
@@ -544,6 +547,88 @@ export class WorkCommandService {
       'rejected',
       'Reject',
       String(payload.reason).slice(0, 500),
+    );
+  }
+
+  /**
+   * Explicit human escalate: current approver (or approval.act delegate) reassigns
+   * pending responsibility to a chosen Gerencia member. No auto-pick.
+   * Preserves prior approver + note in contextSnapshot.escalationHistory.
+   */
+  private async escalateApproval(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsWorkStore,
+  ): Promise<CommandResult> {
+    await this.authorize(ctx, 'EscalateApproval', ctx.organizationId);
+    const approvalRequestId = String(payload.approvalRequestId);
+    const newApproverMemberId = String(payload.newApproverMemberId);
+    const reason = payload.reason ? String(payload.reason).slice(0, 500) : null;
+
+    const approval = await store.getApprovalRequest(ctx.organizationId, approvalRequestId);
+    if (!approval) throw new Error('NOT_FOUND');
+    if (approval.status !== 'pending') throw new Error('CONFLICT');
+
+    if (!(await this.canDecideApproval(ctx, store, approval.approverMemberId))) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    if (newApproverMemberId === approval.approverMemberId) {
+      throw new Error('VALIDATION_FAILED');
+    }
+
+    const newApprover = await store.getMemberInOrg(ctx.organizationId, newApproverMemberId);
+    if (!newApprover || newApprover.accessStatus !== 'active') {
+      throw new Error('VALIDATION_FAILED');
+    }
+
+    const priorApproverMemberId = approval.approverMemberId;
+    const priorSnapshot =
+      approval.contextSnapshotJson && typeof approval.contextSnapshotJson === 'object'
+        ? { ...approval.contextSnapshotJson }
+        : {};
+    const priorHistory = Array.isArray(priorSnapshot.escalationHistory)
+      ? [...(priorSnapshot.escalationHistory as unknown[])]
+      : [];
+    priorHistory.push({
+      escalatedAt: ctx.effectiveAt.toISOString(),
+      escalatedByMemberId: ctx.actorMemberId,
+      fromApproverMemberId: priorApproverMemberId,
+      toApproverMemberId: newApproverMemberId,
+      ...(reason ? { reason } : {}),
+    });
+    const nextSnapshot = {
+      ...priorSnapshot,
+      approverMemberId: newApproverMemberId,
+      escalationHistory: priorHistory,
+      lastEscalatedAt: ctx.effectiveAt.toISOString(),
+      lastEscalatedByMemberId: ctx.actorMemberId,
+    };
+
+    const updated = await store.reassignPendingApprover(ctx.organizationId, approvalRequestId, {
+      approverMemberId: newApproverMemberId,
+      contextSnapshotJson: nextSnapshot,
+    });
+    if (!updated) throw new Error('CONFLICT');
+
+    return this.emit(
+      ctx,
+      store,
+      'approval.escalated',
+      'approval_request',
+      approvalRequestId,
+      {
+        approvalRequestId,
+        subjectType: approval.subjectType,
+        subjectId: approval.subjectId,
+        fromApproverMemberId: priorApproverMemberId,
+        toApproverMemberId: newApproverMemberId,
+        escalatedByMemberId: ctx.actorMemberId,
+        ...(reason ? { reason } : {}),
+      },
+      'approval.escalated',
+      { approverMemberId: priorApproverMemberId, status: 'pending' },
+      { approverMemberId: newApproverMemberId, status: 'pending' },
     );
   }
 }

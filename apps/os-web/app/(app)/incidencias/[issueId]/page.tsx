@@ -4,6 +4,7 @@ import type { TimelineItem } from '@isalwa/ui';
 import { ISSUE_MANAGE_SCOPE, hasAssignedOperationsScope } from '@isalwa/os-contracts';
 import { PageHeader } from '@/components/shell/page-header';
 import { AssignIssueOwnerForm } from '@/components/issue/assign-issue-owner-form';
+import { ResolveIssueForm } from '@/components/issue/resolve-issue-form';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { AccessDeniedState } from '@/components/states/app-states';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -151,6 +152,11 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
       capabilities?.grantedScopes ?? [],
       ISSUE_MANAGE_SCOPE,
     );
+    const memberId = capabilities?.memberId ?? null;
+    const isTerminalStatus = issue.status === 'resolved' || issue.status === 'closed';
+    const canResolve =
+      !isTerminalStatus &&
+      (canAssignOwner || Boolean(issue.ownerMemberId && memberId && issue.ownerMemberId === memberId));
     const ownerName = issue.ownerMemberId
       ? memberLabel(memberLabels, issue.ownerMemberId)
       : null;
@@ -313,6 +319,9 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
               </div>
             ) : null}
           </dl>
+          {canResolve ? (
+            <ResolveIssueForm issueId={issue.issueId} expectedVersion={issue.version} />
+          ) : null}
         </PageSection>
 
         {/* Linked work */}

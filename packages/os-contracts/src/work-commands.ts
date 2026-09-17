@@ -15,6 +15,7 @@ export const WORK_COMMAND_NAMES = [
   'RequestApproval',
   'Approve',
   'Reject',
+  'EscalateApproval',
 ] as const;
 
 export type WorkCommandName = (typeof WORK_COMMAND_NAMES)[number];
@@ -62,6 +63,13 @@ export const RejectPayloadSchema = z.object({
   reason: z.string().min(1),
 });
 
+/** Escalate pending approval to an explicitly selected Gerencia approver (no auto-pick). */
+export const EscalateApprovalPayloadSchema = z.object({
+  approvalRequestId: z.string().min(1),
+  newApproverMemberId: z.string().min(1),
+  reason: z.string().max(500).optional(),
+});
+
 export const WORK_COMMAND_PAYLOAD_SCHEMAS: Record<WorkCommandName, z.ZodTypeAny> = {
   CreateWorkItem: CreateWorkItemPayloadSchema,
   ReassignWork: ReassignWorkPayloadSchema,
@@ -70,4 +78,5 @@ export const WORK_COMMAND_PAYLOAD_SCHEMAS: Record<WorkCommandName, z.ZodTypeAny>
   RequestApproval: RequestApprovalPayloadSchema,
   Approve: ApprovePayloadSchema,
   Reject: RejectPayloadSchema,
+  EscalateApproval: EscalateApprovalPayloadSchema,
 };

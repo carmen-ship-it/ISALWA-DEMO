@@ -452,3 +452,279 @@ describe('ReassignCommercialAccountOwner', () => {
     assert.doesNotMatch(body, /people\.admin|memberHasAdminScope|commercial\.(team|org)\.read/);
   });
 });
+
+type CoverageGrantRow = {
+  id: string;
+  organizationId: string;
+  customerPartyId: string;
+  primaryOwnerMemberId: string;
+  actingAdvisorMemberId: string;
+  startsAt: Date;
+  endsAt: Date | null;
+  revokedAt: Date | null;
+  recordedAt: Date;
+  recordedByMemberId: string | null;
+};
+
+function coverageStore(input: {
+  scopes?: string[];
+  account?: CommercialAccountRecord | null;
+  /** Members present in ORG. Absent id → cross-company / foreign helper. */
+  memberIdsInOrg?: string[];
+  grants?: CoverageGrantRow[];
+}) {
+  const events: Array<{ eventType: string; payload?: Record<string, unknown> }> = [];
+  const scopes = input.scopes ?? [];
+  const row = input.account === undefined ? account() : input.account;
+  const memberIds = new Set(input.memberIdsInOrg ?? [OWNER, OTHER, 'mem-actor', 'mem-asesor']);
+  const grants: CoverageGrantRow[] = [...(input.grants ?? [])];
+
+  return {
+    events,
+    grants,
+    account: row,
+    async runInTransaction(fn: (store: OsCommercialStore) => Promise<unknown>) {
+      return fn(this as unknown as OsCommercialStore);
+    },
+    async getMemberInOrg(organizationId: string, memberId: string) {
+      if (organizationId !== ORG || !memberIds.has(memberId)) return null;
+      return { id: memberId, organizationId: ORG, accessStatus: 'active' as const };
+    },
+    async listRoleAssignmentsForMember() {
+      return scopes.map((roleKey) => ({
+        roleKey,
+        effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+        endedAt: null,
+      }));
+    },
+    async listDelegationsForDelegate() {
+      return [];
+    },
+    async getCommercialAccountInOrg(organizationId: string, commercialAccountId: string) {
+      if (!row || organizationId !== row.organizationId || commercialAccountId !== row.id) {
+        return null;
+      }
+      return row;
+    },
+    async updateCommercialAccount(
+      organizationId: string,
+      commercialAccountId: string,
+      patch: { ownerMemberId?: string },
+    ) {
+      if (!row || organizationId !== row.organizationId || commercialAccountId !== row.id) {
+        throw new Error('NOT_FOUND');
+      }
+      if (patch.ownerMemberId) row.ownerMemberId = patch.ownerMemberId;
+    },
+    async listActiveCustomerCoverageGrants(query: {
+      organizationId: string;
+      customerPartyId: string;
+      actingAdvisorMemberId: string;
+      asOf: Date;
+    }) {
+      return grants.filter(
+        (grant) =>
+          grant.organizationId === query.organizationId &&
+          grant.customerPartyId === query.customerPartyId &&
+          grant.actingAdvisorMemberId === query.actingAdvisorMemberId &&
+          !grant.revokedAt &&
+          grant.startsAt <= query.asOf &&
+          (grant.endsAt === null || grant.endsAt > query.asOf),
+      );
+    },
+    async createCustomerCoverageGrant(created: {
+      id: string;
+      organizationId: string;
+      customerPartyId: string;
+      primaryOwnerMemberId: string;
+      actingAdvisorMemberId: string;
+      startsAt: Date;
+      endsAt: Date | null;
+      recordedAt: Date;
+      recordedByMemberId: string;
+    }) {
+      grants.push({
+        ...created,
+        revokedAt: null,
+      });
+    },
+    async revokeCustomerCoverageGrant(rev: {
+      organizationId: string;
+      grantId: string;
+      revokedAt: Date;
+      recordedByMemberId: string;
+    }) {
+      const grant = grants.find((g) => g.id === rev.grantId && g.organizationId === rev.organizationId);
+      if (!grant || grant.revokedAt) return null;
+      grant.revokedAt = rev.revokedAt;
+      grant.recordedByMemberId = rev.recordedByMemberId;
+      return {
+        id: grant.id,
+        customerPartyId: grant.customerPartyId,
+        primaryOwnerMemberId: grant.primaryOwnerMemberId,
+        actingAdvisorMemberId: grant.actingAdvisorMemberId,
+      };
+    },
+    async getCustomerCoverageGrantInOrg(organizationId: string, grantId: string) {
+      const grant = grants.find((g) => g.id === grantId && g.organizationId === organizationId);
+      return grant ?? null;
+    },
+    async appendEventAndAudit(event: { eventType: string; payload?: Record<string, unknown> }) {
+      events.push({ eventType: event.eventType, payload: event.payload });
+    },
+    async findIdempotency() {
+      return null;
+    },
+    async saveIdempotency() {},
+  };
+}
+
+describe('GrantCustomerCoverage', () => {
+  it('lets reassignment-scoped Jefe/Gerencia grant same-company helper without changing owner', async () => {
+    const store = coverageStore({ scopes: ['commercial.account.reassign'] });
+    const ownerBefore = store.account!.ownerMemberId;
+    const service = new CommercialCommandService(store as unknown as OsCommercialStore);
+    const result = await service.execute('GrantCustomerCoverage', ctx('mem-actor'), {
+      commercialAccountId: 'acct-1',
+      actingAdvisorMemberId: OTHER,
+      note: 'Vacaciones',
+    });
+
+    assert.equal(result.data.primaryOwnerMemberId, OWNER);
+    assert.equal(result.data.actingAdvisorMemberId, OTHER);
+    assert.equal(store.account!.ownerMemberId, ownerBefore);
+    assert.equal(store.grants.length, 1);
+    assert.equal(store.grants[0]!.primaryOwnerMemberId, OWNER);
+    assert.equal(store.grants[0]!.actingAdvisorMemberId, OTHER);
+    assert.equal(store.grants[0]!.revokedAt, null);
+    assert.equal(store.events.length, 1);
+    assert.equal(store.events[0]!.eventType, 'customer_coverage.granted');
+    assert.equal(store.events[0]!.payload?.primaryOwnerMemberId, OWNER);
+  });
+
+  it('denies Asesor self-grant without commercial.account.reassign', async () => {
+    const store = coverageStore({
+      scopes: ['member_active', 'commercial.own.write'],
+    });
+    const service = new CommercialCommandService(store as unknown as OsCommercialStore);
+    await assert.rejects(
+      () =>
+        service.execute('GrantCustomerCoverage', ctx('mem-asesor'), {
+          commercialAccountId: 'acct-1',
+          actingAdvisorMemberId: 'mem-asesor',
+        }),
+      /PERMISSION_DENIED/,
+    );
+    assert.equal(store.grants.length, 0);
+    assert.deepEqual(store.events, []);
+    assert.equal(store.account!.ownerMemberId, OWNER);
+  });
+
+  it('denies cross-company helper (member not in actor org)', async () => {
+    const store = coverageStore({
+      scopes: ['commercial.account.reassign'],
+      memberIdsInOrg: [OWNER, 'mem-actor'],
+    });
+    const service = new CommercialCommandService(store as unknown as OsCommercialStore);
+    await assert.rejects(
+      () =>
+        service.execute('GrantCustomerCoverage', ctx('mem-actor'), {
+          commercialAccountId: 'acct-1',
+          actingAdvisorMemberId: 'mem-foreign-company',
+        }),
+      /NOT_FOUND/,
+    );
+    assert.equal(store.grants.length, 0);
+    assert.deepEqual(store.events, []);
+    assert.equal(store.account!.ownerMemberId, OWNER);
+  });
+
+  it('gates grant on canGrantCustomerCoverage (reassign scope only)', () => {
+    const source = readFileSync(resolve(__dirname, 'commercial-command-service.ts'), 'utf8');
+    const start = source.indexOf('private async grantCustomerCoverage');
+    const end = source.indexOf('private async revokeCustomerCoverage');
+    const body = source.slice(start, end);
+    assert.match(body, /canGrantCustomerCoverage/);
+    assert.match(body, /buildCustomerCoverageGrant/);
+    assert.match(body, /createCustomerCoverageGrant/);
+    assert.match(body, /customer_coverage\.granted/);
+    assert.doesNotMatch(body, /people\.admin|memberHasAdminScope/);
+  });
+});
+
+describe('RevokeCustomerCoverage', () => {
+  it('marks grant inactive, keeps canonical owner, and retains history row', async () => {
+    const grantId = 'grant-1';
+    const store = coverageStore({
+      scopes: ['commercial.account.reassign'],
+      grants: [
+        {
+          id: grantId,
+          organizationId: ORG,
+          customerPartyId: 'party-1',
+          primaryOwnerMemberId: OWNER,
+          actingAdvisorMemberId: OTHER,
+          startsAt: new Date('2026-01-01T00:00:00.000Z'),
+          endsAt: null,
+          revokedAt: null,
+          recordedAt: new Date('2026-01-01T00:00:00.000Z'),
+          recordedByMemberId: 'mem-actor',
+        },
+      ],
+    });
+    const ownerBefore = store.account!.ownerMemberId;
+    const service = new CommercialCommandService(store as unknown as OsCommercialStore);
+    const result = await service.execute('RevokeCustomerCoverage', ctx('mem-actor'), {
+      grantId,
+      note: 'Back from leave',
+    });
+
+    assert.equal(result.data.grantId, grantId);
+    assert.equal(result.data.primaryOwnerMemberId, OWNER);
+    assert.equal(store.account!.ownerMemberId, ownerBefore);
+    assert.equal(store.grants.length, 1);
+    assert.ok(store.grants[0]!.revokedAt);
+    assert.equal(store.grants[0]!.primaryOwnerMemberId, OWNER);
+    assert.equal(store.grants[0]!.actingAdvisorMemberId, OTHER);
+    assert.equal(store.events.length, 1);
+    assert.equal(store.events[0]!.eventType, 'customer_coverage.revoked');
+
+    const stillActive = await store.listActiveCustomerCoverageGrants({
+      organizationId: ORG,
+      customerPartyId: 'party-1',
+      actingAdvisorMemberId: OTHER,
+      asOf: NOW,
+    });
+    assert.equal(stillActive.length, 0);
+  });
+
+  it('denies revoke without commercial.account.reassign', async () => {
+    const store = coverageStore({
+      scopes: ['member_active'],
+      grants: [
+        {
+          id: 'grant-1',
+          organizationId: ORG,
+          customerPartyId: 'party-1',
+          primaryOwnerMemberId: OWNER,
+          actingAdvisorMemberId: OTHER,
+          startsAt: new Date('2026-01-01T00:00:00.000Z'),
+          endsAt: null,
+          revokedAt: null,
+          recordedAt: new Date('2026-01-01T00:00:00.000Z'),
+          recordedByMemberId: 'mem-actor',
+        },
+      ],
+    });
+    await assert.rejects(
+      () =>
+        new CommercialCommandService(store as unknown as OsCommercialStore).execute(
+          'RevokeCustomerCoverage',
+          ctx('mem-asesor'),
+          { grantId: 'grant-1' },
+        ),
+      /PERMISSION_DENIED/,
+    );
+    assert.equal(store.grants[0]!.revokedAt, null);
+  });
+});

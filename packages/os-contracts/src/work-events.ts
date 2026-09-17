@@ -7,6 +7,7 @@ export const OS_WORK_EVENT_TYPES = [
   'approval.requested',
   'approval.approved',
   'approval.rejected',
+  'approval.escalated',
 ] as const;
 
 export type OsWorkEventType = (typeof OS_WORK_EVENT_TYPES)[number];

@@ -60,7 +60,13 @@ import { reportIssueContextFromParty } from '@/lib/issue/report-context';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
-import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import {
+  evaluationAllowsDesk,
+  evaluationBlocksDirectParty,
+  evaluationIsOpsPersona,
+} from '@/lib/role-preview/evaluation-resource-access';
 import { filterTimelineItemsForProjection, filterDocumentLinksForProjection } from '@/lib/role-preview/evaluation-history-filter';
 
 type PartyDetailPageProps = {
@@ -103,11 +109,17 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'commercial')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Cliente" />;
+  }
 
   const client = createOsApiClient(auth);
 
   try {
-    const data = await loadCliente360(client, partyId);
+    const data = await loadCliente360(client, partyId, {
+      commercialQuery: commercialListQueryFromProjection(evaluation),
+      suppressCommercialNegotiation: evaluationIsOpsPersona(evaluation.persona),
+    });
     const {
       detail,
       opportunities,

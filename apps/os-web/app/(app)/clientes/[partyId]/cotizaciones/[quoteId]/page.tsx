@@ -42,8 +42,13 @@ import { WhoHasTheBallCard } from '@/components/work/who-has-the-ball-card';
 import { whoHasTheBallView } from '@/lib/work/who-has-the-ball';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
-import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import {
+  evaluationAllowsDesk,
+  evaluationBlocksDirectParty,
+} from '@/lib/role-preview/evaluation-resource-access';
 import { AccessDeniedState } from '@/components/states/app-states';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type QuoteDetailPageProps = {
   params: Promise<{ partyId: string; quoteId: string }>;
@@ -63,6 +68,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'commercial')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Cotización" />;
+  }
 
   const client = createOsApiClient(auth);
 
@@ -96,7 +104,27 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       }
     }
     const relatedOrders =
-      quote.status === 'accepted' ? await client.listOrders({ quoteId: quote.quoteId, partyId, limit: 5 }) : null;
+      quote.status === 'accepted'
+        ? await (async () => {
+            const commercialQuery = commercialListQueryFromProjection(evaluation);
+            try {
+              return await client.listOrders({
+                quoteId: quote.quoteId,
+                partyId,
+                limit: 5,
+                visibility: 'org',
+                ...commercialQuery,
+              });
+            } catch {
+              return await client.listOrders({
+                quoteId: quote.quoteId,
+                partyId,
+                limit: 5,
+                ...commercialQuery,
+              });
+            }
+          })()
+        : null;
     const relatedOrder = relatedOrders?.items[0] ?? null;
     let approvalMemberLabels = new Map<string, string>();
     let approvalResponsibility = new Map<

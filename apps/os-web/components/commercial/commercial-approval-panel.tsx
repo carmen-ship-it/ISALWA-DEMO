@@ -9,6 +9,7 @@ import { FormFeedback } from '@/components/commercial/form-feedback';
 import { OPS_STICKY_ACTION_CLASS } from '@/components/production/ops-desk-surface';
 import {
   decideCommercialApprovalAction,
+  escalateCommercialApprovalAction,
   requestCommercialApprovalAction,
 } from '@/lib/commercial/actions';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
@@ -72,6 +73,20 @@ export function CommercialApprovalPanel({
     },
     null,
   );
+  const [escalateState, escalateAction] = useActionState(
+    async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
+      const result = await escalateCommercialApprovalAction(formData);
+      if (result.ok) {
+        router.refresh();
+        return {
+          success:
+            'Escalado a Gerencia. La decisión queda pendiente del Gerente elegido. No se eligió un gerente automáticamente.',
+        };
+      }
+      return { error: result.error };
+    },
+    null,
+  );
 
   return (
     <div className="space-y-8" data-tour={TOUR_TARGET.approvalConsequence}>
@@ -79,6 +94,7 @@ export function CommercialApprovalPanel({
         <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Historial de aprobación">
           {approvals.map((approval) => {
             const decided = Boolean(decisionState?.success) || !approval.canDecide;
+            const escalated = Boolean(escalateState?.success);
             const responsibility = approvalResponsibilityView({
               status: approval.status,
               approvalRequestId: approval.approvalRequestId,
@@ -130,7 +146,16 @@ export function CommercialApprovalPanel({
                     subjectType={subjectType}
                     subjectId={subjectId}
                     approvalRequestId={approval.approvalRequestId}
-                    locked={decided}
+                    locked={decided || escalated}
+                  />
+                ) : null}
+                {approval.canDecide && approval.status === 'pending' && !decided && !escalated ? (
+                  <EscalateToGerenciaForm
+                    action={escalateAction}
+                    partyId={partyId}
+                    subjectType={subjectType}
+                    subjectId={subjectId}
+                    approvalRequestId={approval.approvalRequestId}
                   />
                 ) : null}
               </li>
@@ -141,6 +166,7 @@ export function CommercialApprovalPanel({
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">Sin solicitudes de aprobación.</p>
       )}
       <FormFeedback error={decisionState?.error} success={decisionState?.success} />
+      <FormFeedback error={escalateState?.error} success={escalateState?.success} />
 
       {canRequest ? (
         <form action={requestAction} className="space-y-5 border-t border-[var(--isalwa-mist)] pt-8">
@@ -203,11 +229,25 @@ export function ApprovalDecisionForm({
     },
     null,
   );
-  const settled = locked || Boolean(state?.success);
+  const [escalateState, escalateAction] = useActionState(
+    async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
+      const result = await escalateCommercialApprovalAction(formData);
+      if (result.ok) {
+        router.refresh();
+        return {
+          success: 'Escalado a Gerencia. La decisión queda pendiente del Gerente elegido.',
+        };
+      }
+      return { error: result.error };
+    },
+    null,
+  );
+  const settled = locked || Boolean(state?.success) || Boolean(escalateState?.success);
 
   return (
     <div className="mt-8 space-y-5">
       <FormFeedback error={state?.error} success={state?.success} />
+      <FormFeedback error={escalateState?.error} success={escalateState?.success} />
       <ApprovalDecisionFields
         action={action}
         partyId={partyId}
@@ -216,7 +256,66 @@ export function ApprovalDecisionForm({
         approvalRequestId={approvalRequestId}
         locked={settled}
       />
+      {!settled ? (
+        <EscalateToGerenciaForm
+          action={escalateAction}
+          partyId={partyId}
+          subjectType={subjectType}
+          subjectId={subjectId}
+          approvalRequestId={approvalRequestId}
+        />
+      ) : null}
     </div>
+  );
+}
+
+function EscalateToGerenciaForm({
+  action,
+  partyId,
+  subjectType,
+  subjectId,
+  approvalRequestId,
+}: {
+  action: (formData: FormData) => void;
+  partyId?: string;
+  subjectType: string;
+  subjectId: string;
+  approvalRequestId: string;
+}) {
+  return (
+    <form
+      action={action}
+      className="mt-6 space-y-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-porcelain)]/60 p-5"
+      aria-label="Escalar a Gerencia"
+    >
+      {partyId ? <input type="hidden" name="partyId" value={partyId} /> : null}
+      <input type="hidden" name="subjectType" value={subjectType} />
+      <input type="hidden" name="subjectId" value={subjectId} />
+      <input type="hidden" name="approvalRequestId" value={approvalRequestId} />
+      <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Escalar a Gerencia</p>
+      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Elija explícitamente el Gerente que debe decidir. No se selecciona un gerente automáticamente.
+        Su contexto de revisión se conserva en el historial.
+      </p>
+      <label className="block text-sm text-[var(--isalwa-slate)]">
+        Gerente (misma empresa)
+        <ServerMemberTypeahead
+          id={`escalate-gerente-${approvalRequestId}`}
+          name="newApproverMemberId"
+          required
+          placeholder="Buscar Gerente activo de esta empresa"
+        />
+      </label>
+      <label className="block text-sm text-[var(--isalwa-slate)]">
+        Motivo del escalamiento
+        <input className={fieldClass} name="reason" maxLength={500} />
+      </label>
+      <CommandSubmitButton
+        label="Escalar a Gerencia"
+        pendingLabel="Escalando…"
+        variant="secondary"
+      />
+    </form>
   );
 }
 

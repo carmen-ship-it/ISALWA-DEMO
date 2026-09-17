@@ -26,11 +26,6 @@ import type {
   StoredQuoteLineReadModel,
   StoredQuoteReadModel,
 } from '../projection-store-port';
-import {
-  assertCommercialListScope,
-  canViewCommercialRecord,
-  filterVisibleOrders,
-} from './commercial-auth';
 import type { DirectReportLookup } from '../leadership/direct-reports';
 import {
   canReadOwnedRecord,
@@ -314,12 +309,24 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     assertQueryTenantResource(ctx, ctx.organizationId);
 
-    const ownerMemberId = assertCommercialListScope(ctx, query.ownerMemberId);
+    // Align with opportunities/quotes: leadership visibility (own|team|org),
+    // not the legacy people.admin-or-owner gate.
+    const scope = await this.readScope(ctx, query.visibility, query.ownerMemberId);
+    const ownerFilter = toStoreOwnerFilter(scope);
+    if ('empty' in ownerFilter) return this.emptyCommercialPage(ctx, query.limit);
+
     const { items, hasMore } = await this.deps.projectionStore.listOrderReadModels(ctx.organizationId, {
-      ...query,
-      ownerMemberId,
+      cursor: query.cursor,
+      limit: query.limit,
+      status: query.status,
+      partyId: query.partyId,
+      quoteId: query.quoteId,
+      q: query.q,
+      ...ownerFilter,
     });
-    const visible = filterVisibleOrders(ctx, items);
+    const visible = items.filter(
+      (item) => item.organizationId === ctx.organizationId && ownerInReadScope(item.ownerMemberId, scope),
+    );
     const last = visible.at(-1);
     const nextCursor =
       hasMore && last ? this.deps.encodeOrderCursor(last.orderNumber, last.orderId) : null;
@@ -335,7 +342,16 @@ export class CommercialQueryService {
     assertQueryScope(ctx, 'member_active');
     const model = await this.deps.projectionStore.getOrderReadModel(ctx.organizationId, orderId);
     if (!model) throw new Error('NOT_FOUND');
-    if (!canViewCommercialRecord(ctx, model)) throw new Error('PERMISSION_DENIED');
+    if (
+      !(await canReadOwnedRecord({
+        ctx,
+        organizationId: model.organizationId,
+        ownerMemberId: model.ownerMemberId,
+        lookup: this.lookup(),
+      }))
+    ) {
+      throw new Error('PERMISSION_DENIED');
+    }
     const storedLines = this.deps.listOrderLines
       ? await this.deps.listOrderLines(ctx.organizationId, orderId)
       : null;

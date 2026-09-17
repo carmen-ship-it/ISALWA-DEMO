@@ -49,6 +49,17 @@ describe('Lane D V1 close — Work / Attention / Issue', () => {
     assert.match(actions, /unauthorizedAssign/);
   });
 
+  it('Issue resolve gates owner or issue.manage and calls ResolveIssue', () => {
+    const detail = readApp('app/(app)/incidencias/[issueId]/page.tsx');
+    const actions = readApp('lib/issue/actions.ts');
+    assert.match(detail, /ResolveIssueForm/);
+    assert.match(detail, /canResolve/);
+    assert.match(actions, /resolveIssueAction/);
+    assert.match(actions, /ResolveIssue/);
+    assert.equal(ISSUE_COPY.resolveIssue, 'Resolver incidencia');
+    assert.equal(ISSUE_COPY.resolutionRequired, 'Describa la resolución.');
+  });
+
   it('does not invent a severity taxonomy on report surfaces', () => {
     const labels = readApp('lib/issue/labels.ts');
     const drawer = readApp('components/issue/report-issue-drawer.tsx');

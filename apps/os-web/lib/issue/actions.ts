@@ -20,6 +20,10 @@ export type AssignIssueOwnerActionResult =
   | { ok: true }
   | { ok: false; error: string };
 
+export type ResolveIssueActionResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
 export async function reportIssueAction(formData: FormData): Promise<ReportIssueActionResult> {
   const description = String(formData.get('description') ?? '').trim();
   const title = String(formData.get('title') ?? '').trim() || undefined;
@@ -124,6 +128,91 @@ export async function assignIssueOwnerAction(
     revalidatePath(issueListHref());
     revalidatePath(issueListHref('assigned'));
     revalidatePath('/inicio');
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: mapCommandError(err) };
+  }
+}
+
+function revalidateIssueReferencePaths(
+  references: Array<{ referenceType: string; referenceId: string }>,
+): void {
+  for (const ref of references) {
+    if (ref.referenceType === 'party' && ref.referenceId) {
+      revalidatePath(`/clientes/${ref.referenceId}`);
+    }
+    if (ref.referenceType === 'order' && ref.referenceId) {
+      revalidatePath('/inicio');
+      revalidatePath('/incidencias');
+      const partyRef = references.find((r) => r.referenceType === 'party');
+      if (partyRef?.referenceId) {
+        revalidatePath(`/clientes/${partyRef.referenceId}`);
+        revalidatePath(`/clientes/${partyRef.referenceId}/pedidos/${ref.referenceId}`);
+      }
+    }
+  }
+}
+
+export async function resolveIssueAction(formData: FormData): Promise<ResolveIssueActionResult> {
+  const issueId = String(formData.get('issueId') ?? '').trim();
+  const resolution = String(formData.get('resolution') ?? '').trim();
+  const expectedVersionRaw = String(formData.get('expectedVersion') ?? '').trim();
+  const expectedVersion = Number.parseInt(expectedVersionRaw, 10);
+
+  if (!issueId) {
+    return { ok: false, error: ISSUE_COPY.resolveFailed };
+  }
+  if (!resolution) {
+    return { ok: false, error: ISSUE_COPY.resolutionRequired };
+  }
+  if (!Number.isFinite(expectedVersion) || expectedVersion < 0) {
+    return { ok: false, error: ISSUE_COPY.resolveFailed };
+  }
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) {
+    return { ok: false, error: ISSUE_COPY.sessionExpired };
+  }
+
+  const capabilities = await loadMemberCapabilities();
+  const scopes = capabilities?.grantedScopes ?? [];
+  const canManage = hasAssignedOperationsScope(scopes, ISSUE_MANAGE_SCOPE);
+
+  const client = createOsApiClient(auth);
+
+  let references: Array<{ referenceType: string; referenceId: string }> = [];
+  try {
+    const { issue } = await client.getIssue(issueId);
+    references = issue.references.map((ref) => ({
+      referenceType: ref.referenceType,
+      referenceId: ref.referenceId,
+    }));
+    const memberId = capabilities?.memberId ?? null;
+    const isOwner = Boolean(issue.ownerMemberId && memberId && issue.ownerMemberId === memberId);
+    if (!canManage && !isOwner) {
+      return { ok: false, error: ISSUE_COPY.unauthorizedResolve };
+    }
+  } catch {
+    if (!canManage) {
+      return { ok: false, error: ISSUE_COPY.unauthorizedResolve };
+    }
+  }
+
+  try {
+    await client.executeIssueCommand(
+      'ResolveIssue',
+      { issueId, resolution, expectedVersion },
+      createId(),
+    );
+    revalidatePath(issueHref(issueId));
+    revalidatePath(issueListHref());
+    revalidatePath(issueListHref('resolved'));
+    revalidatePath('/inicio');
+    revalidatePath('/incidencias');
+    revalidateIssueReferencePaths(references);
     return { ok: true };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };

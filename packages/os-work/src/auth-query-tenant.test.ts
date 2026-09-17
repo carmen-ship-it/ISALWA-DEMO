@@ -108,6 +108,9 @@ describe('work auth queries', () => {
         decided = true;
         throw new Error('SHOULD_NOT_DECIDE');
       },
+      async reassignPendingApprover() {
+        throw new Error('SHOULD_NOT_ESCALATE');
+      },
       async runInTransaction(fn: (next: OsWorkStore) => Promise<unknown>) {
         return fn(store as unknown as OsWorkStore);
       },

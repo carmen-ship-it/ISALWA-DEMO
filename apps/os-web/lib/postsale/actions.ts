@@ -10,6 +10,7 @@ import {
   CreateWorkItemPayloadSchema,
   ReceiveFinishedGoodsPayloadSchema,
 } from '@isalwa/os-contracts';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type PostSaleExpectedWorkResult = { ok: true } | { ok: false; error: string };
 export type PostSaleReceiveResult = { ok: true } | { ok: false; error: string };
@@ -21,6 +22,9 @@ export type PostSaleReceiveResult = { ok: true } | { ok: false; error: string };
 export async function createPostSaleExpectedWorkAction(
   payload: Record<string, unknown>,
 ): Promise<PostSaleExpectedWorkResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error };
+
   const parsed = CreateWorkItemPayloadSchema.safeParse(payload);
   if (!parsed.success) {
     return { ok: false, error: 'La fecha esperada no es válida.' };
@@ -62,6 +66,9 @@ export async function receiveFinishedGoodsAction(input: {
   /** Client-stable key for retry/double-click; UI must reuse until success. */
   idempotencyKey?: string;
 }): Promise<PostSaleReceiveResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error };
+
   const parsed = ReceiveFinishedGoodsPayloadSchema.safeParse({
     productId: input.productId,
     quantity: input.quantity,

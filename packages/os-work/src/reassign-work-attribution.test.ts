@@ -86,6 +86,9 @@ function workStore(roleKeysByMember: Record<string, string[]>) {
     async decidePendingApprovalRequest() {
       return false;
     },
+    async reassignPendingApprover() {
+      return false;
+    },
     async appendEventAndAudit() {},
     async findIdempotency() {
       return null;

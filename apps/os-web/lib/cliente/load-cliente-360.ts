@@ -28,22 +28,44 @@ export type Cliente360Data = {
   staleFreshness: boolean;
 };
 
+/** Optional View As / lens query. Never elevates — only narrows org-first party lists. */
+export type LoadCliente360Options = {
+  /** From commercialListQueryFromProjection — e.g. visibility=org&ownerMemberId=… */
+  commercialQuery?: Record<string, string>;
+  /**
+   * Ops Vista de evaluación: suppress opportunity/quote negotiation lists.
+   * Pedido list may still use org visibility for operational context.
+   */
+  suppressCommercialNegotiation?: boolean;
+};
+
 function sectionStale<T extends { freshness: Parameters<typeof isProjectionStale>[0] }>(
   outcome: FetchOutcome<T>,
 ): boolean {
   return outcome.status === 'ok' && isProjectionStale(outcome.data.freshness);
 }
 
+function emptyCommercialList<T extends { items: unknown[]; meta: unknown; freshness: unknown }>(): T {
+  return {
+    items: [],
+    meta: { nextCursor: null, limit: 10, hasMore: false },
+    freshness: null,
+  } as unknown as T;
+}
+
 export async function loadCliente360(
   client: OsApiClient,
   partyId: string,
+  options: LoadCliente360Options = {},
 ): Promise<Cliente360Data> {
   const detail = await client.getParty(partyId);
   const commercialAccountId = detail.commercialAccount?.id ?? null;
+  const commercialQuery = options.commercialQuery ?? {};
+  const suppressNegotiation = options.suppressCommercialNegotiation === true;
 
   // Party-scoped commercial graph: prefer org visibility so Resumen reconciles to
-  // canonical records owned by other members (people.admin own-lens is unrestricted,
-  // but commercial.org.read actors still need visibility=org).
+  // canonical records owned by other members. View As must pass commercialQuery
+  // (or suppressNegotiation) so Carmen's org.read does not leak through projection.
   const listPartyScoped = async <T,>(
     withOrg: () => Promise<T>,
     without: () => Promise<T>,
@@ -55,45 +77,75 @@ export async function loadCliente360(
     }
   };
 
-  const [opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary] = await Promise.all([
-    fetchCommercialSection(() =>
-      listPartyScoped(
-        () => client.listOpportunities({ partyId, limit: 10, visibility: 'org' }),
-        () => client.listOpportunities({ partyId, limit: 10 }),
+  const opportunityLoader = suppressNegotiation
+    ? async () => emptyCommercialList<OpportunityListResponse>()
+    : () =>
+        listPartyScoped(
+          () =>
+            client.listOpportunities({
+              partyId,
+              limit: 10,
+              visibility: 'org',
+              ...commercialQuery,
+            }),
+          () => client.listOpportunities({ partyId, limit: 10, ...commercialQuery }),
+        );
+
+  const quoteLoader = suppressNegotiation
+    ? async () => emptyCommercialList<QuoteListResponse>()
+    : () =>
+        listPartyScoped(
+          () =>
+            client.listQuotes({
+              partyId,
+              limit: 10,
+              visibility: 'org',
+              ...commercialQuery,
+            }),
+          () => client.listQuotes({ partyId, limit: 10, ...commercialQuery }),
+        );
+
+  const [opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary] =
+    await Promise.all([
+      fetchCommercialSection(opportunityLoader),
+      fetchCommercialSection(quoteLoader),
+      fetchCommercialSection(() =>
+        listPartyScoped(
+          () =>
+            client.listOrders({
+              partyId,
+              limit: 10,
+              visibility: 'org',
+              ...commercialQuery,
+            }),
+          () => client.listOrders({ partyId, limit: 10, ...commercialQuery }),
+        ),
       ),
-    ),
-    fetchCommercialSection(() =>
-      listPartyScoped(
-        () => client.listQuotes({ partyId, limit: 10, visibility: 'org' }),
-        () => client.listQuotes({ partyId, limit: 10 }),
-      ),
-    ),
-    fetchCommercialSection(() => client.listOrders({ partyId, limit: 10 })),
-    fetchCommercialSection(() => client.listPartyTimeline(partyId, { limit: 20 })),
-    fetchCommercialSection(async () => {
-      const partyWork = await client.listWorkItems({
-        subjectType: 'party',
-        subjectId: partyId,
-        status: 'open',
-        limit: 5,
-      });
-      if (!commercialAccountId) return partyWork;
-      try {
-        const accountWork = await client.listWorkItems({
-          subjectType: 'commercial_account',
-          subjectId: commercialAccountId,
+      fetchCommercialSection(() => client.listPartyTimeline(partyId, { limit: 20 })),
+      fetchCommercialSection(async () => {
+        const partyWork = await client.listWorkItems({
+          subjectType: 'party',
+          subjectId: partyId,
           status: 'open',
           limit: 5,
         });
-        return mergeRelatedWork(partyWork, accountWork);
-      } catch {
-        return partyWork;
-      }
-    }),
-    fetchCommercialSection(() => client.listPartyLocations(partyId)),
-    loadDocumentLinks(client, partyId),
-    loadClienteFinanceSummary(client, partyId),
-  ]);
+        if (!commercialAccountId) return partyWork;
+        try {
+          const accountWork = await client.listWorkItems({
+            subjectType: 'commercial_account',
+            subjectId: commercialAccountId,
+            status: 'open',
+            limit: 5,
+          });
+          return mergeRelatedWork(partyWork, accountWork);
+        } catch {
+          return partyWork;
+        }
+      }),
+      fetchCommercialSection(() => client.listPartyLocations(partyId)),
+      loadDocumentLinks(client, partyId, { commercialQuery, suppressNegotiation }),
+      loadClienteFinanceSummary(client, partyId, { commercialQuery, suppressNegotiation }),
+    ]);
 
   const memberIds = new Set<string>();
   if (opportunities.status === 'ok') {

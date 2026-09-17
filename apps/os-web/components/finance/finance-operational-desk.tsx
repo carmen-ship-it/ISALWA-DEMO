@@ -38,6 +38,8 @@ type FinanceOperationalDeskProps =
       initialSubjectLabel?: string;
       /** SYNTH seed examples only — still pending confirmation, never ledger truth. */
       initialFacts?: readonly ReportedOperationalFact[];
+      /** Vista de evaluación — hide write UI; facts remain read-only. */
+      mutationsBlocked?: boolean;
     };
 
 type SubjectType = 'party' | 'order' | 'quote';
@@ -68,6 +70,7 @@ export function FinanceOperationalDesk(props: FinanceOperationalDeskProps) {
       initialSubjectId={props.initialSubjectId}
       initialSubjectLabel={props.initialSubjectLabel}
       initialFacts={props.initialFacts ?? []}
+      mutationsBlocked={props.mutationsBlocked === true}
     />
   );
 }
@@ -83,6 +86,7 @@ function ReadyDesk(props: {
   initialSubjectId?: string;
   initialSubjectLabel?: string;
   initialFacts?: readonly ReportedOperationalFact[];
+  mutationsBlocked?: boolean;
 }) {
   const session: FinanceActorSession = useMemo(
     () => ({
@@ -273,7 +277,7 @@ function ReadyDesk(props: {
           </p>
         ) : null}
 
-        {canShowForm ? (
+        {canShowForm && !props.mutationsBlocked ? (
           <div className="border-t border-[var(--isalwa-mist)] pt-4 [&_form]:border-t-0 [&_form]:pt-0 [&_button[type=submit]]:sticky [&_button[type=submit]]:bottom-3 [&_button[type=submit]]:z-10 [&_button[type=submit]]:shadow-[var(--isalwa-shadow-resting)]">
             <p className="mb-3 text-sm font-medium text-[var(--isalwa-kiln)]">
               {FINANCE_DESK_COPY.paymentSectionTitle}
@@ -287,6 +291,11 @@ function ReadyDesk(props: {
               onRecorded={onRecorded}
             />
           </div>
+        ) : null}
+        {canShowForm && props.mutationsBlocked ? (
+          <p className="border-t border-[var(--isalwa-mist)] pt-4 text-sm text-[var(--isalwa-slate)]" role="status">
+            Vista de evaluación es solo lectura. Vuelva a su vista para registrar pagos.
+          </p>
         ) : null}
       </PageSection>
 
@@ -304,7 +313,7 @@ function ReadyDesk(props: {
               <ReportedFactProvenance
                 key={`${fact.id}:${fact.activity}`}
                 fact={fact}
-                onReversed={onReversed}
+                onReversed={props.mutationsBlocked ? undefined : onReversed}
               />
             ))}
           </div>

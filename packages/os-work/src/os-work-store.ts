@@ -69,6 +69,15 @@ export interface OsWorkStore {
       'status' | 'decisionByMemberId' | 'decisionReason' | 'decidedAt'
     >,
   ): Promise<boolean>;
+  /** Reassign pending approver (explicit escalate). Preserves request id + prior context. */
+  reassignPendingApprover(
+    organizationId: string,
+    approvalRequestId: string,
+    patch: {
+      approverMemberId: string;
+      contextSnapshotJson: Record<string, unknown>;
+    },
+  ): Promise<boolean>;
 
   appendEventAndAudit(
     event: StoredBusinessEvent,

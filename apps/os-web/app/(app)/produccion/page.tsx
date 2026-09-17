@@ -30,7 +30,12 @@ export const revalidate = 0;
  * Post-sale production desk. Pedido is the handoff root for context.
  * Manufacturing annotation remains product-keyed — no Order→ProductionRun invented.
  */
-export default async function ProduccionPage() {
+export default async function ProduccionPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ orderId?: string }>;
+}) {
+  const params = searchParams ? await searchParams : undefined;
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'produccion')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Producción" />;
@@ -90,6 +95,7 @@ export default async function ProduccionPage() {
             scopesConfirmed={identity.scopesConfirmed}
             catalog={catalog}
             pedidos={pedidos}
+            initialOrderId={params?.orderId ?? null}
             onCreateExpectedWork={createPostSaleExpectedWorkAction}
           />
         </div>

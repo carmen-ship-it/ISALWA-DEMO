@@ -228,10 +228,15 @@ function store() {
     async listQuoteLineReadModels() {
       return [];
     },
-    async listOrderReadModels(organizationId: string, query: { ownerMemberId?: string }) {
+    async listOrderReadModels(organizationId: string, query: { ownerMemberId?: string; ownerMemberIds?: readonly string[] }) {
       return {
         hasMore: false,
-        items: orders.filter((item) => item.organizationId === organizationId && (!query.ownerMemberId || item.ownerMemberId === query.ownerMemberId)),
+        items: orders.filter((item) => {
+          if (item.organizationId !== organizationId) return false;
+          if (query.ownerMemberId && item.ownerMemberId !== query.ownerMemberId) return false;
+          if (query.ownerMemberIds && !query.ownerMemberIds.includes(item.ownerMemberId)) return false;
+          return true;
+        }),
       };
     },
     async getOrderReadModel(organizationId: string, orderId: string) {
@@ -450,12 +455,16 @@ describe('pilot leadership visibility', () => {
     const personal = await service.listOpportunities(gerente, { limit: 25 });
     assert.deepEqual(personal.items, []);
 
-    await assert.rejects(
-      () => service.getOrder(gerente, 'o-report'),
-      (err: Error) => err.message === 'PERMISSION_DENIED',
+    // Orders share the same leadership visibility contract as quotes/opportunities.
+    const orderDetail = await service.getOrder(gerente, 'o-report');
+    assert.equal(orderDetail.order.ownerMemberId, REPORT);
+    const orgOrders = await service.listOrders(gerente, { limit: 25, visibility: 'org' });
+    assert.deepEqual(
+      orgOrders.items.map((item) => item.orderId).sort(),
+      ['o-report', 'o-self'],
     );
-    const orders = await service.listOrders(gerente, { limit: 25 });
-    assert.deepEqual(orders.items, []);
+    const personalOrders = await service.listOrders(gerente, { limit: 25 });
+    assert.deepEqual(personalOrders.items, []);
   });
 
   it('does not let org read open Administración', async () => {

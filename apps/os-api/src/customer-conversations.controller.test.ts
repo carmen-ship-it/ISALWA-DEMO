@@ -18,6 +18,8 @@ describe('customer-conversations controller', () => {
     assert.match(src, /osCustomerConversation\.findMany/);
     assert.match(src, /organizationId: session\.organizationId/);
     assert.match(src, /recordManualCustomerConversation/);
+    assert.match(src, /@Post\(\)/);
+    assert.match(src, /osCustomerConversation\.create/);
     assert.doesNotMatch(src, /Meta|Twilio|providerConnected:\s*true|send\(/);
     assert.match(mod, /CustomerConversationsController/);
   });

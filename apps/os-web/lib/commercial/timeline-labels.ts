@@ -43,8 +43,9 @@ const EVENT_LABELS: Record<string, string> = {
   'work.completed': 'Trabajo completado',
   'work.cancelled': 'Trabajo cancelado',
   'approval.requested': 'Aprobación solicitada',
-  'approval.approved': 'Aprobación aprobada',
+  'approval.approved': 'Aprobación concedida',
   'approval.rejected': 'Aprobación rechazada',
+  'approval.escalated': 'Escalado a Gerencia',
 };
 
 /** Employee-facing Historial scope — update when backend timeline domains change. */

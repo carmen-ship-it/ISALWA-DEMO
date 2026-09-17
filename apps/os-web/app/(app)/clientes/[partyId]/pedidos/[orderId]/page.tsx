@@ -47,6 +47,8 @@ import { buildPedidoKnownState } from '@/lib/operations/pedido-known-state';
 import { buildPedidoLifecycle } from '@/lib/operations/pedido-lifecycle';
 import { buildPedidoOperatingView } from '@/lib/operations/pedido-case';
 import { partyHref } from '@/lib/party/navigation';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationBlocksDirectParty } from '@/lib/role-preview/evaluation-resource-access';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -63,11 +65,20 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
   const { resultado } = await searchParams;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
 
   const client = createOsApiClient(auth);
 
   try {
     const { order, freshness, authority } = await client.getOrder(orderId);
+    // Vista de evaluación: API auth is still Carmen (org.read). Narrow by record owner.
+    if (evaluationBlocksDirectParty(evaluation, order.ownerMemberId)) {
+      return (
+        <PageContainer label="Pedido">
+          <AccessDeniedState />
+        </PageContainer>
+      );
+    }
     if (auth.mode === 'dev' && auth.session.organizationId !== order.organizationId) {
       return (
         <PageContainer label="Pedido">

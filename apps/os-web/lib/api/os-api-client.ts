@@ -370,6 +370,11 @@ export function createOsApiClient(auth: OsAuthContext) {
           query: query?.partyId ? { partyId: query.partyId } : undefined,
         },
       ),
+    createCustomerConversation: (record: import('@isalwa/os-contracts').ManualCustomerConversation) =>
+      request<{ item: import('@isalwa/os-contracts').ManualCustomerConversation }>(
+        '/customer-conversations',
+        { method: 'POST', body: record, retry: false },
+      ),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{
         sourceState: string;

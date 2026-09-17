@@ -480,6 +480,47 @@ export async function decideCommercialApprovalAction(formData: FormData): Promis
   return result;
 }
 
+/**
+ * Jefe (current approver) explicitly escalates pending approval to a chosen Gerencia member.
+ * No automatic manager selection.
+ */
+export async function escalateCommercialApprovalAction(
+  formData: FormData,
+): Promise<CommandActionResult> {
+  const gate = await assertRolePreviewAllowsMutation();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const subjectType = String(formData.get('subjectType') ?? '').trim();
+  const subjectId = String(formData.get('subjectId') ?? '').trim();
+  const approvalRequestId = String(formData.get('approvalRequestId') ?? '').trim();
+  const newApproverMemberId = String(formData.get('newApproverMemberId') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '').trim();
+
+  if (!approvalRequestId) return { ok: false, error: 'Aprobación no válida.' };
+  if (!newApproverMemberId) {
+    return { ok: false, error: 'Seleccione el Gerente que debe decidir.' };
+  }
+
+  const payload: Record<string, unknown> = { approvalRequestId, newApproverMemberId };
+  if (reason) payload.reason = reason;
+
+  const result = await runCommand((client) =>
+    client.executeWorkCommand('EscalateApproval', payload, createId()).then((r) => r.data),
+  );
+  if (result.ok && partyId && subjectId && (subjectType === 'quote' || subjectType === 'order')) {
+    revalidateCliente360(partyId);
+    revalidatePath(subjectType === 'order' ? orderHref(partyId, subjectId) : quoteHref(partyId, subjectId));
+  }
+  if (result.ok && approvalRequestId) {
+    revalidatePath('/aprobaciones');
+    revalidatePath(approvalHref(approvalRequestId));
+    revalidatePath('/inicio');
+    revalidatePath('/trabajo');
+  }
+  return result;
+}
+
 export async function reassignCommercialAccountOwnerAction(
   formData: FormData,
 ): Promise<CommandActionResult> {

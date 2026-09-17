@@ -28,10 +28,11 @@ export const INTRO_COPY = {
   welcome: {
     title: 'Bienvenido a ISALWA',
     body: 'ISALWA reúne clientes, trabajo, decisiones y operación en un solo lugar para que puedas entender qué está pasando, qué necesita atención y qué debería pasar después.',
-    secondary: 'Te voy a mostrar lo esencial usando información real de la empresa. El recorrido dura pocos minutos y puedes salir cuando quieras.',
-    primary: 'Conocer ISALWA',
+    secondary:
+      'Esta bienvenida es solo una orientación corta. El recorrido guiado completo de evaluación está en Story Mode (Ver recorrido completo).',
+    primary: 'Entendido',
     skip: 'Explorar por mi cuenta',
-    footer: 'Puedes repetir este recorrido desde Ayuda.',
+    footer: 'Puedes volver a ver esta bienvenida desde Ayuda.',
   },
   /** Step 1: Inicio */
   inicio: {
@@ -86,7 +87,6 @@ export const INTRO_COPY = {
     body: 'Cuando entres por primera vez a una sección nueva, ISALWA puede explicarte solamente lo necesario para trabajar ahí.',
     affordances: [
       'Repetir introducción',
-      'Recorrido de esta página',
       'Modo aprendizaje',
       'Glosario',
       'Cómo funcionan los accesos',

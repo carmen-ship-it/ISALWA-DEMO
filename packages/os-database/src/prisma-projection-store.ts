@@ -1046,7 +1046,7 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
 
   async listOrderReadModels(
     organizationId: string,
-    query: ListOrdersQuery,
+    query: ListOrdersQuery & ServerListConstraints,
   ): Promise<{ items: StoredOrderReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeOrderCursor(query.cursor);
@@ -1054,7 +1054,11 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
     if (query.status) where.status = query.status;
     if (query.partyId) where.partyId = query.partyId;
     if (query.quoteId) where.quoteId = query.quoteId;
-    if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
+    if (query.ownerMemberIds && query.ownerMemberIds.length === 0) {
+      return { items: [], hasMore: false };
+    }
+    if (query.ownerMemberIds) where.ownerMemberId = { in: [...query.ownerMemberIds] };
+    else if (query.ownerMemberId) where.ownerMemberId = query.ownerMemberId;
     andTextMatch(where, query.q, ['orderNumber']);
     if (cursor) {
       where.OR = [

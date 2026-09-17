@@ -19,6 +19,12 @@ export type FinanceSummaryOutcome =
   | { status: 'unavailable'; message: string }
   | { status: 'forbidden'; message: string };
 
+export type LoadClienteFinanceOptions = {
+  commercialQuery?: Record<string, string>;
+  /** Ops View As: hide commercial finance aggregate (negotiation totals). */
+  suppressNegotiation?: boolean;
+};
+
 /**
  * Load finance summary for a party.
  * Only aggregates order totals. Does not claim payment status.
@@ -26,9 +32,31 @@ export type FinanceSummaryOutcome =
 export async function loadClienteFinanceSummary(
   client: OsApiClient,
   partyId: string,
+  options: LoadClienteFinanceOptions = {},
 ): Promise<FinanceSummaryOutcome> {
+  if (options.suppressNegotiation) {
+    return {
+      status: 'ok',
+      summary: {
+        openOrdersTotalCentavos: BigInt(0),
+        openOrdersCount: 0,
+        currency: 'BOB',
+      },
+    };
+  }
+  const commercialQuery = options.commercialQuery ?? {};
   try {
-    const orders = await client.listOrders({ partyId, limit: 100 });
+    let orders;
+    try {
+      orders = await client.listOrders({
+        partyId,
+        limit: 100,
+        visibility: 'org',
+        ...commercialQuery,
+      });
+    } catch {
+      orders = await client.listOrders({ partyId, limit: 100, ...commercialQuery });
+    }
     const openOrders = orders.items.filter((order) => order.status === 'open');
 
     let totalCentavos = BigInt(0);

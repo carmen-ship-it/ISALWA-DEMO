@@ -293,6 +293,24 @@ export class PrismaOsWorkStore implements OsWorkStore {
     return result.count === 1;
   }
 
+  async reassignPendingApprover(
+    organizationId: string,
+    approvalRequestId: string,
+    patch: {
+      approverMemberId: string;
+      contextSnapshotJson: Record<string, unknown>;
+    },
+  ): Promise<boolean> {
+    const result = await this.db().osApprovalRequest.updateMany({
+      where: { id: approvalRequestId, organizationId, status: 'pending' },
+      data: {
+        approverMemberId: patch.approverMemberId,
+        contextSnapshotJson: patch.contextSnapshotJson as Prisma.InputJsonValue,
+      },
+    });
+    return result.count === 1;
+  }
+
   /**
    * Batch writes. Outside an interactive tx, Prisma's sequential batch API is used.
    * Inside an interactive tx, factories are invoked one-at-a-time so tx-bound

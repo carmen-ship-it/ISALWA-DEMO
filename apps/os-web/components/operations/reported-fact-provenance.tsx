@@ -15,7 +15,8 @@ import { fieldClass } from './subject';
 
 type ReportedFactProvenanceProps = {
   fact: ReportedOperationalFact;
-  onReversed: (fact: ReportedOperationalFact) => void;
+  /** Omit under View As / read-only — reverse is a mutation. */
+  onReversed?: (fact: ReportedOperationalFact) => void;
 };
 
 /** Shows provenance and can reverse the report. Does not confirm or rewrite the value. */
@@ -27,6 +28,7 @@ export function ReportedFactProvenance({ fact, onReversed }: ReportedFactProvena
 
   function reverse(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!onReversed) return;
     try {
       const reversed = reverseReportedFact(fact, reason);
       reportedFactCopy(reversed);
@@ -57,7 +59,7 @@ export function ReportedFactProvenance({ fact, onReversed }: ReportedFactProvena
           <li key={line}>{line}</li>
         ))}
       </ul>
-      {fact.activity === 'active' ? (
+      {fact.activity === 'active' && onReversed ? (
         <form onSubmit={reverse} className="space-y-3">
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{CORRECTION_COPY.hint}</p>
           <FormFeedback error={error} />

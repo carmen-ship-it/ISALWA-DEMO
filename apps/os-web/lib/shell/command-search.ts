@@ -231,7 +231,14 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         ),
     ),
     collect(
-      commercialOk ? [client.listOrders({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery })] : [],
+      commercialOk
+        ? [
+            client.listOrders({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+            ...lenses.map((visibility) =>
+              client.listOrders({ q, visibility, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+            ),
+          ]
+        : [],
       (page) =>
         filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
           orderPaletteItem({
@@ -341,7 +348,14 @@ async function relatedForParty(
           }),
         ),
     ),
-    collect([client.listOrders({ partyId, limit: 4, ...commercialQuery })], (page) =>
+    collect(
+      [
+        client.listOrders({ partyId, limit: 4, ...commercialQuery }),
+        ...lenses.map((visibility) =>
+          client.listOrders({ partyId, visibility, limit: 4, ...commercialQuery }),
+        ),
+      ],
+      (page) =>
       filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
         orderPaletteItem({
           orderId: item.orderId,

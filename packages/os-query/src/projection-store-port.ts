@@ -252,7 +252,7 @@ export interface OsProjectionStorePort {
   getOrderReadModel(organizationId: string, orderId: string): Promise<StoredOrderReadModel | null>;
   listOrderReadModels(
     organizationId: string,
-    query: ListOrdersQuery,
+    query: ListOrdersQuery & ServerListConstraints,
   ): Promise<{ items: StoredOrderReadModel[]; hasMore: boolean }>;
   deleteOrderReadModelsForOrg(organizationId: string): Promise<void>;
 

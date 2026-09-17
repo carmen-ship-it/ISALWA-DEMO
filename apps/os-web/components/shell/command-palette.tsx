@@ -26,6 +26,7 @@ import {
   groupPaletteItems,
   matchesPaletteQuery,
   paletteActions,
+  paletteIncludesActions,
   paletteNav,
   palettePathContext,
   PALETTE_MIN_QUERY,
@@ -33,6 +34,7 @@ import {
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
+import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type CommandPaletteProps = {
@@ -83,8 +85,10 @@ export function CommandPalette({
   const [currentHref, setCurrentHref] = useState('');
   const [savedNote, setSavedNote] = useState<string | null>(null);
 
+  const { blocksMutations } = useRolePreview();
   const storageKey = actorKey ? recentsStorageKey(actorKey) : null;
   const viewsKey = actorKey ? savedViewsStorageKey(actorKey) : null;
+  const showPaletteActions = paletteIncludesActions(blocksMutations);
 
   const close = useCallback(() => {
     onOpenChange(false);
@@ -168,11 +172,12 @@ export function CommandPalette({
   const items = useMemo(() => {
     const q = query.trim();
     const access = { canCreateCustomer, canInvite: showAdmin };
-    const actions = (
-      pathname && palettePathContext(pathname)
-        ? contextualPaletteActions(pathname, access)
-        : paletteActions(access)
-    ).filter((item) => matchesPaletteQuery(item, q));
+    const actions = showPaletteActions
+      ? (pathname && palettePathContext(pathname)
+          ? contextualPaletteActions(pathname, access)
+          : paletteActions(access)
+        ).filter((item) => matchesPaletteQuery(item, q))
+      : [];
     const nav = paletteNav(showAdmin).filter((item) => matchesPaletteQuery(item, q));
     if (pick) {
       return remote
@@ -185,7 +190,18 @@ export function CommandPalette({
       return [...actions, ...recents, ...nav];
     }
     return [...actions, ...remote, ...nav.filter((item) => matchesPaletteQuery(item, q))];
-  }, [canCreateCustomer, changed, mode, pathname, pick, query, recents, remote, showAdmin]);
+  }, [
+    canCreateCustomer,
+    changed,
+    mode,
+    pathname,
+    pick,
+    query,
+    recents,
+    remote,
+    showAdmin,
+    showPaletteActions,
+  ]);
 
   const extraGroups = useMemo(() => {
     if (pick || mode !== 'search') return [];

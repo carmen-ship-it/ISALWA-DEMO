@@ -82,6 +82,7 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   RequestApproval: 'member_active',
   Approve: 'member_active',
   Reject: 'member_active',
+  EscalateApproval: 'member_active',
   CreateParty: 'master_data.admin',
   UpdateParty: 'master_data.admin',
   DeactivateParty: 'master_data.admin',

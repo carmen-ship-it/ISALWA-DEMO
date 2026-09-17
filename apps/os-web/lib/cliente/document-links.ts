@@ -90,10 +90,19 @@ function deliveryNoteDocumentLink(
  * Sources: submitted quotes with PDF, issued delivery notes with PDF.
  * Does not invent documents that don't exist.
  */
+export type LoadDocumentLinksOptions = {
+  commercialQuery?: Record<string, string>;
+  /** Ops View As: skip quote PDF negotiation links; keep delivery-note links. */
+  suppressNegotiation?: boolean;
+};
+
 export async function loadDocumentLinks(
   client: OsApiClient,
   partyId: string,
+  options: LoadDocumentLinksOptions = {},
 ): Promise<DocumentLinksOutcome> {
+  const commercialQuery = options.commercialQuery ?? {};
+  const suppressNegotiation = options.suppressNegotiation === true;
   try {
     const links: DocumentLink[] = [];
     const sentQuoteIds = new Set<string>();
@@ -112,48 +121,70 @@ export async function loadDocumentLinks(
 
     const opportunityTitles = new Map<string, string>();
 
-    try {
-      const quotes = await client.listQuotes({ partyId, limit: 20 });
-      const opportunityIds = [
-        ...new Set(
-          quotes.items
-            .map((quote) => quote.opportunityId)
-            .filter((id): id is string => Boolean(id)),
-        ),
-      ];
-      await Promise.all(
-        opportunityIds.map(async (opportunityId) => {
-          try {
-            const { opportunity } = await client.getOpportunity(opportunityId);
-            opportunityTitles.set(opportunityId, opportunity.title);
-          } catch {
-            // Title enrichment is best-effort.
-          }
-        }),
-      );
-
-      for (const quote of quotes.items) {
-        if (quote.status === 'submitted' || quote.status === 'accepted') {
-          links.push(
-            quoteDocumentLink(
-              partyId,
-              quote.quoteId,
-              quote.quoteNumber,
-              quote.submittedAt ?? quote.createdAt,
-              quote.opportunityId
-                ? opportunityTitles.get(quote.opportunityId) ?? null
-                : null,
-              sentQuoteIds.has(quote.quoteId),
-            ),
-          );
+    if (!suppressNegotiation) {
+      try {
+        let quotes;
+        try {
+          quotes = await client.listQuotes({
+            partyId,
+            limit: 20,
+            visibility: 'org',
+            ...commercialQuery,
+          });
+        } catch {
+          quotes = await client.listQuotes({ partyId, limit: 20, ...commercialQuery });
         }
+        const opportunityIds = [
+          ...new Set(
+            quotes.items
+              .map((quote) => quote.opportunityId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        ];
+        await Promise.all(
+          opportunityIds.map(async (opportunityId) => {
+            try {
+              const { opportunity } = await client.getOpportunity(opportunityId);
+              opportunityTitles.set(opportunityId, opportunity.title);
+            } catch {
+              // Title enrichment is best-effort.
+            }
+          }),
+        );
+
+        for (const quote of quotes.items) {
+          if (quote.status === 'submitted' || quote.status === 'accepted') {
+            links.push(
+              quoteDocumentLink(
+                partyId,
+                quote.quoteId,
+                quote.quoteNumber,
+                quote.submittedAt ?? quote.createdAt,
+                quote.opportunityId
+                  ? opportunityTitles.get(quote.opportunityId) ?? null
+                  : null,
+                sentQuoteIds.has(quote.quoteId),
+              ),
+            );
+          }
+        }
+      } catch {
+        // Quote access may be restricted; continue
       }
-    } catch {
-      // Quote access may be restricted; continue
     }
 
     try {
-      const orders = await client.listOrders({ partyId, limit: 20 });
+      let orders;
+      try {
+        orders = await client.listOrders({
+          partyId,
+          limit: 20,
+          visibility: 'org',
+          ...commercialQuery,
+        });
+      } catch {
+        orders = await client.listOrders({ partyId, limit: 20, ...commercialQuery });
+      }
       for (const order of orders.items) {
         try {
           const docs = await client.get<{

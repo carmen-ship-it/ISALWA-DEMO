@@ -55,10 +55,7 @@ export function PedidoOpsLaneCards({ orderId, lanes = DEFAULT_LANES }: PedidoOps
       />
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {lanes.map((lane) => {
-          const href =
-            lane.id === 'delivery'
-              ? `${lane.href}?orderId=${encodeURIComponent(orderId)}`
-              : lane.href;
+          const href = `${lane.href}?orderId=${encodeURIComponent(orderId)}`;
           return (
             <InsightCard key={lane.id} className="flex h-full flex-col">
               <span className="not-italic text-sm font-medium text-[var(--isalwa-kiln)]">

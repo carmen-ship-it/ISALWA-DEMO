@@ -19,10 +19,13 @@ import {
 } from '@/lib/conversations/model';
 import { projectManualConversation } from '@/lib/conversations/project-manual';
 import type { ManualCustomerConversation } from '@isalwa/os-contracts';
+import { isSuggestionDecisionRecord } from '@/lib/conversations/suggestion-decision';
 
 type ConversationsWorkspaceProps = {
   actor: ManualConversationActor | null;
   initialConversations?: readonly Conversation[];
+  /** Durable company-entered Ignore decisions keyed by source conversation id. */
+  ignoredSuggestionIdsByConversation?: Record<string, string[]>;
 };
 
 function parseFilter(raw: string | null): ConversationFilter {
@@ -40,6 +43,7 @@ function parseFilter(raw: string | null): ConversationFilter {
 export function ConversationsWorkspace({
   actor,
   initialConversations = [],
+  ignoredSuggestionIdsByConversation = {},
 }: ConversationsWorkspaceProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -108,6 +112,10 @@ export function ConversationsWorkspace({
   }
 
   function onRecorded(record: ManualCustomerConversation) {
+    if (isSuggestionDecisionRecord(record)) {
+      router.refresh();
+      return;
+    }
     const projected = projectManualConversation(record);
     setRecorded((current) => [projected, ...current.filter((item) => item.id !== projected.id)]);
     replaceParams((params) => {
@@ -115,6 +123,7 @@ export function ConversationsWorkspace({
       params.delete('registrar');
     });
     setMobilePane('thread');
+    router.refresh();
   }
 
   return (
@@ -146,6 +155,11 @@ export function ConversationsWorkspace({
           <ConversationContextPanel
             conversation={selected}
             responsible={selected?.responsible ?? null}
+            recordSentActor={actor}
+            durableIgnoredSuggestionIds={
+              selected?.id ? ignoredSuggestionIdsByConversation[selected.id] ?? [] : []
+            }
+            onConversationRecorded={() => router.refresh()}
           />
         </Panel>
       </div>
@@ -189,6 +203,11 @@ export function ConversationsWorkspace({
         <ConversationContextPanel
           conversation={selected}
           responsible={selected?.responsible ?? null}
+          recordSentActor={actor}
+          durableIgnoredSuggestionIds={
+            selected?.id ? ignoredSuggestionIdsByConversation[selected.id] ?? [] : []
+          }
+          onConversationRecorded={() => router.refresh()}
         />
       </ContextDrawer>
 

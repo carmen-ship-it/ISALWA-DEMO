@@ -30,7 +30,12 @@ type PedidoWarehouseContext = {
   hasFinishedGoodsCitation: boolean;
 };
 
-export default async function AlmacenPage() {
+export default async function AlmacenPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ orderId?: string }>;
+}) {
+  const params = searchParams ? await searchParams : undefined;
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'almacen')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Almacén" />;
@@ -73,6 +78,7 @@ export default async function AlmacenPage() {
         canAllocate={access.status === 'ready' ? access.canAllocate : false}
         canReceive={access.status === 'ready' ? access.canReceive : false}
         pedidos={pedidos}
+        initialOrderId={params?.orderId ?? null}
         onReceive={
           access.status === 'ready' && access.canReceive ? receiveFinishedGoodsAction : undefined
         }

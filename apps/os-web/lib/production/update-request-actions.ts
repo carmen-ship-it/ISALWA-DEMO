@@ -12,6 +12,7 @@ import {
 } from '@/lib/production/update-request-work';
 import { workItemHref } from '@/lib/work/navigation';
 import { orderHref } from '@/lib/commercial/navigation';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type RequestProductionUpdateResult =
   | { ok: true; workItemId: string; alreadyOpen: boolean; needsCanonicalAssignee: boolean }
@@ -30,6 +31,8 @@ export async function requestProductionUpdateAction(input: {
 }): Promise<RequestProductionUpdateResult> {
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return { ok: false, error: previewGate.error };
 
   const built = buildProductionUpdateRequestWork({
     orderId: input.orderId,

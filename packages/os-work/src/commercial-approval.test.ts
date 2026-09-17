@@ -107,6 +107,17 @@ function approvalStore(input: {
       Object.assign(row, patch);
       return true;
     },
+    async reassignPendingApprover(
+      organizationId: string,
+      approvalRequestId: string,
+      patch: { approverMemberId: string; contextSnapshotJson: Record<string, unknown> },
+    ) {
+      const row = approvals.find((item) => item.organizationId === organizationId && item.id === approvalRequestId);
+      if (!row || row.status !== 'pending') return false;
+      row.approverMemberId = patch.approverMemberId;
+      row.contextSnapshotJson = patch.contextSnapshotJson;
+      return true;
+    },
     async appendEventAndAudit(event: { eventType: string }) {
       events.push(event.eventType);
     },
@@ -208,6 +219,44 @@ describe('manual commercial approval commands', () => {
       reason: 'Revisar precio',
     });
     assert.deepEqual(store.events, ['approval.requested', 'approval.rejected']);
+  });
+
+  it('lets the current approver escalate to an explicitly selected Gerencia member', async () => {
+    const GERENTE = 'mem-gerente';
+    const store = approvalStore({});
+    const service = new WorkCommandService(store as unknown as OsWorkStore);
+    const requested = await service.execute('RequestApproval', ctx(OWNER), {
+      approverMemberId: APPROVER,
+      subjectType: 'quote',
+      subjectId: 'subject-1',
+      context: { note: 'Excepción de margen' },
+    });
+    const approvalRequestId = String(requested.data.approvalRequestId);
+
+    await assert.rejects(
+      () =>
+        service.execute('EscalateApproval', ctx(OTHER), {
+          approvalRequestId,
+          newApproverMemberId: GERENTE,
+        }),
+      /PERMISSION_DENIED/,
+    );
+
+    const escalated = await service.execute('EscalateApproval', ctx(APPROVER), {
+      approvalRequestId,
+      newApproverMemberId: GERENTE,
+      reason: 'Requiere Gerencia',
+    });
+    assert.equal(escalated.data.toApproverMemberId, GERENTE);
+    assert.equal(escalated.data.fromApproverMemberId, APPROVER);
+    assert.equal(store.approvals[0]?.approverMemberId, GERENTE);
+    assert.equal(store.approvals[0]?.status, 'pending');
+    assert.equal(store.events.includes('approval.escalated'), true);
+    const history = store.approvals[0]?.contextSnapshotJson.escalationHistory;
+    assert.equal(Array.isArray(history) && history.length === 1, true);
+
+    const decided = await service.execute('Approve', ctx(GERENTE), { approvalRequestId, reason: 'ok' });
+    assert.equal(decided.data.decision, 'approved');
   });
 
   it('does not call CreateOrder from the approval decision path', () => {

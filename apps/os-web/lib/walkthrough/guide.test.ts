@@ -17,19 +17,14 @@ import {
   type KeyValueStore,
 } from './persistence';
 import {
-  advanceIntro,
   collectGuideCopy,
-  continueGuide,
-  dismissGuide,
   hasSeenPageTour,
   initialGuideRecord,
   markPageTourSeen,
   migrateV1ToV2,
-  replayFromAyuda,
   replayIntro,
   resetGuide,
   resumeGuide,
-  revealGuide,
   setLearningMode,
   skipIntro,
   startIntro,
@@ -106,37 +101,19 @@ function headingDoc(options: { heading?: boolean; bodyFocus?: () => void } = {})
 }
 
 describe('modo guiado', () => {
-  it('dismiss hides the panel and does not erase progress unless the user resets', () => {
-    const advanced = continueGuide(initialGuideRecord());
-    const hidden = dismissGuide(advanced.record);
-    assert.equal(hidden.panelHidden, true);
-    assert.equal(hidden.currentJourneyId, advanced.record.currentJourneyId);
-    assert.equal(hidden.stopIndex, advanced.record.stopIndex);
-    assert.deepEqual(hidden.completedJourneyIds, advanced.record.completedJourneyIds);
-
-    const shown = revealGuide(hidden);
-    assert.equal(shown.panelHidden, false);
-    assert.equal(shown.stopIndex, hidden.stopIndex);
-    assert.equal(shown.currentJourneyId, hidden.currentJourneyId);
-
+  it('retires legacy journey continue/dismiss APIs from progress module', () => {
+    const progress = readFileSync(join(here, 'progress.ts'), 'utf8');
+    assert.doesNotMatch(progress, /export function continueGuide/);
+    assert.doesNotMatch(progress, /export function dismissGuide/);
+    assert.doesNotMatch(progress, /export function revealGuide/);
+    assert.doesNotMatch(progress, /export function replayFromAyuda/);
+    assert.doesNotMatch(progress, /export function advanceIntro/);
+    assert.match(progress, /export function startIntro/);
+    assert.match(progress, /export function replayIntro/);
     const cleared = resetGuide();
     assert.equal(cleared.stopIndex, 0);
     assert.deepEqual(cleared.completedJourneyIds, []);
     assert.equal(cleared.panelHidden, true);
-  });
-
-  it('Continuar records the next stop and then the next journey on a real route', () => {
-    const first = continueGuide(initialGuideRecord());
-    assert.equal(first.href, '/clientes');
-    assert.equal(first.blocked, null);
-    assert.equal(first.record.currentJourneyId, 'vender');
-    assert.equal(first.record.stopIndex, 1);
-
-    const second = continueGuide(first.record);
-    assert.equal(second.href, '/cotizaciones');
-    assert.equal(second.record.currentJourneyId, 'pedido');
-    assert.equal(second.record.stopIndex, 0);
-    assert.deepEqual(second.record.completedJourneyIds, ['vender']);
   });
 
   it('Escape restores focus to a heading and does not leave it on document.body', () => {
@@ -155,7 +132,7 @@ describe('modo guiado', () => {
     assert.equal(bodyFocused(), false);
   });
 
-  it('Continuar opens the operating pages that exist and does not claim they are live', () => {
+  it('legacy JOURNEYS data remains archived without product launchers', () => {
     const mounted = [
       ['produccion', '/produccion'],
       ['almacen', '/almacen'],
@@ -166,32 +143,15 @@ describe('modo guiado', () => {
       const journey = JOURNEYS.find((item) => item.id === id);
       assert.ok(journey);
       assert.equal(journey.stops[0]?.href, href);
-      const outcome = continueGuide({
-        ...initialGuideRecord(),
-        currentJourneyId: id,
-        stopIndex: 0,
-      });
-      assert.equal(outcome.href, href);
-      assert.equal(outcome.blocked, null);
-      assert.doesNotMatch(
-        `${journey.summary} ${outcome.message ?? ''}`,
-        /en vivo|conectad|cargad|disponible|oficial|whatsapp|mapa/i,
-      );
+      assert.doesNotMatch(`${journey.summary}`, /en vivo|conectad|cargad|disponible|oficial|whatsapp|mapa/i);
     }
+    const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
+    const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
+    assert.doesNotMatch(shell, /JOURNEYS|continueGuide|journeysForViewer/);
+    assert.doesNotMatch(help, /JOURNEYS|continueGuide|journeysForViewer|replayFromAyuda/);
   });
 
-  it('a pedido pattern does not invent an order screen', () => {
-    const outcome = continueGuide({
-      ...initialGuideRecord(),
-      currentJourneyId: 'pedido',
-      stopIndex: 0,
-    });
-    assert.equal(outcome.href, null);
-    assert.equal(outcome.blocked, 'pattern');
-    assert.doesNotMatch(outcome.message ?? '', /#\d|PED-|pedido\s+\d/i);
-  });
-
-  it('refresh resumes the stored journey instead of a chapter from another page', () => {
+  it('refresh preserves stored record fields without inventing a new journey', () => {
     const stored = {
       ...initialGuideRecord(),
       currentJourneyId: 'vender',
@@ -203,7 +163,7 @@ describe('modo guiado', () => {
     assert.notEqual(resumed.currentJourneyId, 'gerencia');
   });
 
-  it('replay from the ayuda export exists and does not wipe other progress', () => {
+  it('Ayuda mounts help panel with Story Mode and welcome replay only', () => {
     const ayuda = readFileSync(join(here, '../../app/(app)/ayuda/page.tsx'), 'utf8');
     const panel = readFileSync(
       join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'),
@@ -211,21 +171,10 @@ describe('modo guiado', () => {
     );
     assert.match(ayuda, /WalkthroughHelpPanel/);
     assert.match(ayuda, /data-guide-replay/);
-    assert.match(panel, /replayFromAyuda/);
-    assert.match(panel, /export \{ replayFromAyuda \}/);
-
-    const record = {
-      ...initialGuideRecord(),
-      currentJourneyId: 'gerencia',
-      stopIndex: 0,
-      completedJourneyIds: ['vender', 'gerencia'],
-      panelHidden: true,
-    };
-    const replayed = replayFromAyuda(record, 'vender');
-    assert.equal(replayed.currentJourneyId, 'vender');
-    assert.equal(replayed.stopIndex, 0);
-    assert.equal(replayed.panelHidden, false);
-    assert.deepEqual(replayed.completedJourneyIds, ['gerencia']);
+    assert.match(panel, /replayIntro/);
+    assert.match(panel, /openStory/);
+    assert.doesNotMatch(panel, /replayFromAyuda/);
+    assert.doesNotMatch(panel, /export \{ replayFromAyuda \}/);
   });
 
   it('hides a journey the viewer cannot open', () => {
@@ -300,18 +249,16 @@ describe('modo guiado', () => {
     assert.equal(loadedA.introCompleted, false);
     assert.equal(resumeTooltipOverlay(store.getItem(LEGACY_WALKTHROUGH_STORAGE_KEY)), null);
 
-    const advanced = continueGuide(initialGuideRecord());
     const completedA = {
-      ...dismissGuide(advanced.record),
-      welcomeSeen: true,
-      introCompleted: true,
+      ...startIntro(initialGuideRecord()),
+      panelHidden: true,
     };
     saveGuide(store, completedA, memberA);
     const savedA = JSON.parse(store.getItem(keyA!) ?? '{}') as Record<string, unknown>;
     assert.equal(savedA.panelHidden, true);
     assert.equal(savedA.introCompleted, true);
-    assert.equal(savedA.currentJourneyId, advanced.record.currentJourneyId);
-    assert.equal(savedA.stopIndex, advanced.record.stopIndex);
+    assert.equal(savedA.welcomeSeen, true);
+    assert.equal(savedA.stopIndex, 0);
     assert.equal('organizationId' in savedA, false);
     assert.equal('customerName' in savedA, false);
     assert.equal('orderNumber' in savedA, false);
@@ -350,15 +297,12 @@ describe('modo guiado', () => {
   });
 
   it('retires floating GuidePanel full-tour launcher in favor of Story Mode', () => {
-    const panel = readFileSync(join(here, '../../components/walkthrough/guide-panel.tsx'), 'utf8');
     const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
     const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
     const appShell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
     const copy = readFileSync(join(here, 'copy.ts'), 'utf8');
-    assert.doesNotMatch(panel, /Mostrar recorrido/);
-    assert.doesNotMatch(panel, /fixed bottom-4 right-4/);
-    assert.match(panel, /return null/);
     assert.doesNotMatch(shell, /<GuidePanel/);
+    assert.doesNotMatch(shell, /IntroCoach|MicroTourCoach/);
     assert.doesNotMatch(appShell, /<GuidePanel/);
     assert.match(appShell, /OwnerStoryMode/);
     assert.match(appShell, /DemoFictitiousBanner/);
@@ -366,14 +310,28 @@ describe('modo guiado', () => {
     assert.doesNotMatch(copy, /show: 'Mostrar recorrido'/);
     assert.match(copy, /show: 'Ver recorrido completo'/);
     assert.match(shell, /Story Mode/);
-    // Ayuda must not relaunch legacy multi-journey Recorrido del piloto chrome.
     assert.doesNotMatch(help, /api\?\.replay\(/);
     assert.doesNotMatch(help, /GUIDE_CHROME\.title/);
     assert.doesNotMatch(help, /GUIDE_CHROME\.reset/);
     assert.doesNotMatch(help, /replayLabel/);
+    assert.doesNotMatch(help, /Recorridos de sección/);
+    assert.doesNotMatch(help, /Recorrido de esta página/);
     assert.match(help, /Ver recorrido completo/);
     assert.match(help, /openStory/);
     assert.match(help, /LearningModeToggle/);
+  });
+
+  it('deletes obsolete walkthrough entry points', () => {
+    const walkDir = join(here, '../../components/walkthrough');
+    for (const name of [
+      'guide-panel.tsx',
+      'intro-coach.tsx',
+      'micro-tour-coach.tsx',
+      'role-quickstart-panel.tsx',
+      'contextual-micro-tip.tsx',
+    ]) {
+      assert.throws(() => readFileSync(join(walkDir, name), 'utf8'), /ENOENT/);
+    }
   });
 
   it('keeps shell header sticky so mobile logout stays reachable', () => {
@@ -396,13 +354,14 @@ describe('first-use intro', () => {
     assert.deepEqual(record.pageTourSeen, {});
   });
 
-  it('startIntro marks welcome seen and resets intro state', () => {
+  it('startIntro marks welcome seen and completes without multi-step coach', () => {
     const record = initialGuideRecord();
     const started = startIntro(record);
     assert.equal(started.welcomeSeen, true);
     assert.equal(started.introSkipped, false);
+    assert.equal(started.introCompleted, true);
     assert.equal(started.introStepIndex, 0);
-    assert.equal(started.panelHidden, false);
+    assert.equal(started.panelHidden, true);
   });
 
   it('skipIntro marks skipped and hides panel', () => {
@@ -414,38 +373,17 @@ describe('first-use intro', () => {
     assert.equal(skipped.panelHidden, true);
   });
 
-  it('advanceIntro progresses through steps and completes at end', () => {
-    const TOTAL_STEPS = 7;
-    let record = startIntro(initialGuideRecord());
-    
-    // Advance through steps
-    for (let i = 1; i < TOTAL_STEPS; i++) {
-      const result = advanceIntro(record, TOTAL_STEPS);
-      record = result.record;
-      if (i < TOTAL_STEPS - 1) {
-        assert.equal(record.introStepIndex, i);
-        assert.equal(record.introCompleted, false);
-      }
-    }
-    
-    // Final advance completes intro
-    const final = advanceIntro(record, TOTAL_STEPS);
-    assert.equal(final.record.introCompleted, true);
-    assert.equal(final.record.panelHidden, true);
-  });
-
-  it('replayIntro resets intro state without wiping other progress', () => {
+  it('replayIntro resets welcome so Ayuda can show orientation again', () => {
     let record = initialGuideRecord();
     record = startIntro(record);
-    const completed = advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(advanceIntro(record, 7).record, 7).record, 7).record, 7).record, 7).record, 7).record, 7).record;
-    assert.equal(completed.introCompleted, true);
-    
-    const replayed = replayIntro(completed);
-    assert.equal(replayed.welcomeSeen, true);
+    assert.equal(record.introCompleted, true);
+
+    const replayed = replayIntro(record);
+    assert.equal(replayed.welcomeSeen, false);
     assert.equal(replayed.introCompleted, false);
     assert.equal(replayed.introSkipped, false);
     assert.equal(replayed.introStepIndex, 0);
-    assert.equal(replayed.panelHidden, false);
+    assert.equal(replayed.panelHidden, true);
   });
 
   it('migrates v1 records to v2 preserving progress', () => {
@@ -526,46 +464,24 @@ describe('learning mode', () => {
   });
 });
 
-describe('page micro-tours', () => {
-  it('markPageTourSeen records the page as seen', () => {
-    const record = initialGuideRecord();
-    assert.equal(hasSeenPageTour(record, 'produccion'), false);
-    
-    const marked = markPageTourSeen(record, 'produccion');
-    assert.equal(hasSeenPageTour(marked, 'produccion'), true);
-    assert.equal(hasSeenPageTour(marked, 'almacen'), false);
-  });
-
-  it('getMicroTourForPage returns the tour for known pages', () => {
+describe('retired multi-step coaches', () => {
+  it('page micro-tour helpers remain data-only and are not mounted', () => {
     const produccion = getMicroTourForPage('produccion');
     assert.ok(produccion);
     assert.equal(produccion.pageId, 'produccion');
     assert.ok(produccion.steps.length >= 2);
-    
-    const unknown = getMicroTourForPage('nonexistent-page');
-    assert.equal(unknown, null);
-  });
-
-  it('canViewMicroTour respects role keys', () => {
-    const produccion = getMicroTourForPage('produccion');
-    assert.ok(produccion);
-    
-    // org.admin can always view
+    assert.equal(getMicroTourForPage('nonexistent-page'), null);
     assert.equal(canViewMicroTour(produccion, ['org.admin']), true);
-    
-    // operations can view produccion
     assert.equal(canViewMicroTour(produccion, ['operations']), true);
-    
-    // finance.admin cannot view produccion
     assert.equal(canViewMicroTour(produccion, ['finance.admin']), false);
-    
-    // productos has no role restriction
-    const productos = getMicroTourForPage('productos');
-    assert.ok(productos);
-    assert.equal(canViewMicroTour(productos, ['any_role']), true);
+
+    const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
+    const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
+    assert.doesNotMatch(shell, /MicroTourCoach|getMicroTourForPage|PAGE_TOUR_ROUTES/);
+    assert.doesNotMatch(help, /sectionTours|Recorridos de sección|Continuar recorrido/);
   });
 
-  it('micro-tour copy is jargon-free and user-friendly', () => {
+  it('micro-tour copy remains jargon-free while retired from UI', () => {
     const allCopy: string[] = [];
     for (const tour of PAGE_MICRO_TOURS) {
       for (const step of tour.steps) {
@@ -574,10 +490,7 @@ describe('page micro-tours', () => {
       }
     }
     const combined = allCopy.join('\n');
-    
     assert.doesNotMatch(combined, /Gate\s+[A-Z]|finance\.operational|scope\b|auth\b/i);
-    assert.doesNotMatch(combined, /organizationId|organization_id|x-os-organization-id/);
-    assert.doesNotMatch(combined, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
   });
 });
 
@@ -653,32 +566,18 @@ describe('first-use intro copy', () => {
   });
 });
 
-describe('intro coach mobile behavior', () => {
-  it('intro coach component has proper mobile constraints', () => {
-    const coach = readFileSync(join(here, '../../components/walkthrough/intro-coach.tsx'), 'utf8');
-    
-    // Max height constraint to preserve product content
-    assert.match(coach, /max-h-\[min\(50vh/);
-    
-    // Collapse button for mobile
-    assert.match(coach, /Minimizar/);
-    
-    // z-index below header
-    assert.match(coach, /z-30/);
-    
-    // Bottom positioning
-    assert.match(coach, /fixed bottom-0/);
-  });
-
+describe('first-use welcome (no multi-step coach)', () => {
   it('intro welcome is not modal-trapping', () => {
     const welcome = readFileSync(join(here, '../../components/walkthrough/intro-welcome.tsx'), 'utf8');
-    
-    // aria-modal is false (not trapping)
     assert.match(welcome, /aria-modal="false"/);
-    
-    // Escape dismisses
     assert.match(welcome, /Escape/);
     assert.match(welcome, /skipIntro/);
+  });
+
+  it('shell mounts welcome only — no IntroCoach / MicroTourCoach', () => {
+    const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
+    assert.match(shell, /IntroWelcome/);
+    assert.doesNotMatch(shell, /IntroCoach|MicroTourCoach/);
   });
 });
 

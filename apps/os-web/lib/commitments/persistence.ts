@@ -5,11 +5,13 @@ import { revalidatePath } from 'next/cache';
 import { createOsApiClient, type CommitmentSummary } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type CommitmentPersistenceError =
   | 'session_expired'
   | 'api_error'
-  | 'network_error';
+  | 'network_error'
+  | 'view_as_blocked';
 
 export type CommitmentSaveResult =
   | { ok: true; persisted: true; commitmentId: string }
@@ -36,6 +38,11 @@ export async function saveCommitmentAction(input: {
   relatedSubjectId?: string | null;
   origin: 'employee_entered' | 'customer_reported';
 }): Promise<CommitmentSaveResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) {
+    return { ok: false, persisted: false, reason: 'view_as_blocked', message: previewGate.error };
+  }
+
   const auth = await getServerOsAuthContext();
   if (!auth) {
     return { ok: false, persisted: false, reason: 'session_expired' };
@@ -107,6 +114,11 @@ export async function listCommitmentsAction(query?: {
  * Fulfill a commitment via the OS API.
  */
 export async function fulfillCommitmentAction(commitmentId: string): Promise<CommitmentFulfillResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) {
+    return { ok: false, reason: 'view_as_blocked', message: previewGate.error };
+  }
+
   const auth = await getServerOsAuthContext();
   if (!auth) {
     return { ok: false, reason: 'session_expired' };

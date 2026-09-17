@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -17,8 +18,12 @@ import {
 } from 'lucide-react';
 import type { CapabilityStateReadModel } from '@isalwa/os-contracts';
 import { cx } from '@isalwa/ui';
+import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 import { useRolePreview } from '@/components/shell/role-preview-provider';
+import { withStoryDemoDatos } from '@/lib/demo/story-mode-steps';
 import { resolveShellNavSections } from '@/lib/capabilities/resolve-nav';
+import { buildClientEvaluationProjection } from '@/lib/role-preview/evaluation-projection-model';
+import { evaluationNavItemVisible } from '@/lib/role-preview/evaluation-resource-access';
 import { navItemLabel, type NavItem } from '@/lib/navigation/nav-config';
 import { navIconTone, navIconToneActive } from '@/lib/navigation/nav-icon-tone';
 import {
@@ -54,6 +59,11 @@ type AppNavProps = {
   onNavigate?: () => void;
 };
 
+function navLinkHref(href: string, demoMode: boolean): string {
+  if (!demoMode) return href;
+  return withStoryDemoDatos(href) ?? href;
+}
+
 function navHrefActive(pathname: string, search: string, href: string): boolean {
   const [path, query] = href.split('?');
   if (query) {
@@ -70,6 +80,7 @@ function NavLink({
   emphasized,
   collapsed,
   locked,
+  href,
   onNavigate,
 }: {
   item: NavItem;
@@ -78,6 +89,7 @@ function NavLink({
   emphasized: boolean;
   collapsed?: boolean;
   locked?: boolean;
+  href: string;
   onNavigate?: () => void;
 }) {
   const Icon = ICONS[item.icon];
@@ -118,7 +130,7 @@ function NavLink({
 
   return (
     <Link
-      href={item.href}
+      href={href}
       className={className}
       aria-current={active ? 'page' : undefined}
       aria-label={collapsed ? label : undefined}
@@ -162,10 +174,34 @@ export function AppNav({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
-  const { presentationScopes } = useRolePreview();
+  const { presentationScopes, active: evaluationActive, persona, subjectMemberId } =
+    useRolePreview();
+  const { dataMode } = useOwnerDemo();
+  const demoNav = dataMode === 'demo';
   const presentation: RoleNavPresentation = roleNavPresentation(presentationScopes);
   const emphasized = new Set(presentation.emphasizedIds);
   const sections = resolveShellNavSections({ showAdmin }, capabilities);
+  const evaluationProjection = useMemo(
+    () =>
+      buildClientEvaluationProjection({
+        active: evaluationActive,
+        persona,
+        subjectMemberId,
+      }),
+    [evaluationActive, persona, subjectMemberId],
+  );
+  const visibleSections = useMemo(
+    () =>
+      sections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) =>
+            evaluationNavItemVisible(evaluationProjection, item.id),
+          ),
+        }))
+        .filter((section) => section.items.length > 0),
+    [evaluationProjection, sections],
+  );
 
   return (
     <nav
@@ -176,7 +212,7 @@ export function AppNav({
       {!mobile && !collapsed && presentation.focusLabel ? (
         <p className="isalwa-kicker px-3.5">{presentation.focusLabel}</p>
       ) : null}
-      {sections.map((section) => (
+      {visibleSections.map((section) => (
         <div key={section.group} className="flex flex-col gap-1">
           {!collapsed ? (
             <p className="px-3.5 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
@@ -186,15 +222,17 @@ export function AppNav({
           {section.items.map((item) => {
             const defaultLabel = navItemLabel(item, t);
             const label = labelForNavItem(item.id, defaultLabel, presentation);
+            const href = navLinkHref(item.href, demoNav);
             return (
               <NavLink
                 key={item.id}
                 item={item}
+                href={href}
                 label={label}
                 emphasized={emphasized.has(item.id)}
                 locked={item.state === 'locked'}
                 collapsed={collapsed && !mobile}
-                active={navHrefActive(pathname, search, item.href)}
+                active={navHrefActive(pathname, search, href)}
                 onNavigate={onNavigate}
               />
             );

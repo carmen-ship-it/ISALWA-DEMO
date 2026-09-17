@@ -202,4 +202,32 @@ describe('role preview shell contract', () => {
     assert.match(actions, /assertRolePreviewAllowsMutation/);
     assert.match(actions, /createOrderAction/);
   });
+
+  it('commitments and postsale mutations gate via assertRolePreviewAllowsMutation', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const commitments = readFileSync(resolve(here, '../commitments/persistence.ts'), 'utf8');
+    const postsale = readFileSync(resolve(here, '../postsale/actions.ts'), 'utf8');
+    assert.match(commitments, /assertRolePreviewAllowsMutation/);
+    assert.match(commitments, /saveCommitmentAction/);
+    assert.match(commitments, /fulfillCommitmentAction/);
+    assert.match(postsale, /assertRolePreviewAllowsMutation/);
+    assert.match(postsale, /createPostSaleExpectedWorkAction/);
+    assert.match(postsale, /receiveFinishedGoodsAction/);
+  });
+
+  it('Pedido and Quote detail pages narrow View As via evaluationBlocksDirectParty', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const orderDetail = readFileSync(
+      resolve(here, '../../app/(app)/clientes/[partyId]/pedidos/[orderId]/page.tsx'),
+      'utf8',
+    );
+    const quoteDetail = readFileSync(
+      resolve(here, '../../app/(app)/clientes/[partyId]/cotizaciones/[quoteId]/page.tsx'),
+      'utf8',
+    );
+    assert.match(orderDetail, /getEvaluationProjection/);
+    assert.match(orderDetail, /evaluationBlocksDirectParty\(evaluation, order\.ownerMemberId\)/);
+    assert.match(quoteDetail, /getEvaluationProjection/);
+    assert.match(quoteDetail, /evaluationBlocksDirectParty\(evaluation, quote\.ownerMemberId\)/);
+  });
 });

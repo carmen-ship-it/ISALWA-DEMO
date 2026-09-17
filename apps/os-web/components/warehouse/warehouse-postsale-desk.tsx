@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useTransition, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from 'react';
 import {
   Button,
   FeedbackNote,
@@ -37,6 +37,7 @@ type WarehousePostSaleDeskProps = {
   canAllocate?: boolean;
   canReceive?: boolean;
   pedidos: readonly PostSalePedidoOption[];
+  initialOrderId?: string | null;
   onReceive?: (draft: ReceiveDraft) => Promise<{ ok: boolean; error?: string }>;
 };
 
@@ -51,9 +52,10 @@ export function WarehousePostSaleDesk({
   canAllocate = false,
   canReceive = false,
   pedidos,
+  initialOrderId = null,
   onReceive,
 }: WarehousePostSaleDeskProps) {
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(initialOrderId?.trim() || null);
   const [orderLineId, setOrderLineId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState('');
   const [note, setNote] = useState('');
@@ -62,6 +64,14 @@ export function WarehousePostSaleDesk({
   );
   const [pending, startTransition] = useTransition();
   const attemptKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const target = initialOrderId?.trim();
+    if (!target) return;
+    if (pedidos.some((row) => row.orderId === target)) {
+      setOrderId(target);
+    }
+  }, [initialOrderId, pedidos]);
 
   const pedido = useMemo(
     () => pedidos.find((row) => row.orderId === orderId) ?? null,

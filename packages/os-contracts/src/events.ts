@@ -39,6 +39,7 @@ export const OS_FOUNDATION_EVENT_TYPES = [
   'approval.requested',
   'approval.approved',
   'approval.rejected',
+  'approval.escalated',
   'opportunity.created',
   'opportunity.updated',
   'opportunity.stage_changed',

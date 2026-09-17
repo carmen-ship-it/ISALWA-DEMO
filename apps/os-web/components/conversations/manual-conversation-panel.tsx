@@ -5,6 +5,7 @@ import { Button, StatusPill } from '@isalwa/ui';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { SearchableSelect } from '@/components/experience/searchable-select';
 import { ServerPartyTypeahead } from '@/components/operating/server-party-typeahead';
+import { createCustomerConversationAction } from '@/lib/conversations/actions';
 import {
   MANUAL_CONVERSATION_COPY,
   MANUAL_CONVERSATION_ERRORS,
@@ -67,6 +68,7 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
   const [nextAction, setNextAction] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState<ManualCustomerConversation[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setOpportunityId('');
@@ -100,7 +102,7 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
     };
   }, [customerId]);
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!actor) {
       setError(MANUAL_CONVERSATION_COPY.sessionNeeded);
@@ -139,7 +141,14 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
       setError(MANUAL_CONVERSATION_ERRORS[admitted.reason]);
       return;
     }
+    setSubmitting(true);
     setError(null);
+    const persisted = await createCustomerConversationAction(admitted.record);
+    setSubmitting(false);
+    if (!persisted.ok) {
+      setError(persisted.error);
+      return;
+    }
     setRecords((current) => [admitted.record, ...current]);
     onRecorded?.(admitted.record);
     setSummary('');
@@ -366,8 +375,8 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
             className={fieldClass}
           />
         </div>
-        <Button type="submit" disabled={!actor || !customerId.trim()}>
-          {MANUAL_CONVERSATION_COPY.submit}
+        <Button type="submit" disabled={!actor || !customerId.trim() || submitting}>
+          {submitting ? 'Registrando…' : MANUAL_CONVERSATION_COPY.submit}
         </Button>
       </form>
     </section>

@@ -26,6 +26,8 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 type ClientesPageProps = {
   searchParams: Promise<PartySearchParams & { panel?: string | string[]; datos?: string | string[] }>;
@@ -38,6 +40,9 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'commercial')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Clientes" />;
+  }
 
   const client = createOsApiClient(auth);
   const q = listQuery.q;
