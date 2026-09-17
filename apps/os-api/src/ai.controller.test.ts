@@ -227,6 +227,11 @@ describe('AiController assist', () => {
     assert.match(result.summary, /Retraso/);
     assert.equal(result.modelCalled, false);
     assert.ok(result.evidenceRefs.some((ref) => ref.type === 'issue' && ref.id === 'issue-1'));
+    assert.ok(result.certainty);
+    assert.ok(result.certainty.pendienteDeConfirmar.some((line) => /Retraso/.test(line)));
+    assert.ok(result.certainty.fuentes.some((f) => f.href === '/incidencias/issue-1'));
+    assert.match(result.certainty.aQuienPreguntar, /Aún no hay una persona responsable/);
+    assert.match(result.certainty.recomendacion, /./);
   });
 
   it('rejects client-supplied model names', async () => {
@@ -256,20 +261,32 @@ describe('AiController assist', () => {
     const provider = new TrackingAiProvider();
     const controller = new AiController({} as never, {} as never, {} as never);
     controller.replaceAiProviderForTest(provider);
-    await assert.rejects(
-      () =>
-        controller.assist(request(), {
-          feature: 'approve',
-          subjectType: 'issue',
-          subjectId: 'issue-1',
-        }),
-      (err: unknown) => {
-        assert.ok(err instanceof HttpException);
-        assert.equal(err.getStatus(), 403);
-        assert.deepEqual(err.getResponse(), { code: 'AI_INTENT_DENIED' });
-        return true;
-      },
-    );
+    const denied = [
+      'approve',
+      'convert',
+      'create_order',
+      'send_whatsapp',
+      'move_stock',
+      'confirm_payment',
+      'register_delivery',
+      'change_access',
+    ] as const;
+    for (const feature of denied) {
+      await assert.rejects(
+        () =>
+          controller.assist(request(), {
+            feature,
+            subjectType: 'issue',
+            subjectId: 'issue-1',
+          }),
+        (err: unknown) => {
+          assert.ok(err instanceof HttpException);
+          assert.equal(err.getStatus(), 403);
+          assert.deepEqual(err.getResponse(), { code: 'AI_INTENT_DENIED' });
+          return true;
+        },
+      );
+    }
     assert.equal(provider.calls, 0);
   });
 

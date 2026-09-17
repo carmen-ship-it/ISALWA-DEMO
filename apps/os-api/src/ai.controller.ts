@@ -41,6 +41,11 @@ import {
   assertAiProviderGatewayReady,
   resolveAiProviderGatewayState,
 } from './ai/ai-provider-gateway';
+import {
+  factsFromAssistPacket,
+  shapeConversationContextAnswer,
+  type AiCertaintyAnswer,
+} from './ai/conversation-context-adapter';
 
 type AssistBody = {
   feature?: string;
@@ -59,6 +64,11 @@ export type AiAssistResponse = {
   evidenceRefs: Array<{ type: 'issue' | 'journal_entry' | 'commitment'; id: string }>;
   modelCalled: boolean;
   truncated?: boolean;
+  /**
+   * Certainty-shaped answer for client / pedido / conversation asks (CT3 §60).
+   * Buckets are deterministic from authorized evidence — not model probability.
+   */
+  certainty: AiCertaintyAnswer;
 };
 
 const governance = resolveAiGovernanceConfig();
@@ -278,6 +288,21 @@ export class AiController {
         },
       );
 
+      const partyId = subjectType === 'party' ? subjectId : null;
+      const certainty = shapeConversationContextAnswer({
+        actorOrganizationId: session.organizationId,
+        subjectType,
+        subjectId,
+        facts: factsFromAssistPacket({
+          organizationId: session.organizationId,
+          facts: packet.facts,
+          evidenceRefs: packet.evidenceRefs,
+          partyId,
+        }),
+        recommendation: result.suggestion,
+        responsible: null,
+      });
+
       return {
         summary: result.summary,
         suggestion: result.suggestion,
@@ -285,6 +310,7 @@ export class AiController {
         evidenceRefs: result.evidenceRefs,
         modelCalled: result.modelCalled,
         truncated: packet.truncated,
+        certainty,
       };
     } catch (err) {
       if (organizationId && memberId) {

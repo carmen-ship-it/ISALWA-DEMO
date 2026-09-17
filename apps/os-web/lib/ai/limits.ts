@@ -16,7 +16,18 @@ export const AI_ALLOWED_INTENTS = [
   'summarize_commitments',
 ] as const;
 
-export const AI_DENIED_INTENTS = ['approve', 'convert', 'reassign', 'send'] as const;
+export const AI_DENIED_INTENTS = [
+  'approve',
+  'convert',
+  'reassign',
+  'send',
+  'send_whatsapp',
+  'create_order',
+  'confirm_payment',
+  'register_delivery',
+  'move_stock',
+  'change_access',
+] as const;
 
 export const AI_UNAVAILABLE_COPY = 'La ayuda con IA no está disponible en este momento.';
 
@@ -115,7 +126,7 @@ export function assertAiAllowed(input: AiAllowanceInput): AiAllowance {
   if (!ALLOWED.has(input.intent)) {
     throw new AiNotAllowedError(
       'intent_denied',
-      'La IA no puede ejecutar esa acción. Solo puede resumir un cliente, resumir compromisos, responder una pregunta o redactar un seguimiento. No aprueba, no convierte, no reasigna y no envía.',
+      'La IA no puede ejecutar esa acción. Solo puede resumir un cliente, resumir compromisos, responder una pregunta o redactar un seguimiento. No aprueba, no convierte, no crea pedidos, no envía WhatsApp, no mueve stock, no confirma pagos, no registra entregas ni cambia accesos.',
     );
   }
 
