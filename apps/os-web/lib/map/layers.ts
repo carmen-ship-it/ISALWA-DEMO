@@ -36,8 +36,8 @@ export const MAP_LAYER_REGISTRY: readonly MapLayerDefinition[] = [
   {
     id: 'atencion',
     label: 'Atención',
-    truthClass: 'future',
-    note: 'Próximamente. La atención de Inicio no filtra el mapa por cliente todavía.',
+    truthClass: 'available',
+    note: 'Clientes con atención determinística (trabajo vencido o ítem de atención activo).',
   },
   {
     id: 'oportunidades',
@@ -49,13 +49,15 @@ export const MAP_LAYER_REGISTRY: readonly MapLayerDefinition[] = [
     id: 'cotizaciones',
     label: 'Cotizaciones',
     truthClass: 'available',
-    note: 'Clientes con cotización canónica. El valor cotizado no es ingreso.',
+    note:
+      'Filtro por clientes con cotización (conteo). Valor cotizado aparece en hover/ficha — no es ingreso.',
   },
   {
     id: 'pedidos',
     label: 'Pedidos',
     truthClass: 'available',
-    note: 'Clientes con pedido canónico. El valor del pedido no es cobranza.',
+    note:
+      'Filtro por clientes con pedido (conteo). Valor de pedidos aparece en hover/ficha — no es ingreso ni cobranza.',
   },
   {
     id: 'ingresos',

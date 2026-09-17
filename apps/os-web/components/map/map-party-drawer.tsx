@@ -12,6 +12,9 @@ type MapPartyDrawerProps = {
   ownerLabel: string | null;
   listQuery: ListQueryState;
   commercial: MapPartyCommercialSnapshot | null;
+  nextActionLabel?: string | null;
+  issueCount?: number | null;
+  lastUpdatedIso?: string | null;
 };
 
 /**
@@ -23,6 +26,9 @@ export function MapPartyDrawer({
   ownerLabel,
   listQuery,
   commercial,
+  nextActionLabel = null,
+  issueCount = null,
+  lastUpdatedIso = null,
 }: MapPartyDrawerProps) {
   return (
     <QuickViewHost open={open} title={row.displayName} listPath="/mapa" listQuery={listQuery}>
@@ -32,6 +38,9 @@ export function MapPartyDrawer({
         onCloseHref=""
         commercial={commercial}
         variant="drawer"
+        nextActionLabel={nextActionLabel}
+        issueCount={issueCount}
+        lastUpdatedIso={lastUpdatedIso}
       />
     </QuickViewHost>
   );

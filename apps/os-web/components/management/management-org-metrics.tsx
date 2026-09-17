@@ -51,14 +51,31 @@ export function ManagementOrgMetrics({
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => {
-          const value = card.secondary ?? card.count ?? '—';
           const body = (
             <MetricCard
               interactive={Boolean(card.href)}
               label={card.label}
-              value={value}
+              value={card.value}
               hint={card.tooltip}
               className="h-full"
+              footer={
+                <div className="mt-2 space-y-0.5">
+                  <p className="text-[10px] font-medium tracking-wide text-[var(--isalwa-slate)] uppercase">
+                    {card.periodLabel}
+                  </p>
+                  {card.trend?.label ? (
+                    <p
+                      className="text-xs text-[var(--isalwa-slate)]"
+                      data-metric-trend={card.id}
+                    >
+                      {card.trend.label}
+                    </p>
+                  ) : null}
+                  {card.secondary ? (
+                    <p className="text-xs text-[var(--isalwa-slate)]">{card.secondary}</p>
+                  ) : null}
+                </div>
+              }
             />
           );
           return card.href ? (

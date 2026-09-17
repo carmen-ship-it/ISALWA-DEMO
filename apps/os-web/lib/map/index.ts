@@ -19,10 +19,12 @@ export {
 } from './commercial-lens';
 
 export { isAuthoritativeRevenueLayerEnabled, AUTHORITATIVE_REVENUE_LAYER_NOTE } from './authoritative-revenue';
-export { partyMapLocationHref, pendingLocationCta } from './pending-location';
-export type { PendingLocationCta } from './pending-location';
+export { partyMapLocationHref, pendingLocationCta, pendingLocationCardCopy } from './pending-location';
+export type { PendingLocationCta, PendingLocationCardCopy } from './pending-location';
 export type {
   MapCommercialLensInput,
   MapCommercialPortfolio,
   MapPartyCommercialSnapshot,
 } from './commercial-lens';
+export { buildMapHoverSnapshot } from './hover-model';
+export type { MapHoverSnapshot, MapHoverStatusTone } from './hover-model';

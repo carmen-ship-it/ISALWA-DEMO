@@ -17,6 +17,7 @@ import {
   type MapCommercialPortfolio,
   type MapPartyCommercialSnapshot,
 } from '@/lib/map/commercial-lens';
+import type { MapHoverSnapshot } from '@/lib/map/hover-model';
 import { DEFAULT_MAP_LAYER, type MapLayerId } from '@/lib/map/layers';
 import { isLiveMapProvider, type MapProviderStatus } from '@/lib/map/provider-status';
 import { hrefWithoutPanel, panelHref, type ListQueryState } from '@/lib/lists/url-state';
@@ -31,6 +32,12 @@ type MapExperienceProps = {
   memberLabels?: ReadonlyMap<string, string>;
   portfolio: MapCommercialPortfolio;
   selectedCommercial: MapPartyCommercialSnapshot | null;
+  /** Plain record — serializable across the server→client boundary. */
+  hoverByPartyId: Readonly<Record<string, MapHoverSnapshot>>;
+  attentionPartyIds: readonly string[];
+  selectedNextAction?: string | null;
+  selectedIssueCount?: number | null;
+  selectedLastUpdatedIso?: string | null;
 };
 
 type MobilePane = 'map' | 'list';
@@ -38,10 +45,12 @@ type MobilePane = 'map' | 'list';
 function partyFilterForLayer(
   layer: MapLayerId,
   portfolio: MapCommercialPortfolio,
+  attentionPartyIds: readonly string[],
 ): ReadonlySet<string> | null {
   if (layer === 'oportunidades') return portfolio.partyIdsWithOpportunities;
   if (layer === 'cotizaciones') return portfolio.partyIdsWithQuotes;
   if (layer === 'pedidos') return portfolio.partyIdsWithOrders;
+  if (layer === 'atencion') return new Set(attentionPartyIds);
   return null;
 }
 
@@ -55,13 +64,21 @@ export function MapExperience({
   memberLabels,
   portfolio,
   selectedCommercial,
+  hoverByPartyId,
+  attentionPartyIds,
+  selectedNextAction = null,
+  selectedIssueCount = null,
+  selectedLastUpdatedIso = null,
 }: MapExperienceProps) {
   const router = useRouter();
   const [layer, setLayer] = useState<MapLayerId>(DEFAULT_MAP_LAYER);
   const [mobilePane, setMobilePane] = useState<MobilePane>(selectedPartyId ? 'list' : 'map');
   const [query, setQuery] = useState(listQuery.q ?? '');
 
-  const layerPartyIds = useMemo(() => partyFilterForLayer(layer, portfolio), [layer, portfolio]);
+  const layerPartyIds = useMemo(
+    () => partyFilterForLayer(layer, portfolio, attentionPartyIds),
+    [layer, portfolio, attentionPartyIds],
+  );
 
   const filteredModel = useMemo(() => {
     if (!layerPartyIds) return model;
@@ -111,6 +128,9 @@ export function MapExperience({
             ownerLabel={ownerLabel}
             listQuery={listQuery}
             commercial={selectedCommercial}
+            nextActionLabel={selectedNextAction}
+            issueCount={selectedIssueCount}
+            lastUpdatedIso={selectedLastUpdatedIso}
           />
         </div>
       ) : null}
@@ -178,6 +198,7 @@ export function MapExperience({
               total={model.coverage.total}
               selectedPartyId={selectedPartyId}
               onSelectPartyId={handleSelectParty}
+              hoverByPartyId={hoverByPartyId}
             />
           ) : (
             <MapCanvasFallback
@@ -196,6 +217,9 @@ export function MapExperience({
                 ownerLabel={ownerLabel}
                 onCloseHref={hrefWithoutPanel('/mapa', listQuery)}
                 commercial={selectedCommercial}
+                nextActionLabel={selectedNextAction}
+                issueCount={selectedIssueCount}
+                lastUpdatedIso={selectedLastUpdatedIso}
               />
             </div>
           ) : null}

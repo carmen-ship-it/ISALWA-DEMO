@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import type { AttentionItemReadModel, WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { MapConfirmedMarker } from '@/components/map/map-live-canvas';
 import { MapExperience } from '@/components/map/map-experience';
 import { PageHeader } from '@/components/shell/page-header';
@@ -11,6 +12,7 @@ import {
   buildMapCommercialPortfolio,
   buildMapPartyCommercialSnapshot,
 } from '@/lib/map/commercial-lens';
+import { buildMapHoverSnapshot, type MapHoverSnapshot } from '@/lib/map/hover-model';
 import {
   readMapProviderEnv,
   resolveMapProviderStatus,
@@ -19,6 +21,7 @@ import {
 import { t } from '@/lib/i18n/es';
 import type { LocationView } from '@/lib/party/types';
 import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries } from '@/lib/party/data-health';
+import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 
 type MapaPageProps = {
@@ -87,6 +90,24 @@ async function loadCommercialLens(client: ReturnType<typeof createOsApiClient>) 
   }
 }
 
+function collectAttentionPartyIds(
+  attention: readonly AttentionItemReadModel[],
+  overdueWork: readonly WorkSummaryReadModel[],
+): Set<string> {
+  const ids = new Set<string>();
+  for (const row of attention) {
+    if (row.isActive && row.subjectType === 'party' && row.subjectId) {
+      ids.add(row.subjectId);
+    }
+  }
+  for (const row of overdueWork) {
+    if (row.status === 'open' && row.subjectType === 'party' && row.subjectId) {
+      ids.add(row.subjectId);
+    }
+  }
+  return ids;
+}
+
 export default async function MapaPage({ searchParams }: MapaPageProps) {
   const params = await searchParams;
   const listQuery = parseListQuery(params);
@@ -101,7 +122,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const mapEnv = readMapProviderEnv();
   const provider = resolveMapProviderStatus(mapEnv);
   const viewConfig = resolveMapViewConfig(mapEnv);
-  const [markers, commercialInput] = await Promise.all([
+  const [markers, commercialInput, attentionResult, overdueResult, issuesResult] = await Promise.all([
     provider.kind === 'live'
       ? loadConfirmedMarkers(
           client,
@@ -109,7 +130,16 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         )
       : Promise.resolve([] as MapConfirmedMarker[]),
     loadCommercialLens(client),
+    client.listAttention({ activeOnly: true, limit: 100 }).catch(() => ({ items: [] as AttentionItemReadModel[] })),
+    client
+      .listWorkItems({ status: 'open', overdue: true, limit: 100 })
+      .catch(() => ({ items: [] as WorkSummaryReadModel[] })),
+    client.listIssues({ status: 'open', limit: 100 }).catch(() => ({ items: [] as IssueListItem[] })),
   ]);
+
+  const attentionItems = attentionResult.items ?? [];
+  const overdueWork = overdueResult.items ?? [];
+  const attentionPartyIds = collectAttentionPartyIds(attentionItems, overdueWork);
   const portfolio = buildMapCommercialPortfolio(commercialInput);
   const selectedCommercial = selectedPartyId
     ? buildMapPartyCommercialSnapshot(selectedPartyId, commercialInput)
@@ -121,6 +151,32 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     .filter((id): id is string => Boolean(id));
   const memberLabels =
     ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
+
+  const hoverByPartyId = new Map<string, MapHoverSnapshot>();
+  for (const row of model.all) {
+    const ownerLabel =
+      row.commercialOwnerMemberId && memberLabels
+        ? (memberLabels.get(row.commercialOwnerMemberId) ?? null)
+        : null;
+    hoverByPartyId.set(
+      row.partyId,
+      buildMapHoverSnapshot({
+        row,
+        ownerLabel,
+        commercial: buildMapPartyCommercialSnapshot(row.partyId, commercialInput),
+        attention: attentionItems,
+        overdueWork,
+      }),
+    );
+  }
+
+  const selectedHover = selectedPartyId ? hoverByPartyId.get(selectedPartyId) ?? null : null;
+  const issueItems = Array.isArray(issuesResult?.items) ? issuesResult.items : [];
+  const selectedIssueCount = selectedPartyId
+    ? issueItems.filter((item) =>
+        item.references.some((ref) => ref.referenceType === 'party' && ref.referenceId === selectedPartyId),
+      ).length
+    : null;
 
   return (
     <PageContainer
@@ -150,6 +206,11 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         memberLabels={memberLabels}
         portfolio={portfolio}
         selectedCommercial={selectedCommercial}
+        hoverByPartyId={hoverByPartyId}
+        attentionPartyIds={attentionPartyIds}
+        selectedNextAction={selectedHover?.nextAttention ?? null}
+        selectedIssueCount={selectedIssueCount}
+        selectedLastUpdatedIso={null}
       />
 
       <PageSection className="mt-8" aria-label="Salud de datos">

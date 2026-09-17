@@ -66,7 +66,7 @@ function CustomerRow({
             {[
               owner ? `Resp. ${owner}` : null,
               row.primaryPhone,
-              row.hasCoordinates ? 'Con coordenadas' : row.hasProvenance ? 'Coordenadas pendientes' : null,
+              row.hasCoordinates ? 'Ubicación confirmada' : row.hasProvenance ? 'Ubicación por confirmar' : null,
             ]
               .filter(Boolean)
               .join(' · ') || 'Sin teléfono ni responsable en esta lectura'}

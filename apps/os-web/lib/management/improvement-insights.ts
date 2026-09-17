@@ -13,6 +13,10 @@ export type ImprovementInsightInput = {
   overdueFollowUps: readonly WorkSummaryReadModel[];
   pendingQuoteApprovals: number;
   clientsMissingLocation: number | null;
+  /** Warehouse exits without a recorded delivery — only when factually counted */
+  exitsWithoutDelivery: number | null;
+  /** Records awaiting human confirmation — only when factually counted */
+  pendingConfirmations: number | null;
 };
 
 function quoteIdsWithOpenFollowUp(work: readonly WorkSummaryReadModel[]): Set<string> {
