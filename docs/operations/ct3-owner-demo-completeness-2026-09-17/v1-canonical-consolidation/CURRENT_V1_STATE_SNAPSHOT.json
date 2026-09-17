@@ -1,9 +1,11 @@
 {
-  "snapshotAt": "2026-09-17T12:45:00Z",
+  "snapshotAt": "2026-09-17T13:05:00Z",
   "branch": "ct3/owner-demo-completeness",
-  "localHeadPreIntegration": "5032e6c017de10514212487662f25191bc6ac0dd",
-  "remoteHeadPreIntegration": "5032e6c017de10514212487662f25191bc6ac0dd",
-  "dirtyTreePreCommit": true,
+  "localHead": "f5a3d92",
+  "localHeadFull": "pending-resolve",
+  "remoteHead": "5032e6c017de10514212487662f25191bc6ac0dd",
+  "localAheadOfRemote": 2,
+  "dirtyTree": false,
   "v1OwnerReviewRcSha": null,
   "readyToCutRc": false,
   "web": {
@@ -24,7 +26,7 @@
   "schemaDriftUnknown": true,
   "synth": {
     "orgId": "01M2JKF77TXMJNDTKNCYNHH9G5",
-    "seedVersionNote": "owner-demo densify; seededAt refreshed 62cb866",
+    "seededAt": "2026-09-17T12:04:20.677Z",
     "realSevenMutated": false
   },
   "real": {
@@ -37,17 +39,24 @@
   "localOnlyCapabilities": [
     "view_as_evaluation_projection",
     "view_as_asesor_subject_picker",
-    "view_as_mutation_gate_commercial_work",
-    "oportunidades_cotizaciones_list_narrowing",
+    "view_as_mutation_gate_commercial_work_party_delivery_issue",
+    "oportunidades_cotizaciones_clientes_trabajo_list_narrowing",
     "v1_convert_own_coverage_deny",
     "carmen_synth_full_business_eval_scopes"
   ],
+  "committedNotDeployed": [
+    "a225dfa",
+    "62cb866",
+    "5032e6c",
+    "2a4c969",
+    "f5a3d92"
+  ],
   "rcPrerequisites": [
-    "view_as_narrowing_remaining_surfaces",
-    "mutation_gate_remaining_action_modules",
+    "view_as_narrowing_map_search_conversations_ops_ai",
+    "push_integrated_branch_when_rc_ready",
     "local_build_green",
     "security_negative_tests_green",
     "capability_ledger_reconciled",
-    "no_unexplained_dirty_implementation_files"
+    "single_coordinated_web_api_deploy"
   ]
 }
