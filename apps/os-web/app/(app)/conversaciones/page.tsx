@@ -8,6 +8,8 @@ import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions'
 import { listRegisteredConversationFixtures } from '@/lib/conversations/adapters';
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import { ownerDemoConversationFixtures } from '@/lib/conversations/demo-fixtures';
+import { projectManualConversation } from '@/lib/conversations/project-manual';
+import type { Conversation } from '@/lib/conversations/model';
 import seededIds from '@/lib/demo/seeded-ids.json';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
@@ -23,6 +25,7 @@ export default async function ConversacionesPage({
 
   let actor: ManualConversationActor | null = null;
   let organizationId = '';
+  let durableRows: Conversation[] = [];
 
   try {
     const client = createOsApiClient(auth);
@@ -33,6 +36,12 @@ export default async function ConversacionesPage({
     const enteredByLabel = web?.displayLabel?.trim() || 'Alguien de la empresa';
     if (organizationId && memberId && session.accessStatus === 'active') {
       actor = { organizationId, memberId, enteredByLabel };
+    }
+    try {
+      const listed = await client.listCustomerConversations();
+      durableRows = (listed.items ?? []).map(projectManualConversation);
+    } catch {
+      // API may be unavailable; fall back below.
     }
   } catch {
     // Session-bound page still renders; register form needs an active actor.
@@ -56,13 +65,15 @@ export default async function ConversacionesPage({
     })
     .filter((row): row is NonNullable<typeof row> => row != null);
 
+  // Prefer durable domain rows. JSON fixtures only fill gaps when Demo and no durable rows yet.
   const demoFixtures =
-    dataMode === 'demo' && organizationId
+    dataMode === 'demo' && organizationId && durableRows.length === 0
       ? ownerDemoConversationFixtures(organizationId, seededClients)
       : [];
 
   const initialConversations = organizationId
     ? [
+        ...durableRows,
         ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
         ...demoFixtures,
       ]

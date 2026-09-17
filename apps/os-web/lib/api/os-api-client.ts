@@ -362,6 +362,14 @@ export function createOsApiClient(auth: OsAuthContext) {
       request<OrderListResponse>('/orders', { method: 'GET', query }),
     getOrder: (orderId: string) =>
       request<OrderDetailResponse>(`/orders/${encodeURIComponent(orderId)}`),
+    listCustomerConversations: (query?: { partyId?: string }) =>
+      request<{ items: import('@isalwa/os-contracts').ManualCustomerConversation[] }>(
+        '/customer-conversations',
+        {
+          method: 'GET',
+          query: query?.partyId ? { partyId: query.partyId } : undefined,
+        },
+      ),
     listWarehouseExits: (query?: Record<string, string | number | boolean>) =>
       request<{
         sourceState: string;

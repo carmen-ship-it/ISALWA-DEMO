@@ -59,6 +59,7 @@ export type SubjectApprovalItem = {
   status: string;
   decisionReason: string | null;
   decidedAt: string | null;
+  decisionByMemberId?: string | null;
   canDecide: boolean;
 };
 

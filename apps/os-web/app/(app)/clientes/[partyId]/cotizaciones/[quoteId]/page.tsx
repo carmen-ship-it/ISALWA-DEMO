@@ -30,12 +30,13 @@ import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
 import { formatCentavos } from '@/lib/commercial/money';
 import { lineProvenanceView } from '@/lib/commercial/product-picker';
 import { clienteSectionHref, opportunityHref, orderHref } from '@/lib/commercial/navigation';
-import { quoteNextStep } from '@/lib/commercial/next-step';
+import { latestQuoteApprovalDecision, quoteNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { partyHref } from '@/lib/party/navigation';
 import { offerAfterQuoteSent } from '@/lib/work/event-work-offer';
-import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { memberLabel, resolveMemberLabels, resolveMemberResponsibilityLabels } from '@/lib/work/member-resolver';
+import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type QuoteDetailPageProps = {
@@ -76,17 +77,29 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       quote.status === 'accepted' ? await client.listOrders({ quoteId: quote.quoteId, partyId, limit: 5 }) : null;
     const relatedOrder = relatedOrders?.items[0] ?? null;
     let approvalMemberLabels = new Map<string, string>();
+    let approvalResponsibility = new Map<
+      string,
+      { displayName: string; businessRoleLabel: string | null }
+    >();
     let approvals: SubjectApprovalItem[] = [];
     if (quote.status === 'submitted' || quote.status === 'accepted') {
       try {
         const history = await client.listSubjectApprovals('quote', quote.quoteId);
         approvals = history.items as SubjectApprovalItem[];
         const ids = [
-          ...new Set(approvals.flatMap((row) => [row.approverMemberId, row.requestedByMemberId].filter(Boolean))),
+          ...new Set(
+            approvals.flatMap((row) =>
+              [row.approverMemberId, row.requestedByMemberId, row.decisionByMemberId ?? ''].filter(Boolean),
+            ),
+          ),
         ] as string[];
-        approvalMemberLabels = await resolveMemberLabels(client, ids);
+        approvalResponsibility = await resolveMemberResponsibilityLabels(client, ids);
+        approvalMemberLabels = new Map(
+          [...approvalResponsibility.entries()].map(([id, row]) => [id, row.displayName]),
+        );
       } catch {
         approvalMemberLabels = new Map();
+        approvalResponsibility = new Map();
         approvals = [];
       }
     }
@@ -107,7 +120,25 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     }
 
     const lines = [...quote.lines].sort((a, b) => a.lineNumber - b.lineNumber);
-    const hasPendingApproval = approvals.some((row) => row.status === 'pending');
+    const pendingApproval = approvals.find((row) => row.status === 'pending') ?? null;
+    const hasPendingApproval = Boolean(pendingApproval);
+    const latestApprovalDecision = latestQuoteApprovalDecision(approvals);
+    const pendingResponsibility = pendingApproval
+      ? approvalResponsibilityView({
+          status: 'pending',
+          approvalRequestId: pendingApproval.approvalRequestId,
+          approver: {
+            memberId: pendingApproval.approverMemberId,
+            displayName:
+              approvalResponsibility.get(pendingApproval.approverMemberId)?.displayName ?? null,
+            businessRoleLabel:
+              approvalResponsibility.get(pendingApproval.approverMemberId)?.businessRoleLabel ??
+              null,
+          },
+          requesterDisplayName:
+            approvalResponsibility.get(pendingApproval.requestedByMemberId)?.displayName ?? null,
+        })
+      : null;
     const followUpAllowed = canRegisterQuoteFollowUp(quote.status);
     const manualSendAllowed = canRecordQuoteManualSend(quote.status) && !sendRecord;
     const quoteWorkOffer = offerAfterQuoteSent({
@@ -125,6 +156,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       hasPendingApproval,
       canRegisterFollowUp: followUpAllowed,
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
+      latestApprovalDecision,
+      pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
+      pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
     });
     const pathCrumbs = [
       { label: customerName, href: partyHref(partyId) },
@@ -411,6 +445,14 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 subjectId={quote.quoteId}
                 canRequest={authority?.canRequestApproval === true}
                 memberLabels={approvalMemberLabels}
+                memberRoleLabels={
+                  new Map(
+                    [...approvalResponsibility.entries()].map(([id, row]) => [
+                      id,
+                      row.businessRoleLabel,
+                    ]),
+                  )
+                }
                 approvals={approvals}
               />
             </div>
