@@ -2,9 +2,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { createInternalNotification, markNotificationRead, resolveIfSourceConditionGone } from '@isalwa/os-contracts';
+import { overdueAttention, sampleAttention, approvalAttention } from '@/lib/work/fixtures';
 import { NOTIFICATION_COPY, notificationKindLabel, unreadCountLabel } from './copy';
+import { presentNotificationDrawer } from './drawer-view';
+import { dueSoonVisual, dueSoonLabel } from './due-soon';
 import { notificationRecordHref } from './links';
 import { notificationPersistence } from './persistence';
+import { partitionNotificationRows } from './partition';
+import { projectInboxFromAttention } from './project';
 import { countUnreadOpen, presentNotificationRows } from './view';
 
 const createdAt = '2026-09-14T16:00:00.000Z';
@@ -48,8 +53,8 @@ describe('notification presentation', () => {
     ]);
     assert.equal(rows.length, 1);
     assert.equal(rows[0]?.href, '/clientes/p1');
-    assert.equal(rows[0]?.linkLabel, 'Ver cliente');
     assert.equal(rows[0]?.readLabel, 'Sin leer');
+    assert.equal(rows[0]?.ctaLabel, 'Ver cliente');
   });
 
   it('counts only unread open notices and does not mark read as saved', async () => {
@@ -68,7 +73,8 @@ describe('notification presentation', () => {
     assert.equal(unreadCountLabel(1), '1 sin leer');
     assert.equal(notificationKindLabel('commitment_overdue'), 'Compromiso vencido');
     assert.match(NOTIFICATION_COPY.notStored, /correo/);
-    assert.match(NOTIFICATION_COPY.notStored, /teléfono/);
+    assert.match(NOTIFICATION_COPY.inProductOnly, /WhatsApp/);
+    assert.match(NOTIFICATION_COPY.readDoesNotCompleteWork, /no completa el trabajo/i);
 
     const marked = await notificationPersistence().markRead('open', createdAt);
     assert.deepEqual(marked, { ok: false, persisted: false, reason: 'schema_not_available' });
@@ -78,5 +84,45 @@ describe('notification presentation', () => {
   it('does not reach a provider or prisma', () => {
     const source = readFileSync(new URL('./persistence.ts', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /prisma|sendgrid|fcm|web-push|smtp/i);
+  });
+});
+
+describe('notification projection', () => {
+  it('projects Attention rows without inventing external delivery', () => {
+    const inbox = projectInboxFromAttention({
+      organizationId: 'org-1',
+      recipientMemberId: 'mem-owner',
+      attention: [
+        sampleAttention,
+        overdueAttention,
+        { ...approvalAttention, memberId: 'mem-owner' },
+      ],
+      asOf: new Date('2026-09-16T18:00:00.000Z'),
+    });
+    assert.ok(inbox.length >= 2);
+    assert.equal(inbox.every((n) => n.channel === 'internal'), true);
+    const approval = inbox.find((n) => n.kind === 'approval_assigned');
+    assert.ok(approval);
+    assert.equal(approval?.source.recordType, 'approval_request');
+  });
+
+  it('partitions nuevas vs anteriores and drawer view keeps read≠complete copy implicit', () => {
+    const open = notice('n1', { recordType: 'work_item', recordId: 'w1', partyId: null });
+    const read = markNotificationRead(open, createdAt);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const parts = partitionNotificationRows([open, read.notification]);
+    assert.equal(parts.nuevas.length, 1);
+    assert.equal(parts.anteriores.length, 1);
+    const drawer = presentNotificationDrawer([open, read.notification], {
+      nowMs: Date.parse('2026-09-16T20:00:00.000Z'),
+    });
+    assert.equal(drawer.unreadCount, 1);
+  });
+
+  it('derives due-soon labels from dueAt only', () => {
+    const asOf = new Date('2026-09-16T18:00:00.000Z');
+    assert.equal(dueSoonVisual('2026-09-16T19:30:00.000Z', asOf), 'due_soon_urgent');
+    assert.equal(dueSoonLabel('due_soon'), 'Vence pronto');
   });
 });

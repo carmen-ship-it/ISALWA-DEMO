@@ -60,3 +60,12 @@ export {
 export type { KeyValueStore } from './persistence';
 export { TOUR_TARGET, TOUR_TARGET_IDS } from './targets';
 export type { TourTargetId } from './targets';
+export { ROLE_QUICKSTARTS, quickstartForRole, type RoleQuickstart, type RoleQuickstartId } from './quickstart';
+export {
+  CONTEXTUAL_MICRO_TIPS,
+  microTipForTrigger,
+  microTipStorageKey,
+  MICRO_TIP_STORAGE_PREFIX,
+  type ContextualMicroTip,
+  type MicroTipTrigger,
+} from './micro-tips';

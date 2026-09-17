@@ -1,14 +1,13 @@
 import { ListRow, StatusPill } from '@isalwa/ui';
-import type { InternalNotification } from '@isalwa/os-contracts';
+import type { NotificationRowView } from '@/lib/notifications/view';
 import { NOTIFICATION_COPY } from '@/lib/notifications/copy';
-import { presentNotificationRows } from '@/lib/notifications/view';
 
 type NotificationListProps = {
-  items: readonly InternalNotification[];
+  rows: readonly NotificationRowView[];
+  onMarkRead?: (notificationId: string) => void;
 };
 
-export function NotificationList({ items }: NotificationListProps) {
-  const rows = presentNotificationRows(items);
+export function NotificationList({ rows, onMarkRead }: NotificationListProps) {
   if (rows.length === 0) return null;
   return (
     <ul className="min-w-0" aria-label="Avisos">
@@ -17,17 +16,32 @@ export function NotificationList({ items }: NotificationListProps) {
           <div className="min-w-0">
             <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.title}</p>
             {row.body ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.body}</p> : null}
-            <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.kindLabel}</p>
-            <a href={row.href} className="mt-2 inline-block text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-              {row.linkLabel}
+            <p className="mt-1 text-xs uppercase tracking-[0.08em] text-[var(--isalwa-slate)]">{row.kindLabel}</p>
+            <a
+              href={row.href}
+              className="mt-2 inline-block text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+            >
+              {row.ctaLabel}
             </a>
             {row.resolved ? (
               <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{NOTIFICATION_COPY.resolvedWhy}</p>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-col items-end gap-2">
+            {row.body?.includes('Vence pronto') || row.body?.includes('Vence ahora') ? (
+              <StatusPill tone={row.urgencyTone}>{row.body.split(' · ')[0]}</StatusPill>
+            ) : null}
             <StatusPill tone={row.readTone}>{row.readLabel}</StatusPill>
             {row.resolved ? <StatusPill tone="success">{NOTIFICATION_COPY.resolved}</StatusPill> : null}
+            {onMarkRead && row.readState === 'unread' && !row.resolved ? (
+              <button
+                type="button"
+                className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                onClick={() => onMarkRead(row.id)}
+              >
+                {NOTIFICATION_COPY.markRead}
+              </button>
+            ) : null}
           </div>
         </ListRow>
       ))}
