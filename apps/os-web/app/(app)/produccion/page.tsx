@@ -15,6 +15,7 @@ import { createPostSaleExpectedWorkAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
@@ -96,8 +97,10 @@ async function loadProductionDeskData(): Promise<{
     }
     const caps = await loadMemberCapabilities();
     const client = createOsApiClient(auth);
+    const dataMode = await resolveDemoDataMode({});
     const pedidos = await loadPostSalePedidos(client, {
       organizationId: caps?.organizationId ?? null,
+      dataMode,
     });
 
     let workItems: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];

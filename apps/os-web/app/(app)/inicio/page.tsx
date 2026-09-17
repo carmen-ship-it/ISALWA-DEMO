@@ -62,6 +62,7 @@ import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
 import { canUseRolePreview } from '@/lib/role-preview/access';
 import { isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 const PERSONAL_OPEN_WORK_LIMIT = 100;
 const HERO_SUBTITLE = 'Esto es lo que necesita atención hoy.';
@@ -196,7 +197,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
-    const dataMode = paramOne(params.datos) === 'demo' ? 'demo' : 'real';
+    const dataMode = await resolveDemoDataMode(params);
     const showOwnerDemoCard = canUseRolePreview(roleKeys);
 
     const commandQueues = await loadInicioCommandQueues(client, {

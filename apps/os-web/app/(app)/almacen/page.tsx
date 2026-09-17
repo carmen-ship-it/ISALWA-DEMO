@@ -10,6 +10,7 @@ import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { loadWarehousePedidosFromOrders } from '@/lib/warehouse/load-pedidos';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
@@ -79,15 +80,21 @@ async function loadAlmacenAccess() {
     const auth = await getServerOsAuthContext();
     if (auth) {
       const client = createOsApiClient(auth);
+      const dataMode = await resolveDemoDataMode({});
       warehousePedidos = await loadWarehousePedidosFromOrders(client, {
         organizationId: context.organizationId,
       });
       try {
         postsalePedidos = await loadPostSalePedidos(client, {
           organizationId: context.organizationId,
+          dataMode,
         });
       } catch {
         postsalePedidos = NO_POSTSALE_PEDIDOS;
+      }
+      const allowedOrderIds = new Set(postsalePedidos.map((p) => p.orderId));
+      if (postsalePedidos.length > 0 || dataMode === 'demo') {
+        warehousePedidos = warehousePedidos.filter((p) => allowedOrderIds.has(p.orderId));
       }
       try {
         const workPage = await client.listWorkItems({ status: 'open', limit: 100 });

@@ -23,14 +23,17 @@ import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 type ClientesPageProps = {
-  searchParams: Promise<PartySearchParams & { panel?: string | string[] }>;
+  searchParams: Promise<PartySearchParams & { panel?: string | string[]; datos?: string | string[] }>;
 };
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const params = await searchParams;
   const listQuery = parseListQuery(params);
+  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -51,13 +54,16 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       limit: 25,
     });
 
-    const ownerIds = result.items
+    const filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>
+      isDemoDisplayName(item.displayName || item.legalName),
+    );
+    const ownerIds = filteredItems
       .map((item) => item.commercialOwnerMemberId)
       .filter((id): id is string => Boolean(id));
     const memberLabels =
       ownerIds.length > 0 ? await resolveMemberLabels(client, ownerIds) : undefined;
     const hasSearchCriteria = Boolean(q || roleKey || status);
-    const isEmpty = result.items.length === 0;
+    const isEmpty = filteredItems.length === 0;
     const addHref = canAddCustomer ? newCustomerHref(q) : undefined;
 
     return (
@@ -94,7 +100,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
               <PageSection card className={`mt-4 p-0 ${commercialWorkSurfaceClass}`}>
                 <div className="commercial-operating-list" data-tour="clientes-list">
                   <PartyList
-                    items={result.items}
+                    items={filteredItems}
                     listPath="/clientes"
                     listQuery={listQuery}
                     memberLabels={memberLabels}
@@ -102,7 +108,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                 </div>
               </PageSection>
 
-              {result.meta.hasMore && result.meta.nextCursor ? (
+              {dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor ? (
                 <div className="mt-6 flex justify-center">
                   <Link
                     href={listHref('/clientes', {

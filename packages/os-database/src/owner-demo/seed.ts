@@ -224,6 +224,8 @@ async function ensureQuoteLoop(
     quoteNumber?: string;
     convertToOrder: boolean;
     recordManualSend: boolean;
+    /** When false, leave quote as draft (no SubmitQuote). Default true. */
+    submitQuote?: boolean;
   },
 ): Promise<{
   opportunityId: string;
@@ -251,6 +253,7 @@ async function ensureQuoteLoop(
     orderBy: { createdAt: 'asc' },
   });
   let quoteId = quote?.id;
+  const shouldSubmit = input.submitQuote !== false;
   if (!quoteId) {
     const q = await commercialSvc.execute('CreateQuote', session, {
       partyId: input.partyId,
@@ -266,13 +269,15 @@ async function ensureQuoteLoop(
       unitLabel: 'pza',
       unitPriceCentavos: input.unitPriceCentavos,
     });
-    await commercialSvc.execute('SubmitQuote', session, { quoteId });
-    if (input.recordManualSend) {
-      await commercialSvc.execute('RecordQuoteManualSend', session, {
-        quoteId,
-        channel: 'whatsapp',
-        note: withOwnerDemoNotesTag('Envío manual demo'),
-      });
+    if (shouldSubmit) {
+      await commercialSvc.execute('SubmitQuote', session, { quoteId });
+      if (input.recordManualSend) {
+        await commercialSvc.execute('RecordQuoteManualSend', session, {
+          quoteId,
+          channel: 'whatsapp',
+          note: withOwnerDemoNotesTag('Envío manual demo'),
+        });
+      }
     }
   }
 
@@ -589,6 +594,344 @@ async function ensureOpsLoop(
   };
 }
 
+async function ensureWorkWithDue(
+  workSvc: WorkCommandService,
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  input: {
+    titleContains: string;
+    title: string;
+    description: string;
+    partyId: string | null;
+    dueAt: Date | null;
+    complete?: boolean;
+    subjectType?: string;
+    subjectId?: string | null;
+  },
+): Promise<string> {
+  let row = await prisma.osWorkItem.findFirst({
+    where: {
+      organizationId: session.organizationId,
+      title: { contains: input.titleContains },
+    },
+  });
+  if (!row) {
+    const created = await workSvc.execute('CreateWorkItem', session, {
+      title: input.title,
+      description: input.description,
+      ownerMemberId: session.actorMemberId,
+      subjectType: input.subjectType ?? (input.partyId ? 'party' : undefined),
+      subjectId: input.subjectId ?? input.partyId ?? undefined,
+      priority: 'normal',
+      ...(input.dueAt ? { dueAt: input.dueAt.toISOString() } : {}),
+    });
+    row = await prisma.osWorkItem.findUniqueOrThrow({
+      where: { id: String(created.data.workItemId) },
+    });
+  } else if (input.dueAt && (!row.dueAt || row.dueAt.getTime() !== input.dueAt.getTime())) {
+    await prisma.osWorkItem.update({
+      where: { id: row.id },
+      data: { dueAt: input.dueAt, version: { increment: 1 } },
+    });
+  }
+
+  if (input.complete && row.status === 'open') {
+    try {
+      await workSvc.execute('CompleteWork', session, {
+        workItemId: row.id,
+      });
+    } catch {
+      await prisma.osWorkItem.update({
+        where: { id: row.id },
+        data: {
+          status: 'completed',
+          completedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+    }
+  }
+  return row.id;
+}
+
+async function ensureOpenCommitment(
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  input: {
+    textContains: string;
+    text: string;
+    partyId: string | null;
+    dueAt: Date | null;
+  },
+): Promise<string> {
+  let row = await prisma.osCommitment.findFirst({
+    where: {
+      organizationId: session.organizationId,
+      text: { contains: input.textContains },
+    },
+  });
+  if (!row) {
+    const id = createId();
+    row = await prisma.osCommitment.create({
+      data: {
+        id,
+        organizationId: session.organizationId,
+        partyId: input.partyId,
+        ownerMemberId: session.actorMemberId,
+        text: input.text,
+        origin: input.partyId ? 'customer_said' : 'employee_entered',
+        lifecycle: 'open',
+        dueAt: input.dueAt,
+        createdByMemberId: session.actorMemberId,
+        createdAt: new Date(),
+      },
+    });
+  } else if (row.lifecycle !== 'open' || (input.dueAt && !row.dueAt)) {
+    await prisma.osCommitment.update({
+      where: { id: row.id },
+      data: {
+        lifecycle: 'open',
+        dueAt: input.dueAt,
+        fulfilledAt: null,
+        fulfilledByMemberId: null,
+      },
+    });
+  }
+  return row.id;
+}
+
+async function ensureDemoIssue(
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  input: {
+    titleContains: string;
+    title: string;
+    description: string;
+    status: 'open' | 'in_progress' | 'resolved';
+    partyId: string;
+    orderId: string | null;
+    assignOwner?: boolean;
+  },
+): Promise<string> {
+  let row = await prisma.osIssue.findFirst({
+    where: {
+      organizationId: session.organizationId,
+      OR: [{ title: { contains: input.titleContains } }, { description: { contains: input.titleContains } }],
+    },
+  });
+  if (!row) {
+    const id = createId();
+    const now = new Date();
+    row = await prisma.osIssue.create({
+      data: {
+        id,
+        organizationId: session.organizationId,
+        status: input.status,
+        title: input.title,
+        description: input.description,
+        reportedByMemberId: session.actorMemberId,
+        reportedAt: now,
+        currentOwnerMemberId: input.assignOwner || input.status === 'in_progress' ? session.actorMemberId : null,
+        resolution: input.status === 'resolved' ? withOwnerDemoNotesTag('Reposición DEMO registrada') : null,
+        resolvedByMemberId: input.status === 'resolved' ? session.actorMemberId : null,
+        resolvedAt: input.status === 'resolved' ? now : null,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+    await prisma.osIssueReference.create({
+      data: {
+        id: createId(),
+        organizationId: session.organizationId,
+        issueId: id,
+        referenceType: 'party',
+        referenceId: input.partyId,
+        createdByMemberId: session.actorMemberId,
+      },
+    });
+    if (input.orderId) {
+      await prisma.osIssueReference.create({
+        data: {
+          id: createId(),
+          organizationId: session.organizationId,
+          issueId: id,
+          referenceType: 'order',
+          referenceId: input.orderId,
+          createdByMemberId: session.actorMemberId,
+        },
+      });
+    }
+  }
+  return row.id;
+}
+
+/**
+ * Extra SYNTH density so Demo mode feels like one living company across desks.
+ * Idempotent; never touches REAL org.
+ */
+async function ensureDemoDeskDensity(
+  workSvc: WorkCommandService,
+  session: RequestContext,
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  clients: ClientIds[],
+): Promise<void> {
+  assertOwnerDemoSynthOrg(session.organizationId);
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(12, 0, 0, 0);
+  const dueSoon = new Date(startOfToday);
+  dueSoon.setDate(dueSoon.getDate() + 2);
+  const overdue = new Date(startOfToday);
+  overdue.setDate(overdue.getDate() - 3);
+
+  const maderas = clients.find((c) => c.key === 'maderas_oriente');
+  const proyectos = clients.find((c) => c.key === 'proyectos_del_sur');
+  const hotel = clients.find((c) => c.key === 'hotel_central');
+  const ferreteria = clients.find((c) => c.key === 'ferreteria_norte');
+
+  if (maderas?.partyId) {
+    if (maderas.followUpWorkId) {
+      await prisma.osWorkItem.update({
+        where: { id: maderas.followUpWorkId },
+        data: { dueAt: startOfToday, version: { increment: 1 } },
+      });
+    }
+    await ensureWorkWithDue(workSvc, session, prisma, {
+      titleContains: 'Evidencia de entrega pendiente DEMO',
+      title: withOwnerDemoNotesTag('Evidencia de entrega pendiente DEMO MADERAS'),
+      description: withOwnerDemoNotesTag('Adjuntar evidencia fotográfica de recepción'),
+      partyId: maderas.partyId,
+      dueAt: dueSoon,
+    });
+    await ensureWorkWithDue(workSvc, session, prisma, {
+      titleContains: 'Seguimiento comercial cerrado DEMO',
+      title: withOwnerDemoNotesTag('Seguimiento comercial cerrado DEMO MADERAS'),
+      description: withOwnerDemoNotesTag('Ejemplo completado'),
+      partyId: maderas.partyId,
+      dueAt: overdue,
+      complete: true,
+    });
+    await ensureOpenCommitment(session, prisma, {
+      textContains: 'Compromiso cliente DEMO MADERAS',
+      text: withOwnerDemoNotesTag('Compromiso cliente DEMO MADERAS — confirmar recepción'),
+      partyId: maderas.partyId,
+      dueAt: dueSoon,
+    });
+    await ensureOpenCommitment(session, prisma, {
+      textContains: 'Compromiso interno equipo DEMO',
+      text: withOwnerDemoNotesTag('Compromiso interno equipo DEMO — revisar cola de entregas'),
+      partyId: null,
+      dueAt: dueSoon,
+    });
+
+    if (maderas.orderId) {
+      await ensureWorkWithDue(workSvc, session, prisma, {
+        titleContains: 'Revisión de almacén',
+        title: `Revisión de almacén · ${maderas.orderNumber ?? 'pedido'}`,
+        description: `Revise evidencia de producto terminado.\n\n[[order-prep:warehouse:${maderas.orderId}]]\n${withOwnerDemoNotesTag('')}`,
+        partyId: maderas.partyId,
+        dueAt: startOfToday,
+        subjectType: 'party',
+        subjectId: maderas.partyId,
+      });
+      await ensureWorkWithDue(workSvc, session, prisma, {
+        titleContains: 'Revisión de abastecimiento',
+        title: `Revisión de abastecimiento · ${maderas.orderNumber ?? 'pedido'}`,
+        description: `Si hace falta abastecimiento, coordine con Compras.\n\n[[order-prep:purchasing:${maderas.orderId}]]\n${withOwnerDemoNotesTag('')}`,
+        partyId: maderas.partyId,
+        dueAt: dueSoon,
+        subjectType: 'party',
+        subjectId: maderas.partyId,
+      });
+
+      const paymentKey = `owner-demo-payment:${maderas.orderId}`;
+      const existingPayment = await prisma.osReportedOperationalFact.findFirst({
+        where: { organizationId: session.organizationId, idempotencyKey: paymentKey },
+      });
+      if (!existingPayment) {
+        await prisma.osReportedOperationalFact.create({
+          data: {
+            id: createId(),
+            organizationId: session.organizationId,
+            kind: 'payment',
+            subjectType: 'order',
+            subjectId: maderas.orderId,
+            reportedAt: now,
+            reportedByMemberId: session.actorMemberId,
+            reportedByLabel: 'Owner demo seed',
+            source: 'manual',
+            confirmation: 'pending',
+            activity: 'active',
+            note: withOwnerDemoNotesTag('Pago reportado DEMO — pendiente de confirmar'),
+            payloadJson: {
+              amountCentavos: '450000',
+              currency: 'BOB',
+              method: 'transferencia',
+            },
+            idempotencyKey: paymentKey,
+          },
+        });
+      }
+    }
+  }
+
+  if (proyectos?.partyId && proyectos.quoteId) {
+    await ensureWorkWithDue(workSvc, session, prisma, {
+      titleContains: 'Seguimiento cotización DEMO PROYECTOS',
+      title: withOwnerDemoNotesTag('Seguimiento cotización DEMO PROYECTOS'),
+      description: withOwnerDemoNotesTag(
+        `Cotización ${proyectos.quoteNumber ?? 'Q-DEMO-001'} aguarda respuesta del cliente`,
+      ),
+      partyId: proyectos.partyId,
+      dueAt: overdue,
+      subjectType: 'quote',
+      subjectId: proyectos.quoteId,
+    });
+  }
+
+  if (hotel?.partyId && hotel.orderId) {
+    await ensureWorkWithDue(workSvc, session, prisma, {
+      titleContains: 'Revisión operativa DEMO HOTEL',
+      title: withOwnerDemoNotesTag('Revisión operativa DEMO HOTEL'),
+      description: withOwnerDemoNotesTag(
+        `Pedido ${hotel.orderNumber ?? ''} con Nota/FG; falta Salida/Entrega`,
+      ),
+      partyId: hotel.partyId,
+      dueAt: startOfToday,
+    });
+  }
+
+  if (ferreteria?.partyId) {
+    await ensureDemoIssue(session, prisma, {
+      titleContains: 'Piezas quebradas DEMO FERRETERÍA',
+      title: withOwnerDemoNotesTag('Piezas quebradas DEMO FERRETERÍA'),
+      description: withOwnerDemoNotesTag('3 piezas quebradas reportadas por el cliente'),
+      status: 'open',
+      partyId: ferreteria.partyId,
+      orderId: ferreteria.orderId,
+    });
+    await ensureDemoIssue(session, prisma, {
+      titleContains: 'Seguimiento reposición DEMO FERRETERÍA',
+      title: withOwnerDemoNotesTag('Seguimiento reposición DEMO FERRETERÍA'),
+      description: withOwnerDemoNotesTag('Incidencia asignada — coordinar reposición'),
+      status: 'in_progress',
+      partyId: ferreteria.partyId,
+      orderId: ferreteria.orderId,
+      assignOwner: true,
+    });
+    await ensureDemoIssue(session, prisma, {
+      titleContains: 'Embalaje corregido DEMO FERRETERÍA',
+      title: withOwnerDemoNotesTag('Embalaje corregido DEMO FERRETERÍA'),
+      description: withOwnerDemoNotesTag('Incidencia histórica resuelta — embalaje reforzado'),
+      status: 'resolved',
+      partyId: ferreteria.partyId,
+      orderId: ferreteria.orderId,
+    });
+  }
+
+  log('OWNER_DEMO_DESK_DENSITY ok');
+}
+
 async function main(): Promise<void> {
   assertOwnerDemoConfirm(process.env.STAGING_FIXTURE_CONFIRM);
   if (!process.env.OS_DATABASE_URL?.trim()) {
@@ -771,7 +1114,21 @@ async function main(): Promise<void> {
         ids.deliveryId = null;
       }
     } else if (spec.key === 'constructora_andina') {
-      // Conversation-only commercial state — no quote yet (Story Mode / CT3-D suggestions).
+      // Open opportunity + draft quote (possible Opportunity story + Cotizaciones draft).
+      const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
+        partyId: party.partyId,
+        title: 'DEMO ANDINA — obra nueva',
+        notes: 'Borrador cotización obra Warnes',
+        lineDescription: 'Inodoro obra DEMO',
+        quantity: 20,
+        unitPriceCentavos: 42000,
+        convertToOrder: false,
+        recordManualSend: false,
+        submitQuote: false,
+      });
+      ids.opportunityId = loop.opportunityId;
+      ids.quoteId = loop.quoteId;
+      ids.quoteNumber = loop.quoteNumber;
     } else if (spec.key === 'ferreteria_norte') {
       const loop = await ensureQuoteLoop(commercialSvc, session, prisma, {
         partyId: party.partyId,
@@ -792,6 +1149,8 @@ async function main(): Promise<void> {
 
     clients.push(ids);
   }
+
+  await ensureDemoDeskDensity(workSvc, session, prisma, clients);
 
   const maderas = clients.find((c) => c.key === 'maderas_oriente');
   const proof = realSevenMutationProof();

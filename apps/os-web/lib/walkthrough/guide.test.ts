@@ -349,13 +349,20 @@ describe('modo guiado', () => {
     assert.notEqual(guideStorageKey(a), guideStorageKey(b));
   });
 
-  it('keeps guide below the shell header so mobile logout stays reachable', () => {
+  it('retires floating GuidePanel full-tour launcher in favor of Story Mode', () => {
     const panel = readFileSync(join(here, '../../components/walkthrough/guide-panel.tsx'), 'utf8');
+    const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
+    const copy = readFileSync(join(here, 'copy.ts'), 'utf8');
+    assert.doesNotMatch(panel, /Mostrar recorrido/);
+    assert.doesNotMatch(panel, /fixed bottom-4 right-4/);
+    assert.match(panel, /return null/);
+    assert.doesNotMatch(shell, /<GuidePanel/);
+    assert.doesNotMatch(copy, /show: 'Mostrar recorrido'/);
+    assert.match(shell, /Story Mode/);
+  });
+
+  it('keeps shell header sticky so mobile logout stays reachable', () => {
     const shell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
-    assert.match(panel, /fixed bottom-4 right-4 z-20/);
-    assert.match(panel, /max-h-\[min\(70vh,calc\(100dvh-5\.5rem\)\)\]/);
-    assert.match(panel, /aria-label=\{GUIDE_CHROME\.closeLabel\}/);
-    assert.match(panel, /handleGuideEscape/);
     assert.match(shell, /sticky top-0 z-40/);
     assert.match(shell, /signOutAction/);
     assert.match(shell, /t\('account\.signOut'\)/);

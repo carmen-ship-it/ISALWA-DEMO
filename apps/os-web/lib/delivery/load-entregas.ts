@@ -11,6 +11,9 @@ import {
   type LinkedOrderFact,
 } from '@/lib/delivery/map-fulfillment';
 import type { EntregaPanelProps } from '@/components/delivery/entrega-panel';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 export type EntregaPageModel = {
   status: EntregaSurfaceStatus;
@@ -47,6 +50,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
   }
 
   const client = createOsApiClient(auth);
+  const dataMode = await resolveDemoDataMode({});
   let linkedOrders: LinkedOrderFact[] = [];
   let warehouseExits: EntregaPanelProps['warehouseExits'] = [];
   let deliveries: EntregaPanelProps['deliveries'] = [];
@@ -55,7 +59,14 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
 
   try {
     const orders = await client.listOrders({ status: 'open', limit: 50 });
-    linkedOrders = mapOrdersToLinkedFacts(orders.items ?? []);
+    const raw = mapOrdersToLinkedFacts(orders.items ?? []);
+    const partyLabels = await resolvePartyLabels(
+      client,
+      raw.map((row) => row.partyId).filter((id): id is string => Boolean(id)),
+    );
+    linkedOrders = filterByDemoDataMode(raw, dataMode, (row) =>
+      isDemoDisplayName(partyLabel(partyLabels, row.partyId)),
+    );
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       // Commercial read denied — still try fulfillment; page permission only if both fail.
@@ -69,6 +80,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     }
   }
 
+  const allowedOrderIds = new Set(linkedOrders.map((row) => row.orderId));
+
   try {
     const [exitPage, deliveryPage] = await Promise.all([
       client.listWarehouseExits(),
@@ -76,10 +89,10 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     ]);
     warehouseExits = mapFulfillmentExitsToPanel(
       (exitPage.items ?? []) as FulfillmentWarehouseExitItem[],
-    );
+    ).filter((row) => !row.orderId || allowedOrderIds.has(row.orderId) || dataMode !== 'demo');
     deliveries = mapFulfillmentDeliveriesToPanel(
       (deliveryPage.items ?? []) as FulfillmentDeliveryItem[],
-    );
+    ).filter((row) => !row.orderId || allowedOrderIds.has(row.orderId) || dataMode !== 'demo');
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       fulfillmentDenied = true;

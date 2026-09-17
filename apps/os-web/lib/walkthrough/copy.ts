@@ -5,7 +5,8 @@ export const GUIDE_CHROME = {
   title: 'Recorrido del piloto',
   continue: 'Continuar',
   close: 'Cerrar',
-  show: 'Mostrar recorrido',
+  /** Retired floating full-tour launcher — Story Mode owns the full recorrido. */
+  show: 'Ver recorrido completo',
   reset: 'Restablecer recorrido',
   replay: 'Repetir',
   ayuda: 'Repetir desde Ayuda',

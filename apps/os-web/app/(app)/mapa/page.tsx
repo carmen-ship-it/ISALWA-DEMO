@@ -23,6 +23,8 @@ import type { LocationView } from '@/lib/party/types';
 import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries } from '@/lib/party/data-health';
 import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 type MapaPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -113,12 +115,23 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   const listQuery = parseListQuery(params);
   const panel = parsePanel(listQuery.panel);
   const selectedPartyId = panel?.kind === 'party' ? panel.id : null;
+  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
   const result = await client.searchParties({ status: 'active', limit: 100 });
-  const model = buildMapDeskViewModel(result.items, { partial: result.meta.hasMore });
+  const allDemoPartyIds = new Set(
+    result.items
+      .filter((item) => isDemoDisplayName(item.displayName || item.legalName))
+      .map((item) => item.partyId),
+  );
+  const parties = filterByDemoDataMode(result.items, dataMode, (item) =>
+    isDemoDisplayName(item.displayName || item.legalName),
+  );
+  const model = buildMapDeskViewModel(parties, {
+    partial: dataMode === 'demo' ? false : result.meta.hasMore,
+  });
   const mapEnv = readMapProviderEnv();
   const provider = resolveMapProviderStatus(mapEnv);
   const viewConfig = resolveMapViewConfig(mapEnv);
@@ -137,16 +150,31 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     client.listIssues({ status: 'open', limit: 100 }).catch(() => ({ items: [] as IssueListItem[] })),
   ]);
 
-  const attentionItems = attentionResult.items ?? [];
-  const overdueWork = overdueResult.items ?? [];
-  const attentionPartyIds = collectAttentionPartyIds(attentionItems, overdueWork);
-  const portfolio = buildMapCommercialPortfolio(commercialInput);
-  const selectedCommercial = selectedPartyId
-    ? buildMapPartyCommercialSnapshot(selectedPartyId, commercialInput)
-    : null;
-  const issues = dataHealthFromSummaries(result.items);
+  const inMode = (partyId: string) =>
+    dataMode === 'demo' ? allDemoPartyIds.has(partyId) : !allDemoPartyIds.has(partyId);
+  const filteredCommercial = {
+    opportunities: commercialInput.opportunities.filter((o) => inMode(o.partyId)),
+    quotes: commercialInput.quotes.filter((q) => inMode(q.partyId)),
+    orders: commercialInput.orders.filter((o) => inMode(o.partyId)),
+    partial: dataMode === 'demo' ? false : commercialInput.partial,
+  };
 
-  const ownerIds = result.items
+  const attentionItems = (attentionResult.items ?? []).filter((row) => {
+    if (row.subjectType !== 'party' || !row.subjectId) return dataMode !== 'demo';
+    return inMode(row.subjectId);
+  });
+  const overdueWork = (overdueResult.items ?? []).filter((row) => {
+    if (row.subjectType !== 'party' || !row.subjectId) return dataMode !== 'demo';
+    return inMode(row.subjectId);
+  });
+  const attentionPartyIds = collectAttentionPartyIds(attentionItems, overdueWork);
+  const portfolio = buildMapCommercialPortfolio(filteredCommercial);
+  const selectedCommercial = selectedPartyId
+    ? buildMapPartyCommercialSnapshot(selectedPartyId, filteredCommercial)
+    : null;
+  const issues = dataHealthFromSummaries(parties);
+
+  const ownerIds = parties
     .map((item) => item.commercialOwnerMemberId)
     .filter((id): id is string => Boolean(id));
   const memberLabels =
@@ -161,7 +189,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     hoverByPartyId[row.partyId] = buildMapHoverSnapshot({
       row,
       ownerLabel,
-      commercial: buildMapPartyCommercialSnapshot(row.partyId, commercialInput),
+      commercial: buildMapPartyCommercialSnapshot(row.partyId, filteredCommercial),
       attention: attentionItems,
       overdueWork,
     });

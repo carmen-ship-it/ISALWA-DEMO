@@ -4,6 +4,8 @@
 
 export const DEMO_FICTITIOUS_BADGE = 'DEMO · DATOS FICTICIOS' as const;
 export const DEMO_DATA_MODE_STORAGE_KEY = 'isalwa.os-web.demo-data-mode.v1' as const;
+/** Cookie keeps Demo mode across sidebar navigations (SSR-safe). */
+export const DEMO_DATA_MODE_COOKIE = 'isalwa-demo-data-mode' as const;
 
 export type DemoDataMode = 'real' | 'demo';
 
@@ -56,6 +58,10 @@ export function saveDemoDataMode(
   mode: DemoDataMode,
 ): void {
   storage.setItem(DEMO_DATA_MODE_STORAGE_KEY, mode);
+  if (typeof document !== 'undefined') {
+    const maxAge = 60 * 60 * 24 * 30;
+    document.cookie = `${DEMO_DATA_MODE_COOKIE}=${mode}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  }
 }
 
 /** Keep real and demo counts separate — never mix. */

@@ -20,6 +20,8 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { probeWorkOrgLens, probeWorkTeamLens } from '@/lib/work/trabajo-lens';
 import { summarizeTrabajoOpen } from '@/lib/work/trabajo-summary';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 const PAGE_LIMIT = 25;
 
@@ -33,9 +35,11 @@ const tabClass =
   'isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border px-4 text-sm font-medium outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
-  const query = parseListQuery(await searchParams);
+  const params = await searchParams;
+  const query = parseListQuery(params);
   const view = parseTrabajoView(query.view);
   const controls = readListControls(query);
+  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -68,18 +72,23 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       ...(filteredByParty ? { subjectType, subjectId } : {}),
       ...(controls.q ? { q: controls.q } : {}),
     });
-    const items = presentWorkPage(
-      result.items.filter((item) => !isEngineeringFixtureCopy(item.title)),
-      controls,
+    const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
+    const partyLabels = await resolvePartyLabels(
+      client,
+      titled.flatMap((item) => (item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [])),
     );
+    const modeFiltered = filterByDemoDataMode(titled, dataMode, (item) => {
+      if (item.subjectType === 'party' && item.subjectId) {
+        return isDemoDisplayName(partyLabels.get(item.subjectId) ?? null);
+      }
+      // Team/org work without party: include in demo when title/notes carry DEMO marker.
+      return /\bDEMO\b|\[is_demo\]/i.test(`${item.title} ${item.description ?? ''}`);
+    });
+    const items = presentWorkPage(modeFiltered, controls);
     const summary = summarizeTrabajoOpen(items);
     const memberLabels = await resolveMemberLabels(
       client,
       items.flatMap((item) => [item.ownerMemberId, item.createdByMemberId]),
-    );
-    const partyLabels = await resolvePartyLabels(
-      client,
-      items.flatMap((item) => (item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [])),
     );
 
     return (

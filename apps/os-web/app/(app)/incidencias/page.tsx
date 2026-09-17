@@ -12,6 +12,8 @@ import { ISSUE_COPY } from '@/lib/issue/labels';
 import { issueListHref } from '@/lib/issue/navigation';
 import { resolveMemberLabels, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { filterByDemoDataMode } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 const PAGE_LIMIT = 25;
 
@@ -89,6 +91,7 @@ function emptyMessage(view: IssueView): IncidenciasEmpty {
 export default async function IncidenciasPage({ searchParams }: IncidenciasPageProps) {
   const params = await searchParams;
   const view = parseView(params.view);
+  const dataMode = await resolveDemoDataMode(params);
 
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
@@ -100,13 +103,16 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
 
   try {
     const result = await client.listIssues(viewQuery(view));
-    const memberIds = result.items.flatMap((item) => [
+    const items = filterByDemoDataMode(result.items, dataMode, (item) =>
+      /\bDEMO\b|\[is_demo\]/i.test(`${item.title ?? ''} ${item.description ?? ''}`),
+    );
+    const memberIds = items.flatMap((item) => [
       item.reporterMemberId,
       item.ownerMemberId,
     ].filter((id): id is string => Boolean(id)));
     const memberLabels = await resolveMemberLabels(client, memberIds);
     const empty = emptyMessage(view);
-    const openCount = view === 'open' ? result.items.length : null;
+    const openCount = view === 'open' ? items.length : null;
 
     return (
       <PageContainer label={ISSUE_COPY.listTitle}>
@@ -128,7 +134,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
 
         <IssueViewTabs active={view} />
 
-        {result.items.length === 0 ? (
+        {items.length === 0 ? (
           <EmptyState
             title={empty.title}
             description={empty.description}
@@ -146,12 +152,12 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
               className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
             >
               <IssueList
-                items={result.items}
+                items={items}
                 memberLabels={memberLabels}
                 showHeader
               />
             </PageSection>
-            {result.meta.hasMore && result.meta.nextCursor ? (
+            {dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor ? (
               <div className="mt-6 flex justify-center">
                 <Link
                   href={`${issueListHref(view)}${view === 'open' ? '?' : '&'}cursor=${result.meta.nextCursor}`}

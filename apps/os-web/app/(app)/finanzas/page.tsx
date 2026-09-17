@@ -11,6 +11,9 @@ import {
   resolveFinancePageAccess,
 } from '@/lib/finance';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import seededIds from '@/lib/demo/seeded-ids.json';
+import { createReportedOperationalFact } from '@/lib/operations/reported-fact';
 
 /** CROSS_LANE: add 'financeProvenance' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const FINANCE_PROVENANCE_TARGET = 'finance-provenance';
@@ -38,13 +41,22 @@ function one(value: string | string[] | undefined): string | null {
  */
 export default async function FinanzasPage({ searchParams }: FinanzasPageProps) {
   const params = await searchParams;
+  const dataMode = await resolveDemoDataMode(params);
   const access = await loadFinanceAccess();
   const subjectOptions =
     access.status === 'ready' ? await loadFinanceSubjectOptions() : { orders: [], quotes: [] };
 
-  const prefillOrderId = one(params.orderId);
+  let prefillOrderId = one(params.orderId);
   const prefillPartyId = one(params.partyId);
   const prefillQuoteId = one(params.quoteId);
+
+  const maderas = (seededIds.clients ?? []).find(
+    (c) => (c as { key?: string }).key === 'maderas_oriente',
+  ) as { orderId?: string; partyId?: string } | undefined;
+
+  if (!prefillOrderId && !prefillPartyId && !prefillQuoteId && dataMode === 'demo' && maderas?.orderId) {
+    prefillOrderId = maderas.orderId;
+  }
 
   let initialSubjectType: 'order' | 'party' | 'quote' | undefined;
   let initialSubjectId: string | undefined;
@@ -70,6 +82,29 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
     initialSubjectLabel = '';
   }
 
+  const initialFacts =
+    dataMode === 'demo' &&
+    access.status === 'ready' &&
+    maderas?.orderId &&
+    initialSubjectId === maderas.orderId
+      ? [
+          createReportedOperationalFact({
+            id: `demo-seed-payment-${maderas.orderId}`,
+            organizationId: access.organizationId,
+            kind: 'payment',
+            subjectType: 'order',
+            subjectId: maderas.orderId,
+            reportedAt: seededIds.seededAt ?? new Date().toISOString(),
+            reportedByLabel: 'Owner demo seed',
+            amountCentavos: '450000',
+            currency: 'BOB',
+            method: 'transferencia',
+            note: '[is_demo] Pago reportado DEMO — pendiente de confirmar',
+            sourceReference: null,
+          }),
+        ]
+      : [];
+
   return (
     <PageContainer label={FINANCE_DESK_COPY.title} data-tour={FINANCE_PROVENANCE_TARGET}>
       <PageHeader
@@ -91,6 +126,7 @@ export default async function FinanzasPage({ searchParams }: FinanzasPageProps) 
           initialSubjectType={initialSubjectType}
           initialSubjectId={initialSubjectId}
           initialSubjectLabel={initialSubjectLabel}
+          initialFacts={initialFacts}
         />
       ) : (
         <FinanceOperationalDesk status="denied" reason={access.reason} />

@@ -10,7 +10,7 @@ export function VerEjemploCompletoButton() {
 
   return (
     <Button type="button" variant="secondary" size="sm" onClick={openStory}>
-      Ver ejemplo completo
+      Ver recorrido completo
     </Button>
   );
 }

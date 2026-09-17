@@ -9,8 +9,15 @@ import { listRegisteredConversationFixtures } from '@/lib/conversations/adapters
 import { CONVERSATIONS_COPY } from '@/lib/conversations/copy';
 import { ownerDemoConversationFixtures } from '@/lib/conversations/demo-fixtures';
 import seededIds from '@/lib/demo/seeded-ids.json';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
-export default async function ConversacionesPage() {
+export default async function ConversacionesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -39,10 +46,15 @@ export default async function ConversacionesPage() {
     if (key && partyId) partyIdByKey[key] = partyId;
   }
 
+  const demoFixtures =
+    dataMode === 'demo' && organizationId
+      ? ownerDemoConversationFixtures(organizationId, partyIdByKey)
+      : [];
+
   const initialConversations = organizationId
     ? [
-        ...listRegisteredConversationFixtures(organizationId),
-        ...ownerDemoConversationFixtures(organizationId, partyIdByKey),
+        ...(dataMode === 'demo' ? [] : listRegisteredConversationFixtures(organizationId)),
+        ...demoFixtures,
       ]
     : [];
 

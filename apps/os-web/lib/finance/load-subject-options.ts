@@ -3,6 +3,8 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import type { SearchableOption } from '@/lib/experience/searchable-select';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
 export type FinanceSubjectOptions = {
   orders: SearchableOption[];
@@ -18,6 +20,7 @@ export async function loadFinanceSubjectOptions(): Promise<FinanceSubjectOptions
     const auth = await getServerOsAuthContext();
     if (!auth) return { orders: [], quotes: [] };
     const client = createOsApiClient(auth);
+    const dataMode = await resolveDemoDataMode({});
 
     const [orderPage, quotePage] = await Promise.all([
       client.listOrders({ status: 'open', limit: 50 }).catch((err: unknown) => {
@@ -34,12 +37,18 @@ export async function loadFinanceSubjectOptions(): Promise<FinanceSubjectOptions
       }),
     ]);
 
-    const orders = (orderPage.items ?? []).filter((item) => item.status !== 'cancelled');
-    const quotes = (quotePage.items ?? []).filter((item) => item.status !== 'cancelled');
+    const ordersRaw = (orderPage.items ?? []).filter((item) => item.status !== 'cancelled');
+    const quotesRaw = (quotePage.items ?? []).filter((item) => item.status !== 'cancelled');
     const labels = await resolvePartyLabels(client, [
-      ...orders.map((item) => item.partyId),
-      ...quotes.map((item) => item.partyId),
+      ...ordersRaw.map((item) => item.partyId),
+      ...quotesRaw.map((item) => item.partyId),
     ]);
+    const orders = filterByDemoDataMode(ordersRaw, dataMode, (item) =>
+      isDemoDisplayName(partyLabel(labels, item.partyId)),
+    );
+    const quotes = filterByDemoDataMode(quotesRaw, dataMode, (item) =>
+      isDemoDisplayName(partyLabel(labels, item.partyId)),
+    );
 
     return {
       orders: orders.map((item) => ({

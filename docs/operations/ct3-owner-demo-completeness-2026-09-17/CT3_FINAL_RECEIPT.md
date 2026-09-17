@@ -93,3 +93,29 @@ Cliente360 SSR crash (`digest 25943647`) — `ScaledListReveal` render-prop cros
 
 Cherry-picked from [Finish salvage CT3-F ops](cfe37b63-b3e8-462c-b9bc-7d4870467906) (`8985e3e` tests) and [Finish salvage CT3-G map](2d6e4b93-d38d-4426-af2d-f6333b65bc6a) (`1e43541` funnel/bands/tests). Redeploy: web `dep-dallrfbl550s73bnic10`, API `dep-dallrfijnfac73a11h60`. Prior poll timeout on an earlier mid-pass deploy is obsolete.
 
+---
+
+## POST-FINISH OWNER-DEMO COMPLETENESS
+
+Bounded delta on top of `FINAL_CT3_SOURCE_SHA` `f2740d12b405807c5f7b7c9602b91dcf59331a3b`. Does **not** restart CT3.
+
+| Field | Value |
+|---|---|
+| OLD_WALKTHROUGH_REMOVED | **YES** — floating `GuidePanel` / "Mostrar recorrido" retired; Story Mode is the only full guided walkthrough ("Ver recorrido completo") |
+| STORY_MODE_CANONICAL | **YES** |
+| DEMO_PAGE_COVERAGE | Seed + `resolveDemoDataMode` / `filterByDemoDataMode` across desks (Inicio, Clientes, Oportunidades, Cotizaciones, Mapa, Trabajo, Conversaciones, Incidencias, Compromisos, Producción, Almacén, Compras, Entregas, Finanzas, Gerencia via Inicio) |
+| DEMO_CROSS_PAGE_COHERENCE | Same DEMO parties/quotes/orders linked across Cliente360 / commercial / ops / work / conversations |
+| QUOTE_PDF_SCOPE | **NORMAL PRODUCT** — `apps/os-web/app/api/quotes/[quoteId]/pdf/route.ts` → os-api `GET /v1/quotes/:quoteId/pdf` (`QuotePdfService`) |
+| DELIVERY_NOTE_PDF_SCOPE | **NORMAL PRODUCT** — `apps/os-web/app/api/delivery-notes/[id]/pdf/route.ts` → os-api delivery-note PDF (`DeliveryNotePdfService`) |
+| DEMO_USES_SAME_PDF_IMPLEMENTATION | **YES** |
+| REAL_SEVEN_MUTATED | **NO** |
+| FINAL_CT3_POST_DEMO_SHA | `b60f9a8784baff3736b367b26b28f33ea1630134` |
+| FINAL_RUNTIME_SHA | _(filled after same-SHA LIVE)_ |
+| WEB_RUNTIME_SHA | _(filled after LIVE)_ |
+| API_RUNTIME_SHA | _(filled after LIVE)_ |
+| SAME_SHA_PROOF | _(filled after LIVE)_ |
+
+Lightweight help preserved: Modo aprendizaje, micro-tips, ¿Qué significa esto?, role quick-start. Full tour launcher "Mostrar recorrido" removed.
+
+Demo mode visual boundary: persistent `DEMO · DATOS FICTICIOS`; toggle `Datos reales` \| `Demo`; default remains Datos reales; cookie `isalwa-demo-data-mode` keeps mode across navigation.
+

@@ -36,6 +36,8 @@ type FinanceOperationalDeskProps =
       initialSubjectType?: SubjectType;
       initialSubjectId?: string;
       initialSubjectLabel?: string;
+      /** SYNTH seed examples only — still pending confirmation, never ledger truth. */
+      initialFacts?: readonly ReportedOperationalFact[];
     };
 
 type SubjectType = 'party' | 'order' | 'quote';
@@ -65,6 +67,7 @@ export function FinanceOperationalDesk(props: FinanceOperationalDeskProps) {
       initialSubjectType={props.initialSubjectType}
       initialSubjectId={props.initialSubjectId}
       initialSubjectLabel={props.initialSubjectLabel}
+      initialFacts={props.initialFacts ?? []}
     />
   );
 }
@@ -79,6 +82,7 @@ function ReadyDesk(props: {
   initialSubjectType?: SubjectType;
   initialSubjectId?: string;
   initialSubjectLabel?: string;
+  initialFacts?: readonly ReportedOperationalFact[];
 }) {
   const session: FinanceActorSession = useMemo(
     () => ({
@@ -94,7 +98,7 @@ function ReadyDesk(props: {
   const [subjectType, setSubjectType] = useState<SubjectType>(props.initialSubjectType ?? 'order');
   const [subjectId, setSubjectId] = useState(props.initialSubjectId?.trim() ?? '');
   const [subjectLabel, setSubjectLabel] = useState(props.initialSubjectLabel?.trim() ?? '');
-  const [facts, setFacts] = useState<ReportedOperationalFact[]>([]);
+  const [facts, setFacts] = useState<ReportedOperationalFact[]>(() => [...(props.initialFacts ?? [])]);
   const [correctsFactId, setCorrectsFactId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [writeError, setWriteError] = useState<string | null>(null);

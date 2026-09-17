@@ -7,12 +7,21 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 
 /**
  * Compromisos desk — open commitments for the signed-in org.
  * Nav previously pointed at /inicio; this is the real destination.
  */
-export default async function CompromisosPage() {
+export default async function CompromisosPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -20,7 +29,15 @@ export default async function CompromisosPage() {
 
   try {
     const result = await client.listCommitments({ lifecycle: 'open' });
-    const items = result.items ?? [];
+    const raw = result.items ?? [];
+    const partyLabels = await resolvePartyLabels(
+      client,
+      raw.map((item) => item.partyId).filter((id): id is string => Boolean(id)),
+    );
+    const items = filterByDemoDataMode(raw, dataMode, (item) => {
+      if (item.partyId) return isDemoDisplayName(partyLabel(partyLabels, item.partyId));
+      return /\bDEMO\b|\[is_demo\]/i.test(item.text ?? '');
+    });
     const memberLabels = await resolveMemberLabels(
       client,
       items.flatMap((item) =>
