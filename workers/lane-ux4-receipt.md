@@ -69,4 +69,5 @@ apps/os-web: pnpm exec tsx --test \
 → 16 pass / 0 fail
 ```
 
-**HEAD_SHA:** `3981ebde40460d9962ea3efb21922e4fbdd09d3f`
+**LANE_IMPLEMENTATION_SHA:** `defb139e549bfe4f812218021ef09194e5f8a9c0`  
+**HEAD_SHA:** `00ec659a501ff204c4c79a308ec6de7d4ebaec10` (receipt tip; may advance with doc-only commits)
