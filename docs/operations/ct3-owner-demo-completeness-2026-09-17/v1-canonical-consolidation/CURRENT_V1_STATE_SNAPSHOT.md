@@ -6,9 +6,9 @@
 | Field | Value |
 |---|---|
 | BRANCH | `ct3/owner-demo-completeness` |
-| LOCAL_HEAD | `5032e6c017de10514212487662f25191bc6ac0dd` *(plus uncommitted CR-2/CR-3 integration below)* |
+| LOCAL_HEAD | `2a4c96908ae400e8647e5da405faeda7b286393e` (ahead of remote by 1; **not pushed**) |
 | REMOTE_HEAD | `5032e6c017de10514212487662f25191bc6ac0dd` |
-| DIRTY_TREE | **YES** — View As projection + convert.own + mutation gate + evidence |
+| DIRTY_TREE | **clean after `2a4c969`** — remaining work is new commits, not unexplained dirt |
 | V1_OWNER_REVIEW_RC_SHA | **NOT CUT** |
 | WEB_RUNTIME_SHA | `8e24b7f73971cb538377371d4670897930bcd250` |
 | API_RUNTIME_SHA | `8e24b7f73971cb538377371d4670897930bcd250` |

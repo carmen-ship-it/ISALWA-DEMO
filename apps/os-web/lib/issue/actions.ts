@@ -10,6 +10,7 @@ import { mapCommandError } from '@/lib/commercial/command-errors';
 import { ISSUE_COPY } from './labels';
 import { issueHref, issueListHref } from './navigation';
 import type { IssueReferenceType } from './types';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 export type ReportIssueActionResult =
   | { ok: true; issueId: string }
@@ -29,6 +30,9 @@ export async function reportIssueAction(formData: FormData): Promise<ReportIssue
   if (!description) {
     return { ok: false, error: ISSUE_COPY.descriptionRequired };
   }
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) {
@@ -93,6 +97,9 @@ export async function assignIssueOwnerAction(
   if (!Number.isFinite(expectedVersion) || expectedVersion < 0) {
     return { ok: false, error: ISSUE_COPY.assignFailed };
   }
+
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
 
   const auth = await getServerOsAuthContext();
   if (!auth) {

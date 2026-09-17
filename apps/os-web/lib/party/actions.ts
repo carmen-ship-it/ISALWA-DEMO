@@ -20,10 +20,13 @@ import {
   preserveProvenanceUrl,
 } from '@/lib/party/customer-self-service';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 const DENIED = 'No tiene permiso para realizar esta acción.';
 
 async function adminClient() {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false as const, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
   const client = createOsApiClient(auth);

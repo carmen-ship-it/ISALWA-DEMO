@@ -7,6 +7,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import { orderHref } from '@/lib/commercial/navigation';
+import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -26,6 +27,8 @@ async function runDeliveryCommand(
   partyId: string,
   orderId: string,
 ): Promise<ActionResult> {
+  const previewGate = await assertRolePreviewAllowsMutation();
+  if (!previewGate.ok) return previewGate;
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
   const client = createOsApiClient(auth);

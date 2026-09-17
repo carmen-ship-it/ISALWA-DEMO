@@ -25,6 +25,7 @@ import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 
 type ClientesPageProps = {
   searchParams: Promise<PartySearchParams & { panel?: string | string[]; datos?: string | string[] }>;
@@ -36,6 +37,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
 
   const client = createOsApiClient(auth);
   const q = listQuery.q;
@@ -43,7 +45,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const status = listQuery.status;
   const cursor = listQuery.cursor;
   const panel = parsePanel(listQuery.panel);
-  const canAddCustomer = await actorCanMutateMasterData(client);
+  const canAddCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
 
   try {
     // Demo mode: prefer DEMO-prefixed search so SYNTH fixtures are not buried under REAL pages.
@@ -56,9 +58,16 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       limit: dataMode === 'demo' ? 50 : 25,
     });
 
-    const filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>
+    let filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>
       isDemoDisplayName(item.displayName || item.legalName),
     );
+    // Vista de evaluación · Asesor: person-specific commercial owner slice only.
+    if (evaluation.active && evaluation.persona === 'asesor') {
+      const subject = evaluation.subjectMemberId;
+      filteredItems = subject
+        ? filteredItems.filter((item) => item.commercialOwnerMemberId === subject)
+        : [];
+    }
     const ownerIds = filteredItems
       .map((item) => item.commercialOwnerMemberId)
       .filter((id): id is string => Boolean(id));

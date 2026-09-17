@@ -23,6 +23,7 @@ import { summarizeTrabajoOpen } from '@/lib/work/trabajo-summary';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 
 const PAGE_LIMIT = 25;
 
@@ -43,12 +44,21 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
+  const evaluation = await getEvaluationProjection();
 
   const client = createOsApiClient(auth);
-  const [canTeamLens, canOrgLens] = await Promise.all([
+  const [probedTeamLens, probedOrgLens] = await Promise.all([
     probeWorkTeamLens(client),
     probeWorkOrgLens(client),
   ]);
+  const canTeamLens = evaluation.active
+    ? evaluation.persona === 'jefe-comercial' || evaluation.persona === 'gerencia'
+      ? true
+      : false
+    : probedTeamLens;
+  const canOrgLens = evaluation.active
+    ? evaluation.persona === 'gerencia'
+    : probedOrgLens;
   const subjectType = query.subjectType;
   const subjectId = query.subjectId;
   const filteredByParty = subjectType === 'party' && Boolean(subjectId);
@@ -61,7 +71,19 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
     density: controls.density === 'compact' ? undefined : controls.density,
     focus: controls.focus,
   };
-  const visibility = view === 'team' || view === 'org' ? view : undefined;
+  const visibility = (() => {
+    if (!evaluation.active) {
+      return view === 'team' || view === 'org' ? view : undefined;
+    }
+    if (evaluation.persona === 'asesor') return undefined;
+    if (evaluation.persona === 'jefe-comercial') {
+      return view === 'team' || view === 'org' ? 'team' : undefined;
+    }
+    if (evaluation.persona === 'gerencia') {
+      return view === 'team' || view === 'org' ? view : undefined;
+    }
+    return view === 'team' || view === 'org' ? view : undefined;
+  })();
 
   try {
     const result = await client.listWorkItems({
@@ -72,6 +94,11 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
       ...(query.cursor ? { cursor: query.cursor } : {}),
       ...(filteredByParty ? { subjectType, subjectId } : {}),
       ...(controls.q ? { q: controls.q } : {}),
+      ...(evaluation.active &&
+      evaluation.persona === 'asesor' &&
+      evaluation.subjectMemberId
+        ? { ownerMemberId: evaluation.subjectMemberId }
+        : {}),
     });
     const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
     const partyLabels = await resolvePartyLabels(
