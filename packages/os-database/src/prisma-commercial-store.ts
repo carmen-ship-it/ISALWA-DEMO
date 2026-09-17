@@ -551,6 +551,106 @@ export class PrismaOsCommercialStore implements OsCommercialStore {
     }));
   }
 
+  async listActiveCustomerCoverageForParty(input: {
+    organizationId: string;
+    customerPartyId: string;
+    asOf: Date;
+  }) {
+    const rows = await this.db().osCustomerCoverageGrant.findMany({
+      where: {
+        organizationId: input.organizationId,
+        customerPartyId: input.customerPartyId,
+        grantType: 'commercial.customer.coverage',
+        revokedAt: null,
+        startsAt: { lte: input.asOf },
+        OR: [{ endsAt: null }, { endsAt: { gt: input.asOf } }],
+      },
+      orderBy: { startsAt: 'desc' },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      grantType: 'commercial.customer.coverage' as const,
+      organizationId: row.organizationId,
+      customerPartyId: row.customerPartyId,
+      primaryOwnerMemberId: row.primaryOwnerMemberId,
+      actingAdvisorMemberId: row.actingAdvisorMemberId,
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      revokedAt: row.revokedAt,
+      recordedByMemberId: row.recordedByMemberId,
+    }));
+  }
+
+  async createCustomerCoverageGrant(input: {
+    id: string;
+    organizationId: string;
+    customerPartyId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+    startsAt: Date;
+    endsAt: Date | null;
+    recordedAt: Date;
+    recordedByMemberId: string;
+  }): Promise<void> {
+    await this.db().osCustomerCoverageGrant.create({
+      data: {
+        id: input.id,
+        organizationId: input.organizationId,
+        customerPartyId: input.customerPartyId,
+        primaryOwnerMemberId: input.primaryOwnerMemberId,
+        actingAdvisorMemberId: input.actingAdvisorMemberId,
+        grantType: 'commercial.customer.coverage',
+        startsAt: input.startsAt,
+        endsAt: input.endsAt,
+        revokedAt: null,
+        recordedAt: input.recordedAt,
+        recordedByMemberId: input.recordedByMemberId,
+      },
+    });
+  }
+
+  async getCustomerCoverageGrantInOrg(organizationId: string, grantId: string) {
+    const row = await this.db().osCustomerCoverageGrant.findFirst({
+      where: { id: grantId, organizationId },
+    });
+    if (!row) return null;
+    return {
+      id: row.id,
+      organizationId: row.organizationId,
+      customerPartyId: row.customerPartyId,
+      primaryOwnerMemberId: row.primaryOwnerMemberId,
+      actingAdvisorMemberId: row.actingAdvisorMemberId,
+      startsAt: row.startsAt,
+      endsAt: row.endsAt,
+      revokedAt: row.revokedAt,
+    };
+  }
+
+  async revokeCustomerCoverageGrant(input: {
+    organizationId: string;
+    grantId: string;
+    revokedAt: Date;
+    recordedByMemberId: string;
+  }) {
+    const existing = await this.getCustomerCoverageGrantInOrg(input.organizationId, input.grantId);
+    if (!existing || existing.revokedAt) return null;
+    const result = await this.db().osCustomerCoverageGrant.updateMany({
+      where: { id: input.grantId, organizationId: input.organizationId, revokedAt: null },
+      data: {
+        revokedAt: input.revokedAt,
+        recordedAt: input.revokedAt,
+        recordedByMemberId: input.recordedByMemberId,
+      },
+    });
+    if (result.count === 0) return null;
+    return {
+      id: existing.id,
+      customerPartyId: existing.customerPartyId,
+      primaryOwnerMemberId: existing.primaryOwnerMemberId,
+      actingAdvisorMemberId: existing.actingAdvisorMemberId,
+    };
+  }
+
   /**
    * Batch writes. Outside an interactive tx, Prisma's sequential batch API is used.
    * Inside an interactive tx, factories are invoked one-at-a-time so tx-bound

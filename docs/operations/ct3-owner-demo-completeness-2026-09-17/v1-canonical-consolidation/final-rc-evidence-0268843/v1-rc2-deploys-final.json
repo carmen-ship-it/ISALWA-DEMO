@@ -1,0 +1,15 @@
+{
+  "RC": "02688431b9290b818c8fb245d68c086379363b3f",
+  "states": {
+    "WEB": {
+      "status": "live",
+      "commit": "02688431b929",
+      "id": "dep-dalujo3m8hqs73e5o5r0"
+    },
+    "API": {
+      "status": "live",
+      "commit": "02688431b929",
+      "id": "dep-dalujofqj5pc73dme4q0"
+    }
+  }
+}

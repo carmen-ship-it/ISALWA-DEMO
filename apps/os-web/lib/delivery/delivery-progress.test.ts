@@ -6,7 +6,7 @@ import {
 } from './delivery-progress';
 
 describe('buildDeliveryProgress', () => {
-  it('builds Pedido / Nota / Salida / Entrega from facts', () => {
+  it('builds Pedido / Nota de Entrega / Salida / Entrega from facts', () => {
     const steps = buildDeliveryProgress({
       orderRecorded: true,
       hasNote: true,
@@ -14,12 +14,12 @@ describe('buildDeliveryProgress', () => {
       hasEntrega: false,
     });
     assert.deepEqual(
-      steps.map((step) => ({ id: step.id, mark: step.mark })),
+      steps.map((step) => ({ id: step.id, label: step.label, mark: step.mark })),
       [
-        { id: 'pedido', mark: 'done' },
-        { id: 'nota', mark: 'done' },
-        { id: 'salida', mark: 'pending' },
-        { id: 'entrega', mark: 'pending' },
+        { id: 'pedido', label: 'Pedido', mark: 'done' },
+        { id: 'nota', label: 'Nota de Entrega', mark: 'done' },
+        { id: 'salida', label: 'Salida', mark: 'pending' },
+        { id: 'entrega', label: 'Entrega', mark: 'pending' },
       ],
     );
   });
@@ -59,7 +59,7 @@ describe('computeEntregaSummaryCounts', () => {
       asOf,
     });
 
-    assert.equal(counts.notasPreparadas, 2);
+    assert.equal(counts.notasDeEntrega, 2);
     // o-2 has exit without matching delivery; o-1 exit is covered
     assert.equal(counts.salidasSinEntrega, 1);
     assert.equal(counts.entregasHoy, 1);

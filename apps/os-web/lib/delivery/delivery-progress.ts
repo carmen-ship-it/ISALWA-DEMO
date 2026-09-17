@@ -1,6 +1,6 @@
 /**
- * Delivery progress visual per order: Pedido / Nota / Salida / Entrega.
- * Deterministic from recorded facts only.
+ * Delivery progress visual per order: Pedido / Nota de Entrega / Salida / Entrega.
+ * Deterministic from recorded facts only. Nota ≠ Salida; Nota ≠ Preparación.
  */
 
 export type DeliveryProgressMark = 'done' | 'pending';
@@ -21,14 +21,14 @@ export type DeliveryProgressFacts = {
 export function buildDeliveryProgress(facts: DeliveryProgressFacts): DeliveryProgressStep[] {
   return [
     { id: 'pedido', label: 'Pedido', mark: facts.orderRecorded ? 'done' : 'pending' },
-    { id: 'nota', label: 'Nota', mark: facts.hasNote ? 'done' : 'pending' },
+    { id: 'nota', label: 'Nota de Entrega', mark: facts.hasNote ? 'done' : 'pending' },
     { id: 'salida', label: 'Salida', mark: facts.hasSalida ? 'done' : 'pending' },
     { id: 'entrega', label: 'Entrega', mark: facts.hasEntrega ? 'done' : 'pending' },
   ];
 }
 
 export type EntregaSummaryCounts = {
-  notasPreparadas: number;
+  notasDeEntrega: number;
   salidasSinEntrega: number;
   entregasHoy: number;
 };
@@ -60,7 +60,7 @@ export function computeEntregaSummaryCounts(input: {
   const entregasHoy = input.deliveries.filter((row) => dayKey(row.deliveredAt) === today).length;
 
   return {
-    notasPreparadas: input.noteCount,
+    notasDeEntrega: input.noteCount,
     salidasSinEntrega,
     entregasHoy,
   };

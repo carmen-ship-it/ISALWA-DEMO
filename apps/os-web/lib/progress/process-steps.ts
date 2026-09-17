@@ -67,11 +67,11 @@ export type DeliveryProcessFacts = {
   attentionStepId?: 'pedido' | 'nota' | 'salida' | 'entrega' | null;
 };
 
-/** Pedido → Nota → Salida → Entrega */
+/** Pedido → Nota de Entrega → Salida → Entrega */
 export function resolveDeliveryProcessSteps(facts: DeliveryProcessFacts): ProcessStep[] {
   const chain: Array<{ id: string; label: string; reached: boolean }> = [
     { id: 'pedido', label: 'Pedido', reached: facts.hasOrder },
-    { id: 'nota', label: 'Nota', reached: facts.hasDeliveryNote },
+    { id: 'nota', label: 'Nota de Entrega', reached: facts.hasDeliveryNote },
     { id: 'salida', label: 'Salida', reached: facts.hasWarehouseExit },
     { id: 'entrega', label: 'Entrega', reached: facts.hasDelivery },
   ];

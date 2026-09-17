@@ -1,13 +1,16 @@
 /**
  * Pedido lifecycle step strip — facts only.
  * Marks a step done only when a durable recorded fact exists.
- * Never invents prep, salida, or entrega from status labels alone.
+ * Never invents prep, nota, salida, or entrega from status labels alone.
+ * Vocabulary: Cotización → Pedido → Preparación → Nota de Entrega → Salida → Entrega.
+ * Preparación ≠ Nota; Nota ≠ Salida.
  */
 
 export const PEDIDO_LIFECYCLE_STEPS = [
   'cotizacion',
   'pedido',
   'preparacion',
+  'nota',
   'salida',
   'entrega',
 ] as const;
@@ -26,6 +29,7 @@ export const PEDIDO_LIFECYCLE_LABELS: Record<PedidoLifecycleStepId, string> = {
   cotizacion: 'Cotización',
   pedido: 'Pedido',
   preparacion: 'Preparación',
+  nota: 'Nota de Entrega',
   salida: 'Salida',
   entrega: 'Entrega',
 };
@@ -37,9 +41,11 @@ export type PedidoLifecycleFacts = {
   orderRecorded: boolean;
   /**
    * Prep fact: open OrderPrep review Work, finished-goods receive, or explicit prep note.
-   * Do not treat commercial "open" status as prep.
+   * Do not treat commercial "open" status as prep. Do not treat delivery note as prep.
    */
   hasPreparacionFact: boolean;
+  /** Issued delivery note (Nota de Entrega) — distinct from prep and salida. */
+  hasNotaFact: boolean;
   /** Warehouse exit / salida recorded for this order. */
   hasSalidaFact: boolean;
   /** Customer delivery recorded for this order. */
@@ -47,7 +53,7 @@ export type PedidoLifecycleFacts = {
 };
 
 /**
- * Deterministic Cotización → Pedido → Preparación → Salida → Entrega strip.
+ * Deterministic Cotización → Pedido → Preparación → Nota de Entrega → Salida → Entrega.
  */
 export function buildPedidoLifecycle(facts: PedidoLifecycleFacts): PedidoLifecycleStep[] {
   return PEDIDO_LIFECYCLE_STEPS.map((id) => ({
@@ -65,6 +71,8 @@ function markForStep(id: PedidoLifecycleStepId, facts: PedidoLifecycleFacts): Pe
       return facts.orderRecorded ? 'done' : 'pending';
     case 'preparacion':
       return facts.hasPreparacionFact ? 'done' : 'pending';
+    case 'nota':
+      return facts.hasNotaFact ? 'done' : 'pending';
     case 'salida':
       return facts.hasSalidaFact ? 'done' : 'pending';
     case 'entrega':

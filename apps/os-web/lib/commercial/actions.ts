@@ -502,3 +502,60 @@ export async function reassignCommercialAccountOwnerAction(
   if (result.ok && partyId) revalidateCliente360(partyId);
   return result;
 }
+
+export async function grantCustomerCoverageAction(
+  formData: FormData,
+): Promise<CommandActionResult> {
+  const gate = await assertRolePreviewAllowsMutation();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const commercialAccountId = String(formData.get('commercialAccountId') ?? '').trim();
+  const actingAdvisorMemberId = String(formData.get('actingAdvisorMemberId') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+  if (!commercialAccountId || !actingAdvisorMemberId) {
+    return { ok: false, error: 'Seleccione quién apoyará temporalmente.' };
+  }
+
+  const result = await runCommand((client) =>
+    client
+      .executeCommand(
+        'GrantCustomerCoverage',
+        {
+          commercialAccountId,
+          actingAdvisorMemberId,
+          note: note || undefined,
+        },
+        createId(),
+      )
+      .then((r) => r.data),
+  );
+  if (result.ok && partyId) revalidateCliente360(partyId);
+  return result;
+}
+
+export async function revokeCustomerCoverageAction(
+  formData: FormData,
+): Promise<CommandActionResult> {
+  const gate = await assertRolePreviewAllowsMutation();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
+  const partyId = String(formData.get('partyId') ?? '').trim();
+  const grantId = String(formData.get('grantId') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+  if (!grantId) {
+    return { ok: false, error: 'No hay apoyo temporal para retirar.' };
+  }
+
+  const result = await runCommand((client) =>
+    client
+      .executeCommand(
+        'RevokeCustomerCoverage',
+        { grantId, note: note || undefined },
+        createId(),
+      )
+      .then((r) => r.data),
+  );
+  if (result.ok && partyId) revalidateCliente360(partyId);
+  return result;
+}

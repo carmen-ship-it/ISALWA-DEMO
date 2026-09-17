@@ -120,6 +120,8 @@ export const COMMAND_REQUIRED_SCOPES: Record<string, AdminScopeKey | 'member_act
   CreateOrder: 'member_active',
   CancelOrder: 'member_active',
   ReassignCommercialAccountOwner: 'member_active',
+  GrantCustomerCoverage: 'member_active',
+  RevokeCustomerCoverage: 'member_active',
   CreateNotaDeEntrega: 'member_active',
   RecordSalida: 'member_active',
   RecordEntrega: 'member_active',

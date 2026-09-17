@@ -207,7 +207,18 @@ describe('local HTTP auth path', { concurrency: false }, () => {
         },
       };
       const sessionController = new SessionController(workforce as never);
-      const parties = new PartiesController(partyStore as never, workforce as never, {} as never, {} as never);
+      const commercialStore = {
+        async listActiveCustomerCoverageForParty() {
+          return [];
+        },
+      };
+      const parties = new PartiesController(
+        partyStore as never,
+        workforce as never,
+        commercialStore as never,
+        {} as never,
+        {} as never,
+      );
       const locations = new LocationsController(partyStore as never, workforce as never);
       const operations = new OperationsController(
         workforce as never,

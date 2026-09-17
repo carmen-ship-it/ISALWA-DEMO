@@ -41,9 +41,33 @@ export async function loadCliente360(
   const detail = await client.getParty(partyId);
   const commercialAccountId = detail.commercialAccount?.id ?? null;
 
+  // Party-scoped commercial graph: prefer org visibility so Resumen reconciles to
+  // canonical records owned by other members (people.admin own-lens is unrestricted,
+  // but commercial.org.read actors still need visibility=org).
+  const listPartyScoped = async <T,>(
+    withOrg: () => Promise<T>,
+    without: () => Promise<T>,
+  ): Promise<T> => {
+    try {
+      return await withOrg();
+    } catch {
+      return without();
+    }
+  };
+
   const [opportunities, quotes, orders, timeline, relatedWork, locations, documentLinks, financeSummary] = await Promise.all([
-    fetchCommercialSection(() => client.listOpportunities({ partyId, limit: 10 })),
-    fetchCommercialSection(() => client.listQuotes({ partyId, limit: 10 })),
+    fetchCommercialSection(() =>
+      listPartyScoped(
+        () => client.listOpportunities({ partyId, limit: 10, visibility: 'org' }),
+        () => client.listOpportunities({ partyId, limit: 10 }),
+      ),
+    ),
+    fetchCommercialSection(() =>
+      listPartyScoped(
+        () => client.listQuotes({ partyId, limit: 10, visibility: 'org' }),
+        () => client.listQuotes({ partyId, limit: 10 }),
+      ),
+    ),
     fetchCommercialSection(() => client.listOrders({ partyId, limit: 10 })),
     fetchCommercialSection(() => client.listPartyTimeline(partyId, { limit: 20 })),
     fetchCommercialSection(async () => {
@@ -95,6 +119,12 @@ export async function loadCliente360(
 
   if (detail.commercialAccount?.ownerMemberId) {
     memberIds.add(detail.commercialAccount.ownerMemberId);
+  }
+  if (detail.activeCoverage?.actingAdvisorMemberId) {
+    memberIds.add(detail.activeCoverage.actingAdvisorMemberId);
+  }
+  if (detail.activeCoverage?.recordedByMemberId) {
+    memberIds.add(detail.activeCoverage.recordedByMemberId);
   }
 
   const memberLabels = await resolveMemberLabels(client, memberIds);

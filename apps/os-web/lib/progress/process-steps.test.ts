@@ -51,6 +51,7 @@ describe('resolveDeliveryProcessSteps', () => {
       hasWarehouseExit: false,
       hasDelivery: false,
     });
+    assert.equal(mid.find((step) => step.id === 'nota')?.label, 'Nota de Entrega');
     assert.equal(mid.find((step) => step.id === 'nota')?.state, 'current');
     assert.equal(mid.find((step) => step.id === 'entrega')?.state, 'future');
 

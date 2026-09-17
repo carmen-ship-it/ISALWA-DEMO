@@ -1,0 +1,65 @@
+{
+  "rc": "02688431b9290b818c8fb245d68c086379363b3f",
+  "shots": [
+    {
+      "screen": "inicio",
+      "path": "screenshots/inicio.png",
+      "url": "https://os-web-staging.onrender.com/inicio?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "cliente360-resumen",
+      "path": "screenshots/cliente360-resumen.png",
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?datos=demo&tab=resumen",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "cliente360-comercial",
+      "path": "screenshots/cliente360-comercial.png",
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW?datos=demo&tab=comercial",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "quote",
+      "path": "screenshots/quote.png",
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW/cotizaciones/01M2PM9KSJXN1K4CF45FT0H299?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "pedido",
+      "path": "screenshots/pedido.png",
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PM95PV7YP6AECYXSX4GRBW/pedidos/01M2PMA280KX4AAV7049YKNE07?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "trabajo",
+      "path": "screenshots/trabajo.png",
+      "url": "https://os-web-staging.onrender.com/trabajo?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "aprobaciones",
+      "path": "screenshots/aprobaciones.png",
+      "url": "https://os-web-staging.onrender.com/aprobaciones?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "conversaciones",
+      "path": "screenshots/conversaciones.png",
+      "url": "https://os-web-staging.onrender.com/conversaciones?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "produccion",
+      "path": "screenshots/produccion.png",
+      "url": "https://os-web-staging.onrender.com/produccion?datos=demo",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    },
+    {
+      "screen": "gerencia",
+      "path": "screenshots/gerencia.png",
+      "url": "https://os-web-staging.onrender.com/inicio?datos=demo&lente=gerencia",
+      "hostedSha": "02688431b9290b818c8fb245d68c086379363b3f"
+    }
+  ]
+}

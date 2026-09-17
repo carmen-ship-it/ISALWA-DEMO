@@ -16,6 +16,8 @@ export const OS_COMMERCIAL_EVENT_TYPES = [
   'order.created',
   'order.cancelled',
   'commercial_account.owner_reassigned',
+  'customer_coverage.granted',
+  'customer_coverage.revoked',
 ] as const;
 
 export type OsCommercialEventType = (typeof OS_COMMERCIAL_EVENT_TYPES)[number];

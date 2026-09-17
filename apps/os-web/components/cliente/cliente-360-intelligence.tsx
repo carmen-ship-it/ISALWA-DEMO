@@ -12,10 +12,30 @@ function formatCount(value: number | null): string {
 }
 
 export function Cliente360Intelligence({ facts }: Cliente360IntelligenceProps) {
+  // Prefer party-graph totals so won/closed loops still show density; open counts when >0.
+  const opportunityValue =
+    facts.opportunities !== null
+      ? formatCount(facts.opportunities)
+      : formatCount(facts.openOpportunities);
+  const orderValue =
+    facts.orders !== null ? formatCount(facts.orders) : formatCount(facts.openOrders);
+
   const items = [
-    { label: CLIENTE360_UX_COPY.openOpportunities, value: formatCount(facts.openOpportunities) },
+    { label: CLIENTE360_UX_COPY.opportunities, value: opportunityValue },
     { label: CLIENTE360_UX_COPY.quotes, value: formatCount(facts.quotes) },
-    { label: CLIENTE360_UX_COPY.orders, value: formatCount(facts.openOrders) },
+    { label: CLIENTE360_UX_COPY.orders, value: orderValue },
+    ...(facts.openOpportunities !== null &&
+    facts.openOpportunities > 0 &&
+    facts.opportunities !== null &&
+    facts.openOpportunities !== facts.opportunities
+      ? [{ label: CLIENTE360_UX_COPY.openOpportunities, value: String(facts.openOpportunities) }]
+      : []),
+    ...(facts.openOrders !== null &&
+    facts.openOrders > 0 &&
+    facts.orders !== null &&
+    facts.openOrders !== facts.orders
+      ? [{ label: CLIENTE360_UX_COPY.openOrders, value: String(facts.openOrders) }]
+      : []),
     ...(facts.deliveryNotes !== null && facts.deliveryNotes > 0
       ? [{ label: CLIENTE360_UX_COPY.ordersDelivered, value: String(facts.deliveryNotes) }]
       : []),

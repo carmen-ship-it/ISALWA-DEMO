@@ -310,6 +310,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       hasSourceQuote: Boolean(order.quoteId),
       orderRecorded: true,
       hasPreparacionFact: hasOpenPrep || finishedGoodsEvidence,
+      hasNotaFact: hasDeliveryNote,
       hasSalidaFact,
       hasEntregaFact,
     });

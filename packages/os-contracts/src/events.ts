@@ -55,6 +55,8 @@ export const OS_FOUNDATION_EVENT_TYPES = [
   'order.created',
   'order.cancelled',
   'commercial_account.owner_reassigned',
+  'customer_coverage.granted',
+  'customer_coverage.revoked',
   'finished_goods.received',
   'finished_goods.corrected',
   'delivery_note.created',

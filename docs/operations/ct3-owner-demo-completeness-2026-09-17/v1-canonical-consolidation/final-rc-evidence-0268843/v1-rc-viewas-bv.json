@@ -1,0 +1,97 @@
+{
+  "lane": "V1_RC_VIEWAS_AUDIT_SECURITY_BV",
+  "rc": "02688431b9290b818c8fb245d68c086379363b3f",
+  "checks": [
+    {
+      "id": "login",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "owner_demo_clients",
+      "status": "PASS",
+      "detail": "hits"
+    },
+    {
+      "id": "owner_historial",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2?datos=demo&tab=historial"
+    },
+    {
+      "id": "owner_documentos",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2?datos=demo&tab=documentos"
+    },
+    {
+      "id": "owner_auditoria",
+      "status": "FAIL",
+      "detail": "url=https://os-web-staging.onrender.com/auditoria?datos=demo denied=false"
+    },
+    {
+      "id": "viewas_produccion_open",
+      "status": "PASS",
+      "detail": "menu"
+    },
+    {
+      "id": "viewas_produccion_banner",
+      "status": "PASS",
+      "detail": "banner"
+    },
+    {
+      "id": "viewas_produccion_commercial_narrow",
+      "status": "PASS",
+      "detail": "no commercial create leak"
+    },
+    {
+      "id": "viewas_produccion_desk",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/produccion?datos=demo"
+    },
+    {
+      "id": "viewas_mutation_blocked_J",
+      "status": "PASS",
+      "detail": "blocked message shown"
+    },
+    {
+      "id": "viewas_almacen_open",
+      "status": "PASS",
+      "detail": "menu"
+    },
+    {
+      "id": "viewas_almacen_desk",
+      "status": "PASS",
+      "detail": "https://os-web-staging.onrender.com/almacen?datos=demo"
+    },
+    {
+      "id": "viewas_almacen_audit_fail_closed",
+      "status": "FAIL",
+      "detail": "audit under almacen"
+    },
+    {
+      "id": "viewas_asesor_open",
+      "status": "PASS",
+      "detail": "menu"
+    },
+    {
+      "id": "viewas_asesor_clients_narrow",
+      "status": "PASS",
+      "detail": "list rendered under asesor"
+    },
+    {
+      "id": "cross_company_client_url",
+      "status": "PASS",
+      "detail": "fail-closed or empty"
+    },
+    {
+      "id": "durable_conversations_still_visible",
+      "status": "FAIL",
+      "detail": "markers=0"
+    }
+  ],
+  "startedAt": "2026-09-17T13:33:01.458Z",
+  "finishedAt": "2026-09-17T13:34:45.067Z",
+  "summary": {
+    "pass": 14,
+    "fail": 3
+  }
+}

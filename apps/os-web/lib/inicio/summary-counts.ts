@@ -30,16 +30,18 @@ export const INICIO_SUMMARY_LINKS: InicioSummaryLinks = {
 /**
  * Builds Inicio summary card counts.
  *
- * **Approvals card** (`approvals`) must match Decisiones / Mi día:
- * - `approvalsScope: 'personal'` (default): pending where
- *   `approverMemberId === memberId` — same filter Decisiones uses on the
- *   personal Centro de mando list.
- * - `approvalsScope: 'org'`: all pending — Empresa (org) page lens only when
- *   the viewer has `management.org.read` (caller gates). Never use org scope
- *   for the personal Decisiones list.
+ * **Metric definitions (RC2 one-source-of-truth):**
+ * - `needsAttention`: active attention rows + overdue open work owned by
+ *   `workOwnerMemberId` (Asesor subject under View As; else session member).
+ * - `forToday`: due-today (not overdue) work for that owner + pending approvals
+ *   in the active approvals scope.
+ * - `approvals`: pending approval count for the active scope — **must match**
+ *   `/aprobaciones` and Decisiones for the same projection:
+ *   - `personal` (default): `approverMemberId === memberId`
+ *   - `org`: all pending (Empresa lens, or View As Jefe/Gerencia)
+ * - `openIssues`: unresolved issues owned by workOwner (or unassigned).
  *
- * Align the card with the active page lens (`personal` | `team` | `org`):
- * personal/team → personal pending-for-me; org → org pending when authorized.
+ * Never invent counts. Do not mix personal Decisiones with org Approvals desk.
  */
 export function buildInicioSummaryCounts(input: {
   attention: readonly AttentionItemReadModel[];

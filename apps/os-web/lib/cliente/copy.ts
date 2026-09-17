@@ -9,9 +9,11 @@ export const CLIENTE360_UX_COPY = {
   ordersDelivered: 'Notas de entrega emitidas',
   openIssues: 'Incidencias abiertas',
   lastActivity: 'Última actividad',
+  opportunities: 'Oportunidades',
   openOpportunities: 'Oportunidades abiertas',
   quotes: 'Cotizaciones',
-  orders: 'Pedidos abiertos',
+  orders: 'Pedidos',
+  openOrders: 'Pedidos abiertos',
   operacionHint:
     'Ubicación, contexto operativo y resumen de pedidos abiertos. No afirma cobranza ni pagos.',
   manualOpsDrawer: 'Registrar hecho operativo',

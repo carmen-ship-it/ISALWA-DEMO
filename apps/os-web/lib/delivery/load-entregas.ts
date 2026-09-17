@@ -44,7 +44,7 @@ export type EntregaPageModel = {
   linkedOrders: LinkedOrderFact[];
   /** Order ids with at least one issued delivery note (canonical read). */
   noteOrderIds: string[];
-  notesPreparedCount: number;
+  deliveryNotesCount: number;
 };
 
 /**
@@ -64,7 +64,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       deliveries: [],
       linkedOrders: [],
       noteOrderIds: [],
-      notesPreparedCount: 0,
+      deliveryNotesCount: 0,
     };
   }
   if (!auth) {
@@ -74,7 +74,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       deliveries: [],
       linkedOrders: [],
       noteOrderIds: [],
-      notesPreparedCount: 0,
+      deliveryNotesCount: 0,
     };
   }
 
@@ -109,14 +109,14 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
         deliveries: [],
         linkedOrders: [],
         noteOrderIds: [],
-        notesPreparedCount: 0,
+        deliveryNotesCount: 0,
       };
     }
   }
 
   const allowedOrderIds = new Set(linkedOrders.map((row) => row.orderId));
   const noteOrderIds = await loadIssuedNoteOrderIds(client, linkedOrders.map((row) => row.orderId));
-  const notesPreparedCount = noteOrderIds.length;
+  const deliveryNotesCount = noteOrderIds.length;
 
   try {
     const [exitPage, deliveryPage] = await Promise.all([
@@ -145,7 +145,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       deliveries: [],
       linkedOrders: [],
       noteOrderIds: [],
-      notesPreparedCount: 0,
+      deliveryNotesCount: 0,
     };
   }
 
@@ -157,7 +157,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       deliveries: [],
       linkedOrders: [],
       noteOrderIds: [],
-      notesPreparedCount: 0,
+      deliveryNotesCount: 0,
     };
   }
   if (fulfillmentDenied && linkedOrders.length === 0 && warehouseExits.length === 0 && deliveries.length === 0) {
@@ -167,7 +167,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       deliveries: [],
       linkedOrders: [],
       noteOrderIds: [],
-      notesPreparedCount: 0,
+      deliveryNotesCount: 0,
     };
   }
 
@@ -184,6 +184,6 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     deliveries,
     linkedOrders,
     noteOrderIds,
-    notesPreparedCount,
+    deliveryNotesCount,
   };
 }

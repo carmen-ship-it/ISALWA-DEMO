@@ -6,7 +6,7 @@ type DeliveryProgressStripProps = {
   className?: string;
 };
 
-/** Compact Pedido ✓ · Nota ○ · Salida ○ · Entrega ○ — green confirmed, slate pending. */
+/** Compact Pedido ✓ · Nota de Entrega ○ · Salida ○ · Entrega ○ — green confirmed, slate pending. */
 export function DeliveryProgressStrip({ steps, className }: DeliveryProgressStripProps) {
   return (
     <ol

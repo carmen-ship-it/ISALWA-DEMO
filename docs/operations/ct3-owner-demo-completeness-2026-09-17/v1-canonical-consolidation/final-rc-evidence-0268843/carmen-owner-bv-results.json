@@ -1,0 +1,214 @@
+{
+  "lane": "V1_OWNER_REVIEW_RC_HOSTED_BV",
+  "actor": "carmen.staging@isalwa.demo",
+  "passwordPrinted": false,
+  "base": "https://os-web-staging.onrender.com",
+  "expectedLiveSha": "02688431b9290b818c8fb245d68c086379363b3f",
+  "synthOrg": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "startedAt": "2026-09-17T13:29:18.101Z",
+  "checks": [
+    {
+      "id": "carmen_password_present",
+      "status": "PASS",
+      "detail": "loaded (not printed)"
+    },
+    {
+      "id": "login_carmen",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/inicio"
+    },
+    {
+      "id": "authenticated_actor_carmen",
+      "status": "PASS",
+      "detail": "session established as Carmen (UI identity cues or post-login)"
+    },
+    {
+      "id": "demo_synth_company_context",
+      "status": "PASS",
+      "detail": "nameHits=6 banner=true cookie=demo vistaEval=true empty=false attempts=2",
+      "nameHits": 6,
+      "banner": true,
+      "cookie": "demo",
+      "vistaEval": true,
+      "emptyClientes": false,
+      "clientesAttempt": 2,
+      "contextPass": true
+    },
+    {
+      "id": "not_using_ver_como_qa",
+      "status": "PASS",
+      "detail": "No Ver-como QA path used",
+      "verComoChromePresent": false,
+      "used": false
+    },
+    {
+      "id": "nav_clientes",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/clientes?datos=demo nameHits=6 empty=false attempts=2"
+    },
+    {
+      "id": "nav_clientes_seeded_demo_record",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2?datos=demo seededDemo=true"
+    },
+    {
+      "id": "nav_cotizaciones",
+      "status": "PASS",
+      "detail": "status=200 hasCotizacionCopy=true url=https://os-web-staging.onrender.com/cotizaciones",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/cotizaciones"
+    },
+    {
+      "id": "nav_conversaciones_durable",
+      "status": "PASS",
+      "detail": "status=200 durableMarkers=8 rowHints=16 empty=false url=https://os-web-staging.onrender.com/conversaciones",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/conversaciones",
+      "durableMarkers": 8,
+      "rowHints": 16,
+      "empty": false
+    },
+    {
+      "id": "nav_trabajo",
+      "status": "PASS",
+      "detail": "status=200 url=https://os-web-staging.onrender.com/trabajo",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/trabajo"
+    },
+    {
+      "id": "nav_mapa_available",
+      "status": "PASS",
+      "detail": "status=200 denied=false url=https://os-web-staging.onrender.com/mapa",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/mapa"
+    },
+    {
+      "id": "nav_finanzas_available",
+      "status": "PASS",
+      "detail": "status=200 url=https://os-web-staging.onrender.com/finanzas",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/finanzas"
+    },
+    {
+      "id": "nav_gerencia_available",
+      "status": "PASS",
+      "detail": "status=200 url=https://os-web-staging.onrender.com/inicio?lente=gerencia hasGerenciaCue=false",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/inicio?lente=gerencia"
+    },
+    {
+      "id": "sidebar_nav_labels_present",
+      "status": "PASS",
+      "detail": "{\"clientes\":true,\"cotizaciones\":true,\"conversaciones\":true,\"trabajo\":true,\"mapa\":true,\"finanzas\":true,\"gerencia\":true}"
+    },
+    {
+      "id": "neg_administracion_fail_closed",
+      "status": "PASS",
+      "detail": "status=200 denied=true adminShell=false url=https://os-web-staging.onrender.com/administracion",
+      "httpStatus": 200,
+      "url": "https://os-web-staging.onrender.com/administracion",
+      "denied": true,
+      "adminShell": false
+    },
+    {
+      "id": "neg_no_system_admin_controles",
+      "status": "PASS",
+      "detail": "No system.admin Controles surface in owner Demo shell"
+    },
+    {
+      "id": "neg_qa_ver_como_not_required",
+      "status": "PASS",
+      "detail": "Owner BV completed via Demo/SYNTH company context without qa.access Ver-como"
+    },
+    {
+      "id": "role_preview_does_not_change_auth",
+      "status": "PASS",
+      "detail": "No role-preview activation; AUTHENTICATED ACTOR remains Carmen"
+    },
+    {
+      "id": "mutation_none_executed",
+      "status": "PASS",
+      "detail": "Read-only BV; no mutation submitted (REAL_SEVEN untouched)"
+    },
+    {
+      "id": "cliente360_demo_open_read",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2 linkText=DEMO CONSTRUCTORA ANDINA\nCliente · Responsable: Synth FixtureSeed · +59170011002 · Ubicación disponible\nActivo nameHits=1"
+    },
+    {
+      "id": "authenticated_actor_still_carmen",
+      "status": "PASS",
+      "detail": "url=https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2 — session retained; no Ver-como identity swap"
+    }
+  ],
+  "mutations": [
+    {
+      "ACTION": "NO_MUTATION_EXECUTED",
+      "REQUIRED_BUSINESS_CAPABILITY": "n/a",
+      "ACTUAL_CAPABILITY_USED": "n/a (read-only navigation BV)",
+      "ADMIN_BYPASS_USED": "NO",
+      "NOTE": "No create CTA engaged; navigations only"
+    },
+    {
+      "ACTION": "OPEN_DEMO_CLIENTE360_READ",
+      "REQUIRED_BUSINESS_CAPABILITY": "commercial.org.read (read path)",
+      "ACTUAL_CAPABILITY_USED": "commercial.org.read (SYNTH business scopes; read-only)",
+      "ADMIN_BYPASS_USED": "NO"
+    }
+  ],
+  "evidence": {
+    "postLoginUrl": "https://os-web-staging.onrender.com/inicio",
+    "postLoginSnippet": "ISALWA\n\nSistema operativo de su empresa\n\nPRODUCCIÓN\n\nINICIO\n\nExcepciones de la empresa\n\nCOMERCIAL\n\nClientes\nOportunidades\nCotizaciones\nPedidos\nMapa\n\nTRABAJO\n\nMi trabajo\nConversaciones\nAprobaciones\nIncidencias\nCompromisos\n\nOPERACIONES\n\nProducción\nAlmacén\nCompras\nEntregas\n\nCONTROL\n\nFinanzas\nSalud de datos\nAuditoría\n\nMÁS\n\nProductos\nCoordinación\nMemoria de decisiones\nAdministración\nAyuda\nContraer\nBuscar\n⌘K\nDatos reales\nDemo\nVer recorrido completo\nVISTA DE EVALUACIÓN\nCONECTADO COMO\nCarmen\nCerrar sesi",
+    "clientes": {
+      "url": "https://os-web-staging.onrender.com/clientes?datos=demo",
+      "cookie": "demo",
+      "banner": true,
+      "nameHits": 6,
+      "vistaEval": true,
+      "emptyClientes": false,
+      "attempts": 2,
+      "snippet": "ISALWA\n\nSistema operativo de su empresa\n\nPRODUCCIÓN\n\nINICIO\n\nExcepciones de la empresa\n\nCOMERCIAL\n\nClientes\nOportunidades\nCotizaciones\nPedidos\nMapa\n\nTRABAJO\n\nMi trabajo\nConversaciones\nAprobaciones\nIncidencias\nCompromisos\n\nOPERACIONES\n\nProducción\nAlmacén\nCompras\nEntregas\n\nCONTROL\n\nFinanzas\nSalud de datos\n\nMÁS\n\nProductos\nCoordinación\nMemoria de decisiones\nAyuda\nContraer\nBuscar\n⌘K\nDatos reales\nDemo\nVer recorrido completo\nVISTA DE EVALUACIÓN\nCONECTADO COMO\nCarmen\nCerrar sesión\n\nDEMO · DATOS FICTICIOS\n\nEstá viendo datos de demostración. No son transacciones reales de la empresa.\n\nRELACIONES\n\nClientes\nBusque empresas y contactos. Una misma empresa puede tener varias relaciones comerciales.\nBUSCAR CLIENTES Y CONTACTOS\nBuscar\nTodas\nCliente\nProveedor\nDistribuidor\nSocio\n\nMapa y salud de datos\n\nDEMO CONSTRUCTORA ANDINA\nCliente · Responsable: Synth FixtureSeed · +59170011002 · Ubicación disponible\nActivo\n···\nDEMO FERRETERÍA NORTE\nCliente · Responsable: Synth FixtureSeed · +59170011005 · Ubicación disponible\nActivo\n···\nDEMO HOTEL CENTRAL\nCliente · Responsable: Synth FixtureSeed · +59170011004 · Ubicación disponible\nActivo\n···\nDEMO MADERAS ORIENTE\nCliente · Responsable: Synth FixtureSeed · +5917"
+    },
+    "clientesSeededDeepLink": {
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2?datos=demo",
+      "seededDemo": true,
+      "snippet": "ISALWA\n\nSistema operativo de su empresa\n\nPRODUCCIÓN\n\nINICIO\n\nExcepciones de la empresa\n\nCOMERCIAL\n\nClientes\nOportunidades\nCotizaciones\nPedidos\nMapa\n\nTRABAJO\n\nMi trabajo\nConversaciones\nAprobaciones\nIncidencias\nCompromisos\n\nOPERACIONES\n\nProducción\nAlmacén\nCompras\nEntregas\n\nCONTROL\n\nFinanzas\nSalud de datos\n\nMÁS\n\nProductos\nCoordinación\nMemoria de decisiones\nAyuda\nContraer\nBuscar\n⌘K\nDatos reales\nDemo\nVer recorrido completo\nVISTA DE EVALUACIÓN\nCONECTADO COMO\nCarmen\nCerrar sesión\n\nDEMO · DATOS FICTICIOS\n\nEstá viendo datos de demostración. No son transacciones reales de la empresa.\n\nVolver a clientes\nClientes\n/\nCliente\n\nFicha del cliente\n\nVolver a clientes\n\nCLIENTE\n\nDEMO CONSTRUCTORA ANDINA\nActivo\n\n+59170011002 · Marco Andrade · Coordenadas registradas · Resp. Synth FixtureSeed\n\nNueva oportunidad\n"
+    },
+    "conversaciones": {
+      "url": "https://os-web-staging.onrender.com/conversaciones",
+      "durableMarkers": 8,
+      "snippet": "ISALWA\n\nSistema operativo de su empresa\n\nPRODUCCIÓN\n\nINICIO\n\nExcepciones de la empresa\n\nCOMERCIAL\n\nClientes\nOportunidades\nCotizaciones\nPedidos\nMapa\n\nTRABAJO\n\nMi trabajo\nConversaciones\nAprobaciones\nIncidencias\nCompromisos\n\nOPERACIONES\n\nProducción\nAlmacén\nCompras\nEntregas\n\nCONTROL\n\nFinanzas\nSalud de datos\n\nMÁS\n\nProductos\nCoordinación\nMemoria de decisiones\nAyuda\nContraer\nBuscar\n⌘K\nDatos reales\nDemo\nVer recorrido completo\nVISTA DE EVALUACIÓN\nCONECTADO COMO\nCarmen\nCerrar sesión\n\nDEMO · DATOS FICTICIOS\n\nEstá viendo datos de demostración. No son transacciones reales de la empresa.\n\nTRABAJO\n\nConversaciones\nRegistros de lo hablado con clientes. WhatsApp no está conectado; un mensaje es evidencia, no un envío.\nCanal no conectado\nCanal no conectado\n\nCanal no conectado. Nada se envía ni se recibe desd"
+    },
+    "sidebar": {
+      "clientes": true,
+      "cotizaciones": true,
+      "conversaciones": true,
+      "trabajo": true,
+      "mapa": true,
+      "finanzas": true,
+      "gerencia": true
+    },
+    "rolePreview": {
+      "chrome": false,
+      "identityAfterPreview": "n/a"
+    },
+    "cliente360": {
+      "url": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2",
+      "linkText": "DEMO CONSTRUCTORA ANDINA\nCliente · Responsable: Synth FixtureSeed · +59170011002 · Ubicación disponible\nActivo",
+      "nameHits": 1,
+      "snippet": "ISALWA\n\nSistema operativo de su empresa\n\nPRODUCCIÓN\n\nINICIO\n\nExcepciones de la empresa\n\nCOMERCIAL\n\nClientes\nOportunidades\nCotizaciones\nPedidos\nMapa\n\nTRABAJO\n\nMi trabajo\nConversaciones\nAprobaciones\nIncidencias\nCompromisos\n\nOPERACIONES\n\nProducción\nAlmacén\nCompras\nEntregas\n\nCONTROL\n\nFinanzas\nSalud de datos\n\nMÁS\n\nProductos\nCoordinación\nMemoria de decisiones\nAyuda\nContraer\nBuscar\n⌘K\nDatos reales\nDemo\nVer recorrido completo\nVISTA DE EVALUACIÓN\nCONECTADO COMO\nCarmen\nCerrar sesión\n\nDEMO · DATOS FICTICIOS\n\nEstá viendo datos de demostración. No son transacciones reales de la empresa.\n\nVolver a clientes\nClientes\n/\nCliente\n\nFicha del cliente\n\nVolver a clientes\n\nCLIENTE\n\nDEMO CONSTRUCTORA ANDINA\nActivo\n\n+59170011002 · Marco Andrade · Coordenadas registradas · Resp. Synth FixtureSeed\n\nNueva oportunidad\n"
+    },
+    "apiMutationHits": [],
+    "finalUrl": "https://os-web-staging.onrender.com/clientes/01M2PMDY71EDWHJG3AFK36TDZ2",
+    "finalCookie": "demo"
+  },
+  "summary": {
+    "pass": 21,
+    "fail": 0,
+    "total": 21,
+    "USER_ACCEPTED": "NO",
+    "REAL_SEVEN_MUTATED": "NO",
+    "ADMIN_BYPASS_USED": "NO"
+  },
+  "finishedAt": "2026-09-17T13:32:07.335Z"
+}

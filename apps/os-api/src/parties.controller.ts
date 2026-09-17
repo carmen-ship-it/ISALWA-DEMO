@@ -10,15 +10,18 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
+  canGrantCustomerCoverage,
   canReassignCommercialAccountOwner,
   ListPartyTimelineQuerySchema,
   SearchPartiesQuerySchema,
 } from '@isalwa/os-contracts';
 import type { OsPartyStore } from '@isalwa/os-party';
+import type { OsCommercialStore } from '@isalwa/os-commercial';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
 import { buildQueryContext, type PartyQueryService, type PartyTimelineQueryService } from '@isalwa/os-query';
 import { resolveSession } from './os-session';
 import {
+  OS_COMMERCIAL_STORE,
   OS_PARTY_QUERY_SERVICE,
   OS_PARTY_STORE,
   OS_PARTY_TIMELINE_QUERY_SERVICE,
@@ -30,6 +33,7 @@ export class PartiesController {
   constructor(
     @Inject(OS_PARTY_STORE) private readonly partyStore: OsPartyStore,
     @Inject(OS_STORE) private readonly workforceStore: OsWorkforceStore,
+    @Inject(OS_COMMERCIAL_STORE) private readonly commercialStore: OsCommercialStore,
     @Inject(OS_PARTY_QUERY_SERVICE) private readonly partyQuery: PartyQueryService,
     @Inject(OS_PARTY_TIMELINE_QUERY_SERVICE)
     private readonly partyTimelineQuery: PartyTimelineQueryService,
@@ -140,13 +144,33 @@ export class PartiesController {
         partyId,
       );
       const queryCtx = await buildQueryContext(session, this.workforceStore);
+      const coverageRows = await this.commercialStore.listActiveCustomerCoverageForParty({
+        organizationId: session.organizationId,
+        customerPartyId: partyId,
+        asOf: session.effectiveAt ?? new Date(),
+      });
+      const activeCoverage = coverageRows[0]
+        ? {
+            grantId: coverageRows[0].id,
+            primaryOwnerMemberId: coverageRows[0].primaryOwnerMemberId,
+            actingAdvisorMemberId: coverageRows[0].actingAdvisorMemberId,
+            startsAt: coverageRows[0].startsAt.toISOString(),
+            endsAt: coverageRows[0].endsAt?.toISOString() ?? null,
+            recordedByMemberId: coverageRows[0].recordedByMemberId,
+          }
+        : null;
       return {
         party,
         roles,
         contacts,
         commercialAccount,
+        activeCoverage,
         commercialAuthority: {
           canReassignOwner: canReassignCommercialAccountOwner([
+            ...queryCtx.auth.roleKeys,
+            ...queryCtx.auth.delegatedScopes,
+          ]),
+          canManageCoverage: canGrantCustomerCoverage([
             ...queryCtx.auth.roleKeys,
             ...queryCtx.auth.delegatedScopes,
           ]),

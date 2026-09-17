@@ -7,7 +7,7 @@ type PedidoLifecycleStripProps = {
 };
 
 /**
- * Cotización → Pedido → Preparación → Salida → Entrega using only recorded facts.
+ * Cotización → Pedido → Preparación → Nota de Entrega → Salida → Entrega using only recorded facts.
  */
 export function PedidoLifecycleStrip({ steps }: PedidoLifecycleStripProps) {
   return (
@@ -43,7 +43,7 @@ export function PedidoLifecycleStrip({ steps }: PedidoLifecycleStripProps) {
         })}
       </ol>
       <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
-        Solo hechos registrados. Un paso vacío no inventa preparación, salida ni entrega.
+        Solo hechos registrados. Un paso vacío no inventa preparación, nota de entrega, salida ni entrega.
       </p>
     </PageSection>
   );

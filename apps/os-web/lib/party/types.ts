@@ -55,7 +55,16 @@ export type PartyDetailResponse = {
   } | null;
   commercialAuthority?: {
     canReassignOwner: boolean;
+    canManageCoverage?: boolean;
   };
+  activeCoverage?: {
+    grantId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+    startsAt: string;
+    endsAt: string | null;
+    recordedByMemberId: string | null;
+  } | null;
 };
 
 export type LocationView = {

@@ -273,14 +273,14 @@ export function DeliveryDocumentsPanel({
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {issuedNotes.length > 0 ? (
             <label className="text-sm text-[var(--isalwa-slate)]">
-              Nota vinculada (opcional)
+              Nota de entrega vinculada (opcional)
               <select
                 value={selectedNoteId}
                 onChange={(e) => setSelectedNoteId(e.target.value)}
                 className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
                 disabled={pending}
               >
-                <option value="">Sin nota</option>
+                <option value="">Sin nota de entrega</option>
                 {issuedNotes.map((note) => (
                   <option key={note.id} value={note.id}>
                     {note.internalDocumentRef}

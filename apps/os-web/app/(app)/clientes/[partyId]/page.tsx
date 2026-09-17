@@ -14,6 +14,7 @@ import { Cliente360Historial } from '@/components/cliente/cliente-360-historial'
 import { QuoteList } from '@/components/commercial/quote-list';
 import { Cliente360Now } from '@/components/party/cliente-360-now';
 import { Cliente360OwnerLine } from '@/components/party/cliente-360-owner-line';
+import { TemporaryCoveragePanel } from '@/components/party/temporary-coverage-panel';
 import { CustomerLocationPanel } from '@/components/party/customer-location-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { PartyRoleBadges, PartyStatusBadge } from '@/components/party/party-role-badges';
@@ -45,6 +46,7 @@ import {
 } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
 import { memberLabel } from '@/lib/work/member-resolver';
+import { formatTimestamp } from '@/lib/work/labels';
 import {
   contactDisplayName,
   formatCommercialAccountStatus,
@@ -281,6 +283,36 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 </div>
               </dl>
               <Cliente360OwnerLine owner={owner} note={composition.owner.note} />
+              {commercialAccount?.id && commercialAccount.ownerMemberId ? (
+                <TemporaryCoveragePanel
+                  partyId={partyId}
+                  commercialAccountId={commercialAccount.id}
+                  canonicalOwnerLabel={owner.label}
+                  canonicalOwnerMemberId={commercialAccount.ownerMemberId}
+                  canManageCoverage={
+                    !evaluation.active && detail.commercialAuthority?.canManageCoverage === true
+                  }
+                  activeCoverage={
+                    detail.activeCoverage
+                      ? {
+                          grantId: detail.activeCoverage.grantId,
+                          actingAdvisorLabel: memberLabel(
+                            memberLabels,
+                            detail.activeCoverage.actingAdvisorMemberId,
+                          ),
+                          actingAdvisorMemberId: detail.activeCoverage.actingAdvisorMemberId,
+                          assignedByLabel: detail.activeCoverage.recordedByMemberId
+                            ? memberLabel(memberLabels, detail.activeCoverage.recordedByMemberId)
+                            : null,
+                          startsAtLabel:
+                            formatTimestamp(detail.activeCoverage.startsAt) ??
+                            detail.activeCoverage.startsAt,
+                          note: null,
+                        }
+                      : null
+                  }
+                />
+              ) : null}
               {accountLabel ? <p className="text-sm text-[var(--isalwa-slate)]">{accountLabel}</p> : null}
               {party.status === 'merged' && party.mergedIntoPartyId ? (
                 <p className="text-sm text-[var(--isalwa-slate)]">

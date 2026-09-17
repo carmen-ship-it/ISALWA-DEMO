@@ -136,6 +136,66 @@ export interface OsCommercialStore {
     }>
   >;
 
+  /** Active grants for a party (any helper) — UI display. */
+  listActiveCustomerCoverageForParty(input: {
+    organizationId: string;
+    customerPartyId: string;
+    asOf: Date;
+  }): Promise<
+    Array<{
+      id: string;
+      grantType: 'commercial.customer.coverage';
+      organizationId: string;
+      customerPartyId: string;
+      primaryOwnerMemberId: string;
+      actingAdvisorMemberId: string;
+      startsAt: Date;
+      endsAt: Date | null;
+      revokedAt: Date | null;
+      recordedByMemberId: string | null;
+    }>
+  >;
+
+  /** Persist a new temporary coverage grant (existing OsCustomerCoverageGrant model). */
+  createCustomerCoverageGrant(input: {
+    id: string;
+    organizationId: string;
+    customerPartyId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+    startsAt: Date;
+    endsAt: Date | null;
+    recordedAt: Date;
+    recordedByMemberId: string;
+  }): Promise<void>;
+
+  /** Soft-revoke by setting revokedAt. Organization scoped. */
+  revokeCustomerCoverageGrant(input: {
+    organizationId: string;
+    grantId: string;
+    revokedAt: Date;
+    recordedByMemberId: string;
+  }): Promise<{
+    id: string;
+    customerPartyId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+  } | null>;
+
+  getCustomerCoverageGrantInOrg(
+    organizationId: string,
+    grantId: string,
+  ): Promise<{
+    id: string;
+    organizationId: string;
+    customerPartyId: string;
+    primaryOwnerMemberId: string;
+    actingAdvisorMemberId: string;
+    startsAt: Date;
+    endsAt: Date | null;
+    revokedAt: Date | null;
+  } | null>;
+
   appendEventAndAudit(
     event: StoredBusinessEvent,
     outbox: StoredOutboxMessage,

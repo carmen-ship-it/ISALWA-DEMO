@@ -71,6 +71,19 @@ export function canReassignCommercialAccountOwner(grantedScopes: readonly string
   return hasExplicitScope(grantedScopes, COMMERCIAL_ACCOUNT_REASSIGN_SCOPE);
 }
 
+/**
+ * V1 temporary coverage grant/revoke — same governed actors as permanent reassignment
+ * (Jefe Comercial / Gerencia via commercial.account.reassign). Cargo alone never qualifies.
+ * Coverage never authorizes Quote → Pedido.
+ */
+export function canGrantCustomerCoverage(grantedScopes: readonly string[]): boolean {
+  return canReassignCommercialAccountOwner(grantedScopes);
+}
+
+export function canRevokeCustomerCoverage(grantedScopes: readonly string[]): boolean {
+  return canReassignCommercialAccountOwner(grantedScopes);
+}
+
 /** Quote/order approval requests are owner-initiated. No Cargo inference. */
 export function canRequestCommercialSubjectApproval(input: {
   actorMemberId: string;

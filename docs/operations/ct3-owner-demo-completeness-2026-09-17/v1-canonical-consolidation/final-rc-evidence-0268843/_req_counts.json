@@ -1,0 +1,268 @@
+{
+  "total": 37,
+  "full": 22,
+  "partial": 15,
+  "no": 0,
+  "browser_yes": 3,
+  "reqs": [
+    {
+      "id": "A01",
+      "impl": "YES",
+      "browser": "YES (BV demo context)",
+      "gap": "Palette cross-tenant hosted negative not re-run at RC",
+      "sev": "P1"
+    },
+    {
+      "id": "A02",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "Hosted isolation script not re-executed this pass",
+      "sev": "P1"
+    },
+    {
+      "id": "A03",
+      "impl": "YES",
+      "browser": "YES login BV",
+      "gap": "\u2014",
+      "sev": "\u2014"
+    },
+    {
+      "id": "A04",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Inicio/aprobaciones/compromisos/incidencias View As not wired",
+      "sev": "P1"
+    },
+    {
+      "id": "B01",
+      "impl": "YES",
+      "browser": "YES",
+      "gap": "Runtime DB scopes not re-probed this pass",
+      "sev": "P2"
+    },
+    {
+      "id": "B02",
+      "impl": "YES",
+      "browser": "YES",
+      "gap": "\u2014",
+      "sev": "\u2014"
+    },
+    {
+      "id": "C01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Asesor subject picker UX hosted PASS partial",
+      "sev": "P1"
+    },
+    {
+      "id": "C02",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Inicio not projection-wired",
+      "sev": "P1"
+    },
+    {
+      "id": "C03",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Inicio not projection-wired",
+      "sev": "P1"
+    },
+    {
+      "id": "C04",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "\u2014",
+      "sev": "P1"
+    },
+    {
+      "id": "C05",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "\u2014",
+      "sev": "P1"
+    },
+    {
+      "id": "C06",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "\u2014",
+      "sev": "P1"
+    },
+    {
+      "id": "C07",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "\u2014",
+      "sev": "P1"
+    },
+    {
+      "id": "C08",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "\u2014",
+      "sev": "P1"
+    },
+    {
+      "id": "D01",
+      "impl": "YES",
+      "browser": "UNPROVEN hosted reassignment",
+      "gap": "Hosted reassignment BV not in RC pack",
+      "sev": "P1"
+    },
+    {
+      "id": "D02",
+      "impl": "PARTIAL",
+      "browser": "NO",
+      "gap": "No product grant/revoke coverage UI",
+      "sev": "P0"
+    },
+    {
+      "id": "D03",
+      "impl": "YES",
+      "browser": "UNPROVEN",
+      "gap": "Hosted proof missing",
+      "sev": "P1"
+    },
+    {
+      "id": "D04",
+      "impl": "YES",
+      "browser": "UNPROVEN",
+      "gap": "\u2014",
+      "sev": "P2"
+    },
+    {
+      "id": "D05",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "Hosted convert-as-other-asesor not in RC BV",
+      "sev": "P1"
+    },
+    {
+      "id": "E01",
+      "impl": "YES",
+      "browser": "PARTIAL (pending items visible on Inicio)",
+      "gap": "REAL staff not bound to Member",
+      "sev": "P1"
+    },
+    {
+      "id": "E02",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "Full approve\u2192convert hosted loop not in primary BV",
+      "sev": "P1"
+    },
+    {
+      "id": "E03",
+      "impl": "YES",
+      "browser": "UNPROVEN",
+      "gap": "Which Gerente for which type = BUSINESS_DECISION",
+      "sev": "P1"
+    },
+    {
+      "id": "F01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL (nav/PDF/cliente proven; full interactive loop not entire BV)",
+      "gap": "End-to-end interactive convert on RC not scored PASS",
+      "sev": "P1"
+    },
+    {
+      "id": "G01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Pedido lifecycle uses Preparaci\u00f3n vs Nota naming split; specialist depth FUTURE",
+      "sev": "P1"
+    },
+    {
+      "id": "H01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Inicio lacks EvaluationProjection; attention counts can be 0 while approvals list shows items (lens inconsistency UNPROVEN root)",
+      "sev": "P1"
+    },
+    {
+      "id": "I01",
+      "impl": "YES",
+      "browser": "YES",
+      "gap": "WhatsApp provider not live (by design)",
+      "sev": "\u2014"
+    },
+    {
+      "id": "J01",
+      "impl": "PARTIAL",
+      "browser": "YES tabs/nav",
+      "gap": "URL fail-closed tab matrix not fully tested",
+      "sev": "P2"
+    },
+    {
+      "id": "K01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL",
+      "gap": "Shared single strip not universal; Preparaci\u00f3n\u2260Nota vocabulary",
+      "sev": "P2"
+    },
+    {
+      "id": "L01",
+      "impl": "PARTIAL",
+      "browser": "UNPROVEN",
+      "gap": "No dedicated View As search hosted negative",
+      "sev": "P1"
+    },
+    {
+      "id": "M01",
+      "impl": "PARTIAL",
+      "browser": "YES nav_mapa",
+      "gap": "Asesor own-filter depth vs coverage UNPROVEN hosted",
+      "sev": "P2"
+    },
+    {
+      "id": "N01",
+      "impl": "YES",
+      "browser": "PARTIAL (page loads; cue weak)",
+      "gap": "\u2014",
+      "sev": "P2"
+    },
+    {
+      "id": "O01",
+      "impl": "YES",
+      "browser": "YES nav",
+      "gap": "No accounting integration (FUTURE)",
+      "sev": "\u2014"
+    },
+    {
+      "id": "P01",
+      "impl": "YES",
+      "browser": "PARTIAL",
+      "gap": "Owner BV did not re-download PDF bytes this pack",
+      "sev": "P2"
+    },
+    {
+      "id": "Q01",
+      "impl": "PARTIAL",
+      "browser": "YES owner historial/auditoria recheck",
+      "gap": "Hosted unauthorized-asesor audit matrix not full interactive",
+      "sev": "P1"
+    },
+    {
+      "id": "R01",
+      "impl": "YES",
+      "browser": "PARTIAL (button present)",
+      "gap": "Full 20-step hosted walk not re-run at RC",
+      "sev": "P2"
+    },
+    {
+      "id": "S01",
+      "impl": "PARTIAL",
+      "browser": "PARTIAL screenshots",
+      "gap": "Formal mobile matrix + color computed CSS not fully re-proven at RC",
+      "sev": "P2"
+    },
+    {
+      "id": "T01",
+      "impl": "PARTIAL",
+      "browser": "NO interactive PASS",
+      "gap": "AI_OWNER_REVIEW_READY=NO",
+      "sev": "P0"
+    }
+  ]
+}

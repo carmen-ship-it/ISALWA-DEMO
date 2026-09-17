@@ -18,6 +18,8 @@ export const COMMERCIAL_COMMAND_NAMES = [
   'CreateOrder',
   'CancelOrder',
   'ReassignCommercialAccountOwner',
+  'GrantCustomerCoverage',
+  'RevokeCustomerCoverage',
 ] as const;
 
 export type CommercialCommandName = (typeof COMMERCIAL_COMMAND_NAMES)[number];
@@ -132,6 +134,19 @@ export const ReassignCommercialAccountOwnerPayloadSchema = z.object({
   ownerMemberId: z.string().min(1),
 });
 
+/** Temporary coverage on existing CustomerCoverageGrant model. Note is audit-only (no schema column). */
+export const GrantCustomerCoveragePayloadSchema = z.object({
+  commercialAccountId: z.string().min(1),
+  actingAdvisorMemberId: z.string().min(1),
+  endsAt: z.string().datetime().optional().nullable(),
+  note: z.string().max(2000).optional(),
+});
+
+export const RevokeCustomerCoveragePayloadSchema = z.object({
+  grantId: z.string().min(1),
+  note: z.string().max(2000).optional(),
+});
+
 export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z.ZodTypeAny> = {
   CreateOpportunity: CreateOpportunityPayloadSchema,
   UpdateOpportunity: UpdateOpportunityPayloadSchema,
@@ -149,6 +164,8 @@ export const COMMERCIAL_COMMAND_PAYLOAD_SCHEMAS: Record<CommercialCommandName, z
   CreateOrder: CreateOrderPayloadSchema,
   CancelOrder: CancelOrderPayloadSchema,
   ReassignCommercialAccountOwner: ReassignCommercialAccountOwnerPayloadSchema,
+  GrantCustomerCoverage: GrantCustomerCoveragePayloadSchema,
+  RevokeCustomerCoverage: RevokeCustomerCoveragePayloadSchema,
 };
 
 export function isOpenOpportunityStatus(status: string): status is (typeof OPPORTUNITY_STATUSES)[number] {

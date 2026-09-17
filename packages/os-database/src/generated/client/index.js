@@ -1616,7 +1616,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/packages/os-database/src/generated/client",
+      "value": "/Users/carmen/projects/isalwa/.worktrees/ct3-owner-demo/packages/os-database/src/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -1630,7 +1630,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/carmen/projects/isalwa/.worktrees/wave2-remediation-integrate/packages/os-database/prisma/schema.prisma",
+    "sourceFilePath": "/Users/carmen/projects/isalwa/.worktrees/ct3-owner-demo/packages/os-database/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

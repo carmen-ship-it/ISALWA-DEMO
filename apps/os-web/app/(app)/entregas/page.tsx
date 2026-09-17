@@ -70,7 +70,7 @@ export default async function EntregasPage({
         </div>
       ) : null}
       <EntregaSummaryStrip
-        notesPreparedCount={view.notesPreparedCount}
+        deliveryNotesCount={view.deliveryNotesCount}
         warehouseExits={view.warehouseExits.map((row) => ({
           orderId: row.orderId?.trim() || '',
         }))}
@@ -117,7 +117,7 @@ function LinkedOrdersSection({
         }
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Abra el pedido ya registrado de la lista. El progreso Nota / Salida / Entrega usa solo
+        Abra el pedido ya registrado de la lista. El progreso Nota de Entrega / Salida / Entrega usa solo
         hechos registrados — no se inventa una entrega desde el pedido.
       </p>
       {orders.length === 0 ? (

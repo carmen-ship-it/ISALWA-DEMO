@@ -28,7 +28,7 @@ const DEFAULT_LANES: PedidoOpsLaneCard[] = [
   {
     id: 'delivery',
     title: 'Entregas',
-    body: 'Nota, salida y entrega se registran por hechos. Salida no es entrega.',
+    body: 'Nota de entrega, salida y entrega se registran por hechos. Salida no es entrega.',
     href: PEDIDO_FUNCTION_ROUTES.entregas,
     cta: 'Abrir entregas',
   },

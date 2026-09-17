@@ -2,8 +2,11 @@ import type { CommercialCommandName, RequestContext } from '@isalwa/os-contracts
 import {
   COMMAND_REQUIRED_SCOPES,
   canConvertQuoteToOrder,
+  canGrantCustomerCoverage,
   canReassignCommercialAccountOwner,
+  canRevokeCustomerCoverage,
   coverageAuditForConvert,
+  buildCustomerCoverageGrant,
 } from '@isalwa/os-contracts';
 import {
   assertMemberActive,
@@ -156,6 +159,12 @@ export class CommercialCommandService {
         break;
       case 'ReassignCommercialAccountOwner':
         result = await this.reassignCommercialAccountOwner(ctx, payload, store);
+        break;
+      case 'GrantCustomerCoverage':
+        result = await this.grantCustomerCoverage(ctx, payload, store);
+        break;
+      case 'RevokeCustomerCoverage':
+        result = await this.revokeCustomerCoverage(ctx, payload, store);
         break;
       default:
         throw new Error('VALIDATION_FAILED');
@@ -1195,6 +1204,139 @@ export class CommercialCommandService {
       'commercial_account.owner_reassigned',
       { ownerMemberId: previousOwnerMemberId },
       { ownerMemberId },
+    );
+  }
+
+  private async grantCustomerCoverage(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommercialStore,
+  ): Promise<CommandResult> {
+    const snap = await this.authorize(ctx, 'GrantCustomerCoverage', ctx.organizationId);
+    if (!canGrantCustomerCoverage([...snap.roleKeys, ...snap.delegatedScopes])) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    const commercialAccountId = String(payload.commercialAccountId);
+    const actingAdvisorMemberId = String(payload.actingAdvisorMemberId);
+    const note = payload.note != null ? String(payload.note).trim() || undefined : undefined;
+    let endsAt: Date | null = null;
+    if (payload.endsAt != null && String(payload.endsAt).trim()) {
+      endsAt = new Date(String(payload.endsAt));
+      if (Number.isNaN(endsAt.getTime())) throw new Error('VALIDATION_FAILED');
+    }
+
+    const account = this.refuseForeign(
+      await store.getCommercialAccountInOrg(ctx.organizationId, commercialAccountId),
+      ctx.organizationId,
+    );
+    if (account.status !== 'active') throw new Error('VALIDATION_FAILED');
+    if (!account.ownerMemberId) throw new Error('VALIDATION_FAILED');
+
+    const helper = this.refuseForeign(
+      await store.getMemberInOrg(ctx.organizationId, actingAdvisorMemberId),
+      ctx.organizationId,
+    );
+    if (helper.accessStatus !== 'active') throw new Error('VALIDATION_FAILED');
+
+    const startsAt = new Date();
+    const built = buildCustomerCoverageGrant({
+      organizationId: ctx.organizationId,
+      customerPartyId: account.partyId,
+      primaryOwnerMemberId: account.ownerMemberId,
+      actingAdvisorMemberId,
+      startsAt,
+      endsAt: endsAt ?? undefined,
+    });
+    if (!built) throw new Error('VALIDATION_FAILED');
+
+    const existing = await store.listActiveCustomerCoverageGrants({
+      organizationId: ctx.organizationId,
+      customerPartyId: account.partyId,
+      actingAdvisorMemberId,
+      asOf: startsAt,
+    });
+    if (existing.length > 0) throw new Error('VALIDATION_FAILED');
+
+    const grantId = createId();
+    await store.createCustomerCoverageGrant({
+      id: grantId,
+      organizationId: ctx.organizationId,
+      customerPartyId: account.partyId,
+      primaryOwnerMemberId: account.ownerMemberId,
+      actingAdvisorMemberId,
+      startsAt,
+      endsAt,
+      recordedAt: startsAt,
+      recordedByMemberId: snap.memberId,
+    });
+
+    return this.emit(
+      ctx,
+      store,
+      'customer_coverage.granted',
+      'party',
+      account.partyId,
+      {
+        grantId,
+        commercialAccountId,
+        partyId: account.partyId,
+        primaryOwnerMemberId: account.ownerMemberId,
+        actingAdvisorMemberId,
+        startsAt: startsAt.toISOString(),
+        endsAt: endsAt?.toISOString() ?? null,
+        note,
+        assignedByMemberId: snap.memberId,
+      },
+      'customer_coverage.granted',
+      undefined,
+      {
+        grantId,
+        actingAdvisorMemberId,
+        primaryOwnerMemberId: account.ownerMemberId,
+      },
+    );
+  }
+
+  private async revokeCustomerCoverage(
+    ctx: RequestContext,
+    payload: Record<string, unknown>,
+    store: OsCommercialStore,
+  ): Promise<CommandResult> {
+    const snap = await this.authorize(ctx, 'RevokeCustomerCoverage', ctx.organizationId);
+    if (!canRevokeCustomerCoverage([...snap.roleKeys, ...snap.delegatedScopes])) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    const grantId = String(payload.grantId);
+    const note = payload.note != null ? String(payload.note).trim() || undefined : undefined;
+    const revokedAt = new Date();
+    const revoked = await store.revokeCustomerCoverageGrant({
+      organizationId: ctx.organizationId,
+      grantId,
+      revokedAt,
+      recordedByMemberId: snap.memberId,
+    });
+    if (!revoked) throw new Error('NOT_FOUND');
+
+    return this.emit(
+      ctx,
+      store,
+      'customer_coverage.revoked',
+      'party',
+      revoked.customerPartyId,
+      {
+        grantId: revoked.id,
+        partyId: revoked.customerPartyId,
+        primaryOwnerMemberId: revoked.primaryOwnerMemberId,
+        actingAdvisorMemberId: revoked.actingAdvisorMemberId,
+        revokedAt: revokedAt.toISOString(),
+        note,
+        revokedByMemberId: snap.memberId,
+      },
+      'customer_coverage.revoked',
+      { grantId: revoked.id, revokedAt: null },
+      { grantId: revoked.id, revokedAt: revokedAt.toISOString() },
     );
   }
 }

@@ -9,22 +9,23 @@ export { countDeliveriesToday, computeEntregaSummaryCounts };
 export type { EntregaSummaryCounts };
 
 type EntregaSummaryStripProps = {
-  /** Canonical delivery-note count when available; otherwise 0 (honest empty). */
-  notesPreparedCount: number;
+  /** Canonical issued delivery-note count when available; otherwise 0 (honest empty). */
+  deliveryNotesCount: number;
   warehouseExits: readonly { orderId: string }[];
   deliveries: readonly { orderId: string; deliveredAt: string }[];
 };
 
 /**
- * Notas preparadas / Salidas sin entrega / Entregas hoy — only from canonical reads.
+ * Notas de entrega / Salidas sin entrega / Entregas hoy — only from canonical reads.
+ * "Notas de entrega" is issued delivery notes — not Preparación and not Salida.
  */
 export function EntregaSummaryStrip({
-  notesPreparedCount,
+  deliveryNotesCount,
   warehouseExits,
   deliveries,
 }: EntregaSummaryStripProps) {
   const counts = computeEntregaSummaryCounts({
-    noteCount: notesPreparedCount,
+    noteCount: deliveryNotesCount,
     exits: warehouseExits,
     deliveries,
   });
@@ -33,7 +34,7 @@ export function EntregaSummaryStrip({
     <StatGroup
       className="mb-6"
       items={[
-        { label: 'Notas preparadas', value: String(counts.notasPreparadas) },
+        { label: 'Notas de entrega', value: String(counts.notasDeEntrega) },
         { label: 'Salidas sin entrega', value: String(counts.salidasSinEntrega) },
         { label: 'Entregas hoy', value: String(counts.entregasHoy) },
       ]}
