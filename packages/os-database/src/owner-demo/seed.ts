@@ -547,10 +547,10 @@ async function ensureOpsLoop(
           organizationId: session.organizationId,
           warehouseExitId: exit.id,
           orderId: input.orderId,
-          documentKind: 'warehouse_outbound',
-          numberingPolicy: 'external_or_none',
+          documentKind: 'nota_de_salida',
+          numberingPolicy: 'unknown',
           exitedAt: exit.exitedAt,
-          bornAt: new Date(),
+          bornAt: exit.exitedAt,
         },
       });
     }
