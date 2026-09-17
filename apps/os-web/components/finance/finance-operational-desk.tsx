@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { EmptyState, PageSection, StatusPill } from '@isalwa/ui';
+import { EmptyState, PageSection } from '@isalwa/ui';
 import { SearchableSelect, type SearchableOption } from '@/components/experience/searchable-select';
 import { ManualPaymentForm } from '@/components/operations/manual-payment-form';
 import { ReportedFactProvenance } from '@/components/operations/reported-fact-provenance';
@@ -156,170 +156,159 @@ function ReadyDesk(props: {
   }
 
   return (
-    <div data-finance-status="ready" className="space-y-8">
-      {/* Provenance strip — calm, not warning-dominated */}
-      <aside
-        className="max-w-2xl rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_78%,white)] px-5 py-4 shadow-[var(--isalwa-shadow-soft)]"
-        aria-label="Alcance del registro"
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusPill tone="manual">Dato manual</StatusPill>
-          <StatusPill tone="neutral">No es libro contable</StatusPill>
+    <div data-finance-status="ready" className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start">
+      <PageSection card className="min-w-0 space-y-4 p-5 shadow-[var(--isalwa-shadow-resting)] md:p-6">
+        <div>
+          <p className="isalwa-kicker">Contexto</p>
+          <h2 className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
+            {FINANCE_DESK_COPY.subjectIntro}
+          </h2>
         </div>
-        <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {FINANCE_DESK_COPY.boundaryManual} Queda pendiente de confirmar en la empresa; no abre
-          Ingresos ni contabilidad oficial.
-        </p>
-      </aside>
 
-      <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-        <PageSection
-          card
-          className="min-w-0 space-y-4 p-6 shadow-[var(--isalwa-shadow-resting)] md:p-8"
-        >
-          <div>
-            <p className="isalwa-kicker">Registro</p>
-            <h2 className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
-              {FINANCE_DESK_COPY.subjectIntro}
-            </h2>
-          </div>
-          <div>
-            <label htmlFor="finance-subject-type" className="isalwa-section-label">
-              {FINANCE_DESK_COPY.subjectType}
-            </label>
-            <select
-              id="finance-subject-type"
-              className="mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
-              value={subjectType}
-              onChange={(event) => {
-                setSubjectType(event.target.value as SubjectType);
-                clearSubject();
-              }}
-            >
-              <option value="order">{FINANCE_DESK_COPY.subjectOrder}</option>
-              <option value="party">{FINANCE_DESK_COPY.subjectParty}</option>
-              <option value="quote">{FINANCE_DESK_COPY.subjectQuote}</option>
-            </select>
-          </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Tipo de sujeto">
+          {(
+            [
+              { id: 'order' as const, label: FINANCE_DESK_COPY.subjectOrder },
+              { id: 'party' as const, label: FINANCE_DESK_COPY.subjectParty },
+              { id: 'quote' as const, label: FINANCE_DESK_COPY.subjectQuote },
+            ] as const
+          ).map((option) => {
+            const selected = subjectType === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={selected}
+                className={
+                  selected
+                    ? 'isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-kiln)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)]'
+                    : 'isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-4 text-sm font-medium text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]'
+                }
+                onClick={() => {
+                  setSubjectType(option.id);
+                  clearSubject();
+                }}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
 
-          {subjectType === 'order' ? (
-            props.orderOptions.length === 0 ? (
-              <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-                {FINANCE_DESK_COPY.subjectEmptyOrders}
-              </p>
-            ) : (
-              <SearchableSelect
-                id="finance-subject-order"
-                label={FINANCE_DESK_COPY.subjectSelectOrder}
-                options={props.orderOptions}
-                value={subjectType === 'order' ? trimmedSubjectId || null : null}
-                onChange={(id) => selectOption(id, props.orderOptions)}
-                placeholder="Buscar pedido"
-                noMatchLabel="Ningún pedido coincide"
-              />
-            )
-          ) : null}
-
-          {subjectType === 'quote' ? (
-            props.quoteOptions.length === 0 ? (
-              <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-                {FINANCE_DESK_COPY.subjectEmptyQuotes}
-              </p>
-            ) : (
-              <SearchableSelect
-                id="finance-subject-quote"
-                label={FINANCE_DESK_COPY.subjectSelectQuote}
-                options={props.quoteOptions}
-                value={subjectType === 'quote' ? trimmedSubjectId || null : null}
-                onChange={(id) => selectOption(id, props.quoteOptions)}
-                placeholder="Buscar cotización"
-                noMatchLabel="Ninguna cotización coincide"
-              />
-            )
-          ) : null}
-
-          {subjectType === 'party' ? (
-            <ServerPartyTypeahead
-              id="finance-subject-party"
-              label={FINANCE_DESK_COPY.subjectSelectParty}
-              required
-              value={trimmedSubjectId}
-              displayLabel={subjectLabel}
-              onChange={({ partyId, label }) => {
-                setSubjectId(partyId);
-                setSubjectLabel(label);
-              }}
-            />
-          ) : null}
-
-          {canShowForm ? (
-            <p className="text-sm text-[var(--isalwa-kiln)]" data-finance-subject-selected="">
-              {FINANCE_DESK_COPY.subjectSelected}: {subjectLabel || trimmedSubjectId}
-            </p>
-          ) : null}
-
-          {writeError ? (
-            <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
-              {writeError}
-            </p>
-          ) : null}
-          {notice ? (
-            <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]" role="status">
-              {notice}
+        {subjectType === 'order' ? (
+          props.orderOptions.length === 0 ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              {FINANCE_DESK_COPY.subjectEmptyOrders}
             </p>
           ) : (
-            <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              {REPORTED_FACT_NOT_PERSISTED_COPY}
+            <SearchableSelect
+              id="finance-subject-order"
+              label={FINANCE_DESK_COPY.subjectSelectOrder}
+              options={props.orderOptions}
+              value={subjectType === 'order' ? trimmedSubjectId || null : null}
+              onChange={(id) => selectOption(id, props.orderOptions)}
+              placeholder="Buscar pedido"
+              noMatchLabel="Ningún pedido coincide"
+            />
+          )
+        ) : null}
+
+        {subjectType === 'quote' ? (
+          props.quoteOptions.length === 0 ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              {FINANCE_DESK_COPY.subjectEmptyQuotes}
             </p>
-          )}
+          ) : (
+            <SearchableSelect
+              id="finance-subject-quote"
+              label={FINANCE_DESK_COPY.subjectSelectQuote}
+              options={props.quoteOptions}
+              value={subjectType === 'quote' ? trimmedSubjectId || null : null}
+              onChange={(id) => selectOption(id, props.quoteOptions)}
+              placeholder="Buscar cotización"
+              noMatchLabel="Ninguna cotización coincide"
+            />
+          )
+        ) : null}
 
-          {canShowForm ? (
-            <div className="border-t border-[var(--isalwa-mist)] pt-4 [&_button[type=submit]]:sticky [&_button[type=submit]]:bottom-3 [&_button[type=submit]]:z-10 [&_button[type=submit]]:shadow-[var(--isalwa-shadow-resting)]">
-              <ManualPaymentForm
-                organizationId={props.organizationId}
-                subjectType={subjectType}
-                subjectId={trimmedSubjectId}
-                subjectLabel={subjectLabel.trim() || trimmedSubjectId}
-                reportedByLabel={props.actorLabel}
-                onRecorded={onRecorded}
-              />
-            </div>
-          ) : null}
-        </PageSection>
+        {subjectType === 'party' ? (
+          <ServerPartyTypeahead
+            id="finance-subject-party"
+            label={FINANCE_DESK_COPY.subjectSelectParty}
+            required
+            value={trimmedSubjectId}
+            displayLabel={subjectLabel}
+            onChange={({ partyId, label }) => {
+              setSubjectId(partyId);
+              setSubjectLabel(label);
+            }}
+          />
+        ) : null}
 
-        <div className="min-w-0 space-y-4">
-          <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)] p-5 md:p-6">
-            <p className="isalwa-section-label">Límites</p>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              <li>{FINANCE_DESK_COPY.boundaryOfficial}</li>
-              <li>{FINANCE_DESK_COPY.boundaryConfirm}</li>
-              <li>{FINANCE_DESK_COPY.noIngresos}</li>
-            </ul>
+        {canShowForm ? (
+          <div
+            className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_45%,white)] px-4 py-3"
+            data-finance-subject-selected=""
+          >
+            <p className="isalwa-section-label">{FINANCE_DESK_COPY.subjectSelected}</p>
+            <p className="mt-1 text-sm font-medium text-[var(--isalwa-kiln)]">
+              {subjectLabel || trimmedSubjectId}
+            </p>
           </div>
+        ) : null}
 
-          <PageSection card className="min-w-0 space-y-1 p-5 md:p-6">
-            <p className="isalwa-section-label">Proveniencia</p>
-            {facts.length === 0 ? (
-              <EmptyState
-                className="mt-3"
-                title={FINANCE_DESK_COPY.emptyFacts}
-                description="Seleccione el pedido, cliente o cotización y registre un pago reportado. Queda pendiente de confirmar."
-                example="Un pago reportado sobre un pedido aparece aquí con quién lo cargó y que aún no está confirmado."
+        {writeError ? (
+          <p className="text-sm text-[var(--isalwa-danger)]" role="alert">
+            {writeError}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="text-sm leading-relaxed text-[var(--isalwa-kiln)]" role="status">
+            {notice}
+          </p>
+        ) : canShowForm ? (
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {FINANCE_DESK_COPY.paymentHelper}
+          </p>
+        ) : null}
+
+        {canShowForm ? (
+          <div className="border-t border-[var(--isalwa-mist)] pt-4 [&_form]:border-t-0 [&_form]:pt-0 [&_button[type=submit]]:sticky [&_button[type=submit]]:bottom-3 [&_button[type=submit]]:z-10 [&_button[type=submit]]:shadow-[var(--isalwa-shadow-resting)]">
+            <p className="mb-3 text-sm font-medium text-[var(--isalwa-kiln)]">
+              {FINANCE_DESK_COPY.paymentSectionTitle}
+            </p>
+            <ManualPaymentForm
+              organizationId={props.organizationId}
+              subjectType={subjectType}
+              subjectId={trimmedSubjectId}
+              subjectLabel={subjectLabel.trim() || trimmedSubjectId}
+              reportedByLabel={props.actorLabel}
+              onRecorded={onRecorded}
+            />
+          </div>
+        ) : null}
+      </PageSection>
+
+      <PageSection card className="min-w-0 space-y-1 p-5 md:p-6">
+        <p className="isalwa-section-label">Esta sesión</p>
+        {facts.length === 0 ? (
+          <EmptyState
+            className="mt-3"
+            title={FINANCE_DESK_COPY.emptyFacts}
+            description="Los pagos reportados aparecen aquí con procedencia visible."
+          />
+        ) : (
+          <div className="mt-2 divide-y divide-[var(--isalwa-mist)]">
+            {facts.map((fact) => (
+              <ReportedFactProvenance
+                key={`${fact.id}:${fact.activity}`}
+                fact={fact}
+                onReversed={onReversed}
               />
-            ) : (
-              <div className="mt-2 divide-y divide-[var(--isalwa-mist)]">
-                {facts.map((fact) => (
-                  <ReportedFactProvenance
-                    key={`${fact.id}:${fact.activity}`}
-                    fact={fact}
-                    onReversed={onReversed}
-                  />
-                ))}
-              </div>
-            )}
-          </PageSection>
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </PageSection>
     </div>
   );
 }

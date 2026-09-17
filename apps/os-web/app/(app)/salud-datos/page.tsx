@@ -11,6 +11,7 @@ import {
   dataHealthFromSummaries,
   dataHealthPillTone,
 } from '@/lib/party/data-health';
+import { dataHealthCta } from '@/lib/party/data-health-cta';
 
 export default async function SaludDatosPage() {
   const auth = await getServerOsAuthContext();
@@ -36,7 +37,7 @@ export default async function SaludDatosPage() {
         }
       />
 
-      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {DATA_HEALTH_BOUNDARY}
         {partial ? ' La lectura está acotada a los primeros clientes visibles.' : null}
       </p>
@@ -49,12 +50,14 @@ export default async function SaludDatosPage() {
         />
       ) : (
         <PageSection aria-label="Hallazgos">
-          <ul className="space-y-4">
-            {issues.map((issue) => (
+          <ul className="space-y-3">
+            {issues.map((issue) => {
+              const cta = dataHealthCta(issue);
+              return (
               <li
                 key={issue.id}
                 className={cx(
-                  'rounded-lg border border-[var(--isalwa-mist)] border-l-4 p-5 shadow-[var(--isalwa-shadow-soft)]',
+                  'rounded-lg border border-[var(--isalwa-mist)] border-l-4 p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5',
                   DATA_HEALTH_TYPE_MARKER[issue.type],
                 )}
               >
@@ -97,8 +100,16 @@ export default async function SaludDatosPage() {
                   </div>
                 </dl>
                 <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">{issue.boundary}</p>
+                <div className="mt-4">
+                  <Link href={cta.href} className="inline-flex">
+                    <Button type="button" variant="secondary" size="sm">
+                      {cta.label}
+                    </Button>
+                  </Link>
+                </div>
               </li>
-            ))}
+            );
+            })}
           </ul>
         </PageSection>
       )}

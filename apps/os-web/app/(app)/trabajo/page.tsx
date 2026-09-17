@@ -17,6 +17,7 @@ import {
 } from '@/lib/productivity/list-controls';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { probeWorkOrgLens, probeWorkTeamLens } from '@/lib/work/trabajo-lens';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 const PAGE_LIMIT = 25;
@@ -38,6 +39,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
+  const [canTeamLens, canOrgLens] = await Promise.all([
+    probeWorkTeamLens(client),
+    probeWorkOrgLens(client),
+  ]);
   const subjectType = query.subjectType;
   const subjectId = query.subjectId;
   const filteredByParty = subjectType === 'party' && Boolean(subjectId);
@@ -80,7 +85,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         <PageHeader
           kicker={t('pages.trabajo.kicker')}
           title={t('pages.trabajo.title')}
-          description={pageDescription(view, filteredByParty)}
+          description={t('pages.trabajo.description')}
           action={
             filteredByParty && subjectId ? (
               <Link href={partyHref(subjectId)} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
@@ -90,7 +95,12 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           }
         />
 
-        <TrabajoViewTabs active={view} state={listState} showRequestedLens />
+        <TrabajoViewTabs
+          active={view}
+          state={listState}
+          canTeamLens={canTeamLens}
+          canOrgLens={canOrgLens}
+        />
 
         <TrabajoListToolbar state={listState} controls={controls} />
 
@@ -100,11 +110,6 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
           <EmptyState
             title={emptyTitle(view, filteredByParty, controls)}
             description={emptyDescription(view, filteredByParty, controls)}
-            example={
-              view === 'mine' && !filteredByParty && !controls.q && !controls.focus
-                ? 'Un seguimiento con responsable y fecha permanece aquí hasta que lo complete. Si la cola está vacía, no falta un listado — aún no hay trabajo abierto a su nombre.'
-                : undefined
-            }
             action={
               view === 'mine' && !filteredByParty && !controls.q && !controls.focus ? (
                 <Link href="/clientes" className="inline-flex">
@@ -146,9 +151,9 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         <PageHeader
           kicker={t('pages.trabajo.kicker')}
           title={t('pages.trabajo.title')}
-          description={pageDescription(view, filteredByParty)}
+          description={t('pages.trabajo.description')}
         />
-        <TrabajoViewTabs active={view} state={listState} />
+        <TrabajoViewTabs active={view} state={listState} canTeamLens={false} canOrgLens={false} />
         <QuerySurfaceState error={classifyQueryError(err)} />
       </PageContainer>
     );
@@ -158,19 +163,20 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
 function TrabajoViewTabs({
   active,
   state,
-  showRequestedLens = false,
+  canTeamLens,
+  canOrgLens,
 }: {
   active: TrabajoView;
   state: ListQueryState;
-  /** Only after this request succeeded. A denial must not look like an offered lens. */
-  showRequestedLens?: boolean;
+  canTeamLens: boolean;
+  canOrgLens: boolean;
 }) {
   const tabs: Array<{ id: TrabajoView; label: string }> = [
     { id: 'mine', label: 'Míos' },
     { id: 'overdue', label: 'Vencidos' },
   ];
-  if (showRequestedLens && active === 'team') tabs.push({ id: 'team', label: 'Equipo' });
-  if (showRequestedLens && active === 'org') tabs.push({ id: 'org', label: 'Empresa' });
+  if (canTeamLens || active === 'team') tabs.splice(1, 0, { id: 'team', label: 'Equipo' });
+  if (canOrgLens || active === 'org') tabs.splice(tabs.length - 1, 0, { id: 'org', label: 'Empresa' });
 
   return (
     <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Vista de trabajo">
@@ -206,27 +212,16 @@ function parseTrabajoView(raw: string | undefined): TrabajoView {
   return 'mine';
 }
 
-function pageDescription(view: TrabajoView, filteredByParty: boolean): string {
-  if (filteredByParty && view === 'overdue') {
-    return 'Trabajo abierto de este cliente cuya fecha ya pasó.';
-  }
-  if (filteredByParty) return 'Trabajo abierto vinculado a este cliente, en la misma cola.';
-  if (view === 'overdue') return 'Trabajo abierto cuya fecha ya pasó.';
-  if (view === 'team') return 'Trabajo abierto de las personas a su cargo. Solo lectura.';
-  if (view === 'org') return 'Trabajo abierto de la empresa. Solo lectura.';
-  return 'Cola de trabajo abierto, con responsable, cliente y fecha.';
-}
-
 function emptyTitle(
   view: TrabajoView,
   filteredByParty: boolean,
   controls: ReturnType<typeof readListControls>,
 ): string {
   if (controls.q || controls.focus) return 'Ningún trabajo coincide con estos filtros.';
-  if (view === 'overdue') return 'No tiene trabajo vencido en este momento.';
+  if (view === 'overdue') return 'Todo al día.';
   if (view === 'team' || view === 'org') return 'No hay trabajo abierto en esta vista.';
-  if (filteredByParty) return 'No tiene trabajo pendiente en este momento.';
-  return 'No tiene trabajo pendiente en este momento.';
+  if (filteredByParty) return 'Todo al día.';
+  return 'Todo al día.';
 }
 
 function emptyDescription(
@@ -240,12 +235,10 @@ function emptyDescription(
   if (view === 'overdue') {
     return filteredByParty
       ? 'Este cliente no tiene trabajo abierto vencido.'
-      : 'Cuando una fecha de trabajo abierto ya pasó, lo verá aquí. Completarlo sigue en el detalle.';
+      : 'Sin fechas vencidas en esta vista.';
   }
-  if (view === 'team') return 'No hay trabajo abierto de las personas a su cargo.';
-  if (view === 'org') return 'No hay trabajo abierto de la empresa en esta página.';
-  if (filteredByParty) {
-    return 'Este cliente no tiene trabajo abierto en la cola. Un seguimiento registrado en su ficha aparecerá aquí.';
-  }
-  return 'Esta es su cola de trabajo. Cuando registre un seguimiento en la ficha de un cliente, o se le asigne una tarea, lo verá aquí.';
+  if (view === 'team') return 'Sin trabajo abierto del equipo en esta lectura.';
+  if (view === 'org') return 'Sin trabajo abierto de la empresa en esta lectura.';
+  if (filteredByParty) return 'Sin trabajo abierto para este cliente.';
+  return 'Sin trabajo pendiente a su nombre.';
 }

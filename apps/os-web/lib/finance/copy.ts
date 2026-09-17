@@ -8,10 +8,11 @@ import { FINANCE_OPERATIONAL_RECORD_SCOPE } from '@isalwa/os-contracts';
  * The scopeRequired constant exists for code/test use ONLY; it must never render in UI.
  */
 export const FINANCE_DESK_COPY = {
-  kicker: 'Registro operativo',
-  title: 'Finanzas operativas',
-  intro:
-    'Anote evidencia de pago reportada. No es contabilidad oficial y no confirma cobranza.',
+  kicker: 'Contabilidad',
+  title: 'Finanzas',
+  intro: 'Registro financiero operativo.',
+  disclaimerBanner:
+    'ISALWA registra información reportada aquí. La contabilidad oficial continúa en su sistema contable.',
   boundaryOfficial:
     'ISALWA no reemplaza la contabilidad oficial. Este escritorio no publica asientos ni declara ingresos fiscales.',
   boundaryConfirm:
@@ -24,7 +25,9 @@ export const FINANCE_DESK_COPY = {
   permissionSession: 'Hace falta una sesión activa de esta empresa. Otra empresa no se ve aquí.',
   permissionUnconfirmed:
     'No se pudo confirmar el permiso asignado. Sin confirmación de permisos no se abre el escritorio.',
-  subjectIntro: 'Elija el pedido, cliente o cotización al que corresponde el reporte. El dato no confirma el pago.',
+  subjectIntro: '¿Sobre qué quiere registrar información?',
+  paymentSectionTitle: 'Registrar pago reportado',
+  paymentHelper: 'Queda pendiente de confirmar. No confirma cobranza ni abre Ingresos.',
   subjectType: 'Tipo de sujeto',
   subjectId: 'Pedido / Cliente / Cotización',
   subjectSelectOrder: 'Seleccionar pedido',

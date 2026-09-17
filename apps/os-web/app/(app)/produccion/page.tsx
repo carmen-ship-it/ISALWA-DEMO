@@ -39,11 +39,14 @@ export default async function ProduccionPage() {
           </div>
         }
       />
-      <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Seleccione el pedido para heredar cliente, cotización y líneas. La anotación de planta sigue
-        el producto; no se inventa un SLA automático de fábrica.
+      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
+        producto; no hay SLA automático de fábrica.
       </p>
-      <ol className="mt-4 max-w-2xl space-y-1 text-sm text-[var(--isalwa-kiln)]" aria-label="Pasos de planta">
+      <ol
+        className="mb-6 max-w-2xl space-y-0.5 text-sm text-[var(--isalwa-kiln)]"
+        aria-label="Pasos de planta"
+      >
         {PRODUCTION_STEP_LABELS.map((label, index) => (
           <li key={label}>
             <span className="text-[var(--isalwa-slate)]">{index + 1}.</span> {label}
@@ -51,11 +54,11 @@ export default async function ProduccionPage() {
         ))}
       </ol>
       {identity.status === 'error' ? (
-        <div className="mt-8">
+        <div className="mt-6">
           <ServiceUnavailableState />
         </div>
       ) : (
-        <div className="mt-8">
+        <div className="mt-0">
           <ProductionPostSaleDesk
             status={identity.status}
             organizationId={identity.organizationId}

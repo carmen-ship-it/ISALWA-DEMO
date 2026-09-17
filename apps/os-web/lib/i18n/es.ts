@@ -183,6 +183,7 @@ export const es = {
     trabajo: {
       title: 'Trabajo',
       kicker: 'Operaciones',
+      description: 'Lo que necesita hacer y cuándo.',
       placeholder: 'Aquí verá tareas, seguimientos y trabajo asignado.',
     },
     aprobaciones: {

@@ -64,8 +64,9 @@ function emptyMessage(view: IssueView): IncidenciasEmpty {
       return {
         title: ISSUE_COPY.emptyAssigned,
         description:
-          'Aún no tiene incidencias asignadas. Cuando alguien le pida resolver un caso, lo verá en esta pestaña.',
-        example: 'Un caso en progreso asignado a usted muestra responsable, contexto y diario de investigación.',
+          'Aún no tiene incidencias asignadas a su nombre. Cuando alguien le pida resolver un caso, lo verá aquí.',
+        example:
+          'Un caso en progreso muestra responsable, contexto y diario — sin inventar un SLA ni una resolución automática.',
       };
     case 'reported':
       return {

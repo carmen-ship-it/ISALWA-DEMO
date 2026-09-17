@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
-import { EmptyState, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { EmptyState, PageContainer, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
-import { ApprovalList } from '@/components/work/approval-list';
+import { ApprovalPendingCards } from '@/components/work/approval-pending-cards';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
@@ -80,12 +80,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
             <p className="mb-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
               Elija una solicitud para decidir. La decisión no crea un pedido.
             </p>
-            <PageSection
-              card
-              className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
-            >
-              <ApprovalList items={pending} memberLabels={memberLabels} subjects={subjects} />
-            </PageSection>
+            <ApprovalPendingCards items={pending} memberLabels={memberLabels} subjects={subjects} />
             {result.meta.hasMore && result.meta.nextCursor ? (
               <div className="mt-6 flex justify-center">
                 <Link
