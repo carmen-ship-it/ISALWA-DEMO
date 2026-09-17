@@ -29,7 +29,8 @@ export const PRODUCTIVITY_NOT_IMPLEMENTED = [
   },
   {
     id: 'whatsapp-search',
-    reason: 'No hay conversaciones reales que buscar.',
+    reason:
+      'No hay WhatsApp en vivo. La búsqueda de conversaciones solo cubre registros de empresa y demostración vía /conversaciones.',
   },
   {
     id: 'global-contact-search',

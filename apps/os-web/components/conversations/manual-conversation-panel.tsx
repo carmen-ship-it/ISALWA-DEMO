@@ -27,6 +27,8 @@ export type ManualConversationActor = {
 
 type ManualConversationPanelProps = {
   actor: ManualConversationActor | null;
+  /** Optional host callback after a company-entered record is admitted. */
+  onRecorded?: (record: ManualCustomerConversation) => void;
 };
 
 function toIso(value: string): string | null {
@@ -44,7 +46,7 @@ function toSearchable(options: readonly PartyCommercialLinkOption[]) {
   }));
 }
 
-export function ManualConversationPanel({ actor }: ManualConversationPanelProps) {
+export function ManualConversationPanel({ actor, onRecorded }: ManualConversationPanelProps) {
   const [customerId, setCustomerId] = useState('');
   const [customerLabel, setCustomerLabel] = useState('');
   const [contactLabel, setContactLabel] = useState('');
@@ -139,6 +141,7 @@ export function ManualConversationPanel({ actor }: ManualConversationPanelProps)
     }
     setError(null);
     setRecords((current) => [admitted.record, ...current]);
+    onRecorded?.(admitted.record);
     setSummary('');
     setPastedEvidence('');
     setCustomerQuestion('');

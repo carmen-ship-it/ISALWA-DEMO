@@ -11,6 +11,7 @@ export const es = {
     cotizaciones: 'Cotizaciones',
     pedidos: 'Pedidos',
     trabajo: 'Trabajo',
+    conversaciones: 'Conversaciones',
     aprobaciones: 'Aprobaciones',
     compromisos: 'Compromisos',
     administracion: 'Administración',

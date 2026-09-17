@@ -27,6 +27,8 @@ const ROOT_LABELS: Record<string, string> = {
   entregas: 'Entregas',
   coordinacion: 'Coordinación',
   aprobaciones: 'Aprobaciones',
+  conversaciones: 'Conversaciones',
+  incidencias: 'Incidencias',
   administracion: 'Administración',
   mapa: 'Mapa',
   ayuda: 'Ayuda',

@@ -124,6 +124,15 @@ export const PRIMARY_NAV: NavItem[] = [
     group: 'trabajo',
   },
   {
+    id: 'conversaciones',
+    href: '/conversaciones',
+    labelKey: 'nav.conversaciones',
+    shellLabel: 'Conversaciones',
+    icon: 'message',
+    accessClass: 'VISIBLE+ACTIVE',
+    group: 'trabajo',
+  },
+  {
     id: 'aprobaciones',
     href: '/aprobaciones',
     labelKey: 'nav.aprobaciones',

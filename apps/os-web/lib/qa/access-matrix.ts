@@ -48,6 +48,7 @@ const AREA_NAV_IDS = [
   'oportunidades',
   'cotizaciones',
   'trabajo',
+  'conversaciones',
   'productos',
   'produccion',
   'almacen',
