@@ -23,8 +23,7 @@ import { resolveMemberLabels, memberLabel, type MemberLabelMap } from '@/lib/wor
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import type { IssueDetail, IssueJournalEntry, IssueReference, IssueRelation } from '@/lib/issue/types';
-import { AiAssistPanel } from '@/components/ai/ai-assist-panel';
-import { isAiEnabled } from '@/lib/ai/limits';
+import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 
 type IssueDetailPageProps = {
   params: Promise<{ issueId: string }>;
@@ -333,13 +332,12 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
         ) : null}
 
         <div className="mt-6">
-          <AiAssistPanel
+          <AiAssistShell
             title="Ayuda con esta incidencia"
             feature="ask"
             subjectType="issue"
             subjectId={issueId}
             surface="issue"
-            aiEnabled={isAiEnabled()}
             promptLabel="Preguntar sobre esta incidencia"
           />
         </div>

@@ -54,8 +54,7 @@ import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 import type { Cliente360Composition } from '@/lib/party/next-action';
 import type { PartyDetailResponse } from '@/lib/party/types';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
-import { AiAssistPanel } from '@/components/ai/ai-assist-panel';
-import { isAiEnabled } from '@/lib/ai/limits';
+import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -594,13 +593,12 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
           </PageSection>
 
           <div className="mt-6">
-            <AiAssistPanel
+            <AiAssistShell
               title="Ayuda con este cliente"
               feature="summarize_customer"
               subjectType="party"
               subjectId={partyId}
               surface="cliente360"
-              aiEnabled={isAiEnabled()}
               promptLabel="Preguntar sobre este cliente"
             />
           </div>
@@ -626,13 +624,12 @@ export default async function PartyDetailPage({ params }: PartyDetailPageProps) 
               />
             </div>
             <div className="mt-6">
-              <AiAssistPanel
+              <AiAssistShell
                 title="Ayuda con compromisos"
                 feature="summarize_commitments"
                 subjectType="party"
                 subjectId={partyId}
                 surface="commitment"
-                aiEnabled={isAiEnabled()}
                 promptLabel="Preguntar sobre compromisos"
               />
             </div>

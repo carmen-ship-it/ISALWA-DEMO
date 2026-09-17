@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
@@ -36,6 +37,10 @@ import {
 } from './ai/ai-features';
 import { AiRateLimiter } from './ai/ai-rate-limiter';
 import { AiUsageLedger } from './ai/ai-usage-ledger';
+import {
+  assertAiProviderGatewayReady,
+  resolveAiProviderGatewayState,
+} from './ai/ai-provider-gateway';
 
 type AssistBody = {
   feature?: string;
@@ -106,10 +111,64 @@ export class AiController {
     };
   }
 
+  @Get('capability')
+  async capability(@Req() req: Request): Promise<{
+    available: boolean;
+    citationsLive: boolean;
+    providerMode: 'mock' | 'live' | null;
+    blocked: 'PROVIDER_BLOCKED' | null;
+  }> {
+    try {
+      const session = await resolveSession(req, this.workforceStore);
+      const snap = await this.getAccessSnapshot(
+        session.organizationId,
+        session.actorMemberId,
+        session.effectiveAt,
+      );
+      if (!snap) throw new Error('AUTH_REQUIRED');
+      assertMemberActive(snap);
+      return this.capabilityResponse();
+    } catch (err) {
+      throw this.toHttp(err);
+    }
+  }
+
+  private capabilityResponse() {
+    const gate = resolveAiProviderGatewayState();
+    if (gate.status === 'ready') {
+      return {
+        available: true,
+        citationsLive: gate.citationsLive,
+        providerMode: gate.mode,
+        blocked: null as 'PROVIDER_BLOCKED' | null,
+      };
+    }
+    if (gate.status === 'blocked') {
+      return {
+        available: false,
+        citationsLive: false,
+        providerMode: null as 'mock' | 'live' | null,
+        blocked: gate.code,
+      };
+    }
+    return {
+      available: false,
+      citationsLive: false,
+      providerMode: null as 'mock' | 'live' | null,
+      blocked: null as 'PROVIDER_BLOCKED' | null,
+    };
+  }
+
   @Post('assist')
   async assist(@Req() req: Request, @Body() body: AssistBody): Promise<AiAssistResponse> {
     // Re-read the flag per request so tests/staging toggles are not frozen at import.
     if (process.env.AI_ENABLED !== 'true') {
+      throw new HttpException({ code: 'AI_UNAVAILABLE' }, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    try {
+      assertAiProviderGatewayReady();
+    } catch {
       throw new HttpException({ code: 'AI_UNAVAILABLE' }, HttpStatus.SERVICE_UNAVAILABLE);
     }
 

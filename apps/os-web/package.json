@@ -8,7 +8,7 @@
     "start": "next start --port ${PORT:-3200}",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "tsx --test lib/**/*.test.ts"
+    "test": "tsx --test lib/**/*.test.ts components/**/*.test.ts"
   },
   "dependencies": {
     "@isalwa/os-contracts": "workspace:*",

@@ -569,6 +569,156 @@ describe('AiController assist', () => {
     assert.ok(result.evidenceRefs.every((ref) => ref.type === 'commitment' && ref.id === 'cmt-1'));
   });
 
+  it('returns AI_UNAVAILABLE when live provider is blocked before auth', async () => {
+    process.env.AI_ENABLED = 'true';
+    process.env.AI_PROVIDER = 'openai';
+    delete process.env.OPENAI_ISALWA_API_KEY;
+    const provider = new TrackingAiProvider();
+    const controller = new AiController({} as never, {} as never, {} as never);
+    controller.replaceAiProviderForTest(provider);
+
+    await assert.rejects(
+      () =>
+        controller.assist(request(), {
+          feature: 'ask',
+          subjectType: 'issue',
+          subjectId: 'issue-1',
+        }),
+      (err: unknown) => {
+        assert.ok(err instanceof HttpException);
+        assert.equal(err.getStatus(), 503);
+        assert.deepEqual(err.getResponse(), { code: 'AI_UNAVAILABLE' });
+        return true;
+      },
+    );
+    assert.equal(provider.calls, 0);
+  });
+});
+
+describe('AiController capability', () => {
+  const originalProvider = process.env.AI_PROVIDER;
+  const originalKey = process.env.OPENAI_ISALWA_API_KEY;
+
+  afterEach(() => {
+    if (originalProvider === undefined) delete process.env.AI_PROVIDER;
+    else process.env.AI_PROVIDER = originalProvider;
+    if (originalKey === undefined) delete process.env.OPENAI_ISALWA_API_KEY;
+    else process.env.OPENAI_ISALWA_API_KEY = originalKey;
+  });
+
+  it('requires auth', async () => {
+    process.env.AI_ENABLED = 'true';
+    const workforceStore = {
+      async findAuthIdentityById() {
+        return null;
+      },
+      async findAuthIdentityByProviderSubject() {
+        return null;
+      },
+      async listMembersForPerson() {
+        return [];
+      },
+    };
+    const controller = new AiController(workforceStore as never, {} as never, {} as never);
+    await assert.rejects(
+      () =>
+        withDevAuth(() =>
+          controller.capability(
+            request({
+              'x-os-auth-identity-id': 'auth-1',
+              'x-os-person-id': 'person-1',
+            }),
+          ),
+        ),
+      (err: unknown) => {
+        assert.ok(err instanceof HttpException);
+        assert.equal(err.getStatus(), 401);
+        return true;
+      },
+    );
+  });
+
+  it('reports mock readiness when configured', async () => {
+    process.env.AI_ENABLED = 'true';
+    process.env.AI_PROVIDER = 'mock';
+    const workforceStore = {
+      async findAuthIdentityById() {
+        return auth();
+      },
+      async findAuthIdentityByProviderSubject() {
+        return auth();
+      },
+      async listMembersForPerson() {
+        return [member()];
+      },
+      async getMemberInOrg() {
+        return member();
+      },
+      async listRoleAssignmentsForMember() {
+        return [] as RoleAssignmentRecord[];
+      },
+      async listDelegationsForDelegate() {
+        return [];
+      },
+    };
+    const controller = new AiController(workforceStore as never, {} as never, {} as never);
+    const result = await withDevAuth(() =>
+      controller.capability(
+        request({
+          'x-os-auth-identity-id': 'auth-1',
+          'x-os-person-id': 'person-1',
+        }),
+      ),
+    );
+    assert.deepEqual(result, {
+      available: true,
+      citationsLive: false,
+      providerMode: 'mock',
+      blocked: null,
+    });
+  });
+
+  it('surfaces PROVIDER_BLOCKED without calling assist', async () => {
+    process.env.AI_ENABLED = 'true';
+    process.env.AI_PROVIDER = 'openai';
+    delete process.env.OPENAI_ISALWA_API_KEY;
+    const workforceStore = {
+      async findAuthIdentityById() {
+        return auth();
+      },
+      async findAuthIdentityByProviderSubject() {
+        return auth();
+      },
+      async listMembersForPerson() {
+        return [member()];
+      },
+      async getMemberInOrg() {
+        return member();
+      },
+      async listRoleAssignmentsForMember() {
+        return [] as RoleAssignmentRecord[];
+      },
+      async listDelegationsForDelegate() {
+        return [];
+      },
+    };
+    const controller = new AiController(workforceStore as never, {} as never, {} as never);
+    const result = await withDevAuth(() =>
+      controller.capability(
+        request({
+          'x-os-auth-identity-id': 'auth-1',
+          'x-os-person-id': 'person-1',
+        }),
+      ),
+    );
+    assert.deepEqual(result, {
+      available: false,
+      citationsLive: false,
+      providerMode: null,
+      blocked: 'PROVIDER_BLOCKED',
+    });
+  });
+
   it('boots in Nest with store tokens (no third-party AI provider DI)', async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AiController],

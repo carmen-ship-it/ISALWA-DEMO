@@ -6,7 +6,7 @@ import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { getOsApiBaseUrl, getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
-import { isAiEnabled } from '@/lib/ai/limits';
+import { resolveAiHostedVisibility } from '@/components/ai/hosted-state';
 import { resolveMapProviderStatus } from '@/lib/map/provider-status';
 import { loadActorRoleKeys } from '@/lib/party/master-data-access';
 import { isQaControlEnabled } from '@/lib/qa/runtime';
@@ -132,14 +132,25 @@ async function loadProviderHealth(client: OsApiClient): Promise<ProviderHealthRo
     tone: mapStatus.kind === 'live' ? 'success' : 'neutral',
   });
 
+  const aiHosted = resolveAiHostedVisibility();
   rows.push({
     id: 'ai',
     label: 'IA',
-    state: isAiEnabled() ? 'Funcionando' : 'Desactivada',
-    detail: isAiEnabled()
-      ? 'La asistencia de IA está habilitada por configuración explícita.'
-      : 'La asistencia de IA permanece apagada hasta habilitarla de forma explícita.',
-    tone: isAiEnabled() ? 'success' : 'neutral',
+    state: aiHosted.show
+      ? aiHosted.citationsLive
+        ? 'Funcionando'
+        : 'Piloto (mock)'
+      : aiHosted.blocker === 'PROVIDER_BLOCKED'
+        ? 'Falta configurar'
+        : 'Desactivada',
+    detail: aiHosted.show
+      ? aiHosted.citationsLive
+        ? 'La asistencia de IA está habilitada con proveedor en vivo.'
+        : 'La asistencia de IA está en piloto sin llamada al proveedor en vivo.'
+      : aiHosted.blocker === 'PROVIDER_BLOCKED'
+        ? 'Falta la credencial del proveedor de IA en este entorno.'
+        : 'La asistencia de IA permanece apagada hasta habilitarla de forma explícita.',
+    tone: aiHosted.show ? 'success' : aiHosted.blocker === 'PROVIDER_BLOCKED' ? 'warning' : 'neutral',
   });
 
   const emailKind = providerKind(process.env.EMAIL_PROVIDER ?? '');
