@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   OWNER_DEMO_CLIENTS,
+  OWNER_DEMO_COMMERCIAL_DENSITY,
   OWNER_DEMO_CONVERSATIONS,
   OWNER_DEMO_STORY_STEPS,
   ownerDemoCatalogMeta,
@@ -77,5 +78,20 @@ describe('owner-demo catalog', () => {
       OWNER_DEMO_STORY_STEPS.map((s) => s.step),
       Array.from({ length: 20 }, (_, i) => i + 1),
     );
+  });
+
+  it('publishes commercial density contract for PF-1 demo desks', () => {
+    const meta = ownerDemoCatalogMeta();
+    assert.ok(meta.commercialDensity.minOpenOpportunities >= 4);
+    assert.ok(meta.commercialDensity.minWonOpportunities >= 1);
+    assert.ok(meta.commercialDensity.minLostOpportunities >= 1);
+    assert.deepEqual(meta.commercialDensity.requiredQuoteStates, ['draft', 'submitted', 'accepted']);
+    assert.equal(OWNER_DEMO_COMMERCIAL_DENSITY.clients.constructora_andina.quote.submit, false);
+    assert.equal(OWNER_DEMO_COMMERCIAL_DENSITY.clients.maderas_oriente.closeAs, 'won');
+    assert.equal(
+      OWNER_DEMO_COMMERCIAL_DENSITY.clients.proyectos_del_sur.quote.quoteNumber,
+      'Q-DEMO-001',
+    );
+    assert.equal(OWNER_DEMO_COMMERCIAL_DENSITY.pedidoLifecycleStories.length, 3);
   });
 });

@@ -251,7 +251,11 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
       ),
       ...(teamData?.opportunities ?? []).map((item) => item.partyId),
+      ...(teamData?.quotesSubmitted ?? []).map((item) => item.partyId),
+      ...(teamData?.quotesDraft ?? []).map((item) => item.partyId),
       ...(orgData?.opportunities ?? []).map((item) => item.partyId),
+      ...(orgData?.quotesSubmitted ?? []).map((item) => item.partyId),
+      ...(orgData?.quotesDraft ?? []).map((item) => item.partyId),
     ]);
 
     const responsibilityOpportunities = opportunities.filter((item) =>
@@ -318,12 +322,36 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       activeLens === 'personal'
         ? null
         : await safeInicioSectionFetch(() => client.listOrders({ limit: 100 }));
-    const orders = ordersResult && ordersResult !== 'unavailable' ? ordersResult.items : [];
+    const ordersRaw = ordersResult && ordersResult !== 'unavailable' ? ordersResult.items : [];
+    const orderPartyLabels = await resolvePartyLabels(
+      client,
+      ordersRaw.map((item) => item.partyId),
+    );
+    const partyLabelsForMetrics: PartyLabelMap = new Map([
+      ...partyLabels.entries(),
+      ...orderPartyLabels.entries(),
+    ]);
+    const orders = ordersRaw.filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabelsForMetrics, dataMode),
+    );
+
+    const filteredTeamOpportunities = (teamData?.opportunities ?? []).filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabelsForMetrics, dataMode),
+    );
+    const filteredTeamQuotes = (teamData?.quotesSubmitted ?? []).filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabelsForMetrics, dataMode),
+    );
+    const filteredOrgOpportunities = (orgData?.opportunities ?? []).filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabelsForMetrics, dataMode),
+    );
+    const filteredOrgQuotes = (orgData?.quotesSubmitted ?? []).filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabelsForMetrics, dataMode),
+    );
 
     const insightBundle =
       activeLens === 'team' && teamData
         ? {
-            submittedQuotes: teamData.quotesSubmitted,
+            submittedQuotes: filteredTeamQuotes,
             openFollowUpWork: teamData.openWork,
             overdueFollowUps: teamData.overdueWork,
             pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
@@ -335,7 +363,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
           }
         : activeLens === 'org' && orgData
           ? {
-              submittedQuotes: orgData.quotesSubmitted,
+              submittedQuotes: filteredOrgQuotes,
               openFollowUpWork: orgData.openWork,
               overdueFollowUps: orgData.overdueWork,
               pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
@@ -351,8 +379,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       activeLens === 'org' && orgData
         ? composeOrgMetricCards({
             period: managementPeriod,
-            opportunities: orgData.opportunities,
-            quotes: orgData.quotesSubmitted,
+            opportunities: filteredOrgOpportunities,
+            quotes: filteredOrgQuotes,
             orders,
             overdueFollowUps: orgData.overdueWork,
             openIssues,
@@ -365,8 +393,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         ? buildCommercialFunnelSteps(
             composeCommercialFunnelCounts({
               period: managementPeriod,
-              opportunities: orgData.opportunities,
-              quotes: orgData.quotesSubmitted,
+              opportunities: filteredOrgOpportunities,
+              quotes: filteredOrgQuotes,
               orders,
             }),
           )
@@ -376,12 +404,15 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       activeLens === 'team' && teamData
         ? composeTeamMetricsRows({
             period: managementPeriod,
-            opportunities: teamData.opportunities,
-            quotes: teamData.quotesSubmitted,
+            opportunities: filteredTeamOpportunities,
+            quotes: filteredTeamQuotes,
             orders,
             overdueWork: teamData.overdueWork,
             openIssues,
-            partyCountByOwner: partyCountByOwner(teamData.opportunities, teamData.quotesSubmitted),
+            partyCountByOwner: partyCountByOwner(
+              filteredTeamOpportunities,
+              filteredTeamQuotes,
+            ),
           })
         : null;
 
