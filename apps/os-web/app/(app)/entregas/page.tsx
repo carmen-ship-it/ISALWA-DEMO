@@ -37,6 +37,7 @@ export default async function EntregasPage({
   const exitOrderIds = new Set(
     view.warehouseExits.map((row) => row.orderId?.trim()).filter((id): id is string => Boolean(id)),
   );
+  const noteOrderIds = new Set(view.noteOrderIds);
 
   return (
     <PageContainer label="Entregas">
@@ -61,9 +62,8 @@ export default async function EntregasPage({
           <EventWorkOfferPanel offer={deliveryOffer} />
         </div>
       ) : null}
-      {/* Notas preparadas stays 0 until an org-wide delivery-notes list is mounted. */}
       <EntregaSummaryStrip
-        notesPreparedCount={0}
+        notesPreparedCount={view.notesPreparedCount}
         warehouseExits={view.warehouseExits.map((row) => ({
           orderId: row.orderId?.trim() || '',
         }))}
@@ -75,6 +75,7 @@ export default async function EntregasPage({
       <EntregaOperationalWriteDesk selectedOrderId={params?.orderId ?? null} />
       <LinkedOrdersSection
         orders={view.linkedOrders}
+        noteOrderIds={noteOrderIds}
         exitOrderIds={exitOrderIds}
         deliveredOrderIds={deliveredOrderIds}
       />
@@ -89,10 +90,12 @@ export default async function EntregasPage({
 
 function LinkedOrdersSection({
   orders,
+  noteOrderIds,
   exitOrderIds,
   deliveredOrderIds,
 }: {
   orders: LinkedOrderFact[];
+  noteOrderIds: Set<string>;
   exitOrderIds: Set<string>;
   deliveredOrderIds: Set<string>;
 }) {
@@ -107,7 +110,8 @@ function LinkedOrdersSection({
         }
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Abra el pedido ya registrado de la lista. No se inventa una entrega desde el pedido.
+        Abra el pedido ya registrado de la lista. El progreso Nota / Salida / Entrega usa solo
+        hechos registrados — no se inventa una entrega desde el pedido.
       </p>
       {orders.length === 0 ? (
         <div data-owner-review-state="no-data" className="mt-6">
@@ -122,7 +126,7 @@ function LinkedOrdersSection({
           {orders.map((order) => {
             const progress = buildDeliveryProgress({
               orderRecorded: true,
-              hasNote: false,
+              hasNote: noteOrderIds.has(order.orderId),
               hasSalida: exitOrderIds.has(order.orderId),
               hasEntrega: deliveredOrderIds.has(order.orderId),
             });
@@ -130,7 +134,11 @@ function LinkedOrdersSection({
               <ListRow key={order.orderId} as="li" className="items-start gap-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Pedido abierto</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                    {order.customerLabel?.trim() || 'Cliente'}
+                    {' · '}
+                    Pedido abierto
+                  </p>
                   <DeliveryProgressStrip className="mt-2" steps={progress} />
                 </div>
                 <Link

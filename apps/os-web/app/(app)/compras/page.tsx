@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import {
+  EmptyState,
+  ListRow,
+  PageContainer,
+  PageSection,
+  SectionHeader,
+  StatGroup,
+  StatusPill,
+} from '@isalwa/ui';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
@@ -9,12 +17,17 @@ import { orderHref } from '@/lib/commercial/navigation';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
 import { loadComprasLinkedOrders, type ComprasLinkedOrder } from '@/lib/purchasing/load-linked-orders';
+import { workItemHref } from '@/lib/work/navigation';
 
 /** CROSS_LANE: add 'comprasFilter' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const COMPRAS_FILTER_TARGET = 'compras-filter';
 
 type ComprasPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+type LinkedOrderWithSupply = ComprasLinkedOrder & {
+  supplyReview: { workItemId: string; title: string } | null;
 };
 
 function one(value: string | string[] | undefined): string | null {
@@ -26,11 +39,11 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const query = await searchParams;
   const q = one(query.q);
   const estado = one(query.estado);
-  const [queue, linkedOrders, abastecimientoCount] = await Promise.all([
+  const [queue, linkedOrders] = await Promise.all([
     loadComprasQueue({ q, buyer: one(query.buyer), estado }),
-    loadComprasLinkedOrders(),
-    loadAbastecimientoReviewCount(),
+    loadComprasLinkedWithSupply(),
   ]);
+  const abastecimientoCount = linkedOrders.filter((row) => row.supplyReview).length;
 
   return (
     <PageContainer
@@ -85,27 +98,27 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   );
 }
 
-async function loadAbastecimientoReviewCount(): Promise<number> {
+async function loadComprasLinkedWithSupply(): Promise<LinkedOrderWithSupply[]> {
   try {
     const auth = await getServerOsAuthContext();
-    if (!auth) return 0;
+    if (!auth) return [];
     const client = createOsApiClient(auth);
     const [orders, workPage] = await Promise.all([
       loadComprasLinkedOrders(),
-      client.listWorkItems({ status: 'open', limit: 100 }),
+      client.listWorkItems({ status: 'open', limit: 100 }).catch(() => ({ items: [] as const })),
     ]);
-    let count = 0;
-    for (const order of orders) {
-      const open = findOpenOrderPrepReviews(
-        workPage.items ?? [],
-        order.orderId,
-        order.partyId,
-      );
-      if (open.purchasing) count += 1;
-    }
-    return count;
+    const workItems = workPage.items ?? [];
+    return orders.map((order) => {
+      const open = findOpenOrderPrepReviews(workItems, order.orderId, order.partyId);
+      return {
+        ...order,
+        supplyReview: open.purchasing
+          ? { workItemId: open.purchasing.workItemId, title: open.purchasing.title }
+          : null,
+      };
+    });
   } catch {
-    return 0;
+    return [];
   }
 }
 
@@ -114,7 +127,7 @@ async function loadAbastecimientoReviewCount(): Promise<number> {
  * (no hosted API command / prisma write registered). Operators link by orderId
  * instead of retyping pedido lines. No automatic PO.
  */
-function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
+function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
   return (
     <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedidos para vincular">
       <SectionHeader
@@ -126,8 +139,8 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
         }
       />
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. No reescriba las
-        líneas del pedido aquí. La cola de compras no inventa inventario ni genera OC automática.
+        Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. La revisión de
+        abastecimiento solo aparece cuando ya hay Trabajo abierto — no se inventa OC ni stock.
       </p>
       {orders.length === 0 ? (
         <div data-owner-review-state="no-data" className="mt-6">
@@ -140,19 +153,38 @@ function LinkedOrdersSection({ orders }: { orders: ComprasLinkedOrder[] }) {
       ) : (
         <ul className="mt-6">
           {orders.map((order) => (
-            <ListRow key={order.orderId} as="li">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
+            <ListRow key={order.orderId} as="li" className="items-start gap-4 py-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
+                  {order.supplyReview ? (
+                    <StatusPill tone="warning">Revisión de abastecimiento</StatusPill>
+                  ) : (
+                    <StatusPill tone="neutral">Sin revisión abierta</StatusPill>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  {order.customerLabel}
+                  {' · '}
                   Pedido abierto · sin obligación automática de compra
                 </p>
               </div>
-              <Link
-                href={orderHref(order.partyId, order.orderId)}
-                className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-              >
-                Abrir pedido
-              </Link>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                {order.supplyReview ? (
+                  <Link
+                    href={workItemHref(order.supplyReview.workItemId)}
+                    className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                  >
+                    Ver revisión
+                  </Link>
+                ) : null}
+                <Link
+                  href={orderHref(order.partyId, order.orderId)}
+                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                >
+                  Abrir pedido
+                </Link>
+              </div>
             </ListRow>
           ))}
         </ul>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { EmptyState, PageContainer, PageSection, StatusPill, cx } from '@isalwa/ui';
+import { EmptyState, PageContainer, PageSection, StatGroup, StatusPill, cx } from '@isalwa/ui';
 import { IssueList } from '@/components/issue/issue-list';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { PageHeader } from '@/components/shell/page-header';
@@ -10,10 +10,11 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { ISSUE_COPY } from '@/lib/issue/labels';
 import { issueListHref } from '@/lib/issue/navigation';
-import { resolveMemberLabels, type MemberLabelMap } from '@/lib/work/member-resolver';
+import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import type { IssueListItem } from '@/lib/issue/types';
 
 const PAGE_LIMIT = 25;
 
@@ -42,6 +43,10 @@ function viewQuery(view: IssueView): Record<string, string | number | boolean> {
     case 'resolved':
       return { status: 'resolved', limit: PAGE_LIMIT };
   }
+}
+
+function isDemoIssue(item: IssueListItem): boolean {
+  return /\bDEMO\b|\[is_demo\]/i.test(`${item.title ?? ''} ${item.description ?? ''}`);
 }
 
 type IncidenciasEmpty = {
@@ -102,17 +107,21 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
   const client = createOsApiClient(auth);
 
   try {
-    const result = await client.listIssues(viewQuery(view));
-    const items = filterByDemoDataMode(result.items, dataMode, (item) =>
-      /\bDEMO\b|\[is_demo\]/i.test(`${item.title ?? ''} ${item.description ?? ''}`),
+    const [result, openPage, assignedPage, resolvedPage] = await Promise.all([
+      client.listIssues(viewQuery(view)),
+      client.listIssues({ status: 'open', limit: PAGE_LIMIT }),
+      client.listIssues({ assignedToMe: true, limit: PAGE_LIMIT }),
+      client.listIssues({ status: 'resolved', limit: PAGE_LIMIT }),
+    ]);
+    const items = filterByDemoDataMode(result.items, dataMode, isDemoIssue);
+    const openCount = filterByDemoDataMode(openPage.items ?? [], dataMode, isDemoIssue).length;
+    const assignedCount = filterByDemoDataMode(assignedPage.items ?? [], dataMode, isDemoIssue).length;
+    const resolvedCount = filterByDemoDataMode(resolvedPage.items ?? [], dataMode, isDemoIssue).length;
+    const memberIds = items.flatMap((item) =>
+      [item.reporterMemberId, item.ownerMemberId].filter((id): id is string => Boolean(id)),
     );
-    const memberIds = items.flatMap((item) => [
-      item.reporterMemberId,
-      item.ownerMemberId,
-    ].filter((id): id is string => Boolean(id)));
     const memberLabels = await resolveMemberLabels(client, memberIds);
     const empty = emptyMessage(view);
-    const openCount = view === 'open' ? items.length : null;
 
     return (
       <PageContainer label={ISSUE_COPY.listTitle}>
@@ -122,7 +131,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
           description={ISSUE_COPY.listDescription}
           action={
             <div className="flex flex-wrap items-center gap-2">
-              {openCount !== null && openCount > 0 ? (
+              {openCount > 0 ? (
                 <StatusPill tone="warning">
                   {openCount === 1 ? '1 abierta' : `${openCount} abiertas`}
                 </StatusPill>
@@ -130,6 +139,15 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
               <ReportIssueTrigger reportedByLabel={reportedByLabel} variant="primary" />
             </div>
           }
+        />
+
+        <StatGroup
+          className="mb-4"
+          items={[
+            { label: 'Abiertas', value: String(openCount) },
+            { label: 'Asignadas a mí', value: String(assignedCount) },
+            { label: 'Resueltas', value: String(resolvedCount) },
+          ]}
         />
 
         <IssueViewTabs active={view} />
@@ -151,11 +169,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
               card
               className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
             >
-              <IssueList
-                items={items}
-                memberLabels={memberLabels}
-                showHeader
-              />
+              <IssueList items={items} memberLabels={memberLabels} showHeader />
             </PageSection>
             {dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor ? (
               <div className="mt-6 flex justify-center">
@@ -175,20 +189,14 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
     if (err instanceof OsApiError && err.kind === 'forbidden') {
       return (
         <PageContainer label={ISSUE_COPY.listTitle}>
-          <PageHeader
-            kicker={ISSUE_COPY.listKicker}
-            title={ISSUE_COPY.listTitle}
-          />
+          <PageHeader kicker={ISSUE_COPY.listKicker} title={ISSUE_COPY.listTitle} />
           <AccessDeniedState />
         </PageContainer>
       );
     }
     return (
       <PageContainer label={ISSUE_COPY.listTitle}>
-        <PageHeader
-          kicker={ISSUE_COPY.listKicker}
-          title={ISSUE_COPY.listTitle}
-        />
+        <PageHeader kicker={ISSUE_COPY.listKicker} title={ISSUE_COPY.listTitle} />
         <QuerySurfaceState error={classifyQueryError(err)} />
       </PageContainer>
     );

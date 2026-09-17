@@ -1,26 +1,37 @@
-import { PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
+import Link from 'next/link';
+import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
 import { WarehousePostSaleDesk } from '@/components/warehouse/warehouse-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
+import { orderHref } from '@/lib/commercial/navigation';
 import { receiveFinishedGoodsAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
 import { loadWarehousePedidosFromOrders } from '@/lib/warehouse/load-pedidos';
+import { demoFinishedGoodsOrderIds } from '@/lib/warehouse/demo-fg-citations';
 import { WAREHOUSE_TASK_COPY, resolveWarehousePageAccess } from '@/lib/warehouse';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { workItemHref } from '@/lib/work/navigation';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
 
 const NO_POSTSALE_PEDIDOS: PostSalePedidoOption[] = [];
 
+type PedidoWarehouseContext = {
+  pedido: PostSalePedidoOption;
+  warehouseReviewWorkId: string | null;
+  hasFinishedGoodsCitation: boolean;
+};
+
 export default async function AlmacenPage() {
   const access = await loadAlmacenAccess();
   const pedidos = access.pedidos;
   const summary = access.summary;
+  const contexts = access.contexts;
 
   return (
     <PageContainer label={WAREHOUSE_TASK_COPY.title} data-tour={ALMACEN_ACTIONS_TARGET}>
@@ -45,8 +56,9 @@ export default async function AlmacenPage() {
       />
       <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Acción principal: registrar ingreso de producto terminado. No se muestra stock disponible
-        sin fuente autoritativa.
+        sin fuente autoritativa. Los ingresos citados solo confirman un registro vinculado al pedido.
       </p>
+      <PedidoWarehouseContextSection rows={contexts} />
       <WarehousePostSaleDesk
         status={access.status === 'error' ? 'error' : access.status === 'ready' ? 'ready' : 'denied'}
         denial={access.status === 'denied' ? access.reason : null}
@@ -62,8 +74,72 @@ export default async function AlmacenPage() {
   );
 }
 
+function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[] }) {
+  return (
+    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedidos con contexto de almacén">
+      <SectionHeader
+        kicker="Pedido"
+        title={
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+            Pedidos en Almacén
+          </h2>
+        }
+      />
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Revisión de almacén y citas de ingreso PT por pedido. No implica stock oficial ni asignación.
+      </p>
+      {rows.length === 0 ? (
+        <div className="mt-6">
+          <EmptyState
+            title="Sin pedidos abiertos"
+            description="Cuando exista un pedido en esta empresa, aparecerá aquí para vincular ingresos."
+          />
+        </div>
+      ) : (
+        <ul className="mt-6">
+          {rows.map((row) => (
+            <ListRow key={row.pedido.orderId} as="li" className="items-start gap-4 py-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.pedido.orderLabel}</p>
+                  {row.warehouseReviewWorkId ? (
+                    <StatusPill tone="warning">Revisión de almacén</StatusPill>
+                  ) : null}
+                  {row.hasFinishedGoodsCitation ? (
+                    <StatusPill tone="info">Ingreso PT citado</StatusPill>
+                  ) : (
+                    <StatusPill tone="neutral">Sin ingreso citado</StatusPill>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.pedido.customerLabel}</p>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                {row.warehouseReviewWorkId ? (
+                  <Link
+                    href={workItemHref(row.warehouseReviewWorkId)}
+                    className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                  >
+                    Ver revisión
+                  </Link>
+                ) : null}
+                <Link
+                  href={orderHref(row.pedido.partyId, row.pedido.orderId)}
+                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                >
+                  Abrir pedido
+                </Link>
+              </div>
+            </ListRow>
+          ))}
+        </ul>
+      )}
+    </PageSection>
+  );
+}
+
 async function loadAlmacenAccess() {
   const emptySummary = { revisiones: 0, ingresos: 0 };
+  const emptyContexts: PedidoWarehouseContext[] = [];
   try {
     const context = await loadMemberCapabilities();
     if (!context) {
@@ -71,16 +147,20 @@ async function loadAlmacenAccess() {
         ...resolveWarehousePageAccess({ session: null, grantedScopes: null }),
         pedidos: NO_POSTSALE_PEDIDOS,
         summary: emptySummary,
+        contexts: emptyContexts,
       };
     }
 
     let warehousePedidos: Awaited<ReturnType<typeof loadWarehousePedidosFromOrders>> = [];
     let postsalePedidos: PostSalePedidoOption[] = NO_POSTSALE_PEDIDOS;
     let revisiones = 0;
+    let contexts: PedidoWarehouseContext[] = [];
+    let fgOrderIds: ReadonlySet<string> = new Set();
     const auth = await getServerOsAuthContext();
     if (auth) {
       const client = createOsApiClient(auth);
       const dataMode = await resolveDemoDataMode({});
+      fgOrderIds = demoFinishedGoodsOrderIds(dataMode);
       warehousePedidos = await loadWarehousePedidosFromOrders(client, {
         organizationId: context.organizationId,
       });
@@ -96,19 +176,22 @@ async function loadAlmacenAccess() {
       if (postsalePedidos.length > 0 || dataMode === 'demo') {
         warehousePedidos = warehousePedidos.filter((p) => allowedOrderIds.has(p.orderId));
       }
+      let workItems: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];
       try {
         const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
-        for (const pedido of postsalePedidos) {
-          const open = findOpenOrderPrepReviews(
-            workPage.items ?? [],
-            pedido.orderId,
-            pedido.partyId,
-          );
-          if (open.warehouse) revisiones += 1;
-        }
+        workItems = workPage.items ?? [];
       } catch {
-        revisiones = 0;
+        workItems = [];
       }
+      contexts = postsalePedidos.map((pedido) => {
+        const open = findOpenOrderPrepReviews(workItems, pedido.orderId, pedido.partyId);
+        if (open.warehouse) revisiones += 1;
+        return {
+          pedido,
+          warehouseReviewWorkId: open.warehouse?.workItemId ?? null,
+          hasFinishedGoodsCitation: fgOrderIds.has(pedido.orderId),
+        };
+      });
     }
 
     const resolved = resolveWarehousePageAccess({
@@ -123,15 +206,23 @@ async function loadAlmacenAccess() {
       facts: { receipts: null, pedidos: warehousePedidos },
     });
 
-    const ingresos =
+    const ingresosFromWaiting =
       resolved.status === 'ready' ? resolved.view?.waiting.length ?? 0 : 0;
+    const ingresosFromDemoCitations = contexts.filter((row) => row.hasFinishedGoodsCitation).length;
+    const ingresos = Math.max(ingresosFromWaiting, ingresosFromDemoCitations);
 
     return {
       ...resolved,
       pedidos: postsalePedidos,
       summary: { revisiones, ingresos },
+      contexts,
     };
   } catch {
-    return { status: 'error' as const, pedidos: NO_POSTSALE_PEDIDOS, summary: emptySummary };
+    return {
+      status: 'error' as const,
+      pedidos: NO_POSTSALE_PEDIDOS,
+      summary: emptySummary,
+      contexts: emptyContexts,
+    };
   }
 }

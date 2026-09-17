@@ -1,5 +1,5 @@
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { createOsApiClient } from '@/lib/api/os-api-client';
+import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { resolveEntregaSurface, type EntregaSurfaceStatus } from '@/lib/delivery/surface';
 import {
@@ -15,11 +15,36 @@ import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver'
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 
+const MAX_NOTE_LOOKUPS = 25;
+
+async function loadIssuedNoteOrderIds(
+  client: OsApiClient,
+  orderIds: readonly string[],
+): Promise<string[]> {
+  const slice = orderIds.slice(0, MAX_NOTE_LOOKUPS);
+  const found: string[] = [];
+  await Promise.all(
+    slice.map(async (orderId) => {
+      try {
+        const pack = await client.listDeliveryNotesForOrder(orderId);
+        const issued = (pack.notes ?? []).some((note) => note.status === 'issued');
+        if (issued) found.push(orderId);
+      } catch {
+        // Missing note read stays pending — do not invent Nota done.
+      }
+    }),
+  );
+  return found;
+}
+
 export type EntregaPageModel = {
   status: EntregaSurfaceStatus;
   warehouseExits: EntregaPanelProps['warehouseExits'];
   deliveries: EntregaPanelProps['deliveries'];
   linkedOrders: LinkedOrderFact[];
+  /** Order ids with at least one issued delivery note (canonical read). */
+  noteOrderIds: string[];
+  notesPreparedCount: number;
 };
 
 /**
@@ -38,6 +63,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       warehouseExits: [],
       deliveries: [],
       linkedOrders: [],
+      noteOrderIds: [],
+      notesPreparedCount: 0,
     };
   }
   if (!auth) {
@@ -46,6 +73,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       warehouseExits: [],
       deliveries: [],
       linkedOrders: [],
+      noteOrderIds: [],
+      notesPreparedCount: 0,
     };
   }
 
@@ -66,7 +95,10 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     );
     linkedOrders = filterByDemoDataMode(raw, dataMode, (row) =>
       isDemoDisplayName(partyLabel(partyLabels, row.partyId)),
-    );
+    ).map((row) => ({
+      ...row,
+      customerLabel: partyLabel(partyLabels, row.partyId),
+    }));
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
       // Commercial read denied — still try fulfillment; page permission only if both fail.
@@ -76,11 +108,15 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
         warehouseExits: [],
         deliveries: [],
         linkedOrders: [],
+        noteOrderIds: [],
+        notesPreparedCount: 0,
       };
     }
   }
 
   const allowedOrderIds = new Set(linkedOrders.map((row) => row.orderId));
+  const noteOrderIds = await loadIssuedNoteOrderIds(client, linkedOrders.map((row) => row.orderId));
+  const notesPreparedCount = noteOrderIds.length;
 
   try {
     const [exitPage, deliveryPage] = await Promise.all([
@@ -108,6 +144,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       warehouseExits: [],
       deliveries: [],
       linkedOrders: [],
+      noteOrderIds: [],
+      notesPreparedCount: 0,
     };
   }
 
@@ -118,6 +156,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       warehouseExits: [],
       deliveries: [],
       linkedOrders: [],
+      noteOrderIds: [],
+      notesPreparedCount: 0,
     };
   }
   if (fulfillmentDenied && linkedOrders.length === 0 && warehouseExits.length === 0 && deliveries.length === 0) {
@@ -126,6 +166,8 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
       warehouseExits: [],
       deliveries: [],
       linkedOrders: [],
+      noteOrderIds: [],
+      notesPreparedCount: 0,
     };
   }
 
@@ -141,5 +183,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     warehouseExits,
     deliveries,
     linkedOrders,
+    noteOrderIds,
+    notesPreparedCount,
   };
 }

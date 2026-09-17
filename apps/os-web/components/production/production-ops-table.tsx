@@ -20,6 +20,8 @@ export type ProductionOpsRow = {
   dateLabel: string;
   nextAction: string;
   openUpdate: ProductionUpdateOpenRequest | null;
+  /** Open order-prep production review Work when present. */
+  openProductionReviewWorkId: string | null;
   productionOwnerMemberId: string | null;
 };
 
@@ -108,6 +110,9 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                     >
                       {row.pedido.orderLabel}
                     </Link>
+                    {row.openProductionReviewWorkId ? (
+                      <StatusPill tone="warning">Revisión de producción</StatusPill>
+                    ) : null}
                     {row.openUpdate ? (
                       <StatusPill tone="warning">{PRODUCTION_UPDATE_REQUEST_COPY.requested}</StatusPill>
                     ) : null}
@@ -128,6 +133,14 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
+                  {row.openProductionReviewWorkId ? (
+                    <Link
+                      href={workItemHref(row.openProductionReviewWorkId)}
+                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                    >
+                      Ver revisión
+                    </Link>
+                  ) : null}
                   {row.openUpdate ? (
                     <Link
                       href={workItemHref(row.openUpdate.workItemId)}
