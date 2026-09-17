@@ -15,7 +15,18 @@ export type EvaluationOpsDesk =
   | 'gerencia'
   | 'map'
   | 'conversations'
-  | 'trabajo';
+  | 'trabajo'
+  | 'aprobaciones'
+  | 'compromisos'
+  | 'incidencias';
+
+const OPS_PERSONAS: readonly RolePreviewPersonaId[] = [
+  'produccion',
+  'almacen',
+  'compras',
+  'entregas',
+  'finanzas',
+];
 
 const DESK_PERSONAS: Record<EvaluationOpsDesk, readonly RolePreviewPersonaId[]> = {
   commercial: ['asesor', 'jefe-comercial', 'gerencia'],
@@ -28,7 +39,22 @@ const DESK_PERSONAS: Record<EvaluationOpsDesk, readonly RolePreviewPersonaId[]> 
   map: ['asesor', 'jefe-comercial', 'gerencia', 'entregas'],
   conversations: ['asesor', 'jefe-comercial', 'gerencia'],
   trabajo: ['asesor', 'jefe-comercial', 'gerencia', 'produccion', 'almacen', 'compras', 'entregas', 'finanzas'],
+  /** Approval authority projection — Asesor/ops never elevated into this desk. */
+  aprobaciones: ['jefe-comercial', 'gerencia'],
+  compromisos: ['asesor', 'jefe-comercial', 'gerencia', 'produccion', 'almacen', 'compras', 'entregas', 'finanzas'],
+  incidencias: ['asesor', 'jefe-comercial', 'gerencia', 'produccion', 'almacen', 'compras', 'entregas', 'finanzas'],
 };
+
+export function evaluationIsOpsPersona(
+  persona: RolePreviewPersonaId | null | undefined,
+): boolean {
+  return Boolean(persona && OPS_PERSONAS.includes(persona));
+}
+
+/** True when View As persona may see the Aprobaciones desk (never elevates real auth). */
+export function evaluationAllowsApprovalAuthority(projection: EvaluationProjection): boolean {
+  return evaluationAllowsDesk(projection, 'aprobaciones');
+}
 
 /** Owner-eval (inactive) sees all desks. Active preview must match persona. */
 export function evaluationAllowsDesk(

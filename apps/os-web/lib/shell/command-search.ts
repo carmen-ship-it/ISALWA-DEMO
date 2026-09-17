@@ -22,8 +22,20 @@ import {
 } from '@/lib/shell/command-palette';
 import { approvalRowSubject } from '@/lib/work/approval-row-subject';
 import { formatApprovalStatus } from '@/lib/work/labels';
-import type { IssueStatus } from '@/lib/issue/types';
-import type { CommitmentState } from '@isalwa/os-contracts';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import {
+  evaluationAllowsDesk,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import {
+  filterCommitmentsForEvaluation,
+  filterIssuesForEvaluation,
+  filterWorkForEvaluation,
+} from '@/lib/inicio/filter-for-evaluation';
+import type { IssueListItem } from '@/lib/issue/types';
+import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
+import type { CommitmentSummary } from '@/lib/api/os-api-client';
 
 export type PaletteSearchResult =
   | { ok: true; items: PaletteItem[]; partial: boolean }
@@ -76,48 +88,103 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, reason: 'session' };
   const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
+  const commercialQuery = commercialListQueryFromProjection(evaluation);
+  const commercialOk = evaluationAllowsDesk(evaluation, 'commercial');
+  const approvalsOk = evaluationAllowsDesk(evaluation, 'aprobaciones');
+
+  let allowedPartyIds: Set<string> | null = null;
+  if (evaluation.active && evaluation.persona === 'asesor') {
+    if (!evaluation.subjectMemberId) {
+      allowedPartyIds = new Set();
+    } else {
+      const ownedPage = await client
+        .searchParties({ status: 'active', limit: 100 })
+        .catch(() => ({ items: [] as Array<{ partyId: string; commercialOwnerMemberId?: string | null }> }));
+      const owned = filterByCommercialOwner(
+        evaluation,
+        ownedPage.items ?? [],
+        (item) => item.commercialOwnerMemberId,
+      );
+      allowedPartyIds = new Set(owned.map((p) => p.partyId));
+    }
+  }
 
   let partial = false;
   const lenses: Lens[] = [];
-  for (const visibility of ['team', 'org'] as const) {
-    const probed = await probeLens(client, visibility);
-    if (probed === 'session') return { ok: false, reason: 'session' };
-    if (probed === 'partial') partial = true;
-    if (probed === true) lenses.push(visibility);
+  if (commercialOk) {
+    for (const visibility of ['team', 'org'] as const) {
+      if (evaluation.active && evaluation.commercialVisibility === 'own') continue;
+      if (evaluation.active && evaluation.commercialVisibility === 'team' && visibility === 'org') {
+        continue;
+      }
+      const probed = await probeLens(client, visibility);
+      if (probed === 'session') return { ok: false, reason: 'session' };
+      if (probed === 'partial') partial = true;
+      if (probed === true) lenses.push(visibility);
+    }
   }
 
   const items: PaletteItem[] = [];
 
-  try {
-    const parties = await client.searchParties({ q, status: 'active', limit: PALETTE_GROUP_LIMIT });
-    for (const party of parties.items) {
-      items.push(
-        customerPaletteItem({
-          partyId: party.partyId,
-          displayName: party.displayName,
-          legalName: party.legalName,
-          status: party.status,
-        }),
+  if (commercialOk) {
+    try {
+      const parties = await client.searchParties({ q, status: 'active', limit: PALETTE_GROUP_LIMIT });
+      const visibleParties = filterByCommercialOwner(
+        evaluation,
+        parties.items,
+        (party) => party.commercialOwnerMemberId,
       );
+      for (const party of visibleParties) {
+        items.push(
+          customerPaletteItem({
+            partyId: party.partyId,
+            displayName: party.displayName,
+            legalName: party.legalName,
+            status: party.status,
+          }),
+        );
+      }
+      if (parties.meta.hasMore) partial = true;
+    } catch (err) {
+      if (isSessionFailure(err)) return { ok: false, reason: 'session' };
+      if (!isDenied(err)) partial = true;
     }
-    if (parties.meta.hasMore) partial = true;
-  } catch (err) {
-    if (isSessionFailure(err)) return { ok: false, reason: 'session' };
-    if (!isDenied(err)) partial = true;
   }
 
-  const opportunityCalls = [
-    client.listOpportunities({ q, status: 'open', limit: PALETTE_GROUP_LIMIT }),
-    ...lenses.map((visibility) =>
-      client.listOpportunities({ q, visibility, status: 'open', limit: PALETTE_GROUP_LIMIT }),
-    ),
-  ];
-  const quoteCalls = [
-    client.listQuotes({ q, limit: PALETTE_GROUP_LIMIT }),
-    ...lenses.map((visibility) => client.listQuotes({ q, visibility, limit: PALETTE_GROUP_LIMIT })),
-  ];
+  const opportunityCalls = commercialOk
+    ? [
+        client.listOpportunities({ q, status: 'open', limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+        ...lenses.map((visibility) =>
+          client.listOpportunities({
+            q,
+            visibility,
+            status: 'open',
+            limit: PALETTE_GROUP_LIMIT,
+            ...commercialQuery,
+          }),
+        ),
+      ]
+    : [];
+  const quoteCalls = commercialOk
+    ? [
+        client.listQuotes({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+        ...lenses.map((visibility) =>
+          client.listQuotes({ q, visibility, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+        ),
+      ]
+    : [];
   const workCalls = [
-    client.listWorkItems({ q, status: 'open', limit: PALETTE_GROUP_LIMIT }),
+    client.listWorkItems({
+      q,
+      status: 'open',
+      limit: PALETTE_GROUP_LIMIT,
+      ...(evaluation.active &&
+      evaluation.persona === 'asesor' &&
+      evaluation.subjectMemberId
+        ? { ownerMemberId: evaluation.subjectMemberId }
+        : {}),
+    }),
     ...lenses.map((visibility) =>
       client.listWorkItems({ q, visibility, status: 'open', limit: PALETTE_GROUP_LIMIT }),
     ),
@@ -134,11 +201,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
       limit: PALETTE_GROUP_LIMIT,
     }),
   ];
-  const approvalCalls = [client.listApprovals({ limit: PALETTE_GROUP_LIMIT })];
+  const approvalCalls = approvalsOk ? [client.listApprovals({ limit: PALETTE_GROUP_LIMIT })] : [];
 
   const [opportunities, quotes, orders, work, issues, commitments, people, approvals] = await Promise.all([
     collect(opportunityCalls, (page) =>
-      page.items
+      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
         .filter((item) => !isEngineeringFixtureCopy(item.title))
         .map((item) =>
           opportunityPaletteItem({
@@ -150,7 +217,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         ),
     ),
     collect(quoteCalls, (page) =>
-      page.items
+      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
         .filter((item) => item.status !== 'cancelled')
         .map((item) =>
           quotePaletteItem({
@@ -164,9 +231,9 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         ),
     ),
     collect(
-      [client.listOrders({ q, limit: PALETTE_GROUP_LIMIT })],
+      commercialOk ? [client.listOrders({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery })] : [],
       (page) =>
-        page.items.map((item) =>
+        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
           orderPaletteItem({
             orderId: item.orderId,
             partyId: item.partyId,
@@ -176,7 +243,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         ),
     ),
     collect(workCalls, (page) =>
-      page.items.map((item) =>
+      filterWorkForEvaluation(
+        evaluation,
+        page.items as WorkSummaryReadModel[],
+        allowedPartyIds,
+      ).map((item) =>
         workPaletteItem({
           workItemId: item.workItemId,
           title: item.title,
@@ -185,8 +256,8 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         }),
       ),
     ),
-    collectIssues(issueCalls, q),
-    collectCommitments(commitmentCalls, q),
+    collectIssues(issueCalls, q, evaluation, allowedPartyIds),
+    collectCommitments(commitmentCalls, q, evaluation, allowedPartyIds),
     collectPeople(peopleCalls),
     collectApprovals(approvalCalls, q),
   ]);
@@ -197,14 +268,22 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     items.push(...result.items);
   }
 
-  const documents = await collectDeliveryDocuments(client, q);
+  const documents =
+    commercialOk || evaluationAllowsDesk(evaluation, 'entregas')
+      ? await collectDeliveryDocuments(client, q)
+      : { items: [] as PaletteItem[], session: false, partial: false };
   if (documents.session) return { ok: false, reason: 'session' };
   if (documents.partial) partial = true;
   items.push(...documents.items);
 
-  const partyIds = items.filter((item) => item.kind === 'customer' && item.partyId).slice(0, 2).map((item) => item.partyId!);
-  if (partyIds.length > 0) {
-    const related = await Promise.all(partyIds.map((partyId) => relatedForParty(client, partyId, lenses)));
+  const partyIds = items
+    .filter((item) => item.kind === 'customer' && item.partyId)
+    .slice(0, 2)
+    .map((item) => item.partyId!);
+  if (partyIds.length > 0 && commercialOk) {
+    const related = await Promise.all(
+      partyIds.map((partyId) => relatedForParty(client, partyId, lenses, evaluation, commercialQuery)),
+    );
     for (const result of related) {
       if (result.session) return { ok: false, reason: 'session' };
       if (result.partial) partial = true;
@@ -216,18 +295,28 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   return { ok: true, items: grouped, partial };
 }
 
-async function relatedForParty(client: OsApiClient, partyId: string, lenses: Lens[]) {
+async function relatedForParty(
+  client: OsApiClient,
+  partyId: string,
+  lenses: Lens[],
+  evaluation: Awaited<ReturnType<typeof getEvaluationProjection>>,
+  commercialQuery: ReturnType<typeof commercialListQueryFromProjection>,
+) {
   const opportunityCalls = [
-    client.listOpportunities({ partyId, status: 'open', limit: 4 }),
-    ...lenses.map((visibility) => client.listOpportunities({ partyId, visibility, status: 'open', limit: 4 })),
+    client.listOpportunities({ partyId, status: 'open', limit: 4, ...commercialQuery }),
+    ...lenses.map((visibility) =>
+      client.listOpportunities({ partyId, visibility, status: 'open', limit: 4, ...commercialQuery }),
+    ),
   ];
   const quoteCalls = [
-    client.listQuotes({ partyId, limit: 4 }),
-    ...lenses.map((visibility) => client.listQuotes({ partyId, visibility, limit: 4 })),
+    client.listQuotes({ partyId, limit: 4, ...commercialQuery }),
+    ...lenses.map((visibility) =>
+      client.listQuotes({ partyId, visibility, limit: 4, ...commercialQuery }),
+    ),
   ];
   const [opportunities, quotes, orders, work] = await Promise.all([
     collect(opportunityCalls, (page) =>
-      page.items
+      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
         .filter((item) => !isEngineeringFixtureCopy(item.title))
         .map((item) =>
           opportunityPaletteItem({
@@ -239,7 +328,7 @@ async function relatedForParty(client: OsApiClient, partyId: string, lenses: Len
         ),
     ),
     collect(quoteCalls, (page) =>
-      page.items
+      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
         .filter((item) => item.status !== 'cancelled')
         .map((item) =>
           quotePaletteItem({
@@ -252,8 +341,8 @@ async function relatedForParty(client: OsApiClient, partyId: string, lenses: Len
           }),
         ),
     ),
-    collect([client.listOrders({ partyId, limit: 4 })], (page) =>
-      page.items.map((item) =>
+    collect([client.listOrders({ partyId, limit: 4, ...commercialQuery })], (page) =>
+      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
         orderPaletteItem({
           orderId: item.orderId,
           partyId: item.partyId,
@@ -420,18 +509,15 @@ async function collectApprovals(
 }
 
 type IssueListResponse = {
-  items: Array<{
-    issueId: string;
-    title: string | null;
-    description: string;
-    status: IssueStatus;
-  }>;
+  items: IssueListItem[];
   meta: { hasMore: boolean };
 };
 
 async function collectIssues(
   calls: Array<Promise<IssueListResponse>>,
   query: string,
+  evaluation: Awaited<ReturnType<typeof getEvaluationProjection>>,
+  allowedPartyIds: Set<string> | null,
 ): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
   const settled = await Promise.all(calls.map(async (call) => {
     try {
@@ -449,7 +535,8 @@ async function collectIssues(
       if (!isDenied(result.err)) partial = true;
       continue;
     }
-    for (const item of result.page.items) {
+    const visible = filterIssuesForEvaluation(evaluation, result.page.items, allowedPartyIds);
+    for (const item of visible) {
       const searchText = `${item.title ?? ''} ${item.description}`.toLocaleLowerCase('es');
       if (!searchText.includes(q)) continue;
       items.push(
@@ -469,17 +556,14 @@ async function collectIssues(
 }
 
 type CommitmentListResponse = {
-  items: Array<{
-    id: string;
-    text: string;
-    state: CommitmentState;
-    partyId: string | null;
-  }>;
+  items: CommitmentSummary[];
 };
 
 async function collectCommitments(
   calls: Array<Promise<CommitmentListResponse>>,
   query: string,
+  evaluation: Awaited<ReturnType<typeof getEvaluationProjection>>,
+  allowedPartyIds: Set<string> | null,
 ): Promise<{ items: PaletteItem[]; session: boolean; partial: boolean }> {
   const settled = await Promise.all(calls.map(async (call) => {
     try {
@@ -497,7 +581,8 @@ async function collectCommitments(
       if (!isDenied(result.err)) partial = true;
       continue;
     }
-    for (const item of result.page.items) {
+    const visible = filterCommitmentsForEvaluation(evaluation, result.page.items, allowedPartyIds);
+    for (const item of visible) {
       if (!item.text.toLocaleLowerCase('es').includes(q)) continue;
       items.push(
         commitmentPaletteItem({

@@ -33,6 +33,7 @@ import { loadInicioCommandQueues, safeInicioSectionFetch } from '@/lib/inicio/lo
 import { flattenMiDia } from '@/lib/inicio/mi-dia';
 import {
   availableInicioPageLenses,
+  canShowOrgLens,
   parseManagementPeriodPreset,
   resolveInicioPageLens,
   type InicioPageLens,
@@ -67,6 +68,20 @@ import { isProjectionStale } from '@/lib/query/projection-freshness';
 import { canUseRolePreview } from '@/lib/role-preview/access';
 import { isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import {
+  evaluationIsOpsPersona,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import {
+  filterApprovalsForEvaluation,
+  filterAttentionForEvaluation,
+  filterCommercialOwnerRowsForEvaluation,
+  filterCommitmentsForEvaluation,
+  filterIssuesForEvaluation,
+  filterWorkForEvaluation,
+} from '@/lib/inicio/filter-for-evaluation';
 
 const PERSONAL_OPEN_WORK_LIMIT = 100;
 const HERO_SUBTITLE = 'Esto es lo que necesita atención hoy.';
@@ -135,6 +150,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
 
   const params = await searchParams;
   const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
+  const commercialQuery = commercialListQueryFromProjection(evaluation);
   const limit = INICIO_SECTION_LIMIT;
   const asOf = new Date();
 
@@ -155,15 +172,48 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       safeInicioSectionFetch(() =>
         client.listAttention({ activeOnly: true, limit: INICIO_ATTENTION_LIMIT }),
       ),
-      safeInicioSectionFetch(() => client.listOpportunities({ status: 'open', limit })),
-      safeInicioSectionFetch(() => client.listQuotes({ status: 'draft', limit })),
-      safeInicioSectionFetch(() => client.listQuotes({ status: 'submitted', limit })),
-      safeInicioSectionFetch(() => client.listWorkItems({ status: 'open', limit: PERSONAL_OPEN_WORK_LIMIT })),
+      safeInicioSectionFetch(() =>
+        client.listOpportunities({ status: 'open', limit, ...commercialQuery }),
+      ),
+      safeInicioSectionFetch(() =>
+        client.listQuotes({ status: 'draft', limit, ...commercialQuery }),
+      ),
+      safeInicioSectionFetch(() =>
+        client.listQuotes({ status: 'submitted', limit, ...commercialQuery }),
+      ),
+      safeInicioSectionFetch(() =>
+        client.listWorkItems({
+          status: 'open',
+          limit: PERSONAL_OPEN_WORK_LIMIT,
+          ...(evaluation.active &&
+          evaluation.persona === 'asesor' &&
+          evaluation.subjectMemberId
+            ? { ownerMemberId: evaluation.subjectMemberId }
+            : {}),
+        }),
+      ),
       loadInicioManagement(client),
       safeMemoryChanges(() => client.listMemoryChanges({ window: 'hoy' })),
       loadInicioLeadership(client),
       loadActorRoleKeys(client),
     ]);
+
+    let allowedPartyIds: Set<string> | null = null;
+    if (evaluation.active && evaluation.persona === 'asesor') {
+      if (!evaluation.subjectMemberId) {
+        allowedPartyIds = new Set();
+      } else {
+        const parties = await client
+          .searchParties({ status: 'active', limit: 100 })
+          .catch(() => ({ items: [] as Array<{ partyId: string; commercialOwnerMemberId?: string | null }> }));
+        const owned = filterByCommercialOwner(
+          evaluation,
+          parties.items ?? [],
+          (item) => item.commercialOwnerMemberId,
+        );
+        allowedPartyIds = new Set(owned.map((p) => p.partyId));
+      }
+    }
 
     const allUnavailable = [
       attentionResult,
@@ -181,16 +231,35 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     }
 
     const attentionItems = attentionResult === 'unavailable' ? [] : attentionResult.items;
-    const opportunities =
+    const opportunitiesRaw =
       opportunitiesResult === 'unavailable'
         ? []
         : opportunitiesResult.items.filter((item) => !isEngineeringFixtureCopy(item.title));
-    const quotesDraft =
+    const quotesDraftRaw =
       quotesDraftResult === 'unavailable' ? [] : quotesDraftResult.items.filter(hideFixtureQuote);
-    const quotesSubmitted =
+    const quotesSubmittedRaw =
       quotesSubmittedResult === 'unavailable'
         ? []
         : quotesSubmittedResult.items.filter(hideFixtureQuote);
+
+    const opportunities = filterCommercialOwnerRowsForEvaluation(
+      evaluation,
+      opportunitiesRaw,
+      (item) => item.ownerMemberId,
+    );
+    const quotesDraft = filterCommercialOwnerRowsForEvaluation(
+      evaluation,
+      quotesDraftRaw,
+      (item) => item.ownerMemberId,
+    );
+    const quotesSubmitted = filterCommercialOwnerRowsForEvaluation(
+      evaluation,
+      quotesSubmittedRaw,
+      (item) => item.ownerMemberId,
+    );
+
+    // View As ops: hide commercial responsibility strip (not work-relevant).
+    const showCommercialResponsibility = !evaluationIsOpsPersona(evaluation.persona);
 
     const lensInput = {
       roleKeys,
@@ -203,11 +272,48 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
     const dataMode = await resolveDemoDataMode(params);
     const showOwnerDemoCard = canUseRolePreview(roleKeys);
+    const session = await client.getAuthenticatedSession();
 
-    const commandQueues = await loadInicioCommandQueues(client, {
+    const commandQueuesRaw = await loadInicioCommandQueues(client, {
       leadershipTeamReady: leadership.team.kind === 'ready',
       leadershipOrgReady: leadership.org.kind === 'ready',
     });
+
+    const commandQueues = {
+      ...commandQueuesRaw,
+      pendingWork: filterWorkForEvaluation(
+        evaluation,
+        commandQueuesRaw.pendingWork,
+        allowedPartyIds,
+      ),
+      openIssues: filterIssuesForEvaluation(
+        evaluation,
+        commandQueuesRaw.openIssues,
+        allowedPartyIds,
+      ),
+      commitmentsOverdue: filterCommitmentsForEvaluation(
+        evaluation,
+        commandQueuesRaw.commitmentsOverdue,
+        allowedPartyIds,
+      ),
+      commitmentsOpen: filterCommitmentsForEvaluation(
+        evaluation,
+        commandQueuesRaw.commitmentsOpen,
+        allowedPartyIds,
+      ),
+      pendingApprovals: filterApprovalsForEvaluation(evaluation, commandQueuesRaw.pendingApprovals, {
+        memberId: session.memberId,
+        scope: 'personal',
+      }),
+      pendingApprovalsOrg: filterApprovalsForEvaluation(
+        evaluation,
+        commandQueuesRaw.pendingApprovalsOrg,
+        {
+          memberId: session.memberId,
+          scope: 'org',
+        },
+      ),
+    };
 
     const teamData = leadership.team.kind === 'ready' ? leadership.team.data : null;
     const orgData = leadership.org.kind === 'ready' ? leadership.org.data : null;
@@ -234,17 +340,17 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       attentionResult === 'unavailable'
         ? new Map<string, string>()
         : await resolveAttentionSubjects(client, attentionItems);
-    const visibleAttention =
+    const visibleAttentionRaw =
       attentionResult === 'unavailable'
         ? []
         : attentionItems.filter((item) => {
             const subject = attentionSubjects.get(item.attentionKey) ?? '';
             return subject.trim().length > 0 && !isEngineeringFixtureCopy(subject);
           });
-
-    const commandApprovalSubjects = await resolveInicioApprovalSubjects(
-      client,
-      commandQueues.pendingApprovals,
+    const visibleAttention = filterAttentionForEvaluation(
+      evaluation,
+      visibleAttentionRaw,
+      allowedPartyIds,
     );
 
     const partyLabels = await resolvePartyLabels(client, [
@@ -275,9 +381,10 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       allowPartyForDataMode(item.partyId, partyLabels, dataMode),
     );
     const showResponsibility =
-      responsibilityOpportunities.length > 0 ||
-      responsibilityDraft.length > 0 ||
-      responsibilitySubmitted.length > 0;
+      showCommercialResponsibility &&
+      (responsibilityOpportunities.length > 0 ||
+        responsibilityDraft.length > 0 ||
+        responsibilitySubmitted.length > 0);
 
     const staleFreshness =
       (opportunitiesResult !== 'unavailable' &&
@@ -291,17 +398,43 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       (personalWorkResult !== 'unavailable' &&
         isProjectionStale(personalWorkResult.freshness));
 
-    const session = await client.getAuthenticatedSession();
-    const personalWork =
+    const personalWorkRaw =
       personalWorkResult === 'unavailable' ? [] : personalWorkResult.items;
+    const personalWork = filterWorkForEvaluation(evaluation, personalWorkRaw, allowedPartyIds);
     const openIssues = commandQueues.unavailable.issues ? [] : commandQueues.openIssues;
 
+    // Summary Approvals card: personal pending-for-me; Empresa lens or View As
+    // Jefe/Gerencia → org pending (same universe as /aprobaciones under that projection).
+    const approvalsScope =
+      (activeLens === 'org' && canShowOrgLens(lensInput)) ||
+      (evaluation.active &&
+        (evaluation.persona === 'jefe-comercial' || evaluation.persona === 'gerencia'))
+        ? 'org'
+        : 'personal';
+    const summaryApprovalsSource =
+      approvalsScope === 'org'
+        ? commandQueues.pendingApprovalsOrg
+        : commandQueues.pendingApprovals;
+    const projectionWorkOwnerId =
+      evaluation.active && evaluation.persona === 'asesor' && evaluation.subjectMemberId
+        ? evaluation.subjectMemberId
+        : session.memberId;
+
+    const decisionesApprovals =
+      approvalsScope === 'org'
+        ? commandQueues.pendingApprovalsOrg
+        : commandQueues.pendingApprovals;
+    const commandApprovalSubjects = await resolveInicioApprovalSubjects(
+      client,
+      decisionesApprovals,
+    );
+
     const todayQueue = buildTodayQueue({
-      memberId: session.memberId,
+      memberId: projectionWorkOwnerId,
       asOf,
       attention: visibleAttention,
       work: personalWork,
-      approvals: commandQueues.pendingApprovals,
+      approvals: decisionesApprovals,
       commitments: commandQueues.unavailable.commitments
         ? []
         : [...commandQueues.commitmentsOverdue, ...commandQueues.commitmentsOpen],
@@ -313,10 +446,12 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const summaryCounts = buildInicioSummaryCounts({
       attention: visibleAttention,
       work: personalWork,
-      approvals: commandQueues.pendingApprovals,
+      approvals: summaryApprovalsSource,
       issues: openIssues,
       memberId: session.memberId,
       asOf,
+      approvalsScope,
+      workOwnerMemberId: projectionWorkOwnerId,
     });
     const summaryCards = summaryCardsFromCounts(
       summaryCounts,
@@ -362,7 +497,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
             submittedQuotes: teamQuotes,
             openFollowUpWork: teamData.openWork,
             overdueFollowUps: teamData.overdueWork,
-            pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
+            pendingQuoteApprovals: commandQueues.pendingApprovalsOrg.filter(
               (row) => row.status === 'pending' && row.subjectType === 'quote',
             ).length,
             clientsMissingLocation: null as number | null,
@@ -374,7 +509,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
               submittedQuotes: orgQuotes,
               openFollowUpWork: orgData.openWork,
               overdueFollowUps: orgData.overdueWork,
-              pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
+              pendingQuoteApprovals: commandQueues.pendingApprovalsOrg.filter(
                 (row) => row.status === 'pending' && row.subjectType === 'quote',
               ).length,
               clientsMissingLocation: null as number | null,
@@ -392,7 +527,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
             orders,
             overdueFollowUps: orgData.overdueWork,
             openIssues,
-            pendingApprovals: commandQueues.pendingApprovals,
+            pendingApprovals: commandQueues.pendingApprovalsOrg,
           })
         : null;
 
@@ -522,7 +657,10 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
               <InicioManagementLens model={management} />
 
               <InicioCommandQueueSections
-                model={commandQueues}
+                model={{
+                  ...commandQueues,
+                  pendingApprovals: decisionesApprovals,
+                }}
                 memberLabels={memberLabels}
                 partyLabels={partyLabels}
                 approvalSubjects={commandApprovalSubjects}

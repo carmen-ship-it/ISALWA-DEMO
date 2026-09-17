@@ -11,6 +11,13 @@ import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import {
+  evaluationAllowsDesk,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import { filterCommitmentsForEvaluation } from '@/lib/inicio/filter-for-evaluation';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /**
  * Compromisos desk — due soon / team / completed density from recorded facts.
@@ -26,13 +33,37 @@ export default async function CompromisosPage({
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'compromisos')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel={COMMITMENT_COPY.title} />;
+  }
 
   try {
     const [openResult, fulfilledResult] = await Promise.all([
       client.listCommitments({ lifecycle: 'open' }),
       client.listCommitments({ lifecycle: 'fulfilled' }),
     ]);
-    const raw = [...(openResult.items ?? []), ...(fulfilledResult.items ?? [])];
+    let allowedPartyIds: Set<string> | null = null;
+    if (evaluation.active && evaluation.persona === 'asesor') {
+      if (!evaluation.subjectMemberId) {
+        allowedPartyIds = new Set();
+      } else {
+        const parties = await client
+          .searchParties({ status: 'active', limit: 100 })
+          .catch(() => ({ items: [] as Array<{ partyId: string; commercialOwnerMemberId?: string | null }> }));
+        const owned = filterByCommercialOwner(
+          evaluation,
+          parties.items ?? [],
+          (item) => item.commercialOwnerMemberId,
+        );
+        allowedPartyIds = new Set(owned.map((p) => p.partyId));
+      }
+    }
+    const raw = filterCommitmentsForEvaluation(
+      evaluation,
+      [...(openResult.items ?? []), ...(fulfilledResult.items ?? [])],
+      allowedPartyIds,
+    );
     const partyLabels = await resolvePartyLabels(
       client,
       raw.map((item) => item.partyId).filter((id): id is string => Boolean(id)),

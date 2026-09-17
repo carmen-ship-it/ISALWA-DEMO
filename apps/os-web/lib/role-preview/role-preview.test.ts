@@ -144,9 +144,10 @@ describe('evaluation resource access', () => {
     assert.equal(evaluationBlocksDirectParty({ ...asesor, active: false }, 'mem_b'), false);
   });
 
-  it('desk allow-list: Producción not for Asesor; Entregas for entregas/gerencia', () => {
+  it('desk allow-list: Producción not for Asesor; Entregas for entregas/gerencia; Aprobaciones Jefe/Gerencia only', () => {
     assert.equal(evaluationAllowsDesk(asesor, 'produccion'), false);
     assert.equal(evaluationAllowsDesk(asesor, 'commercial'), true);
+    assert.equal(evaluationAllowsDesk(asesor, 'aprobaciones'), false);
     assert.equal(
       evaluationAllowsDesk(
         { ...asesor, persona: 'produccion', subjectMemberId: null, commercialVisibility: null },
@@ -158,6 +159,13 @@ describe('evaluation resource access', () => {
       evaluationAllowsDesk(
         { ...asesor, persona: 'entregas', subjectMemberId: null, commercialVisibility: null },
         'entregas',
+      ),
+      true,
+    );
+    assert.equal(
+      evaluationAllowsDesk(
+        { ...asesor, persona: 'jefe-comercial', subjectMemberId: null, commercialVisibility: 'team' },
+        'aprobaciones',
       ),
       true,
     );

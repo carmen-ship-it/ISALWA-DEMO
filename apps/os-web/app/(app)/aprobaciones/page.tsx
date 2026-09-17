@@ -15,6 +15,10 @@ import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { filterApprovalsForEvaluation } from '@/lib/inicio/filter-for-evaluation';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 const PAGE_LIMIT = 25;
 
@@ -27,6 +31,12 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
+  const evaluation = await getEvaluationProjection();
+  // Asesor/ops without approval authority → excluded desk (never elevate).
+  if (!evaluationAllowsDesk(evaluation, 'aprobaciones')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Aprobaciones" />;
+  }
+
   const client = createOsApiClient(auth);
   const listState = {
     view: query.view,
@@ -35,11 +45,23 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
   };
 
   try {
+    const session = await client.getAuthenticatedSession();
     const result = await client.listApprovals({
       limit: PAGE_LIMIT,
       ...(query.cursor ? { cursor: query.cursor } : {}),
     });
-    const pending = result.items.filter((item) => item.status === 'pending');
+    // Same source as Inicio Approvals card / Decisiones:
+    // owner personal → pending-for-me; View As Jefe/Gerencia → org pending desk.
+    const approvalsScope =
+      evaluation.active &&
+      (evaluation.persona === 'jefe-comercial' || evaluation.persona === 'gerencia')
+        ? 'org'
+        : 'personal';
+    const pending = filterApprovalsForEvaluation(
+      evaluation,
+      result.items.filter((item) => item.status === 'pending'),
+      { memberId: session.memberId, scope: approvalsScope },
+    );
     const subjects = await approvalSubjectsForPage(client, pending);
     const memberLabels = await resolveMemberLabels(
       client,

@@ -100,10 +100,18 @@ export function splitCommitmentQueues(items: readonly CommitmentSummary[]): {
   return { overdue, open };
 }
 
+/**
+ * Pending approvals for Inicio Decisiones (personal Centro de mando).
+ * When `forMemberId` is set, keeps only pending-for-me — same rule as the
+ * summary Approvals card (`approverMemberId === memberId`).
+ * Omit `forMemberId` only for org-wide pending (Empresa metrics), never for Decisiones.
+ */
 export function filterPendingApprovals(
   items: readonly ApprovalSummaryReadModel[],
+  opts?: { forMemberId?: string },
 ): ApprovalSummaryReadModel[] {
   return items
     .filter((item) => item.status === 'pending')
+    .filter((item) => !opts?.forMemberId || item.approverMemberId === opts.forMemberId)
     .slice(0, INICIO_COMMAND_QUEUE_LIMIT);
 }

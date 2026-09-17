@@ -15,6 +15,13 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import type { IssueListItem } from '@/lib/issue/types';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import {
+  evaluationAllowsDesk,
+  filterByCommercialOwner,
+} from '@/lib/role-preview/evaluation-resource-access';
+import { filterIssuesForEvaluation } from '@/lib/inicio/filter-for-evaluation';
+import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 const PAGE_LIMIT = 25;
 
@@ -105,18 +112,54 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
   const reportedByLabel = session?.displayLabel?.trim() ?? '';
 
   const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
+  if (!evaluationAllowsDesk(evaluation, 'incidencias')) {
+    return <EvaluationDeskExcluded evaluation={evaluation} deskLabel={ISSUE_COPY.listTitle} />;
+  }
 
   try {
+    let allowedPartyIds: Set<string> | null = null;
+    if (evaluation.active && evaluation.persona === 'asesor') {
+      if (!evaluation.subjectMemberId) {
+        allowedPartyIds = new Set();
+      } else {
+        const parties = await client
+          .searchParties({ status: 'active', limit: 100 })
+          .catch(() => ({ items: [] as Array<{ partyId: string; commercialOwnerMemberId?: string | null }> }));
+        const owned = filterByCommercialOwner(
+          evaluation,
+          parties.items ?? [],
+          (item) => item.commercialOwnerMemberId,
+        );
+        allowedPartyIds = new Set(owned.map((p) => p.partyId));
+      }
+    }
+
+    const applyEvaluationIssues = (rows: IssueListItem[]) =>
+      filterIssuesForEvaluation(evaluation, rows, allowedPartyIds);
+
     const [result, openPage, assignedPage, resolvedPage] = await Promise.all([
       client.listIssues(viewQuery(view)),
       client.listIssues({ status: 'open', limit: PAGE_LIMIT }),
       client.listIssues({ assignedToMe: true, limit: PAGE_LIMIT }),
       client.listIssues({ status: 'resolved', limit: PAGE_LIMIT }),
     ]);
-    const items = filterByDemoDataMode(result.items, dataMode, isDemoIssue);
-    const openCount = filterByDemoDataMode(openPage.items ?? [], dataMode, isDemoIssue).length;
-    const assignedCount = filterByDemoDataMode(assignedPage.items ?? [], dataMode, isDemoIssue).length;
-    const resolvedCount = filterByDemoDataMode(resolvedPage.items ?? [], dataMode, isDemoIssue).length;
+    const items = filterByDemoDataMode(applyEvaluationIssues(result.items), dataMode, isDemoIssue);
+    const openCount = filterByDemoDataMode(
+      applyEvaluationIssues(openPage.items ?? []),
+      dataMode,
+      isDemoIssue,
+    ).length;
+    const assignedCount = filterByDemoDataMode(
+      applyEvaluationIssues(assignedPage.items ?? []),
+      dataMode,
+      isDemoIssue,
+    ).length;
+    const resolvedCount = filterByDemoDataMode(
+      applyEvaluationIssues(resolvedPage.items ?? []),
+      dataMode,
+      isDemoIssue,
+    ).length;
     const memberIds = items.flatMap((item) =>
       [item.reporterMemberId, item.ownerMemberId].filter((id): id is string => Boolean(id)),
     );

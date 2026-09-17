@@ -21,7 +21,10 @@ export type InicioCommandQueues = {
   openIssues: IssueListItem[];
   commitmentsOverdue: CommitmentSummary[];
   commitmentsOpen: CommitmentSummary[];
+  /** Decisiones / personal summary — pending where approver is the session member. */
   pendingApprovals: ApprovalSummaryReadModel[];
+  /** Empresa lens metrics — all pending (not Decisiones). */
+  pendingApprovalsOrg: ApprovalSummaryReadModel[];
   unavailable: {
     work: boolean;
     issues: boolean;
@@ -86,10 +89,13 @@ export async function loadInicioCommandQueues(
   const commitments =
     commitmentsResult === 'unavailable' ? [] : commitmentsResult.items;
   const { overdue: commitmentsOverdue, open: commitmentsOpen } = splitCommitmentQueues(commitments);
+  // Decisiones on personal Centro de mando = pending-for-me (same as summary Approvals card).
   const pendingApprovals =
     approvalsResult === 'unavailable'
       ? []
-      : filterPendingApprovals(approvalsResult.items);
+      : filterPendingApprovals(approvalsResult.items, { forMemberId: session.memberId });
+  const pendingApprovalsOrg =
+    approvalsResult === 'unavailable' ? [] : filterPendingApprovals(approvalsResult.items);
 
   return {
     lens,
@@ -98,6 +104,7 @@ export async function loadInicioCommandQueues(
     commitmentsOverdue,
     commitmentsOpen,
     pendingApprovals,
+    pendingApprovalsOrg,
     unavailable: {
       work: workResult === 'unavailable',
       issues: issuesResult === 'unavailable',
