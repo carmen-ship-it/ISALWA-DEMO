@@ -69,4 +69,4 @@ apps/os-web: pnpm exec tsx --test \
 → 16 pass / 0 fail
 ```
 
-**HEAD_SHA:** _(filled at commit)_
+**HEAD_SHA:** `3981ebde40460d9962ea3efb21922e4fbdd09d3f`
