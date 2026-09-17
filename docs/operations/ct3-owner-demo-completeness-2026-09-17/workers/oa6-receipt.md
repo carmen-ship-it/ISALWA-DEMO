@@ -115,4 +115,4 @@ Seed basis: `DEMO_SEED_ACTUAL_STATE.md` + `seeded-ids.json` (SYNTH `01M2JKF77TXM
 | Hosted proof | **UNPROVEN** (OA-1 membership apply still blocks Carmen row BV) |
 | Tip sync vs `origin/ct3/owner-demo-completeness` | **ALIGNED** at `7ea9719` (no rebase needed) |
 
-**LANE_RECEIPT_SHA:** `PENDING_COMMIT`
+**LANE_RECEIPT_SHA:** `b5dac08` (content commit; pin commit follows on same branch)
