@@ -27,7 +27,7 @@ export type Ui5aCommercialCommand = (typeof UI_5A_COMMERCIAL_COMMANDS)[number];
 export const COMMERCIAL_COMMANDS_NOT_EXPOSED = ['CancelOrder'] as const;
 
 export type CommandActionResult =
-  | { ok: true; data?: Record<string, unknown> }
+  | { ok: true; data?: Record<string, unknown>; redirectTo?: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 export type CreateRedirectResult =

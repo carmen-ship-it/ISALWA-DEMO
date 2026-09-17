@@ -1,0 +1,235 @@
+{
+  "lane": "PF-8",
+  "tip": "e5f6d3aaabf95c49d5358caee5dba9058d97197f",
+  "org": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "startedAt": "2026-09-17T04:13:25.651Z",
+  "checks": {
+    "people_admin_login": {
+      "pass": true,
+      "detail": "ok"
+    },
+    "demo_banner": {
+      "pass": true,
+      "detail": "banner"
+    },
+    "demo_toggle": {
+      "pass": true,
+      "detail": "toggle labels"
+    },
+    "story_mode_launcher": {
+      "pass": true,
+      "detail": "Ver recorrido completo"
+    },
+    "story_mode_open": {
+      "pass": true,
+      "detail": "opened"
+    },
+    "old_walkthrough_removed": {
+      "pass": true,
+      "detail": "none"
+    },
+    "coverage_Inicio": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Clientes": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Oportunidades": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Cotizaciones": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Mapa": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Trabajo": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Conversaciones": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Incidencias": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Compromisos": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Produccion": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Almacen": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Compras": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Entregas": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Finanzas": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "coverage_Gerencia": {
+      "pass": true,
+      "detail": "status=200 demoCue=true"
+    },
+    "demo_data_visible_any_page": {
+      "pass": true,
+      "detail": "hits=15/15"
+    },
+    "coherence_cliente360_maderas": {
+      "pass": true,
+      "detail": "name"
+    },
+    "coherence_quote": {
+      "pass": true,
+      "detail": "quote+party"
+    },
+    "quote_pdf_cta": {
+      "pass": true,
+      "detail": "Ver/Descargar present"
+    },
+    "coherence_pedido": {
+      "pass": true,
+      "detail": "order+party"
+    },
+    "coherence_docs": {
+      "pass": true,
+      "detail": "docs links"
+    },
+    "quote_pdf_http": {
+      "pass": true,
+      "detail": "200 application/pdf"
+    },
+    "coord_login": {
+      "pass": true,
+      "detail": "ok"
+    },
+    "dn_pdf_http": {
+      "pass": true,
+      "detail": "200 application/pdf"
+    },
+    "real_seven_mutated_artifact": {
+      "pass": true,
+      "detail": "NO"
+    },
+    "seeded_org_is_synth": {
+      "pass": true,
+      "detail": "01M2JKF77TXMJNDTKNCYNHH9G5"
+    },
+    "maderas_ids_present": {
+      "pass": true,
+      "detail": "ids"
+    }
+  },
+  "coverage": {
+    "Inicio": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Clientes": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Oportunidades": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Cotizaciones": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Mapa": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Trabajo": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Conversaciones": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Incidencias": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Compromisos": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Produccion": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Almacen": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Compras": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Entregas": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Finanzas": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    },
+    "Gerencia": {
+      "status": 200,
+      "crashed": false,
+      "hasDemoCue": true,
+      "pass": true
+    }
+  },
+  "finishedAt": "2026-09-17T04:16:23.208Z",
+  "passCount": 33,
+  "failCount": 0
+}

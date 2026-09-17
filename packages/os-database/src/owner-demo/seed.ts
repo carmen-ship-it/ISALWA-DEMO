@@ -45,7 +45,14 @@ import {
   OWNER_DEMO_CONVERSATIONS,
   ownerDemoCatalogMeta,
   type OwnerDemoClientKey,
+  type OwnerDemoClientSpec,
+  type OwnerDemoConversationSpec,
 } from './catalog';
+import {
+  admitOwnerDemoConversation,
+  ownerDemoConversationCreateData,
+  ownerDemoConversationNaturalKey,
+} from './conversations';
 import {
   OWNER_DEMO_REAL_ORG,
   OWNER_DEMO_SYNTH_ORG,
@@ -526,6 +533,53 @@ async function ensureCommitment(
     });
   }
   return row.id;
+}
+
+/**
+ * Durable OsCustomerConversation rows for owner-demo (idempotent natural key).
+ * Does not mutate Opportunity/Quote/Order — links are opaque evidence only.
+ */
+async function ensureOwnerDemoConversation(
+  prisma: NonNullable<ReturnType<typeof getOsPrisma>>,
+  args: {
+    organizationId: string;
+    client: OwnerDemoClientSpec;
+    conversation: OwnerDemoConversationSpec;
+    partyId: string;
+    enteredByMemberId: string;
+    links: { opportunityId: string | null; quoteId: string | null; orderId: string | null };
+  },
+): Promise<string | null> {
+  const naturalId = ownerDemoConversationNaturalKey(args.client.key);
+  const existing = await prisma.osCustomerConversation.findUnique({
+    where: { id: naturalId },
+  });
+  if (existing) {
+    await prisma.osCustomerConversation.update({
+      where: { id: naturalId },
+      data: {
+        opportunityId: args.links.opportunityId,
+        quoteId: args.links.quoteId,
+        orderId: args.links.orderId,
+      },
+    });
+    return existing.id;
+  }
+
+  const admitted = admitOwnerDemoConversation({
+    organizationId: args.organizationId,
+    client: args.client,
+    conversation: args.conversation,
+    partyId: args.partyId,
+    enteredByMemberId: args.enteredByMemberId,
+    links: args.links,
+  });
+  if (!admitted.ok) {
+    return null;
+  }
+  const data = ownerDemoConversationCreateData(admitted.record, new Date().toISOString());
+  const created = await prisma.osCustomerConversation.create({ data });
+  return created.id;
 }
 
 /** Fixture-tooling persistence for delivery/FG — command-equivalent rows, SYNTH only. */
@@ -1300,6 +1354,21 @@ async function main(): Promise<void> {
       ids.quoteNumber = loop.quoteNumber;
       ids.orderId = loop.orderId;
       ids.orderNumber = loop.orderNumber;
+    }
+
+    if (ids.conversation) {
+      await ensureOwnerDemoConversation(prisma, {
+        organizationId: session.organizationId,
+        client: spec,
+        conversation: ids.conversation,
+        partyId: party.partyId,
+        enteredByMemberId: session.actorMemberId,
+        links: {
+          opportunityId: ids.opportunityId,
+          quoteId: ids.quoteId,
+          orderId: ids.orderId,
+        },
+      });
     }
 
     clients.push(ids);

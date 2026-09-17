@@ -14,6 +14,7 @@ import {
 import type { SubjectApprovalItem } from '@/lib/commercial/types';
 import { formatTimestamp } from '@/lib/commercial/labels';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
+import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 
@@ -23,6 +24,8 @@ type CommercialApprovalPanelProps = {
   subjectId: string;
   canRequest: boolean;
   memberLabels?: ReadonlyMap<string, string>;
+  /** Optional department/team labels for display — never authority. */
+  memberRoleLabels?: ReadonlyMap<string, string | null>;
   approvals: SubjectApprovalItem[];
 };
 
@@ -39,6 +42,7 @@ export function CommercialApprovalPanel({
   subjectId,
   canRequest,
   memberLabels,
+  memberRoleLabels,
   approvals,
 }: CommercialApprovalPanelProps) {
   const router = useRouter();
@@ -57,6 +61,10 @@ export function CommercialApprovalPanel({
     async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
       const result = await decideCommercialApprovalAction(formData);
       if (result.ok) {
+        if (result.redirectTo) {
+          router.push(result.redirectTo);
+          return { success: 'Decisión registrada. No se creó un pedido ni se modificó el precio.' };
+        }
         router.refresh();
         return { success: 'Decisión registrada. No se creó un pedido ni se modificó el precio.' };
       }
@@ -71,33 +79,49 @@ export function CommercialApprovalPanel({
         <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Historial de aprobación">
           {approvals.map((approval) => {
             const decided = Boolean(decisionState?.success) || !approval.canDecide;
+            const responsibility = approvalResponsibilityView({
+              status: approval.status,
+              approvalRequestId: approval.approvalRequestId,
+              approver: {
+                memberId: approval.approverMemberId,
+                displayName: memberName(memberLabels, approval.approverMemberId),
+                businessRoleLabel: memberRoleLabels?.get(approval.approverMemberId) ?? null,
+              },
+              requesterDisplayName: memberName(memberLabels, approval.requestedByMemberId),
+              decidedByDisplayName: approval.decisionByMemberId
+                ? memberName(memberLabels, approval.decisionByMemberId)
+                : null,
+            });
             return (
               <li key={approval.approvalRequestId} className="py-6 first:pt-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm text-[var(--isalwa-kiln)]">
-                    Aprobador: {memberName(memberLabels, approval.approverMemberId)}
-                  </p>
+                  <p className="text-sm text-[var(--isalwa-kiln)]">{responsibility.headline}</p>
                   <StatusPill tone={statusToneForApproval(approval.status)}>
                     {formatApprovalStatus(approval.status)}
                   </StatusPill>
                 </div>
+                {responsibility.detailLines.map((line) => (
+                  <p key={line} className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                    {line}
+                  </p>
+                ))}
                 {formatTimestamp(approval.decidedAt) ? (
                   <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
                     Decidida: {formatTimestamp(approval.decidedAt)}
                   </p>
                 ) : null}
-                {approval.status === 'pending' ? (
-                  <div className="mt-3 space-y-1 text-sm leading-relaxed">
-                    <p className="font-medium text-[var(--isalwa-kiln)]">Bloqueado por</p>
-                    <p className="text-[var(--isalwa-slate)]">Aprobación pendiente. No crea un pedido.</p>
-                    <p className="font-medium text-[var(--isalwa-kiln)]">A quién acudir</p>
-                    <p className="text-[var(--isalwa-slate)]">
-                      {memberName(memberLabels, approval.approverMemberId)} — aprobador actual
-                    </p>
-                  </div>
-                ) : null}
                 {approval.decisionReason ? (
                   <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{approval.decisionReason}</p>
+                ) : null}
+                {responsibility.requestHref ? (
+                  <p className="mt-3">
+                    <a
+                      href={responsibility.requestHref}
+                      className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                    >
+                      {responsibility.requestLabel}
+                    </a>
+                  </p>
                 ) : null}
                 {approval.canDecide || approval.status !== 'pending' ? (
                   <ApprovalDecisionFields
@@ -124,14 +148,18 @@ export function CommercialApprovalPanel({
           <input type="hidden" name="subjectType" value={subjectType} />
           <input type="hidden" name="subjectId" value={subjectId} />
           <label className="block text-sm text-[var(--isalwa-slate)]">
-            Aprobador
+            Aprobador (misma empresa)
             <ServerMemberTypeahead
               id="approver-member"
               name="approverMemberId"
               required
-              placeholder="Buscar aprobador"
+              placeholder="Buscar aprobador activo de esta empresa"
             />
           </label>
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            El cargo no concede autoridad. Elija una persona con la capacidad de aprobar en esta
+            empresa. Si no hay quién, falta configuración — no se inventa un aprobador.
+          </p>
           <label className="block text-sm text-[var(--isalwa-slate)]">
             Nota
             <input className={fieldClass} name="note" maxLength={500} />
@@ -164,6 +192,10 @@ export function ApprovalDecisionForm({
     async (_prev: { error?: string; success?: string } | null, formData: FormData) => {
       const result = await decideCommercialApprovalAction(formData);
       if (result.ok) {
+        if (result.redirectTo) {
+          router.push(result.redirectTo);
+          return { success: 'Decisión registrada. No se creó un pedido.' };
+        }
         router.refresh();
         return { success: 'Decisión registrada. No se creó un pedido.' };
       }

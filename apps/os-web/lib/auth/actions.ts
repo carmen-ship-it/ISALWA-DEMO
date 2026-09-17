@@ -16,6 +16,12 @@ import { t } from '@/lib/i18n/es';
 import { readInviteCompletionCode } from '@/lib/auth/invite-completion';
 import { QA_VIEW_COOKIE_NAME } from '@/lib/qa/constants';
 import {
+  OWNER_EFFECTIVE_COMPANY_COOKIE,
+  organizationIdForCompany,
+  parseOwnerEffectiveCompany,
+} from '@/lib/demo/owner-company-context';
+import { parseDemoDataMode, DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
+import {
   PASSWORD_RESET_COPY,
   buildPasswordResetRedirectUrl,
   isValidResetEmail,
@@ -326,7 +332,33 @@ export async function getServerOsAuthContext(options?: { skipQaView?: boolean })
 
   const store = await cookies();
   const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
-  return qaViewCookie ? { ...base, qaViewCookie } : base;
+
+  // Owner Demo company context: select among proven memberships (Carmen REAL↔SYNTH).
+  // Prefer explicit company cookie; else derive from demo-data-mode cookie; default real when either cookie exists.
+  const companyExplicit = parseOwnerEffectiveCompany(
+    store.get(OWNER_EFFECTIVE_COMPANY_COOKIE)?.value,
+  );
+  const demoMode = parseDemoDataMode(store.get(DEMO_DATA_MODE_COOKIE)?.value);
+  const company =
+    companyExplicit ??
+    (store.get(DEMO_DATA_MODE_COOKIE)?.value != null
+      ? demoMode === 'demo'
+        ? 'synth'
+        : 'real'
+      : null);
+  const organizationId = company ? organizationIdForCompany(company) : undefined;
+
+  const withOrg =
+    organizationId && base.mode === 'supabase'
+      ? { ...base, organizationId }
+      : organizationId && base.mode === 'dev'
+        ? {
+            ...base,
+            session: { ...base.session, organizationId },
+          }
+        : base;
+
+  return qaViewCookie ? { ...withOrg, qaViewCookie } : withOrg;
 }
 
 

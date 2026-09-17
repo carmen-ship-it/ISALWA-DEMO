@@ -109,23 +109,26 @@ Bounded delta on top of `FINAL_CT3_SOURCE_SHA` `f2740d12b405807c5f7b7c9602b91dcf
 | DELIVERY_NOTE_PDF_SCOPE | **NORMAL PRODUCT** — `apps/os-web/app/api/delivery-notes/[id]/pdf/route.ts` → os-api delivery-note PDF (`DeliveryNotePdfService`) |
 | DEMO_USES_SAME_PDF_IMPLEMENTATION | **YES** |
 | REAL_SEVEN_MUTATED | **NO** |
-| FINAL_CT3_POST_DEMO_SHA | `b745d9114b02bf1b9be531c8cfb595de1d684bdc` |
-| FINAL_RUNTIME_SHA | _(filled after same-SHA LIVE)_ |
-| WEB_RUNTIME_SHA | _(filled after LIVE)_ |
-| API_RUNTIME_SHA | _(filled after LIVE)_ |
-| SAME_SHA_PROOF | _(filled after LIVE)_ |
+| FINAL_CT3_POST_DEMO_SHA | `e5f6d3aaabf95c49d5358caee5dba9058d97197f` |
+| FINAL_RUNTIME_SHA | `e5f6d3aaabf95c49d5358caee5dba9058d97197f` |
+| WEB_RUNTIME_SHA | `e5f6d3aaabf95c49d5358caee5dba9058d97197f` |
+| API_RUNTIME_SHA | `e5f6d3aaabf95c49d5358caee5dba9058d97197f` |
+| SAME_SHA_PROOF | **PASS** |
+| WEB_DEPLOY_ID | `dep-dalmg1p42hec73d09g60` |
+| API_DEPLOY_ID | `dep-dalmg261egvs73f493qg` |
 
 Lightweight help preserved: Modo aprendizaje, micro-tips, ¿Qué significa esto?, role quick-start. Full tour launcher "Mostrar recorrido" removed.
 
 Demo mode visual boundary: persistent `DEMO · DATOS FICTICIOS`; toggle `Datos reales` \| `Demo`; default remains Datos reales; cookie `isalwa-demo-data-mode` keeps mode across navigation.
 
-
+Canonical post-finish receipt: [`POST_FINISH_ADDENDUM_RECEIPT.md`](./POST_FINISH_ADDENDUM_RECEIPT.md)
 
 ### Post-finish readiness states
 
 | State | Value |
 |---|---|
-| CODE_READY | YES |
-| SEED_APPLIED | NO |
-| DEMO_DATA_VISIBLE_HOSTED | UNPROVEN |
-| DEMO_MODE_POPULATED_ACROSS_PRODUCT | NO |
+| CODE_READY | **YES** |
+| SEED_APPLIED | **YES** (authorized densify `2026-09-17T04:09:03Z`; SYNTH only) |
+| DEMO_DATA_VISIBLE_HOSTED | **YES** (PF-8 15/15 demo cues) |
+| DEMO_MODE_POPULATED_ACROSS_PRODUCT | **YES** |
+| PF-8_HOSTED_BV | **PASS** 33/33 |

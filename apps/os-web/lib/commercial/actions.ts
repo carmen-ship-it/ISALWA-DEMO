@@ -460,6 +460,11 @@ export async function decideCommercialApprovalAction(formData: FormData): Promis
     revalidatePath('/aprobaciones');
     revalidatePath(approvalHref(approvalRequestId));
   }
+  // Prefer quote deep-link over refresh-only dead-end on /aprobaciones/[id].
+  // Approval still does not create an order — convert remains a separate step on the quote.
+  if (result.ok && partyId && subjectId && subjectType === 'quote') {
+    return { ...result, redirectTo: quoteHref(partyId, subjectId) };
+  }
   return result;
 }
 

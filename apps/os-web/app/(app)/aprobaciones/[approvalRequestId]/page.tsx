@@ -8,6 +8,11 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { formatTimestamp } from '@/lib/commercial/labels';
+import {
+  postApprovalContinue,
+  POST_APPROVAL_CONVERT_LABEL,
+  POST_APPROVAL_QUOTE_LINK_LABEL,
+} from '@/lib/commercial/post-approval-continue';
 
 /** CROSS_LANE: add 'approvalActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const APPROVAL_ACTIONS_TARGET = 'approval-actions';
@@ -59,6 +64,7 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
       customerName: customerName && customerName !== 'Cliente' ? customerName : null,
     });
     const canDecide = await resolveCanDecide(client, approval);
+    const continueCue = await resolvePostApprovalContinue(client, approval, subjectLink);
 
     return (
       <PageContainer label="Aprobación">
@@ -107,6 +113,32 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
                 Solo el aprobador asignado puede decidir. Usted puede revisar el contexto.
               </p>
             )}
+            {continueCue?.showContinue ? (
+              <div className="mt-8 space-y-3 border-t border-[var(--isalwa-mist)] pt-6" data-tour="post-approval-continue">
+                {continueCue.decisionLabel ? (
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                    Decisión: {continueCue.decisionLabel}
+                  </p>
+                ) : null}
+                {continueCue.stateExplanation ? (
+                  <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                    {continueCue.stateExplanation}
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap gap-4">
+                  {continueCue.quoteHref && continueCue.quoteLinkLabel ? (
+                    <Link href={continueCue.quoteHref} className={accentLinkClass}>
+                      {continueCue.quoteLinkLabel || POST_APPROVAL_QUOTE_LINK_LABEL}
+                    </Link>
+                  ) : null}
+                  {continueCue.convertHref && continueCue.convertLabel ? (
+                    <Link href={continueCue.convertHref} className={accentLinkClass}>
+                      {continueCue.convertLabel || POST_APPROVAL_CONVERT_LABEL}
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
           </PageSection>
 
           <PageSection card className="order-1 p-6 shadow-[var(--isalwa-shadow-soft)] lg:order-2 md:p-8">
@@ -254,5 +286,52 @@ async function resolveCanDecide(
     return session.memberId === approval.approverMemberId;
   } catch {
     return false;
+  }
+}
+
+async function resolvePostApprovalContinue(
+  client: ReturnType<typeof createOsApiClient>,
+  approval: { status: string; subjectType: string; subjectId: string },
+  subjectLink: SubjectLink | null,
+) {
+  if (approval.status !== 'approved' && approval.status !== 'rejected') {
+    return postApprovalContinue({
+      approvalStatus: approval.status,
+      subjectType: approval.subjectType,
+      quoteStatus: null,
+      canConvertToOrder: false,
+      partyId: subjectLink?.partyId ?? null,
+      quoteId: approval.subjectType === 'quote' ? approval.subjectId : null,
+    });
+  }
+  if (approval.subjectType !== 'quote' || !subjectLink?.partyId) {
+    return postApprovalContinue({
+      approvalStatus: approval.status,
+      subjectType: approval.subjectType,
+      quoteStatus: null,
+      canConvertToOrder: false,
+      partyId: subjectLink?.partyId ?? null,
+      quoteId: null,
+    });
+  }
+  try {
+    const { quote, authority } = await client.getQuote(approval.subjectId);
+    return postApprovalContinue({
+      approvalStatus: approval.status,
+      subjectType: approval.subjectType,
+      quoteStatus: quote.status,
+      canConvertToOrder: authority?.canConvertToOrder === true,
+      partyId: quote.partyId,
+      quoteId: quote.quoteId,
+    });
+  } catch {
+    return postApprovalContinue({
+      approvalStatus: approval.status,
+      subjectType: approval.subjectType,
+      quoteStatus: null,
+      canConvertToOrder: false,
+      partyId: subjectLink.partyId,
+      quoteId: approval.subjectId,
+    });
   }
 }
