@@ -5,7 +5,7 @@
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-oa4-conversations-durable`  
 **Base tip synced:** `origin/ct3/owner-demo-completeness` @ `4a1c0c88c2fa305a9f1a28ab8ff3cb85f0d9eee0`  
 **IMPLEMENTATION_SHA:** `662b865ebf01e4debdb6d952c4fe2875c21bc26f` (integrated on tip; API + seed + web prefer durable)  
-**RECEIPT_SHA:** `7e6db44cef2232be0c92669f9955fa602514ba6b`  
+**RECEIPT_SHA:** `9978dbcedd78135066dc6e453c82e3d8b09485b5`  
 **REAL_SEVEN_MUTATED:** **NO**  
 **Fake WhatsApp:** **NO** (channel stays `manual`; provider never connected)  
 **INVENTED_BUSINESS_RULES:** **0**
