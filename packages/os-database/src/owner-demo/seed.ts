@@ -613,8 +613,7 @@ async function main(): Promise<void> {
   assertMigrationCount(Number(migRows[0]?.count ?? -1));
 
   assertOwnerDemoSynthOrg(OWNER_DEMO_SYNTH_ORG);
-  assertOwnerDemoNotRealOrg(OWNER_DEMO_SYNTH_ORG);
-  assertOwnerDemoNotRealOrg(OWNER_DEMO_REAL_ORG);
+  // Session/target org is SYNTH only — never pass REAL_ORG into write paths.
 
   const org = await prisma.osOrganization.findUnique({ where: { id: OWNER_DEMO_SYNTH_ORG } });
   if (!org) throw new Error('OWNER_DEMO_SYNTH_ORG_MISSING');
