@@ -7,6 +7,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { opportunityHref } from '@/lib/commercial/navigation';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type NewQuotePageProps = {
@@ -29,12 +30,15 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
         </PageContainer>
       );
     }
+    const partyLabels = await resolvePartyLabels(client, [partyId]);
+    const customerName = partyLabel(partyLabels, partyId);
 
     return (
       <PageContainer label="Nueva cotización">
         <PageHeader
           kicker="Cotización"
-          title="Nueva cotización"
+          title="Crear cotización"
+          description={customerName}
           action={
             <Link
               href={opportunityHref(partyId, opportunityId)}
@@ -48,6 +52,7 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
           partyId={partyId}
           opportunityId={opportunityId}
           opportunityTitle={opportunity.title}
+          customerName={customerName}
         />
       </PageContainer>
     );

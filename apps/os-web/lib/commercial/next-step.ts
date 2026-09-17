@@ -45,7 +45,7 @@ export function opportunityNextStep(input: OpportunityNextStepInput): Commercial
       return {
         statement: 'Prepare una cotización desde esta oportunidad.',
         href: input.newQuoteHref,
-        hrefLabel: 'Nueva cotización',
+        hrefLabel: 'Crear cotización',
         waiting: false,
       };
     case 'won':

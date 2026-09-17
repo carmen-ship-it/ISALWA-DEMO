@@ -4,20 +4,31 @@ export const QUOTE_MANUAL_SEND_COPY = {
   pendingLabel: 'Registrando envío…',
   channel: 'Canal',
   channelWhatsapp: 'WhatsApp',
+  channelEmail: 'Email',
   channelOther: 'Otro',
   note: 'Nota',
   noteOptional: 'Opcional',
   disclaimer:
     'ISALWA registra el envío; no envía el mensaje desde aquí todavía.',
+  successToast: 'Envío registrado.',
   successWhatsapp: 'Cotización registrada como enviada por WhatsApp',
+  successEmail: 'Cotización registrada como enviada por Email',
   successOther: 'Cotización registrada como enviada por otro canal',
-  followUpPrompt: '¿Cuándo quieres hacer seguimiento?',
+  followUpPrompt: 'Programe cuándo quiere volver a contactar al cliente.',
+  followUpAction: 'Programar seguimiento',
+  statusUnregistered: 'No registrado',
+  statusWhatsapp: 'Enviada por WhatsApp',
+  statusEmail: 'Enviada por Email',
+  statusOther: 'Enviada por otro canal',
   channelRequired: 'Seleccione el canal de envío.',
   quoteInvalid: 'Cotización no válida.',
 } as const;
 
+export type QuoteManualSendUiChannel = 'whatsapp' | 'email' | 'otro';
+
 export function quoteManualSendHistoryLabel(channel: string | null | undefined): string {
   if (channel === 'whatsapp') return QUOTE_MANUAL_SEND_COPY.successWhatsapp;
+  if (channel === 'email') return QUOTE_MANUAL_SEND_COPY.successEmail;
   if (channel === 'otro') return QUOTE_MANUAL_SEND_COPY.successOther;
   return 'Cotización registrada como enviada';
 }

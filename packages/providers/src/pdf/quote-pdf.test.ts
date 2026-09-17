@@ -42,8 +42,8 @@ describe('quote PDF document helpers', () => {
 
   it('formats dates and filenames', () => {
     assert.match(formatQuotePdfDate('2026-09-13T15:00:00.000Z'), /\d{2}\/\d{2}\/\d{4}/);
-    assert.equal(sanitizeQuotePdfFilename('Q-0001'), 'cotizacion-Q-0001.pdf');
-    assert.equal(sanitizeQuotePdfFilename('../evil'), 'cotizacion-evil.pdf');
+    assert.equal(sanitizeQuotePdfFilename('Q-0001'), 'Cotizacion-Q-0001.pdf');
+    assert.equal(sanitizeQuotePdfFilename('../evil'), 'Cotizacion-evil.pdf');
   });
 });
 

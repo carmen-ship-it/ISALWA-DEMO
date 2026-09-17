@@ -19,7 +19,7 @@ describe('commercial next-step', () => {
       opportunityId: 'opp-1',
       newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
     });
-    assert.equal(step?.hrefLabel, 'Nueva cotización');
+    assert.equal(step?.hrefLabel, 'Crear cotización');
     assert.equal(step?.waiting, false);
     assert.match(step?.statement ?? '', /cotización/i);
   });

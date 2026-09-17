@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { CommercialPath } from '@/components/commercial/commercial-path';
+import { CommercialProgressStrip } from '@/components/commercial/commercial-progress-strip';
 import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { OpportunityActionsPanel } from '@/components/commercial/opportunity-actions-panel';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
@@ -10,6 +11,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { commercialProgressSteps } from '@/lib/commercial/commercial-progress';
 import {
   formatOpportunityStatus,
   formatTimestamp,
@@ -17,7 +19,7 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
-import { newQuoteHref } from '@/lib/commercial/navigation';
+import { newQuoteHref, quoteHref } from '@/lib/commercial/navigation';
 import { opportunityNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { partyHref } from '@/lib/party/navigation';
@@ -46,11 +48,40 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
     const value = formatOptionalCentavos(opportunity.expectedValueCentavos ?? undefined, 'BOB');
     const isOpen = opportunity.status === 'open';
     const createQuoteHref = newQuoteHref(partyId, opportunityId);
+
+    let linkedQuote: { quoteId: string; quoteNumber: string } | null = null;
+    try {
+      const quotes = await client.listQuotes({
+        partyId,
+        opportunityId,
+        limit: 10,
+      });
+      const preferred =
+        quotes.items.find((item) => item.status === 'submitted' || item.status === 'accepted') ??
+        quotes.items.find((item) => item.status === 'draft') ??
+        quotes.items[0] ??
+        null;
+      if (preferred) {
+        linkedQuote = { quoteId: preferred.quoteId, quoteNumber: preferred.quoteNumber };
+      }
+    } catch {
+      linkedQuote = null;
+    }
+
+    const primaryHref = linkedQuote
+      ? quoteHref(partyId, linkedQuote.quoteId)
+      : createQuoteHref;
+    const primaryLabel = linkedQuote ? 'Ver cotización' : 'Crear cotización';
+
     const nextStep = opportunityNextStep({
       status: opportunity.status,
       partyId,
       opportunityId,
       newQuoteHref: createQuoteHref,
+    });
+    const progress = commercialProgressSteps({
+      hasQuote: Boolean(linkedQuote),
+      onQuote: false,
     });
 
     return (
@@ -62,6 +93,7 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
             { label: opportunity.title },
           ]}
         />
+        <CommercialProgressStrip steps={progress} />
         <PageHeader
           kicker="Oportunidad"
           title={opportunity.title}
@@ -74,13 +106,30 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
         />
 
         <StaleProjectionBanner freshness={freshness} />
-        <RecordNextStep step={nextStep} />
+        <RecordNextStep
+          step={
+            nextStep
+              ? {
+                  ...nextStep,
+                  href: isOpen ? primaryHref : nextStep.href,
+                  hrefLabel: isOpen ? primaryLabel : nextStep.hrefLabel,
+                }
+              : null
+          }
+        />
 
         <PageSection card className="bg-white p-8 md:p-10">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <StatusPill tone={statusTone(opportunity.status)}>
               {formatOpportunityStatus(opportunity.status)}
             </StatusPill>
+            {isOpen || linkedQuote ? (
+              <Link href={primaryHref}>
+                <Button type="button" variant="primary">
+                  {primaryLabel}
+                </Button>
+              </Link>
+            ) : null}
           </div>
 
           <dl className="mt-10 grid gap-8 sm:grid-cols-2">
@@ -91,6 +140,10 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
                   {customerName}
                 </Link>
               </dd>
+            </div>
+            <div>
+              <dt className="isalwa-section-label">Qué necesita</dt>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{opportunity.title}</dd>
             </div>
             <div>
               <dt className="isalwa-section-label">Etapa</dt>
@@ -122,17 +175,47 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
                 </dd>
               </div>
             ) : null}
+            {linkedQuote ? (
+              <div>
+                <dt className="isalwa-section-label">Cotización</dt>
+                <dd className="mt-2">
+                  <Link href={quoteHref(partyId, linkedQuote.quoteId)} className={documentLinkClass}>
+                    {linkedQuote.quoteNumber}
+                  </Link>
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </PageSection>
 
-        {isOpen ? (
+        {isOpen && !linkedQuote ? (
           <CommercialStickyBar className="mt-6">
             <p className="text-sm text-[var(--isalwa-slate)]">Oportunidad abierta</p>
             <Link href={createQuoteHref}>
               <Button type="button" variant="primary">
-                Nueva cotización
+                Crear cotización
               </Button>
             </Link>
+          </CommercialStickyBar>
+        ) : null}
+
+        {isOpen && linkedQuote ? (
+          <CommercialStickyBar className="mt-6">
+            <p className="text-sm text-[var(--isalwa-slate)]">
+              Cotización {linkedQuote.quoteNumber}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href={quoteHref(partyId, linkedQuote.quoteId)}>
+                <Button type="button" variant="primary">
+                  Ver cotización
+                </Button>
+              </Link>
+              <Link href={createQuoteHref}>
+                <Button type="button" variant="secondary">
+                  Crear cotización
+                </Button>
+              </Link>
+            </div>
           </CommercialStickyBar>
         ) : null}
 

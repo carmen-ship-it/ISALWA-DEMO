@@ -8,12 +8,20 @@ import type { OsApiClient } from '@/lib/api/os-api-client';
 
 export type DocumentLinkType = 'quote_pdf' | 'delivery_note_pdf';
 
+export type DocumentLinkStatus = 'disponible' | 'enviada' | 'emitida';
+
 export type DocumentLink = {
   id: string;
   type: DocumentLinkType;
+  /** Human reference (quote number / NE ref) — never opaque storage IDs. */
   label: string;
+  reference: string;
   href: string;
+  viewHref: string;
   createdAt: string;
+  status: DocumentLinkStatus;
+  statusLabel: string;
+  relatedLabel: string;
   /** Related entity for deep link context */
   relatedEntityType: 'quote' | 'order' | 'delivery_note';
   relatedEntityId: string;
@@ -30,13 +38,21 @@ function quoteDocumentLink(
   quoteId: string,
   quoteNumber: string,
   createdAt: string,
+  opportunityTitle: string | null,
+  sent: boolean,
 ): DocumentLink {
+  const pdf = `/api/quotes/${encodeURIComponent(quoteId)}/pdf`;
   return {
     id: `quote-pdf-${quoteId}`,
     type: 'quote_pdf',
     label: `Cotización ${quoteNumber}`,
-    href: `/api/quotes/${encodeURIComponent(quoteId)}/pdf`,
+    reference: quoteNumber,
+    href: pdf,
+    viewHref: `${pdf}?disposition=inline`,
     createdAt,
+    status: sent ? 'enviada' : 'disponible',
+    statusLabel: sent ? 'Enviada' : 'Disponible',
+    relatedLabel: opportunityTitle ? `Oportunidad · ${opportunityTitle}` : 'Cotización',
     relatedEntityType: 'quote',
     relatedEntityId: quoteId,
     relatedEntityHref: `/clientes/${encodeURIComponent(partyId)}/cotizaciones/${encodeURIComponent(quoteId)}`,
@@ -46,16 +62,23 @@ function quoteDocumentLink(
 function deliveryNoteDocumentLink(
   partyId: string,
   orderId: string,
+  orderNumber: string | null,
   noteId: string,
   internalDocumentRef: string,
   bornAt: string,
 ): DocumentLink {
+  const pdf = `/api/delivery-notes/${encodeURIComponent(noteId)}/pdf`;
   return {
     id: `delivery-note-pdf-${noteId}`,
     type: 'delivery_note_pdf',
     label: `Nota de entrega ${internalDocumentRef}`,
-    href: `/api/delivery-notes/${encodeURIComponent(noteId)}/pdf`,
+    reference: internalDocumentRef,
+    href: pdf,
+    viewHref: pdf,
     createdAt: bornAt,
+    status: 'emitida',
+    statusLabel: 'Emitida',
+    relatedLabel: orderNumber ? `Pedido · ${orderNumber}` : 'Pedido',
     relatedEntityType: 'order',
     relatedEntityId: orderId,
     relatedEntityHref: `/clientes/${encodeURIComponent(partyId)}/pedidos/${encodeURIComponent(orderId)}`,
@@ -73,14 +96,55 @@ export async function loadDocumentLinks(
 ): Promise<DocumentLinksOutcome> {
   try {
     const links: DocumentLink[] = [];
+    const sentQuoteIds = new Set<string>();
 
-    // Quotes that have been submitted (have PDF)
+    try {
+      const timeline = await client.listPartyTimeline(partyId, { limit: 50 });
+      for (const entry of timeline.items) {
+        if (entry.eventType !== 'quote.send_recorded') continue;
+        const quoteId =
+          typeof entry.facts.quoteId === 'string' ? entry.facts.quoteId.trim() : '';
+        if (quoteId) sentQuoteIds.add(quoteId);
+      }
+    } catch {
+      // Timeline optional for status enrichment.
+    }
+
+    const opportunityTitles = new Map<string, string>();
+
     try {
       const quotes = await client.listQuotes({ partyId, limit: 20 });
+      const opportunityIds = [
+        ...new Set(
+          quotes.items
+            .map((quote) => quote.opportunityId)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ];
+      await Promise.all(
+        opportunityIds.map(async (opportunityId) => {
+          try {
+            const { opportunity } = await client.getOpportunity(opportunityId);
+            opportunityTitles.set(opportunityId, opportunity.title);
+          } catch {
+            // Title enrichment is best-effort.
+          }
+        }),
+      );
+
       for (const quote of quotes.items) {
         if (quote.status === 'submitted' || quote.status === 'accepted') {
           links.push(
-            quoteDocumentLink(partyId, quote.quoteId, quote.quoteNumber, quote.createdAt),
+            quoteDocumentLink(
+              partyId,
+              quote.quoteId,
+              quote.quoteNumber,
+              quote.submittedAt ?? quote.createdAt,
+              quote.opportunityId
+                ? opportunityTitles.get(quote.opportunityId) ?? null
+                : null,
+              sentQuoteIds.has(quote.quoteId),
+            ),
           );
         }
       }
@@ -88,7 +152,6 @@ export async function loadDocumentLinks(
       // Quote access may be restricted; continue
     }
 
-    // Orders with delivery notes
     try {
       const orders = await client.listOrders({ partyId, limit: 20 });
       for (const order of orders.items) {
@@ -107,6 +170,7 @@ export async function loadDocumentLinks(
                 deliveryNoteDocumentLink(
                   partyId,
                   order.orderId,
+                  order.orderNumber,
                   note.id,
                   note.internalDocumentRef,
                   note.bornAt,
@@ -122,7 +186,6 @@ export async function loadDocumentLinks(
       // Order access may be restricted; continue
     }
 
-    // Sort by createdAt descending (most recent first)
     links.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return { status: 'ok', links };
@@ -138,8 +201,15 @@ export const DOCUMENTOS_COPY = {
     'Cuando existan cotizaciones presentadas o notas de entrega, sus PDFs aparecerán aquí.',
   unavailable: 'No se pudieron cargar los documentos.',
   forbidden: 'No tiene permiso para ver los documentos de este cliente.',
-  quotePdf: 'Cotización PDF',
-  deliveryNotePdf: 'Nota de entrega PDF',
+  quotePdf: 'Cotización',
+  deliveryNotePdf: 'Nota de entrega',
   viewRelated: 'Ver registro',
   download: 'Descargar',
+  viewPdf: 'Ver PDF',
+  colTipo: 'Tipo',
+  colReferencia: 'Referencia',
+  colFecha: 'Fecha',
+  colEstado: 'Estado',
+  colRelacionado: 'Relacionado con',
+  colAcciones: 'Acciones',
 } as const;

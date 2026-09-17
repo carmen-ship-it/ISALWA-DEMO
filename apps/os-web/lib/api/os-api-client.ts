@@ -345,7 +345,7 @@ export function createOsApiClient(auth: OsAuthContext) {
       return {
         bytes: binary.bytes,
         contentType: binary.contentType || 'application/pdf',
-        filename: binary.filename ?? `cotizacion-${quoteId}.pdf`,
+        filename: binary.filename ?? `Cotizacion-${quoteId}.pdf`,
       };
     },
     getDeliveryNotePdf: async (deliveryNoteId: string) => {
@@ -355,7 +355,7 @@ export function createOsApiClient(auth: OsAuthContext) {
       return {
         bytes: binary.bytes,
         contentType: binary.contentType || 'application/pdf',
-        filename: binary.filename ?? `nota-entrega-${deliveryNoteId}.pdf`,
+        filename: binary.filename ?? `Nota-Entrega-${deliveryNoteId}.pdf`,
       };
     },
     listOrders: (query?: Record<string, string | number | boolean>) =>
