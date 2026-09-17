@@ -119,3 +119,13 @@ Lightweight help preserved: Modo aprendizaje, micro-tips, ¿Qué significa esto?
 
 Demo mode visual boundary: persistent `DEMO · DATOS FICTICIOS`; toggle `Datos reales` \| `Demo`; default remains Datos reales; cookie `isalwa-demo-data-mode` keeps mode across navigation.
 
+
+
+### Post-finish readiness states
+
+| State | Value |
+|---|---|
+| CODE_READY | YES |
+| SEED_APPLIED | NO |
+| DEMO_DATA_VISIBLE_HOSTED | UNPROVEN |
+| DEMO_MODE_POPULATED_ACROSS_PRODUCT | NO |
