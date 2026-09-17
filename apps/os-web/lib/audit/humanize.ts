@@ -27,6 +27,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'delegation.granted': 'Delegación otorgada',
   'delegation.revoked': 'Delegación revocada',
   'opportunity.created': 'Oportunidad creada',
+  'opportunity.created_from_conversation': 'Oportunidad creada desde conversación',
   'opportunity.updated': 'Oportunidad actualizada',
   'quote.created': 'Cotización creada',
   'quote.updated': 'Cotización actualizada',
@@ -35,9 +36,14 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'order.created': 'Pedido creado',
   'order.updated': 'Pedido actualizado',
   'issue.reported': 'Incidencia reportada',
+  'issue.created_from_conversation': 'Incidencia creada desde conversación',
   'issue.updated': 'Incidencia actualizada',
   'commitment.created': 'Compromiso registrado',
+  'commitment.created_from_conversation': 'Compromiso creado desde conversación',
   'commitment.updated': 'Compromiso actualizado',
+  'work_item.created_from_conversation': 'Seguimiento creado desde conversación',
+  'follow_up.created_from_conversation': 'Seguimiento creado desde conversación',
+  'conversation.recorded': 'Conversación registrada',
 };
 
 const RESOURCE_TYPE_LABELS: Record<string, string> = {
@@ -54,8 +60,30 @@ const RESOURCE_TYPE_LABELS: Record<string, string> = {
   order: 'Pedido',
   issue: 'Incidencia',
   commitment: 'Compromiso',
+  conversation: 'Conversación',
   organization: 'Organización',
 };
+
+/** Provenance copy when a business record was created from a conversation. */
+export const CONVERSATION_ORIGIN_COPY = {
+  origen: 'Origen: Conversación',
+  verConversacion: 'Ver conversación',
+} as const;
+
+export function humanizeConversationOriginEvent(
+  kind: 'opportunity' | 'issue' | 'follow_up' | 'commitment',
+): string {
+  switch (kind) {
+    case 'opportunity':
+      return 'Oportunidad creada desde conversación';
+    case 'issue':
+      return 'Incidencia creada desde conversación';
+    case 'follow_up':
+      return 'Seguimiento creado desde conversación';
+    case 'commitment':
+      return 'Compromiso creado desde conversación';
+  }
+}
 
 const AUDIT_ACTION_LABELS: Record<string, string> = {
   'party.created': 'Cliente creado',

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  CONVERSATION_ORIGIN_COPY,
   humanizeAuditAction,
   humanizeBusinessEventType,
+  humanizeConversationOriginEvent,
   humanizeResourceType,
 } from './humanize';
 
@@ -25,5 +27,28 @@ describe('audit humanize mapping', () => {
   it('maps audit actions without exposing raw keys as primary', () => {
     assert.equal(humanizeAuditAction('party.updated'), 'Cliente actualizado');
     assert.equal(humanizeAuditAction('member.role.changed'), 'Rol asignado');
+  });
+
+  it('maps conversation-origin business events to Spanish labels', () => {
+    assert.equal(
+      humanizeBusinessEventType('opportunity.created_from_conversation'),
+      'Oportunidad creada desde conversación',
+    );
+    assert.equal(
+      humanizeBusinessEventType('issue.created_from_conversation'),
+      'Incidencia creada desde conversación',
+    );
+    assert.equal(
+      humanizeBusinessEventType('follow_up.created_from_conversation'),
+      'Seguimiento creado desde conversación',
+    );
+    assert.equal(
+      humanizeBusinessEventType('commitment.created_from_conversation'),
+      'Compromiso creado desde conversación',
+    );
+    assert.equal(humanizeConversationOriginEvent('opportunity'), 'Oportunidad creada desde conversación');
+    assert.equal(CONVERSATION_ORIGIN_COPY.origen, 'Origen: Conversación');
+    assert.equal(CONVERSATION_ORIGIN_COPY.verConversacion, 'Ver conversación');
+    assert.equal(humanizeResourceType('conversation'), 'Conversación');
   });
 });
