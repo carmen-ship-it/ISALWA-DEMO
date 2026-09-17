@@ -5,7 +5,7 @@
 **Branch:** `ct3/lane-g-map-mgmt`  
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-lane-g-map-mgmt`  
 **Base:** `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b`  
-**LANE_IMPLEMENTATION_SHA:** `00cf5e2ff07fd1e0cb89af51135b2443bbe1eb2d` (`00cf5e2`)
+**LANE_IMPLEMENTATION_SHA:** `401094233e63ea07efbba807e2aa295901cf4e0d` (`4010942`) — branch tip (includes receipt)
 **REAL_SEVEN_MUTATED:** **NO**  
 **Deploy / migrate:** not performed (lane receipt only)
 
