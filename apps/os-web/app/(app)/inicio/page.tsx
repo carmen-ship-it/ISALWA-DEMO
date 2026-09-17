@@ -14,6 +14,7 @@ import { InicioLensTabs } from '@/components/inicio/inicio-lens-tabs';
 import { InicioMiDia } from '@/components/inicio/inicio-mi-dia';
 import { InicioSummaryCards } from '@/components/inicio/inicio-summary-cards';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
+import { InicioOwnerDemoCard } from '@/components/demo/inicio-owner-demo-card';
 import type { MemoryChangesResponse } from '@/lib/audit/types';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -56,6 +57,8 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
+import { canUseRolePreview } from '@/lib/role-preview/access';
+import { isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 
 const PERSONAL_OPEN_WORK_LIMIT = 100;
 const HERO_SUBTITLE = 'Esto es lo que necesita atención hoy.';
@@ -98,6 +101,17 @@ function hideFixtureQuote(item: QuoteSummaryReadModel): boolean {
 
 function hideFixtureParty(partyId: string, partyLabels: PartyLabelMap): boolean {
   return !isEngineeringFixtureCopy(partyLabel(partyLabels, partyId));
+}
+
+function allowPartyForDataMode(
+  partyId: string,
+  partyLabels: PartyLabelMap,
+  dataMode: 'real' | 'demo',
+): boolean {
+  const name = partyLabel(partyLabels, partyId);
+  const demo = isDemoDisplayName(name);
+  if (dataMode === 'demo') return demo;
+  return !demo && hideFixtureParty(partyId, partyLabels);
 }
 
 function orgMetricsSparse(cards: ReturnType<typeof composeOrgMetricCards>): boolean {
@@ -177,6 +191,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
+    const dataMode = paramOne(params.datos) === 'demo' ? 'demo' : 'real';
+    const showOwnerDemoCard = canUseRolePreview(roleKeys);
 
     const commandQueues = await loadInicioCommandQueues(client, {
       leadershipTeamReady: leadership.team.kind === 'ready',
@@ -233,11 +249,13 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     ]);
 
     const responsibilityOpportunities = opportunities.filter((item) =>
-      hideFixtureParty(item.partyId, partyLabels),
+      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
     );
-    const responsibilityDraft = quotesDraft.filter((item) => hideFixtureParty(item.partyId, partyLabels));
+    const responsibilityDraft = quotesDraft.filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+    );
     const responsibilitySubmitted = quotesSubmitted.filter((item) =>
-      hideFixtureParty(item.partyId, partyLabels),
+      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
     );
     const showResponsibility =
       responsibilityOpportunities.length > 0 ||
@@ -372,6 +390,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         ) : null}
 
         <div className="min-w-0 space-y-10">
+          {showOwnerDemoCard ? <InicioOwnerDemoCard /> : null}
           <InicioSummaryCards cards={summaryCards} />
           <InicioMiDia items={miDiaItems} />
 

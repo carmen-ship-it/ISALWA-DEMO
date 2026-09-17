@@ -1,0 +1,43 @@
+{
+  "organizationId": "01M2JKF77TXMJNDTKNCYNHH9G5",
+  "purpose": "ct3-e-owner-demo-conversation-fixtures",
+  "REAL_SEVEN_MUTATED": "NO",
+  "note": "Structured conversation text for Story Mode / CT3-C-D. Persist via conversations workspace when available; commercial records come from owner-demo seed.",
+  "suggestedReplyAndina": "Con gusto podemos preparar la cotización. Antes de confirmarle la entrega para la próxima semana, voy a validar disponibilidad y plazo interno.",
+  "conversations": [
+    {
+      "clientKey": "maderas_oriente",
+      "displayName": "DEMO MADERAS ORIENTE",
+      "pastedEvidence": "Buenos días. Confirmamos el pedido de sanitarios para el depósito Oriente. Gracias.",
+      "customerQuestion": "¿Pueden confirmarnos el estado del pedido?"
+    },
+    {
+      "clientKey": "constructora_andina",
+      "displayName": "DEMO CONSTRUCTORA ANDINA",
+      "pastedEvidence": "Hola, necesito cotizar 20 unidades para una obra nueva.\n¿Tienen entrega para la próxima semana?",
+      "customerQuestion": "¿Tienen entrega para la próxima semana?",
+      "expectedQuantity": 20
+    },
+    {
+      "clientKey": "proyectos_del_sur",
+      "displayName": "DEMO PROYECTOS DEL SUR",
+      "pastedEvidence": "Perfecto, aceptamos la cotización Q-DEMO-001.",
+      "customerQuestion": "¿Pueden convertir Q-DEMO-001 a pedido?",
+      "relatedQuoteNumber": "Q-DEMO-001"
+    },
+    {
+      "clientKey": "hotel_central",
+      "displayName": "DEMO HOTEL CENTRAL",
+      "pastedEvidence": "¿Cuándo llega nuestro pedido?",
+      "customerQuestion": "¿Cuándo llega nuestro pedido?",
+      "missingFacts": ["salida", "entrega", "confirmed_delivery_date"]
+    },
+    {
+      "clientKey": "ferreteria_norte",
+      "displayName": "DEMO FERRETERÍA NORTE",
+      "pastedEvidence": "Nos llegaron 3 piezas quebradas.",
+      "customerQuestion": "¿Cómo registramos las 3 piezas quebradas?",
+      "issueQuantity": 3
+    }
+  ]
+}
