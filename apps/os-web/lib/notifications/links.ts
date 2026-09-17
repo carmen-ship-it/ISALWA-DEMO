@@ -2,7 +2,7 @@ import type { NotificationSource, NotificationSourceType } from '@isalwa/os-cont
 
 const LINK_LABELS: Record<NotificationSourceType, string> = {
   work_item: 'Ver trabajo',
-  approval_request: 'Ver aprobación',
+  approval_request: 'Revisar',
   party: 'Ver cliente',
   organization_member: 'Ver miembro',
   quote: 'Ver cotización',
