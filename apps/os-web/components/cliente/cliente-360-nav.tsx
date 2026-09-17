@@ -3,22 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
-
-const SECTIONS = [
-  { id: 'resumen', label: 'Resumen' },
-  { id: 'contactos', label: 'Contactos' },
-  { id: 'ubicaciones', label: 'Ubicaciones' },
-  { id: 'relaciones', label: 'Relaciones' },
-  { id: 'oportunidades', label: 'Oportunidades' },
-  { id: 'cotizaciones', label: 'Cotizaciones' },
-  { id: 'pedidos', label: 'Pedidos' },
-  { id: 'trabajo', label: 'Seguimiento' },
-  { id: 'incidencias', label: 'Incidencias' },
-  { id: 'documentos', label: 'Documentos' },
-  { id: 'finanzas', label: 'Finanzas' },
-  { id: 'compromisos', label: 'Compromisos' },
-  { id: 'historial', label: 'Historial' },
-] as const;
+import { CLIENTE360_NAV_SECTIONS, isCliente360NavSection } from '@/lib/cliente/nav-sections';
 
 type Cliente360NavProps = {
   partyId: string;
@@ -32,7 +17,7 @@ export function Cliente360Nav({ partyId, embedded = false }: Cliente360NavProps)
   useEffect(() => {
     const fromHash = () => {
       const hash = window.location.hash.replace(/^#/, '');
-      if (SECTIONS.some((section) => section.id === hash)) setActiveId(hash);
+      if (isCliente360NavSection(hash)) setActiveId(hash);
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);
@@ -50,7 +35,7 @@ export function Cliente360Nav({ partyId, embedded = false }: Cliente360NavProps)
     >
       <div className="overflow-x-auto overscroll-x-contain">
         <ul className="flex w-max">
-          {SECTIONS.map((section) => {
+          {CLIENTE360_NAV_SECTIONS.map((section) => {
             const active = activeId === section.id;
             return (
               <li key={section.id}>
