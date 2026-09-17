@@ -6,7 +6,7 @@
 **Worktree:** `/Users/carmen/projects/isalwa/.worktrees/ct3-lane-g-map-mgmt`  
 **Base:** `4b85b115c3fe0cf009f605d65b043b5e2fb7c11b`  
 **LANE_PRODUCT_SHA:** `1e43541a2864f60af605fb4913c37d2306f9e84c` (`1e43541`) — map/mgmt/freshness/progress implementation  
-**LANE_TIP_SHA:** `0365a1360f73405fd8f03ec1441246426a2a1558` (`0365a13`)  
+**LANE_TIP_SHA:** `e19c462e64aca59a8d2bfb0aa53607e489f50cc0` (`e19c462`)
 **REAL_SEVEN_MUTATED:** **NO**  
 **Deploy / migrate:** not performed (lane receipt only)
 
