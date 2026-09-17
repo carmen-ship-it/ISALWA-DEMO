@@ -14,6 +14,8 @@ export type MapCommercialLensInput = {
   opportunities: readonly OpportunitySummaryReadModel[];
   quotes: readonly QuoteSummaryReadModel[];
   orders: readonly OrderSummaryReadModel[];
+  /** Clients visible under the current Datos reales / Demo lens. */
+  clientCount?: number;
   /** True when any commercial list reported hasMore / truncated. */
   partial: boolean;
 };
@@ -32,6 +34,8 @@ export type MapPartyCommercialSnapshot = {
 };
 
 export type MapCommercialPortfolio = {
+  /** Visible clients in the current Datos reales / Demo lens. */
+  clientCount: number;
   opportunityCount: number;
   quoteCount: number;
   orderCount: number;
@@ -85,6 +89,7 @@ export function buildMapCommercialPortfolio(input: MapCommercialLensInput): MapC
   const orderValue = sumCentavos(orders.map((item) => item.totalCentavos));
 
   return {
+    clientCount: Math.max(0, input.clientCount ?? 0),
     opportunityCount: opportunities.length,
     quoteCount: quotes.length,
     orderCount: orders.length,

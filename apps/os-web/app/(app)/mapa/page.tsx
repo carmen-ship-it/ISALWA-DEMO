@@ -168,7 +168,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
     return inMode(row.subjectId);
   });
   const attentionPartyIds = collectAttentionPartyIds(attentionItems, overdueWork);
-  const portfolio = buildMapCommercialPortfolio(filteredCommercial);
+  const portfolio = buildMapCommercialPortfolio({
+    ...filteredCommercial,
+    clientCount: parties.length,
+  });
   const selectedCommercial = selectedPartyId
     ? buildMapPartyCommercialSnapshot(selectedPartyId, filteredCommercial)
     : null;
@@ -237,6 +240,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         selectedNextAction={selectedHover?.nextAttention ?? null}
         selectedIssueCount={selectedIssueCount}
         selectedLastUpdatedIso={null}
+        dataMode={dataMode}
       />
 
       <PageSection className="mt-8" aria-label="Salud de datos">

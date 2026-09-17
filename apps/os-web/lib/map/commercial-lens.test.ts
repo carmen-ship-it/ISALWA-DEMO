@@ -72,9 +72,11 @@ describe('map commercial lens', () => {
         { ...baseQuote, quoteId: 'q2', partyId: 'p1', totalCentavos: '5000', status: 'cancelled' },
       ],
       orders: [{ ...baseOrder, orderId: 'ord1', partyId: 'p1', totalCentavos: '20000' }],
+      clientCount: 5,
       partial: false,
     });
 
+    assert.equal(portfolio.clientCount, 5);
     assert.equal(portfolio.opportunityCount, 1);
     assert.equal(portfolio.quoteCount, 1);
     assert.equal(portfolio.orderCount, 1);
@@ -108,13 +110,20 @@ describe('map commercial lens', () => {
 });
 
 describe('map layers — commercial filters available without inventing geography', () => {
-  it('exposes clientes + commercial record filters; keeps attention/revenue layers unavailable', () => {
+  it('exposes clientes + attention + commercial record filters; keeps revenue layers unavailable', () => {
     const available = MAP_LAYER_REGISTRY.filter((layer) => layer.truthClass === 'available').map(
       (layer) => layer.id,
     );
-    assert.deepEqual(available, ['clientes', 'oportunidades', 'cotizaciones', 'pedidos']);
-    assert.equal(resolveMapLayer('atencion'), 'clientes');
+    assert.deepEqual(available, [
+      'clientes',
+      'atencion',
+      'oportunidades',
+      'cotizaciones',
+      'pedidos',
+    ]);
+    assert.equal(resolveMapLayer('atencion'), 'atencion');
     assert.equal(resolveMapLayer('cobranza'), 'clientes');
+    assert.equal(resolveMapLayer('ingresos'), 'clientes');
     assert.equal(resolveMapLayer('oportunidades'), 'oportunidades');
   });
 });

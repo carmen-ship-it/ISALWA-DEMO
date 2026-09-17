@@ -47,6 +47,10 @@ import {
 } from '@/lib/management/improvement-insights';
 import { composeOrgMetricCards, composeCommercialFunnelCounts, formatManagementPeriodLabel, resolveManagementPeriod } from '@/lib/management/org-metrics';
 import { buildCommercialFunnelSteps } from '@/lib/management/commercial-funnel';
+import {
+  filterByPartyDemoMode,
+  shouldShowManagementTeamTable,
+} from '@/lib/management/demo-lens';
 import { partyCountByOwner } from '@/lib/management/party-count-by-owner';
 import { viewerHasManagementOrgRead } from '@/lib/management/scope';
 import { composeTeamMetricsRows } from '@/lib/management/team-metrics';
@@ -251,8 +255,13 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [],
       ),
       ...(teamData?.opportunities ?? []).map((item) => item.partyId),
+      ...(teamData?.quotesSubmitted ?? []).map((item) => item.partyId),
       ...(orgData?.opportunities ?? []).map((item) => item.partyId),
+      ...(orgData?.quotesSubmitted ?? []).map((item) => item.partyId),
     ]);
+
+    const isDemoParty = (partyId: string) =>
+      isDemoDisplayName(partyLabel(partyLabels, partyId));
 
     const responsibilityOpportunities = opportunities.filter((item) =>
       allowPartyForDataMode(item.partyId, partyLabels, dataMode),
@@ -318,12 +327,37 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       activeLens === 'personal'
         ? null
         : await safeInicioSectionFetch(() => client.listOrders({ limit: 100 }));
-    const orders = ordersResult && ordersResult !== 'unavailable' ? ordersResult.items : [];
+    const ordersRaw = ordersResult && ordersResult !== 'unavailable' ? ordersResult.items : [];
+    const orderPartyLabels =
+      ordersRaw.length > 0
+        ? await resolvePartyLabels(client, ordersRaw.map((item) => item.partyId))
+        : new Map<string, string>();
+    for (const [partyId, label] of orderPartyLabels) {
+      if (!partyLabels.has(partyId)) partyLabels.set(partyId, label);
+    }
+    const orders = filterByPartyDemoMode(ordersRaw, dataMode, isDemoParty);
+
+    const orgOpportunities =
+      orgData != null
+        ? filterByPartyDemoMode(orgData.opportunities, dataMode, isDemoParty)
+        : [];
+    const orgQuotes =
+      orgData != null
+        ? filterByPartyDemoMode(orgData.quotesSubmitted, dataMode, isDemoParty)
+        : [];
+    const teamOpportunities =
+      teamData != null
+        ? filterByPartyDemoMode(teamData.opportunities, dataMode, isDemoParty)
+        : [];
+    const teamQuotes =
+      teamData != null
+        ? filterByPartyDemoMode(teamData.quotesSubmitted, dataMode, isDemoParty)
+        : [];
 
     const insightBundle =
       activeLens === 'team' && teamData
         ? {
-            submittedQuotes: teamData.quotesSubmitted,
+            submittedQuotes: teamQuotes,
             openFollowUpWork: teamData.openWork,
             overdueFollowUps: teamData.overdueWork,
             pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
@@ -335,7 +369,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
           }
         : activeLens === 'org' && orgData
           ? {
-              submittedQuotes: orgData.quotesSubmitted,
+              submittedQuotes: orgQuotes,
               openFollowUpWork: orgData.openWork,
               overdueFollowUps: orgData.overdueWork,
               pendingQuoteApprovals: commandQueues.pendingApprovals.filter(
@@ -351,8 +385,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       activeLens === 'org' && orgData
         ? composeOrgMetricCards({
             period: managementPeriod,
-            opportunities: orgData.opportunities,
-            quotes: orgData.quotesSubmitted,
+            opportunities: orgOpportunities,
+            quotes: orgQuotes,
             orders,
             overdueFollowUps: orgData.overdueWork,
             openIssues,
@@ -365,23 +399,23 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         ? buildCommercialFunnelSteps(
             composeCommercialFunnelCounts({
               period: managementPeriod,
-              opportunities: orgData.opportunities,
-              quotes: orgData.quotesSubmitted,
+              opportunities: orgOpportunities,
+              quotes: orgQuotes,
               orders,
             }),
           )
         : null;
 
     const teamRows =
-      activeLens === 'team' && teamData
+      activeLens === 'team' && teamData && shouldShowManagementTeamTable(dataMode)
         ? composeTeamMetricsRows({
             period: managementPeriod,
-            opportunities: teamData.opportunities,
-            quotes: teamData.quotesSubmitted,
+            opportunities: teamOpportunities,
+            quotes: teamQuotes,
             orders,
             overdueWork: teamData.overdueWork,
             openIssues,
-            partyCountByOwner: partyCountByOwner(teamData.opportunities, teamData.quotesSubmitted),
+            partyCountByOwner: partyCountByOwner(teamOpportunities, teamQuotes),
           })
         : null;
 
