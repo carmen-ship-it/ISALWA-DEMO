@@ -52,17 +52,24 @@ export function assertFeatureSubject(
   return subjectType as AiFeatureSubjectType;
 }
 
-/** Intents that must never be accepted as AI features. */
+/**
+ * Intents that must never be accepted as AI features.
+ * AI may summarize / draft / suggest only — never mutate business truth.
+ */
 export const AI_DENIED_MUTATION_FEATURES = [
   'approve',
   'reject',
   'convert',
   'reassign',
   'send',
+  'send_whatsapp',
   'create_order',
   'confirm_payment',
+  'register_delivery',
+  'move_stock',
+  'change_access',
+  'grant_role',
   'resolve_issue',
   'close_issue',
-  'grant_role',
   'terminate',
 ] as const;

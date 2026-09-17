@@ -36,7 +36,18 @@ describe('AI limits', () => {
       'draft_follow_up',
       'summarize_commitments',
     ]);
-    assert.deepEqual(AI_DENIED_INTENTS, ['approve', 'convert', 'reassign', 'send']);
+    assert.deepEqual(AI_DENIED_INTENTS, [
+      'approve',
+      'convert',
+      'reassign',
+      'send',
+      'send_whatsapp',
+      'create_order',
+      'confirm_payment',
+      'register_delivery',
+      'move_stock',
+      'change_access',
+    ]);
   });
 
   it('is disabled unless AI_ENABLED is exactly true', () => {

@@ -10,6 +10,7 @@ import {
   suggestedPromptsForSurface,
 } from '@/lib/ai/suggested-prompts';
 import { AiEvidenceCitations } from './ai-evidence-citations';
+import { AiCertaintyAnswerView } from './ai-certainty-answer-view';
 
 export type AiAssistPanelProps = {
   title: string;
@@ -131,32 +132,42 @@ export function AiAssistPanel({
         ) : null}
         {result ? (
           <div className="space-y-4">
-            <div>
-              <h3 className="isalwa-section-label">Resumen</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">{result.summary}</p>
-            </div>
-            <div>
-              <h3 className="isalwa-section-label">Sugerencia</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">{result.suggestion}</p>
-            </div>
-            {result.facts.length > 0 ? (
-              <div>
-                <h3 className="isalwa-section-label">Hechos citados</h3>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--isalwa-slate)]">
-                  {result.facts.map((fact) => (
-                    <li key={fact}>{fact}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
+            {result.certainty ? (
+              <AiCertaintyAnswerView certainty={result.certainty} />
+            ) : (
+              <>
+                <div>
+                  <h3 className="isalwa-section-label">Resumen</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+                    {result.summary}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="isalwa-section-label">Sugerencia</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]">
+                    {result.suggestion}
+                  </p>
+                </div>
+                {result.facts.length > 0 ? (
+                  <div>
+                    <h3 className="isalwa-section-label">Hechos citados</h3>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--isalwa-slate)]">
+                      {result.facts.map((fact) => (
+                        <li key={fact}>{fact}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </>
+            )}
             <AiEvidenceCitations
               refs={result.evidenceRefs}
               citationsLive={citationsLive && result.modelCalled}
             />
             <p className="text-xs text-[var(--isalwa-slate)]">
               {result.modelCalled && citationsLive
-                ? 'Modelo consultado con evidencia autorizada.'
-                : 'Modo piloto sin llamada al proveedor en vivo.'}
+                ? 'Modelo consultado con evidencia autorizada. La IA no aprueba ni envía.'
+                : 'Modo piloto sin llamada al proveedor en vivo. La IA no aprueba ni envía.'}
             </p>
           </div>
         ) : null}
