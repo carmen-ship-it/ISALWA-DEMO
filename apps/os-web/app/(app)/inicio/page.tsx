@@ -324,6 +324,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
               (row) => row.status === 'pending' && row.subjectType === 'quote',
             ).length,
             clientsMissingLocation: null as number | null,
+            exitsWithoutDelivery: null as number | null,
+            pendingConfirmations: null as number | null,
           }
         : activeLens === 'org' && orgData
           ? {
@@ -334,6 +336,8 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                 (row) => row.status === 'pending' && row.subjectType === 'quote',
               ).length,
               clientsMissingLocation: null as number | null,
+              exitsWithoutDelivery: null as number | null,
+              pendingConfirmations: null as number | null,
             }
           : null;
 

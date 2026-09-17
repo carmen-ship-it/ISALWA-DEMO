@@ -206,8 +206,8 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         memberLabels={memberLabels}
         portfolio={portfolio}
         selectedCommercial={selectedCommercial}
-        hoverByPartyId={hoverByPartyId}
-        attentionPartyIds={attentionPartyIds}
+        hoverByPartyId={Object.fromEntries(hoverByPartyId)}
+        attentionPartyIds={[...attentionPartyIds]}
         selectedNextAction={selectedHover?.nextAttention ?? null}
         selectedIssueCount={selectedIssueCount}
         selectedLastUpdatedIso={null}
