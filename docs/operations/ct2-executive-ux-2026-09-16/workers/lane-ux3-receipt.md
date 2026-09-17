@@ -55,4 +55,5 @@ apps/os-web: node --import tsx --test lib/cliente/cliente360-ux.test.ts
 → 5 pass / 0 fail
 ```
 
-**HEAD_SHA:** _(filled at commit)_
+**LANE_IMPLEMENTATION_SHA:** `6cc49be9ada06fc5a054756eb0913fb7baff7178`  
+**HEAD_SHA:** `badab46cc2853fe64c765607a8f3c48493394738`
