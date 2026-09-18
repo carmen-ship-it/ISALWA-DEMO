@@ -1,6 +1,7 @@
 'use server';
 
 import { createId } from '@isalwa/ts-utils';
+import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -12,6 +13,7 @@ import { partyHref } from '@/lib/party/navigation';
 import { parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { resolveAddQuoteLineDraft } from '@/lib/commercial/product-picker';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
+import { explicitDataMode, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 
 async function runCommand(
   fn: (client: ReturnType<typeof createOsApiClient>) => Promise<Record<string, unknown> | undefined>,
@@ -34,6 +36,18 @@ async function runCommand(
 function revalidateCliente360(partyId: string) {
   revalidatePath(partyHref(partyId));
   revalidatePath(`/clientes/${partyId}`, 'page');
+}
+
+/** Carry ?datos=demo|real from the page that submitted the action. Never invent a mode. */
+async function redirectKeepingDataMode(href: string): Promise<string> {
+  const headerList = await headers();
+  const referer = headerList.get('referer');
+  if (!referer) return href;
+  try {
+    return withExplicitDataMode(href, explicitDataMode(new URL(referer).searchParams.get('datos')));
+  } catch {
+    return href;
+  }
 }
 
 export async function createOpportunityAction(formData: FormData): Promise<CreateRedirectResult> {
@@ -72,9 +86,9 @@ export async function createOpportunityAction(formData: FormData): Promise<Creat
     if (opportunityId) {
       revalidatePath(opportunityHref(partyId, opportunityId));
       revalidatePath('/oportunidades');
-      return { ok: true, redirectTo: opportunityHref(partyId, opportunityId) };
+      return { ok: true, redirectTo: await redirectKeepingDataMode(opportunityHref(partyId, opportunityId)) };
     }
-    return { ok: true, redirectTo: partyHref(partyId) };
+    return { ok: true, redirectTo: await redirectKeepingDataMode(partyHref(partyId)) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }
@@ -190,9 +204,9 @@ export async function createQuoteAction(formData: FormData): Promise<CreateRedir
     if (opportunityId) revalidatePath(opportunityHref(partyId, opportunityId));
     const quoteId = String(result.data.quoteId ?? '');
     if (quoteId) {
-      return { ok: true, redirectTo: quoteHref(partyId, quoteId) };
+      return { ok: true, redirectTo: await redirectKeepingDataMode(quoteHref(partyId, quoteId)) };
     }
-    return { ok: true, redirectTo: partyHref(partyId) };
+    return { ok: true, redirectTo: await redirectKeepingDataMode(partyHref(partyId)) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }
@@ -378,9 +392,9 @@ export async function createOrderAction(formData: FormData): Promise<CreateRedir
     revalidatePath(quoteHref(partyId, quoteId));
     const orderId = String(result.data.orderId ?? '');
     if (orderId) {
-      return { ok: true, redirectTo: `${orderHref(partyId, orderId)}?resultado=pedido` };
+      return { ok: true, redirectTo: await redirectKeepingDataMode(`${orderHref(partyId, orderId)}?resultado=pedido`) };
     }
-    return { ok: true, redirectTo: quoteHref(partyId, quoteId) };
+    return { ok: true, redirectTo: await redirectKeepingDataMode(quoteHref(partyId, quoteId)) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }
@@ -480,7 +494,7 @@ export async function decideCommercialApprovalAction(formData: FormData): Promis
   // Prefer quote deep-link over refresh-only dead-end on /aprobaciones/[id].
   // Approval still does not create an order — convert remains a separate step on the quote.
   if (result.ok && partyId && subjectId && subjectType === 'quote') {
-    return { ...result, redirectTo: quoteHref(partyId, subjectId) };
+    return { ...result, redirectTo: await redirectKeepingDataMode(quoteHref(partyId, subjectId)) };
   }
   return result;
 }

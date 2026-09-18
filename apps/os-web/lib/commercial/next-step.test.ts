@@ -6,6 +6,7 @@ import {
   latestQuoteApprovalDecision,
   opportunityNextStep,
   orderNextStep,
+  preferredLinkedQuote,
   quoteNextStep,
 } from './next-step';
 
@@ -22,8 +23,62 @@ describe('commercial next-step', () => {
       newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
     });
     assert.equal(step?.hrefLabel, 'Crear cotización');
+    assert.equal(step?.href, '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva');
     assert.equal(step?.waiting, false);
     assert.match(step?.statement ?? '', /cotización/i);
+  });
+
+  it('points an open opportunity at the linked quote when that href is already known', () => {
+    const step = opportunityNextStep({
+      status: 'open',
+      partyId: 'party-1',
+      opportunityId: 'opp-1',
+      newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
+      linkedQuoteHref: '/clientes/party-1/cotizaciones/quote-8',
+    });
+    assert.equal(step?.hrefLabel, 'Ver cotización');
+    assert.equal(step?.href, '/clientes/party-1/cotizaciones/quote-8');
+    assert.equal(step?.waiting, false);
+  });
+
+  it('keeps Crear cotización when the linked quote href is blank', () => {
+    const step = opportunityNextStep({
+      status: 'open',
+      partyId: 'party-1',
+      opportunityId: 'opp-1',
+      newQuoteHref: '/nueva',
+      linkedQuoteHref: '   ',
+    });
+    assert.equal(step?.hrefLabel, 'Crear cotización');
+    assert.equal(step?.href, '/nueva');
+  });
+
+  it('prefers an accepted linked quote already loaded for the opportunity', () => {
+    const picked = preferredLinkedQuote(
+      [
+        {
+          quoteId: 'draft-1',
+          partyId: 'party-1',
+          opportunityId: 'opp-1',
+          status: 'draft',
+        },
+        {
+          quoteId: 'quote-8',
+          partyId: 'party-1',
+          opportunityId: 'opp-1',
+          status: 'accepted',
+        },
+        {
+          quoteId: 'other',
+          partyId: 'party-2',
+          opportunityId: 'opp-2',
+          status: 'submitted',
+        },
+      ],
+      'opp-1',
+    );
+    assert.equal(picked?.quoteId, 'quote-8');
+    assert.equal(preferredLinkedQuote([], 'opp-1'), null);
   });
 
   it('does not invent a call or visit for a closed opportunity', () => {

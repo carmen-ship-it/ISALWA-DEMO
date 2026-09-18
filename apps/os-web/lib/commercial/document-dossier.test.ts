@@ -44,6 +44,8 @@ describe('document dossier composition', () => {
 
     assert.equal(quotePdf?.href, quotePdfHref(sampleQuote.quoteId));
     assert.equal(notaPdf?.href, deliveryNotePdfHref('note-1'));
+    assert.equal(notaPdf?.label, 'Nota de entrega');
+    assert.doesNotMatch(notaPdf?.label ?? '', /NE-PILOT/);
     assert.equal(send?.href, `/clientes/party-1/cotizaciones/${sampleQuote.quoteId}`);
     assert.match(send?.label ?? '', /WhatsApp/);
     assert.equal(quotePdfHref('q/../evil'), '/api/quotes/q%2F..%2Fevil/pdf');

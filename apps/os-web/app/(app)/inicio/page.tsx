@@ -162,6 +162,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       opportunitiesResult,
       quotesDraftResult,
       quotesSubmittedResult,
+      quotesAcceptedResult,
       personalWorkResult,
       management,
       memoryChanges,
@@ -180,6 +181,9 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       ),
       safeInicioSectionFetch(() =>
         client.listQuotes({ status: 'submitted', limit, ...commercialQuery }),
+      ),
+      safeInicioSectionFetch(() =>
+        client.listQuotes({ status: 'accepted', limit, ...commercialQuery }),
       ),
       safeInicioSectionFetch(() =>
         client.listWorkItems({
@@ -241,6 +245,10 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       quotesSubmittedResult === 'unavailable'
         ? []
         : quotesSubmittedResult.items.filter(hideFixtureQuote);
+    const quotesAcceptedRaw =
+      quotesAcceptedResult === 'unavailable'
+        ? []
+        : quotesAcceptedResult.items.filter(hideFixtureQuote);
 
     const opportunities = filterCommercialOwnerRowsForEvaluation(
       evaluation,
@@ -255,6 +263,11 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const quotesSubmitted = filterCommercialOwnerRowsForEvaluation(
       evaluation,
       quotesSubmittedRaw,
+      (item) => item.ownerMemberId,
+    );
+    const quotesAccepted = filterCommercialOwnerRowsForEvaluation(
+      evaluation,
+      quotesAcceptedRaw,
       (item) => item.ownerMemberId,
     );
 
@@ -379,6 +392,17 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     );
     const responsibilitySubmitted = quotesSubmitted.filter((item) =>
       allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+    );
+    const responsibilityAccepted = quotesAccepted.filter((item) =>
+      allowPartyForDataMode(item.partyId, partyLabels, dataMode),
+    );
+    const linkedQuotes = [...responsibilityDraft, ...responsibilitySubmitted, ...responsibilityAccepted].map(
+      (item) => ({
+        quoteId: item.quoteId,
+        partyId: item.partyId,
+        opportunityId: item.opportunityId,
+        status: item.status,
+      }),
     );
     const showResponsibility =
       showCommercialResponsibility &&
@@ -615,6 +639,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                         items={responsibilityOpportunities}
                         memberLabels={memberLabels}
                         partyLabels={partyLabels}
+                        linkedQuotes={linkedQuotes}
                         compact
                       />
                     </PageSection>

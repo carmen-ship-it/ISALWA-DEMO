@@ -173,6 +173,13 @@ textarea:focus-visible {
   }
 }
 
+/* Soft View As: hide mutation submits immediately. Search and the preview menu stay. Server gate is unchanged. */
+html[data-isalwa-view-as='readonly'] form:not([role='search']):not([data-view-as-allow]) button[type='submit'],
+html[data-isalwa-view-as='readonly'] [data-delivery-documents='pedido'] button,
+html[data-isalwa-view-as='readonly'] [data-postsale-spine] button[type='submit'] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --isalwa-motion-instant: 0.01ms;

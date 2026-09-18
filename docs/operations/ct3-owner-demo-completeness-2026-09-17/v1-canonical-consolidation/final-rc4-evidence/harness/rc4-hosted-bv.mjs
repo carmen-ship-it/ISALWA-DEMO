@@ -38,7 +38,7 @@ const { chromium } = require('playwright-core');
 const BASE = process.env.BV_BASE || 'https://os-web-staging.onrender.com';
 const API = process.env.BV_API || 'https://os-api-staging.onrender.com';
 const EMAIL = 'carmen.staging@isalwa.demo';
-const EXPECTED_SHA = '8f1ac76185af432bb244ea94b7ae6a647eaa0ebc';
+const EXPECTED_SHA = '9e1cfe3ee1f18e568b7f34254e5794cf49baa8b7';
 const MADERAS = '01M2PM95PV7YP6AECYXSX4GRBW';
 const MADERAS_QUOTE = '01M2PM9KSJXN1K4CF45FT0H299';
 const MADERAS_ORDER = '01M2PMA280KX4AAV7049YKNE07';
@@ -74,8 +74,8 @@ const report = {
   codeFrozenForBv: true,
   startedAt: new Date().toISOString(),
   deploy: {
-    webDeployId: 'dep-dalvinoae00c73cp3aeg',
-    apiDeployId: 'dep-dalvinoae00c73cp3ad0',
+    webDeployId: 'dep-dam4rvrm8hqs73bk3ok0',
+    apiDeployId: 'dep-dam4s07f3r2c73efstf0',
     webRuntimeSha: EXPECTED_SHA,
     apiRuntimeSha: EXPECTED_SHA,
     sameShaProof: true,

@@ -93,14 +93,26 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
 
   try {
     const demoQ = dataMode === 'demo' && !listState.q ? 'DEMO' : listState.q;
-    const result = await client.listOpportunities({
-      status,
-      limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
-      ...(demoQ ? { q: demoQ } : {}),
-      ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
-      ...(stage ? { stage } : {}),
-      ...commercialListQueryFromProjection(evaluation),
-    });
+    const commercialQuery = commercialListQueryFromProjection(evaluation);
+    const [result, linkedQuotePages] = await Promise.all([
+      client.listOpportunities({
+        status,
+        limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
+        ...(demoQ ? { q: demoQ } : {}),
+        ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
+        ...(stage ? { stage } : {}),
+        ...commercialQuery,
+      }),
+      status === 'open'
+        ? Promise.all(
+            (['draft', 'submitted', 'accepted'] as const).map((quoteStatus) =>
+              client
+                .listQuotes({ status: quoteStatus, limit: 100, ...commercialQuery })
+                .catch(() => ({ items: [] as Awaited<ReturnType<typeof client.listQuotes>>['items'] })),
+            ),
+          )
+        : Promise.resolve([]),
+    ]);
     const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
     const memberLabels = await resolveMemberLabels(
       client,
@@ -229,6 +241,14 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
               items={visible}
               memberLabels={memberLabels}
               partyLabels={partyLabels}
+              linkedQuotes={linkedQuotePages.flatMap((page) =>
+                page.items.map((item) => ({
+                  quoteId: item.quoteId,
+                  partyId: item.partyId,
+                  opportunityId: item.opportunityId,
+                  status: item.status,
+                })),
+              )}
             />
           </PageSection>
         )}

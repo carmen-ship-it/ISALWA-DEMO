@@ -25,9 +25,34 @@ type OwnerDemoContextValue = {
   setDataMode: (mode: DemoDataMode) => void;
   storyOpen: boolean;
   openStory: () => void;
-  closeStory: () => void;
+  closeStory: (options?: CloseStoryOptions) => void;
   canUseOwnerDemo: boolean;
 };
+
+export type CloseStoryOptions = {
+  /**
+   * CTA destination. When set, do not rewrite the current URL.
+   * Step 20 stays on /inicio, so replaceState would drop lente= before navigation.
+   */
+  navigateTo?: string | null;
+};
+
+/**
+ * URL after closing the overlay without a CTA navigation.
+ * Returns null when the caller is navigating, so replaceState cannot win over the destination query.
+ */
+export function storyCloseReplacementUrl(
+  currentHref: string,
+  options?: CloseStoryOptions,
+): string | null {
+  if (options?.navigateTo?.trim()) return null;
+  const absolute = currentHref.startsWith('http')
+    ? currentHref
+    : `http://local.invalid${currentHref.startsWith('/') ? currentHref : `/${currentHref}`}`;
+  const url = new URL(absolute);
+  url.searchParams.delete('story');
+  return `${url.pathname}${url.search}${url.hash}`;
+}
 
 const OwnerDemoContext = createContext<OwnerDemoContextValue | null>(null);
 
@@ -75,13 +100,13 @@ export function OwnerDemoProvider({
     }
   }, [setDataMode]);
 
-  const closeStory = useCallback(() => {
+  const closeStory = useCallback((options?: CloseStoryOptions) => {
     setStoryOpen(false);
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('story');
-      window.history.replaceState({}, '', url.toString());
-    }
+    if (typeof window === 'undefined') return;
+    const next = storyCloseReplacementUrl(window.location.href, options);
+    if (!next) return;
+    const url = new URL(next, window.location.origin);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   }, []);
 
   const value = useMemo(

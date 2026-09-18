@@ -6,6 +6,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import { partyHref } from '@/lib/party/navigation';
+import { orderHref } from '@/lib/commercial/navigation';
 import {
   CreateWorkItemPayloadSchema,
   ReceiveFinishedGoodsPayloadSchema,
@@ -90,6 +91,23 @@ export async function receiveFinishedGoodsAction(input: {
     await client.post('/commands/ReceiveFinishedGoods', parsed.data, idempotencyKey);
     revalidatePath('/almacen');
     revalidatePath('/inicio');
+    const orderId = parsed.data.contextOrderId;
+    if (orderId) {
+      let partyId: string | null = null;
+      try {
+        const detail = await client.getOrder(orderId);
+        partyId = detail.order?.partyId?.trim() || null;
+      } catch {
+        partyId = null;
+      }
+      if (partyId) {
+        revalidatePath(partyHref(partyId));
+        revalidatePath(orderHref(partyId, orderId));
+      } else {
+        revalidatePath('/clientes/[partyId]', 'page');
+        revalidatePath('/clientes/[partyId]/pedidos/[orderId]', 'page');
+      }
+    }
     return { ok: true };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };

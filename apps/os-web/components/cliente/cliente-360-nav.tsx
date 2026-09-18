@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
+import { explicitDataMode } from '@/lib/demo/preserve-data-mode';
 import {
   CLIENTE360_NAV_SECTIONS,
   isCliente360NavSection,
@@ -31,7 +32,7 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
     if (!isCliente360NavSection(hash)) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === hash) return;
-    router.replace(clienteSectionHref(partyId, hash));
+    router.replace(clienteSectionHref(partyId, hash, undefined, explicitDataMode(params.get('datos'))));
   }, [partyId, router]);
 
   return (
@@ -54,7 +55,8 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
           onChange={(event) => {
             const next = event.target.value;
             if (isCliente360NavSection(next)) {
-              router.push(clienteSectionHref(partyId, next));
+              const mode = explicitDataMode(new URLSearchParams(window.location.search).get('datos'));
+              router.push(clienteSectionHref(partyId, next, undefined, mode));
             }
           }}
         >

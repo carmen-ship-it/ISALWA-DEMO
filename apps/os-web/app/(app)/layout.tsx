@@ -9,6 +9,7 @@ import {
   SessionExpiredState,
 } from '@/components/states/app-states';
 import { QaViewBanner } from '@/components/qa/qa-view-banner';
+import { PreserveExplicitDataMode } from '@/components/demo/preserve-explicit-data-mode';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
     <>
       <QaViewBanner />
       <SessionGuard />
+      <PreserveExplicitDataMode />
       <AppShell
         displayLabel={shell.displayLabel}
         givenName={shell.givenName}

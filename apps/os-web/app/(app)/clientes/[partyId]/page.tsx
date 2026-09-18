@@ -135,6 +135,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
     const { party, contacts, commercialAccount } = detail;
+    const linkedQuotes =
+      quotes.status === 'ok'
+        ? quotes.data.items.map((item) => ({
+            quoteId: item.quoteId,
+            partyId: item.partyId,
+            opportunityId: item.opportunityId,
+            status: item.status,
+          }))
+        : [];
 
     if (evaluationBlocksDirectParty(evaluation, commercialAccount?.ownerMemberId)) {
       return (
@@ -426,10 +435,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             partyId={partyId}
                             items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
                             memberLabels={memberLabels}
+                            linkedQuotes={linkedQuotes}
                           />
                         }
                         full={
-                          <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} />
+                          <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} linkedQuotes={linkedQuotes} />
                         }
                       />
                     </>

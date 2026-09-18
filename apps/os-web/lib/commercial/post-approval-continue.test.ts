@@ -101,7 +101,7 @@ describe('decideCommercialApprovalAction redirect (structural)', () => {
       actions.indexOf('export async function decideCommercialApprovalAction'),
       actions.indexOf('export async function reassignCommercialAccountOwnerAction'),
     );
-    assert.match(decideSlice, /redirectTo:\s*quoteHref\(partyId,\s*subjectId\)/);
+    assert.match(decideSlice, /redirectKeepingDataMode\(quoteHref\(partyId,\s*subjectId\)\)/);
     assert.doesNotMatch(decideSlice, /CreateOrder|insertOrder|order\.created/);
   });
 

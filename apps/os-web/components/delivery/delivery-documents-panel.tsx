@@ -9,6 +9,10 @@ import {
   recordEntregaAction,
   recordSalidaAction,
 } from '@/lib/delivery/actions';
+import {
+  presentDeliveryNoteLabel,
+  scrubPilotDeliveryNoteRefs,
+} from '@/lib/commercial/human-facing';
 
 export type DeliveryDocumentLineView = {
   orderLineId: string;
@@ -283,7 +287,10 @@ export function DeliveryDocumentsPanel({
                 <option value="">Sin nota de entrega</option>
                 {issuedNotes.map((note) => (
                   <option key={note.id} value={note.id}>
-                    {note.internalDocumentRef}
+                    {presentDeliveryNoteLabel({
+                      internalDocumentRef: note.internalDocumentRef,
+                      orderNumber,
+                    })}
                   </option>
                 ))}
               </select>
@@ -320,7 +327,12 @@ export function DeliveryDocumentsPanel({
                   <StatusPill tone={note.status === 'issued' ? 'success' : 'warning'}>
                     {note.status === 'issued' ? 'Emitida' : 'Anulada'}
                   </StatusPill>
-                  <StatusPill tone="neutral">{note.internalDocumentRef}</StatusPill>
+                  <StatusPill tone="neutral">
+                    {presentDeliveryNoteLabel({
+                      internalDocumentRef: note.internalDocumentRef,
+                      orderNumber,
+                    })}
+                  </StatusPill>
                 </div>
                 <dl className="mt-4 grid gap-4 sm:grid-cols-2 text-sm">
                   <div>
@@ -388,7 +400,7 @@ export function DeliveryDocumentsPanel({
                 meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
                 body: (
                   <span>
-                    {item.detail}
+                    {scrubPilotDeliveryNoteRefs(item.detail, orderNumber)}
                     {item.href ? (
                       <>
                         {' · '}

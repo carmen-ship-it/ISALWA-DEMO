@@ -1,5 +1,6 @@
 import type { PartyTimelineEntryReadModel, QuoteSummaryReadModel } from '@isalwa/os-contracts';
 import { quoteHref } from '@/lib/commercial/navigation';
+import { presentDeliveryNoteLabel } from '@/lib/commercial/human-facing';
 import { quoteManualSendHistoryLabel } from '@/lib/commercial/quote-manual-send';
 import { sortTimelineChronologicalDesc } from '@/lib/commercial/timeline-labels';
 
@@ -62,7 +63,7 @@ export function composeDocumentDossier(input: {
     items.push({
       id: `nota-pdf:${note.id}`,
       kind: 'nota_pdf',
-      label: `Nota de entrega ${note.internalDocumentRef}`,
+      label: presentDeliveryNoteLabel({ internalDocumentRef: note.internalDocumentRef }),
       subtitle: 'PDF · generado al abrir',
       href: deliveryNotePdfHref(note.id),
       occurredAt: note.bornAt,

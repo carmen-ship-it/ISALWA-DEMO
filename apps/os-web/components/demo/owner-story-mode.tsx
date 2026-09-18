@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button, cx } from '@isalwa/ui';
 import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 import { DEMO_FICTITIOUS_BADGE } from '@/lib/demo/owner-demo-identity';
@@ -33,6 +34,7 @@ const STEP_TONES = {
 /** Full-screen Story Mode overlay — Recorrido completo de ISALWA. */
 export function OwnerStoryMode() {
   const { storyOpen, closeStory, canUseOwnerDemo } = useOwnerDemo();
+  const router = useRouter();
   const [current, setCurrent] = useState(1);
   const ids = loadDemoSeedIdMap();
 
@@ -130,7 +132,24 @@ export function OwnerStoryMode() {
                 <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">{step.whatIsalwaRecorded}</p>
               </div>
               {href ? (
-                <Link href={href} className="inline-flex" onClick={closeStory}>
+                <Link
+                  href={href}
+                  className="inline-flex"
+                  onClick={(event) => {
+                    if (
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey ||
+                      event.button !== 0
+                    ) {
+                      return;
+                    }
+                    event.preventDefault();
+                    closeStory({ navigateTo: href });
+                    router.push(href);
+                  }}
+                >
                   <Button type="button" variant="primary" size="sm">
                     {step.ctaLabel}
                   </Button>
@@ -145,7 +164,7 @@ export function OwnerStoryMode() {
         </div>
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--isalwa-mist)] px-4 py-3 sm:px-6">
-          <Button type="button" variant="tertiary" size="sm" onClick={closeStory}>
+          <Button type="button" variant="tertiary" size="sm" onClick={() => closeStory()}>
             Salir del recorrido
           </Button>
           <div className="flex gap-2">

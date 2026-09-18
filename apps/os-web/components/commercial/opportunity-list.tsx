@@ -8,8 +8,8 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
-import { opportunityHref, newQuoteHref } from '@/lib/commercial/navigation';
-import { opportunityNextStep } from '@/lib/commercial/next-step';
+import { opportunityHref, newQuoteHref, quoteHref } from '@/lib/commercial/navigation';
+import { opportunityNextStep, preferredLinkedQuote, type OpportunityLinkedQuote } from '@/lib/commercial/next-step';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -17,19 +17,23 @@ type OpportunityListProps = {
   partyId: string;
   items: OpportunitySummaryReadModel[];
   memberLabels: MemberLabelMap;
+  /** Quotes already loaded for this customer. Not a new opportunity field. */
+  linkedQuotes?: readonly OpportunityLinkedQuote[];
 };
 
-export function OpportunityList({ partyId, items, memberLabels }: OpportunityListProps) {
+export function OpportunityList({ partyId, items, memberLabels, linkedQuotes }: OpportunityListProps) {
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
       {items.map((item) => {
         const value = formatOptionalCentavos(item.expectedValueCentavos ?? undefined, 'BOB');
         const age = formatListAge(item.createdAt);
+        const linked = preferredLinkedQuote(linkedQuotes, item.opportunityId);
         const next = opportunityNextStep({
           status: item.status,
           partyId,
           opportunityId: item.opportunityId,
           newQuoteHref: newQuoteHref(partyId, item.opportunityId),
+          linkedQuoteHref: linked ? quoteHref(linked.partyId || partyId, linked.quoteId) : null,
         });
         return (
           <ListRow key={item.opportunityId} as="li" className="px-1 py-1">

@@ -36,8 +36,8 @@ export function ConversationList({
   onSelect,
 }: ConversationListProps) {
   return (
-    <div className="flex h-full min-h-0 flex-col" aria-label={CONVERSATIONS_COPY.listLabel}>
-      <div className="flex flex-wrap gap-1.5 pb-3">
+    <div className="isalwa-conversation-list flex min-h-0 w-full min-w-0 max-w-full flex-col lg:h-full" aria-label={CONVERSATIONS_COPY.listLabel}>
+      <div className="isalwa-conversation-filters flex max-w-full flex-wrap gap-1.5 pb-3">
         {CONVERSATION_FILTERS.map((item) => {
           const active = item === filter;
           return (
@@ -46,7 +46,7 @@ export function ConversationList({
               type="button"
               onClick={() => onFilterChange(item)}
               className={cx(
-                'isalwa-t-fast inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border px-2.5 text-xs font-medium outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
+                'isalwa-t-fast inline-flex h-8 max-w-full items-center rounded-[var(--isalwa-radius-control)] border px-2.5 text-xs font-medium outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
                 active
                   ? 'border-[var(--isalwa-glaze)] bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,white)] text-[var(--isalwa-kiln)]'
                   : 'border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-slate)] hover:text-[var(--isalwa-kiln)]',
@@ -64,24 +64,24 @@ export function ConversationList({
           description={CONVERSATIONS_COPY.emptyListHint}
         />
       ) : (
-        <ul className="min-h-0 flex-1 divide-y divide-[var(--isalwa-mist)] overflow-y-auto">
+        <ul className="min-h-0 w-full min-w-0 divide-y divide-[var(--isalwa-mist)] lg:flex-1 lg:overflow-y-auto">
           {conversations.map((item) => {
             const selected = item.id === selectedId;
             return (
-              <li key={item.id}>
+              <li key={item.id} className="min-w-0">
                 <button
                   type="button"
                   onClick={() => onSelect(item.id)}
                   className={cx(
-                    'isalwa-t-fast flex w-full flex-col gap-1 px-2 py-3 text-left outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
+                    'isalwa-conversation-row isalwa-t-fast flex min-h-11 w-full min-w-0 flex-col gap-1 px-2 py-3 text-left outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]',
                     selected
                       ? 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_8%,white)]'
                       : 'hover:bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)]',
                   )}
                   aria-current={selected ? 'true' : undefined}
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="min-w-0 break-words text-sm font-medium text-[var(--isalwa-kiln)]">
                       {item.partyLabel}
                     </span>
                     <ConversationDemoBadge conversation={item} />
@@ -89,8 +89,8 @@ export function ConversationList({
                       <StatusPill tone="warning">Respuesta</StatusPill>
                     ) : null}
                   </div>
-                  <p className="line-clamp-2 text-sm text-[var(--isalwa-slate)]">{item.preview}</p>
-                  <p className="text-[var(--isalwa-text-2xs)] text-[var(--isalwa-slate)]">
+                  <p className="line-clamp-2 break-words text-sm text-[var(--isalwa-slate)]">{item.preview}</p>
+                  <p className="break-words text-[var(--isalwa-text-2xs)] text-[var(--isalwa-slate)]">
                     {channelLabel(item.channel)} · {formatWhen(item.lastOccurredAt)}
                   </p>
                 </button>

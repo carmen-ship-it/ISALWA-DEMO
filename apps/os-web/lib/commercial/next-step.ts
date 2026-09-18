@@ -18,7 +18,38 @@ type OpportunityNextStepInput = {
   partyId: string;
   opportunityId: string;
   newQuoteHref: string;
+  /**
+   * Already-known quote href. Does not load quotes.
+   * When set on an open opportunity, the primary step is Ver cotización.
+   */
+  linkedQuoteHref?: string | null;
 };
+
+export type OpportunityLinkedQuote = {
+  quoteId: string;
+  partyId: string;
+  opportunityId: string | null;
+  status?: string;
+};
+
+/**
+ * Pick the linked quote the detail page already prefers, from quotes the caller already loaded.
+ * Does not invent a quote id.
+ */
+export function preferredLinkedQuote(
+  quotes: readonly OpportunityLinkedQuote[] | null | undefined,
+  opportunityId: string,
+): OpportunityLinkedQuote | null {
+  const forOpportunity = (quotes ?? []).filter(
+    (item) => item.opportunityId === opportunityId && item.quoteId.trim().length > 0,
+  );
+  return (
+    forOpportunity.find((item) => item.status === 'submitted' || item.status === 'accepted') ??
+    forOpportunity.find((item) => item.status === 'draft') ??
+    forOpportunity[0] ??
+    null
+  );
+}
 
 export type QuoteApprovalDecision = 'approved' | 'rejected';
 
@@ -77,13 +108,23 @@ export function latestQuoteApprovalDecision(
 
 export function opportunityNextStep(input: OpportunityNextStepInput): CommercialNextStep | null {
   switch (input.status) {
-    case 'open':
+    case 'open': {
+      const linkedQuoteHref = input.linkedQuoteHref?.trim() || null;
+      if (linkedQuoteHref) {
+        return {
+          statement: 'Esta oportunidad ya tiene una cotización.',
+          href: linkedQuoteHref,
+          hrefLabel: 'Ver cotización',
+          waiting: false,
+        };
+      }
       return {
         statement: 'Prepare una cotización desde esta oportunidad.',
         href: input.newQuoteHref,
         hrefLabel: 'Crear cotización',
         waiting: false,
       };
+    }
     case 'won':
       return {
         statement: 'Oportunidad ganada. El trabajo comercial continúa en cotizaciones y pedidos del cliente.',

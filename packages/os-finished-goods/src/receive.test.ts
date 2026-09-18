@@ -300,6 +300,8 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
     const { createPrismaFinishedGoodsWriteStore } = await import('./receive');
     const created: Record<string, unknown>[] = [];
     const events: Record<string, unknown>[] = [];
+    const outbox: Record<string, unknown>[] = [];
+    const timeline: Record<string, unknown>[] = [];
     let txBatches = 0;
     const store = createPrismaFinishedGoodsWriteStore({
       async $transaction(ops) {
@@ -319,6 +321,18 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
         async create({ data }) {
           events.push(data);
           return data;
+        },
+      },
+      osOutboxMessage: {
+        async create({ data }) {
+          outbox.push(data);
+          return data;
+        },
+      },
+      osPartyTimelineEntry: {
+        async upsert({ create }) {
+          timeline.push(create);
+          return create;
         },
       },
       osOrder: {
@@ -405,12 +419,24 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
     assert.equal(txBatches, 1);
     assert.equal(created.length, 1);
     assert.equal(events.length, 1);
+    assert.equal(outbox.length, 1);
+    assert.equal(timeline.length, 1);
     assert.equal(created[0]?.organizationId, 'org-a');
     assert.equal(created[0]?.contextOrderId, 'ord-1');
     assert.equal('allocatesToOrder' in (created[0] ?? {}), false);
     assert.equal('postsStock' in (created[0] ?? {}), false);
     assert.equal('officialStock' in (created[0] ?? {}), false);
     assert.ok(created[0]?.receivedAt instanceof Date);
+    const envelope = outbox[0]?.payloadJson as Record<string, unknown>;
+    assert.equal(envelope?.eventType, 'finished_goods.received');
+    assert.equal((envelope?.payload as { orderId?: string }).orderId, 'ord-1');
+    assert.equal(timeline[0]?.eventType, 'finished_goods.received');
+    assert.equal(timeline[0]?.partyId, 'party-1');
+    assert.equal(timeline[0]?.entryId, 'evt-fgr-p');
+    const facts = timeline[0]?.factsJson as { orderId?: string; allocatesToOrder?: boolean; postsStock?: boolean };
+    assert.equal(facts.orderId, 'ord-1');
+    assert.equal(facts.allocatesToOrder, false);
+    assert.equal(facts.postsStock, false);
   });
 
   it('calls $transaction as a method so Prisma this-binding is preserved', async () => {
@@ -439,6 +465,11 @@ describe('createPrismaFinishedGoodsWriteStore', () => {
         async create({ data }: { data: Record<string, unknown> }) {
           events.push(data);
           return data;
+        },
+      },
+      osOutboxMessage: {
+        async create() {
+          return {};
         },
       },
     };

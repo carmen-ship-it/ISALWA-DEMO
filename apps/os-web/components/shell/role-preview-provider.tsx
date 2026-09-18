@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -45,6 +46,7 @@ export function RolePreviewProvider({
   children: ReactNode;
 }) {
   const storageKey = actorKey ? rolePreviewStorageKey(actorKey) : null;
+  const router = useRouter();
   const [persona, setPersonaState] = useState<RolePreviewPersonaId | null>(null);
   const [subjectMemberId, setSubjectMemberId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -75,16 +77,17 @@ export function RolePreviewProvider({
       setPersonaState(resolved);
       setSubjectMemberId(subject);
       syncRolePreviewPersonaCookie(resolved, subject);
-      if (!storageKey) return;
-      if (!resolved) {
-        writeStoredRolePreview(storageKey, null);
-        return;
+      if (storageKey) {
+        if (!resolved) writeStoredRolePreview(storageKey, null);
+        else {
+          const encoded =
+            resolved === 'asesor' && subject ? `${resolved}::${subject}` : resolved;
+          window.localStorage.setItem(storageKey, encoded);
+        }
       }
-      const encoded =
-        resolved === 'asesor' && subject ? `${resolved}::${subject}` : resolved;
-      window.localStorage.setItem(storageKey, encoded);
+      router.refresh();
     },
-    [storageKey, subjectMemberId, asesorOptions],
+    [storageKey, subjectMemberId, asesorOptions, router],
   );
 
   const resetToMyView = useCallback(() => setPersona('own'), [setPersona]);
@@ -95,6 +98,13 @@ export function RolePreviewProvider({
     [grantedScopes, persona],
   );
   const blocksMutations = rolePreviewBlocksMutations(persona);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const root = document.documentElement;
+    if (active && blocksMutations) root.dataset.isalwaViewAs = 'readonly';
+    else delete root.dataset.isalwaViewAs;
+  }, [active, blocksMutations, hydrated]);
 
   const value = useMemo(
     (): RolePreviewContextValue => ({

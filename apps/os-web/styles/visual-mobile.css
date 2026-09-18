@@ -101,3 +101,51 @@ div.fixed.inset-0.z-30:has(#mobile-nav) {
     scroll-margin-top: 0;
   }
 }
+
+/**
+ * Conversaciones at phone width.
+ * The desk renders a desktop `hidden lg:grid` copy and a mobile `lg:hidden` copy.
+ * Below lg the desktop copy must not participate in layout (it measured 0×0 and
+ * widened the page). The mobile list must keep intrinsic row height — `h-full` +
+ * `flex-1 min-h-0` collapses to 0 when the parent has no definite height.
+ */
+@media (max-width: 1023px) {
+  .isalwa-conversations-desk {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .isalwa-conversations-desktop {
+    display: none !important;
+  }
+
+  .isalwa-conversations-mobile {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .isalwa-conversations-mobile .isalwa-conversation-list,
+  .isalwa-conversations-mobile .isalwa-conversation-list > ul {
+    height: auto !important;
+    max-width: 100%;
+    min-width: 0;
+    flex: none !important;
+    overflow: visible !important;
+  }
+
+  .isalwa-conversations-mobile .isalwa-conversation-filters {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .isalwa-conversations-mobile button.isalwa-conversation-row {
+    display: flex !important;
+    width: 100%;
+    min-width: 0;
+    min-height: 2.75rem;
+    height: auto;
+  }
+}

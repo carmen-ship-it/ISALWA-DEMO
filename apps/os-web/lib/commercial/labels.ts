@@ -48,8 +48,18 @@ export function formatStage(stage: string): string {
   return stage.replace(/_/g, ' ');
 }
 
-export function presentStage(stage: string): string {
-  const shown = formatStage(stage).trim();
+/**
+ * Human stage text. A stored status token `open` uses the existing status label
+ * for that entity (opportunity Abierta, order Registrado). Other free-text stages stay as entered.
+ */
+export function presentStage(stage: string, entityType?: string): string {
+  const raw = stage.trim();
+  if (raw === 'open') {
+    const kind = (entityType ?? 'opportunity').toLowerCase();
+    if (kind.includes('order') || kind.includes('pedido')) return formatOrderStatus('open');
+    return formatOpportunityStatus('open');
+  }
+  const shown = formatStage(raw).trim();
   return shown.length > 0 ? shown : 'Sin etapa';
 }
 

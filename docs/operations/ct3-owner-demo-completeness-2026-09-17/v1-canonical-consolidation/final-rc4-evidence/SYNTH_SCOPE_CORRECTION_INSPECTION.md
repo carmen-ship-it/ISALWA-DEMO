@@ -1,39 +1,36 @@
 # SYNTH membership scope-correct — INSPECT ONLY (not executed)
 
 **Status:** SYNTH_SCOPE_CORRECTION_EXECUTED = NO  
-**Carmen must separately authorize** before any staging run.
+**Carmen must separately authorize** before any staging run.  
+**Runtime inspected:** 2026-09-17 after RC4 hosted deploy.
 
-## Identity
+## Identity (runtime-confirmed)
 
 | Field | Value |
 |-------|--------|
 | SCRIPT_PATH | `packages/os-database/src/staging-carmen-synth-demo-membership-scope-correct.ts` |
-| RELATED_GRANT_SCRIPT | `packages/os-database/src/staging-carmen-synth-demo-membership.ts` (full allowlist grant; also not executed) |
-| TARGET_TENANT | Staging DB only (`assertStagingDatabaseName`) |
-| TARGET_ORG | SYNTH `01M2JKF77TXMJNDTKNCYNHH9G5` |
-| TARGET_MEMBERSHIP_ID | Resolved at runtime: Carmen person → active member in SYNTH org |
-| TARGET_PERSON/ACTOR | `carmen.staging@isalwa.demo` (or `STAGING_ADMIN_EMAIL`) |
-| TARGET_DATA_MODE | SYNTH / Demo owner-evaluation membership (not REAL) |
+| TARGET_ORG | `01M2JKF77TXMJNDTKNCYNHH9G5` |
+| TARGET_ACTOR | `carmen.staging@isalwa.demo` |
+| TARGET_DATA_MODE | SYNTH / Demo |
+| SYNTH_MEMBERSHIP_ID | `0f3da8a7-6d31-4e36-8f45-41331e6f5731` |
+| PRECHANGE_SNAPSHOT | `/tmp/rc4-synth-scope-prechange-snapshot.json` |
+| ROLLBACK_PLAN | `/tmp/rc4-synth-scope-rollback-plan.json` |
 
-## Scope sets
+## Exact scope diff (runtime)
 
-| Field | Value |
-|-------|--------|
-| CURRENT_SCOPES | Runtime-only (`CARMEN_SYNTH_SCOPES_BEFORE` log). Not queried at cut. |
-| PROPOSED_SCOPES | Exact `OWNER_DEMO_SYNTH_BUSINESS_SCOPES` (21 keys) — see `staging-carmen-synth-demo-scopes.ts` |
-| ADDED_SCOPES | Runtime: any PROPOSED missing from CURRENT |
-| REMOVED_SCOPES | Runtime: any CURRENT in forbidden set OR not in allowlist |
+CURRENT_SCOPES_EXACT already equals PROPOSED_SCOPES_EXACT (20 keys).  
+Correction script dry-run is a **NOOP** (0 ends, 0 creates).
 
-### PROPOSED_SCOPES (approved V1 business only)
+### CURRENT_SCOPES_EXACT / PROPOSED_SCOPES_EXACT / UNCHANGED_SCOPES
 
 ```
-commercial.customer.create
-commercial.org.read
-commercial.team.read
-commercial.quote.convert.own
-commercial.order.convert
-commercial.price.approve
 commercial.account.reassign
+commercial.customer.create
+commercial.order.convert
+commercial.org.read
+commercial.price.approve
+commercial.quote.convert.own
+commercial.team.read
 coordination.decision.record
 delivery.record
 finance.operational.record
@@ -49,49 +46,59 @@ warehouse.finished_goods.receive
 warehouse.outbound.record
 ```
 
-### Forbidden (must never remain / never add)
+| Diff set | Exact keys |
+|----------|------------|
+| ADDED_SCOPES_EXACT | _(empty)_ |
+| REMOVED_SCOPES_EXACT | _(empty)_ |
 
-`system.admin`, `integration.admin`, `people.admin`, `master_data.admin`, `qa.access`
+### Historical ended (already inactive; not active now)
 
-## ADDED scopes — why (when missing)
+Ended 2026-09-17 12:02:33 UTC on this membership only:
 
-| SCOPE | WHY_REQUIRED | V1_FEATURE | CONTRACT |
-|-------|--------------|------------|----------|
-| commercial.customer.create | Create customers in Demo | Cliente / Nueva cliente | Owner-eval business allowlist |
-| commercial.org.read | Org-wide commercial read | Pedidos index, audit, Cliente360 org | Owner-eval; leadership visibility |
-| commercial.team.read | Team commercial lens | View As / desks | Owner-eval |
-| commercial.quote.convert.own | Own quote → Pedido | Convertir a Pedido | Commercial convert |
-| commercial.order.convert | Convert path where required | Pedido creation | Commercial convert |
-| commercial.price.approve | Price exception approval | Aprobaciones | Business capability (not people.admin) |
-| commercial.account.reassign | Reassign responsable | Cliente360 reassignment | commercial.account.reassign |
-| coordination.decision.record | Coordination facts | Ops / decisions | Owner-eval |
-| delivery.record | Nota / entrega | Delivery + PDF | delivery.record |
-| finance.operational.record | Finance desk | Finanzas | Owner-eval |
-| **issue.manage** | **Resolve / triage issues** | **Resolver incidencia** | **issue-authority-matrix** |
-| management.org.read | Gerencia metrics + audit | Gerencia / Auditoría | management.org.read |
-| operations.coordinator.record | Ops coordinator | Reviews / ops | Owner-eval |
-| production.entry.member | Production entry | Producción | Owner-eval |
-| production.operational.record | Production notes | Producción | Owner-eval |
-| production.review.member | Production review | Solicitar revisión Producción | OrderPrep |
-| purchasing.operational.record | Purchasing review | Solicitar revisión Compras | OrderPrep |
-| warehouse.finished_goods.allocate | FG allocate | Almacén | Owner-eval |
-| warehouse.finished_goods.receive | FG receive | Almacén | Owner-eval |
-| warehouse.outbound.record | Salida | Almacén / outbound | Owner-eval |
+- `master_data.admin`
+- `people.admin`
+- `qa.access`
 
-## Safety flags (expected)
+Active forbidden count now: **0**. After correction (noop): **0**.
 
-| Flag | Expected |
-|------|----------|
-| SCRIPT_IDEMPOTENT | YES (ends extras; creates only missing allowlist rows) |
-| SCRIPT_REVERSIBLE | NO (ended assignments need manual restore; adds are soft-reversible by ending) |
-| REAL_TOUCHED | NO |
-| OTHER_MEMBERSHIPS_TOUCHED | NO |
-| REAL_SEVEN_MUTATED | NO |
+## Forbidden after correction
 
-## Constraints satisfied by code
+FORBIDDEN_SCOPE_AFTER_CORRECTION = 0
 
-- SYNTH org only  
-- Carmen owner-eval membership only  
-- No REAL membership mutation  
-- No people.admin / master_data.admin / qa.access / system.admin / integration.admin grants  
-- “Full business allowlist” = `OWNER_DEMO_SYNTH_BUSINESS_SCOPES` only
+## Owner-eval coverage
+
+OWNER_EVAL_V1_BUSINESS_COVERAGE = **COMPLETE** against approved `OWNER_DEMO_SYNTH_BUSINESS_SCOPES` (no new invented capabilities).
+
+Maps to: commercial, Pedido, Work/ops, Approvals (`commercial.price.approve`), Issues (`issue.manage`), Commitments/coordination (`coordination.decision.record`), Conversations (membership + existing commercial/ops scopes; no dedicated conversation.* key in product), Production, Warehouse, Purchasing review, Delivery, Finance operational, Management, Documents/History/Audit (`management.org.read` + `commercial.org.read`).
+
+## Rollback (prepared, not run)
+
+| Field | Value |
+|-------|--------|
+| PRECHANGE_SCOPE_SNAPSHOT_SAVED | YES |
+| ROLLBACK_METHOD | BOUNDED_RESTORE_VIA_ROLE_ASSIGNMENTS (membership_id only; end extras; create missing snapshot keys) |
+| ROLLBACK_TARGET_SCOPES | Exact CURRENT_SCOPES_EXACT above |
+| ROLLBACK_TESTED_DRY_RUN | YES (would_end=0, would_create=0) |
+| SCRIPT_REVERSIBLE (original note) | NO as a dedicated reverse file — superseded by bounded restore against snapshot |
+
+## Dry-run boundary
+
+| Flag | Value |
+|------|--------|
+| TARGET_MEMBERSHIPS_COUNT | 1 |
+| TARGET_ORG | 01M2JKF77TXMJNDTKNCYNHH9G5 |
+| TARGET_ACTOR | carmen.staging@isalwa.demo |
+| REAL_MEMBERSHIPS_TOUCHED | 0 |
+| OTHER_SYNTH_MEMBERSHIPS_TOUCHED | 0 |
+| PROTECTED_REAL_CLIENTS_TOUCHED | 0 |
+| BUSINESS_DATA_ROWS_TOUCHED | 0 |
+| ROLE_ASSIGNMENT_ROWS_WOULD_END | 0 |
+| ROLE_ASSIGNMENT_ROWS_WOULD_CREATE | 0 |
+
+## Execution gate
+
+| Flag | Value |
+|------|--------|
+| SYNTH_SCOPE_CORRECTION_SAFE_TO_EXECUTE | YES (idempotent NOOP; boundary clean) |
+| SYNTH_SCOPE_CORRECTION_EXECUTED | NO |
+| Authorization | Still required from Carmen before any run |

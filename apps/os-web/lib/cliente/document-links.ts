@@ -5,6 +5,10 @@
  */
 
 import type { OsApiClient } from '@/lib/api/os-api-client';
+import {
+  presentDeliveryNoteLabel,
+  presentDeliveryNoteReference,
+} from '@/lib/commercial/human-facing';
 
 export type DocumentLinkType = 'quote_pdf' | 'delivery_note_pdf';
 
@@ -71,8 +75,8 @@ function deliveryNoteDocumentLink(
   return {
     id: `delivery-note-pdf-${noteId}`,
     type: 'delivery_note_pdf',
-    label: `Nota de entrega ${internalDocumentRef}`,
-    reference: internalDocumentRef,
+    label: presentDeliveryNoteLabel({ internalDocumentRef, orderNumber }),
+    reference: presentDeliveryNoteReference({ internalDocumentRef, orderNumber }),
     href: pdf,
     viewHref: pdf,
     createdAt: bornAt,

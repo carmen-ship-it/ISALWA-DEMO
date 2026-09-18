@@ -24,6 +24,7 @@ import {
   canRecordWarehouseOutbound,
   canReceiveFinishedGoods,
 } from '@isalwa/os-contracts';
+import { scrubPilotDeliveryNoteRefs } from '@/lib/commercial/human-facing';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -489,7 +490,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
                   <p className="font-medium text-[var(--isalwa-kiln)]">{item.label}</p>
                   <p className="text-[var(--isalwa-slate)]">
                     {formatTimestamp(item.occurredAt) ?? item.occurredAt}
-                    {item.detail ? ` · ${item.detail}` : ''}
+                    {item.detail ? ` · ${scrubPilotDeliveryNoteRefs(item.detail, order.orderNumber)}` : ''}
                   </p>
                 </li>
               ))}

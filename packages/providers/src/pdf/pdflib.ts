@@ -1,7 +1,13 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { PdfProvider } from '../types/index';
 import type { QuotePdfDocument, QuotePdfRenderInput } from './quote-pdf-document';
-import type { DeliveryNotePdfDocument, DeliveryNotePdfRenderInput } from './delivery-note-pdf-document';
+import {
+  deliveryNotePdfFooterLabel,
+  deliveryNotePdfVisibleReference,
+  isPilotInternalDocumentRef,
+  type DeliveryNotePdfDocument,
+  type DeliveryNotePdfRenderInput,
+} from './delivery-note-pdf-document';
 
 /** A4 points */
 const PAGE_WIDTH = 595.28;
@@ -78,9 +84,11 @@ export class PdfLibPdfProvider implements PdfProvider {
     let page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     let y = PAGE_HEIGHT - MARGIN_TOP;
 
+    const visibleReference = deliveryNotePdfVisibleReference(doc);
+    const footerLabel = deliveryNotePdfFooterLabel(doc);
     const ensureSpace = (needed: number) => {
       if (y - needed < MARGIN_BOTTOM) {
-        this.drawDeliveryFooter(page, regular, doc.internalDocumentRef);
+        this.drawDeliveryFooter(page, regular, footerLabel);
         page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
         y = PAGE_HEIGHT - MARGIN_TOP;
       }
@@ -94,16 +102,22 @@ export class PdfLibPdfProvider implements PdfProvider {
     }
     page.drawText(doc.documentTitle, { x: MARGIN_X, y, size: 14, font: bold, color: INK });
     y -= 18;
-    page.drawText(`Ref. provisional: ${doc.internalDocumentRef}`, {
-      x: MARGIN_X,
-      y,
-      size: 10,
-      font: regular,
-      color: SLATE,
-    });
+    page.drawText(
+      isPilotInternalDocumentRef(doc.internalDocumentRef)
+        ? visibleReference
+        : `Ref. provisional: ${doc.internalDocumentRef}`,
+      {
+        x: MARGIN_X,
+        y,
+        size: 10,
+        font: regular,
+        color: SLATE,
+      },
+    );
     y -= 14;
-    if (doc.displayDocumentNumber?.trim()) {
-      page.drawText(`N° de visualización: ${doc.displayDocumentNumber.trim()}`, {
+    const displayNumber = doc.displayDocumentNumber?.trim();
+    if (displayNumber && !isPilotInternalDocumentRef(displayNumber)) {
+      page.drawText(`N° de visualización: ${displayNumber}`, {
         x: MARGIN_X,
         y,
         size: 9,
@@ -180,7 +194,7 @@ export class PdfLibPdfProvider implements PdfProvider {
       y -= 11;
     }
 
-    this.drawDeliveryFooter(page, regular, doc.internalDocumentRef);
+    this.drawDeliveryFooter(page, regular, footerLabel);
     return pdf.save();
   }
 
@@ -431,8 +445,8 @@ export class PdfLibPdfProvider implements PdfProvider {
     });
   }
 
-  private drawDeliveryFooter(page: PDFPage, font: PDFFont, internalDocumentRef: string) {
-    page.drawText(`ISALWA · Nota de entrega ${internalDocumentRef} · provisional`, {
+  private drawDeliveryFooter(page: PDFPage, font: PDFFont, footerLabel: string) {
+    page.drawText(`ISALWA · ${footerLabel}`, {
       x: MARGIN_X,
       y: MARGIN_BOTTOM - 16,
       size: 7,

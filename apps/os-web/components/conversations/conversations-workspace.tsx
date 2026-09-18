@@ -53,7 +53,9 @@ export function ConversationsWorkspace({
   const registrarOpen = searchParams.get('registrar') === '1';
 
   const [recorded, setRecorded] = useState<Conversation[]>([]);
-  const [mobilePane, setMobilePane] = useState<'list' | 'thread'>('list');
+  const [mobilePane, setMobilePane] = useState<'list' | 'thread'>(() =>
+    searchParams.get('c') ? 'thread' : 'list',
+  );
   const [contextOpen, setContextOpen] = useState(false);
 
   const organizationId = actor?.organizationId ?? '';
@@ -78,11 +80,9 @@ export function ConversationsWorkspace({
     conversations.find((item) => item.id === selectedId) ??
     null;
 
-  useEffect(() => {
-    if (selectedId) setMobilePane('thread');
-  }, [selectedId]);
-
   // Auto-select first thread likely to surface suggestions when none selected.
+  // Do not switch the mobile pane here: that unmounts the only tappable list
+  // and leaves the desktop `hidden lg:grid` copy (0×0 below lg) as the rows.
   useEffect(() => {
     if (selectedId || visible.length === 0) return;
     const withSignal =
@@ -145,19 +145,19 @@ export function ConversationsWorkspace({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="isalwa-conversations-desk min-w-0 max-w-full space-y-4">
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
         <StatusPill tone="demo">Canal no conectado</StatusPill>
-        <p className="text-sm text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.channelClosedBanner}</p>
-        <div className="ml-auto">
+        <p className="min-w-0 max-w-full flex-1 text-sm text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.channelClosedBanner}</p>
+        <div className="w-full min-w-0 sm:ml-auto sm:w-auto">
           <Button type="button" onClick={() => openRegister(true)}>
             {CONVERSATIONS_COPY.register}
           </Button>
         </div>
       </div>
 
-      <div className="hidden min-h-[32rem] gap-4 lg:grid lg:grid-cols-[minmax(0,28%)_minmax(0,44%)_minmax(0,28%)]">
-        <Panel className="min-h-0 overflow-hidden p-3">
+      <div className="isalwa-conversations-desktop hidden min-h-[32rem] min-w-0 gap-4 lg:grid lg:grid-cols-[minmax(0,28%)_minmax(0,44%)_minmax(0,28%)]">
+        <Panel className="min-h-0 min-w-0 overflow-hidden p-3">
           <ConversationList
             conversations={visible}
             filter={filter}
@@ -166,10 +166,10 @@ export function ConversationsWorkspace({
             onSelect={onSelect}
           />
         </Panel>
-        <Panel className="min-h-0 overflow-hidden p-4">
+        <Panel className="min-h-0 min-w-0 overflow-hidden p-4">
           <ConversationThread conversation={selected} />
         </Panel>
-        <Panel className="min-h-0 overflow-hidden p-4">
+        <Panel className="min-h-0 min-w-0 overflow-hidden p-4">
           <ConversationContextPanel
             conversation={selected}
             responsible={selected?.responsible ?? null}
@@ -182,9 +182,9 @@ export function ConversationsWorkspace({
         </Panel>
       </div>
 
-      <div className="space-y-3 lg:hidden">
+      <div className="isalwa-conversations-mobile min-w-0 max-w-full space-y-3 lg:hidden">
         {mobilePane === 'list' ? (
-          <Panel className="p-3">
+          <Panel className="min-w-0 max-w-full p-3">
             <ConversationList
               conversations={visible}
               filter={filter}
@@ -194,8 +194,8 @@ export function ConversationsWorkspace({
             />
           </Panel>
         ) : (
-          <Panel className="space-y-3 p-4">
-            <div className="flex flex-wrap gap-2">
+          <Panel className="min-w-0 max-w-full space-y-3 p-4">
+            <div className="sticky top-[var(--isalwa-shell-header-offset,4rem)] z-10 -mx-4 flex flex-wrap gap-2 bg-[var(--isalwa-surface-ops,var(--isalwa-white))] px-4 py-2">
               <Button type="button" variant="secondary" onClick={() => setMobilePane('list')}>
                 ← {CONVERSATIONS_COPY.backToList}
               </Button>

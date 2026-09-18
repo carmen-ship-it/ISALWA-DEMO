@@ -19,6 +19,7 @@ import {
   type MemberAccessSnapshot,
 } from '@isalwa/os-domain';
 import { ISSUE_MANAGE_SCOPE } from '@isalwa/os-contracts';
+import { toIssueDetailResponse } from './issue-detail-response';
 import { resolveSession } from './os-session';
 import { OS_STORE, OS_ISSUE_STORE } from './os-store.module';
 
@@ -258,7 +259,7 @@ export class IssuesController {
   async getIssue(
     @Param('issueId') issueId: string,
     @Req() req: Request,
-  ): Promise<IssueSummary> {
+  ): Promise<{ issue: ReturnType<typeof toIssueDetailResponse>['issue'] }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const snap = await this.getAccessSnapshot(
@@ -276,17 +277,22 @@ export class IssuesController {
         throw new Error('NOT_FOUND'); // Return 404 for unauthorized reads (don't leak existence)
       }
 
-      const refs = await this.issueStore.listReferencesForIssue(
-        session.organizationId,
-        issue.id,
-      );
-      return toSummary(
-        issue,
-        refs.map((r) => ({
-          referenceType: r.referenceType,
-          referenceId: r.referenceId,
+      const [refs, journal, relations, workLinks] = await Promise.all([
+        this.issueStore.listReferencesForIssue(session.organizationId, issue.id),
+        this.issueStore.listJournalEntriesForIssue(issue.id),
+        this.issueStore.listRelationsFromIssue(session.organizationId, issue.id),
+        this.issueStore.listWorkLinksForIssue(session.organizationId, issue.id),
+      ]);
+      return toIssueDetailResponse({
+        record: issue,
+        references: refs.map((row) => ({
+          referenceType: row.referenceType,
+          referenceId: row.referenceId,
         })),
-      );
+        journal,
+        relations,
+        workLinks,
+      });
     } catch (err) {
       throw this.toHttp(err);
     }

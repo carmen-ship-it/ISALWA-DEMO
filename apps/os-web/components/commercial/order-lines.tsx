@@ -1,4 +1,5 @@
 import { SectionHeader } from '@isalwa/ui';
+import { presentProductRef } from '@/lib/commercial/human-facing';
 import { formatCentavos } from '@/lib/commercial/money';
 import { presentOrderLines, type OrderLineView } from '@/lib/commercial/order-lines';
 
@@ -25,7 +26,9 @@ export function OrderLines({ currency, lines }: OrderLinesProps) {
             {presentation.note}
           </p>
           <ul className="mt-6 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas del pedido">
-            {presentation.lines.map((line) => (
+            {presentation.lines.map((line) => {
+              const productRefLabel = presentProductRef(line.productRef);
+              return (
               <li key={line.orderLineId} className="py-6 first:pt-2">
                 <p className="font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
                 <dl className="mt-4 grid gap-4 text-sm text-[var(--isalwa-slate)] sm:grid-cols-3">
@@ -56,15 +59,16 @@ export function OrderLines({ currency, lines }: OrderLinesProps) {
                       </dd>
                     </div>
                   ) : null}
-                  {line.productRef ? (
+                  {productRefLabel ? (
                     <div>
                       <dt className="isalwa-section-label">Referencia</dt>
-                      <dd className="mt-1 text-[var(--isalwa-kiln)]">{line.productRef}</dd>
+                      <dd className="mt-1 text-[var(--isalwa-kiln)]">{productRefLabel}</dd>
                     </div>
                   ) : null}
                 </dl>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </>
       ) : (

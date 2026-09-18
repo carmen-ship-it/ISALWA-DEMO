@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { PageSection, ListRow } from '@isalwa/ui';
 import type { QuoteDetailReadModel, QuoteLineReadModel } from '@isalwa/os-contracts';
 import {
@@ -181,7 +181,6 @@ export function QuoteEditor({
     if (result.ok) {
       setAddEpoch((epoch) => epoch + 1);
       setAddReady(false);
-      router.refresh();
     }
     return result.ok
       ? { error: null, success: 'Línea agregada.' }
@@ -200,7 +199,6 @@ export function QuoteEditor({
     const result = await submitQuoteAction(formData);
     if (result.ok) {
       setSent(true);
-      router.refresh();
       return { error: null, success: 'Cotización presentada.' };
     }
     return { error: result.error, success: null };
@@ -215,6 +213,16 @@ export function QuoteEditor({
     }
     return { error: result.error, success: null };
   }, feedbackInitial);
+
+  useEffect(() => {
+    if (!addState.success) return;
+    router.refresh();
+  }, [addState, router]);
+
+  useEffect(() => {
+    if (!submitState.success) return;
+    router.refresh();
+  }, [submitState, router]);
 
   if (!isDraft || sent) {
     if (submitState.success || cancelState.success) {

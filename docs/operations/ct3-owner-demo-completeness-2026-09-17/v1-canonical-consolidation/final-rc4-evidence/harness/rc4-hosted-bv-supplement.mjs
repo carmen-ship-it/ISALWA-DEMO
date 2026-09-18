@@ -26,7 +26,7 @@ const { chromium } = require('playwright-core');
 
 const BASE = process.env.BV_BASE || 'https://os-web-staging.onrender.com';
 const EMAIL = 'carmen.staging@isalwa.demo';
-const EXPECTED_SHA = 'fe66f0353d83223033710ee535163080c72b8959';
+const EXPECTED_SHA = '9e1cfe3ee1f18e568b7f34254e5794cf49baa8b7';
 const MADERAS = '01M2PM95PV7YP6AECYXSX4GRBW';
 const MADERAS_ORDER = '01M2PMA280KX4AAV7049YKNE07';
 const ANDINA = '01M2PMDY71EDWHJG3AFK36TDZ2';

@@ -12,7 +12,7 @@
  * - Receipt + business event persist atomically when $transaction is available
  */
 
-import { canReceiveFinishedGoods } from '@isalwa/os-contracts';
+import { canReceiveFinishedGoods, EVENT_SCHEMA_VERSION_POLICY } from '@isalwa/os-contracts';
 
 export const FINISHED_GOODS_RECEIVE_SCOPE = 'warehouse.finished_goods.receive' as const;
 export const FINISHED_GOODS_ALLOCATE_SCOPE = 'warehouse.finished_goods.allocate' as const;
@@ -465,9 +465,27 @@ type PrismaEventDelegate = {
   create(args: { data: Record<string, unknown> }): Promise<unknown>;
 };
 
+type PrismaOutboxDelegate = {
+  create(args: { data: Record<string, unknown> }): Promise<unknown>;
+};
+
+type PrismaTimelineDelegate = {
+  upsert(args: {
+    where: Record<string, unknown>;
+    create: Record<string, unknown>;
+    update: Record<string, unknown>;
+  }): Promise<unknown>;
+};
+
 export type FinishedGoodsPrismaPort = {
   osFinishedGoodsReceipt: PrismaReceiptDelegate;
   osBusinessEvent: PrismaEventDelegate;
+  /**
+   * Party timeline is a projection of outbox envelopes. Pedido / Cliente360 read
+   * os_party_timeline_entries, not the receipt row. Both writes are required.
+   */
+  osOutboxMessage?: PrismaOutboxDelegate;
+  osPartyTimelineEntry?: PrismaTimelineDelegate;
   /** Present on PrismaClient — used for atomic receipt + event persist. */
   $transaction?: (ops: Promise<unknown>[]) => Promise<unknown>;
   osProductionTraceEntry?: {
@@ -563,6 +581,87 @@ function toPrismaEventData(event: FinishedGoodsEventRecord): Record<string, unkn
   };
 }
 
+const TIMELINE_FACT_KEYS = [
+  'partyId',
+  'orderId',
+  'orderLineId',
+  'productId',
+  'quantity',
+  'note',
+  'allocatesToOrder',
+  'postsStock',
+] as const;
+
+/** Same scalar allowlist the party-timeline projection copies onto facts. */
+function timelineFactsFromPayload(
+  payload: FinishedGoodsEventRecord['payload'],
+): Record<string, string | number | boolean | null> {
+  const record = payload as Record<string, unknown>;
+  const facts: Record<string, string | number | boolean | null> = {};
+  for (const key of TIMELINE_FACT_KEYS) {
+    const value = record[key];
+    if (
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      facts[key] = value;
+    }
+  }
+  return facts;
+}
+
+function toPrismaOutboxData(event: FinishedGoodsEventRecord): Record<string, unknown> {
+  const envelope: Record<string, unknown> = {
+    id: event.id,
+    organizationId: event.organizationId,
+    eventType: event.eventType,
+    schemaVersion: EVENT_SCHEMA_VERSION_POLICY.current,
+    occurredAt: new Date(event.occurredAt).toISOString(),
+    recordedAt: new Date(event.recordedAt).toISOString(),
+    actorMemberId: event.actorMemberId,
+    primaryEntityType: event.primaryEntityType,
+    primaryEntityId: event.primaryEntityId,
+    correlationId: event.correlationId,
+    provenance: event.provenance,
+    dataOrigin: 'production',
+    capabilityKey: event.capabilityKey,
+    payload: { ...event.payload },
+  };
+  if (event.idempotencyKey) envelope.idempotencyKey = event.idempotencyKey;
+  return {
+    id: `obx-${event.id}`,
+    organizationId: event.organizationId,
+    eventId: event.id,
+    payloadJson: envelope,
+    status: 'pending',
+    attemptCount: 0,
+    nextAttemptAt: null,
+    lastError: null,
+    createdAt: new Date(event.recordedAt),
+    publishedAt: null,
+  };
+}
+
+function timelineEntryData(
+  event: FinishedGoodsEventRecord,
+  partyId: string,
+): Record<string, unknown> {
+  return {
+    entryId: event.id,
+    organizationId: event.organizationId,
+    partyId,
+    eventType: event.eventType,
+    occurredAt: new Date(event.occurredAt),
+    actorMemberId: event.actorMemberId,
+    correlationId: event.correlationId,
+    primaryEntityType: event.primaryEntityType,
+    primaryEntityId: event.primaryEntityId,
+    factsJson: timelineFactsFromPayload(event.payload),
+  };
+}
+
 function isUniqueViolation(err: unknown): boolean {
   if (!err || typeof err !== 'object') return false;
   const code = 'code' in err ? String((err as { code?: unknown }).code ?? '') : '';
@@ -572,6 +671,22 @@ function isUniqueViolation(err: unknown): boolean {
   if (code === 'P2002') return true;
   const message = err instanceof Error ? err.message : String(err);
   return /unique constraint failed/i.test(message);
+}
+
+async function resolveTimelinePartyId(
+  prisma: FinishedGoodsPrismaPort,
+  event: FinishedGoodsEventRecord,
+): Promise<string | null> {
+  const cited = event.payload.partyId?.trim() ?? '';
+  if (cited) return cited;
+  const orderId = event.payload.orderId?.trim() ?? '';
+  if (!orderId || !prisma.osOrder) return null;
+  const order = await prisma.osOrder.findFirst({
+    where: { organizationId: event.organizationId, id: orderId },
+    select: { id: true, partyId: true },
+  });
+  const partyId = order?.partyId?.trim() ?? '';
+  return partyId || null;
 }
 
 export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaPort): FinishedGoodsWriteStore {
@@ -632,17 +747,45 @@ export function createPrismaFinishedGoodsWriteStore(prisma: FinishedGoodsPrismaP
       }
       const receiptData = toPrismaReceiptData(receipt);
       const eventData = toPrismaEventData(event);
+      const partyId = await resolveTimelinePartyId(prisma, event);
+      const receiptWrite = () => prisma.osFinishedGoodsReceipt.create({ data: receiptData });
+      const eventWrite = () => prisma.osBusinessEvent.create({ data: eventData });
+      const outboxWrite = () => prisma.osOutboxMessage?.create({ data: toPrismaOutboxData(event) });
+      const timelineWrite = () => {
+        if (!partyId || !prisma.osPartyTimelineEntry) return undefined;
+        const row = timelineEntryData(event, partyId);
+        return prisma.osPartyTimelineEntry.upsert({
+          where: { entryId: event.id },
+          create: row,
+          update: {
+            partyId,
+            eventType: event.eventType,
+            occurredAt: row.occurredAt,
+            actorMemberId: event.actorMemberId,
+            correlationId: event.correlationId,
+            primaryEntityType: event.primaryEntityType,
+            primaryEntityId: event.primaryEntityId,
+            factsJson: row.factsJson,
+          },
+        });
+      };
       try {
         // Call $transaction as a method (never extract unbound). Unbound calls lose
         // Prisma `this` and throw: Cannot read properties of undefined (reading '_tracingHelper').
         if (typeof prisma.$transaction === 'function') {
-          await prisma.$transaction([
-            prisma.osFinishedGoodsReceipt.create({ data: receiptData }),
-            prisma.osBusinessEvent.create({ data: eventData }),
-          ]);
+          const writes: Promise<unknown>[] = [receiptWrite(), eventWrite()];
+          const outbox = outboxWrite();
+          if (outbox) writes.push(outbox);
+          const timeline = timelineWrite();
+          if (timeline) writes.push(timeline);
+          await prisma.$transaction(writes);
         } else {
-          await prisma.osFinishedGoodsReceipt.create({ data: receiptData });
-          await prisma.osBusinessEvent.create({ data: eventData });
+          await receiptWrite();
+          await eventWrite();
+          const outbox = outboxWrite();
+          if (outbox) await outbox;
+          const timeline = timelineWrite();
+          if (timeline) await timeline;
         }
         return 'inserted';
       } catch (err) {
