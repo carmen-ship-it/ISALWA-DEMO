@@ -316,7 +316,7 @@ export function QuoteEditor({
   return (
     <div className="mt-12 space-y-10">
       <PageSection id="agregar-producto" card className="scroll-mt-32 bg-white p-8 md:p-10">
-        <h2 className={documentTitleClass}>Agregar producto</h2>
+        <h2 className={documentTitleClass}>Agregar a la cotización</h2>
         <FormFeedback error={addState.error} success={addState.success} />
         <form key={addEpoch} action={addAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />

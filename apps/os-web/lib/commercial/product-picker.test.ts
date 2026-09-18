@@ -247,9 +247,9 @@ describe('quote product picker', () => {
   it('does not label the quoted price as a list price in the editor', () => {
     assert.match(editor, /QUOTED_PRICE_LABEL/);
     assert.match(editor, /emptyProductSearchPort/);
-    assert.match(picker, /QUOTED_PRICE_LABEL/);
     assert.match(picker, /SPECIAL_ITEM_LABEL/);
     assert.match(picker, /emptyProductSearchPort/);
+    assert.match(picker, /UNIT_PRICE_LABEL/);
     assert.match(actions, /resolveAddQuoteLineDraft/);
     assert.match(actions, /productRef: draft\.draft\.productRef/);
     assert.match(quotePage, /lineProvenanceView/);
@@ -297,9 +297,8 @@ describe('quote product picker', () => {
     assert.equal(pending.blocksQuote, false);
     assert.equal(REFERENCE_PRICE_LABEL, 'Precio de referencia');
     assert.match(NO_GOVERNED_PRICE_COPY, /no se bloquea/i);
-    assert.match(picker, /REFERENCE_PRICE_LABEL/);
-    assert.match(picker, /Pendiente de aprobación/);
-    assert.match(picker, /PENDING_APPROVAL_COPY/);
+    assert.doesNotMatch(picker, /precio de lista|inventario|stock disponible|catálogo oficial|catálogo integrado|precio oficial/i);
+    assert.doesNotMatch(picker, /CATALOG_COMING_SOON|Catálogo de productos — próximamente/);
     assert.doesNotMatch(picker, FORBIDDEN_PRICE_LABEL);
   });
 

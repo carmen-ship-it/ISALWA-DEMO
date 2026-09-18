@@ -8,6 +8,7 @@ import {
   scrubPilotDeliveryNoteRefs,
 } from './human-facing';
 import { SPECIAL_ITEM_LABEL } from './product-picker';
+import { activeStarterQuoteProducts } from './starter-quote-products';
 
 describe('human-facing commercial display', () => {
   it('maps raw stage open through the existing status label', () => {
@@ -32,6 +33,9 @@ describe('human-facing commercial display', () => {
     assert.equal(presentProductRef('SKU-LAV'), 'SKU-LAV');
     assert.equal(presentProductRef(null), null);
     assert.equal(presentProductRef('off-catalog:fuera-de-catalogo'), SPECIAL_ITEM_LABEL);
+    const starter = activeStarterQuoteProducts()[0];
+    assert.ok(starter);
+    assert.equal(presentProductRef(starter.key), null);
   });
 
   it('hides NE-PILOT refs and does not invent a fiscal series', () => {

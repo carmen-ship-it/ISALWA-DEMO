@@ -3,6 +3,7 @@
  */
 
 import { isOffCatalogProductRef, SPECIAL_ITEM_LABEL } from './product-picker';
+import { isStarterQuoteProductKey } from './starter-quote-products';
 
 /** Provisional pilot document refs. Not a fiscal series. */
 export const PILOT_DELIVERY_NOTE_REF_PREFIX = 'NE-PILOT-';
@@ -68,5 +69,6 @@ export function scrubPilotDeliveryNoteRefs(
 export function presentProductRef(productRef: string | null | undefined): string | null {
   if (!productRef?.trim()) return null;
   if (isOffCatalogProductRef(productRef)) return SPECIAL_ITEM_LABEL;
+  if (isStarterQuoteProductKey(productRef)) return null;
   return productRef;
 }

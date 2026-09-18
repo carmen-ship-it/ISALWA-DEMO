@@ -1,235 +1,132 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, SearchField, StatusPill } from '@isalwa/ui';
-import { parseBobInputToCentavos } from '@/lib/commercial/parse-money-input';
-import { formatCentavos } from '@/lib/commercial/money';
+import { Button } from '@isalwa/ui';
+import { emptyProductSearchPort, SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 import {
-  ADD_LINE_NEXT_ACTION,
-  ADD_PRODUCT_HEADING,
-  CATALOG_COMING_SOON,
-  CATALOG_NO_MATCH_COPY,
-  CATALOG_SEARCH_LABEL,
-  NO_GOVERNED_PRICE_COPY,
-  PENDING_APPROVAL_COPY,
-  QUOTED_PRICE_HINT,
-  QUOTED_PRICE_LABEL,
-  REFERENCE_PRICE_LABEL,
-  SNAPSHOT_NOTE,
-  SPECIAL_ITEM_LABEL,
-  catalogIsAvailable,
-  emptyPriceReferencePort,
-  emptyProductSearchPort,
-  governAdvisorQuote,
-  searchCatalog,
-  type CatalogProductHit,
-  type GovernedPriceReference,
-  type PriceReferencePort,
-  type ProductSearchPort,
-} from '@/lib/commercial/product-picker';
+  ADD_LINE_HEADING,
+  KNOWN_PRODUCT_MODE_LABEL,
+  PRODUCT_DATA_HEADING,
+  PRODUCT_FIELD_LABEL,
+  PRODUCT_PLACEHOLDER,
+  SPECIAL_ITEM_HELPER,
+  STARTER_LIST_COPY,
+  UNIT_PRICE_LABEL,
+  activeStarterQuoteProducts,
+  blankLineEntry,
+  prefillFromStarterProduct,
+  starterProductByKey,
+  type StarterLineEntry,
+} from '@/lib/commercial/starter-quote-products';
 
 const fieldClass =
   'mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
+type LineMode = 'known' | 'special';
+
 type QuoteProductPickerProps = {
   organizationId: string;
-  searchPort?: ProductSearchPort;
-  pricePort?: PriceReferencePort;
+  searchPort?: typeof emptyProductSearchPort;
   onReadyChange?: (ready: boolean) => void;
 };
 
-type Selection =
-  | { kind: 'catalog'; productId: string; name: string; detail: string }
-  | { kind: 'special'; name: string; detail: string; note: string };
-
 export function QuoteProductPicker({
-  organizationId,
-  searchPort = emptyProductSearchPort,
-  pricePort = emptyPriceReferencePort,
+  organizationId: _organizationId,
+  searchPort: _searchPort = emptyProductSearchPort,
   onReadyChange,
 }: QuoteProductPickerProps) {
-  const catalogReady = catalogIsAvailable(searchPort);
-  const [query, setQuery] = useState('');
-  const [hits, setHits] = useState<CatalogProductHit[]>([]);
-  const [searched, setSearched] = useState(false);
-  const [searching, setSearching] = useState(false);
-  const [selection, setSelection] = useState<Selection | null>(
-    catalogReady ? null : { kind: 'special', name: '', detail: '', note: '' },
-  );
-  const [quantity, setQuantity] = useState('1');
-  const [quotedPrice, setQuotedPrice] = useState('');
-  const [reference, setReference] = useState<GovernedPriceReference | null>(null);
+  const products = activeStarterQuoteProducts();
+  const knownAvailable = products.length > 0;
+  const [mode, setMode] = useState<LineMode>(knownAvailable ? 'known' : 'special');
+  const [productKey, setProductKey] = useState('');
+  const [entry, setEntry] = useState<StarterLineEntry>(blankLineEntry);
 
-  const ready = selection != null && selection.name.trim().length > 0;
-  const governance = governAdvisorQuote({
-    quotedCentavos: parseBobInputToCentavos(quotedPrice),
-    governedCentavos: reference?.amountCentavos ?? null,
-  });
+  const selected = mode === 'known' ? starterProductByKey(productKey) : null;
+  const showFields = mode === 'special' || selected != null;
+  const ready =
+    entry.name.trim().length > 0 && (mode === 'special' || selected != null);
 
   useEffect(() => {
     onReadyChange?.(ready);
   }, [onReadyChange, ready]);
 
-  useEffect(() => {
-    if (!catalogReady) {
-      setHits([]);
-      setSearched(false);
-      setSearching(false);
-      return;
-    }
-    const text = query.trim();
-    if (text.length < 2) {
-      setHits([]);
-      setSearched(false);
-      setSearching(false);
-      return;
-    }
-    let cancelled = false;
-    setSearching(true);
-    const timer = setTimeout(() => {
-      void searchCatalog(searchPort, { organizationId, text }).then((rows) => {
-        if (cancelled) return;
-        setHits(rows);
-        setSearched(true);
-        setSearching(false);
-      });
-    }, 200);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [catalogReady, organizationId, query, searchPort]);
-
-  useEffect(() => {
-    if (selection?.kind !== 'catalog') {
-      setReference(null);
-      return;
-    }
-    const qty = Number.parseInt(quantity, 10);
-    if (!organizationId.trim() || !Number.isFinite(qty) || qty < 1) {
-      setReference(null);
-      return;
-    }
-    let cancelled = false;
-    void pricePort
-      .referenceFor({
-        organizationId,
-        productId: selection.productId,
-        quantity: qty,
-      })
-      .then((found) => {
-        if (!cancelled) setReference(found);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [organizationId, pricePort, quantity, selection]);
-
-  function selectHit(hit: CatalogProductHit) {
-    setReference(null);
-    setSelection({
-      kind: 'catalog',
-      productId: hit.productId,
-      name: hit.name,
-      detail: hit.description,
-    });
-    setQuery('');
-    setHits([]);
-    setSearched(false);
+  function applyEntry(next: StarterLineEntry) {
+    setEntry(next);
   }
 
-  function startSpecial() {
-    if (selection?.kind === 'special') return;
-    setReference(null);
-    setSelection({ kind: 'special', name: '', detail: '', note: '' });
-    setQuery('');
-    setHits([]);
-    setSearched(false);
+  function switchMode(next: LineMode) {
+    if (next === 'known' && !knownAvailable) return;
+    setMode(next);
+    setProductKey('');
+    applyEntry(blankLineEntry());
+  }
+
+  function selectProduct(key: string) {
+    setProductKey(key);
+    const product = starterProductByKey(key);
+    applyEntry(product ? prefillFromStarterProduct(product) : blankLineEntry());
+  }
+
+  function patch(partial: Partial<StarterLineEntry>) {
+    setEntry((current) => ({ ...current, ...partial }));
   }
 
   return (
     <div className="space-y-5">
-      <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
-        {ADD_PRODUCT_HEADING}
-      </h3>
-      <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{ADD_LINE_NEXT_ACTION}</p>
-
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={ADD_LINE_HEADING}>
+        {knownAvailable ? (
+          <Button
+            type="button"
+            variant={mode === 'known' ? 'primary' : 'secondary'}
+            aria-pressed={mode === 'known'}
+            onClick={() => switchMode('known')}
+          >
+            {KNOWN_PRODUCT_MODE_LABEL}
+          </Button>
+        ) : null}
         <Button
           type="button"
-          variant={catalogReady ? 'secondary' : 'primary'}
-          aria-pressed={selection?.kind === 'special'}
-          onClick={startSpecial}
+          variant={mode === 'special' ? 'primary' : 'secondary'}
+          aria-pressed={mode === 'special'}
+          onClick={() => switchMode('special')}
         >
           {SPECIAL_ITEM_LABEL}
         </Button>
       </div>
 
-      {catalogReady ? (
+      {mode === 'known' ? (
         <div>
-          <label htmlFor="quote-product-search" className="isalwa-section-label">
-            {CATALOG_SEARCH_LABEL}
+          <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{STARTER_LIST_COPY}</p>
+          <label htmlFor="quote-starter-product" className="isalwa-section-label mt-4 block">
+            {PRODUCT_FIELD_LABEL}
           </label>
-          <SearchField
-            id="quote-product-search"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              if (selection?.kind === 'catalog') setSelection(null);
-            }}
-            placeholder="Nombre, categoría o detalle técnico"
-            autoComplete="off"
-            className="mt-2"
-          />
+          <select
+            id="quote-starter-product"
+            className={fieldClass}
+            value={productKey}
+            onChange={(event) => selectProduct(event.target.value)}
+          >
+            <option value="">{PRODUCT_PLACEHOLDER}</option>
+            {products.map((product) => (
+              <option key={product.key} value={product.key}>
+                {product.name}
+              </option>
+            ))}
+          </select>
         </div>
       ) : (
-        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
-          {CATALOG_COMING_SOON}
-        </p>
+        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{SPECIAL_ITEM_HELPER}</p>
       )}
 
-      <div aria-live="polite">
-        {searching ? <p className="text-sm text-[var(--isalwa-slate)]">Buscando…</p> : null}
-        {catalogReady && searched && hits.length === 0 ? (
-          <p className="text-sm text-[var(--isalwa-slate)]">{CATALOG_NO_MATCH_COPY}</p>
-        ) : null}
-        {hits.length > 0 ? (
-          <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Productos">
-            {hits.map((hit) => (
-              <li key={hit.productId}>
-                <button
-                  type="button"
-                  className="w-full py-3 text-left"
-                  onClick={() => selectHit(hit)}
-                  aria-pressed={selection?.kind === 'catalog' && selection.productId === hit.productId}
-                >
-                  <span className="block font-medium text-[var(--isalwa-kiln)]">{hit.name}</span>
-                  {hit.category ? (
-                    <span className="mt-1 block text-sm text-[var(--isalwa-slate)]">{hit.category}</span>
-                  ) : null}
-                  {hit.description ? (
-                    <span className="mt-1 block text-sm text-[var(--isalwa-slate)]">{hit.description}</span>
-                  ) : null}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </div>
-
-      {selection ? (
+      {showFields ? (
         <div className="space-y-4 border-t border-[var(--isalwa-mist)] pt-5">
-          <input type="hidden" name="lineKind" value={selection.kind} />
-          <input
-            type="hidden"
-            name="productId"
-            value={selection.kind === 'catalog' ? selection.productId : ''}
-          />
-          {selection.kind === 'catalog' ? (
-            <p className="text-sm text-[var(--isalwa-slate)]">{SNAPSHOT_NOTE}</p>
-          ) : (
-            <p className="text-sm text-[var(--isalwa-slate)]">{SPECIAL_ITEM_LABEL}</p>
-          )}
+          <input type="hidden" name="lineKind" value={mode === 'known' ? 'catalog' : 'special'} />
+          <input type="hidden" name="productId" value={mode === 'known' ? productKey : ''} />
+          {mode === 'known' ? (
+            <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+              {PRODUCT_DATA_HEADING}
+            </h3>
+          ) : null}
           <div>
             <label htmlFor="quote-item-name" className="isalwa-section-label">
               Nombre
@@ -238,8 +135,8 @@ export function QuoteProductPicker({
               id="quote-item-name"
               name="itemName"
               required
-              value={selection.name}
-              onChange={(event) => setSelection({ ...selection, name: event.target.value })}
+              value={entry.name}
+              onChange={(event) => patch({ name: event.target.value })}
               className={fieldClass}
             />
           </div>
@@ -251,33 +148,23 @@ export function QuoteProductPicker({
               id="quote-item-detail"
               name="itemDetail"
               rows={3}
-              value={selection.detail}
-              onChange={(event) => setSelection({ ...selection, detail: event.target.value })}
+              value={entry.detail}
+              onChange={(event) => patch({ detail: event.target.value })}
               className={fieldClass}
             />
           </div>
-          {selection.kind === 'special' ? (
-            <div>
-              <label htmlFor="quote-item-note" className="isalwa-section-label">
-                Nota
-              </label>
-              <input
-                id="quote-item-note"
-                name="provenanceNote"
-                value={selection.note}
-                onChange={(event) => setSelection({ ...selection, note: event.target.value })}
-                className={fieldClass}
-              />
-              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                Opcional. Queda como origen de este ítem.
-              </p>
-            </div>
-          ) : (
-            <input type="hidden" name="provenanceNote" value="" />
-          )}
-          {selection.kind === 'special' ? (
-            <p className="text-sm text-[var(--isalwa-slate)]">{SNAPSHOT_NOTE}</p>
-          ) : null}
+          <div>
+            <label htmlFor="quote-item-note" className="isalwa-section-label">
+              Nota
+            </label>
+            <input
+              id="quote-item-note"
+              name="provenanceNote"
+              value={entry.note}
+              onChange={(event) => patch({ note: event.target.value })}
+              className={fieldClass}
+            />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="new-qty" className="isalwa-section-label">
@@ -288,8 +175,8 @@ export function QuoteProductPicker({
                 name="quantity"
                 required
                 inputMode="numeric"
-                value={quantity}
-                onChange={(event) => setQuantity(event.target.value)}
+                value={entry.quantity}
+                onChange={(event) => patch({ quantity: event.target.value })}
                 className={fieldClass}
               />
             </div>
@@ -297,45 +184,26 @@ export function QuoteProductPicker({
               <label htmlFor="new-unit" className="isalwa-section-label">
                 Unidad
               </label>
-              <input id="new-unit" name="unitLabel" className={fieldClass} />
+              <input
+                id="new-unit"
+                name="unitLabel"
+                value={entry.unit}
+                onChange={(event) => patch({ unit: event.target.value })}
+                className={fieldClass}
+              />
             </div>
-            {selection.kind === 'catalog' ? (
-              <div className="sm:col-span-2">
-                <p className="isalwa-section-label">{REFERENCE_PRICE_LABEL}</p>
-                {reference ? (
-                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                    {reference.context} · {formatCentavos(reference.amountCentavos, reference.currency)}
-                  </p>
-                ) : (
-                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{NO_GOVERNED_PRICE_COPY}</p>
-                )}
-              </div>
-            ) : null}
             <div>
               <label htmlFor="new-price" className="isalwa-section-label">
-                {QUOTED_PRICE_LABEL}
+                {UNIT_PRICE_LABEL}
               </label>
               <input
                 id="new-price"
                 name="unitPrice"
                 required
-                value={quotedPrice}
-                onChange={(event) => setQuotedPrice(event.target.value)}
+                value={entry.unitPrice}
+                onChange={(event) => patch({ unitPrice: event.target.value })}
                 className={fieldClass}
               />
-              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
-              {governance.approval === 'pending' ? (
-                <div className="mt-3 space-y-2">
-                  <StatusPill tone="warning">Pendiente de aprobación</StatusPill>
-                  <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{PENDING_APPROVAL_COPY}</p>
-                </div>
-              ) : null}
-            </div>
-            <div>
-              <label htmlFor="new-disc" className="isalwa-section-label">
-                Descuento (Bs.)
-              </label>
-              <input id="new-disc" name="discount" className={fieldClass} />
             </div>
           </div>
         </div>
