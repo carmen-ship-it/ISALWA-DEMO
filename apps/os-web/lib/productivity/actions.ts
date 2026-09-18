@@ -6,6 +6,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import type { TypeaheadOption } from '@/lib/operating/typeahead';
 import { PALETTE_GROUP_LIMIT } from '@/lib/shell/command-palette';
+import { presentStage } from '@/lib/commercial/labels';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import type { CoverageInputPage, CoverageRecord, CoverageSummary } from './coverage';
 import { summarizeCoverage } from './coverage';
@@ -473,7 +474,7 @@ export async function listPartyCommercialLinks(partyId: string): Promise<
         .map((item) => ({
           id: item.opportunityId,
           label: item.title?.trim() || 'Oportunidad',
-          hint: item.stage ?? item.status,
+          hint: item.stage?.trim() ? presentStage(item.stage) : item.status,
         })),
       quotes: quotes
         .filter((item) => item.status !== 'cancelled')

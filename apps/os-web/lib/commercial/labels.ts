@@ -49,8 +49,17 @@ export function formatStage(stage: string): string {
 }
 
 /**
+ * Display-only labels for stored stage tokens that are not already human Spanish.
+ * Does not define a pipeline and does not change the stored value.
+ */
+const STORED_STAGE_LABELS: Record<string, string> = {
+  calificacion: 'Calificación',
+};
+
+/**
  * Human stage text. A stored status token `open` uses the existing status label
- * for that entity (opportunity Abierta, order Registrado). Other free-text stages stay as entered.
+ * for that entity (opportunity Abierta, order Registrado). Known raw tokens use
+ * the Spanish label above. Other free-text stages stay as entered.
  */
 export function presentStage(stage: string, entityType?: string): string {
   const raw = stage.trim();
@@ -59,8 +68,21 @@ export function presentStage(stage: string, entityType?: string): string {
     if (kind.includes('order') || kind.includes('pedido')) return formatOrderStatus('open');
     return formatOpportunityStatus('open');
   }
+  const known = STORED_STAGE_LABELS[raw.toLowerCase()];
+  if (known) return known;
   const shown = formatStage(raw).trim();
   return shown.length > 0 ? shown : 'Sin etapa';
+}
+
+/**
+ * Value sent to ChangeOpportunityStage. If the person left the human label
+ * untouched, keep the stored token. A different typed value is stored as entered.
+ */
+export function stageCommandValue(submitted: string, stored: string): string {
+  const typed = submitted.trim();
+  const canonical = stored.trim();
+  if (canonical && typed === presentStage(canonical)) return canonical;
+  return typed;
 }
 
 /** Status label when the record kind is known. Ambiguous values stay unrecognized. */

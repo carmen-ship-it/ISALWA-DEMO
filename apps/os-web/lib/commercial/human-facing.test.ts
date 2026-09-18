@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { presentStage } from './labels';
+import { presentStage, stageCommandValue } from './labels';
 import {
   presentDeliveryNoteLabel,
   presentDeliveryNoteReference,
@@ -15,7 +15,12 @@ describe('human-facing commercial display', () => {
     assert.equal(presentStage('open', 'opportunity'), 'Abierta');
     assert.equal(presentStage('open', 'order'), 'Registrado');
     assert.equal(presentStage('propuesta'), 'propuesta');
+    assert.equal(presentStage('calificacion'), 'Calificación');
+    assert.equal(presentStage(' Calificacion '), 'Calificación');
+    assert.notEqual(presentStage('calificacion'), 'calificacion');
     assert.notEqual(presentStage('open'), 'open');
+    assert.equal(stageCommandValue('Calificación', 'calificacion'), 'calificacion');
+    assert.equal(stageCommandValue('negociacion', 'calificacion'), 'negociacion');
   });
 
   it('shows the special-item label for off-catalog refs without changing other refs', () => {

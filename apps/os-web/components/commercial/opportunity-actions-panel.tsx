@@ -10,6 +10,7 @@ import {
   closeOpportunityAction,
   updateOpportunityAction,
 } from '@/lib/commercial/actions';
+import { presentStage } from '@/lib/commercial/labels';
 import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
@@ -118,6 +119,7 @@ export function OpportunityActionsPanel({
         <form action={stageAction} className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="opportunityId" value={opportunity.opportunityId} />
+          <input type="hidden" name="storedStage" value={opportunity.stage} />
           <div className="min-w-0 flex-1">
             <label htmlFor="stage-input" className="isalwa-section-label">
               Etapa
@@ -126,7 +128,7 @@ export function OpportunityActionsPanel({
               id="stage-input"
               name="stage"
               required
-              defaultValue={opportunity.stage}
+              defaultValue={presentStage(opportunity.stage)}
               className="mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2"
             />
           </div>

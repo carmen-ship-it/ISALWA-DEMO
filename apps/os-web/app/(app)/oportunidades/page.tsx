@@ -14,7 +14,7 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { formatOpportunityStatus, formatStage } from '@/lib/commercial/labels';
+import { formatOpportunityStatus, presentStage } from '@/lib/commercial/labels';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
 import { listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
@@ -68,7 +68,7 @@ function emptyDescription(status: OpportunityListStatus, hasQuery: boolean, stag
     return 'Ninguna oportunidad de este estado coincide con el título buscado.';
   }
   if (stage) {
-    return `No hay oportunidades en etapa exacta «${formatStage(stage)}». La etapa no es un pipeline.`;
+    return `No hay oportunidades en etapa exacta «${presentStage(stage)}». La etapa no es un pipeline.`;
   }
   if (status === 'open') {
     return 'Aquí aparecen las oportunidades abiertas, con cliente, etapa y responsable. Para registrar una, abra el cliente.';
@@ -206,7 +206,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
           </div>
           <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
             {stage
-              ? `Etapa exacta: ${formatStage(stage)}. No es un filtro de pipeline.`
+              ? `Etapa exacta: ${presentStage(stage)}. No es un filtro de pipeline.`
               : 'La etapa se muestra como se registró.'}
           </p>
         </div>

@@ -7,6 +7,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { mapCommandError } from '@/lib/commercial/command-errors';
 import type { CommandActionResult, CreateRedirectResult } from '@/lib/commercial/command-types';
+import { stageCommandValue } from '@/lib/commercial/labels';
 import { opportunityHref, orderHref, quoteHref } from '@/lib/commercial/navigation';
 import { approvalHref } from '@/lib/work/navigation';
 import { partyHref } from '@/lib/party/navigation';
@@ -129,7 +130,10 @@ export async function updateOpportunityAction(formData: FormData): Promise<Comma
 export async function changeOpportunityStageAction(formData: FormData): Promise<CommandActionResult> {
   const partyId = String(formData.get('partyId') ?? '').trim();
   const opportunityId = String(formData.get('opportunityId') ?? '').trim();
-  const stage = String(formData.get('stage') ?? '').trim();
+  const stage = stageCommandValue(
+    String(formData.get('stage') ?? ''),
+    String(formData.get('storedStage') ?? ''),
+  );
   if (!opportunityId || !stage) {
     return { ok: false, error: 'Ingrese una etapa.' };
   }
