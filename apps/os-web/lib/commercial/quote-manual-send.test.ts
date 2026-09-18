@@ -21,7 +21,7 @@ describe('quote manual send record', () => {
   it('states clearly that ISALWA does not send WhatsApp yet', () => {
     assert.match(
       QUOTE_MANUAL_SEND_COPY.disclaimer,
-      /ISALWA registra el envío; no envía el mensaje desde aquí todavía/,
+      /Descargue la cotización y envíela por WhatsApp o correo/,
     );
     assert.equal(QUOTE_MANUAL_SEND_COPY.action, 'Registrar como enviada');
     assert.equal(QUOTE_MANUAL_SEND_COPY.successToast, 'Envío registrado.');

@@ -194,6 +194,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
         canCreateNote={selected.status === 'open' && canRecordDelivery(scopes)}
         canRecordSalida={selected.status === 'open' && canRecordWarehouseOutbound(scopes)}
         canRecordEntrega={selected.status === 'open' && canRecordDelivery(scopes)}
+        hasSalida={timeline.some((item) => item.eventType === 'warehouse_exit.recorded')}
       />
       <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
         Este registro no exige abrir la ficha comercial del pedido.{' '}

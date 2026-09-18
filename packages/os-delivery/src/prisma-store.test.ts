@@ -501,7 +501,12 @@ describe('createPrismaDeliveryStore', () => {
   });
 
   it('persists customer delivery without auto-creating a nota; CreateNota creates provisional note', async () => {
-    const prisma = fakePrisma();
+    const prisma = fakePrisma({
+      roles: [
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: CUSTOMER_DELIVERY_RECORD_SCOPE },
+        { organizationId: 'org-a', memberId: 'member-a', roleKey: WAREHOUSE_EXIT_RECORD_SCOPE },
+      ],
+    });
     const store = createPrismaDeliveryStore(prisma);
     const service = new DeliveryCommandService(store);
 
@@ -519,6 +524,29 @@ describe('createPrismaDeliveryStore', () => {
     assert.equal(nota.receivedBy, null);
     assert.equal(prisma.notes.length, 1);
     assert.equal(prisma.lines.length, 1);
+
+    await assert.rejects(
+      () =>
+        service.recordCustomerDelivery(ctx(), {
+          orderId: 'order-a',
+          deliveredAt: DELIVERED_AT,
+          deliveredTo: 'Local',
+          recordedBy: 'member-a',
+          source: 'employee_recorded',
+          quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+          deliveryNoteId: nota.deliveryNoteId,
+        }),
+      /VALIDATION_FAILED/,
+    );
+    assert.equal(prisma.deliveries.length, 0);
+
+    await service.recordWarehouseExit(ctx(), {
+      orderId: 'order-a',
+      exitedAt: '2026-09-14T13:00:00.000Z',
+      recordedBy: 'member-a',
+      source: 'employee_recorded',
+      quantities: [{ orderLineId: 'line-1', quantity: 1 }],
+    });
 
     const first = await service.recordCustomerDelivery(ctx(), {
       orderId: 'order-a',

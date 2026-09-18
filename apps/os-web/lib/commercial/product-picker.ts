@@ -30,10 +30,12 @@ export const QUOTED_PRICE_LABEL = 'Precio cotizado (Bs.)';
 export const QUOTED_PRICE_READ_LABEL = 'Precio cotizado';
 export const QUOTED_PRICE_HINT = 'Lo escribe el asesor. No se copia de otro documento.';
 export const SPECIAL_ITEM_LABEL = 'Ítem especial / fuera de catálogo';
+export const ADD_PRODUCT_HEADING = 'Agregar producto';
 export const ADD_LINE_NEXT_ACTION =
-  'Busque el producto o agregue un ítem especial. El precio lo escribe usted.';
+  'Agregue un ítem especial. Escriba el nombre, el detalle, la cantidad, la unidad y el precio.';
+export const CATALOG_COMING_SOON = 'Catálogo de productos — próximamente';
 export const CATALOG_UNAVAILABLE_COPY =
-  'El catálogo todavía no está conectado. Puede agregar un ítem especial.';
+  'El catálogo de productos todavía no está conectado. Use un ítem especial.';
 export const CATALOG_NO_MATCH_COPY = 'Ningún producto coincide. Puede agregar un ítem especial.';
 export const CATALOG_SEARCH_LABEL = 'Buscar producto';
 export const SNAPSHOT_NOTE =

@@ -9,7 +9,7 @@ export const QUOTE_MANUAL_SEND_COPY = {
   note: 'Nota',
   noteOptional: 'Opcional',
   disclaimer:
-    'ISALWA registra el envío; no envía el mensaje desde aquí todavía.',
+    'Descargue la cotización y envíela por WhatsApp o correo. Después, regístrela como enviada para continuar el seguimiento.',
   successToast: 'Envío registrado.',
   successWhatsapp: 'Cotización registrada como enviada por WhatsApp',
   successEmail: 'Cotización registrada como enviada por Email',

@@ -63,6 +63,8 @@ type QuoteNextStepInput = {
   hasPendingApproval: boolean;
   canRegisterFollowUp: boolean;
   followUpHref: string | null;
+  /** True after the person already registered the external send. */
+  sendRecorded?: boolean;
   /**
    * Latest non-pending approval decision on this quote (recorded status only).
    * Does not invent convert eligibility — convert still requires accepted + canConvert.
@@ -149,7 +151,7 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
   switch (input.status) {
     case 'draft':
       return {
-        statement: 'Complete las líneas y envíe la cotización cuando esté lista.',
+        statement: 'Agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.',
         href: null,
         hrefLabel: null,
         waiting: false,
@@ -189,10 +191,10 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
           waiting: true,
         };
       }
-      if (input.canRegisterFollowUp && input.followUpHref) {
+      if (input.canRegisterFollowUp && input.followUpHref && input.sendRecorded) {
         return {
           statement:
-            'Cotización presentada. Registre el envío manual y el seguimiento cuando lo acuerde.',
+            'Envío registrado. Programe el seguimiento cuando lo acuerde. ISALWA no envía el mensaje.',
           href: input.followUpHref,
           hrefLabel: 'Registrar seguimiento',
           waiting: false,
@@ -200,10 +202,10 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
       }
       return {
         statement:
-          'Cotización presentada. Registre el envío externo o espere la respuesta del cliente.',
-        href: null,
-        hrefLabel: null,
-        waiting: true,
+          'Descargue la cotización y envíela por WhatsApp o correo. Después, regístrela como enviada para continuar el seguimiento.',
+        href: '#envio',
+        hrefLabel: 'Registrar como enviada',
+        waiting: false,
       };
     case 'accepted':
       if (input.relatedOrderHref) {
@@ -244,7 +246,8 @@ export function orderNextStep(input: OrderNextStepInput): CommercialNextStep | n
   switch (input.status) {
     case 'open':
       return {
-        statement: 'Pedido registrado. El seguimiento operativo continúa en el caso del pedido.',
+        statement:
+          'Pedido registrado. Desde este pedido puede solicitar revisión de Producción, Almacén o Compras. El trabajo no se crea solo.',
         href: input.customerHref,
         hrefLabel: 'Ver cliente',
         waiting: false,

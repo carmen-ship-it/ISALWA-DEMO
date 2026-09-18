@@ -212,6 +212,12 @@ describe('delivery documents: Pedido → Nota → Salida → Entrega', () => {
     const service = new DeliveryCommandService(store);
     const nota = await service.createNotaDeEntrega(ctx(), notaPayload());
     assert.equal(nota.receivedBy, null);
+    await assert.rejects(
+      () => service.recordEntrega(ctx(), entregaPayload({ deliveryNoteId: nota.deliveryNoteId })),
+      /VALIDATION_FAILED/,
+    );
+    assert.equal((await store.listDeliveries('org-a', 'order-1')).length, 0);
+    await service.recordSalida(ctx(), salidaPayload());
     const entrega = await service.recordEntrega(
       ctx(),
       entregaPayload({ deliveryNoteId: nota.deliveryNoteId }),
@@ -321,6 +327,8 @@ describe('delivery documents: Pedido → Nota → Salida → Entrega', () => {
       notaPayload({ quantities: [{ orderLineId: 'line-1', quantity: 3 }] }),
     );
     assert.equal(nota.lineCount, 1);
+    await assert.rejects(() => service.recordEntrega(ctx(), entregaPayload()), /VALIDATION_FAILED/);
+    await service.recordSalida(ctx(), salidaPayload());
     const entrega = await service.recordEntrega(ctx(), entregaPayload());
     assert.equal(entrega.paymentRequired, false);
     assert.equal(entrega.confirmedLedgerPayment, false);

@@ -112,7 +112,7 @@ describe('quote guidance', () => {
     for (const notes of [empty, ready]) {
       const text = guidanceText(notes);
       assert.match(text, /Revise el cliente, las líneas y las cantidades/);
-      assert.match(text, /Enviar no la otorga/);
+      assert.match(text, /Presentar no la otorga/);
       assert.match(text, /Aprobar registra la decisión\. No crea un pedido/);
       assert.match(text, /No emite factura ni nota de entrega/);
     }
@@ -284,7 +284,7 @@ describe('workflow attachment', () => {
     assert.match(createQuote, /createQuoteAction/);
     assert.match(editor, /guidanceForSendQuote/);
     assert.match(editor, /submitQuoteAction/);
-    assert.match(editor, /Enviar cotización/);
+    assert.match(editor, /Presentar cotización/);
     assert.doesNotMatch(editor, /RegisterFollowUpForm|createFollowUpAction/);
     assert.match(ayuda, /ayudaSections/);
     assert.doesNotMatch([createCustomer, search, convert, reassign, createQuote, editor, ayuda].join('\n'), /\/mapa/);

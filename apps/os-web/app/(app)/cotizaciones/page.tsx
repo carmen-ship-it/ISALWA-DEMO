@@ -144,9 +144,19 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
         <PageHeader
           kicker={t('pages.cotizaciones.kicker')}
           title={t('pages.cotizaciones.title')}
-          description={visible.length === 0 ? undefined : t('pages.cotizaciones.description')}
+          description="Para crear una cotización, primero registre la oportunidad comercial. Elija el cliente y, si ya tiene una oportunidad, ábrala para crear la cotización."
           action={
-            <StatusPill tone="neutral">{statusLabel}</StatusPill>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/clientes">
+                <Button type="button">Elegir cliente</Button>
+              </Link>
+              <Link href="/oportunidades">
+                <Button type="button" variant="secondary">
+                  Ver oportunidades
+                </Button>
+              </Link>
+              <StatusPill tone="neutral">{statusLabel}</StatusPill>
+            </div>
           }
         />
 

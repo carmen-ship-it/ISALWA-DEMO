@@ -518,6 +518,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             canCreateNote={canCreateNote}
             canRecordSalida={canRecordSalida}
             canRecordEntrega={canRecordEntrega}
+            hasSalida={hasSalidaFact}
           />
         </div>
 

@@ -1,4 +1,5 @@
-import { EmptyState, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import Link from 'next/link';
+import { Button, EmptyState, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
 import { CommitmentList } from '@/components/commitments/commitment-list';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -87,15 +88,22 @@ export default async function CompromisosPage({
         <PageHeader
           kicker="Trabajo"
           title={COMMITMENT_COPY.title}
-          description="Promesas registradas en la empresa. Un compromiso del cliente no confirma un pago."
+          description="Promesas registradas en la empresa. Un compromiso del cliente no confirma un pago. Para registrar uno nuevo, ábralo desde el cliente."
           action={
-            buckets.openAll.length > 0 ? (
-              <StatusPill tone="warning">
-                {buckets.openAll.length === 1 ? '1 abierto' : `${buckets.openAll.length} abiertos`}
-              </StatusPill>
-            ) : (
-              <StatusPill tone="neutral">Sin abiertos</StatusPill>
-            )
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/clientes">
+                <Button type="button" variant="secondary">
+                  Ir a clientes
+                </Button>
+              </Link>
+              {buckets.openAll.length > 0 ? (
+                <StatusPill tone="warning">
+                  {buckets.openAll.length === 1 ? '1 abierto' : `${buckets.openAll.length} abiertos`}
+                </StatusPill>
+              ) : (
+                <StatusPill tone="neutral">Sin abiertos</StatusPill>
+              )}
+            </div>
           }
         />
 

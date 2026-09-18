@@ -92,7 +92,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
         <div className="mt-6">
           <EmptyState
             title="Sin pedidos abiertos"
-            description="Cuando exista un pedido en esta empresa, aparecerá aquí para anotar o solicitar actualización."
+            description="Los pedidos abiertos aparecen aquí. La revisión de producción se solicita desde el pedido; no se crea sola."
           />
         </div>
       ) : (

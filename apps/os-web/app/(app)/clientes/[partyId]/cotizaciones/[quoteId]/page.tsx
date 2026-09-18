@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { Button, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { CommercialProgressStrip } from '@/components/commercial/commercial-progress-strip';
@@ -202,6 +202,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       hasPendingApproval,
       canRegisterFollowUp: followUpAllowed,
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
+      sendRecorded: Boolean(sendRecord),
       latestApprovalDecision,
       pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
       pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
@@ -290,8 +291,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             <p className="text-sm text-[var(--isalwa-slate)]">
               Cliente aceptó · listo para pedido (estado sigue presentada hasta convertir)
             </p>
-            <a href="#convertir-pedido" className={documentLinkClass}>
-              Ir a convertir a pedido
+            <a href="#convertir-pedido">
+              <Button type="button">Convertir a Pedido</Button>
             </a>
           </CommercialStickyBar>
         ) : null}

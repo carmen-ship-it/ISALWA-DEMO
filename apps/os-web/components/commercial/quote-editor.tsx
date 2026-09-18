@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
-import { PageSection, ListRow } from '@isalwa/ui';
+import { Button, PageSection, ListRow } from '@isalwa/ui';
 import type { QuoteDetailReadModel, QuoteLineReadModel } from '@isalwa/os-contracts';
 import {
   addQuoteLineAction,
@@ -315,8 +315,8 @@ export function QuoteEditor({
 
   return (
     <div className="mt-12 space-y-10">
-      <PageSection card className="bg-white p-8 md:p-10">
-        <h2 className={documentTitleClass}>Agregar línea</h2>
+      <PageSection id="agregar-producto" card className="scroll-mt-32 bg-white p-8 md:p-10">
+        <h2 className={documentTitleClass}>Agregar producto</h2>
         <FormFeedback error={addState.error} success={addState.success} />
         <form key={addEpoch} action={addAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />
@@ -391,14 +391,23 @@ export function QuoteEditor({
         </form>
       </PageSection>
 
-      <PageSection id="enviar-cotizacion" card className="scroll-mt-32 bg-white p-8 md:p-10">
-        <h2 className={documentTitleClass}>Enviar cotización</h2>
+      <PageSection id="presentar-cotizacion" card className="scroll-mt-32 bg-white p-8 md:p-10">
+        <h2 className={documentTitleClass}>Presentar cotización</h2>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          ISALWA no envía WhatsApp ni correo. Presente la cotización para ver y descargar el PDF.
+          Después envíela usted y regístrela como enviada.
+        </p>
+        {quote.lines.length === 0 ? (
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Primero agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.
+          </p>
+        ) : null}
         <FormFeedback error={submitState.error} success={submitState.success} />
         <form action={submitAction} className="mt-8 space-y-4">
           <GuidanceNotes notes={guidanceForSendQuote({ lineCount: quote.lines.length })} />
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="quoteId" value={quote.quoteId} />
-          <CommandSubmitButton label="Enviar cotización" pendingLabel="Enviando…" />
+          <CommandSubmitButton label="Presentar cotización" pendingLabel="Presentando…" />
         </form>
         <form
           id="cancelar-cotizacion"
@@ -422,12 +431,21 @@ export function QuoteEditor({
         <p className="text-sm text-[var(--isalwa-slate)]">
           Total: {formatCentavos(quote.totalCentavos, quote.currency)}
         </p>
-        <a
-          href="#enviar-cotizacion"
-          className="isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
-        >
-          Ir a enviar
-        </a>
+        {quote.lines.length === 0 ? (
+          <Button
+            type="button"
+            onClick={() => document.getElementById('agregar-producto')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Agregar a la cotización
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={() => document.getElementById('presentar-cotizacion')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Presentar cotización
+          </Button>
+        )}
       </CommercialStickyBar>
     </div>
   );

@@ -153,7 +153,7 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
         <div data-owner-review-state="no-data" className="mt-6">
           <EmptyState
             title="Sin pedidos abiertos para vincular"
-            description="Cuando exista un pedido en esta empresa, aparecerá aquí. La cola vacía no es un fallo de stock ni falta de permiso."
+            description="Los pedidos aparecen aquí para vincularlos. La revisión de compras se solicita desde el pedido. Esta lista no crea pedidos ni órdenes de compra."
             example="Abra el pedido desde el cliente. No se duplican líneas comerciales en compras."
           />
         </div>

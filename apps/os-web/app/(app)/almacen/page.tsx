@@ -105,7 +105,7 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
         <div className="mt-6">
           <EmptyState
             title="Sin pedidos abiertos"
-            description="Cuando exista un pedido en esta empresa, aparecerá aquí para vincular ingresos."
+            description="Los pedidos abiertos aparecen aquí. La revisión de almacén se solicita desde el pedido; no se crea sola."
           />
         </div>
       ) : (

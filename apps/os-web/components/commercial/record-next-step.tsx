@@ -1,12 +1,9 @@
 import Link from 'next/link';
+import { Button, cx } from '@isalwa/ui';
 import {
   COMMERCIAL_NEXT_STEP_LABEL,
   type CommercialNextStep,
 } from '@/lib/commercial/next-step';
-import { cx } from '@isalwa/ui';
-
-const linkClass =
-  'isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:text-[var(--isalwa-glaze-deep)] hover:underline';
 
 type RecordNextStepProps = {
   step: CommercialNextStep | null;
@@ -30,9 +27,9 @@ export function RecordNextStep({ step, className }: RecordNextStepProps) {
         {step.statement}
       </p>
       {step.href && step.hrefLabel ? (
-        <p className="mt-2">
-          <Link href={step.href} className={linkClass}>
-            {step.hrefLabel}
+        <p className="mt-3">
+          <Link href={step.href}>
+            <Button type="button">{step.hrefLabel}</Button>
           </Link>
         </p>
       ) : null}

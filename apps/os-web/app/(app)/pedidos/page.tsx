@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { EmptyState, PageSection, SearchField, StatusPill, cx } from '@isalwa/ui';
+import { Button, EmptyState, PageSection, SearchField, StatusPill, cx } from '@isalwa/ui';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { OrderOrgList } from '@/components/commercial/order-org-list';
 import {
   commercialPrimaryButtonClass,
-  commercialPrimaryLinkClass,
   commercialToolbarClass,
   commercialWorkSurfaceClass,
 } from '@/components/commercial/commercial-surfaces';
@@ -61,7 +60,7 @@ function emptyDescription(status: OrderListStatus, hasQuery: boolean): string {
   if (status === 'cancelled') {
     return 'No hay pedidos cancelados en esta vista.';
   }
-  return 'Aquí aparecen los pedidos abiertos, con cliente y responsable. Ábralos desde el cliente o la cotización convertida.';
+  return 'Los pedidos se crean al convertir una cotización elegible. Esta lista no crea pedidos.';
 }
 
 export default async function PedidosPage({ searchParams }: PedidosPageProps) {
@@ -116,12 +115,17 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
         <PageHeader
           kicker="Comercial"
           title="Pedidos"
-          description={
-            visible.length === 0
-              ? undefined
-              : 'Pedidos de la empresa en el modo de datos activo. El detalle conserva el mismo registro canónico.'
+          description="Un pedido nace al convertir una cotización elegible. No se crea desde esta lista."
+          action={
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/cotizaciones">
+                <Button type="button" variant="secondary">
+                  Ver cotizaciones
+                </Button>
+              </Link>
+              <StatusPill tone="neutral">{formatOrderStatus(status)}</StatusPill>
+            </div>
           }
-          action={<StatusPill tone="neutral">{formatOrderStatus(status)}</StatusPill>}
         />
 
         <div className={`commercial-toolbar ${commercialToolbarClass}`}>
@@ -187,13 +191,13 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
             description={emptyDescription(status, hasQuery)}
             action={
               <div className="flex flex-wrap gap-3">
-                <Link href="/clientes" className={commercialPrimaryLinkClass}>
-                  Ir a clientes
+                <Link href="/cotizaciones">
+                  <Button type="button">Ver cotizaciones</Button>
                 </Link>
-                <Link href="/cotizaciones" className="inline-flex">
-                  <span className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-                    Ver cotizaciones
-                  </span>
+                <Link href="/clientes">
+                  <Button type="button" variant="secondary">
+                    Ir a clientes
+                  </Button>
                 </Link>
               </div>
             }

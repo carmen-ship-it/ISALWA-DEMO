@@ -63,22 +63,25 @@ export const CREATE_QUOTE_CONSEQUENCE = guidanceNote({
 export const SEND_QUOTE_CHECKLIST = guidanceNote({
   id: 'send-quote-checklist',
   kind: 'consejo',
-  title: 'Antes de enviar cotización',
+  title: 'Antes de presentar la cotización',
   items: ['Revise el cliente, las líneas y las cantidades.', 'Si hace falta aprobación, solicítela.'],
 });
 
 export const SEND_QUOTE_NEEDS_LINES = guidanceNote({
   id: 'send-quote-needs-lines',
   kind: 'consejo',
-  title: 'Antes de enviar cotización',
-  items: ['Agregue al menos una línea antes de enviar.'],
+  title: 'Antes de presentar la cotización',
+  items: ['Agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.'],
 });
 
 export const SEND_QUOTE_DOES_NOT_GRANT_APPROVAL = guidanceNote({
   id: 'send-quote-does-not-grant-approval',
   kind: 'regla',
-  title: 'Enviar no otorga la aprobación',
-  items: ['Si hace falta aprobación, solicítela. Enviar no la otorga.'],
+  title: 'Presentar no envía el mensaje',
+  items: [
+    'ISALWA no envía WhatsApp ni correo.',
+    'Si hace falta aprobación, solicítela. Presentar no la otorga.',
+  ],
 });
 
 export const APPROVE_DOES_NOT_CREATE_ORDER = guidanceNote({

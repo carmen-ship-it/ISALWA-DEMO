@@ -110,8 +110,8 @@ export function QuotePdfDownloadButton({
 
   return (
     <div className={className} data-tour={TOUR_TARGET.quotePdf}>
-      <div className="flex flex-col items-stretch gap-3 sm:items-end">
-        <div className="flex flex-wrap justify-end gap-2">
+      <div className="flex flex-col items-stretch gap-3 sm:items-start">
+        <div className="flex flex-wrap justify-start gap-2">
           {!downloadOnly ? (
             <Button
               type="button"
@@ -134,6 +134,9 @@ export function QuotePdfDownloadButton({
           </Button>
         </div>
         <FormFeedback error={error} />
+        <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          {QUOTE_PDF_COPY.manualSend}
+        </p>
       </div>
     </div>
   );

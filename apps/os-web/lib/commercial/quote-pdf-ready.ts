@@ -12,9 +12,11 @@ export const QUOTE_PDF_COPY = {
   view: 'Ver PDF',
   preparing: 'Preparando…',
   notReady:
-    'El PDF estará disponible cuando la cotización esté lista.',
+    'Presente la cotización para ver y descargar el PDF. ISALWA no envía WhatsApp ni correo.',
   available: 'PDF disponible',
   documento: 'Documento',
+  manualSend:
+    'Descargue la cotización y envíela por WhatsApp o correo. Después, regístrela como enviada para continuar el seguimiento.',
 } as const;
 
 export function quotePdfDownloadFilename(quoteNumber: string): string {

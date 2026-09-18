@@ -341,6 +341,11 @@ export class DeliveryCommandService {
       assertEventHasOccurred(parsed.deliveredAt, ctx.effectiveAt);
       const organizationId = requireSessionOrganization(ctx.organizationId);
       const order = await this.requireOpenOrder(organizationId, parsed.orderId);
+      const exits = denyForeignRows(
+        organizationId,
+        await this.store.listWarehouseExits(organizationId, parsed.orderId),
+      );
+      if (exits.length === 0) throw new Error('VALIDATION_FAILED');
       const lines = storeDeliveredQuantities(order.lines, parsed.quantities);
       let linkedNote: DeliveryNoteRecord | null = null;
       if (parsed.deliveryNoteId) {

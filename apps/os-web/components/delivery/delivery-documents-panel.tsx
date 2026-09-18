@@ -9,6 +9,7 @@ import {
   recordEntregaAction,
   recordSalidaAction,
 } from '@/lib/delivery/actions';
+import { ENTREGA_GATE_COPY, entregaEnabled, entregaGate } from '@/lib/delivery/entrega-gate';
 import {
   presentDeliveryNoteLabel,
   scrubPilotDeliveryNoteRefs,
@@ -57,6 +58,8 @@ export type DeliveryDocumentsPanelProps = {
   canCreateNote?: boolean;
   canRecordSalida?: boolean;
   canRecordEntrega?: boolean;
+  /** True only when a warehouse exit is already recorded for this pedido. */
+  hasSalida?: boolean;
 };
 
 function formatWhen(iso: string): string {
@@ -76,6 +79,7 @@ export function DeliveryDocumentsPanel({
   canCreateNote,
   canRecordSalida,
   canRecordEntrega,
+  hasSalida = false,
 }: DeliveryDocumentsPanelProps) {
   const allowNote = canCreateNote ?? canMutate;
   const allowSalida = canRecordSalida ?? canMutate;
@@ -91,6 +95,9 @@ export function DeliveryDocumentsPanel({
   const [observations, setObservations] = useState('');
   const [selectedNoteId, setSelectedNoteId] = useState(notes.find((n) => n.status === 'issued')?.id ?? '');
   const [receivedBy, setReceivedBy] = useState('');
+  const gate = entregaGate({ hasSalida, receivedBy });
+  const canSubmitEntrega =
+    allowEntrega && entregaEnabled({ hasSalida, receivedBy }) && Boolean(actorMemberId);
 
   const issuedNotes = useMemo(() => notes.filter((note) => note.status === 'issued'), [notes]);
 
@@ -210,6 +217,16 @@ export function DeliveryDocumentsPanel({
       ) : null}
 
       <div className="mt-8 flex flex-wrap gap-3">
+        {allowEntrega && gate === 'needs-salida' ? (
+          <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {ENTREGA_GATE_COPY.needsSalida}
+          </p>
+        ) : null}
+        {allowEntrega && gate === 'needs-received-by' ? (
+          <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {ENTREGA_GATE_COPY.needsReceivedBy}
+          </p>
+        ) : null}
         {allowNote ? (
           <Button
             type="button"
@@ -233,7 +250,7 @@ export function DeliveryDocumentsPanel({
         {allowSalida ? (
           <Button
             type="button"
-            variant="secondary"
+            variant={gate === 'needs-salida' ? 'primary' : 'secondary'}
             disabled={!allowSalida || pending || !actorMemberId}
             onClick={() =>
               run(() =>
@@ -254,7 +271,7 @@ export function DeliveryDocumentsPanel({
           <Button
             type="button"
             variant="secondary"
-            disabled={!allowEntrega || pending || !actorMemberId || !receivedBy.trim()}
+            disabled={!canSubmitEntrega || pending}
             onClick={() =>
               run(() =>
                 recordEntregaAction({

@@ -1,12 +1,11 @@
 import Link from 'next/link';
-import { ListRow, PageSection, SectionHeader, EmptyState } from '@isalwa/ui';
+import { Button, ListRow, PageSection, SectionHeader, EmptyState } from '@isalwa/ui';
 import { Cliente360Nav } from '@/components/cliente/cliente-360-nav';
 import { Cliente360Sticky } from '@/components/cliente/cliente-360-sticky';
 import { Cliente360Header } from '@/components/cliente/cliente-360-header';
 import { Cliente360Intelligence } from '@/components/cliente/cliente-360-intelligence';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { CommercialSectionState } from '@/components/commercial/commercial-section-state';
-import { commercialPrimaryLinkClass } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
 import { OpportunityList } from '@/components/commercial/opportunity-list';
 import { OrderList } from '@/components/commercial/order-list';
@@ -399,8 +398,8 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
             <SectionHeader
               title="Comercial"
               action={
-                <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
-                  Nueva oportunidad
+                <Link href={newOpportunityHref(partyId)}>
+                  <Button type="button">Crear oportunidad</Button>
                 </Link>
               }
             />
@@ -410,11 +409,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 <CommercialSectionState
                   outcome={opportunities}
                   emptyTitle="Todavía no hay oportunidades activas para este cliente"
-                  emptyDescription="Cuando se registren oportunidades para esta empresa, aparecerán aquí."
-                  emptyExample="Un cliente activo sin pipeline: cero oportunidades es un estado real del piloto, no un fallo de pantalla."
+                  emptyDescription="Para continuar el trabajo comercial, cree la oportunidad. La cotización nace después, desde esa oportunidad."
+                  emptyExample="Un cliente activo sin pipeline: cero oportunidades es un estado real, no un fallo de pantalla."
                   emptyAction={
-                    <Link href={newOpportunityHref(partyId)} className={commercialPrimaryLinkClass}>
-                      Nueva oportunidad
+                    <Link href={newOpportunityHref(partyId)}>
+                      <Button type="button">Crear oportunidad</Button>
                     </Link>
                   }
                 >
@@ -451,8 +450,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 <CommercialSectionState
                   outcome={quotes}
                   emptyTitle="Todavía no hay cotizaciones activas"
-                  emptyDescription="Cuando se emitan cotizaciones para esta empresa, aparecerán aquí."
-                  emptyExample="Todavía no hay cotizaciones es esperado si aún no hay oportunidad con borrador o envío."
+                  emptyDescription="Para crear una cotización, primero registre la oportunidad comercial."
+                  emptyExample="La cotización no se crea sola ni desde esta lista."
+                  emptyAction={
+                    <Link href={newOpportunityHref(partyId)}>
+                      <Button type="button" variant="secondary">
+                        Crear oportunidad
+                      </Button>
+                    </Link>
+                  }
                 >
                   {(list) => (
                     <>
@@ -484,7 +490,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 <CommercialSectionState
                   outcome={orders}
                   emptyTitle="Sin pedidos todavía"
-                  emptyDescription="Cuando se registren pedidos para esta empresa, aparecerán aquí."
+                  emptyDescription="Un pedido nace al convertir una cotización elegible. No se crea desde el cliente."
                   emptyExample="Un cliente activo puede no tener pedidos. El vacío es intencional hasta que exista una cotización convertida."
                 >
                   {(list) => (

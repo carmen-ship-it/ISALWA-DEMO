@@ -124,7 +124,7 @@ function LinkedOrdersSection({
         <div data-owner-review-state="no-data" className="mt-6">
           <EmptyState
             title="Todavía no hay pedidos abiertos"
-            description="Cuando exista un pedido en esta empresa, aparecerá aquí para vincular salidas y entregas sin volver a escribir las líneas."
+            description="Los pedidos aparecen aquí después de convertir una cotización elegible. La nota, la salida y la entrega se registran en el pedido. Aquí no se crean pedidos."
             example="Convierta una cotización aceptada a pedido desde el cliente. Aquí no se crean pedidos."
           />
         </div>

@@ -6,9 +6,10 @@ import { parseBobInputToCentavos } from '@/lib/commercial/parse-money-input';
 import { formatCentavos } from '@/lib/commercial/money';
 import {
   ADD_LINE_NEXT_ACTION,
+  ADD_PRODUCT_HEADING,
+  CATALOG_COMING_SOON,
   CATALOG_NO_MATCH_COPY,
   CATALOG_SEARCH_LABEL,
-  CATALOG_UNAVAILABLE_COPY,
   NO_GOVERNED_PRICE_COPY,
   PENDING_APPROVAL_COPY,
   QUOTED_PRICE_HINT,
@@ -52,7 +53,9 @@ export function QuoteProductPicker({
   const [hits, setHits] = useState<CatalogProductHit[]>([]);
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(
+    catalogReady ? null : { kind: 'special', name: '', detail: '', note: '' },
+  );
   const [quantity, setQuantity] = useState('1');
   const [quotedPrice, setQuotedPrice] = useState('');
   const [reference, setReference] = useState<GovernedPriceReference | null>(null);
@@ -68,6 +71,12 @@ export function QuoteProductPicker({
   }, [onReadyChange, ready]);
 
   useEffect(() => {
+    if (!catalogReady) {
+      setHits([]);
+      setSearched(false);
+      setSearching(false);
+      return;
+    }
     const text = query.trim();
     if (text.length < 2) {
       setHits([]);
@@ -89,7 +98,7 @@ export function QuoteProductPicker({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [organizationId, query, searchPort]);
+  }, [catalogReady, organizationId, query, searchPort]);
 
   useEffect(() => {
     if (selection?.kind !== 'catalog') {
@@ -140,6 +149,9 @@ export function QuoteProductPicker({
 
   return (
     <div className="space-y-5">
+      <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+        {ADD_PRODUCT_HEADING}
+      </h3>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{ADD_LINE_NEXT_ACTION}</p>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -153,25 +165,28 @@ export function QuoteProductPicker({
         </Button>
       </div>
 
-      <div>
-        <label htmlFor="quote-product-search" className="isalwa-section-label">
-          {CATALOG_SEARCH_LABEL}
-        </label>
-        <SearchField
-          id="quote-product-search"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            if (selection?.kind === 'catalog') setSelection(null);
-          }}
-          placeholder="Nombre, categoría o detalle técnico"
-          autoComplete="off"
-          className="mt-2"
-        />
-        {catalogReady ? null : (
-          <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{CATALOG_UNAVAILABLE_COPY}</p>
-        )}
-      </div>
+      {catalogReady ? (
+        <div>
+          <label htmlFor="quote-product-search" className="isalwa-section-label">
+            {CATALOG_SEARCH_LABEL}
+          </label>
+          <SearchField
+            id="quote-product-search"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              if (selection?.kind === 'catalog') setSelection(null);
+            }}
+            placeholder="Nombre, categoría o detalle técnico"
+            autoComplete="off"
+            className="mt-2"
+          />
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+          {CATALOG_COMING_SOON}
+        </p>
+      )}
 
       <div aria-live="polite">
         {searching ? <p className="text-sm text-[var(--isalwa-slate)]">Buscando…</p> : null}

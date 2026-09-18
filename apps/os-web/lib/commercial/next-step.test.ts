@@ -105,8 +105,8 @@ describe('commercial next-step', () => {
       followUpHref: null,
     });
     assert.equal(step?.waiting, false);
-    assert.match(step?.statement ?? '', /envíe/i);
-    assert.doesNotMatch(step?.statement ?? '', /aprobación|pedido/i);
+    assert.match(step?.statement ?? '', /guarde la línea/i);
+    assert.doesNotMatch(step?.statement ?? '', /envíe|aprobación|pedido/i);
   });
 
   it('explains pending approval without claiming a pedido was created', () => {
@@ -159,8 +159,9 @@ describe('commercial next-step', () => {
       followUpHref: '/clientes/party-1#trabajo',
     });
     assert.equal(step?.waiting, false);
-    assert.match(step?.statement ?? '', /presentada/i);
-    assert.match(step?.statement ?? '', /envío manual/i);
+    assert.match(step?.statement ?? '', /regístrela como enviada/i);
+    assert.equal(step?.hrefLabel, 'Registrar como enviada');
+    assert.equal(step?.href, '#envio');
     assert.doesNotMatch(step?.statement ?? '', /creó un pedido/i);
   });
 
