@@ -25,6 +25,25 @@ export function withExplicitDataMode(href: string, mode: ExplicitDataMode | null
   return `${path}${query ? `?${query}` : ''}${hash}`;
 }
 
+/**
+ * Only ordinary same-origin app links should carry ?datos=.
+ * Blob and data URLs are file actions. API PDF routes already carry the file.
+ * Treating a blob URL as a route pushes a UUID path and shows a missing page.
+ */
+export function isNavigableAppHref(raw: string, origin: string): boolean {
+  if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:')) return false;
+  let url: URL;
+  try {
+    url = new URL(raw, origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+  if (url.origin !== origin) return false;
+  if (url.pathname.startsWith('/api/')) return false;
+  return true;
+}
+
 export type SamePathQueryNavigationKind = 'push' | 'assign' | 'none';
 
 const NAV_BASE = 'http://local.invalid';

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { explicitDataMode, samePathQueryNavigation, withExplicitDataMode } from './preserve-data-mode';
+import { explicitDataMode, isNavigableAppHref, samePathQueryNavigation, withExplicitDataMode } from './preserve-data-mode';
 
 describe('withExplicitDataMode', () => {
   it('keeps demo on redirects and tabs without forcing demo onto a bare URL', () => {
@@ -77,5 +77,29 @@ describe('samePathQueryNavigation', () => {
       samePathQueryNavigation('/inicio?datos=demo', '/inicio?datos=demo').kind,
       'none',
     );
+  });
+});
+
+describe('isNavigableAppHref', () => {
+  const origin = 'https://os-web-staging.onrender.com';
+
+  it('leaves blob downloads alone so they are not pushed as a UUID page', () => {
+    const blob = 'blob:https://os-web-staging.onrender.com/ead34868-ec21-4096-84f5-77aeb6d7121d';
+    assert.equal(isNavigableAppHref(blob, origin), false);
+    const parsed = new URL(blob);
+    assert.equal(parsed.origin, origin);
+    assert.match(parsed.pathname, /ead34868-ec21-4096-84f5-77aeb6d7121d/);
+  });
+
+  it('leaves PDF API routes and data URLs alone', () => {
+    assert.equal(isNavigableAppHref('/api/quotes/q1/pdf', origin), false);
+    assert.equal(isNavigableAppHref('/api/delivery-notes/n1/pdf?disposition=inline', origin), false);
+    assert.equal(isNavigableAppHref('data:application/pdf;base64,JVBE', origin), false);
+  });
+
+  it('still stamps ordinary in-app links', () => {
+    assert.equal(isNavigableAppHref('/clientes/p/cotizaciones/q1', origin), true);
+    assert.equal(isNavigableAppHref('https://example.test/clientes/p', origin), false);
+    assert.equal(isNavigableAppHref('#envio', origin), false);
   });
 });

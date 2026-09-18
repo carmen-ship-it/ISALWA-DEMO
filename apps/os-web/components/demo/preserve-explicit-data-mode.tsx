@@ -2,7 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { explicitDataMode, samePathQueryNavigation, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
+import {
+  explicitDataMode,
+  isNavigableAppHref,
+  samePathQueryNavigation,
+  withExplicitDataMode,
+} from '@/lib/demo/preserve-data-mode';
 
 /**
  * In-app links built without the current datos query still navigate in that mode.
@@ -21,15 +26,8 @@ export function PreserveExplicitDataMode() {
       const anchor = target.closest('a');
       if (!anchor) return;
       const raw = anchor.getAttribute('href');
-      if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:')) return;
-      let url: URL;
-      try {
-        url = new URL(raw, window.location.origin);
-      } catch {
-        return;
-      }
-      if (url.origin !== window.location.origin) return;
-      if (url.pathname.startsWith('/api/')) return;
+      if (!raw || !isNavigableAppHref(raw, window.location.origin)) return;
+      const url = new URL(raw, window.location.origin);
       if (url.searchParams.get('datos') === mode) return;
       const next = withExplicitDataMode(`${url.pathname}${url.search}${url.hash}`, mode);
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
