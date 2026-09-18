@@ -19,10 +19,13 @@ import {
   statusTone,
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
+import { selectLinkedQuote } from '@/lib/commercial/linked-quote';
 import { newQuoteHref, quoteHref } from '@/lib/commercial/navigation';
 import { opportunityNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { partyHref } from '@/lib/party/navigation';
+import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -51,19 +54,16 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
 
     let linkedQuote: { quoteId: string; quoteNumber: string } | null = null;
     try {
+      const evaluation = await getEvaluationProjection();
       const quotes = await client.listQuotes({
         partyId,
         opportunityId,
         limit: 10,
+        ...(evaluation.active
+          ? commercialListQueryFromProjection(evaluation)
+          : { visibility: 'org' }),
       });
-      const forOpportunity = (quotes.items ?? []).filter(
-        (item) => !item.opportunityId || item.opportunityId === opportunityId,
-      );
-      const preferred =
-        forOpportunity.find((item) => item.status === 'submitted' || item.status === 'accepted') ??
-        forOpportunity.find((item) => item.status === 'draft') ??
-        forOpportunity[0] ??
-        null;
+      const preferred = selectLinkedQuote(quotes.items, opportunityId);
       if (preferred && preferred.opportunityId === opportunityId) {
         linkedQuote = { quoteId: preferred.quoteId, quoteNumber: preferred.quoteNumber };
       }
@@ -81,6 +81,7 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
       partyId,
       opportunityId,
       newQuoteHref: createQuoteHref,
+      linkedQuoteHref: linkedQuote ? primaryHref : null,
     });
     const progress = commercialProgressSteps({
       hasQuote: Boolean(linkedQuote),

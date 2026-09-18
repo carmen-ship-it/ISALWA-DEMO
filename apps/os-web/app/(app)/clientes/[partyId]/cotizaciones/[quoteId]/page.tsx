@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { CommercialApprovalPanel } from '@/components/commercial/commercial-approval-panel';
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { CommercialProgressStrip } from '@/components/commercial/commercial-progress-strip';
@@ -8,6 +8,7 @@ import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
+import { QuoteLiveFrame, QuoteLiveLines, QuoteLiveStatus } from '@/components/commercial/quote-live-frame';
 import { QuoteEnvioSection } from '@/components/commercial/quote-envio-section';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { PageHeader } from '@/components/shell/page-header';
@@ -17,13 +18,8 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { commercialProgressSteps } from '@/lib/commercial/commercial-progress';
-import {
-  formatQuoteStatus,
-  formatTimestamp,
-  statusTone,
-} from '@/lib/commercial/labels';
+import { formatTimestamp } from '@/lib/commercial/labels';
 import { canRegisterQuoteFollowUp } from '@/lib/commercial/quote-follow-up';
 import { canRecordQuoteManualSend } from '@/lib/commercial/quote-manual-send';
 import { findLatestQuoteSendRecord } from '@/lib/commercial/quote-send-status';
@@ -259,6 +255,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     const totalLabel = formatCentavos(quote.totalCentavos, quote.currency);
 
     return (
+      <QuoteLiveFrame quote={quote}>
       <PageContainer label={quote.quoteNumber}>
         <CommercialPath crumbs={pathCrumbs} />
         <CommercialProgressStrip steps={progress} />
@@ -300,9 +297,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         ) : null}
 
         <PageSection card className="bg-white p-8 md:p-10">
-          <StatusPill tone={statusTone(quote.status)} data-tour={TOUR_TARGET.quoteStatus}>
-            {formatQuoteStatus(quote.status)}
-          </StatusPill>
+          <QuoteLiveStatus />
 
           <dl className="mt-10 grid gap-8 sm:grid-cols-2">
             <div>
@@ -392,6 +387,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           </PageSection>
         ) : null}
 
+        <QuoteLiveLines>
         <PageSection card className="mt-10 bg-white p-8 md:p-10">
           <SectionHeader title={documentTitle} />
           {lines.length > 0 ? (
@@ -470,6 +466,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </p>
           )}
         </PageSection>
+        </QuoteLiveLines>
 
         {authority?.canConvertToOrder ? (
           <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
@@ -548,6 +545,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
           <QuoteEditor partyId={partyId} quote={quote} />
         </div>
       </PageContainer>
+      </QuoteLiveFrame>
     );
   } catch (err) {
     if (err instanceof OsApiError && err.kind === 'not_found') {

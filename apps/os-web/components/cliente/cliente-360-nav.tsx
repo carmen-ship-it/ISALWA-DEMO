@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { clienteSectionHref } from '@/lib/commercial/navigation';
-import { explicitDataMode } from '@/lib/demo/preserve-data-mode';
+import { explicitDataMode, samePathQueryNavigation } from '@/lib/demo/preserve-data-mode';
 import {
   CLIENTE360_NAV_SECTIONS,
   isCliente360NavSection,
@@ -24,6 +24,16 @@ type Cliente360NavProps = {
  * Deep links use `?tab=`; legacy `#section` hashes redirect once to `?tab=`.
  * Mobile: horizontal scroll tabs + select.
  */
+function landSamePathQuery(router: { push: (href: string) => void }, href: string) {
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const decision = samePathQueryNavigation(current, href);
+  if (decision.kind === 'assign') {
+    window.location.assign(decision.href);
+    return;
+  }
+  if (decision.kind === 'push') router.push(href);
+}
+
 export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente360NavProps) {
   const router = useRouter();
 
@@ -32,7 +42,10 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
     if (!isCliente360NavSection(hash)) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === hash) return;
-    router.replace(clienteSectionHref(partyId, hash, undefined, explicitDataMode(params.get('datos'))));
+    landSamePathQuery(
+      router,
+      clienteSectionHref(partyId, hash, undefined, explicitDataMode(params.get('datos'))),
+    );
   }, [partyId, router]);
 
   return (
@@ -56,7 +69,7 @@ export function Cliente360Nav({ partyId, activeTab, embedded = false }: Cliente3
             const next = event.target.value;
             if (isCliente360NavSection(next)) {
               const mode = explicitDataMode(new URLSearchParams(window.location.search).get('datos'));
-              router.push(clienteSectionHref(partyId, next, undefined, mode));
+              landSamePathQuery(router, clienteSectionHref(partyId, next, undefined, mode));
             }
           }}
         >

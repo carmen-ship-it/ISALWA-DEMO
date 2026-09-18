@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button, cx } from '@isalwa/ui';
 import { useOwnerDemo } from '@/components/demo/owner-demo-provider';
 import { DEMO_FICTITIOUS_BADGE } from '@/lib/demo/owner-demo-identity';
+import { samePathQueryNavigation } from '@/lib/demo/preserve-data-mode';
 import { loadDemoSeedIdMap } from '@/lib/demo/owner-demo-registry';
 import {
   STORY_MODE_STEPS,
@@ -147,7 +148,13 @@ export function OwnerStoryMode() {
                     }
                     event.preventDefault();
                     closeStory({ navigateTo: href });
-                    router.push(href);
+                    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                    const decision = samePathQueryNavigation(current, href);
+                    if (decision.kind === 'assign') {
+                      window.location.assign(decision.href);
+                      return;
+                    }
+                    if (decision.kind === 'push') router.push(href);
                   }}
                 >
                   <Button type="button" variant="primary" size="sm">

@@ -12,8 +12,9 @@ import {
   updateQuoteAction,
   updateQuoteLineAction,
 } from '@/lib/commercial/actions';
+import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { formatCentavos } from '@/lib/commercial/money';
-import { centavosToBobDisplay } from '@/lib/commercial/parse-money-input';
+import { centavosToBobDisplay, parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { FormFeedback } from '@/components/commercial/form-feedback';
@@ -26,6 +27,7 @@ import {
   emptyProductSearchPort,
   lineProvenanceView,
   quoteLinesAreEditable,
+  resolveAddQuoteLineDraft,
   type ProductSearchPort,
 } from '@/lib/commercial/product-picker';
 
@@ -42,6 +44,68 @@ const fieldClass =
 
 const documentTitleClass =
   'font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]';
+
+function centavosField(value: unknown): string | null {
+  return typeof value === 'string' && /^-?\d+$/.test(value) ? value : null;
+}
+
+function readLineNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value >= 1) return value;
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
+    const parsed = Number.parseInt(value, 10);
+    return parsed >= 1 ? parsed : null;
+  }
+  return null;
+}
+
+function displayLineTotal(quantity: number, unitPriceCentavos: string, discountCentavos: string): string {
+  try {
+    const total = BigInt(quantity) * BigInt(unitPriceCentavos) - BigInt(discountCentavos);
+    return total < BigInt(0) ? '0' : total.toString();
+  } catch {
+    return '0';
+  }
+}
+
+function overlayLineFromAdd(
+  quoteId: string,
+  nextLineNumber: number,
+  formData: FormData,
+  data: Record<string, unknown> | undefined,
+): QuoteLineReadModel | null {
+  const draft = resolveAddQuoteLineDraft({
+    lineKind: String(formData.get('lineKind') ?? ''),
+    productId: String(formData.get('productId') ?? ''),
+    itemName: String(formData.get('itemName') ?? ''),
+    itemDetail: String(formData.get('itemDetail') ?? ''),
+    provenanceNote: String(formData.get('provenanceNote') ?? ''),
+  });
+  if (!draft.ok) return null;
+  const quantity = parseQuantityInput(String(formData.get('quantity') ?? ''));
+  const unitPriceCentavos = parseBobInputToCentavos(String(formData.get('unitPrice') ?? ''));
+  if (!quantity || !unitPriceCentavos) return null;
+  const discountInput = String(formData.get('discount') ?? '').trim();
+  const discountCentavos = discountInput ? (parseBobInputToCentavos(discountInput) ?? '0') : '0';
+  const unitLabel = String(formData.get('unitLabel') ?? '').trim();
+  const rawId = data?.quoteLineId;
+  const quoteLineId =
+    typeof rawId === 'string' && rawId.trim()
+      ? rawId.trim()
+      : `local:${draft.draft.descriptionSnapshot}:${quantity}:${unitPriceCentavos}`;
+  const reportedTotal = centavosField(data?.lineTotalCentavos);
+  return {
+    quoteLineId,
+    quoteId,
+    lineNumber: readLineNumber(data?.lineNumber) ?? nextLineNumber,
+    description: draft.draft.descriptionSnapshot,
+    quantity,
+    unitLabel: unitLabel || null,
+    unitPriceCentavos,
+    discountCentavos,
+    lineTotalCentavos: reportedTotal ?? displayLineTotal(quantity, unitPriceCentavos, discountCentavos),
+    productRef: draft.draft.productRef,
+  };
+}
 
 function LineEditForm({
   partyId,
@@ -167,10 +231,12 @@ function LineEditForm({
 
 export function QuoteEditor({
   partyId,
-  quote,
+  quote: quoteFromServer,
   productSearch = emptyProductSearchPort,
 }: QuoteEditorProps) {
   const router = useRouter();
+  const live = useQuoteLive();
+  const quote = live?.quote ?? quoteFromServer;
   const isDraft = quoteLinesAreEditable(quote.status);
   const [sent, setSent] = useState(false);
   const [addReady, setAddReady] = useState(false);
@@ -179,6 +245,17 @@ export function QuoteEditor({
   const [addState, addAction] = useActionState(async (_prev: typeof feedbackInitial, formData: FormData) => {
     const result = await addQuoteLineAction(formData);
     if (result.ok) {
+      const nextLineNumber = quote.lines.reduce((max, row) => Math.max(max, row.lineNumber), 0) + 1;
+      const line = overlayLineFromAdd(
+        String(formData.get('quoteId') ?? quote.quoteId),
+        nextLineNumber,
+        formData,
+        result.data,
+      );
+      if (line) {
+        const totalCentavos = centavosField(result.data?.totalCentavos) ?? undefined;
+        live?.recordAddedLine(line, totalCentavos ? { totalCentavos } : undefined);
+      }
       setAddEpoch((epoch) => epoch + 1);
       setAddReady(false);
     }
@@ -198,6 +275,7 @@ export function QuoteEditor({
   const [submitState, submitAction] = useActionState(async (_prev: typeof feedbackInitial, formData: FormData) => {
     const result = await submitQuoteAction(formData);
     if (result.ok) {
+      live?.recordSubmitted();
       setSent(true);
       return { error: null, success: 'Cotización presentada.' };
     }

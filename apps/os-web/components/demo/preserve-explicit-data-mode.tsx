@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { explicitDataMode, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
+import { explicitDataMode, samePathQueryNavigation, withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 
 /**
  * In-app links built without the current datos query still navigate in that mode.
@@ -36,6 +36,15 @@ export function PreserveExplicitDataMode() {
         anchor.setAttribute('href', next);
         return;
       }
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const decision = samePathQueryNavigation(current, next);
+      if (decision.kind === 'assign') {
+        event.preventDefault();
+        event.stopPropagation();
+        window.location.assign(decision.href);
+        return;
+      }
+      if (decision.kind !== 'push') return;
       event.preventDefault();
       event.stopPropagation();
       router.push(next);
