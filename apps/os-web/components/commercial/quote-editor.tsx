@@ -35,6 +35,7 @@ type QuoteEditorProps = {
   partyId: string;
   quote: QuoteDetailReadModel;
   productSearch?: ProductSearchPort;
+  demoPrices?: boolean;
 };
 
 const feedbackInitial = { error: null as string | null, success: null as string | null };
@@ -233,6 +234,7 @@ export function QuoteEditor({
   partyId,
   quote: quoteFromServer,
   productSearch = emptyProductSearchPort,
+  demoPrices = false,
 }: QuoteEditorProps) {
   const router = useRouter();
   const live = useQuoteLive();
@@ -324,6 +326,7 @@ export function QuoteEditor({
           <QuoteProductPicker
             organizationId={quote.organizationId}
             searchPort={productSearch}
+            demoPrices={demoPrices}
             onReadyChange={setAddReady}
           />
           <CommandSubmitButton

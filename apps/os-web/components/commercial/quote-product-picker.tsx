@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@isalwa/ui';
+import { DEMO_PRICE_COPY, getDemoUnitPrice } from '@/lib/commercial/demo-starter-prices';
 import { emptyProductSearchPort, SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 import {
   ADD_LINE_HEADING,
@@ -11,8 +12,10 @@ import {
   PRODUCT_PLACEHOLDER,
   SPECIAL_ITEM_HELPER,
   STARTER_LIST_COPY,
+  STARTER_PRODUCT_CATEGORIES,
   UNIT_PRICE_LABEL,
   activeStarterQuoteProducts,
+  starterProductsByCategory,
   blankLineEntry,
   prefillFromStarterProduct,
   starterProductByKey,
@@ -27,12 +30,15 @@ type LineMode = 'known' | 'special';
 type QuoteProductPickerProps = {
   organizationId: string;
   searchPort?: typeof emptyProductSearchPort;
+  /** Demo fixture prices. Real must stay false so no synthetic price prefills. */
+  demoPrices?: boolean;
   onReadyChange?: (ready: boolean) => void;
 };
 
 export function QuoteProductPicker({
   organizationId: _organizationId,
   searchPort: _searchPort = emptyProductSearchPort,
+  demoPrices = false,
   onReadyChange,
 }: QuoteProductPickerProps) {
   const products = activeStarterQuoteProducts();
@@ -64,7 +70,8 @@ export function QuoteProductPicker({
   function selectProduct(key: string) {
     setProductKey(key);
     const product = starterProductByKey(key);
-    applyEntry(product ? prefillFromStarterProduct(product) : blankLineEntry());
+    const demoUnitPrice = demoPrices ? getDemoUnitPrice(key) : null;
+    applyEntry(product ? prefillFromStarterProduct(product, { demoUnitPrice }) : blankLineEntry());
   }
 
   function patch(partial: Partial<StarterLineEntry>) {
@@ -107,10 +114,14 @@ export function QuoteProductPicker({
             onChange={(event) => selectProduct(event.target.value)}
           >
             <option value="">{PRODUCT_PLACEHOLDER}</option>
-            {products.map((product) => (
-              <option key={product.key} value={product.key}>
-                {product.name}
-              </option>
+            {STARTER_PRODUCT_CATEGORIES.map((category) => (
+              <optgroup key={category} label={category}>
+                {starterProductsByCategory(category).map((product) => (
+                  <option key={product.key} value={product.key}>
+                    {product.name}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
@@ -196,6 +207,9 @@ export function QuoteProductPicker({
               <label htmlFor="new-price" className="isalwa-section-label">
                 {UNIT_PRICE_LABEL}
               </label>
+              {demoPrices && mode === 'known' ? (
+                <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">{DEMO_PRICE_COPY}</p>
+              ) : null}
               <input
                 id="new-price"
                 name="unitPrice"
