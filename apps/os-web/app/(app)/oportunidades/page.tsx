@@ -92,13 +92,12 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
   const client = createOsApiClient(auth);
 
   try {
-    const demoQ = dataMode === 'demo' && !listState.q ? 'DEMO' : listState.q;
     const commercialQuery = commercialListQueryFromProjection(evaluation);
     const [result, linkedQuotePages] = await Promise.all([
       client.listOpportunities({
         status,
         limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
-        ...(demoQ ? { q: demoQ } : {}),
+        ...(listState.q ? { q: listState.q } : {}),
         ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
         ...(stage ? { stage } : {}),
         ...commercialQuery,
