@@ -4,6 +4,7 @@ import { CommercialApprovalPanel } from '@/components/commercial/commercial-appr
 import { CommercialPath } from '@/components/commercial/commercial-path';
 import { DocumentDossierPanel } from '@/components/commercial/document-dossier-panel';
 import { OrderLines } from '@/components/commercial/order-lines';
+import { QuotedProductContext } from '@/components/commercial/quoted-product-context';
 import { OrderPrepCard } from '@/components/commercial/order-prep-card';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
@@ -37,6 +38,7 @@ import {
 } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
+import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
 import { orderNextStep } from '@/lib/commercial/next-step';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { projectPedidoTimeline } from '@/lib/commercial/pedido-timeline';
@@ -104,6 +106,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
     let sourceQuoteNumber: string | null = null;
     let sourceQuote: Awaited<ReturnType<typeof client.getQuote>>['quote'] | null = null;
+    let sourceQuoteUnavailable = false;
     if (order.quoteId) {
       try {
         const pack = await client.getQuote(order.quoteId);
@@ -112,8 +115,10 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       } catch {
         sourceQuoteNumber = null;
         sourceQuote = null;
+        sourceQuoteUnavailable = true;
       }
     }
+    const quotedProducts = quotedProductsFromQuoteLines(sourceQuote?.lines);
     let approvalMemberLabels = new Map<string, string>();
     let approvals: SubjectApprovalItem[] = [];
     if (order.status === 'open') {
@@ -447,6 +452,16 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
         <PedidoOpsLaneCards orderId={order.orderId} />
 
+        <PageSection card className="mt-10 bg-white p-8 md:p-10">
+          <QuotedProductContext
+            lines={quotedProducts}
+            currency={order.currency}
+            quoteHref={order.quoteId ? quoteHref(partyId, order.quoteId) : null}
+            quoteNumber={sourceQuoteNumber}
+            unavailable={sourceQuoteUnavailable}
+          />
+        </PageSection>
+
         {operating.sections.lines ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
             <OrderLines currency={order.currency} lines={order.lines} />
@@ -512,6 +527,8 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
               unitLabel: line.unitLabel ?? null,
               productRef: line.productRef ?? null,
             }))}
+            quotedProducts={quotedProducts}
+            quoteUnavailable={sourceQuoteUnavailable}
             notes={deliveryNotes}
             timeline={deliveryTimeline}
             canMutate={canMutateDelivery}

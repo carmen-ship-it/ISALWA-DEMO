@@ -165,6 +165,12 @@ export function buildOrderPrepReviewWork(input: {
   };
 }
 
+export function visibleWorkDescription(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const cleaned = text.replace(/\[\[order-prep:(?:production|warehouse|purchasing):[^\]]+\]\]/g, '').trim();
+  return cleaned || null;
+}
+
 export function orderPrepPartyHref(partyId: string, orderId: string): string {
   return `/clientes/${encodeURIComponent(partyId)}/pedidos/${encodeURIComponent(orderId)}`;
 }

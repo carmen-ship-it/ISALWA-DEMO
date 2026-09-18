@@ -14,6 +14,13 @@ import {
   presentDeliveryNoteLabel,
   scrubPilotDeliveryNoteRefs,
 } from '@/lib/commercial/human-facing';
+import {
+  QUOTED_CONTEXT_HEADING,
+  QUOTED_PRODUCTS_NOTE,
+  QUOTED_PRODUCTS_UNAVAILABLE,
+  QUOTED_QUANTITY_LABEL,
+} from '@/lib/commercial/quoted-product-context';
+import { SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 
 export type DeliveryDocumentLineView = {
   orderLineId: string;
@@ -60,6 +67,8 @@ export type DeliveryDocumentsPanelProps = {
   canRecordEntrega?: boolean;
   /** True only when a warehouse exit is already recorded for this pedido. */
   hasSalida?: boolean;
+  quotedProducts?: import('@/lib/commercial/quoted-product-context').QuotedProductLine[];
+  quoteUnavailable?: boolean;
 };
 
 function formatWhen(iso: string): string {
@@ -80,6 +89,8 @@ export function DeliveryDocumentsPanel({
   canRecordSalida,
   canRecordEntrega,
   hasSalida = false,
+  quotedProducts = [],
+  quoteUnavailable = false,
 }: DeliveryDocumentsPanelProps) {
   const allowNote = canCreateNote ?? canMutate;
   const allowSalida = canRecordSalida ?? canMutate;
@@ -146,6 +157,40 @@ export function DeliveryDocumentsPanel({
           <dd className="mt-2 text-[var(--isalwa-kiln)]">{orderNumber}</dd>
         </div>
       </dl>
+
+      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
+        <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+          {QUOTED_CONTEXT_HEADING}
+        </h3>
+        {quoteUnavailable ? (
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_UNAVAILABLE}</p>
+        ) : quotedProducts.length === 0 ? (
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Esta cotización no tiene líneas guardadas.
+          </p>
+        ) : (
+          <>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_NOTE}</p>
+            <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]">
+              {quotedProducts.map((line) => (
+                <li key={line.quoteLineId} className="py-4">
+                  <p className="whitespace-pre-line font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
+                  {line.specialItem ? (
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{SPECIAL_ITEM_LABEL}</p>
+                  ) : null}
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                    <span className="isalwa-section-label">{QUOTED_QUANTITY_LABEL}</span>
+                    <span className="mt-1 block text-[var(--isalwa-kiln)]">
+                      {line.quantity}
+                      {line.unitLabel ? ` ${line.unitLabel}` : ''}
+                    </span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
 
       {orderLines.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>

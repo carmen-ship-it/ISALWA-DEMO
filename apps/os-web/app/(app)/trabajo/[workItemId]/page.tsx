@@ -25,6 +25,10 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
 import { partyHref } from '@/lib/party/navigation';
 import { staffFacingSubject } from '@/lib/work/staff-subject';
+import { QuotedProductContext } from '@/components/commercial/quoted-product-context';
+import { parseOrderPrepMarker, visibleWorkDescription } from '@/components/commercial/order-prep-work';
+import { orderHref, quoteHref } from '@/lib/commercial/navigation';
+import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
 
 type WorkDetailPageProps = {
   params: Promise<{ workItemId: string }>;
@@ -59,6 +63,35 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
     const undatedOpen = work.status === 'open' && !work.dueAt;
     const completedAt = formatTimestamp(work.completedAt);
     const cancelledAt = formatTimestamp(work.cancelledAt);
+    const description = visibleWorkDescription(work.description);
+    const prep = parseOrderPrepMarker(work.description);
+    let quotedProducts = quotedProductsFromQuoteLines([]);
+    let quoteUnavailable = false;
+    let quoteNumber: string | null = null;
+    let quoteLink: string | null = null;
+    let orderLink: string | null = null;
+    let orderNumber: string | null = null;
+    if (prep && partyId) {
+      orderLink = orderHref(partyId, prep.orderId);
+      try {
+        const { order } = await client.getOrder(prep.orderId);
+        orderNumber = order.orderNumber;
+        if (order.quoteId) {
+          quoteLink = quoteHref(partyId, order.quoteId);
+          try {
+            const pack = await client.getQuote(order.quoteId);
+            quoteNumber = pack.quote.quoteNumber;
+            quotedProducts = quotedProductsFromQuoteLines(pack.quote.lines);
+          } catch {
+            quoteUnavailable = true;
+          }
+        } else {
+          quoteUnavailable = true;
+        }
+      } catch {
+        quoteUnavailable = true;
+      }
+    }
 
     return (
       <PageContainer label={staffTitle}>
@@ -83,9 +116,9 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             {undatedOpen ? <StatusPill tone="neutral">Sin fecha</StatusPill> : null}
           </div>
 
-          {work.description ? (
+          {description ? (
             <p className="mt-4 text-[var(--isalwa-text-md)] leading-relaxed text-[var(--isalwa-slate)]">
-              {work.description}
+              {description}
             </p>
           ) : null}
 
@@ -166,6 +199,20 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             </>
           ) : null}
         </PageSection>
+
+        {prep ? (
+          <PageSection card className="mt-6 p-6 md:p-8">
+            <QuotedProductContext
+              lines={quotedProducts}
+              quoteHref={quoteLink}
+              quoteNumber={quoteNumber}
+              orderHref={orderLink}
+              orderNumber={orderNumber}
+              unavailable={quoteUnavailable}
+              showPrices={false}
+            />
+          </PageSection>
+        ) : null}
       </PageContainer>
     );
   } catch (err) {
