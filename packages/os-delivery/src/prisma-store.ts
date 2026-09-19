@@ -5,7 +5,9 @@
  */
 
 import type { DeliverySubjectType } from '@isalwa/os-contracts';
+import { createId } from '@isalwa/ts-utils';
 import type {
+  DeliveryIdempotencyRecord,
   DeliveryNoteRecord,
   DeliveryRecord,
   DeliveryStore,
@@ -223,6 +225,18 @@ export type DeliveryPrismaPort = {
     findMany: FindMany<LineRow>;
     createMany?: CreateMany;
     create?: Create<LineRow>;
+  };
+  osIdempotencyKey?: {
+    findFirst(args: { where: Record<string, unknown> }): Promise<{
+      organizationId: string;
+      key: string;
+      commandName: string;
+      resultJson: unknown;
+      expiresAt: Date;
+    } | null>;
+    create(args: { data: Record<string, unknown> }): Promise<unknown>;
+    updateMany(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<unknown>;
+    deleteMany(args: { where: Record<string, unknown> }): Promise<unknown>;
   };
 };
 
@@ -732,6 +746,48 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
         }
       }
       return candidates;
+    },
+
+    async findIdempotency(organizationId, key) {
+      if (!prisma.osIdempotencyKey) return null;
+      const row = await prisma.osIdempotencyKey.findFirst({
+        where: { organizationId, key, expiresAt: { gt: new Date() } },
+      });
+      if (!row) return null;
+      return {
+        organizationId: row.organizationId,
+        key: row.key,
+        commandName: row.commandName,
+        resultJson: (row.resultJson ?? {}) as Record<string, unknown>,
+        expiresAt: row.expiresAt,
+      } satisfies DeliveryIdempotencyRecord;
+    },
+
+    async saveIdempotency(record) {
+      if (!prisma.osIdempotencyKey) throw new Error('IDEMPOTENCY_UNAVAILABLE');
+      await prisma.osIdempotencyKey.create({
+        data: {
+          id: createId(),
+          organizationId: record.organizationId,
+          key: record.key,
+          commandName: record.commandName,
+          resultJson: record.resultJson,
+          expiresAt: record.expiresAt,
+        },
+      });
+    },
+
+    async completeIdempotency(organizationId, key, resultJson) {
+      if (!prisma.osIdempotencyKey) return;
+      await prisma.osIdempotencyKey.updateMany({
+        where: { organizationId, key },
+        data: { resultJson },
+      });
+    },
+
+    async deleteIdempotency(organizationId, key) {
+      if (!prisma.osIdempotencyKey) return;
+      await prisma.osIdempotencyKey.deleteMany({ where: { organizationId, key } });
     },
   };
 }

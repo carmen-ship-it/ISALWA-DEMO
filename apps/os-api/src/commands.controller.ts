@@ -266,6 +266,7 @@ export class CommandsController {
           command,
           session,
           parsed.data as Record<string, unknown>,
+          idempotencyKey,
         );
       }
       if (isFinishedGoodsCommand(command) && command === 'ReceiveFinishedGoods') {

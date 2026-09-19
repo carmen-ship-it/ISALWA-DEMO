@@ -86,4 +86,6 @@ export interface OsWorkStore {
   ): Promise<void>;
   findIdempotency(organizationId: string, key: string): Promise<IdempotencyRecord | null>;
   saveIdempotency(record: IdempotencyRecord & { id?: string }): Promise<void>;
+  /** Releases an open-request claim so a later intentional request can proceed. */
+  deleteIdempotency(organizationId: string, key: string): Promise<void>;
 }

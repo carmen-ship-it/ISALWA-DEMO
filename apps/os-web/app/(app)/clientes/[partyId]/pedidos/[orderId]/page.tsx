@@ -7,8 +7,10 @@ import { OrderLines } from '@/components/commercial/order-lines';
 import { QuotedProductContext } from '@/components/commercial/quoted-product-context';
 import { OrderPrepCard } from '@/components/commercial/order-prep-card';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { PedidoDetailHero } from '@/components/operations/pedido-detail-hero';
 import { PedidoKnownStateCard } from '@/components/operations/pedido-known-state-card';
@@ -285,10 +287,12 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
     let openPrepReviews: ReturnType<typeof findOpenOrderPrepReviews> = {};
     let openWorkCount = 0;
+    const workListCaps: ListCap[] = [];
     let purchasingResult: string | null = null;
     try {
       const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
       const items = workPage.items ?? [];
+      pushListCap(workListCaps, workPage, 100);
       openPrepReviews = findOpenOrderPrepReviews(items, order.orderId, partyId);
       const marker = `[[compras-result:${order.orderId}]]`;
       const resultRow = items.find((row) => (row.description ?? '').includes(marker));
@@ -496,6 +500,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Las revisiones operativas y actualizaciones aparecen en Trabajo. No se inventa un dueño de área.
           </p>
+          <ListCapNotice caps={workListCaps} />
           <Link href="/trabajo" className={`${documentLinkClass} mt-3 inline-block`}>
             Abrir Trabajo
           </Link>

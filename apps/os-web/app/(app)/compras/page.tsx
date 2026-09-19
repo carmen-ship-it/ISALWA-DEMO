@@ -18,6 +18,8 @@ import { orderHref } from '@/lib/commercial/navigation';
 import { COMPRAS_COPY } from '@/lib/purchasing/queue';
 import { loadComprasQueue } from '@/lib/purchasing/load-queue';
 import { loadComprasLinkedOrders, type ComprasLinkedOrder } from '@/lib/purchasing/load-linked-orders';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -51,10 +53,11 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
   const query = await searchParams;
   const q = one(query.q);
   const estado = one(query.estado);
-  const [queue, linkedOrders] = await Promise.all([
+  const [queue, linked] = await Promise.all([
     loadComprasQueue({ q, buyer: one(query.buyer), estado }),
     loadComprasLinkedWithSupply(),
   ]);
+  const linkedOrders = linked.orders;
   const abastecimientoCount = linkedOrders.filter((row) => row.supplyReview).length;
 
   return (
@@ -106,21 +109,29 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
       {queue.state === 'ready' || queue.state === 'permission' ? (
         <LinkedOrdersSection orders={linkedOrders} />
       ) : null}
+      <ListCapNotice caps={linked.listCaps} />
     </PageContainer>
   );
 }
 
-async function loadComprasLinkedWithSupply(): Promise<LinkedOrderWithSupply[]> {
+async function loadComprasLinkedWithSupply(): Promise<{
+  orders: LinkedOrderWithSupply[];
+  listCaps: ListCap[];
+}> {
+  const listCaps: ListCap[] = [];
   try {
     const auth = await getServerOsAuthContext();
-    if (!auth) return [];
+    if (!auth) return { orders: [], listCaps };
     const client = createOsApiClient(auth);
     const [orders, workPage] = await Promise.all([
-      loadComprasLinkedOrders(),
+      loadComprasLinkedOrders(listCaps),
       client.listWorkItems({ status: 'open', limit: 100 }).catch(() => ({ items: [] as const })),
     ]);
+    pushListCap(listCaps, workPage, 100);
     const workItems = workPage.items ?? [];
-    return orders.map((order) => {
+    return {
+      listCaps,
+      orders: orders.map((order) => {
       const open = findOpenOrderPrepReviews(workItems, order.orderId, order.partyId);
       return {
         ...order,
@@ -134,9 +145,10 @@ async function loadComprasLinkedWithSupply(): Promise<LinkedOrderWithSupply[]> {
             }
           : null,
       };
-    });
+    }),
+    };
   } catch {
-    return [];
+    return { orders: [], listCaps };
   }
 }
 

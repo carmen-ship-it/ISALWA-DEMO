@@ -13,6 +13,7 @@ import { ManagementTeamTable } from '@/components/management/management-team-tab
 import { InicioCommandQueueSections } from '@/components/inicio/inicio-command-queue-sections';
 import { InicioLensTabs } from '@/components/inicio/inicio-lens-tabs';
 import { InicioMiDia } from '@/components/inicio/inicio-mi-dia';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { InicioSummaryCards } from '@/components/inicio/inicio-summary-cards';
 import { InicioVisualBand } from '@/components/inicio/inicio-visual-band';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
@@ -61,6 +62,7 @@ import { t } from '@/lib/i18n/es';
 import { greetingLine } from '@/lib/shell/greeting';
 import { loadShellContext } from '@/lib/shell/load-shell-context';
 import { INICIO_ATTENTION_LIMIT } from '@/lib/work/inicio-attention';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
@@ -501,6 +503,14 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       if (!partyLabels.has(partyId)) partyLabels.set(partyId, label);
     }
     const orders = filterByPartyDemoMode(ordersRaw, dataMode, isDemoParty);
+    const inicioListCaps: ListCap[] = [];
+    pushListCap(inicioListCaps, attentionResult === 'unavailable' ? null : attentionResult, INICIO_ATTENTION_LIMIT);
+    pushListCap(
+      inicioListCaps,
+      personalWorkResult === 'unavailable' ? null : personalWorkResult,
+      PERSONAL_OPEN_WORK_LIMIT,
+    );
+    pushListCap(inicioListCaps, ordersResult === 'unavailable' || !ordersResult ? null : ordersResult, 100);
 
     const orgOpportunities =
       orgData != null
@@ -617,6 +627,7 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
           </InicioVisualBand>
           <InicioVisualBand tone="mi-dia" label="Mi día">
             <InicioMiDia items={miDiaItems} />
+            <ListCapNotice caps={inicioListCaps} />
           </InicioVisualBand>
 
           <InicioLensTabs active={activeLens} available={availableLenses} periodo={periodPreset} />

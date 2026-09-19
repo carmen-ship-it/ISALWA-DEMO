@@ -17,6 +17,13 @@ import {
   buildOutboxForEvent,
 } from '@isalwa/os-events';
 import { createId } from '@isalwa/ts-utils';
+import {
+  approvalOpenClaimKey,
+  isIdempotencyConflict,
+  isStoredCommandResult,
+  openRequestClaimKey,
+  orderPrepOpenClaimKey,
+} from './open-request-claim';
 import type { OsWorkStore } from './os-work-store';
 import type { WorkItemRecord } from './store-types';
 import {
@@ -83,6 +90,15 @@ export class WorkCommandService {
     return memberHasScope(snap, 'people.admin');
   }
 
+  private async releaseOpenClaim(
+    store: OsWorkStore,
+    organizationId: string,
+    key: string | null,
+  ): Promise<void> {
+    if (!key || typeof store.deleteIdempotency !== 'function') return;
+    await store.deleteIdempotency(organizationId, key);
+  }
+
   async execute(
     command: WorkCommandName,
     ctx: RequestContext,
@@ -94,57 +110,77 @@ export class WorkCommandService {
       throw new Error('TENANT_FORBIDDEN');
     }
 
-    if (idempotencyKey) {
-      const existing = await this.store.findIdempotency(ctx.organizationId, idempotencyKey);
-      if (existing) {
+    const claimKey = openRequestClaimKey(command, payload);
+    const replayKey = claimKey ?? idempotencyKey;
+
+    if (replayKey) {
+      const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
+      if (existing && isStoredCommandResult(existing.resultJson)) {
         return existing.resultJson as unknown as CommandResult;
       }
     }
 
-    return this.store.runInTransaction(async (store) => {
-      this.activeIdempotencyKey = idempotencyKey;
-      let result: CommandResult;
-      switch (command) {
-      case 'CreateWorkItem':
-        result = await this.createWorkItem(ctx, payload, store);
-        break;
-      case 'ReassignWork':
-        result = await this.reassignWork(ctx, payload, store);
-        break;
-      case 'CompleteWork':
-        result = await this.completeWork(ctx, payload, store);
-        break;
-      case 'CancelWorkItem':
-        result = await this.cancelWorkItem(ctx, payload, store);
-        break;
-      case 'RequestApproval':
-        result = await this.requestApproval(ctx, payload, store);
-        break;
-      case 'Approve':
-        result = await this.approve(ctx, payload, store);
-        break;
-      case 'Reject':
-        result = await this.reject(ctx, payload, store);
-        break;
-      case 'EscalateApproval':
-        result = await this.escalateApproval(ctx, payload, store);
-        break;
-      default:
-        throw new Error('VALIDATION_FAILED');
-      }
+    try {
+      return await this.store.runInTransaction(async (store) => {
+        this.activeIdempotencyKey = replayKey;
+        if (replayKey) {
+          const existing = await store.findIdempotency(ctx.organizationId, replayKey);
+          if (existing && isStoredCommandResult(existing.resultJson)) {
+            return existing.resultJson as unknown as CommandResult;
+          }
+        }
 
-      if (idempotencyKey) {
-        await store.saveIdempotency({
-          organizationId: ctx.organizationId,
-          key: idempotencyKey,
-          commandName: command,
-          resultJson: result as unknown as Record<string, unknown>,
-          expiresAt: new Date(Date.now() + 86400_000),
-        });
-      }
+        let result: CommandResult;
+        switch (command) {
+        case 'CreateWorkItem':
+          result = await this.createWorkItem(ctx, payload, store);
+          break;
+        case 'ReassignWork':
+          result = await this.reassignWork(ctx, payload, store);
+          break;
+        case 'CompleteWork':
+          result = await this.completeWork(ctx, payload, store);
+          break;
+        case 'CancelWorkItem':
+          result = await this.cancelWorkItem(ctx, payload, store);
+          break;
+        case 'RequestApproval':
+          result = await this.requestApproval(ctx, payload, store);
+          break;
+        case 'Approve':
+          result = await this.approve(ctx, payload, store);
+          break;
+        case 'Reject':
+          result = await this.reject(ctx, payload, store);
+          break;
+        case 'EscalateApproval':
+          result = await this.escalateApproval(ctx, payload, store);
+          break;
+        default:
+          throw new Error('VALIDATION_FAILED');
+        }
 
-      return result;
-    });
+        if (replayKey) {
+          await store.saveIdempotency({
+            organizationId: ctx.organizationId,
+            key: replayKey,
+            commandName: command,
+            resultJson: result as unknown as Record<string, unknown>,
+            expiresAt: new Date(Date.now() + 86400_000),
+          });
+        }
+
+        return result;
+      });
+    } catch (err) {
+      if (replayKey && isIdempotencyConflict(err)) {
+        const existing = await this.store.findIdempotency(ctx.organizationId, replayKey);
+        if (existing && isStoredCommandResult(existing.resultJson)) {
+          return existing.resultJson as unknown as CommandResult;
+        }
+      }
+      throw err;
+    }
   }
 
   private async emit(
@@ -335,6 +371,7 @@ export class WorkCommandService {
       reason: 'completed',
       changedAt: ctx.effectiveAt,
     });
+    await this.releaseOpenClaim(store, ctx.organizationId, orderPrepOpenClaimKey(work.description));
 
     return this.emit(ctx, store, 'work.completed', 'work_item', workItemId, { workItemId });
   }
@@ -366,6 +403,7 @@ export class WorkCommandService {
       reason: payload.reason ? `cancelled:${String(payload.reason)}` : 'cancelled',
       changedAt: ctx.effectiveAt,
     });
+    await this.releaseOpenClaim(store, ctx.organizationId, orderPrepOpenClaimKey(work.description));
 
     return this.emit(ctx, store, 'work.cancelled', 'work_item', workItemId, {
       workItemId,
@@ -493,6 +531,11 @@ export class WorkCommandService {
       decidedAt: ctx.effectiveAt,
     });
     if (!decided) throw new Error('CONFLICT');
+    await this.releaseOpenClaim(
+      store,
+      ctx.organizationId,
+      approvalOpenClaimKey(approval.subjectType, approval.subjectId),
+    );
 
     const eventType = decision === 'approved' ? 'approval.approved' : 'approval.rejected';
     const eventPayload = buildApprovalDecisionEventPayload({

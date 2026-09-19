@@ -445,6 +445,14 @@ describePrisma('approval security + integrity (Step 14.4)', () => {
         subjectId: partyId,
       },
     );
+    await workSvc.execute(
+      'Reject',
+      ctx(org.id, approver.member.id, approver.person.id, approver.auth.id),
+      {
+        approvalRequestId: String(requested.data.approvalRequestId),
+        reason: 'Cierre para suspender',
+      },
+    );
     await workforceSvc.execute(
       'SuspendMember',
       ctx(org.id, approver.member.id, approver.person.id, approver.auth.id),

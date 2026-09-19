@@ -136,6 +136,14 @@ export type DeliveryDomainEventRecord = {
   actorMemberId: string;
 };
 
+export type DeliveryIdempotencyRecord = {
+  organizationId: string;
+  key: string;
+  commandName: string;
+  resultJson: Record<string, unknown>;
+  expiresAt: Date;
+};
+
 export interface DeliveryStore {
   getOrderInOrg(organizationId: string, orderId: string): Promise<OrderSnapshot | null>;
   getMemberInOrg(organizationId: string, memberId: string): Promise<MemberSnapshot | null>;
@@ -164,4 +172,12 @@ export interface DeliveryStore {
   getDeliveryNoteById(organizationId: string, noteId: string): Promise<DeliveryNoteRecord | null>;
   listRecipientCandidates(organizationId: string): Promise<RecipientCandidate[]>;
   listDomainEvents(organizationId: string, orderId?: string): Promise<DeliveryDomainEventRecord[]>;
+  findIdempotency(organizationId: string, key: string): Promise<DeliveryIdempotencyRecord | null>;
+  saveIdempotency(record: DeliveryIdempotencyRecord): Promise<void>;
+  completeIdempotency(
+    organizationId: string,
+    key: string,
+    resultJson: Record<string, unknown>,
+  ): Promise<void>;
+  deleteIdempotency(organizationId: string, key: string): Promise<void>;
 }

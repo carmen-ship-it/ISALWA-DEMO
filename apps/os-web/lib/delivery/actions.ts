@@ -9,12 +9,17 @@ import { mapCommandError } from '@/lib/commercial/command-errors';
 import { orderHref } from '@/lib/commercial/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
 
-type ActionResult = { ok: true } | { ok: false; error: string };
+type ActionResult = { ok: true; documentId?: string } | { ok: false; error: string };
 
 async function resolveActorMemberId(): Promise<string | null> {
   const capabilities = await loadMemberCapabilities();
   const memberId = capabilities?.memberId?.trim() ?? '';
   return memberId || null;
+}
+
+function documentIdFromCommand(data: Record<string, unknown> | undefined): string | undefined {
+  const id = data?.deliveryNoteId ?? data?.warehouseExitId ?? data?.deliveryId;
+  return typeof id === 'string' && id.trim() ? id : undefined;
 }
 
 async function runDeliveryCommand(
@@ -26,17 +31,26 @@ async function runDeliveryCommand(
   payload: Record<string, unknown>,
   partyId: string,
   orderId: string,
+  idempotencyKey: string,
 ): Promise<ActionResult> {
   const previewGate = await assertRolePreviewAllowsMutation();
   if (!previewGate.ok) return previewGate;
+  const key = idempotencyKey.trim();
+  if (!key) {
+    return { ok: false, error: 'No se pudo reutilizar el mismo intento. Actualice la página.' };
+  }
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
   const client = createOsApiClient(auth);
   try {
-    await client.post(`/commands/${commandName}`, payload, createId());
+    const response = await client.post<{ data?: Record<string, unknown> }>(
+      `/commands/${commandName}`,
+      payload,
+      key,
+    );
     revalidatePath(orderHref(partyId, orderId));
     revalidatePath('/entregas');
-    return { ok: true };
+    return { ok: true, documentId: documentIdFromCommand(response?.data) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }
@@ -49,6 +63,7 @@ export async function createNotaDeEntregaAction(input: {
   deliveredBy: string;
   observations: string | null;
   quantities: Array<{ orderLineId: string; quantity: number }>;
+  idempotencyKey: string;
 }): Promise<ActionResult> {
   const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
@@ -68,6 +83,7 @@ export async function createNotaDeEntregaAction(input: {
     },
     input.partyId,
     input.orderId,
+    input.idempotencyKey,
   );
 }
 
@@ -77,6 +93,7 @@ export async function recordSalidaAction(input: {
   deliveryNoteId: string | null;
   quantities: Array<{ orderLineId: string; quantity: number }>;
   notes: string | null;
+  idempotencyKey: string;
 }): Promise<ActionResult> {
   const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
@@ -93,6 +110,7 @@ export async function recordSalidaAction(input: {
     },
     input.partyId,
     input.orderId,
+    input.idempotencyKey,
   );
 }
 
@@ -103,6 +121,7 @@ export async function recordEntregaAction(input: {
   deliveryNoteId: string | null;
   quantities: Array<{ orderLineId: string; quantity: number }>;
   notes: string | null;
+  idempotencyKey: string;
 }): Promise<ActionResult> {
   const actorMemberId = await resolveActorMemberId();
   if (!actorMemberId) return { ok: false, error: 'No se pudo identificar al miembro de la sesión.' };
@@ -121,6 +140,7 @@ export async function recordEntregaAction(input: {
     },
     input.partyId,
     input.orderId,
+    input.idempotencyKey,
   );
 }
 
@@ -142,5 +162,6 @@ export async function correctDeliveryDocumentAction(input: {
     },
     input.partyId,
     input.orderId,
+    createId(),
   );
 }

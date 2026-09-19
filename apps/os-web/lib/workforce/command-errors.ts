@@ -1,4 +1,5 @@
 import { OsApiError } from '@/lib/api/os-api-errors';
+import { SUSPEND_BLOCKED_MESSAGE } from '@isalwa/os-contracts';
 import type { PeopleV1InviteCommand, Ui2bWorkforceCommand } from '@/lib/workforce/command-types';
 
 const OPEN_WORK_TERMINATE_MESSAGE =
@@ -58,6 +59,9 @@ export function mapWorkforceCommandError(
         if (command === 'TerminateMember') {
           return OPEN_WORK_TERMINATE_MESSAGE;
         }
+        if (command === 'SuspendMember') {
+          return SUSPEND_BLOCKED_MESSAGE;
+        }
         if (command === 'ActivateMember') {
           return 'No se puede reactivar este acceso. Verifique el estado del empleado.';
         }
@@ -74,4 +78,4 @@ export function mapWorkforceCommandError(
   return GENERIC_ERROR;
 }
 
-export { OPEN_WORK_TERMINATE_MESSAGE };
+export { OPEN_WORK_TERMINATE_MESSAGE, SUSPEND_BLOCKED_MESSAGE };

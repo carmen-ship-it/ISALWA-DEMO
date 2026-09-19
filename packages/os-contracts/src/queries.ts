@@ -373,6 +373,33 @@ export const TERMINATION_IMPACT_CATEGORY_KEYS = [
 
 export type TerminationImpactCategoryKey = (typeof TERMINATION_IMPACT_CATEGORY_KEYS)[number];
 
+/**
+ * Ownership that blocks SuspendMember. Direct reports and delegations stay
+ * terminate-only; suspend does not reassign anything.
+ */
+export const SUSPEND_ACTIONABLE_CATEGORY_KEYS = [
+  'open_work',
+  'pending_approvals',
+  'commercial_accounts',
+  'open_opportunities',
+  'active_quotes',
+  'active_orders',
+  'primary_customer_coverage',
+  'acting_customer_coverage',
+  'owned_issues',
+  'open_commitments',
+] as const satisfies readonly TerminationImpactCategoryKey[];
+
+export const SUSPEND_BLOCKED_MESSAGE =
+  'No puede suspender a esta persona mientras tenga trabajo abierto asignado. Reasigne o resuelva estos pendientes primero.';
+
+export function hasSuspendActionableWork(
+  categories: ReadonlyArray<{ key: string; count: number }>,
+): boolean {
+  const keys = new Set<string>(SUSPEND_ACTIONABLE_CATEGORY_KEYS);
+  return categories.some((category) => keys.has(category.key) && category.count > 0);
+}
+
 export const TerminationImpactItemSchema = z.object({
   id: z.string(),
   summary: z.string(),

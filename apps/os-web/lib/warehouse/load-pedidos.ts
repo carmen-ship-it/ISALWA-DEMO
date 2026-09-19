@@ -2,6 +2,7 @@ import type { WarehousePedidoFact } from '@isalwa/os-contracts';
 import type { OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import type { OrderDetailResponse, OrderListResponse } from '@/lib/commercial/types';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 
 const OPEN_ORDER_PAGE_LIMIT = 50;
 const MAX_ORDER_DETAIL_FETCHES = 25;
@@ -55,9 +56,9 @@ export function mapOrderDetailToWarehousePedidos(
  */
 export async function loadWarehousePedidosFromOrders(
   client: OsApiClient,
-  options: { organizationId?: string | null } = {},
+  options: { organizationId?: string | null; listCaps?: ListCap[] } = {},
 ): Promise<WarehousePedidoFact[]> {
-  const fromCommercial = await loadWarehouseFromCommercial(client);
+  const fromCommercial = await loadWarehouseFromCommercial(client, options.listCaps);
   if (fromCommercial.length > 0) return fromCommercial;
 
   const organizationId = options.organizationId?.trim() ?? '';
@@ -65,7 +66,10 @@ export async function loadWarehousePedidosFromOrders(
   return loadWarehouseFromDeliveryOps(client, organizationId);
 }
 
-async function loadWarehouseFromCommercial(client: OsApiClient): Promise<WarehousePedidoFact[]> {
+async function loadWarehouseFromCommercial(
+  client: OsApiClient,
+  listCaps?: ListCap[],
+): Promise<WarehousePedidoFact[]> {
   let list: OrderListResponse;
   try {
     list = await client.listOrders({ status: 'open', limit: OPEN_ORDER_PAGE_LIMIT });
@@ -78,6 +82,7 @@ async function loadWarehouseFromCommercial(client: OsApiClient): Promise<Warehou
 
   const open = (list.items ?? []).filter((item) => item.status !== 'cancelled');
   const slice = open.slice(0, MAX_ORDER_DETAIL_FETCHES);
+  pushListCap(listCaps, { ...list, items: open }, OPEN_ORDER_PAGE_LIMIT, slice.length);
   const pedidos: WarehousePedidoFact[] = [];
 
   for (const summary of slice) {

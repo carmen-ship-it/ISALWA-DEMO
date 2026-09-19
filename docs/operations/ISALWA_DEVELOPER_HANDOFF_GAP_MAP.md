@@ -80,7 +80,7 @@ These paths exist on main (or are expected there) but are **absent from this wor
 | `scripts/verify-step-17-backup-restore.sh` | NO | YES (expected) | Local restore drill script referenced but missing |
 | `render.yaml` | NO | — | No Blueprint IaC; live control plane is Render Dashboard only |
 
-**Present here (partial mitigation):** `scripts/verify-staging-hosted-backup-restore.sh`, `BACKUP_RESTORE_RUNBOOK.md`, `ENVIRONMENT_MAP.md`, `STAGING_HOST_OPERATOR_CHECKLIST.md`, `PRODUCTION_OWNERSHIP_AND_COSTS.md`, `V1_LAUNCH_SUPPORT_READINESS.md`.
+**Present here (partial mitigation):** `docs/operations/STAGING_MAINTAINER_RUNBOOK.md`, `scripts/verify-staging-hosted-backup-restore.sh`, `BACKUP_RESTORE_RUNBOOK.md`, `ENVIRONMENT_MAP.md`, `STAGING_HOST_OPERATOR_CHECKLIST.md`, `PRODUCTION_OWNERSHIP_AND_COSTS.md`, `V1_LAUNCH_SUPPORT_READINESS.md`.
 
 ---
 

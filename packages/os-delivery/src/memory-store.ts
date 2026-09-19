@@ -1,6 +1,7 @@
 import type { DeliverySubjectType } from '@isalwa/os-contracts';
 import type {
   DeliveryDomainEventRecord,
+  DeliveryIdempotencyRecord,
   DeliveryNoteRecord,
   DeliveryRecord,
   DeliveryStore,
@@ -32,6 +33,7 @@ export class MemoryDeliveryStore implements DeliveryStore {
   private readonly deliveryLines: NoteLineRecord[] = [];
   private readonly evidence: EvidenceRecord[] = [];
   private readonly events: DeliveryDomainEventRecord[] = [];
+  private readonly idempotency = new Map<string, DeliveryIdempotencyRecord>();
 
   putOrder(order: OrderSnapshot): void {
     this.orders.set(key(order.organizationId, order.id), order);
@@ -174,6 +176,34 @@ export class MemoryDeliveryStore implements DeliveryStore {
     return this.events.filter(
       (row) => row.organizationId === organizationId && (!orderId || row.orderId === orderId),
     );
+  }
+
+  async findIdempotency(organizationId: string, key: string): Promise<DeliveryIdempotencyRecord | null> {
+    const row = this.idempotency.get(`${organizationId}:${key}`) ?? null;
+    if (!row || row.expiresAt.getTime() <= Date.now()) return null;
+    return row;
+  }
+
+  async saveIdempotency(record: DeliveryIdempotencyRecord): Promise<void> {
+    const id = `${record.organizationId}:${record.key}`;
+    if (this.idempotency.has(id)) {
+      throw Object.assign(new Error('IDEMPOTENCY_CONFLICT'), { code: 'P2002' });
+    }
+    this.idempotency.set(id, record);
+  }
+
+  async completeIdempotency(
+    organizationId: string,
+    key: string,
+    resultJson: Record<string, unknown>,
+  ): Promise<void> {
+    const row = this.idempotency.get(`${organizationId}:${key}`);
+    if (!row) return;
+    row.resultJson = resultJson;
+  }
+
+  async deleteIdempotency(organizationId: string, key: string): Promise<void> {
+    this.idempotency.delete(`${organizationId}:${key}`);
   }
 
   /** Unscoped snapshots. The command service must not call these. */

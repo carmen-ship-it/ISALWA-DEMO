@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageSection } from '@isalwa/ui';
 import type { TerminationImpactCategoryKey } from '@isalwa/os-contracts';
+import { SUSPEND_BLOCKED_MESSAGE, hasSuspendActionableWork } from '@isalwa/os-contracts';
 import type { TerminationImpactResponse } from '@/lib/workforce/types';
 
 type TerminationImpactPanelProps = {
@@ -86,6 +87,11 @@ export function TerminationImpactPanel({ impact, memberName }: TerminationImpact
         Antes de finalizar el acceso de {memberName}, revise lo que todavía requiere una persona
         responsable.
       </p>
+      {hasSuspendActionableWork(impact.categories) ? (
+        <p className="mt-4 text-sm font-medium text-[var(--isalwa-kiln)]" data-suspend-impact="visible">
+          {SUSPEND_BLOCKED_MESSAGE}
+        </p>
+      ) : null}
 
       {impact.canTerminate ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">

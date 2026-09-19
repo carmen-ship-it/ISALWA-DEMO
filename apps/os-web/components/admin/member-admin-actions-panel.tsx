@@ -22,7 +22,7 @@ import { ServerMemberTypeahead } from '@/components/operating/server-member-type
 import type { SelectOption } from '@/lib/workforce/admin-options';
 import { DELEGATION_SCOPE_OPTIONS } from '@/lib/workforce/admin-options';
 import type { MemberAdminVisibility } from '@/lib/workforce/lifecycle-ui';
-import { OPEN_WORK_TERMINATE_MESSAGE } from '@/lib/workforce/command-errors';
+import { OPEN_WORK_TERMINATE_MESSAGE, SUSPEND_BLOCKED_MESSAGE } from '@/lib/workforce/command-errors';
 import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS } from '@isalwa/os-contracts';
 import { formatRoleKey, formatRoleKeys, isAdditionalAssignableScope, splitRoleKeys } from '@/lib/workforce/labels';
 
@@ -33,6 +33,8 @@ type MemberAdminActionsPanelProps = {
   roles: SelectOption[];
   /** When true, Finalizar remains disabled until responsibilities are cleared. */
   terminationBlocked?: boolean;
+  /** When true, Suspender stays disabled until actionable ownership is cleared. */
+  suspendBlocked?: boolean;
 };
 
 const initial = { error: null as string | null, success: null as string | null };
@@ -67,6 +69,7 @@ export function MemberAdminActionsPanel({
   departments,
   roles,
   terminationBlocked = false,
+  suspendBlocked = false,
 }: MemberAdminActionsPanelProps) {
   const [terminateConfirm, setTerminateConfirm] = useState(false);
   const [suspendConfirm, setSuspendConfirm] = useState(false);
@@ -307,10 +310,13 @@ export function MemberAdminActionsPanel({
             <div className="mt-4">
               <h3 className="isalwa-section-label">Suspender acceso</h3>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                El acceso al sistema se bloquea temporalmente. El trabajo asignado puede seguir a
-                nombre de esta persona hasta que un administrador lo reasigne. La suspensión no
-                finaliza la relación laboral.
+                La suspensión bloquea el inicio de sesión. No reasigna trabajo ni cambia el historial.
               </p>
+              {suspendBlocked ? (
+                <p className="mt-3 text-sm font-medium text-[var(--isalwa-kiln)]" data-suspend-impact="blocked">
+                  {SUSPEND_BLOCKED_MESSAGE}
+                </p>
+              ) : null}
               <FormFeedback error={suspendState.error} success={suspendState.success} />
               <form action={suspendAction} className="mt-4 space-y-4">
                 <input type="hidden" name="memberId" value={memberId} />
@@ -336,7 +342,7 @@ export function MemberAdminActionsPanel({
                 <CommandSubmitButton
                   label="Suspender acceso"
                   variant="danger"
-                  disabled={!suspendConfirm}
+                  disabled={!suspendConfirm || suspendBlocked}
                 />
               </form>
             </div>

@@ -136,10 +136,73 @@ function asError(err: unknown): Error {
  */
 export const DELIVERY_LIVE_WRITE = 'UNPROVEN' as const;
 
+function isDeliveryIdempotencyConflict(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = (err as { code?: string }).code;
+  if (code === 'P2002') return true;
+  const message = err instanceof Error ? err.message : '';
+  return message === 'IDEMPOTENCY_CONFLICT' || /Unique constraint/i.test(message);
+}
+
 export class DeliveryCommandService {
   constructor(private readonly store: DeliveryStore) {}
 
   async execute(
+    command: DeliveryCommandName,
+    ctx: DeliveryContext,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<DeliveryCommandResult> {
+    const key = idempotencyKey?.trim() || undefined;
+    const organizationId = ctx.organizationId?.trim() || '';
+    if (key) {
+      if (!organizationId) throw new Error('TENANT_FORBIDDEN');
+      const replay = await this.readReplay(organizationId, key);
+      if (replay) return replay;
+      try {
+        await this.store.saveIdempotency({
+          organizationId,
+          key,
+          commandName: command,
+          resultJson: { pending: true },
+          expiresAt: new Date(Date.now() + 86400_000),
+        });
+      } catch (err) {
+        if (!isDeliveryIdempotencyConflict(err)) throw err;
+        const winner = await this.readReplay(organizationId, key);
+        if (winner) return winner;
+        throw new Error('CONFLICT');
+      }
+    }
+
+    let wrote = false;
+    try {
+      const result = await this.dispatch(command, ctx, payload);
+      wrote = true;
+      if (key) {
+        await this.store.completeIdempotency(
+          organizationId,
+          key,
+          result as unknown as Record<string, unknown>,
+        );
+      }
+      return result;
+    } catch (err) {
+      if (key && !wrote && organizationId) {
+        await this.store.deleteIdempotency(organizationId, key).catch(() => undefined);
+      }
+      throw err;
+    }
+  }
+
+  private async readReplay(organizationId: string, key: string): Promise<DeliveryCommandResult | null> {
+    const row = await this.store.findIdempotency(organizationId, key);
+    const json = row?.resultJson;
+    if (!json || json.pending === true || !json.data || typeof json.data !== 'object') return null;
+    return json as unknown as DeliveryCommandResult;
+  }
+
+  private async dispatch(
     command: DeliveryCommandName,
     ctx: DeliveryContext,
     payload: Record<string, unknown>,

@@ -421,6 +421,10 @@ export class PrismaOsWorkStore implements OsWorkStore {
       },
     });
   }
+
+  async deleteIdempotency(organizationId: string, key: string): Promise<void> {
+    await this.db().osIdempotencyKey.deleteMany({ where: { organizationId, key } });
+  }
 }
 
 function mapWorkItem(row: {

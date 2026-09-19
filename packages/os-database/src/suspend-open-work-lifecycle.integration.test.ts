@@ -114,7 +114,7 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     assert.ok(event);
   });
 
-  it('allows suspend while open work remains owned (contract: hold, not terminate)', async () => {
+  it('blocks suspend while open work remains owned', async () => {
     const { org, admin, worker } = await seedFixture();
     const cAdmin = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
     const created = await workSvc.execute('CreateWorkItem', cAdmin, {
@@ -123,11 +123,16 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     });
     const workItemId = String(created.data.workItemId);
 
-    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
+    await assert.rejects(
+      () => workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
 
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.status, 'open');
     assert.equal(work?.ownerMemberId, worker.member.id);
+    const member = await workforceStore.getMember(worker.member.id);
+    assert.equal(member?.accessStatus, 'active');
     const history = await prisma.osWorkItemOwnershipHistory.count({
       where: { workItemId },
     });
@@ -135,12 +140,16 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
   });
 
   it('blocks suspended member from completing owned work', async () => {
-    const { org, admin, worker } = await seedFixture();
+    const { org, admin, worker, successor } = await seedFixture();
     const cAdmin = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
     const cWorker = ctx(org.id, worker.member.id, worker.person.id, worker.auth.id);
     const created = await workSvc.execute('CreateWorkItem', cAdmin, {
       title: 'Cannot complete',
       ownerMemberId: worker.member.id,
+    });
+    await workSvc.execute('ReassignWork', cAdmin, {
+      workItemId: String(created.data.workItemId),
+      newOwnerMemberId: successor.member.id,
     });
     await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     await assert.rejects(
@@ -159,6 +168,10 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     const created = await workSvc.execute('CreateWorkItem', cAdmin, {
       title: 'Cannot reassign',
       ownerMemberId: worker.member.id,
+    });
+    await workSvc.execute('ReassignWork', cAdmin, {
+      workItemId: String(created.data.workItemId),
+      newOwnerMemberId: successor.member.id,
     });
     await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     await assert.rejects(
@@ -246,11 +259,15 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
       ownerMemberId: worker.member.id,
     });
     const workItemId = String(created.data.workItemId);
-    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
+    await assert.rejects(
+      () => workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id }),
+      (err: Error) => err.message === 'VALIDATION_FAILED',
+    );
     await workSvc.execute('ReassignWork', cAdmin, {
       workItemId,
       newOwnerMemberId: successor.member.id,
     });
+    await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.ownerMemberId, successor.member.id);
     assert.equal(
@@ -263,16 +280,16 @@ describePrisma('suspend member / open work lifecycle (Step 14.5)', () => {
     const { org, admin, worker } = await seedFixture();
     const cAdmin = ctx(org.id, admin.member.id, admin.person.id, admin.auth.id);
     const cWorker = ctx(org.id, worker.member.id, worker.person.id, worker.auth.id);
-    const created = await workSvc.execute('CreateWorkItem', cAdmin, {
-      title: 'Resume after suspend',
-      ownerMemberId: worker.member.id,
-    });
-    const workItemId = String(created.data.workItemId);
     await workforceSvc.execute('SuspendMember', cAdmin, { memberId: worker.member.id });
     await workforceSvc.execute('ActivateMember', cAdmin, {
       memberId: worker.member.id,
       providerSubject: worker.auth.providerSubject ?? `react-${worker.member.id}`,
     });
+    const created = await workSvc.execute('CreateWorkItem', cAdmin, {
+      title: 'Resume after suspend',
+      ownerMemberId: worker.member.id,
+    });
+    const workItemId = String(created.data.workItemId);
     await workSvc.execute('CompleteWork', cWorker, { workItemId });
     const work = await workStore.getWorkItemInOrg(org.id, workItemId);
     assert.equal(work?.status, 'completed');

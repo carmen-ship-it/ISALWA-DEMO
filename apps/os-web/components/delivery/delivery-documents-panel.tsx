@@ -1,8 +1,10 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, EmptyState, PageSection, SectionHeader, StatusPill, Timeline } from '@isalwa/ui';
 import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
+import { createId } from '@isalwa/ts-utils';
 import {
   correctDeliveryDocumentAction,
   createNotaDeEntregaAction,
@@ -97,7 +99,10 @@ export function DeliveryDocumentsPanel({
   const allowEntrega = canRecordEntrega ?? canMutate;
   const allowAnyWrite = allowNote || allowSalida || allowEntrega;
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
+  const attemptKeys = useRef({ nota: '', salida: '', entrega: '' });
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
     Object.fromEntries(orderLines.map((line) => [line.orderLineId, line.quantity])),
   );
@@ -112,11 +117,26 @@ export function DeliveryDocumentsPanel({
 
   const issuedNotes = useMemo(() => notes.filter((note) => note.status === 'issued'), [notes]);
 
-  function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  function attemptKey(kind: 'nota' | 'salida' | 'entrega'): string {
+    if (!attemptKeys.current[kind]) attemptKeys.current[kind] = createId();
+    return attemptKeys.current[kind];
+  }
+
+  function run(
+    kind: 'nota' | 'salida' | 'entrega' | 'correct',
+    action: () => Promise<{ ok: boolean; error?: string; documentId?: string }>,
+  ) {
     setError(null);
+    setNotice(null);
     startTransition(async () => {
       const result = await action();
-      if (!result.ok) setError(result.error ?? 'No se pudo completar la acción.');
+      if (!result.ok) {
+        setError(result.error ?? 'No se pudo completar la acción.');
+        return;
+      }
+      if (kind !== 'correct') attemptKeys.current[kind] = '';
+      setNotice('Quedó registrado. Esta página muestra ese documento. No cree otro por el mismo intento.');
+      router.refresh();
     });
   }
 
@@ -255,6 +275,11 @@ export function DeliveryDocumentsPanel({
         </div>
       ) : null}
 
+      {notice ? (
+        <p className="mt-4 text-sm text-[var(--isalwa-kiln)]" data-delivery-retry-notice="open">
+          {notice}
+        </p>
+      ) : null}
       {error ? (
         <p className="mt-6 text-sm text-[var(--isalwa-ember)]" role="alert">
           {error}
@@ -277,7 +302,7 @@ export function DeliveryDocumentsPanel({
             type="button"
             disabled={!allowNote || pending || !actorMemberId}
             onClick={() =>
-              run(() =>
+              run('nota', () =>
                 createNotaDeEntregaAction({
                   partyId,
                   orderId,
@@ -285,6 +310,7 @@ export function DeliveryDocumentsPanel({
                   deliveredBy,
                   observations: observations || null,
                   quantities: quantityPayload,
+                  idempotencyKey: attemptKey('nota'),
                 }),
               )
             }
@@ -298,13 +324,14 @@ export function DeliveryDocumentsPanel({
             variant={gate === 'needs-salida' ? 'primary' : 'secondary'}
             disabled={!allowSalida || pending || !actorMemberId}
             onClick={() =>
-              run(() =>
+              run('salida', () =>
                 recordSalidaAction({
                   partyId,
                   orderId,
                   deliveryNoteId: selectedNoteId || null,
                   quantities: quantityPayload,
                   notes: observations || null,
+                  idempotencyKey: attemptKey('salida'),
                 }),
               )
             }
@@ -318,7 +345,7 @@ export function DeliveryDocumentsPanel({
             variant="secondary"
             disabled={!canSubmitEntrega || pending}
             onClick={() =>
-              run(() =>
+              run('entrega', () =>
                 recordEntregaAction({
                   partyId,
                   orderId,
@@ -326,6 +353,7 @@ export function DeliveryDocumentsPanel({
                   deliveryNoteId: selectedNoteId || null,
                   quantities: quantityPayload,
                   notes: observations || null,
+                  idempotencyKey: attemptKey('entrega'),
                 }),
               )
             }
@@ -427,7 +455,7 @@ export function DeliveryDocumentsPanel({
                       variant="ghost"
                       disabled={pending}
                       onClick={() =>
-                        run(() =>
+                        run('correct', () =>
                           correctDeliveryDocumentAction({
                             partyId,
                             orderId,

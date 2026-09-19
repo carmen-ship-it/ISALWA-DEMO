@@ -1,5 +1,6 @@
 import { PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
 import { ProductionOpsTable, type ProductionOpsRow } from '@/components/production/production-ops-table';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { ProductionPostSaleDesk } from '@/components/production/production-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
@@ -18,6 +19,7 @@ import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-wor
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
@@ -43,7 +45,7 @@ export default async function ProduccionPage({
 
   const identity = await loadProductionIdentity();
   const catalog = loadProductionCatalog();
-  const { pedidos, rows, summary } = await loadProductionDeskData();
+  const { pedidos, rows, summary, listCaps } = await loadProductionDeskData();
   const canMutate = !evaluation.active && identity.status === 'ready';
 
   return (
@@ -72,6 +74,7 @@ export default async function ProduccionPage({
         actorMemberId={identity.memberId}
         canMutate={canMutate}
       />
+      <ListCapNotice caps={listCaps} />
       <p className="mb-4 mt-8 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
         producto; no hay SLA automático de fábrica.
@@ -113,24 +116,28 @@ async function loadProductionDeskData(): Promise<{
   pedidos: PostSalePedidoOption[];
   rows: ProductionOpsRow[];
   summary: { revisiones: number; actualizaciones: number };
+  listCaps: ListCap[];
 }> {
   try {
     const auth = await getServerOsAuthContext();
     if (!auth) {
-      return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 } };
+      return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 }, listCaps: [] };
     }
     const caps = await loadMemberCapabilities();
     const client = createOsApiClient(auth);
     const dataMode = await resolveDemoDataMode({});
+    const listCaps: ListCap[] = [];
     const pedidos = await loadPostSalePedidos(client, {
       organizationId: caps?.organizationId ?? null,
       dataMode,
+      listCaps,
     });
 
     let workItems: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];
     try {
       const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
       workItems = workPage.items ?? [];
+      pushListCap(listCaps, workPage, 100);
     } catch {
       workItems = [];
     }
@@ -168,9 +175,10 @@ async function loadProductionDeskData(): Promise<{
       pedidos,
       rows,
       summary: { revisiones, actualizaciones },
+      listCaps,
     };
   } catch {
-    return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 } };
+    return { pedidos: [], rows: [], summary: { revisiones: 0, actualizaciones: 0 }, listCaps: [] };
   }
 }
 

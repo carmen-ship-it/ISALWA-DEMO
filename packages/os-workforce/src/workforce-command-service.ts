@@ -1,5 +1,9 @@
 import type { WorkforceCommandName, RequestContext } from '@isalwa/os-contracts';
-import { COMMAND_REQUIRED_SCOPES, isAdditionalAssignableScope } from '@isalwa/os-contracts';
+import {
+  COMMAND_REQUIRED_SCOPES,
+  hasSuspendActionableWork,
+  isAdditionalAssignableScope,
+} from '@isalwa/os-contracts';
 import {
   assertMemberActive,
   assertTenantMatch,
@@ -778,6 +782,17 @@ export class WorkforceCommandService {
     const memberId = String(payload.memberId);
     const member = await store.getMemberInOrg(ctx.organizationId, memberId);
     if (!member) throw new Error('NOT_FOUND');
+
+    const impact = await collectTerminationImpact(
+      store,
+      ctx.organizationId,
+      memberId,
+      ctx.effectiveAt,
+    );
+    if (hasSuspendActionableWork(impact.categories)) {
+      throw new Error('VALIDATION_FAILED');
+    }
+
     await store.updateMember(memberId, {
       accessStatus: 'suspended',
       version: member.version + 1,

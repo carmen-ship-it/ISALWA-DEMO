@@ -10,6 +10,7 @@ import {
 } from '@/lib/postsale/pedido-context';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import type { DemoDataMode } from '@/lib/demo/owner-demo-identity';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 
 const OPEN_ORDER_PAGE_LIMIT = 50;
 const MAX_ORDER_DETAIL_FETCHES = 25;
@@ -19,6 +20,7 @@ export type LoadPostSalePedidosOptions = {
   organizationId?: string | null;
   /** When set, keep only Pedidos whose party display name matches Demo/Real mode. */
   dataMode?: 'real' | 'demo';
+  listCaps?: ListCap[];
 };
 
 /**
@@ -30,7 +32,7 @@ export async function loadPostSalePedidos(
   client: OsApiClient,
   options: LoadPostSalePedidosOptions = {},
 ): Promise<PostSalePedidoOption[]> {
-  const fromCommercial = await loadFromCommercial(client, options.dataMode);
+  const fromCommercial = await loadFromCommercial(client, options.dataMode, options.listCaps);
   if (fromCommercial.length > 0) return fromCommercial;
 
   const organizationId = options.organizationId?.trim() ?? '';
@@ -41,6 +43,7 @@ export async function loadPostSalePedidos(
 async function loadFromCommercial(
   client: OsApiClient,
   dataMode?: DemoDataMode,
+  listCaps?: ListCap[],
 ): Promise<PostSalePedidoOption[]> {
   let list: OrderListResponse;
   try {
@@ -54,6 +57,7 @@ async function loadFromCommercial(
 
   const open = (list.items ?? []).filter((item) => item.status !== 'cancelled');
   const slice = open.slice(0, MAX_ORDER_DETAIL_FETCHES);
+  pushListCap(listCaps, { ...list, items: open }, OPEN_ORDER_PAGE_LIMIT, slice.length);
   const details: OrderDetailResponse['order'][] = [];
 
   for (const summary of slice) {

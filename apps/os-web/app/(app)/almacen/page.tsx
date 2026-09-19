@@ -18,6 +18,8 @@ import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
+import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
@@ -66,6 +68,7 @@ export default async function AlmacenPage({
           { label: 'Pedidos en contexto', value: String(pedidos.length) },
         ]}
       />
+      <ListCapNotice caps={access.listCaps ?? []} />
       <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Acción principal: registrar ingreso de producto terminado. No se muestra stock disponible
         sin fuente autoritativa. Los ingresos citados solo confirman un registro vinculado al pedido.
@@ -168,9 +171,11 @@ async function loadAlmacenAccess() {
         pedidos: NO_POSTSALE_PEDIDOS,
         summary: emptySummary,
         contexts: emptyContexts,
+        listCaps: [] as ListCap[],
       };
     }
 
+    const listCaps: ListCap[] = [];
     let warehousePedidos: Awaited<ReturnType<typeof loadWarehousePedidosFromOrders>> = [];
     let postsalePedidos: PostSalePedidoOption[] = NO_POSTSALE_PEDIDOS;
     let revisiones = 0;
@@ -183,11 +188,13 @@ async function loadAlmacenAccess() {
       fgOrderIds = demoFinishedGoodsOrderIds(dataMode);
       warehousePedidos = await loadWarehousePedidosFromOrders(client, {
         organizationId: context.organizationId,
+        listCaps,
       });
       try {
         postsalePedidos = await loadPostSalePedidos(client, {
           organizationId: context.organizationId,
           dataMode,
+          listCaps,
         });
       } catch {
         postsalePedidos = NO_POSTSALE_PEDIDOS;
@@ -200,6 +207,7 @@ async function loadAlmacenAccess() {
       try {
         const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
         workItems = workPage.items ?? [];
+        pushListCap(listCaps, workPage, 100);
       } catch {
         workItems = [];
       }
@@ -236,6 +244,7 @@ async function loadAlmacenAccess() {
       pedidos: postsalePedidos,
       summary: { revisiones, ingresos },
       contexts,
+      listCaps,
     };
   } catch {
     return {
@@ -243,6 +252,7 @@ async function loadAlmacenAccess() {
       pedidos: NO_POSTSALE_PEDIDOS,
       summary: emptySummary,
       contexts: emptyContexts,
+      listCaps: [] as ListCap[],
     };
   }
 }
