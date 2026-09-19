@@ -9,6 +9,7 @@ import {
   commercialWorkSurfaceClass,
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -17,7 +18,8 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { formatOpportunityStatus, presentStage } from '@/lib/commercial/labels';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
-import { listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
+import { cursorPageLinks, listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
+import { boundedPageHrefs, parsePageNumber, sliceListPage } from '@/lib/lists/page-window';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -121,19 +123,24 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
       client,
       titled.map((item) => item.partyId),
     );
-    const visible = filterByDemoDataMode(
+    const loaded = filterByDemoDataMode(
       titled.filter((item) => !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId))),
       dataMode,
       (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
     );
+    const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
+    const visible = windowed?.items ?? loaded;
     const hasQuery = Boolean(listState.q);
-    const nextHref =
-      dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor
-        ? withExactStage(
-            listHref(LIST_PATH, { ...listState, cursor: result.meta.nextCursor }, ['panel']),
-            stage,
-          )
+    const demoNav = windowed?.showChrome
+      ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
+      : null;
+    const cursorNav =
+      dataMode !== 'demo'
+        ? cursorPageLinks(LIST_PATH, listState, result.meta.nextCursor, result.meta.hasMore)
         : null;
+    const stageHref = (href: string | null) => (href ? withExactStage(href, stage) : null);
+    const prevHref = stageHref(demoNav?.prevHref ?? cursorNav?.prevHref ?? null);
+    const nextHref = stageHref(demoNav?.nextHref ?? cursorNav?.nextHref ?? null);
 
     return (
       <CommercialPageFrame label={t('pages.oportunidades.title')}>
@@ -141,6 +148,13 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
           kicker={t('pages.oportunidades.kicker')}
           title={t('pages.oportunidades.title')}
           description={visible.length === 0 ? undefined : t('pages.oportunidades.description')}
+          action={
+            evaluation.active ? undefined : (
+              <Link href="/oportunidades/nueva" className={commercialPrimaryLinkClass}>
+                + Nueva oportunidad
+              </Link>
+            )
+          }
         />
 
         <div className={`commercial-toolbar ${commercialToolbarClass}`}>
@@ -252,15 +266,16 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
           </PageSection>
         )}
 
-        {nextHref ? (
-          <div className="mt-6 flex justify-center">
-            <Link
-              href={nextHref}
-              className="isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-5 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-            >
-              Cargar más
-            </Link>
-          </div>
+        {prevHref || nextHref ? (
+          <ListPageNav
+            from={windowed?.from ?? 1}
+            to={windowed?.to ?? visible.length}
+            total={windowed ? windowed.total : null}
+            page={windowed?.page ?? 1}
+            pageCount={windowed ? windowed.pageCount : null}
+            prevHref={prevHref}
+            nextHref={nextHref}
+          />
         ) : null}
       </CommercialPageFrame>
     );

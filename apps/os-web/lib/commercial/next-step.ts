@@ -70,6 +70,9 @@ type QuoteNextStepInput = {
    * Does not invent convert eligibility — convert still requires accepted + canConvert.
    */
   latestApprovalDecision?: QuoteApprovalDecision | null;
+  quoteNumber?: string | null;
+  rejectedBy?: string | null;
+  rejectionReason?: string | null;
   /** Human-readable pending approval headline when status is pending. */
   pendingApprovalHeadline?: string | null;
   pendingApprovalHref?: string | null;
@@ -184,10 +187,16 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
         };
       }
       if (input.latestApprovalDecision === 'rejected') {
+        const number = input.quoteNumber?.trim();
+        const who = input.rejectedBy?.trim();
+        const why = input.rejectionReason?.trim();
+        const head = number ? `Cotización ${number} rechazada.` : 'Aprobación rechazada.';
+        const by = who ? ` Rechazada por: ${who}.` : '';
+        const reason = why ? ` Motivo: ${why}.` : '';
         return {
-          statement: `Aprobación rechazada. ${APPROVAL_ATTENTION_RESOLVED_COPY} Revise la cotización; no se creó un pedido.`,
-          href: `/clientes/${input.partyId}`,
-          hrefLabel: 'Ver cliente',
+          statement: `${head}${by}${reason} No se creó un pedido.`,
+          href: `/clientes/${input.partyId}/cotizaciones/${input.quoteId}`,
+          hrefLabel: 'Ver cotización',
           waiting: true,
         };
       }

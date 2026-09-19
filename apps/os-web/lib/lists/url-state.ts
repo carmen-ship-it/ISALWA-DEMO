@@ -14,6 +14,10 @@ export type ListQueryState = {
   density?: string;
   /** Client lens on the loaded page (e.g. approval). Not an authority gate. */
   focus?: string;
+  /** 1-based page over an already loaded bounded list. */
+  pagina?: string;
+  /** JSON array of previous cursors. Empty string means the first page. */
+  trail?: string;
 };
 
 const LIST_KEYS = [
@@ -29,6 +33,8 @@ const LIST_KEYS = [
   'sort',
   'density',
   'focus',
+  'pagina',
+  'trail',
 ] as const;
 
 export function parseListQuery(
@@ -62,6 +68,46 @@ export function listHref(path: string, state: ListQueryState, omit: Array<keyof 
   const search = listSearchParams(state, omit);
   const query = search.toString();
   return query ? `${path}?${query}` : path;
+}
+
+function parseCursorTrail(raw: string | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is string => typeof item === 'string');
+  } catch {
+    return [];
+  }
+}
+
+/** Previous/next over a cursor page. Does not invent a total. */
+export function cursorPageLinks(
+  path: string,
+  state: ListQueryState,
+  nextCursor: string | null | undefined,
+  hasMore: boolean,
+): { prevHref: string | null; nextHref: string | null } {
+  const trail = parseCursorTrail(state.trail);
+  const prevCursor = trail.length > 0 ? trail[trail.length - 1] : null;
+  const remaining = trail.slice(0, -1);
+  const prevHref =
+    prevCursor == null
+      ? null
+      : listHref(path, {
+          ...state,
+          cursor: prevCursor || undefined,
+          trail: remaining.length > 0 ? JSON.stringify(remaining) : undefined,
+        });
+  const nextHref =
+    hasMore && nextCursor
+      ? listHref(path, {
+          ...state,
+          cursor: nextCursor,
+          trail: JSON.stringify([...trail, state.cursor ?? '']),
+        })
+      : null;
+  return { prevHref, nextHref };
 }
 
 export function listHrefWithoutCursor(path: string, state: ListQueryState): string {

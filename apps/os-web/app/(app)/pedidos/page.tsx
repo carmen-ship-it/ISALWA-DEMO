@@ -8,6 +8,7 @@ import {
   commercialWorkSurfaceClass,
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -15,7 +16,8 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { formatOrderStatus } from '@/lib/commercial/labels';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
-import { listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
+import { cursorPageLinks, listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
+import { boundedPageHrefs, parsePageNumber, sliceListPage } from '@/lib/lists/page-window';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -95,7 +97,7 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
       client,
       result.items.map((item) => item.partyId),
     );
-    const visible = filterByDemoDataMode(
+    const loaded = filterByDemoDataMode(
       result.items.filter(
         (item) =>
           !isEngineeringFixtureCopy(item.orderNumber) &&
@@ -104,11 +106,18 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
       dataMode,
       (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
     );
+    const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
+    const visible = windowed?.items ?? loaded;
     const hasQuery = Boolean(listState.q);
-    const nextHref =
-      dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor
-        ? workingHref({ ...listState, cursor: result.meta.nextCursor }, ['panel'])
+    const demoNav = windowed?.showChrome
+      ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
+      : null;
+    const cursorNav =
+      dataMode !== 'demo'
+        ? cursorPageLinks(LIST_PATH, listState, result.meta.nextCursor, result.meta.hasMore)
         : null;
+    const prevHref = demoNav?.prevHref ?? cursorNav?.prevHref ?? null;
+    const nextHref = demoNav?.nextHref ?? cursorNav?.nextHref ?? null;
 
     return (
       <CommercialPageFrame label="Pedidos">
@@ -208,15 +217,16 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
           </PageSection>
         )}
 
-        {nextHref ? (
-          <div className="mt-6 flex justify-center">
-            <Link
-              href={nextHref}
-              className="isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-5 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-            >
-              Cargar más
-            </Link>
-          </div>
+        {prevHref || nextHref ? (
+          <ListPageNav
+            from={windowed?.from ?? 1}
+            to={windowed?.to ?? visible.length}
+            total={windowed ? windowed.total : null}
+            page={windowed?.page ?? 1}
+            pageCount={windowed ? windowed.pageCount : null}
+            prevHref={prevHref}
+            nextHref={nextHref}
+          />
         ) : null}
       </CommercialPageFrame>
     );

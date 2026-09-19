@@ -17,6 +17,8 @@ import {
 } from '@/components/owner-review/v1-flow-validate-notice';
 import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { ServiceUnavailableState } from '@/components/states/app-states';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import {
   WAREHOUSE_EXIT_HREF,
   WAREHOUSE_TASK_COPY,
@@ -130,6 +132,11 @@ function BoundaryNotes() {
   );
 }
 
+function visibleCatalogName(text: string): string {
+  if (isEngineeringFixtureCopy(text)) return 'Pieza registrada';
+  return presentHumanCopy(text) || text;
+}
+
 function WaitingSection({ view }: { view: WarehouseTaskView }) {
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
@@ -145,7 +152,7 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
           {view.waiting.map((row) => (
             <ListRow key={row.productId} as="li">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.productName.text}</p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{visibleCatalogName(row.productName.text)}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.waitingText}</p>
               </div>
               <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
@@ -186,7 +193,7 @@ function AllocateSection({
     () =>
       choosable.map((row) => ({
         id: row.productId,
-        label: row.productName.text,
+        label: visibleCatalogName(row.productName.text),
       })),
     [choosable],
   );
@@ -209,7 +216,7 @@ function AllocateSection({
           {view.allocatable.map((row) => (
             <ListRow key={row.productId} as="li">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.productName.text}</p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{visibleCatalogName(row.productName.text)}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.availableText}</p>
               </div>
             </ListRow>
@@ -314,7 +321,7 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
             <ListRow key={row.orderLineId} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                  {row.customerName.text} · {row.orderName.text} · {row.productName.text}
+                  {row.customerName.text} · {row.orderName.text} · {visibleCatalogName(row.productName.text)}
                 </p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.remainingText}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Asignado {row.allocatedQuantity}</p>
@@ -350,7 +357,7 @@ function HistorySection({
           <ListRow key={row.id} as="li">
             <div className="min-w-0">
               <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                {row.productName.text} · {row.quantity}
+                {visibleCatalogName(row.productName.text)} · {row.quantity}
               </p>
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                 {row.customerName.text} · {row.orderName.text}

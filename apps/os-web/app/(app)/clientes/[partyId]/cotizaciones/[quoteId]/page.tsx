@@ -195,6 +195,9 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
       partyId: quote.partyId,
       quoteNumber: quote.quoteNumber,
     });
+    const rejectedRow = approvals
+      .filter((row) => row.status === 'rejected')
+      .sort((a, b) => (b.decidedAt ?? '').localeCompare(a.decidedAt ?? ''))[0];
     const nextStep = quoteNextStep({
       status: quote.status,
       partyId,
@@ -207,6 +210,11 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
       sendRecorded: Boolean(sendRecord),
       latestApprovalDecision,
+      quoteNumber: quote.quoteNumber,
+      rejectedBy: rejectedRow
+        ? approvalResponsibility.get(rejectedRow.decisionByMemberId ?? '')?.displayName ?? null
+        : null,
+      rejectionReason: rejectedRow?.decisionReason ?? null,
       pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
       pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
     });

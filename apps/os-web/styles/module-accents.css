@@ -1,0 +1,52 @@
+/**
+ * Small module accents. Color stays in chips, counts, and a short bar — not page fills.
+ */
+main[aria-label='Clientes'] h1,
+main[aria-label='Oportunidades'] h1 {
+  box-shadow: inset 4px 0 0 #287a78;
+  padding-left: 0.75rem;
+}
+main[aria-label='Almacén'] h1,
+main[aria-label='Asignación a pedido'] h1,
+main[aria-label='Mi trabajo'] h1 {
+  box-shadow: inset 4px 0 0 #18324b;
+  padding-left: 0.75rem;
+}
+main[aria-label='Compras'] h1,
+main[aria-label='Cola de compras'] h1,
+main[aria-label='Cotizaciones'] h1,
+main[aria-label='Aprobaciones'] h1,
+main[aria-label='Compromisos'] h1 {
+  box-shadow: inset 4px 0 0 #f6e3a6;
+  padding-left: 0.75rem;
+}
+main[aria-label='Pedidos'] h1,
+main[aria-label='Entregas'] h1 {
+  box-shadow: inset 4px 0 0 #1d6b45;
+  padding-left: 0.75rem;
+}
+main[aria-label='Producción'] h1 {
+  box-shadow: inset 4px 0 0 #287a78;
+  padding-left: 0.75rem;
+}
+main[aria-label='Incidencias'] h1 {
+  box-shadow: inset 4px 0 0 #fbe9e7;
+  padding-left: 0.75rem;
+}
+main[aria-label='Coordinación'] h1 {
+  box-shadow: inset 4px 0 0 #18324b;
+  padding-left: 0.75rem;
+}
+
+@media (max-width: 420px) {
+  .commercial-toolbar,
+  form[action='/oportunidades'],
+  form[action='/pedidos'],
+  form[action='/cotizaciones'] {
+    max-width: 100%;
+  }
+  nav[aria-label='Páginas'] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

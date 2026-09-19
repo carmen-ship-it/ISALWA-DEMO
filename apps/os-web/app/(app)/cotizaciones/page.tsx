@@ -9,6 +9,7 @@ import {
   commercialWorkSurfaceClass,
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { QuoteQuickView } from '@/components/operating/quote-quick-view';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -29,8 +30,10 @@ import {
   panelHref,
   parseListQuery,
   parsePanel,
+  cursorPageLinks,
   type ListQueryState,
 } from '@/lib/lists/url-state';
+import { boundedPageHrefs, parsePageNumber, sliceListPage } from '@/lib/lists/page-window';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -115,7 +118,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
       client,
       result.items.map((item) => item.partyId),
     );
-    const visible = filterByDemoDataMode(
+    const loaded = filterByDemoDataMode(
       result.items.filter(
         (item) =>
           !isEngineeringFixtureCopy(item.quoteNumber) &&
@@ -124,8 +127,10 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
       dataMode,
       (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
     );
+    const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
+    const visible = windowed?.items ?? loaded;
     const preview =
-      panel?.kind === 'quote' ? visible.find((item) => item.quoteId === panel.id) : undefined;
+      panel?.kind === 'quote' ? loaded.find((item) => item.quoteId === panel.id) : undefined;
     const previewPanel = preview
       ? listState.cursor
         ? listHref(LIST_PATH, { ...listState, panel: `quote:${preview.quoteId}` })
@@ -134,10 +139,15 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
     const hasQuery = Boolean(listState.q);
     const statusLabel =
       filters.find((filter) => filter.status === status)?.label ?? status;
-    const nextHref =
-      dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor
-        ? workingHref({ ...listState, cursor: result.meta.nextCursor }, ['panel'])
+    const demoNav = windowed?.showChrome
+      ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
+      : null;
+    const cursorNav =
+      dataMode !== 'demo'
+        ? cursorPageLinks(LIST_PATH, listState, result.meta.nextCursor, result.meta.hasMore)
         : null;
+    const prevHref = demoNav?.prevHref ?? cursorNav?.prevHref ?? null;
+    const nextHref = demoNav?.nextHref ?? cursorNav?.nextHref ?? null;
 
     return (
       <CommercialPageFrame label={t('pages.cotizaciones.title')}>
@@ -253,15 +263,16 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
           </PageSection>
         )}
 
-        {nextHref ? (
-          <div className="mt-6 flex justify-center">
-            <Link
-              href={nextHref}
-              className="isalwa-t-fast inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-5 text-sm font-medium text-[var(--isalwa-kiln)] hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-            >
-              Cargar más
-            </Link>
-          </div>
+        {prevHref || nextHref ? (
+          <ListPageNav
+            from={windowed?.from ?? 1}
+            to={windowed?.to ?? visible.length}
+            total={windowed ? windowed.total : null}
+            page={windowed?.page ?? 1}
+            pageCount={windowed ? windowed.pageCount : null}
+            prevHref={prevHref}
+            nextHref={nextHref}
+          />
         ) : null}
 
         {preview ? (
