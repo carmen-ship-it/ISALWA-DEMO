@@ -2,10 +2,8 @@
 
 import { useActionState } from 'react';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
-import {
-  PURCHASING_CONCLUSIONS,
-  resolvePurchasingReviewAction,
-} from '@/lib/purchasing/resolve-review-action';
+import { PURCHASING_CONCLUSIONS } from '@/lib/purchasing/resolve-review-copy';
+import { resolvePurchasingReviewAction } from '@/lib/purchasing/resolve-review-action';
 
 const fieldClass =
   'mt-1 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-sm text-[var(--isalwa-kiln)]';
