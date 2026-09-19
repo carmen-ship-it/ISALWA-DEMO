@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { explicitDataMode, isNavigableAppHref, samePathQueryNavigation, withExplicitDataMode } from './preserve-data-mode';
+import { dataModeForRedirect, explicitDataMode, isNavigableAppHref, samePathQueryNavigation, withExplicitDataMode } from './preserve-data-mode';
 
 describe('withExplicitDataMode', () => {
   it('keeps demo on redirects and tabs without forcing demo onto a bare URL', () => {
@@ -25,6 +25,27 @@ describe('withExplicitDataMode', () => {
     assert.equal(
       withExplicitDataMode('/clientes/p?tab=historial', 'real'),
       '/clientes/p?tab=historial&datos=real',
+    );
+  });
+});
+
+describe('dataModeForRedirect', () => {
+  it('prefers the form, then the referer, then an explicit cookie, and never invents a mode', () => {
+    assert.equal(
+      dataModeForRedirect({ formDatos: 'demo', refererDatos: 'real', cookieDatos: 'real' }),
+      'demo',
+    );
+    assert.equal(dataModeForRedirect({ formDatos: '', refererDatos: 'real', cookieDatos: 'demo' }), 'real');
+    assert.equal(dataModeForRedirect({ cookieDatos: 'demo' }), 'demo');
+    assert.equal(dataModeForRedirect({ cookieDatos: 'not-a-mode' }), null);
+    assert.equal(dataModeForRedirect({}), null);
+    assert.equal(
+      withExplicitDataMode('/clientes/p/cotizaciones/q', dataModeForRedirect({ refererDatos: 'demo' })),
+      '/clientes/p/cotizaciones/q?datos=demo',
+    );
+    assert.equal(
+      withExplicitDataMode('/clientes/p/pedidos/o?resultado=pedido', dataModeForRedirect({ formDatos: 'real' })),
+      '/clientes/p/pedidos/o?resultado=pedido&datos=real',
     );
   });
 });

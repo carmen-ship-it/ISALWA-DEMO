@@ -21,6 +21,7 @@ import {
 } from '@/lib/party/customer-self-service';
 import { clientesSearchHref, partyHref } from '@/lib/party/navigation';
 import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gate';
+import { redirectKeepingDataMode } from '@/lib/demo/redirect-data-mode';
 
 const DENIED = 'No tiene permiso para realizar esta acción.';
 
@@ -85,7 +86,7 @@ export async function createCustomerAction(formData: FormData): Promise<CreateRe
     }
     revalidateCustomer(partyId);
     revalidatePath(clientesSearchHref({ q: searchedQuery.trim() }));
-    return { ok: true, redirectTo: partyHref(partyId) };
+    return { ok: true, redirectTo: await redirectKeepingDataMode(partyHref(partyId), formData) };
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }

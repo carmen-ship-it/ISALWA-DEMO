@@ -10,6 +10,7 @@ import { FormFeedback } from '@/components/commercial/form-feedback';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
 import { AppToast, AppToastRegion } from '@/components/states/app-toast';
 import { createOrderAction } from '@/lib/commercial/actions';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { guidanceForConvertQuote } from '@/lib/guidance/select';
 
 type ConvertQuoteFormProps = {
@@ -40,9 +41,9 @@ export function ConvertQuoteForm({
       const result = await createOrderAction(formData);
       if (result.ok) {
         dialogRef.current?.close();
-        setToastHref(result.redirectTo);
+        setToastHref(hrefWithClientDataMode(result.redirectTo));
         window.setTimeout(() => {
-          router.push(result.redirectTo);
+          router.push(hrefWithClientDataMode(result.redirectTo));
           router.refresh();
         }, 900);
         return null;

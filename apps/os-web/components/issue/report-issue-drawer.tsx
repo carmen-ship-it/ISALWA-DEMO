@@ -8,6 +8,7 @@ import { FormFeedback } from '@/components/commercial/form-feedback';
 import { reportIssueAction, type ReportIssueActionResult } from '@/lib/issue/actions';
 import { ISSUE_COPY, formatReferenceType } from '@/lib/issue/labels';
 import { issueHref } from '@/lib/issue/navigation';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import type { ReportIssueContext } from '@/lib/issue/types';
 
 type ReportIssueDrawerProps = {
@@ -45,7 +46,7 @@ export function ReportIssueDrawer({
       if (result.ok) {
         setFormKey((k) => k + 1);
         // Navigate to the new issue and close drawer
-        router.push(issueHref(result.issueId));
+        router.push(hrefWithClientDataMode(issueHref(result.issueId)));
         onOpenChange(false);
         router.refresh();
       }

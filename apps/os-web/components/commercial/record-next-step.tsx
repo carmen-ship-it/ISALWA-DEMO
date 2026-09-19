@@ -23,7 +23,7 @@ export function RecordNextStep({ step, className }: RecordNextStepProps) {
       role="status"
     >
       <p className="isalwa-section-label">{COMMERCIAL_NEXT_STEP_LABEL}</p>
-      <p className="mt-1 font-[family-name:var(--isalwa-font-display)] text-base italic text-[var(--isalwa-kiln)]">
+      <p className="mt-1 whitespace-pre-line font-[family-name:var(--isalwa-font-display)] text-base italic text-[var(--isalwa-kiln)]">
         {step.statement}
       </p>
       {step.href && step.hrefLabel ? (

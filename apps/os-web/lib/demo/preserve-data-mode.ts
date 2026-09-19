@@ -1,4 +1,9 @@
+import { DEMO_DATA_MODE_COOKIE } from './owner-demo-identity';
+
 export type ExplicitDataMode = 'demo' | 'real';
+
+/** Set by middleware when the URL carries explicit datos. Read on the same request. */
+export const DATA_MODE_REQUEST_HEADER = 'x-isalwa-data-mode';
 
 /** Only an explicit query value. Absence is not demo and not real. */
 export function explicitDataMode(value: string | null | undefined): ExplicitDataMode | null {
@@ -11,6 +16,31 @@ export function explicitDataMode(value: string | null | undefined): ExplicitData
  * Keep the current explicit data mode on a same-app href.
  * Does not invent demo when the current page has no datos param.
  */
+export function dataModeForRedirect(input: {
+  formDatos?: string | null;
+  refererDatos?: string | null;
+  cookieDatos?: string | null;
+}): ExplicitDataMode | null {
+  return (
+    explicitDataMode(input.formDatos) ??
+    explicitDataMode(input.refererDatos) ??
+    explicitDataMode(input.cookieDatos)
+  );
+}
+
+/** Browser-only. URL wins over the mode cookie. Absence stays absent — never inferred from a name. */
+export function clientDataMode(): ExplicitDataMode | null {
+  if (typeof window === 'undefined') return null;
+  const fromUrl = explicitDataMode(new URLSearchParams(window.location.search).get('datos'));
+  if (fromUrl) return fromUrl;
+  const row = document.cookie.split('; ').find((part) => part.startsWith(`${DEMO_DATA_MODE_COOKIE}=`));
+  return explicitDataMode(row ? decodeURIComponent(row.slice(DEMO_DATA_MODE_COOKIE.length + 1)) : null);
+}
+
+export function hrefWithClientDataMode(href: string): string {
+  return withExplicitDataMode(href, clientDataMode());
+}
+
 export function withExplicitDataMode(href: string, mode: ExplicitDataMode | null | undefined): string {
   if (!mode) return href;
   const hashAt = href.indexOf('#');

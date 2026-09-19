@@ -22,6 +22,7 @@ import {
   parseOwnerEffectiveCompany,
 } from '@/lib/demo/owner-company-context';
 import { parseDemoDataMode, DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
+import { DATA_MODE_REQUEST_HEADER, explicitDataMode } from '@/lib/demo/preserve-data-mode';
 import {
   PASSWORD_RESET_COPY,
   buildPasswordResetRedirectUrl,
@@ -375,12 +376,13 @@ export async function getServerOsAuthContext(options?: { skipQaView?: boolean })
   if (options?.skipQaView) return base;
 
   const store = await cookies();
+  const headerStore = await headers();
   const qaViewCookie = store.get(QA_VIEW_COOKIE_NAME)?.value;
 
-  // Owner Demo company context: select among proven memberships (Carmen REAL↔SYNTH).
-  // Demo/Datos reales cookie is authoritative when present (keeps company selector in sync
-  // even if login previously defaulted OWNER_EFFECTIVE_COMPANY to REAL). Else company cookie.
-  const demoModeRaw = store.get(DEMO_DATA_MODE_COOKIE)?.value;
+  // Explicit URL mode (middleware header) wins over the previous cookie on this request.
+  // Demo/Datos reales cookie is authoritative when present. Else company cookie.
+  const headerMode = explicitDataMode(headerStore.get(DATA_MODE_REQUEST_HEADER));
+  const demoModeRaw = headerMode ?? store.get(DEMO_DATA_MODE_COOKIE)?.value;
   const companyExplicit = parseOwnerEffectiveCompany(
     store.get(OWNER_EFFECTIVE_COMPANY_COOKIE)?.value,
   );

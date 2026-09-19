@@ -47,8 +47,38 @@ export function PreserveExplicitDataMode() {
       event.stopPropagation();
       router.push(next);
     }
+
+    function onSubmit(event: SubmitEvent) {
+      const mode = explicitDataMode(new URLSearchParams(window.location.search).get('datos'));
+      if (!mode) return;
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      const action = form.getAttribute('action');
+      if (action && /^https?:/i.test(action)) {
+        try {
+          if (new URL(action).origin !== window.location.origin) return;
+        } catch {
+          return;
+        }
+      }
+      const existing = form.querySelector('input[name="datos"]');
+      if (existing instanceof HTMLInputElement) {
+        if (!existing.value) existing.value = mode;
+        return;
+      }
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'datos';
+      input.value = mode;
+      form.appendChild(input);
+    }
+
     window.addEventListener('click', onClick, true);
-    return () => window.removeEventListener('click', onClick, true);
+    window.addEventListener('submit', onSubmit, true);
+    return () => {
+      window.removeEventListener('click', onClick, true);
+      window.removeEventListener('submit', onSubmit, true);
+    };
   }, [router]);
 
   return null;

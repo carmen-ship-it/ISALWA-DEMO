@@ -120,6 +120,7 @@ export function formatTimestamp(iso: string | null): string | null {
   return new Intl.DateTimeFormat('es-BO', {
     dateStyle: 'medium',
     timeStyle: 'short',
+    timeZone: 'America/La_Paz',
   }).format(date);
 }
 

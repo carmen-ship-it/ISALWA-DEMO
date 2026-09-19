@@ -17,6 +17,7 @@ import { formatTimestamp } from '@/lib/commercial/labels';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
 import { approvalResponsibilityView } from '@/lib/work/approval-responsibility';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
 
 type CommercialApprovalPanelProps = {
@@ -63,7 +64,7 @@ export function CommercialApprovalPanel({
       const result = await decideCommercialApprovalAction(formData);
       if (result.ok) {
         if (result.redirectTo) {
-          router.push(result.redirectTo);
+          router.push(hrefWithClientDataMode(result.redirectTo));
           return { success: 'Decisión registrada. No se creó un pedido ni se modificó el precio.' };
         }
         router.refresh();
@@ -219,7 +220,7 @@ export function ApprovalDecisionForm({
       const result = await decideCommercialApprovalAction(formData);
       if (result.ok) {
         if (result.redirectTo) {
-          router.push(result.redirectTo);
+          router.push(hrefWithClientDataMode(result.redirectTo));
           return { success: 'Decisión registrada. No se creó un pedido.' };
         }
         router.refresh();

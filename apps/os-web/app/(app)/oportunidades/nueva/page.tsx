@@ -6,12 +6,13 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; cliente?: string }>;
+  searchParams: Promise<{ q?: string; cliente?: string; datos?: string }>;
 };
 
 export default async function NuevaOportunidadDesdeListaPage({ searchParams }: PageProps) {
@@ -30,7 +31,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
   const client = createOsApiClient(auth);
   const cliente = params.cliente?.trim() ?? '';
   const query = params.q?.trim() ?? '';
-  const dataMode = await resolveDemoDataMode({});
+  const dataMode = await resolveDemoDataMode(params);
 
   if (cliente) {
     return (
@@ -40,7 +41,10 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
           title="Nueva oportunidad"
           description="El cliente ya existe. El título es el nombre comercial de la oportunidad."
           action={
-            <Link href="/oportunidades/nueva" className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+            <Link
+              href={withExplicitDataMode('/oportunidades/nueva', dataMode)}
+              className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+            >
               Cambiar cliente
             </Link>
           }
@@ -74,12 +78,13 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
         title="Nueva oportunidad"
         description="Elija un cliente existente. No se crea un cliente desde aquí."
         action={
-          <Link href="/clientes/nuevo" className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
+          <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
             Crear cliente
           </Link>
         }
       />
       <form method="get" action="/oportunidades/nueva" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <input type="hidden" name="datos" value={dataMode} />
         <label className="min-w-0 flex-1 text-sm text-[var(--isalwa-kiln)]">
           Cliente
           <input
@@ -101,7 +106,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
       {query.length >= 2 && matches.length === 0 ? (
         <p className="text-sm text-[var(--isalwa-kiln)]">
           No encontramos ese cliente.{' '}
-          <Link href="/clientes/nuevo" className="font-medium text-[var(--isalwa-glaze)] underline">
+          <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="font-medium text-[var(--isalwa-glaze)] underline">
             Crear cliente
           </Link>
         </p>
@@ -110,7 +115,10 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
           {matches.map((party) => (
             <li key={party.partyId}>
               <Link
-                href={`/oportunidades/nueva?cliente=${encodeURIComponent(party.partyId)}`}
+                href={withExplicitDataMode(
+                  `/oportunidades/nueva?cliente=${encodeURIComponent(party.partyId)}`,
+                  dataMode,
+                )}
                 className="block px-4 py-3 text-sm font-medium text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-porcelain)]"
               >
                 {party.displayName}
@@ -121,7 +129,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
       )}
       <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
         Si el cliente no está en la lista,{' '}
-        <Link href="/clientes/nuevo" className="font-medium text-[var(--isalwa-glaze)] underline">
+        <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="font-medium text-[var(--isalwa-glaze)] underline">
           Crear cliente
         </Link>
         .

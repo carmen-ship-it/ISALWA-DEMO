@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState } from 'react';
 import { PageSection } from '@isalwa/ui';
 import { createOpportunityAction } from '@/lib/commercial/actions';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { ServerMemberTypeahead } from '@/components/operating/server-member-typeahead';
@@ -18,7 +19,7 @@ export function OpportunityCreateForm({ partyId }: OpportunityCreateFormProps) {
     async (_prev: { error?: string } | null, formData: FormData) => {
       const result = await createOpportunityAction(formData);
       if (result.ok) {
-        router.push(result.redirectTo);
+        router.push(hrefWithClientDataMode(result.redirectTo));
         router.refresh();
         return null;
       }

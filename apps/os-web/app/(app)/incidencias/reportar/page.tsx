@@ -11,6 +11,7 @@ import { reportIssueAction, type ReportIssueActionResult } from '@/lib/issue/act
 import { parseReportIssueContext } from '@/lib/issue/report-context';
 import { ISSUE_COPY, formatReferenceType } from '@/lib/issue/labels';
 import { issueHref, issueListHref } from '@/lib/issue/navigation';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 
 const fieldClass =
   'mt-1.5 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
@@ -38,7 +39,7 @@ export default function ReportarIncidenciaPage() {
       const result = await reportIssueAction(formData);
       if (result.ok) {
         setFormKey((k) => k + 1);
-        router.push(issueHref(result.issueId));
+        router.push(hrefWithClientDataMode(issueHref(result.issueId)));
         router.refresh();
       }
       return result;

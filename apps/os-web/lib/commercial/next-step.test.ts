@@ -8,6 +8,7 @@ import {
   orderNextStep,
   preferredLinkedQuote,
   quoteNextStep,
+  presentSentence,
 } from './next-step';
 
 describe('commercial next-step', () => {
@@ -244,7 +245,37 @@ describe('commercial next-step', () => {
     assert.equal(step?.waiting, true);
     assert.match(step?.statement ?? '', /rechazada/i);
     assert.match(step?.statement ?? '', /no se creó un pedido/i);
-    assert.equal(step?.hrefLabel, 'Ver cliente');
+    assert.equal(step?.hrefLabel, 'Ver cotización');
+  });
+
+  it('does not add a second period when the stored reason already ends with one', () => {
+    assert.equal(presentSentence('No crear pedido.'), 'No crear pedido.');
+    assert.equal(presentSentence('Sin punto'), 'Sin punto.');
+    const step = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      quoteNumber: 'Q-000019',
+      canConvertToOrder: true,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: false,
+      followUpHref: null,
+      latestApprovalDecision: 'rejected',
+      rejectedBy: 'Carmen Staging',
+      rejectionReason: 'Precio de demostración no autorizado. No crear pedido.',
+    });
+    assert.equal(
+      step?.statement,
+      [
+        'Cotización Q-000019 rechazada.',
+        'Rechazada por: Carmen Staging.',
+        'Motivo: Precio de demostración no autorizado. No crear pedido.',
+        'No se creó un pedido.',
+      ].join('\n'),
+    );
+    assert.doesNotMatch(step?.statement ?? '', /\.\./);
   });
 
   it('picks the latest recorded approval decision without inventing pending ones', () => {

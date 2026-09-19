@@ -5,6 +5,20 @@
 
 export const COMMERCIAL_NEXT_STEP_LABEL = 'Próximo paso';
 
+/** Presentation only. Does not change a stored reason. */
+export function presentSentence(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function presentLines(parts: Array<string | null | undefined>): string {
+  return parts
+    .map((part) => (part ? presentSentence(part) : ''))
+    .filter((part) => part.length > 0)
+    .join('\n');
+}
+
 export type CommercialNextStep = {
   statement: string;
   href: string | null;
@@ -190,11 +204,13 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
         const number = input.quoteNumber?.trim();
         const who = input.rejectedBy?.trim();
         const why = input.rejectionReason?.trim();
-        const head = number ? `Cotización ${number} rechazada.` : 'Aprobación rechazada.';
-        const by = who ? ` Rechazada por: ${who}.` : '';
-        const reason = why ? ` Motivo: ${why}.` : '';
         return {
-          statement: `${head}${by}${reason} No se creó un pedido.`,
+          statement: presentLines([
+            number ? `Cotización ${number} rechazada` : 'Aprobación rechazada',
+            who ? `Rechazada por: ${who}` : null,
+            why ? `Motivo: ${why}` : null,
+            'No se creó un pedido',
+          ]),
           href: `/clientes/${input.partyId}/cotizaciones/${input.quoteId}`,
           hrefLabel: 'Ver cotización',
           waiting: true,

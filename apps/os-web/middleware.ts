@@ -4,6 +4,8 @@ import { getOsAuthMode, isSupabaseConfigured } from '@/lib/auth/config';
 import { decodeDevSession } from '@/lib/auth/dev-session';
 import { updateSupabaseSession } from '@/lib/auth/supabase/middleware';
 import { DEMO_DATA_MODE_COOKIE } from '@/lib/demo/owner-demo-identity';
+import { OWNER_EFFECTIVE_COMPANY_COOKIE } from '@/lib/demo/owner-company-context';
+import { DATA_MODE_REQUEST_HEADER, explicitDataMode } from '@/lib/demo/preserve-data-mode';
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -38,6 +40,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Pin explicit ?datos= onto this request before the session response is built,
+  // so the first RSC paint uses the URL company instead of the previous cookie.
+  const datos = explicitDataMode(request.nextUrl.searchParams.get('datos'));
+  if (datos) {
+    request.cookies.set(DEMO_DATA_MODE_COOKIE, datos);
+    request.cookies.set(OWNER_EFFECTIVE_COMPANY_COOKIE, datos === 'demo' ? 'synth' : 'real');
+    request.headers.set(DATA_MODE_REQUEST_HEADER, datos);
+  }
+
   const { ok, response } = await hasSession(request);
 
   if (isPublicPath(pathname)) {
@@ -56,17 +67,17 @@ export async function middleware(request: NextRequest) {
     return applyPrivateNoStore(NextResponse.redirect(loginUrl));
   }
 
-  // Explicit ?datos=demo|real wins over sticky cookie and keeps sidebar nav honest.
-  const datos = request.nextUrl.searchParams.get('datos')?.trim().toLowerCase();
-  if (datos === 'demo' || datos === 'real') {
-    const current = request.cookies.get(DEMO_DATA_MODE_COOKIE)?.value;
-    if (current !== datos) {
-      response.cookies.set(DEMO_DATA_MODE_COOKIE, datos, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'lax',
-      });
-    }
+  if (datos) {
+    response.cookies.set(DEMO_DATA_MODE_COOKIE, datos, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: 'lax',
+    });
+    response.cookies.set(OWNER_EFFECTIVE_COMPANY_COOKIE, datos === 'demo' ? 'synth' : 'real', {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: 'lax',
+    });
   }
 
   return applyPrivateNoStore(response);

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState } from 'react';
 import { PageSection } from '@isalwa/ui';
 import { createQuoteAction } from '@/lib/commercial/actions';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
@@ -27,7 +28,7 @@ export function QuoteCreateForm({
     async (_prev: { error?: string } | null, formData: FormData) => {
       const result = await createQuoteAction(formData);
       if (result.ok) {
-        router.push(result.redirectTo);
+        router.push(hrefWithClientDataMode(result.redirectTo));
         router.refresh();
         return null;
       }
