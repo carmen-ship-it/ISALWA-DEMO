@@ -169,7 +169,9 @@ export function buildOrderPrepReviewWork(input: {
 export function visibleWorkDescription(text: string | null | undefined): string | null {
   if (!text) return null;
   const cleaned = presentHumanCopy(
-    text.replace(/\[\[order-prep:(?:production|warehouse|purchasing):[^\]]+\]\]/g, ''),
+    text
+      .replace(/\[\[order-prep:(?:production|warehouse|purchasing):[^\]]+\]\]/g, '')
+      .replace(/\[\[compras-result:[^\]]+\]\]/g, ''),
   );
   return cleaned || null;
 }

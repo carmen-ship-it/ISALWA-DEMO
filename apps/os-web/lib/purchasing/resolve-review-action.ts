@@ -11,6 +11,8 @@ import { assertRolePreviewAllowsMutation } from '@/lib/role-preview/mutation-gat
 import { buildCompleteWorkPayload } from '@/lib/work/follow-up';
 import {
   PURCHASING_CONCLUSIONS,
+  PURCHASING_RESULT_STATUS,
+  PURCHASING_RESULT_TITLE,
   comprasResultMarker,
   purchasingResultCopy,
   type PurchasingConclusion,
@@ -51,8 +53,10 @@ export async function resolvePurchasingReviewAction(
   }
   if (!ownerMemberId) return { ok: false, error: 'No hay un responsable para devolver el resultado.' };
   const visible = purchasingResultCopy(conclusion);
-  const title = `Compras · ${orderNumber || 'Pedido'} · ${visible}`;
-  const description = `${visible}\nComentario: ${comment}\n${comprasResultMarker(orderId)}`;
+  const title = orderNumber
+    ? `${PURCHASING_RESULT_TITLE} · ${orderNumber}`
+    : PURCHASING_RESULT_TITLE;
+  const description = `${visible}\nComentario: ${comment}\n${PURCHASING_RESULT_STATUS}. ${PURCHASING_RESULT_TITLE}.\n${comprasResultMarker(orderId)}`;
   const complete = buildCompleteWorkPayload(workItemId);
   if (!complete.ok) return complete;
 

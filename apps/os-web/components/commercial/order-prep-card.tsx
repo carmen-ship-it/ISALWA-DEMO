@@ -13,6 +13,7 @@ import {
 import { requestOrderPrepReviewAction } from '@/lib/commercial/order-prep-actions';
 import { AppToast, AppToastRegion } from '@/components/states/app-toast';
 import { workItemHref } from '@/lib/work/navigation';
+import { PURCHASING_REPEAT_REQUEST } from '@/lib/purchasing/resolve-review-copy';
 
 export type OrderPrepCardProps = {
   orderId: string;
@@ -21,6 +22,8 @@ export type OrderPrepCardProps = {
   orderLabel?: string | null;
   assignees?: Partial<Record<OrderPrepDepartment, string | null>>;
   openReviews?: Partial<Record<OrderPrepDepartment, OrderPrepOpenReview>>;
+  /** True when a Compras result was already returned. A new request stays allowed. */
+  purchasingResultRecorded?: boolean;
   /** Optional factual warehouse evidence — never stock yes/no claims. */
   warehouseEvidence?: string | null;
   canMutate?: boolean;
@@ -35,6 +38,7 @@ export function OrderPrepCard({
   orderLabel,
   assignees,
   openReviews: initialOpen,
+  purchasingResultRecorded = false,
   warehouseEvidence,
   canMutate = true,
 }: OrderPrepCardProps) {
@@ -135,7 +139,9 @@ export function OrderPrepCard({
                     disabled={pending && busyDept === department}
                     onClick={() => handleReview(department)}
                   >
-                    {copy.action}
+                    {department === 'purchasing' && purchasingResultRecorded
+                      ? PURCHASING_REPEAT_REQUEST
+                      : copy.action}
                   </Button>
                 </div>
               ) : (

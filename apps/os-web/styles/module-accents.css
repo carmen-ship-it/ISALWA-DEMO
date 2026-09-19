@@ -22,7 +22,7 @@ main[aria-label='Compromisos'] h1 {
 }
 main[aria-label='Pedidos'] h1,
 main[aria-label='Entregas'] h1 {
-  box-shadow: inset 4px 0 0 #1d6b45;
+  box-shadow: inset 4px 0 0 #e7f4ec;
   padding-left: 0.75rem;
 }
 main[aria-label='Producción'] h1 {

@@ -159,7 +159,7 @@ export const PAGE_MICRO_TOURS: readonly MicroTour[] = [
     roleKeys: ['org.admin', 'operations', 'sales_manager'],
     triggerWhenEmpty: true,
     steps: [
-      { target: 'coordination-history', body: 'Aquí se preservan decisiones importantes.' },
+      { target: 'coordination-history', body: 'Coordinación aún no registra decisiones operativas de forma persistente.' },
       { body: 'Una decisión puede guardar quién decidió, cuándo y el motivo cuando fue proporcionado.' },
       { body: 'ISALWA nunca inventa la razón de una decisión.' },
     ],

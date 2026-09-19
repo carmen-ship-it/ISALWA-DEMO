@@ -8,6 +8,7 @@ import {
   type PostSalePedidoOption,
   productOptionsForPedido,
 } from '@/lib/postsale/pedido-context';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type PedidoHandoffPanelProps = {
   pedidos: readonly PostSalePedidoOption[];
@@ -35,7 +36,9 @@ export function PedidoHandoffPanel({
 }: PedidoHandoffPanelProps) {
   const selected = pedidos.find((row) => row.orderId === selectedOrderId) ?? null;
   const pedidoOptions = pedidos.map((row) => ({ id: row.orderId, label: row.optionLabel }));
-  const lineOptions = productOptionsForPedido(selected);
+  const lineOptions = productOptionsForPedido(selected).filter(
+    (option) => !isEngineeringFixtureCopy(option.label),
+  );
 
   return (
     <PageSection card className="mb-6 p-6 md:p-8" aria-label={POSTSALE_HANDOFF_COPY.title}>
@@ -116,7 +119,9 @@ export function PedidoHandoffPanel({
           <div>
             <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{POSTSALE_HANDOFF_COPY.lines}</h3>
             <ul className="mt-2" aria-label={POSTSALE_HANDOFF_COPY.quantities}>
-              {selected.lines.map((line) => (
+              {selected.lines
+                .filter((line) => !isEngineeringFixtureCopy(line.productLabel))
+                .map((line) => (
                 <ListRow key={line.orderLineId} as="li">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{line.productLabel}</p>
@@ -137,7 +142,14 @@ export function PedidoHandoffPanel({
               </p>
             ) : (
               <ul className="mt-2">
-                {evidence.map((row, index) => (
+                {evidence
+                  .filter(
+                    (row) =>
+                      !isEngineeringFixtureCopy(row.label) &&
+                      !isEngineeringFixtureCopy(row.note) &&
+                      !isEngineeringFixtureCopy(row.actorLabel),
+                  )
+                  .map((row, index) => (
                   <ListRow key={`${row.kind}-${index}`} as="li">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.label}</p>

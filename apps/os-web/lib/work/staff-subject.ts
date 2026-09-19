@@ -29,7 +29,9 @@ export function isEngineeringFixtureCopy(value: string | null | undefined): bool
     /\bStep17\b/i.test(trimmed) ||
     /\bprobe\b/i.test(trimmed) ||
     /\bClose Test\b/i.test(trimmed) ||
-    /^FINALV1-/i.test(trimmed)
+    /\bFINALV1\b/i.test(trimmed) ||
+    /\bSynth\b/i.test(trimmed) ||
+    /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i.test(trimmed)
   );
 }
 

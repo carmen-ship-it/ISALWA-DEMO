@@ -14,19 +14,8 @@ export default async function CoordinacionPage() {
       <PageHeader
         kicker="Asuntos que necesitan una decisión"
         title="Coordinación"
-        description="Solo lo que cruza áreas y necesita una decisión. No es un calendario de reuniones."
-        action={
-          model.canRecord ? (
-            <a
-              href="#registrar-coordinacion"
-              className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-kiln)] px-4 text-sm font-medium text-white"
-            >
-              + Registrar asunto de coordinación
-            </a>
-          ) : (
-            <StatusPill tone="neutral">Solo lectura</StatusPill>
-          )
-        }
+        description="Coordinación aún no registra decisiones operativas de forma persistente."
+        action={<StatusPill tone="neutral">Aún no disponible</StatusPill>}
       />
       <CoordinationPanel model={model} />
     </PageContainer>

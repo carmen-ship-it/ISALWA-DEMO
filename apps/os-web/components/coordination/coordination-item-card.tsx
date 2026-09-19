@@ -2,7 +2,6 @@
 
 import { StatusPill, Timeline } from '@isalwa/ui';
 import { CoordinationFieldList } from '@/components/coordination/coordination-fields';
-import { CoordinationDecisionForm } from '@/components/coordination/coordination-decision-form';
 import {
   COORDINATION_TRIGGER_LABELS,
   type CoordinationCommitteeItem,
@@ -23,11 +22,8 @@ type CoordinationItemCardProps = {
 
 export function CoordinationItemCard({
   item,
-  session,
-  ledger,
   decisions,
   canRecord,
-  onRecorded,
 }: CoordinationItemCardProps) {
   const linked = item.linkedCaseId
     ? decisions.filter(
@@ -56,13 +52,9 @@ export function CoordinationItemCard({
         />
       ) : null}
       {canRecord ? (
-        <CoordinationDecisionForm
-          session={session}
-          ledger={ledger}
-          linkedCaseId={item.linkedCaseId}
-          mode="record"
-          onRecorded={onRecorded}
-        />
+        <p className="text-sm text-[var(--isalwa-slate)]">
+          Coordinación aún no registra decisiones operativas de forma persistente.
+        </p>
       ) : (
         <p className="text-sm text-[var(--isalwa-slate)]">
           Registrar una decisión exige la capacidad asignada. El cargo no la otorga.

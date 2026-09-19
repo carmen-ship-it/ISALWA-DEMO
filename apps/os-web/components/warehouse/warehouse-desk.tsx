@@ -132,9 +132,19 @@ function BoundaryNotes() {
   );
 }
 
-function visibleCatalogName(text: string): string {
-  if (isEngineeringFixtureCopy(text)) return 'Pieza registrada';
-  return presentHumanCopy(text) || text;
+function humanWarehouseText(text: string | null | undefined): string | null {
+  const raw = text?.trim() ?? '';
+  if (!raw || isEngineeringFixtureCopy(raw)) return null;
+  const human = presentHumanCopy(raw);
+  if (!human || isEngineeringFixtureCopy(human)) return null;
+  return human;
+}
+
+function contextLabel(parts: Array<string | null | undefined>): string | null {
+  const human = parts
+    .map((part) => humanWarehouseText(part))
+    .filter((part): part is string => Boolean(part));
+  return human.length > 0 ? human.join(' · ') : null;
 }
 
 function WaitingSection({ view }: { view: WarehouseTaskView }) {
@@ -149,10 +159,12 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
         />
       ) : (
         <ul>
-          {view.waiting.map((row) => (
+          {view.waiting
+            .filter((row) => humanWarehouseText(row.productName.text))
+            .map((row) => (
             <ListRow key={row.productId} as="li">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{visibleCatalogName(row.productName.text)}</p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.waitingText}</p>
               </div>
               <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
@@ -191,18 +203,25 @@ function AllocateSection({
   const pedidos = view.pedidos.filter((pedido) => !productId || pedido.productId === productId);
   const productOptions = useMemo(
     () =>
-      choosable.map((row) => ({
-        id: row.productId,
-        label: visibleCatalogName(row.productName.text),
-      })),
+      choosable
+        .map((row) => ({
+          id: row.productId,
+          label: humanWarehouseText(row.productName.text) ?? '',
+        }))
+        .filter((row) => row.label),
     [choosable],
   );
   const pedidoOptions = useMemo(
     () =>
-      pedidos.map((pedido) => ({
-        id: pedido.orderLineId,
-        label: pedido.optionLabel,
-      })),
+      pedidos
+        .map((pedido) => ({
+          id: pedido.orderLineId,
+          label:
+            humanWarehouseText(pedido.optionLabel) ??
+            contextLabel([pedido.customerName.text, pedido.orderName.text]) ??
+            '',
+        }))
+        .filter((row) => row.label),
     [pedidos],
   );
 
@@ -213,10 +232,12 @@ function AllocateSection({
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.unknownAvailability}</p>
       ) : (
         <ul className="mb-6">
-          {view.allocatable.map((row) => (
+          {view.allocatable
+            .filter((row) => humanWarehouseText(row.productName.text))
+            .map((row) => (
             <ListRow key={row.productId} as="li">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{visibleCatalogName(row.productName.text)}</p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.availableText}</p>
               </div>
             </ListRow>
@@ -232,9 +253,13 @@ function AllocateSection({
         </div>
       ) : (
         <ul className="mt-3" aria-label={WAREHOUSE_TASK_COPY.pedido}>
-          {view.pedidos.map((pedido) => (
+          {view.pedidos
+            .filter((pedido) => humanWarehouseText(pedido.optionLabel) || contextLabel([pedido.customerName.text, pedido.orderName.text]))
+            .map((pedido) => (
             <ListRow key={pedido.orderLineId} as="li">
-              <p className="text-sm text-[var(--isalwa-kiln)]">{pedido.optionLabel}</p>
+              <p className="text-sm text-[var(--isalwa-kiln)]">
+                {humanWarehouseText(pedido.optionLabel) ?? contextLabel([pedido.customerName.text, pedido.orderName.text])}
+              </p>
             </ListRow>
           ))}
         </ul>
@@ -317,18 +342,24 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
         />
       ) : (
         <ul>
-          {view.remains.map((row) => (
+          {view.remains.map((row) => {
+            const label = contextLabel([
+              row.customerName.text,
+              row.orderName.text,
+              row.productName.text,
+            ]);
+            if (!label) return null;
+            return (
             <ListRow key={row.orderLineId} as="li">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                  {row.customerName.text} · {row.orderName.text} · {visibleCatalogName(row.productName.text)}
-                </p>
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{label}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.remainingText}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Asignado {row.allocatedQuantity}</p>
               </div>
               <StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.notFulfillment}</StatusPill>
             </ListRow>
-          ))}
+            );
+          })}
         </ul>
       )}
     </PageSection>
@@ -353,23 +384,28 @@ function HistorySection({
         action={<StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.correctionKeepsOriginal}</StatusPill>}
       />
       <ul>
-        {view.allocations.map((row) => (
+        {view.allocations.map((row) => {
+          const label = contextLabel([row.productName.text, row.customerName.text, row.orderName.text]);
+          const who = contextLabel([row.customerName.text, row.orderName.text]);
+          if (!label) return null;
+          return (
           <ListRow key={row.id} as="li">
             <div className="min-w-0">
               <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                {visibleCatalogName(row.productName.text)} · {row.quantity}
+                {humanWarehouseText(row.productName.text)
+                  ? `${humanWarehouseText(row.productName.text)} · ${row.quantity}`
+                  : row.quantity}
               </p>
+              {who ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{who}</p> : null}
               <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                {row.customerName.text} · {row.orderName.text}
-              </p>
-              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                {row.actorLabel} · {formatWhen(row.allocatedAt)}
+                {[humanWarehouseText(row.actorLabel), formatWhen(row.allocatedAt)].filter(Boolean).join(' · ')}
               </p>
               {canAllocate && onCorrect ? <CorrectionForm allocationId={row.id} onCorrect={onCorrect} /> : null}
             </div>
             {row.corrected ? <StatusPill tone="manual">Se conserva</StatusPill> : null}
           </ListRow>
-        ))}
+          );
+        })}
       </ul>
       {view.corrections.length > 0 ? (
         <ul className="mt-4" aria-label="Correcciones">
@@ -377,9 +413,9 @@ function HistorySection({
             <ListRow key={correction.id} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Corrección · {correction.quantity}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{correction.reason}</p>
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{humanWarehouseText(correction.reason) ?? ''}</p>
                 <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                  {correction.actorLabel} · {formatWhen(correction.correctedAt)}
+                  {[humanWarehouseText(correction.actorLabel), formatWhen(correction.correctedAt)].filter(Boolean).join(' · ')}
                 </p>
               </div>
               <StatusPill tone="manual">Corrección</StatusPill>

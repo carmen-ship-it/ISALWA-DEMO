@@ -450,6 +450,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
               purchasing: canRecordPurchasing(scopes) ? actorMemberId : null,
             }}
             openReviews={openPrepReviews}
+            purchasingResultRecorded={Boolean(purchasingResult)}
             warehouseEvidence={
               finishedGoodsEvidence
                 ? 'Hay un ingreso de productos terminados registrado vinculado a este pedido (hecho reportado; no indica stock disponible).'

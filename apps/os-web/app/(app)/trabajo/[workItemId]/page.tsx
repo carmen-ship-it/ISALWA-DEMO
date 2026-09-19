@@ -28,6 +28,12 @@ import { partyHref } from '@/lib/party/navigation';
 import { staffFacingSubject } from '@/lib/work/staff-subject';
 import { QuotedProductContext } from '@/components/commercial/quoted-product-context';
 import { parseOrderPrepMarker, visibleWorkDescription } from '@/components/commercial/order-prep-work';
+import {
+  PURCHASING_RESULT_ORDER_LINK,
+  PURCHASING_RESULT_STATUS,
+  PURCHASING_RESULT_TITLE,
+  parseComprasResultOrderId,
+} from '@/lib/purchasing/resolve-review-copy';
 import { orderHref, quoteHref } from '@/lib/commercial/navigation';
 import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
 
@@ -60,7 +66,14 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
       subjectType: work.subjectType,
       customerName: customerName && customerName !== 'Cliente' ? customerName : null,
     });
-    const statusLabel = customerFollowUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
+    const comprasOrderId = parseComprasResultOrderId(work.description);
+    const purchasingReturn = Boolean(comprasOrderId);
+    const pageTitle = purchasingReturn ? PURCHASING_RESULT_TITLE : staffTitle;
+    const statusLabel = purchasingReturn && work.status === 'open'
+      ? PURCHASING_RESULT_STATUS
+      : customerFollowUp
+        ? followUpStatusLabel(work.status)
+        : formatWorkStatus(work.status);
     const undatedOpen = work.status === 'open' && !work.dueAt;
     const completedAt = formatTimestamp(work.completedAt);
     const cancelledAt = formatTimestamp(work.cancelledAt);
@@ -93,12 +106,21 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
         quoteUnavailable = true;
       }
     }
+    if (!orderLink && purchasingReturn && comprasOrderId && partyId) {
+      orderLink = orderHref(partyId, comprasOrderId);
+      try {
+        const { order } = await client.getOrder(comprasOrderId);
+        orderNumber = order.orderNumber;
+      } catch {
+        orderNumber = null;
+      }
+    }
 
     return (
-      <PageContainer label={staffTitle}>
+      <PageContainer label={pageTitle}>
         <PageHeader
           kicker={customerFollowUp ? FOLLOW_UP_COPY.section : 'Trabajo'}
-          title={staffTitle}
+          title={pageTitle}
           action={
             <Link href="/trabajo">
               <Button type="button" variant="secondary">
@@ -138,7 +160,17 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             </div>
             <div>
               <dt className="isalwa-section-label">{FOLLOW_UP_COPY.nextAction}</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentHumanCopy(work.title)}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                {purchasingReturn ? PURCHASING_RESULT_STATUS : presentHumanCopy(work.title)}
+                {purchasingReturn && orderLink ? (
+                  <span className="mt-2 block">
+                    <Link href={orderLink} className="text-[var(--isalwa-glaze)] hover:underline">
+                      {PURCHASING_RESULT_ORDER_LINK}
+                      {orderNumber ? ` ${orderNumber}` : ''}
+                    </Link>
+                  </span>
+                ) : null}
+              </dd>
             </div>
             {customerName && partyId ? (
               <div>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { EmptyState, Panel, SectionHeader, StatusPill, Timeline } from '@isalwa/ui';
-import { CoordinationDecisionForm } from '@/components/coordination/coordination-decision-form';
 import { CoordinationItemCard } from '@/components/coordination/coordination-item-card';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import type { CoordinationPageModel } from '@/lib/coordination/page-model';
@@ -48,8 +47,7 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
           }
         />
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Solo lo que cruza áreas. Si no hay un asunto que necesite decisión, la cola queda vacía a
-          propósito.
+          Coordinación aún no registra decisiones operativas de forma persistente.
         </p>
         {model.committee.items.length === 0 ? (
           <EmptyState
@@ -66,7 +64,7 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
                 session={session}
                 ledger={ledger}
                 decisions={own}
-                canRecord={model.canRecord}
+                canRecord={false}
                 onRecorded={onRecorded}
               />
             ))}
@@ -78,7 +76,7 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
         <Panel padded>
           <SectionHeader kicker="Historial" title="Decisiones anteriores" />
           <p className="mb-4 text-sm text-[var(--isalwa-slate)]">
-            Una decisión anterior permanece hasta que se resuelve. La resolución es una fila nueva.
+            Coordinación aún no registra decisiones operativas de forma persistente.
           </p>
           <Timeline
             items={own.map((row) => ({
@@ -95,42 +93,17 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
               body: row.notes,
             }))}
           />
-          {model.canRecord
-            ? openDecisions.map((row) => (
-                <div key={row.id} className="mt-4">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <StatusPill tone="warning">Pendiente</StatusPill>
-                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.decision}</p>
-                  </div>
-                  <CoordinationDecisionForm
-                    session={session}
-                    ledger={ledger}
-                    linkedCaseId={row.linkedCaseId}
-                    mode="resolve"
-                    resolvesDecisionId={row.id}
-                    onRecorded={onRecorded}
-                  />
-                </div>
-              ))
-            : null}
+          {model.canRecord ? (
+            <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+              Coordinación aún no registra decisiones operativas de forma persistente.
+            </p>
+          ) : null}
         </Panel>
-        ) : null}
-      {model.canRecord ? (
-        <details id="registrar-coordinacion" className="rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3" open>
-          <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
-            Registrar asunto de coordinación
-          </summary>
-          <div className="mt-4">
-            <CoordinationDecisionForm
-              session={session}
-              ledger={ledger}
-              linkedCaseId={null}
-              mode="record"
-              onRecorded={onRecorded}
-            />
-          </div>
-        </details>
-      ) : null}
+      ) : (
+        <p className="text-sm text-[var(--isalwa-slate)]">
+          Coordinación aún no registra decisiones operativas de forma persistente.
+        </p>
+      )}
     </OpsDeskSurface>
   );
 }

@@ -14,6 +14,11 @@ import {
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { isEngineeringFixtureCopy, staffFacingSubject } from '@/lib/work/staff-subject';
+import {
+  PURCHASING_RESULT_STATUS,
+  PURCHASING_RESULT_TITLE,
+  isPurchasingResultWork,
+} from '@/lib/purchasing/resolve-review-copy';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
 type WorkListProps = {
@@ -57,18 +62,25 @@ export function WorkList({
           caption: followUp ? FOLLOW_UP_COPY.due : 'Vence',
         });
         const customer = partyCustomer(work, partyLabels);
-        const displayTitle = staffFacingSubject({
-          title: work.title,
-          description: work.description,
-          subjectType: work.subjectType,
-          customerName: customer,
-        });
+        const purchasingReturn = isPurchasingResultWork(work);
+        const displayTitle = purchasingReturn
+          ? PURCHASING_RESULT_TITLE
+          : staffFacingSubject({
+              title: work.title,
+              description: work.description,
+              subjectType: work.subjectType,
+              customerName: customer,
+            });
         if (!displayTitle || displayTitle === 'Vencido' || isEngineeringFixtureCopy(displayTitle)) {
           return null;
         }
 
         const owner = memberLabel(memberLabels, work.ownerMemberId);
-        const statusLabel = followUp ? followUpStatusLabel(work.status) : formatWorkStatus(work.status);
+        const statusLabel = purchasingReturn && work.status === 'open'
+          ? PURCHASING_RESULT_STATUS
+          : followUp
+            ? followUpStatusLabel(work.status)
+            : formatWorkStatus(work.status);
         const meta = [
           customer,
           `Responsable: ${owner}`,
