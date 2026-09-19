@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import { EmptyState, PageContainer, StatusPill } from '@isalwa/ui';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { ApprovalPendingCards } from '@/components/work/approval-pending-cards';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -10,7 +11,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
-import { listHref, parseListQuery } from '@/lib/lists/url-state';
+import { cursorPageLinks, listHref, parseListQuery } from '@/lib/lists/url-state';
 import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -103,16 +104,25 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
               Elija una solicitud para decidir. La decisión no crea un pedido.
             </p>
             <ApprovalPendingCards items={pending} memberLabels={memberLabels} subjects={subjects} />
-            {result.meta.hasMore && result.meta.nextCursor ? (
-              <div className="mt-6 flex justify-center">
-                <Link
-                  href={listHref('/aprobaciones', { ...listState, cursor: result.meta.nextCursor })}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                >
-                  Cargar más
-                </Link>
-              </div>
-            ) : null}
+            {(() => {
+              const nav = cursorPageLinks(
+                '/aprobaciones',
+                query,
+                result.meta.nextCursor,
+                result.meta.hasMore,
+              );
+              return nav.prevHref || nav.nextHref ? (
+                <ListPageNav
+                  from={0}
+                  to={pending.length}
+                  total={null}
+                  page={1}
+                  pageCount={null}
+                  prevHref={nav.prevHref}
+                  nextHref={nav.nextHref}
+                />
+              ) : null;
+            })()}
           </>
         )}
       </PageContainer>

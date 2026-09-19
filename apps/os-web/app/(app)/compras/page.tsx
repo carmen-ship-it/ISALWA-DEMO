@@ -9,6 +9,7 @@ import {
   StatusPill,
 } from '@isalwa/ui';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
+import { ResolvePurchasingReviewForm } from '@/components/purchasing/resolve-purchasing-review-form';
 import { PageHeader } from '@/components/shell/page-header';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -30,7 +31,11 @@ type ComprasPageProps = {
 };
 
 type LinkedOrderWithSupply = ComprasLinkedOrder & {
-  supplyReview: { workItemId: string; title: string } | null;
+  supplyReview: {
+    workItemId: string;
+    title: string;
+    requesterMemberId: string;
+  } | null;
 };
 
 function one(value: string | string[] | undefined): string | null {
@@ -120,7 +125,13 @@ async function loadComprasLinkedWithSupply(): Promise<LinkedOrderWithSupply[]> {
       return {
         ...order,
         supplyReview: open.purchasing
-          ? { workItemId: open.purchasing.workItemId, title: open.purchasing.title }
+          ? {
+              workItemId: open.purchasing.workItemId,
+              title: open.purchasing.title,
+              requesterMemberId:
+                workItems.find((row) => row.workItemId === open.purchasing?.workItemId)
+                  ?.createdByMemberId ?? '',
+            }
           : null,
       };
     });
@@ -178,12 +189,21 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 {order.supplyReview ? (
-                  <Link
-                    href={workItemHref(order.supplyReview.workItemId)}
-                    className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                  >
-                    Ver revisión
-                  </Link>
+                  <>
+                    <Link
+                      href={workItemHref(order.supplyReview.workItemId)}
+                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                    >
+                      Ver revisión
+                    </Link>
+                    <ResolvePurchasingReviewForm
+                      workItemId={order.supplyReview.workItemId}
+                      requesterMemberId={order.supplyReview.requesterMemberId}
+                      partyId={order.partyId}
+                      orderId={order.orderId}
+                      orderNumber={order.orderNumber}
+                    />
+                  </>
                 ) : null}
                 <Link
                   href={orderHref(order.partyId, order.orderId)}

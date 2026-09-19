@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button, EmptyState, PageContainer, PageSection, StatGroup, cx } from '@isalwa/ui';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -9,7 +10,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { t } from '@/lib/i18n/es';
-import { listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
+import { cursorPageLinks, listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
 import { partyHref } from '@/lib/party/navigation';
 import {
   presentWorkPage,
@@ -200,16 +201,25 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
                 showHeader
               />
             </PageSection>
-            {result.meta.hasMore && result.meta.nextCursor ? (
-              <div className="mt-6 flex justify-center">
-                <Link
-                  href={listHref('/trabajo', { ...listState, cursor: result.meta.nextCursor })}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                >
-                  Cargar más
-                </Link>
-              </div>
-            ) : null}
+            {(() => {
+              const nav = cursorPageLinks(
+                '/trabajo',
+                listState,
+                result.meta.nextCursor,
+                result.meta.hasMore,
+              );
+              return nav.prevHref || nav.nextHref ? (
+                <ListPageNav
+                  from={0}
+                  to={items.length}
+                  total={null}
+                  page={1}
+                  pageCount={null}
+                  prevHref={nav.prevHref}
+                  nextHref={nav.nextHref}
+                />
+              ) : null;
+            })()}
           </>
         )}
       </PageContainer>

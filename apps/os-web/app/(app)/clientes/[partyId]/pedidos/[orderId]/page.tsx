@@ -285,14 +285,17 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
 
     let openPrepReviews: ReturnType<typeof findOpenOrderPrepReviews> = {};
     let openWorkCount = 0;
+    let purchasingResult: string | null = null;
     try {
       const workPage = await client.listWorkItems({ status: 'open', limit: 100 });
-      openPrepReviews = findOpenOrderPrepReviews(
-        workPage.items ?? [],
-        order.orderId,
-        partyId,
-      );
-      openWorkCount = (workPage.items ?? []).filter(
+      const items = workPage.items ?? [];
+      openPrepReviews = findOpenOrderPrepReviews(items, order.orderId, partyId);
+      const marker = `[[compras-result:${order.orderId}]]`;
+      const resultRow = items.find((row) => (row.description ?? '').includes(marker));
+      purchasingResult = resultRow
+        ? resultRow.description?.split('\n')[0]?.trim() || resultRow.title
+        : null;
+      openWorkCount = items.filter(
         (row) => row.subjectType === 'party' && row.subjectId === partyId,
       ).length;
     } catch {
@@ -425,6 +428,12 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         </div>
 
         <PedidoKnownStateCard view={knownState} />
+
+        {purchasingResult ? (
+          <p className="mt-4 text-sm text-[var(--isalwa-kiln)]">
+            Resultado de Compras: {purchasingResult} No se creó una orden de compra.
+          </p>
+        ) : null}
 
         {actorMemberId ? (
           <OrderPrepCard

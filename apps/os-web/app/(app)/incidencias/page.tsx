@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { EmptyState, PageContainer, PageSection, StatGroup, StatusPill, cx } from '@isalwa/ui';
 import { IssueList } from '@/components/issue/issue-list';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { AccessDeniedState } from '@/components/states/app-states';
@@ -10,6 +11,7 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext, getServerWebSession } from '@/lib/auth/actions';
 import { ISSUE_COPY } from '@/lib/issue/labels';
 import { issueListHref } from '@/lib/issue/navigation';
+import { cursorPageLinks } from '@/lib/lists/url-state';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode } from '@/lib/demo/owner-demo-identity';
@@ -103,6 +105,8 @@ function emptyMessage(view: IssueView): IncidenciasEmpty {
 export default async function IncidenciasPage({ searchParams }: IncidenciasPageProps) {
   const params = await searchParams;
   const view = parseView(params.view);
+  const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
+  const trail = typeof params.trail === 'string' ? params.trail : undefined;
   const dataMode = await resolveDemoDataMode(params);
 
   const auth = await getServerOsAuthContext();
@@ -139,7 +143,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
       filterIssuesForEvaluation(evaluation, rows, allowedPartyIds);
 
     const [result, openPage, assignedPage, resolvedPage] = await Promise.all([
-      client.listIssues(viewQuery(view)),
+      client.listIssues({ ...viewQuery(view), ...(cursor ? { cursor } : {}) }),
       client.listIssues({ status: 'open', limit: PAGE_LIMIT }),
       client.listIssues({ assignedToMe: true, limit: PAGE_LIMIT }),
       client.listIssues({ status: 'resolved', limit: PAGE_LIMIT }),
@@ -214,16 +218,25 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
             >
               <IssueList items={items} memberLabels={memberLabels} showHeader />
             </PageSection>
-            {dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor ? (
-              <div className="mt-6 flex justify-center">
-                <Link
-                  href={`${issueListHref(view)}${view === 'open' ? '?' : '&'}cursor=${result.meta.nextCursor}`}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                >
-                  Cargar más
-                </Link>
-              </div>
-            ) : null}
+            {(() => {
+              const nav = cursorPageLinks(
+                '/incidencias',
+                { view: view === 'open' ? undefined : view, cursor, trail },
+                result.meta.nextCursor,
+                Boolean(result.meta.hasMore),
+              );
+              return nav.prevHref || nav.nextHref ? (
+                <ListPageNav
+                  from={0}
+                  to={items.length}
+                  total={null}
+                  page={1}
+                  pageCount={null}
+                  prevHref={nav.prevHref}
+                  nextHref={nav.nextHref}
+                />
+              ) : null;
+            })()}
           </>
         )}
       </PageContainer>

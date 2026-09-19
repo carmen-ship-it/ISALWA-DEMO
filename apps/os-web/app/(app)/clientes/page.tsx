@@ -12,12 +12,13 @@ import { CustomerQuickView } from '@/components/operating/customer-quick-view';
 import { PartyList } from '@/components/party/party-list';
 import { PartyEmptySearch } from '@/components/party/party-placeholders';
 import { PartySearchForm } from '@/components/party/party-search-form';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
+import { cursorPageLinks, parseListQuery, parsePanel } from '@/lib/lists/url-state';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
@@ -124,22 +125,27 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                 </div>
               </PageSection>
 
-              {dataMode !== 'demo' && result.meta.hasMore && result.meta.nextCursor ? (
-                <div className="mt-6 flex justify-center">
-                  <Link
-                    href={listHref('/clientes', {
-                      q,
-                      roleKey,
-                      status,
-                      cursor: result.meta.nextCursor,
-                      panel: listQuery.panel,
-                    })}
-                    className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                  >
-                    Cargar más
-                  </Link>
-                </div>
-              ) : null}
+              {dataMode !== 'demo'
+                ? (() => {
+                    const nav = cursorPageLinks(
+                      '/clientes',
+                      { q, roleKey, status, cursor, panel: listQuery.panel },
+                      result.meta.nextCursor,
+                      result.meta.hasMore,
+                    );
+                    return nav.prevHref || nav.nextHref ? (
+                      <ListPageNav
+                        from={0}
+                        to={filteredItems.length}
+                        total={null}
+                        page={1}
+                        pageCount={null}
+                        prevHref={nav.prevHref}
+                        nextHref={nav.nextHref}
+                      />
+                    ) : null;
+                  })()
+                : null}
             </>
           )}
         </div>
