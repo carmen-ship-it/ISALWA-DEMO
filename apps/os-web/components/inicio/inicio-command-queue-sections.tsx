@@ -1,3 +1,4 @@
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
@@ -73,7 +74,7 @@ function CommitmentRows({
               <OperatingRow
                 href={href}
                 density="compact"
-                subject={item.text.trim() || 'Compromiso'}
+                subject={presentHumanCopy(item.text) || 'Compromiso'}
                 meta={meta}
                 status={
                   <StatusPill tone={tone} className="shrink-0">
@@ -83,7 +84,7 @@ function CommitmentRows({
               />
             ) : (
               <div className="px-3 py-2">
-                <p className="text-sm text-[var(--isalwa-kiln)]">{item.text.trim() || 'Compromiso'}</p>
+                <p className="text-sm text-[var(--isalwa-kiln)]">{presentHumanCopy(item.text) || 'Compromiso'}</p>
                 <p className="text-xs text-[var(--isalwa-slate)]">{meta}</p>
               </div>
             )}

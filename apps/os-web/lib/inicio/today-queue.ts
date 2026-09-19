@@ -10,6 +10,7 @@ import { formatWorkDueLine, sortOpenWorkByDue } from '@/lib/work/due-order';
 import { isWorkOverdue } from '@/lib/work/labels';
 import { approvalHref, workItemHref } from '@/lib/work/navigation';
 import { isEngineeringFixtureCopy, staffFacingSubject } from '@/lib/work/staff-subject';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { partyHref } from '@/lib/party/navigation';
 
 /**
@@ -218,7 +219,7 @@ export function buildTodayQueue(input: TodayQueueInput): TodayQueue {
     .map((row) => ({
       id: `commitment:${row.id}`,
       bucket: 'commitments' as const,
-      title: row.text,
+      title: presentHumanCopy(row.text) || 'Compromiso',
       href: row.partyId ? partyHref(row.partyId) : '/inicio',
       dueAt: row.dueAt,
       meta: row.state === 'overdue' ? 'Vencido' : 'Vence hoy',

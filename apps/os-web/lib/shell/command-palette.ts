@@ -418,7 +418,7 @@ export function commitmentPaletteItem(input: {
   state: CommitmentState;
   partyId: string | null;
 }): PaletteItem {
-  const label = input.text.slice(0, 50).trim() || 'Compromiso';
+  const label = presentHumanCopy(input.text).slice(0, 80) || 'Compromiso';
   const href = input.partyId
     ? clienteSectionHref(input.partyId, 'trabajo')
     : '/compromisos';
