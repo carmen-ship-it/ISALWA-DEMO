@@ -239,7 +239,7 @@ export function buildTodayQueue(input: TodayQueueInput): TodayQueue {
     .map((row) => ({
       id: `issue:${row.issueId}`,
       bucket: 'issues' as const,
-      title: (row.title?.trim() || row.description.trim() || 'Incidencia abierta'),
+      title: presentHumanCopy(row.title?.trim() || row.description.trim()) || 'Incidencia abierta',
       href: `/incidencias/${row.issueId}`,
       dueAt: null,
       meta: null,
