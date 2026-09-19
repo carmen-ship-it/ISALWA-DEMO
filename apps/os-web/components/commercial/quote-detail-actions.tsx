@@ -132,7 +132,9 @@ export function QuoteDetailActions({
                   className={menuItemClass}
                   onClick={() => setMenuOpen(false)}
                 >
-                  Cliente aceptó · Convertir a Pedido
+                  {quoteStatus === 'accepted'
+                    ? 'Cliente aceptó · Convertir a Pedido'
+                    : 'Convertir a Pedido'}
                 </a>
               ) : null}
               {!canRegisterFollowUp && !canEdit && !canCancel && !canConvertToOrder ? (

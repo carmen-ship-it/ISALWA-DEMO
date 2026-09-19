@@ -5,6 +5,7 @@ import { formatListAge, formatOpportunityStatus, presentStage, statusTone } from
 import { newQuoteHref, opportunityHref, quoteHref } from '@/lib/commercial/navigation';
 import { opportunityNextStep, preferredLinkedQuote, type OpportunityLinkedQuote } from '@/lib/commercial/next-step';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
@@ -57,7 +58,7 @@ export function OpportunityOrgList({
             <li key={item.opportunityId}>
               <OperatingRow
                 href={opportunityHref(item.partyId, item.opportunityId)}
-                subject={item.title}
+                subject={presentHumanCopy(item.title)}
                 meta={
                   metaLine([
                     customer,

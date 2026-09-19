@@ -1,6 +1,6 @@
 import type { OsApiClient } from '@/lib/api/os-api-client';
+import { demoPersonCargo, presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import type { MemberDetailResponse } from '@/lib/workforce/types';
-import { memberDisplayName } from '@/lib/workforce/labels';
 import { resolveCargoForDisplay } from '@/lib/work/staff-display';
 
 export type MemberLabelMap = Map<string, string>;
@@ -13,13 +13,15 @@ export type MemberResponsibilityLabel = {
 
 export type MemberResponsibilityMap = Map<string, MemberResponsibilityLabel>;
 
-function personLabelFromResponse(response: MemberDetailResponse): string {
+function storedPersonLabel(response: MemberDetailResponse): string {
   if (response.summary) {
-    return memberDisplayName(
-      response.summary.displayName,
-      response.summary.givenName,
-      response.summary.familyName,
-    );
+    const trimmed = response.summary.displayName.trim();
+    if (trimmed) return trimmed;
+    const composed = [response.summary.givenName, response.summary.familyName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    return composed || 'Sin nombre';
   }
   const name = [response.person.givenName, response.person.familyName]
     .filter(Boolean)
@@ -56,11 +58,12 @@ export async function resolveMemberResponsibilityLabels(
     unique.map(async (memberId) => {
       try {
         const response = await client.getMember(memberId);
+        const storedName = storedPersonLabel(response);
         return [
           memberId,
           {
-            displayName: personLabelFromResponse(response),
-            businessRoleLabel: cargoFromResponse(response),
+            displayName: presentHumanCopy(storedName) || 'Miembro del equipo',
+            businessRoleLabel: demoPersonCargo(storedName) ?? cargoFromResponse(response),
           },
         ] as const;
       } catch {

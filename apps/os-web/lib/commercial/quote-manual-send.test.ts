@@ -75,13 +75,15 @@ describe('quote manual send record', () => {
     assert.match(pdf, /QUOTE_PDF_COPY\.download|Descargar PDF/);
   });
 
-  it('keeps convert sticky copy honest about submitted status', () => {
+  it('does not claim customer acceptance merely because a quote was presented', () => {
     const page = readFileSync(
       resolve(root, 'app/(app)/clientes/[partyId]/cotizaciones/[quoteId]/page.tsx'),
       'utf8',
     );
-    assert.match(page, /Cliente aceptó · listo para pedido/);
-    assert.match(page, /estado sigue presentada hasta convertir/);
+    assert.match(page, /Cotización presentada/);
+    assert.match(page, /Registre el seguimiento o convierta a pedido cuando corresponda/);
+    assert.match(page, /quote\.status === 'accepted'/);
+    assert.doesNotMatch(page, /estado sigue presentada hasta convertir/);
     assert.match(page, /createOrderAction|ConvertQuoteForm/);
   });
 });

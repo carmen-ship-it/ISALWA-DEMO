@@ -1,5 +1,6 @@
 import { CreateWorkItemPayloadSchema } from '@isalwa/os-contracts';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 
 export const ORDER_PREP_COPY = {
   cardTitle: 'Preparación operativa',
@@ -167,7 +168,9 @@ export function buildOrderPrepReviewWork(input: {
 
 export function visibleWorkDescription(text: string | null | undefined): string | null {
   if (!text) return null;
-  const cleaned = text.replace(/\[\[order-prep:(?:production|warehouse|purchasing):[^\]]+\]\]/g, '').trim();
+  const cleaned = presentHumanCopy(
+    text.replace(/\[\[order-prep:(?:production|warehouse|purchasing):[^\]]+\]\]/g, ''),
+  );
   return cleaned || null;
 }
 

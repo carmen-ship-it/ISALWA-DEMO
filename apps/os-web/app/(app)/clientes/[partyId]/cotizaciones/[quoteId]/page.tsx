@@ -291,9 +291,16 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">
-            <p className="text-sm text-[var(--isalwa-slate)]">
-              Cliente aceptó · listo para pedido (estado sigue presentada hasta convertir)
-            </p>
+            {quote.status === 'accepted' ? (
+              <p className="text-sm text-[var(--isalwa-slate)]">
+                Cliente aceptó · listo para pedido
+              </p>
+            ) : (
+              <div className="text-sm text-[var(--isalwa-slate)]">
+                <p>Cotización presentada</p>
+                <p>Registre el seguimiento o convierta a pedido cuando corresponda.</p>
+              </div>
+            )}
             <a href="#convertir-pedido">
               <Button type="button">Convertir a Pedido</Button>
             </a>

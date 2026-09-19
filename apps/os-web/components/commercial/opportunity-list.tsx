@@ -9,6 +9,7 @@ import {
 } from '@/lib/commercial/labels';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { opportunityHref, newQuoteHref, quoteHref } from '@/lib/commercial/navigation';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { opportunityNextStep, preferredLinkedQuote, type OpportunityLinkedQuote } from '@/lib/commercial/next-step';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
@@ -44,7 +45,7 @@ export function OpportunityList({ partyId, items, memberLabels, linkedQuotes }: 
                     href={opportunityHref(partyId, item.opportunityId)}
                     className="isalwa-t-fast font-medium text-[var(--isalwa-kiln)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                   >
-                    {item.title}
+                    {presentHumanCopy(item.title)}
                   </Link>
                   <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
                     <div>

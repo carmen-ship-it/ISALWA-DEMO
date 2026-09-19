@@ -34,6 +34,7 @@ import { flattenMiDia } from '@/lib/inicio/mi-dia';
 import {
   availableInicioPageLenses,
   canShowOrgLens,
+  lensInputForEvaluation,
   parseManagementPeriodPreset,
   resolveInicioPageLens,
   type InicioPageLens,
@@ -274,11 +275,14 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     // View As ops: hide commercial responsibility strip (not work-relevant).
     const showCommercialResponsibility = !evaluationIsOpsPersona(evaluation.persona);
 
-    const lensInput = {
-      roleKeys,
-      leadershipTeamReady: leadership.team.kind === 'ready',
-      leadershipOrgReady: leadership.org.kind === 'ready',
-    };
+    const lensInput = lensInputForEvaluation(
+      {
+        roleKeys,
+        leadershipTeamReady: leadership.team.kind === 'ready',
+        leadershipOrgReady: leadership.org.kind === 'ready',
+      },
+      evaluation,
+    );
     const availableLenses = availableInicioPageLenses(lensInput);
     const activeLens: InicioPageLens = resolveInicioPageLens(paramOne(params.lente), lensInput);
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));

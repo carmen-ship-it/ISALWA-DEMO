@@ -20,11 +20,11 @@ export const COMPRAS_COPY = {
   kicker: 'Compras',
   title: 'Cola de compras',
   description:
-    'El área responsable pide. La encargada de compras compra. Esta cola no es inventario.',
+    'Revise los pedidos que requieren atención de Compras. Las órdenes de compra aún no se generan en ISALWA.',
   boundary: PURCHASE_REQUEST_BOUNDARY,
-  emptyTitle: 'Cola de compras · estructura propuesta',
+  emptyTitle: 'Sin pedidos que requieran Compras',
   emptyDescription:
-    'Esta Versión 1 muestra la estructura propuesta para Compras. Antes de formalizar el registro y sus estados, queremos validar con ustedes cómo funciona realmente el proceso. Un vacío aquí no significa que falte un permiso ni que el inventario esté en cero.',
+    'Cuando un pedido requiera atención de Compras, aparecerá aquí. Las órdenes de compra aún no se generan en ISALWA.',
   loading: 'Cargando la cola de compras',
   errorTitle: 'No se pudo cargar la cola de compras',
   errorDescription: 'La cola no se mostró. No hay un resultado de otra empresa.',

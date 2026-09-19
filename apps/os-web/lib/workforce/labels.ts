@@ -1,4 +1,5 @@
 import { ADDITIONAL_ASSIGNABLE_SCOPE_KEYS, isAdditionalAssignableScope } from '@isalwa/os-contracts';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 
 /** Employee-facing Spanish labels for workforce read surfaces. */
 
@@ -7,7 +8,7 @@ export function memberDisplayName(
   givenName: string,
   familyName: string,
 ): string {
-  const trimmed = displayName.trim();
+  const trimmed = presentHumanCopy(displayName.trim());
   if (trimmed) return trimmed;
   const composed = [givenName, familyName].filter(Boolean).join(' ').trim();
   return composed || 'Sin nombre';

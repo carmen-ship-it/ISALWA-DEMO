@@ -54,6 +54,8 @@ export function formatStage(stage: string): string {
  */
 const STORED_STAGE_LABELS: Record<string, string> = {
   calificacion: 'Calificación',
+  negociacion: 'Negociación',
+  propuesta: 'Propuesta',
 };
 
 /**

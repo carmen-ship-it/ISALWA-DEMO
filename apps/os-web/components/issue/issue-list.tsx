@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { OperatingRow, StatusPill } from '@isalwa/ui';
 import { formatIssueStatus, formatReferenceType, statusToneForIssue } from '@/lib/issue/labels';
 import { issueHref } from '@/lib/issue/navigation';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { IssueListItem } from '@/lib/issue/types';
 
@@ -27,10 +28,11 @@ function formatTimestamp(iso: string | null): string {
 }
 
 function issueTitle(item: IssueListItem): string {
-  if (item.title?.trim()) return item.title.trim();
-  // Truncate description for list display
-  const desc = item.description.trim();
-  return desc.length > 60 ? `${desc.slice(0, 57)}…` : desc;
+  if (item.title?.trim()) return presentHumanCopy(item.title);
+  const desc = item.description?.trim() ?? '';
+  if (!desc) return 'Incidencia';
+  const shown = presentHumanCopy(desc);
+  return shown.length > 60 ? `${shown.slice(0, 57)}…` : shown;
 }
 
 function issueMeta(item: IssueListItem, memberLabels: MemberLabelMap): string {

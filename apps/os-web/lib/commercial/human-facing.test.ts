@@ -15,12 +15,15 @@ describe('human-facing commercial display', () => {
     assert.equal(presentStage('open'), 'Abierta');
     assert.equal(presentStage('open', 'opportunity'), 'Abierta');
     assert.equal(presentStage('open', 'order'), 'Registrado');
-    assert.equal(presentStage('propuesta'), 'propuesta');
+    assert.equal(presentStage('propuesta'), 'Propuesta');
+    assert.equal(presentStage('negociacion'), 'Negociación');
     assert.equal(presentStage('calificacion'), 'Calificación');
     assert.equal(presentStage(' Calificacion '), 'Calificación');
     assert.notEqual(presentStage('calificacion'), 'calificacion');
+    assert.notEqual(presentStage('negociacion'), 'negociacion');
     assert.notEqual(presentStage('open'), 'open');
     assert.equal(stageCommandValue('Calificación', 'calificacion'), 'calificacion');
+    assert.equal(stageCommandValue('Negociación', 'negociacion'), 'negociacion');
     assert.equal(stageCommandValue('negociacion', 'calificacion'), 'negociacion');
   });
 

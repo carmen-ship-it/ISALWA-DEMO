@@ -25,8 +25,6 @@ import { PURCHASE_REQUEST_STATUS_LABELS, type PurchaseRequestStatus } from '@isa
  * Action queue, not a table of records to edit.
  */
 
-const HAPPY_PATH = ['Solicitado', 'Cotizándose', 'Pedido y Preparándose', 'Entregado'] as const;
-
 const STATUS_FILTERS: Array<{ value: ''; label: string } | { value: PurchaseRequestStatus; label: string }> = [
   { value: '', label: 'Todos' },
   { value: 'solicitado', label: PURCHASE_REQUEST_STATUS_LABELS.solicitado },
@@ -84,23 +82,9 @@ export function PurchaseRequestPanel({
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill tone="manual">No es inventario</StatusPill>
         <StatusPill tone="neutral">No prueba falta de stock</StatusPill>
-        <StatusPill tone="manual">Versión 1 · por validar</StatusPill>
       </div>
       <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un pedido de compra no prueba que no haya stock. No genera una recompra automática.
-      </p>
-      <p className="mt-3 text-xs font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">
-        Camino habitual (propuesto)
-      </p>
-      <ol className="mt-2 flex flex-wrap gap-2" aria-label="Pasos de la compra">
-        {HAPPY_PATH.map((label) => (
-          <li key={label}>
-            <StatusPill tone="info">{label}</StatusPill>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-        Cancelado no es un paso. Solo detiene un pedido equivocado. Los estados se formalizarán después de validar el proceso real.
+        Revise los pedidos que requieren atención de Compras. Las órdenes de compra aún no se generan en ISALWA.
       </p>
       <div className="mt-8">{renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}</div>
     </PageSection>
@@ -232,7 +216,7 @@ function QueueList({
             example={
               filterActive
                 ? 'Quitar filtros muestra toda la cola de esta empresa.'
-                : 'No se crea un pedido de compra persistido desde aquí hasta formalizar el proceso con la empresa.'
+                : 'Las órdenes de compra aún no se generan en ISALWA.'
             }
           />
         </div>

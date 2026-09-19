@@ -33,9 +33,9 @@ export const OWNER_REVIEW_V1_COPY = {
   almacenTitle: 'Asignación a pedido · estructura visible',
   almacenDescription:
     'En esta Versión 1 puedes ver cómo se relacionará el producto terminado con los pedidos. El registro definitivo de esta asignación todavía se validará con ustedes antes de formalizarlo.',
-  comprasTitle: 'Cola de compras · estructura propuesta',
+  comprasTitle: 'Sin pedidos que requieran Compras',
   comprasDescription:
-    'Esta Versión 1 muestra la estructura propuesta para Compras. Antes de formalizar el registro y sus estados, queremos validar con ustedes cómo funciona realmente el proceso.',
+    'Revise los pedidos que requieren atención de Compras. Las órdenes de compra aún no se generan en ISALWA.',
   entregasTitle: 'Entrega · contexto visible',
   entregasDescription:
     'Aquí se muestra el contexto que tendrá una entrega. El registro definitivo de salida/llegada todavía se validará con ustedes antes de formalizarlo.',

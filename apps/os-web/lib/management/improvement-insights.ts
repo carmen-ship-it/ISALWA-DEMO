@@ -39,7 +39,11 @@ export function buildParaRevisarInsights(input: ImprovementInsightInput): Manage
   if (sentWithoutFollowUp > 0) {
     insights.push({
       id: 'quotes-no-follow-up',
-      message: `${sentWithoutFollowUp} cotización${sentWithoutFollowUp === 1 ? '' : 'es'} enviada${sentWithoutFollowUp === 1 ? '' : 's'} no tiene${sentWithoutFollowUp === 1 ? '' : 'n'} seguimiento programado.`,
+      message: `${sentWithoutFollowUp} ${
+        sentWithoutFollowUp === 1
+          ? 'cotización enviada no tiene'
+          : 'cotizaciones enviadas no tienen'
+      } seguimiento programado.`,
       href: '/cotizaciones?status=submitted',
       cta: 'Ver cotizaciones',
     });

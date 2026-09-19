@@ -63,7 +63,7 @@ export function ConvertQuoteForm({
       <GuidanceNotes notes={guidanceForConvertQuote({ quoteStatus })} />
       <FormFeedback error={state?.error} />
       <Button type="button" variant="primary" onClick={() => dialogRef.current?.showModal()}>
-        Cliente aceptó · Convertir a Pedido
+        {quoteStatus === 'accepted' ? 'Cliente aceptó · Convertir a Pedido' : 'Convertir a Pedido'}
       </Button>
 
       <dialog
@@ -78,7 +78,7 @@ export function ConvertQuoteForm({
         </div>
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Se creará un Pedido usando los valores aceptados de esta cotización.
+            Se creará un Pedido con las líneas y precios de esta cotización.
           </p>
           <dl className="grid gap-3 text-sm">
             <div>
@@ -99,7 +99,11 @@ export function ConvertQuoteForm({
             <input type="hidden" name="partyId" value={partyId} />
             <input type="hidden" name="quoteId" value={quoteId} />
             <CommandSubmitButton
-              label="Cliente aceptó · Convertir a Pedido"
+              label={
+                quoteStatus === 'accepted'
+                  ? 'Cliente aceptó · Convertir a Pedido'
+                  : 'Convertir a Pedido'
+              }
               pendingLabel="Registrando pedido…"
             />
             <Button type="button" variant="tertiary" onClick={() => dialogRef.current?.close()}>

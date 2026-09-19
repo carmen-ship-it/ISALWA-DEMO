@@ -8,6 +8,7 @@ import { StaleProjectionBanner } from '@/components/work/stale-projection-banner
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import {
   formatDueDate,
@@ -137,7 +138,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             </div>
             <div>
               <dt className="isalwa-section-label">{FOLLOW_UP_COPY.nextAction}</dt>
-              <dd className="mt-2 text-[var(--isalwa-kiln)]">{work.title}</dd>
+              <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentHumanCopy(work.title)}</dd>
             </div>
             {customerName && partyId ? (
               <div>

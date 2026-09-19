@@ -39,7 +39,7 @@ const tabClass =
 export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   const params = await searchParams;
   const query = parseListQuery(params);
-  const view = parseTrabajoView(query.view);
+  const requestedView = parseTrabajoView(query.view);
   const controls = readListControls(query);
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
@@ -59,6 +59,12 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
   const canOrgLens = evaluation.active
     ? evaluation.persona === 'gerencia'
     : probedOrgLens;
+  const view =
+    requestedView === 'org' && !canOrgLens
+      ? 'mine'
+      : requestedView === 'team' && !canTeamLens
+        ? 'mine'
+        : requestedView;
   const subjectType = query.subjectType;
   const subjectId = query.subjectId;
   const filteredByParty = subjectType === 'party' && Boolean(subjectId);
@@ -226,7 +232,7 @@ function TrabajoViewTabs({
     { id: 'overdue', label: 'Vencidos' },
   ];
   if (canTeamLens || active === 'team') tabs.splice(1, 0, { id: 'team', label: 'Equipo' });
-  if (canOrgLens || active === 'org') tabs.splice(tabs.length - 1, 0, { id: 'org', label: 'Empresa' });
+  if (canOrgLens) tabs.splice(tabs.length - 1, 0, { id: 'org', label: 'Empresa' });
 
   return (
     <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Vista de trabajo">

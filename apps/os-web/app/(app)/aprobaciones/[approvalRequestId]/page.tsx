@@ -26,7 +26,7 @@ import {
   statusToneForApproval,
 } from '@/lib/work/labels';
 import { approvalStaffSubject } from '@/lib/work/staff-subject';
-import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { memberLabel, memberWithCargoLine, resolveMemberResponsibilityLabels } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
@@ -46,11 +46,16 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
 
   try {
     const { approval, freshness } = await client.getApproval(approvalRequestId);
-    const memberLabels = await resolveMemberLabels(client, [
+    const live = await loadLiveSubjectApproval(client, approval);
+    const currentApproverId = live?.approverMemberId || approval.approverMemberId;
+    const responsibility = await resolveMemberResponsibilityLabels(client, [
       approval.requestedByMemberId,
-      approval.approverMemberId,
+      currentApproverId,
       approval.decisionByMemberId ?? '',
     ]);
+    const memberLabels = new Map(
+      [...responsibility.entries()].map(([id, row]) => [id, row.displayName]),
+    );
     const subject = formatSubjectType(approval.subjectType);
     const decidedAt = formatTimestamp(approval.decidedAt);
     const subjectLink = await resolveSubjectLink(client, approval.subjectType, approval.subjectId);
@@ -151,9 +156,9 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
                 </dd>
               </div>
               <div>
-                <dt className="isalwa-section-label">Aprobador</dt>
+                <dt className="isalwa-section-label">Decisión a cargo de</dt>
                 <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
-                  {memberLabel(memberLabels, approval.approverMemberId)}
+                  {memberWithCargoLine(responsibility, currentApproverId)}
                 </dd>
               </div>
               {subject ? (
@@ -263,6 +268,23 @@ async function resolveSubjectLink(
     return { href: partyHref(subjectId), label: 'Ver cliente', partyId: subjectId };
   }
   return null;
+}
+
+async function loadLiveSubjectApproval(
+  client: ReturnType<typeof createOsApiClient>,
+  approval: { approvalRequestId: string; subjectType: string; subjectId: string },
+): Promise<SubjectApprovalItem | null> {
+  if (approval.subjectType !== 'quote' && approval.subjectType !== 'order') return null;
+  try {
+    const history = await client.listSubjectApprovals(approval.subjectType, approval.subjectId);
+    return (
+      (history.items as SubjectApprovalItem[]).find(
+        (item) => item.approvalRequestId === approval.approvalRequestId,
+      ) ?? null
+    );
+  } catch {
+    return null;
+  }
 }
 
 async function resolveCanDecide(

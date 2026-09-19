@@ -7,6 +7,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import type { TypeaheadOption } from '@/lib/operating/typeahead';
 import { PALETTE_GROUP_LIMIT } from '@/lib/shell/command-palette';
 import { presentStage } from '@/lib/commercial/labels';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import type { CoverageInputPage, CoverageRecord, CoverageSummary } from './coverage';
 import { summarizeCoverage } from './coverage';
@@ -178,7 +179,7 @@ export async function lookupMembers(query: string): Promise<
       authorized: true,
       items: page.items
         .filter((member) => !isEngineeringFixtureCopy(member.displayName))
-        .map((member) => ({ value: member.memberId, label: member.displayName })),
+        .map((member) => ({ value: member.memberId, label: presentHumanCopy(member.displayName) || member.displayName })),
     };
   } catch (err) {
     if (isSessionFailure(err)) return { ok: false, reason: 'session' };

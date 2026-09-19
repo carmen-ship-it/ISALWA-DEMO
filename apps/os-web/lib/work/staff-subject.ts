@@ -1,4 +1,5 @@
 import type { ApprovalSummaryReadModel, AttentionItemReadModel } from '@isalwa/os-contracts';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { formatSubjectType } from '@/lib/work/labels';
 
 /** Engineering fixture titles must never be the staff-facing subject. */
@@ -29,7 +30,7 @@ export function isEngineeringFixtureCopy(value: string | null | undefined): bool
 export function usableStaffTitle(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? '';
   if (!trimmed || isEngineeringFixtureCopy(trimmed) || STATUS_ONLY.has(trimmed)) return null;
-  return trimmed;
+  return presentHumanCopy(trimmed) || null;
 }
 
 export function staffFacingSubject(input: {

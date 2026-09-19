@@ -7,6 +7,7 @@ import {
   quoteHref,
 } from '@/lib/commercial/navigation';
 import { formatOpportunityStatus, formatOrderStatus, formatQuoteStatus } from '@/lib/commercial/labels';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { formatOptionalCentavos } from '@/lib/commercial/money';
 import { filterNavByAccess, PRIMARY_NAV } from '@/lib/navigation/nav-config';
 import { t } from '@/lib/i18n/es';
@@ -286,7 +287,7 @@ export function opportunityPaletteItem(input: {
   return {
     key: `opportunity:${input.opportunityId}`,
     kind: 'opportunity',
-    label: input.title.trim() || 'Oportunidad',
+    label: presentHumanCopy(input.title) || 'Oportunidad',
     detail: formatOpportunityStatus(input.status),
     href: opportunityHref(input.partyId, input.opportunityId),
     partyId: input.partyId,
@@ -370,7 +371,7 @@ export function issuePaletteItem(input: {
   description: string;
   status: IssueStatus;
 }): PaletteItem {
-  const label = input.title?.trim() || input.description.slice(0, 50).trim() || 'Incidencia';
+  const label = presentHumanCopy(input.title?.trim() || input.description.slice(0, 50)) || 'Incidencia';
   return {
     key: `issue:${input.issueId}`,
     kind: 'issue',
@@ -385,7 +386,7 @@ export function peoplePaletteItem(input: {
   displayName: string;
   accessStatus: string;
 }): PaletteItem {
-  const name = input.displayName.trim() || 'Persona';
+  const name = presentHumanCopy(input.displayName) || 'Persona';
   const inactive = input.accessStatus !== 'active' ? 'Acceso inactivo' : undefined;
   return {
     key: `people:${input.memberId}`,

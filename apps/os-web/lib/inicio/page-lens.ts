@@ -12,6 +12,40 @@ export function canShowOrgLens(input: InicioRoleLensInput): boolean {
   return viewerHasManagementOrgRead(input.roleKeys) || input.leadershipOrgReady;
 }
 
+/**
+ * View As narrows the lens. An asesor projection never inherits the
+ * authenticated actor's company-wide read. Jefe keeps team; Gerencia keeps org.
+ */
+export function lensInputForEvaluation(
+  owner: InicioRoleLensInput,
+  evaluation: {
+    active: boolean;
+    persona: string | null;
+    presentationScopes: readonly string[];
+  },
+): InicioRoleLensInput {
+  if (!evaluation.active) return owner;
+  if (evaluation.persona === 'gerencia') {
+    return {
+      roleKeys: evaluation.presentationScopes,
+      leadershipTeamReady: true,
+      leadershipOrgReady: true,
+    };
+  }
+  if (evaluation.persona === 'jefe-comercial') {
+    return {
+      roleKeys: evaluation.presentationScopes,
+      leadershipTeamReady: true,
+      leadershipOrgReady: false,
+    };
+  }
+  return {
+    roleKeys: evaluation.presentationScopes,
+    leadershipTeamReady: false,
+    leadershipOrgReady: false,
+  };
+}
+
 export function resolveInicioPageLens(
   raw: string | undefined,
   input: InicioRoleLensInput,
