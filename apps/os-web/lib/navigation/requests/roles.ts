@@ -35,7 +35,7 @@ export function roleNavigationRequests(
     requests.push({ id: 'jefe', href: '/inicio', label: 'Equipo comercial' });
   }
   if (hasCompanyCommercialRead(scopes)) {
-    requests.push({ id: 'gerente', href: '/inicio', label: 'Excepciones de la empresa' });
+    requests.push({ id: 'gerente', href: '/inicio', label: 'Excepciones' });
   }
   for (const lens of DEPARTMENT_LENSES) {
     if (departmentLensAllowed(scopes, lens.scopes)) {

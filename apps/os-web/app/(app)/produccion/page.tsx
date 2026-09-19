@@ -85,20 +85,25 @@ export default async function ProduccionPage({
           Vista de evaluación: solo lectura. Las anotaciones de producción están deshabilitadas.
         </p>
       ) : (
-        <div className="mt-0">
-          <ProductionPostSaleDesk
-            status={identity.status}
-            organizationId={identity.organizationId}
-            memberId={identity.memberId}
-            actorLabel={identity.actorLabel}
-            grantedScopes={identity.grantedScopes}
-            scopesConfirmed={identity.scopesConfirmed}
-            catalog={catalog}
-            pedidos={pedidos}
-            initialOrderId={params?.orderId ?? null}
-            onCreateExpectedWork={createPostSaleExpectedWorkAction}
-          />
-        </div>
+        <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
+            + Registrar actualización
+          </summary>
+          <div className="mt-4">
+            <ProductionPostSaleDesk
+              status={identity.status}
+              organizationId={identity.organizationId}
+              memberId={identity.memberId}
+              actorLabel={identity.actorLabel}
+              grantedScopes={identity.grantedScopes}
+              scopesConfirmed={identity.scopesConfirmed}
+              catalog={catalog}
+              pedidos={pedidos}
+              initialOrderId={params?.orderId ?? null}
+              onCreateExpectedWork={createPostSaleExpectedWorkAction}
+            />
+          </div>
+        </details>
       )}
     </PageContainer>
   );

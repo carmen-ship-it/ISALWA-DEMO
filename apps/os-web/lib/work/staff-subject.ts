@@ -23,7 +23,13 @@ export function isEngineeringFixtureCopy(value: string | null | undefined): bool
     ENGINEERING_TITLE.test(trimmed) ||
     STAGING_MARKER.test(trimmed) ||
     /^Cliente Step17\b/i.test(trimmed) ||
-    /^synthetic access line$/i.test(trimmed)
+    /^synthetic access line$/i.test(trimmed) ||
+    /\bWB-/i.test(trimmed) ||
+    /\bWave\s*B\b/i.test(trimmed) ||
+    /\bStep17\b/i.test(trimmed) ||
+    /\bprobe\b/i.test(trimmed) ||
+    /\bClose Test\b/i.test(trimmed) ||
+    /^FINALV1-/i.test(trimmed)
   );
 }
 

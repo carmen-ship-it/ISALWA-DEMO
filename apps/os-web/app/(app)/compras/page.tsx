@@ -86,9 +86,6 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
           ]}
         />
       ) : null}
-      {queue.state === 'ready' || queue.state === 'permission' ? (
-        <LinkedOrdersSection orders={linkedOrders} />
-      ) : null}
       {queue.state === 'ready' ? (
         <PurchaseRequestPanel
           state="ready"
@@ -101,6 +98,9 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
       ) : (
         <PurchaseRequestPanel state={queue.state} />
       )}
+      {queue.state === 'ready' || queue.state === 'permission' ? (
+        <LinkedOrdersSection orders={linkedOrders} />
+      ) : null}
     </PageContainer>
   );
 }

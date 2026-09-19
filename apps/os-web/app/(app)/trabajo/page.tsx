@@ -81,7 +81,10 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
     if (!evaluation.active) {
       return view === 'team' || view === 'org' ? view : undefined;
     }
-    if (evaluation.persona === 'asesor') return undefined;
+    // Carmen stays authenticated. Org read she already has is narrowed to the
+    // projected person. Do not pass a foreign owner on the default own scope —
+    // that is a permission dead end, not a missing grant.
+    if (evaluation.persona === 'asesor') return evaluation.subjectMemberId ? 'org' : undefined;
     if (evaluation.persona === 'jefe-comercial') {
       return view === 'team' || view === 'org' ? 'team' : undefined;
     }
@@ -106,7 +109,17 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         ? { ownerMemberId: evaluation.subjectMemberId }
         : {}),
     });
-    const titled = result.items.filter((item) => !isEngineeringFixtureCopy(item.title));
+    const titled = result.items.filter((item) => {
+      if (isEngineeringFixtureCopy(item.title) || isEngineeringFixtureCopy(item.description)) return false;
+      if (
+        evaluation.active &&
+        evaluation.persona === 'asesor' &&
+        evaluation.subjectMemberId
+      ) {
+        return item.ownerMemberId === evaluation.subjectMemberId;
+      }
+      return true;
+    });
     const partyLabels = await resolvePartyLabels(
       client,
       titled.flatMap((item) => (item.subjectType === 'party' && item.subjectId ? [item.subjectId] : [])),

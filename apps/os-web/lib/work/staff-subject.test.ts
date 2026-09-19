@@ -12,7 +12,10 @@ describe('staff-facing subjects', () => {
   it('does not present engineering fixture titles', () => {
     assert.equal(isEngineeringFixtureCopy('CC3ORD-mu08fc5t-quote'), true);
     assert.equal(isEngineeringFixtureCopy('CC4-mu08fc5t-quote-followup'), true);
-    assert.equal(isEngineeringFixtureCopy('Reposición sanitarios — El Alto (staging)'), true);
+    assert.equal(isEngineeringFixtureCopy('WB-ISSUE-PAL-001'), true);
+    assert.equal(isEngineeringFixtureCopy('Wave B Close Test'), true);
+    assert.equal(isEngineeringFixtureCopy('probe commitment'), true);
+    assert.equal(isEngineeringFixtureCopy('Cliente Step17 norte'), true);
     assert.equal(
       staffFacingSubject({
         title: 'CC3ORD-mu08fc5t-x',

@@ -156,7 +156,8 @@ export function InicioCommandQueueSections({
   const asOf = new Date();
   const lensNote = `Lectura ${inicioRoleLensLabel(model.lens).toLowerCase()}. Colas del contrato, no totales.`;
   const visibleIssues = model.openIssues.filter(
-    (item): item is IssueListItem => !isEngineeringFixtureCopy(item.description),
+    (item): item is IssueListItem =>
+      !isEngineeringFixtureCopy(item.description) && !isEngineeringFixtureCopy(item.title),
   );
 
   const sections: Array<{
@@ -180,7 +181,7 @@ export function InicioCommandQueueSections({
       unavailable: model.unavailable.work,
       emptyTitle: 'Sin trabajo pendiente en esta lectura',
       emptyDescription: 'Cuando haya ítems abiertos en su cola, aparecerán aquí.',
-      content: <PendingWorkRows items={model.pendingWork} partyLabels={partyLabels} asOf={asOf} />,
+      content: <PendingWorkRows items={model.pendingWork.slice(0, 6)} partyLabels={partyLabels} asOf={asOf} />,
       isEmpty: model.pendingWork.length === 0,
     },
     {
@@ -193,7 +194,7 @@ export function InicioCommandQueueSections({
       emptyTitle: 'Sin problemas abiertos visibles',
       emptyDescription: 'Las incidencias abiertas que pueda ver aparecerán aquí.',
       content: (
-        <IssueList items={visibleIssues} memberLabels={memberLabels} density="compact" showHeader={false} />
+        <IssueList items={visibleIssues.slice(0, 6)} memberLabels={memberLabels} density="compact" showHeader={false} />
       ),
       isEmpty: visibleIssues.length === 0,
     },
@@ -241,7 +242,7 @@ export function InicioCommandQueueSections({
       emptyDescription: 'Cuando alguien solicite su aprobación, aparecerá aquí.',
       content: (
         <ApprovalList
-          items={model.pendingApprovals}
+          items={model.pendingApprovals.slice(0, 6)}
           memberLabels={memberLabels}
           subjects={approvalSubjects}
           density="compact"

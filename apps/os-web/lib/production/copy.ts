@@ -37,7 +37,8 @@ export const PRODUCTION_STEP_OPTIONS = [
 export const PRODUCTION_PAGE_COPY = {
   kicker: 'Planta',
   title: 'Producción',
-  intro: 'Anotación de planta por producto. No es una tabla de base de datos.',
+  intro:
+    'Revise los pedidos que necesitan atención y registre avances confirmados por una persona.',
   quemaNotParent:
     'Una quema no es un pedido y no pertenece a un pedido. Puede reunir varios productos del catálogo.',
   receiptDoesNotAssign:

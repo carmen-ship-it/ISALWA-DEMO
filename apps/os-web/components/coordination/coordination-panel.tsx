@@ -114,6 +114,22 @@ export function CoordinationPanel({ model }: { model: CoordinationPageModel }) {
               ))
             : null}
         </Panel>
+        ) : null}
+      {model.canRecord ? (
+        <details id="registrar-coordinacion" className="rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3" open>
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
+            Registrar asunto de coordinación
+          </summary>
+          <div className="mt-4">
+            <CoordinationDecisionForm
+              session={session}
+              ledger={ledger}
+              linkedCaseId={null}
+              mode="record"
+              onRecorded={onRecorded}
+            />
+          </div>
+        </details>
       ) : null}
     </OpsDeskSurface>
   );

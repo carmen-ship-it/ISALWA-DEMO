@@ -65,7 +65,7 @@ export function roleNavPresentation(grantedScopes: readonly string[]): RoleNavPr
 
   const focusLabel =
     departmentLabels[0] ??
-    (inicioLabel === 'Excepciones de la empresa'
+    (inicioLabel === 'Excepciones'
       ? 'Vista de la empresa'
       : inicioLabel === 'Equipo comercial'
         ? 'Equipo comercial'

@@ -71,6 +71,11 @@ export default async function AlmacenPage({
         sin fuente autoritativa. Los ingresos citados solo confirman un registro vinculado al pedido.
       </p>
       <PedidoWarehouseContextSection rows={contexts} />
+      <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
+        <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
+          + Registrar ingreso
+        </summary>
+        <div className="mt-4">
       <WarehousePostSaleDesk
         status={access.status === 'error' ? 'error' : access.status === 'ready' ? 'ready' : 'denied'}
         denial={access.status === 'denied' ? access.reason : null}
@@ -83,6 +88,8 @@ export default async function AlmacenPage({
           access.status === 'ready' && access.canReceive ? receiveFinishedGoodsAction : undefined
         }
       />
+        </div>
+      </details>
     </PageContainer>
   );
 }

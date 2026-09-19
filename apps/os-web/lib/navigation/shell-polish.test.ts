@@ -93,7 +93,7 @@ describe('role-aware nav labeling (no authority change)', () => {
       COMMERCIAL_TEAM_READ_SCOPE,
       MANAGEMENT_ORG_READ_SCOPE,
     ]);
-    assert.equal(presentation.inicioLabel, 'Excepciones de la empresa');
+    assert.equal(presentation.inicioLabel, 'Excepciones');
   });
 
   it('emphasizes producción desk for production scope without hiding others', () => {

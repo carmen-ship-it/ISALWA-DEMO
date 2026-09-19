@@ -350,8 +350,16 @@ function ApprovalDecisionFields({
         Aprobar registra la decisión. No crea un pedido. Rechazar cierra esta solicitud. No cambia el responsable.
       </p>
       <label className="block text-sm text-[var(--isalwa-slate)]">
-        Motivo
-        <input className={fieldClass} name="reason" maxLength={500} />
+        Motivo del rechazo
+        <input
+          className={fieldClass}
+          name="reason"
+          maxLength={500}
+          aria-describedby="approval-reason-hint"
+        />
+        <span id="approval-reason-hint" className="mt-1 block text-xs text-[var(--isalwa-slate)]">
+          Obligatorio para rechazar. Aprobar puede quedar sin comentario.
+        </span>
       </label>
       <div className={`${OPS_STICKY_ACTION_CLASS} -mx-1 flex flex-wrap gap-3 px-1 py-3`}>
         <DecisionButton label="Aprobar" decision="Approve" variant="primary" />
@@ -372,7 +380,29 @@ function DecisionButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" name="decision" value={decision} variant={variant} disabled={pending} aria-busy={pending}>
+    <Button
+      type="submit"
+      name="decision"
+      value={decision}
+      variant={variant}
+      disabled={pending}
+      aria-busy={pending}
+      onClick={(event) => {
+        if (decision !== 'Reject') return;
+        const form = event.currentTarget.form;
+        const reason = form?.elements.namedItem('reason');
+        const value = reason instanceof HTMLInputElement ? reason.value.trim() : '';
+        if (value) {
+          if (reason instanceof HTMLInputElement) reason.setCustomValidity('');
+          return;
+        }
+        event.preventDefault();
+        if (reason instanceof HTMLInputElement) {
+          reason.setCustomValidity('Indique el motivo del rechazo.');
+          reason.reportValidity();
+        }
+      }}
+    >
       {pending ? 'Registrando…' : label}
     </Button>
   );

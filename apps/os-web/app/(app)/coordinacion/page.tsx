@@ -17,7 +17,12 @@ export default async function CoordinacionPage() {
         description="Solo lo que cruza áreas y necesita una decisión. No es un calendario de reuniones."
         action={
           model.canRecord ? (
-            <StatusPill tone="info">Puede registrar</StatusPill>
+            <a
+              href="#registrar-coordinacion"
+              className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-kiln)] px-4 text-sm font-medium text-white"
+            >
+              + Registrar asunto de coordinación
+            </a>
           ) : (
             <StatusPill tone="neutral">Solo lectura</StatusPill>
           )
