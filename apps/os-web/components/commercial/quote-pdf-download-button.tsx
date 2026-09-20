@@ -18,6 +18,8 @@ type QuotePdfDownloadButtonProps = {
   downloadOnly?: boolean;
   /** Button hierarchy for the download action. */
   downloadVariant?: 'primary' | 'secondary' | 'ghost';
+  /** When false, omit the under-button canal habitual hint (caller already shows it). */
+  showManualSendHint?: boolean;
   className?: string;
 };
 
@@ -51,6 +53,7 @@ export function QuotePdfDownloadButton({
   quoteStatus,
   downloadOnly = false,
   downloadVariant = 'primary',
+  showManualSendHint = true,
   className,
 }: QuotePdfDownloadButtonProps) {
   const [error, setError] = useState<string | null>(null);
@@ -134,9 +137,11 @@ export function QuotePdfDownloadButton({
           </Button>
         </div>
         <FormFeedback error={error} />
-        <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {QUOTE_PDF_COPY.manualSend}
-        </p>
+        {showManualSendHint ? (
+          <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {QUOTE_PDF_COPY.manualSend}
+          </p>
+        ) : null}
       </div>
     </div>
   );

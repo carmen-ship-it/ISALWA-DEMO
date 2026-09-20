@@ -3,8 +3,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@isalwa/ui';
-import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
-import { isQuotePdfReady, QUOTE_PDF_COPY } from '@/lib/commercial/quote-pdf-ready';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
 import { FOLLOW_UP_COPY } from '@/lib/work/follow-up';
 
@@ -24,21 +22,19 @@ const menuItemClass =
   'block w-full rounded-[var(--isalwa-radius-control)] px-3 py-2 text-left text-sm text-[var(--isalwa-kiln)] hover:bg-[var(--isalwa-porcelain)]';
 
 export function QuoteDetailActions({
-  quoteId,
-  quoteNumber,
+  quoteId: _quoteId,
+  quoteNumber: _quoteNumber,
   quoteStatus,
-  canRecordSend,
+  canRecordSend: _canRecordSend,
   canRegisterFollowUp,
   canEdit,
   canCancel,
   canConvertToOrder,
-  onOpenSend,
+  onOpenSend: _onOpenSend,
 }: QuoteDetailActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
-  const pdfReady = isQuotePdfReady(quoteStatus);
-
   useEffect(() => {
     if (!menuOpen) return;
     function onPointer(event: MouseEvent) {
@@ -58,26 +54,6 @@ export function QuoteDetailActions({
   return (
     <div ref={rootRef} className="flex flex-col items-stretch gap-3 sm:items-end">
       <div className="flex flex-wrap items-center justify-end gap-2">
-        {pdfReady ? (
-          <QuotePdfDownloadButton
-            quoteId={quoteId}
-            quoteNumber={quoteNumber}
-            quoteStatus={quoteStatus}
-            downloadVariant="primary"
-          />
-        ) : null}
-        {canRecordSend ? (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              onOpenSend?.();
-              document.getElementById('envio')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-          >
-            {QUOTE_MANUAL_SEND_COPY.action}
-          </Button>
-        ) : null}
         <div className="relative">
           <Button
             type="button"
@@ -146,11 +122,6 @@ export function QuoteDetailActions({
           ) : null}
         </div>
       </div>
-      {!pdfReady ? (
-        <p className="max-w-xs text-right text-sm text-[var(--isalwa-slate)]">
-          {QUOTE_PDF_COPY.notReady}
-        </p>
-      ) : null}
       {canRegisterFollowUp ? (
         <Link
           href="#seguimiento"

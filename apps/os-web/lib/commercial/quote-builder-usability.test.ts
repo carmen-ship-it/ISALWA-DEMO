@@ -78,7 +78,7 @@ describe('Task 8 quote builder usability', () => {
     assert.match(editor, /Cantidad/);
     assert.match(editor, /Unidad/);
     assert.match(editor, /Subtotal/);
-    assert.match(editor, /label="Editar"/);
+    assert.match(editor, />\s*Editar\s*</);
     assert.match(editor, /label="Quitar"/);
     assert.match(editor, /aria-label="Líneas guardadas"/);
     assert.match(editor, /formatCentavos\(quote\.totalCentavos/);
@@ -117,8 +117,26 @@ describe('Task 8 quote builder usability', () => {
     assert.match(editor, /disabled=\{quote\.lines\.length === 0\}/);
     assert.match(editor, /Descargue la cotización y envíela por su canal habitual/);
     assert.doesNotMatch(editor, /enviamos por WhatsApp|ISALWA envió|mensaje enviado automáticamente/i);
-    assert.match(page, /QuotePdfDownloadButton/);
-    assert.match(page, /isQuotePdfReady/);
+    assert.match(page, /QuoteDocumentActions/);
     assert.match(page, /canRecordSend=\{manualSendAllowed\}/);
+  });
+});
+
+describe('Task 8 hosted corrective layout', () => {
+  it('renders saved lines as non-overlapping cards with view/edit modes', () => {
+    assert.match(editor, /data-quote-line="saved"/);
+    assert.match(editor, /data-quote-line="editing"/);
+    assert.match(editor, /data-saved-lines="cards"/);
+    assert.doesNotMatch(editor, /ListRow/);
+    assert.match(editor, /label="Guardar cambios"/);
+    assert.match(editor, />\s*Cancelar\s*</);
+    assert.match(editor, /label="Quitar"/);
+  });
+
+  it('exposes one primary draft action path and explains PDF unavailable', () => {
+    assert.match(editor, /data-quote-total="primary"/);
+    assert.match(editor, /Presente la cotización para generar el documento/);
+    assert.match(editor, /label="Presentar cotización"/);
+    assert.equal((editor.match(/data-quote-total=/g) ?? []).length, 1);
   });
 });

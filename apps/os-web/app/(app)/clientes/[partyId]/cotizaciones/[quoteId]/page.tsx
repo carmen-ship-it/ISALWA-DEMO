@@ -7,8 +7,7 @@ import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-b
 import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
-import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
-import { isQuotePdfReady } from '@/lib/commercial/quote-pdf-ready';
+import { QuoteDocumentActions } from '@/components/commercial/quote-document-actions';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
 import {
   QuoteBuilderUiProvider,
@@ -282,37 +281,39 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           title={quote.quoteNumber}
           description={customerName}
           action={
-            <div className="flex flex-col items-stretch gap-3 sm:items-end">
-              {isQuotePdfReady(quote.status) ? (
-                <QuotePdfDownloadButton
-                  quoteId={quote.quoteId}
-                  quoteNumber={quote.quoteNumber}
-                  quoteStatus={quote.status}
-                  downloadVariant="secondary"
-                  className="[&_p:last-child]:hidden"
-                />
-              ) : null}
-              <QuoteDetailActions
-                quoteId={quote.quoteId}
-                quoteNumber={quote.quoteNumber}
-                quoteStatus={quote.status}
-                canRecordSend={manualSendAllowed}
-                canRegisterFollowUp={followUpAllowed}
-                canEdit={isDraft}
-                canCancel={isDraft}
-                canConvertToOrder={authority?.canConvertToOrder === true}
-              />
-            </div>
+            <QuoteDetailActions
+              quoteId={quote.quoteId}
+              quoteNumber={quote.quoteNumber}
+              quoteStatus={quote.status}
+              canRecordSend={manualSendAllowed}
+              canRegisterFollowUp={followUpAllowed}
+              canEdit={isDraft}
+              canCancel={isDraft}
+              canConvertToOrder={authority?.canConvertToOrder === true}
+            />
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
         {isDraft ? <QuoteDraftNextStep lineCount={lines.length} /> : <RecordNextStep step={nextStep} />}
-        <WhoHasTheBallCard
-          className="mb-6"
-          view={ball}
-          waiting={Boolean(ball.waitingLine)}
-        />
+        {!isDraft ? (
+          <div className="mb-6">
+            <QuoteDocumentActions
+              quoteId={quote.quoteId}
+              quoteNumber={quote.quoteNumber}
+              quoteStatus={quote.status}
+              canRecordSend={manualSendAllowed}
+              sendRecorded={Boolean(sendRecord)}
+            />
+          </div>
+        ) : null}
+        {ball.waitingLine ? (
+          <WhoHasTheBallCard
+            className="mb-6"
+            view={ball}
+            waiting
+          />
+        ) : null}
 
         {authority?.canConvertToOrder ? (
           <CommercialStickyBar className="mb-6">
@@ -378,12 +379,17 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
                 <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatTimestamp(quote.cancelledAt)}</dd>
               </div>
             ) : null}
-            <div>
-              <dt className="isalwa-section-label">Total</dt>
-              <dd className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
-                {totalLabel}
-              </dd>
-            </div>
+            {!isDraft ? (
+              <div>
+                <dt className="isalwa-section-label">Total</dt>
+                <dd
+                  className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]"
+                  data-quote-total="identity"
+                >
+                  {totalLabel}
+                </dd>
+              </div>
+            ) : null}
           </dl>
 
           {quote.notes ? (
@@ -396,14 +402,16 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           ) : null}
         </PageSection>
 
-        <div className="mt-10">
-          <QuoteDocumentoCard
-            quoteId={quote.quoteId}
-            quoteNumber={quote.quoteNumber}
-            quoteStatus={quote.status}
-            createdAt={quote.createdAt}
-          />
-        </div>
+        {quote.status === 'cancelled' ? (
+          <div className="mt-10">
+            <QuoteDocumentoCard
+              quoteId={quote.quoteId}
+              quoteNumber={quote.quoteNumber}
+              quoteStatus={quote.status}
+              createdAt={quote.createdAt}
+            />
+          </div>
+        ) : null}
 
         {quote.status === 'submitted' || sendRecord ? (
           <PageSection card className="mt-10 bg-white p-8 md:p-10">
