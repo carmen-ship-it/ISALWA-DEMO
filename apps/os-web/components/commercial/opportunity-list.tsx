@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { ListRow, StatusPill } from '@isalwa/ui';
+import { StatusPill } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import {
   formatListAge,
   formatOpportunityStatus,
@@ -22,80 +22,68 @@ type OpportunityListProps = {
   linkedQuotes?: readonly OpportunityLinkedQuote[];
 };
 
+const DESKTOP_GRID =
+  'md:grid-cols-[minmax(0,1.35fr)_minmax(0,0.95fr)_4.5rem_minmax(0,1fr)_auto_auto]';
+
+const HEADER_COLUMNS = [
+  { id: 'title', label: 'Oportunidad', className: 'min-w-0' },
+  { id: 'owner', label: 'Responsable', className: 'min-w-0' },
+  { id: 'age', label: 'Antigüedad', className: 'min-w-0' },
+  { id: 'next', label: 'Próximo paso', className: 'min-w-0' },
+  { id: 'status', label: 'Estado', className: 'justify-self-end' },
+  { id: 'action', label: '', className: 'justify-self-end' },
+];
+
 export function OpportunityList({ partyId, items, memberLabels, linkedQuotes }: OpportunityListProps) {
   return (
-    <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Oportunidades" data-tour={TOUR_TARGET.opportunityList}>
-      {items.map((item) => {
-        const value = formatOptionalCentavos(item.expectedValueCentavos ?? undefined, 'BOB');
-        const age = formatListAge(item.createdAt);
-        const linked = preferredLinkedQuote(linkedQuotes, item.opportunityId);
-        const next = opportunityNextStep({
-          status: item.status,
-          partyId,
-          opportunityId: item.opportunityId,
-          newQuoteHref: newQuoteHref(partyId, item.opportunityId),
-          linkedQuoteHref: linked ? quoteHref(linked.partyId || partyId, linked.quoteId) : null,
-        });
-        return (
-          <ListRow key={item.opportunityId} as="li" className="px-1 py-1">
-            <div className="rounded-[var(--isalwa-radius-control)] px-3 py-3">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={opportunityHref(partyId, item.opportunityId)}
-                    className="isalwa-t-fast font-medium text-[var(--isalwa-kiln)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                  >
-                    {presentHumanCopy(item.title)}
-                  </Link>
-                  <dl className="mt-3 grid gap-1 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2">
-                    <div>
-                      <dt className="sr-only">Etapa</dt>
-                      <dd>Etapa: {presentStage(item.stage)}</dd>
-                    </div>
-                    <div>
-                      <dt className="sr-only">Responsable</dt>
-                      <dd>Responsable: {memberLabel(memberLabels, item.ownerMemberId)}</dd>
-                    </div>
-                    {value ? (
-                      <div>
-                        <dt className="sr-only">Monto</dt>
-                        <dd>Total estimado: {value}</dd>
-                      </div>
-                    ) : null}
-                    <div>
-                      <dt className="sr-only">Creada</dt>
-                      <dd>Creada: {age ?? '—'}</dd>
-                    </div>
-                    {item.closedAt ? (
-                      <div>
-                        <dt className="sr-only">Cierre</dt>
-                        <dd>Cerrada: {formatListAge(item.closedAt) ?? '—'}</dd>
-                      </div>
-                    ) : null}
-                    {next && !next.waiting && next.hrefLabel ? (
-                      <div className="sm:col-span-2">
-                        <dt className="sr-only">Próximo paso</dt>
-                        <dd>
-                          Próximo paso:{' '}
-                          <Link
-                            href={next.href ?? opportunityHref(partyId, item.opportunityId)}
-                            className="isalwa-t-fast text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
-                          >
-                            {next.hrefLabel}
-                          </Link>
-                        </dd>
-                      </div>
-                    ) : null}
-                  </dl>
-                </div>
-                <StatusPill tone={statusTone(item.status)}>
-                  {formatOpportunityStatus(item.status)}
-                </StatusPill>
-              </div>
-            </div>
-          </ListRow>
-        );
-      })}
-    </ul>
+    <div className="min-w-0" data-tour={TOUR_TARGET.opportunityList}>
+      <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
+      <ul className="m-0 list-none divide-y divide-[var(--isalwa-mist)] p-0" aria-label="Oportunidades">
+        {items.map((item) => {
+          const value = formatOptionalCentavos(item.expectedValueCentavos ?? undefined, 'BOB');
+          const age = formatListAge(item.createdAt);
+          const linked = preferredLinkedQuote(linkedQuotes, item.opportunityId);
+          const next = opportunityNextStep({
+            status: item.status,
+            partyId,
+            opportunityId: item.opportunityId,
+            newQuoteHref: newQuoteHref(partyId, item.opportunityId),
+            linkedQuoteHref: linked ? quoteHref(linked.partyId || partyId, linked.quoteId) : null,
+          });
+          const nextLabel =
+            next && !next.waiting && next.hrefLabel ? next.hrefLabel : next?.waiting ? 'En espera' : '—';
+          const href = opportunityHref(partyId, item.opportunityId);
+          const owner = memberLabel(memberLabels, item.ownerMemberId);
+
+          return (
+            <li key={item.opportunityId}>
+              <OperatingScanRow
+                href={href}
+                title={presentHumanCopy(item.title)}
+                desktopGridClassName={DESKTOP_GRID}
+                fields={[
+                  { id: 'owner', label: 'Responsable', value: owner || '—' },
+                  { id: 'age', label: 'Antigüedad', value: age ?? '—', hideOnMobile: true },
+                  {
+                    id: 'next',
+                    label: 'Próximo paso',
+                    value: value
+                      ? `${presentStage(item.stage)} · ${nextLabel} · ${value}`
+                      : `${presentStage(item.stage)} · ${nextLabel}`,
+                    hideOnMobile: true,
+                  },
+                ]}
+                status={
+                  <StatusPill tone={statusTone(item.status)} icon="none">
+                    {formatOpportunityStatus(item.status)}
+                  </StatusPill>
+                }
+                actionLabel="Abrir"
+              />
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

@@ -32,6 +32,7 @@ import { loadCliente360 } from '@/lib/cliente/load-cliente-360';
 import { buildCliente360Intelligence } from '@/lib/cliente/client-intelligence';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import { parseCliente360Tab } from '@/lib/cliente/nav-sections';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { LIST_SCALE_PREVIEW_DEFAULT, LIST_SCALE_PREVIEW_LARGE } from '@/lib/ui/list-scaling';
 import { newOpportunityHref } from '@/lib/commercial/navigation';
 import { AccessDeniedState, ServiceUnavailableState } from '@/components/states/app-states';
@@ -153,7 +154,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       );
     }
 
-    const displayName = party.displayName || party.legalName || 'Sin nombre';
+    const displayName =
+      presentHumanCopy(party.displayName || party.legalName) ||
+      party.displayName ||
+      party.legalName ||
+      'Sin nombre';
     const actorIsMasterDataAdmin = evaluation.active
       ? false
       : await actorCanMutateMasterData(client);
@@ -353,6 +358,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 ) : (
                   <ScaledListReveal
                     total={contacts.length}
+                    allowExpand={false}
                     empty={<p className="mt-2 text-sm text-[var(--isalwa-slate)]">No hay contactos registrados.</p>}
                     preview={
                       <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
@@ -370,7 +376,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     }
                     full={
                       <ul className="mt-3 min-w-0 divide-y divide-[var(--isalwa-mist)]">
-                        {contacts.map((item) => (
+                        {contacts.slice(0, LIST_SCALE_PREVIEW_DEFAULT).map((item) => (
                           <ListRow key={item.id} as="li" className="min-w-0 px-1 py-2">
                             <p className="break-words font-medium text-[var(--isalwa-kiln)]">
                               {contactDisplayName(item.givenName, item.familyName)}
@@ -440,8 +446,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                           />
                         }
                         full={
-                          <OpportunityList partyId={partyId} items={list.items} memberLabels={memberLabels} linkedQuotes={linkedQuotes} />
+                          <OpportunityList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                            linkedQuotes={linkedQuotes}
+                          />
                         }
+                        moreHref="/oportunidades"
+                        moreLabel="Ver todas las oportunidades"
                       />
                     </>
                   )}
@@ -481,7 +494,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             memberLabels={memberLabels}
                           />
                         }
-                        full={<QuoteList partyId={partyId} items={list.items} memberLabels={memberLabels} />}
+                        full={
+                          <QuoteList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                          />
+                        }
+                        moreHref="/cotizaciones"
+                        moreLabel="Ver todas las cotizaciones"
                       />
                     </>
                   )}
@@ -514,7 +535,15 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                             memberLabels={memberLabels}
                           />
                         }
-                        full={<OrderList partyId={partyId} items={list.items} memberLabels={memberLabels} />}
+                        full={
+                          <OrderList
+                            partyId={partyId}
+                            items={list.items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+                            memberLabels={memberLabels}
+                          />
+                        }
+                        moreHref="/pedidos"
+                        moreLabel="Ver todos los pedidos"
                       />
                     </>
                   )}
@@ -594,11 +623,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                         }
                         full={
                           <WorkList
-                            items={workData.items}
+                            items={workData.items.slice(0, LIST_SCALE_PREVIEW_DEFAULT)}
                             memberLabels={memberLabels}
                             presentation="follow-up"
                           />
                         }
+                        moreHref={trabajoForPartyHref(partyId)}
+                        moreLabel="Ver todo el trabajo"
                       />
                     </>
                   )}

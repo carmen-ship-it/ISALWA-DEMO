@@ -92,8 +92,9 @@ export function CommercialApprovalPanel({
   return (
     <div className="space-y-8" data-tour={TOUR_TARGET.approvalConsequence}>
       {approvals.length > 0 ? (
-        <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Historial de aprobación">
-          {approvals.map((approval) => {
+        <>
+          <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Historial de aprobación">
+            {approvals.slice(0, 8).map((approval) => {
             const decided = Boolean(decisionState?.success) || !approval.canDecide;
             const escalated = Boolean(escalateState?.success);
             const responsibility = approvalResponsibilityView({
@@ -162,7 +163,13 @@ export function CommercialApprovalPanel({
               </li>
             );
           })}
-        </ul>
+          </ul>
+          {approvals.length > 8 ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              Mostrando las 8 revisiones más recientes de {approvals.length} cargadas.
+            </p>
+          ) : null}
+        </>
       ) : (
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">Sin solicitudes de aprobación.</p>
       )}

@@ -79,6 +79,11 @@ export function Cliente360Documentos({ outcome }: Cliente360DocumentosProps) {
         />
       ) : (
         <div className="mt-4 overflow-x-auto">
+          {outcome.links.length > 10 ? (
+            <p className="mb-3 text-sm text-[var(--isalwa-slate)]" role="status">
+              Mostrando 10 documentos recientes de {outcome.links.length} encontrados en esta vista.
+            </p>
+          ) : null}
           <table className="min-w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-[var(--isalwa-mist)] text-[var(--isalwa-slate)]">

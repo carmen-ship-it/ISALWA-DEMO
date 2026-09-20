@@ -544,7 +544,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             }))}
             quotedProducts={quotedProducts}
             quoteUnavailable={sourceQuoteUnavailable}
-            notes={deliveryNotes}
+            notes={deliveryNotes.slice(0, 10)}
             timeline={deliveryTimeline}
             canMutate={canMutateDelivery}
             canCreateNote={canCreateNote}

@@ -24,8 +24,12 @@ type CustomerLocationPanelProps = {
   canMutate: boolean;
 };
 
+const LOCATION_PREVIEW_LIMIT = 10;
+
 export function CustomerLocationPanel({ partyId, locations, canMutate }: CustomerLocationPanelProps) {
   const ordered = sortLocationsForDisplay(locations);
+  const visible = ordered.slice(0, LOCATION_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, ordered.length - visible.length);
 
   return (
     <div className="space-y-4" data-tour={TOUR_TARGET.locationState}>
@@ -39,11 +43,19 @@ export function CustomerLocationPanel({ partyId, locations, canMutate }: Custome
           }
         />
       ) : (
-        <ul className="divide-y divide-[var(--isalwa-mist)]">
-          {ordered.map((location) => (
-            <LocationRow key={location.id} partyId={partyId} location={location} canMutate={canMutate} />
-          ))}
-        </ul>
+        <>
+          <ul className="divide-y divide-[var(--isalwa-mist)]">
+            {visible.map((location) => (
+              <LocationRow key={location.id} partyId={partyId} location={location} canMutate={canMutate} />
+            ))}
+          </ul>
+          {hiddenCount > 0 ? (
+            <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+              Mostrando {visible.length} ubicaciones. Hay {hiddenCount} más en el registro (límite de
+              página pendiente en el API).
+            </p>
+          ) : null}
+        </>
       )}
       {canMutate ? <CreateLocationForm partyId={partyId} /> : null}
     </div>

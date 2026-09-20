@@ -17,7 +17,6 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { formatOrderStatus } from '@/lib/commercial/labels';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 import { cursorPageLinks, listHref, parseListQuery, type ListQueryState } from '@/lib/lists/url-state';
-import { boundedPageHrefs, parsePageNumber, sliceListPage } from '@/lib/lists/page-window';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -84,9 +83,9 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
   try {
     const result = await client.listOrders({
       status,
-      limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
+      limit: LIST_LIMIT,
       ...(listState.q ? { q: listState.q } : {}),
-      ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
+      ...(listState.cursor ? { cursor: listState.cursor } : {}),
       // Owner-eval needs org visibility so peer-owned SYNTH pedidos (e.g. Maderas) appear.
       ...(evaluation.active ? commercialListQueryFromProjection(evaluation) : { visibility: 'org' }),
     });
@@ -107,19 +106,17 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
       dataMode,
       (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
     );
-    const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
-    const visible = windowed?.items ?? loaded;
+    const visible = loaded;
     const hasQuery = Boolean(listState.q);
     const controls = readListControls(listState);
-    const demoNav = windowed?.showChrome
-      ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
-      : null;
-    const cursorNav =
-      dataMode !== 'demo'
-        ? cursorPageLinks(LIST_PATH, listState, result.meta.nextCursor, result.meta.hasMore)
-        : null;
-    const prevHref = demoNav?.prevHref ?? cursorNav?.prevHref ?? null;
-    const nextHref = demoNav?.nextHref ?? cursorNav?.nextHref ?? null;
+    const cursorNav = cursorPageLinks(
+      LIST_PATH,
+      listState,
+      result.meta.nextCursor,
+      result.meta.hasMore,
+    );
+    const prevHref = cursorNav.prevHref;
+    const nextHref = cursorNav.nextHref;
 
     return (
       <CommercialPageFrame label="Pedidos">
@@ -214,11 +211,11 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
 
         {prevHref || nextHref ? (
           <ListPageNav
-            from={windowed?.from ?? 1}
-            to={windowed?.to ?? visible.length}
-            total={windowed ? windowed.total : null}
-            page={windowed?.page ?? 1}
-            pageCount={windowed ? windowed.pageCount : null}
+            from={visible.length > 0 ? 1 : 0}
+            to={visible.length}
+            total={null}
+            page={1}
+            pageCount={null}
             prevHref={prevHref}
             nextHref={nextHref}
           />

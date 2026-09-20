@@ -6,7 +6,6 @@ import { QuoteOrgList } from '@/components/commercial/quote-org-list';
 import {
   commercialPrimaryLinkClass,
   commercialToolbarClass,
-  commercialWorkSurfaceClass,
 } from '@/components/commercial/commercial-surfaces';
 import '@/components/commercial/commercial-surfaces.css';
 import { ListPageNav } from '@/components/lists/list-page-nav';
@@ -33,7 +32,6 @@ import {
   cursorPageLinks,
   type ListQueryState,
 } from '@/lib/lists/url-state';
-import { boundedPageHrefs, parsePageNumber, sliceListPage } from '@/lib/lists/page-window';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -106,9 +104,9 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
     // Demo densify: wider page so party-name filter can see SYNTH quotes (q is quoteNumber-only).
     const result = await client.listQuotes({
       status,
-      limit: dataMode === 'demo' ? 100 : LIST_LIMIT,
+      limit: LIST_LIMIT,
       ...(listState.q ? { q: listState.q } : {}),
-      ...(dataMode === 'demo' ? {} : listState.cursor ? { cursor: listState.cursor } : {}),
+      ...(listState.cursor ? { cursor: listState.cursor } : {}),
       ...commercialListQueryFromProjection(evaluation),
     });
     const memberLabels = await resolveMemberLabels(
@@ -128,8 +126,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
       dataMode,
       (item) => isDemoDisplayName(partyLabel(partyLabels, item.partyId)),
     );
-    const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
-    const visible = windowed?.items ?? loaded;
+    const visible = loaded;
     const preview =
       panel?.kind === 'quote' ? loaded.find((item) => item.quoteId === panel.id) : undefined;
     const previewPanel = preview
@@ -141,15 +138,14 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
     const controls = readListControls(listState);
     const statusLabel =
       filters.find((filter) => filter.status === status)?.label ?? status;
-    const demoNav = windowed?.showChrome
-      ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
-      : null;
-    const cursorNav =
-      dataMode !== 'demo'
-        ? cursorPageLinks(LIST_PATH, listState, result.meta.nextCursor, result.meta.hasMore)
-        : null;
-    const prevHref = demoNav?.prevHref ?? cursorNav?.prevHref ?? null;
-    const nextHref = demoNav?.nextHref ?? cursorNav?.nextHref ?? null;
+    const cursorNav = cursorPageLinks(
+      LIST_PATH,
+      listState,
+      result.meta.nextCursor,
+      result.meta.hasMore,
+    );
+    const prevHref = cursorNav.prevHref;
+    const nextHref = cursorNav.nextHref;
 
     return (
       <CommercialPageFrame label={t('pages.cotizaciones.title')}>
@@ -242,7 +238,10 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
             }
           />
         ) : (
-          <PageSection card className={`p-0 ${commercialWorkSurfaceClass}`}>
+          <PageSection
+            card
+            className="overflow-x-clip rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-0 shadow-[var(--isalwa-shadow-soft)]"
+          >
             <QuoteOrgList
               items={visible}
               memberLabels={memberLabels}
@@ -257,11 +256,11 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
 
         {prevHref || nextHref ? (
           <ListPageNav
-            from={windowed?.from ?? 1}
-            to={windowed?.to ?? visible.length}
-            total={windowed ? windowed.total : null}
-            page={windowed?.page ?? 1}
-            pageCount={windowed ? windowed.pageCount : null}
+            from={visible.length > 0 ? 1 : 0}
+            to={visible.length}
+            total={null}
+            page={1}
+            pageCount={null}
             prevHref={prevHref}
             nextHref={nextHref}
           />

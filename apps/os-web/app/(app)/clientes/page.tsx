@@ -27,6 +27,7 @@ import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
@@ -65,17 +66,22 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
 
   try {
     // Demo mode: prefer DEMO-prefixed search so SYNTH fixtures are not buried under REAL pages.
+    // Always request a bounded page (25) with cursor — no unbounded DOM dump.
     const effectiveQ = q || (dataMode === 'demo' ? 'DEMO' : undefined);
     const result = await client.searchParties({
       ...(effectiveQ ? { q: effectiveQ } : {}),
       ...(roleKey ? { roleKey } : {}),
       status: status || 'active',
-      ...(dataMode === 'demo' ? {} : cursor ? { cursor } : {}),
-      limit: dataMode === 'demo' ? 50 : 25,
+      ...(cursor ? { cursor } : {}),
+      limit: 25,
     });
 
     let filteredItems = filterByDemoDataMode(result.items, dataMode, (item) =>
       isDemoDisplayName(item.displayName || item.legalName),
+    ).filter(
+      (item) =>
+        !isEngineeringFixtureCopy(item.displayName) &&
+        !isEngineeringFixtureCopy(item.legalName),
     );
     // Vista de evaluación · Asesor: person-specific commercial owner slice only.
     if (evaluation.active && evaluation.persona === 'asesor') {
@@ -130,39 +136,42 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <PartyEmptySearch hasQuery={hasSearchCriteria} addCustomerHref={addHref} />
           ) : (
             <>
-              <PageSection card className={`mt-4 p-0 ${commercialWorkSurfaceClass}`}>
-                <div className="commercial-operating-list" data-tour="clientes-list">
-                  <PartyList
-                    items={filteredItems}
-                    listPath="/clientes"
-                    listQuery={listQuery}
-                    memberLabels={memberLabels}
-                    density={listDensity}
-                  />
-                </div>
+              <PageSection card className={`mt-4 overflow-x-clip p-0 ${commercialWorkSurfaceClass}`}>
+                <PartyList
+                  items={filteredItems}
+                  listPath="/clientes"
+                  listQuery={listQuery}
+                  memberLabels={memberLabels}
+                  density={listDensity}
+                />
               </PageSection>
 
-              {dataMode !== 'demo'
-                ? (() => {
-                    const nav = cursorPageLinks(
-                      '/clientes',
-                      { q, roleKey, status, cursor, panel: listQuery.panel },
-                      result.meta.nextCursor,
-                      result.meta.hasMore,
-                    );
-                    return nav.prevHref || nav.nextHref ? (
-                      <ListPageNav
-                        from={0}
-                        to={filteredItems.length}
-                        total={null}
-                        page={1}
-                        pageCount={null}
-                        prevHref={nav.prevHref}
-                        nextHref={nav.nextHref}
-                      />
-                    ) : null;
-                  })()
-                : null}
+              {(() => {
+                const nav = cursorPageLinks(
+                  '/clientes',
+                  {
+                    q,
+                    roleKey,
+                    status,
+                    cursor,
+                    panel: listQuery.panel,
+                    density: listQuery.density,
+                  },
+                  result.meta.nextCursor,
+                  result.meta.hasMore,
+                );
+                return nav.prevHref || nav.nextHref ? (
+                  <ListPageNav
+                    from={filteredItems.length > 0 ? 1 : 0}
+                    to={filteredItems.length}
+                    total={null}
+                    page={1}
+                    pageCount={null}
+                    prevHref={nav.prevHref}
+                    nextHref={nav.nextHref}
+                  />
+                ) : null;
+              })()}
             </>
           )}
         </div>

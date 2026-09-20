@@ -108,7 +108,14 @@ export function Cliente360Historial({
             memberLabels={memberLabels}
           />
         }
-        full={<PartyTimelineList items={items} memberLabels={memberLabels} />}
+        full={
+          <PartyTimelineList
+            items={items.slice(0, LIST_SCALE_PREVIEW_LARGE)}
+            memberLabels={memberLabels}
+          />
+        }
+        moreHref={auditHref}
+        moreLabel="Ver historial en Auditoría"
       />
     </div>
   );
