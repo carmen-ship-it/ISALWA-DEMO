@@ -186,7 +186,7 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
   );
 }
 
-async function loadAlmacenAccessasync function loadAlmacenAccess() {
+async function loadAlmacenAccess() {
   const emptySummary = { revisiones: 0, ingresos: 0 };
   const emptyContexts: PedidoWarehouseContext[] = [];
   try {
