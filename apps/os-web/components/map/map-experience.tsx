@@ -19,6 +19,14 @@ import {
 } from '@/lib/map/commercial-lens';
 import type { MapHoverSnapshot } from '@/lib/map/hover-model';
 import { DEFAULT_MAP_LAYER, type MapLayerId } from '@/lib/map/layers';
+import {
+  MAP_LAYER_LEGEND,
+  MAP_MARKER_RADIUS_CLIENT,
+  MAP_VALUE_DISCLAIMER_SHORT,
+  attentionCircleColor,
+  attentionIntensity,
+  scaleMarkerRadius,
+} from '@/lib/map/marker-scale';
 import { isLiveMapProvider, type MapProviderStatus } from '@/lib/map/provider-status';
 import { hrefWithoutPanel, panelHref, type ListQueryState } from '@/lib/lists/url-state';
 
@@ -54,6 +62,54 @@ function partyFilterForLayer(
   if (layer === 'pedidos') return portfolio.partyIdsWithOrders;
   if (layer === 'atencion') return new Set(attentionPartyIds);
   return null;
+}
+
+function enrichMarkersForLayer(
+  markers: readonly MapConfirmedMarker[],
+  layer: MapLayerId,
+  hoverByPartyId: Readonly<Record<string, MapHoverSnapshot>>,
+): MapConfirmedMarker[] {
+  if (layer === 'clientes') {
+    return markers.map((m) => ({
+      ...m,
+      radiusPx: MAP_MARKER_RADIUS_CLIENT,
+      color: '#3d5c58',
+    }));
+  }
+
+  const valueKey =
+    layer === 'oportunidades'
+      ? ('opportunityValueCentavos' as const)
+      : layer === 'cotizaciones'
+        ? ('quotedValueCentavos' as const)
+        : layer === 'pedidos'
+          ? ('orderValueCentavos' as const)
+          : null;
+
+  if (valueKey) {
+    const values = markers.map((m) => hoverByPartyId[m.partyId]?.[valueKey] ?? null);
+    const visible = values.filter((v): v is number => v != null && v > 0);
+    return markers.map((m, i) => ({
+      ...m,
+      radiusPx: scaleMarkerRadius(values[i], visible),
+      color: '#3d5c58',
+    }));
+  }
+
+  if (layer === 'atencion') {
+    const counts = markers.map((m) => hoverByPartyId[m.partyId]?.attentionCount ?? 0);
+    return markers.map((m, i) => {
+      const count = counts[i] ?? 0;
+      const intensity = attentionIntensity(count, counts);
+      return {
+        ...m,
+        radiusPx: scaleMarkerRadius(count > 0 ? count : null, counts.filter((c) => c > 0)),
+        color: attentionCircleColor(intensity),
+      };
+    });
+  }
+
+  return markers.map((m) => ({ ...m, radiusPx: MAP_MARKER_RADIUS_CLIENT, color: '#3d5c58' }));
 }
 
 export function MapExperience({
@@ -96,9 +152,13 @@ export function MapExperience({
   }, [model, layerPartyIds]);
 
   const filteredMarkers = useMemo(() => {
-    if (!layerPartyIds) return markers;
-    return markers.filter((marker) => layerPartyIds.has(marker.partyId));
-  }, [markers, layerPartyIds]);
+    const base = !layerPartyIds
+      ? markers
+      : markers.filter((marker) => layerPartyIds.has(marker.partyId));
+    return enrichMarkersForLayer(base, layer, hoverByPartyId);
+  }, [markers, layerPartyIds, layer, hoverByPartyId]);
+
+  const legend = MAP_LAYER_LEGEND[layer] ?? MAP_LAYER_LEGEND.clientes;
 
   const selectedRow = useMemo(
     () => filteredModel.all.find((row) => row.partyId === selectedPartyId) ?? null,
@@ -169,12 +229,21 @@ export function MapExperience({
         </p>
       </div>
 
-      <p className="max-w-3xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Explore la actividad comercial por cliente y zona. Los valores mostrados provienen de oportunidades,
-        cotizaciones y pedidos registrados en ISALWA; no representan ingresos contables.
-      </p>
-
       <MapLayerControls activeLayer={layer} onChange={setLayer} />
+
+      {legend?.sizeLine || legend?.colorLine ? (
+        <div
+          className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky)_40%,white)] px-3 py-2 text-sm text-[var(--isalwa-kiln)]"
+          role="note"
+          aria-label="Leyenda del mapa"
+        >
+          {legend.sizeLine ? <p>{legend.sizeLine}</p> : null}
+          {legend.colorLine ? (
+            <p className={legend.sizeLine ? 'mt-0.5' : undefined}>{legend.colorLine}</p>
+          ) : null}
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{MAP_VALUE_DISCLAIMER_SHORT}</p>
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="w-full sm:max-w-sm" data-tour="map-search">
@@ -203,7 +272,7 @@ export function MapExperience({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(288px,0.9fr)]">
         <div className={mobilePane === 'map' ? 'block' : 'hidden md:block'}>
-          {showLiveMap ? (
+          {showLiveMap && viewConfig ? (
             <MapLiveCanvas
               view={viewConfig}
               markers={filteredMarkers}

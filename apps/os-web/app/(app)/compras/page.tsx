@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {
   EmptyState,
-  ListRow,
+  OperatingRow,
   PageContainer,
   PageSection,
   SectionHeader,
@@ -24,6 +24,7 @@ import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 
 /** CROSS_LANE: add 'comprasFilter' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const COMPRAS_FILTER_TARGET = 'compras-filter';
@@ -80,7 +81,7 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
       />
       {queue.state === 'ready' || queue.state === 'permission' ? (
         <StatGroup
-          className="mb-6"
+          className="mb-4"
           items={[
             {
               label: 'Revisiones de abastecimiento solicitadas',
@@ -159,21 +160,22 @@ async function loadComprasLinkedWithSupply(): Promise<{
  */
 function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
   return (
-    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedidos para vincular">
+    <OpsDeskSurface className="mb-4">
+    <PageSection className="p-0 shadow-none" aria-label="Pedidos para vincular">
       <SectionHeader
         kicker="Pedido"
         title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
             Pedidos para vincular
           </h2>
         }
       />
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Si la solicitud corresponde a un pedido, ábralo o selecciónelo de la lista. La revisión de
         abastecimiento solo aparece cuando ya hay Trabajo abierto — no se inventa OC ni stock.
       </p>
       {orders.length === 0 ? (
-        <div data-owner-review-state="no-data" className="mt-6">
+        <div data-owner-review-state="no-data" className="mt-4">
           <EmptyState
             title="Sin pedidos abiertos para vincular"
             description="Los pedidos aparecen aquí para vincularlos. La revisión de compras se solicita desde el pedido. Esta lista no crea pedidos ni órdenes de compra."
@@ -181,53 +183,45 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
           />
         </div>
       ) : (
-        <ul className="mt-6">
+        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
           {orders.map((order) => (
-            <ListRow key={order.orderId} as="li" className="items-start gap-4 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                  {order.supplyReview ? (
+            <li key={order.orderId}>
+              <OperatingRow
+                href={orderHref(order.partyId, order.orderId)}
+                subject={order.orderNumber}
+                meta={`${order.customerLabel} · Pedido abierto · sin obligación automática de compra`}
+                status={
+                  order.supplyReview ? (
                     <StatusPill tone="warning">Revisión de abastecimiento</StatusPill>
                   ) : (
                     <StatusPill tone="neutral">Sin revisión abierta</StatusPill>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                  {order.customerLabel}
-                  {' · '}
-                  Pedido abierto · sin obligación automática de compra
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-2">
-                {order.supplyReview ? (
-                  <>
-                    <Link
-                      href={workItemHref(order.supplyReview.workItemId)}
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                    >
-                      Ver revisión
-                    </Link>
-                    <ResolvePurchasingReviewForm
-                      workItemId={order.supplyReview.workItemId}
-                      requesterMemberId={order.supplyReview.requesterMemberId}
-                      partyId={order.partyId}
-                      orderId={order.orderId}
-                      orderNumber={order.orderNumber}
-                    />
-                  </>
-                ) : null}
-                <Link
-                  href={orderHref(order.partyId, order.orderId)}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                >
-                  Abrir pedido
-                </Link>
-              </div>
-            </ListRow>
+                  )
+                }
+                actions={
+                  order.supplyReview ? (
+                    <div className="flex flex-col items-end gap-1">
+                      <Link
+                        href={workItemHref(order.supplyReview.workItemId)}
+                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                      >
+                        Revisión
+                      </Link>
+                      <ResolvePurchasingReviewForm
+                        workItemId={order.supplyReview.workItemId}
+                        requesterMemberId={order.supplyReview.requesterMemberId}
+                        partyId={order.partyId}
+                        orderId={order.orderId}
+                        orderNumber={order.orderNumber}
+                      />
+                    </div>
+                  ) : null
+                }
+              />
+            </li>
           ))}
         </ul>
       )}
     </PageSection>
+    </OpsDeskSurface>
   );
 }

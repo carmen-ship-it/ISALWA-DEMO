@@ -12,6 +12,12 @@ export type MapHoverSnapshot = {
   quotedValueLabel: string | null;
   orderCount: number;
   orderValueLabel: string | null;
+  /** Raw recorded values for bubble sizing — null when absent. */
+  opportunityValueCentavos: number | null;
+  quotedValueCentavos: number | null;
+  orderValueCentavos: number | null;
+  /** Active attention + overdue work count for this party. */
+  attentionCount: number;
   nextAttention: string | null;
   statusLabel: string;
   statusTone: MapHoverStatusTone;
@@ -49,6 +55,21 @@ function nextAttentionLabel(
   return ATTENTION_LABEL[item.attentionType] ?? item.reasonCode;
 }
 
+export function countPartyAttention(
+  partyId: string,
+  attention: readonly AttentionItemReadModel[],
+  overdueWork: readonly WorkSummaryReadModel[],
+): number {
+  let count = 0;
+  for (const row of overdueWork) {
+    if (row.status === 'open' && row.subjectType === 'party' && row.subjectId === partyId) count += 1;
+  }
+  for (const item of attention) {
+    if (item.isActive && item.subjectType === 'party' && item.subjectId === partyId) count += 1;
+  }
+  return count;
+}
+
 export function buildMapHoverSnapshot(input: {
   row: MapCustomerRow;
   ownerLabel: string | null;
@@ -58,6 +79,11 @@ export function buildMapHoverSnapshot(input: {
 }): MapHoverSnapshot {
   const status = statusFromRow(input.row);
   const commercial = input.commercial;
+  const attentionCount = countPartyAttention(
+    input.row.partyId,
+    input.attention ?? [],
+    input.overdueWork ?? [],
+  );
   return {
     partyId: input.row.partyId,
     clientName: input.row.displayName,
@@ -66,6 +92,10 @@ export function buildMapHoverSnapshot(input: {
     quotedValueLabel: commercial?.quotedValueLabel ?? null,
     orderCount: commercial?.orderCount ?? 0,
     orderValueLabel: commercial?.orderValueLabel ?? null,
+    opportunityValueCentavos: commercial?.opportunityValueCentavos ?? null,
+    quotedValueCentavos: commercial?.quotedValueCentavos ?? null,
+    orderValueCentavos: commercial?.orderValueCentavos ?? null,
+    attentionCount,
     nextAttention: nextAttentionLabel(
       input.row.partyId,
       input.attention ?? [],

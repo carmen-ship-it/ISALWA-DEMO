@@ -16,6 +16,10 @@ export type MapConfirmedMarker = {
   displayName: string;
   lat: number;
   lng: number;
+  /** Display radius in px (pre-scaled for active layer). */
+  radiusPx?: number;
+  /** Hex fill for attention intensity; default commercial teal. */
+  color?: string;
 };
 
 type MapHandle = {
@@ -65,6 +69,8 @@ function toGeoJSON(markers: readonly MapConfirmedMarker[]) {
       properties: {
         id: m.partyId,
         name: m.displayName,
+        radius: m.radiusPx ?? 9,
+        color: m.color ?? '#3d5c58',
       },
     })),
   };
@@ -285,8 +291,13 @@ export function MapLiveCanvas({
                 id="confirmed-clients"
                 type="circle"
                 paint={{
-                  'circle-color': '#3d5c58',
-                  'circle-radius': ['case', ['==', ['get', 'selected'], 1], 10, 7],
+                  'circle-color': ['coalesce', ['get', 'color'], '#3d5c58'],
+                  'circle-radius': [
+                    'case',
+                    ['==', ['get', 'selected'], 1],
+                    ['+', ['coalesce', ['get', 'radius'], 9], 2],
+                    ['coalesce', ['get', 'radius'], 9],
+                  ],
                   'circle-stroke-width': ['case', ['==', ['get', 'selected'], 1], 2.5, 1.75],
                   'circle-stroke-color': '#ffffff',
                   'circle-opacity': 0.94,

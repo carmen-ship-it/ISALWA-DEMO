@@ -96,20 +96,43 @@ export function Cliente360Header({
   };
 
   return (
-    <div className="flex flex-col gap-3 py-3">
-      <ActionBar className="items-start gap-3">
+    <div className="flex flex-col gap-2.5 py-2">
+      <ActionBar className="items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="isalwa-kicker">Cliente</p>
-          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-            <h1 className="isalwa-page-title truncate text-[clamp(1.35rem,2.2vw,1.75rem)]">
+          <p className="isalwa-kicker text-[10px] tracking-[0.14em]">Cliente</p>
+          <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="truncate text-lg font-semibold leading-snug text-[var(--isalwa-kiln)] md:text-xl">
               {displayName}
             </h1>
             <PartyStatusBadge status={status} />
           </div>
           {facts.length > 0 ? (
-            <p className="mt-1.5 break-words text-xs leading-relaxed text-[var(--isalwa-slate)]">
-              {facts.join(' · ')}
-            </p>
+            <dl className="mt-2 grid gap-x-4 gap-y-1 text-xs text-[var(--isalwa-slate)] sm:grid-cols-2 lg:grid-cols-4">
+              {phone ? (
+                <div>
+                  <dt className="isalwa-section-label">Teléfono</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{phone}</dd>
+                </div>
+              ) : null}
+              {contactName ? (
+                <div>
+                  <dt className="isalwa-section-label">Contacto</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{contactName}</dd>
+                </div>
+              ) : null}
+              {locationSummary ? (
+                <div>
+                  <dt className="isalwa-section-label">Ubicación</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{locationSummary}</dd>
+                </div>
+              ) : null}
+              {ownerLabel ? (
+                <div>
+                  <dt className="isalwa-section-label">Responsable</dt>
+                  <dd className="mt-0.5 font-medium text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
+                </div>
+              ) : null}
+            </dl>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">

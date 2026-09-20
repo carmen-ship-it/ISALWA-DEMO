@@ -1,4 +1,4 @@
-import { PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { PageSection, SectionHeader, StatusPill, type StatusPillTone } from '@isalwa/ui';
 import Link from 'next/link';
 
 const linkClass =
@@ -7,7 +7,8 @@ const linkClass =
 export type PedidoDetailHeroProps = {
   orderNumber: string;
   statusLabel: string;
-  statusTone: 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'manual';
+  /** Presentation tone — aligned with StatusPill semantics (open ≠ success). */
+  statusTone: StatusPillTone;
   customerName: string;
   customerHref: string;
   sourceQuoteNumber: string | null;

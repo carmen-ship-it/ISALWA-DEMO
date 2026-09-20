@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Button, EmptyState, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
-import { CommitmentList } from '@/components/commitments/commitment-list';
+import { Button, EmptyState, PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
+import { CompromisosDeskPanel } from '@/components/commitments/compromisos-desk-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
-import { createOsApiClient, type CommitmentSummary } from '@/lib/api/os-api-client';
+import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
 import { bucketCompromisosDesk } from '@/lib/commitments/desk-buckets';
@@ -109,7 +109,7 @@ export default async function CompromisosPage({
         />
 
         <StatGroup
-          className="mb-6"
+          className="mb-4"
           items={[
             { label: 'Vence pronto', value: String(buckets.dueSoon.length) },
             { label: 'Equipo', value: String(buckets.team.length) },
@@ -117,30 +117,7 @@ export default async function CompromisosPage({
           ]}
         />
 
-        <CommitmentBucketSection
-          kicker="Próximos"
-          title="Vence pronto"
-          items={buckets.dueSoon}
-          memberLabels={memberLabels}
-          emptyTitle="Sin compromisos próximos"
-          emptyDescription="No hay compromisos abiertos con vencimiento cercano."
-        />
-        <CommitmentBucketSection
-          kicker="Equipo"
-          title="Compromisos de equipo"
-          items={buckets.team}
-          memberLabels={memberLabels}
-          emptyTitle="Sin compromisos internos"
-          emptyDescription="Los compromisos sin cliente vinculado aparecen aquí."
-        />
-        <CommitmentBucketSection
-          kicker="Historial"
-          title="Cumplidos"
-          items={buckets.completed}
-          memberLabels={memberLabels}
-          emptyTitle="Sin compromisos cumplidos"
-          emptyDescription="Cuando se marquen como cumplidos, aparecerán aquí."
-        />
+        <CompromisosDeskPanel items={items} memberLabels={memberLabels} partyLabels={partyLabels} />
       </PageContainer>
     );
   } catch (err) {
@@ -155,44 +132,4 @@ export default async function CompromisosPage({
       </PageContainer>
     );
   }
-}
-
-function CommitmentBucketSection({
-  kicker,
-  title,
-  items,
-  memberLabels,
-  emptyTitle,
-  emptyDescription,
-}: {
-  kicker: string;
-  title: string;
-  items: CommitmentSummary[];
-  memberLabels: Awaited<ReturnType<typeof resolveMemberLabels>>;
-  emptyTitle: string;
-  emptyDescription: string;
-}) {
-  return (
-    <PageSection card className="mb-6 p-6 md:p-8">
-      <SectionHeader
-        kicker={kicker}
-        title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-            {title}
-          </h2>
-        }
-      />
-      <div className="mt-4">
-        <CommitmentList
-          items={items}
-          memberLabels={memberLabels}
-          showOrigin
-          scale
-          hideHeader
-          emptyTitle={emptyTitle}
-          emptyDescription={emptyDescription}
-        />
-      </div>
-    </PageSection>
-  );
 }

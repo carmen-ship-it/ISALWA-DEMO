@@ -103,14 +103,41 @@ export function formatRecordStatus(status: string, entityType: string): string {
   return unique.length === 1 ? unique[0] : UNRECOGNIZED_STATUS_LABEL;
 }
 
-export function statusTone(
-  status: string,
-): 'neutral' | 'success' | 'warning' | 'danger' | 'info' {
-  if (status === 'won' || status === 'accepted' || status === 'open') return 'success';
-  if (status === 'submitted') return 'info';
-  if (status === 'lost' || status === 'cancelled') return 'danger';
-  if (status === 'draft') return 'neutral';
-  return 'neutral';
+/**
+ * Presentation-only StatusPill tone for commercial record statuses.
+ * Must stay aligned with statusToneFromLabel / StatusPill semantic tones.
+ * Never maps Abierta/open to success green.
+ */
+export type CommercialStatusTone =
+  | 'draft'
+  | 'open'
+  | 'in_progress'
+  | 'pending'
+  | 'approved'
+  | 'completed'
+  | 'rejected'
+  | 'cancelled'
+  | 'muted'
+  | 'neutral';
+
+export function statusTone(status: string): CommercialStatusTone {
+  switch (status) {
+    case 'draft':
+      return 'draft'; // Borrador → Sky
+    case 'open':
+      return 'open'; // Abierta / Registrado → Soft teal
+    case 'submitted':
+      return 'in_progress'; // Enviada / en curso → Sky
+    case 'won':
+    case 'accepted':
+      return 'approved'; // Ganada / Aceptada → Green
+    case 'lost':
+      return 'cancelled'; // Perdida → muted (not success)
+    case 'cancelled':
+      return 'cancelled';
+    default:
+      return 'neutral';
+  }
 }
 
 export function formatTimestamp(iso: string | null): string | null {

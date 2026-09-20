@@ -62,7 +62,7 @@ export default async function ProduccionPage({
         }
       />
       <StatGroup
-        className="mb-6"
+        className="mb-4"
         items={[
           { label: 'Revisiones solicitadas', value: String(summary.revisiones) },
           { label: 'Actualizaciones recientes', value: String(summary.actualizaciones) },
@@ -75,7 +75,7 @@ export default async function ProduccionPage({
         canMutate={canMutate}
       />
       <ListCapNotice caps={listCaps} />
-      <p className="mb-4 mt-8 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mb-3 mt-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
         producto; no hay SLA automático de fábrica.
       </p>

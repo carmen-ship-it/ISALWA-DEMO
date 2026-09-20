@@ -76,10 +76,7 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
   }
 
   return (
-    <div className="space-y-5">
-      <p className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-sky)] px-3 py-2 text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-        Esto no es una lista de precios. Un precio aparece solo cuando hay un monto con origen.
-      </p>
+    <div className="space-y-4">
       <SearchField
         id="productos-buscar"
         value={query}

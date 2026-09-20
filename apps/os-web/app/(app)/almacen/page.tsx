@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import { EmptyState, OperatingRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { WarehousePostSaleDesk } from '@/components/warehouse/warehouse-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -61,7 +62,7 @@ export default async function AlmacenPage({
         }
       />
       <StatGroup
-        className="mb-6"
+        className="mb-4"
         items={[
           { label: 'Revisiones solicitadas', value: String(summary.revisiones) },
           { label: 'Ingresos de producto terminado', value: String(summary.ingresos) },
@@ -99,64 +100,63 @@ export default async function AlmacenPage({
 
 function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[] }) {
   return (
-    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedidos con contexto de almacén">
+    <OpsDeskSurface className="mb-4">
+    <PageSection className="p-0 shadow-none" aria-label="Pedidos con contexto de almacén">
       <SectionHeader
         kicker="Pedido"
         title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
             Pedidos en Almacén
           </h2>
         }
       />
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Revisión de almacén y citas de ingreso PT por pedido. No implica stock oficial ni asignación.
       </p>
       {rows.length === 0 ? (
-        <div className="mt-6">
+        <div className="mt-4">
           <EmptyState
             title="Sin pedidos abiertos"
             description="Los pedidos abiertos aparecen aquí. La revisión de almacén se solicita desde el pedido; no se crea sola."
           />
         </div>
       ) : (
-        <ul className="mt-6">
+        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
           {rows.map((row) => (
-            <ListRow key={row.pedido.orderId} as="li" className="items-start gap-4 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{row.pedido.orderLabel}</p>
-                  {row.warehouseReviewWorkId ? (
-                    <StatusPill tone="warning">Revisión de almacén</StatusPill>
-                  ) : null}
-                  {row.hasFinishedGoodsCitation ? (
-                    <StatusPill tone="info">Ingreso PT citado</StatusPill>
-                  ) : (
-                    <StatusPill tone="neutral">Sin ingreso citado</StatusPill>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.pedido.customerLabel}</p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-2">
-                {row.warehouseReviewWorkId ? (
-                  <Link
-                    href={workItemHref(row.warehouseReviewWorkId)}
-                    className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                  >
-                    Ver revisión
-                  </Link>
-                ) : null}
-                <Link
-                  href={orderHref(row.pedido.partyId, row.pedido.orderId)}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                >
-                  Abrir pedido
-                </Link>
-              </div>
-            </ListRow>
+            <li key={row.pedido.orderId}>
+              <OperatingRow
+                href={orderHref(row.pedido.partyId, row.pedido.orderId)}
+                subject={row.pedido.orderLabel}
+                meta={row.pedido.customerLabel}
+                status={
+                  <>
+                    {row.warehouseReviewWorkId ? (
+                      <StatusPill tone="warning">Revisión de almacén</StatusPill>
+                    ) : null}
+                    {row.hasFinishedGoodsCitation ? (
+                      <StatusPill tone="info">Ingreso PT citado</StatusPill>
+                    ) : (
+                      <StatusPill tone="neutral">Sin ingreso citado</StatusPill>
+                    )}
+                  </>
+                }
+                actions={
+                  row.warehouseReviewWorkId ? (
+                    <Link
+                      href={workItemHref(row.warehouseReviewWorkId)}
+                      className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                    >
+                      Revisión
+                    </Link>
+                  ) : null
+                }
+              />
+            </li>
           ))}
         </ul>
       )}
     </PageSection>
+    </OpsDeskSurface>
   );
 }
 

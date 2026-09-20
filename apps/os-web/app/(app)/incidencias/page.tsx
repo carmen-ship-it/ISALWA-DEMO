@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { EmptyState, PageContainer, PageSection, StatGroup, StatusPill, cx } from '@isalwa/ui';
-import { IssueList } from '@/components/issue/issue-list';
+import { IncidenciasDeskPanel } from '@/components/issue/incidencias-desk-panel';
 import { ReportIssueTrigger } from '@/components/issue/report-issue-trigger';
 import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
@@ -192,7 +192,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
         />
 
         <StatGroup
-          className="mb-4"
+          className="mb-3"
           items={[
             { label: 'Abiertas', value: String(openCount) },
             { label: 'Asignadas a mí', value: String(assignedCount) },
@@ -217,9 +217,9 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
           <>
             <PageSection
               card
-              className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-0 shadow-[var(--isalwa-shadow-resting)]"
+              className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
             >
-              <IssueList items={items} memberLabels={memberLabels} showHeader />
+              <IncidenciasDeskPanel items={items} memberLabels={memberLabels} />
             </PageSection>
             {(() => {
               const nav = cursorPageLinks(

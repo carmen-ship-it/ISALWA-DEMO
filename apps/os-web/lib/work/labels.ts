@@ -204,14 +204,17 @@ export function isWorkOverdue(
   return new Date(work.dueAt) < asOf;
 }
 
-export function statusToneForWork(status: string): 'neutral' | 'success' | 'warning' | 'danger' | 'info' {
+/** Work status → StatusPill semantic tones (En curso / Completado / Cancelado). */
+export function statusToneForWork(
+  status: string,
+): 'in_progress' | 'completed' | 'cancelled' | 'neutral' {
   switch (status) {
     case 'open':
-      return 'info';
+      return 'in_progress';
     case 'completed':
-      return 'success';
+      return 'completed';
     case 'cancelled':
-      return 'neutral';
+      return 'cancelled';
     default:
       return 'neutral';
   }

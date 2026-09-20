@@ -24,6 +24,9 @@ describe('buildMapHoverSnapshot', () => {
       opportunityValueLabel: 'Bs 100,00',
       quotedValueLabel: 'Bs 250,00',
       orderValueLabel: 'Bs 400,00',
+      opportunityValueCentavos: 10000,
+      quotedValueCentavos: 25000,
+      orderValueCentavos: 40000,
       currency: 'BOB',
     };
     const snapshot = buildMapHoverSnapshot({

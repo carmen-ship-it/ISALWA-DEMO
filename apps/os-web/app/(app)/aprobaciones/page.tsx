@@ -3,7 +3,7 @@ import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import { EmptyState, PageContainer, StatusPill } from '@isalwa/ui';
 import { ListPageNav } from '@/components/lists/list-page-nav';
 import { PageHeader } from '@/components/shell/page-header';
-import { ApprovalPendingCards } from '@/components/work/approval-pending-cards';
+import { ApprovalDeskPanel } from '@/components/work/approval-desk-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
@@ -103,7 +103,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
             <p className="mb-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
               Elija una solicitud para decidir. La decisión no crea un pedido.
             </p>
-            <ApprovalPendingCards items={pending} memberLabels={memberLabels} subjects={subjects} />
+            <ApprovalDeskPanel items={pending} memberLabels={memberLabels} subjects={subjects} />
             {(() => {
               const nav = cursorPageLinks(
                 '/aprobaciones',

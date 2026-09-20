@@ -182,7 +182,7 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
           {isOpen && linkedQuote ? (
             <p className="mt-8">
               <Link href={createQuoteHref}>
-                <Button type="button" variant="secondary">
+                <Button type="button" variant="tertiary">
                   Crear otra cotización
                 </Button>
               </Link>

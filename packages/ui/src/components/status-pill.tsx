@@ -148,7 +148,7 @@ const LABEL_TONE_MAP: Record<string, StatusPillTone> = {
   vencido: 'overdue',
   aprobado: 'approved',
   rechazado: 'rejected',
-  registrado: 'neutral-sky',
+  registrado: 'open',
   cancelado: 'cancelled',
   entregado: 'completed',
   completado: 'completed',

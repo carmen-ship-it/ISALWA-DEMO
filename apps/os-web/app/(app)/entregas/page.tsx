@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { EmptyState, ListRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { EmptyState, OperatingRow, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-operational-write-desk';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
 import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
@@ -107,21 +108,22 @@ function LinkedOrdersSection({
   deliveredOrderIds: Set<string>;
 }) {
   return (
-    <PageSection card className="mb-6 p-5 md:p-6" aria-label="Pedidos vinculados">
+    <OpsDeskSurface className="mb-4">
+    <PageSection className="p-0 shadow-none" aria-label="Pedidos vinculados">
       <SectionHeader
         kicker="Pedido"
         title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
             Pedidos de esta empresa
           </h2>
         }
       />
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Abra el pedido ya registrado de la lista. El progreso Nota de Entrega / Salida / Entrega usa solo
         hechos registrados — no se inventa una entrega desde el pedido.
       </p>
       {orders.length === 0 ? (
-        <div data-owner-review-state="no-data" className="mt-6">
+        <div data-owner-review-state="no-data" className="mt-4">
           <EmptyState
             title="Todavía no hay pedidos abiertos"
             description="Los pedidos aparecen aquí después de convertir una cotización elegible. La nota, la salida y la entrega se registran en el pedido. Aquí no se crean pedidos."
@@ -129,7 +131,7 @@ function LinkedOrdersSection({
           />
         </div>
       ) : (
-        <ul className="mt-6">
+        <ul className="mt-4 space-y-2">
           {orders.map((order) => {
             const progress = buildDeliveryProgress({
               orderRecorded: true,
@@ -138,27 +140,32 @@ function LinkedOrdersSection({
               hasEntrega: deliveredOrderIds.has(order.orderId),
             });
             return (
-              <ListRow key={order.orderId} as="li" className="items-start gap-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {order.customerLabel?.trim() || 'Cliente'}
-                    {' · '}
-                    Pedido abierto
-                  </p>
-                  <DeliveryProgressStrip className="mt-2" steps={progress} />
-                </div>
-                <Link
+              <li
+                key={order.orderId}
+                className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white"
+              >
+                <OperatingRow
                   href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                  className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                >
-                  Registrar en Entregas
-                </Link>
-              </ListRow>
+                  subject={order.orderNumber}
+                  meta={`${order.customerLabel?.trim() || 'Cliente'} · Pedido abierto`}
+                  actions={
+                    <Link
+                      href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
+                      className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                    >
+                      Registrar
+                    </Link>
+                  }
+                />
+                <div className="border-t border-[var(--isalwa-mist)] px-3 pb-2 pt-1">
+                  <DeliveryProgressStrip className="mt-0" steps={progress} />
+                </div>
+              </li>
             );
           })}
         </ul>
       )}
     </PageSection>
+    </OpsDeskSurface>
   );
 }

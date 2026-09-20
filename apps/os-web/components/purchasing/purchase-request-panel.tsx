@@ -45,11 +45,13 @@ type PurchaseRequestPanelProps = {
   onStop?: (id: string) => void;
 };
 
-function statusTone(status: ComprasQueueItem['status']): 'info' | 'warning' | 'success' | 'neutral' {
-  if (status === 'cotizandose' || status === 'pedido_preparandose') return 'warning';
-  if (status === 'cancelled') return 'neutral';
-  if (status === 'entregado') return 'success';
-  return 'info';
+function statusTone(
+  status: ComprasQueueItem['status'],
+): 'in_progress' | 'pending' | 'completed' | 'cancelled' | 'open' {
+  if (status === 'cotizandose' || status === 'pedido_preparandose') return 'pending';
+  if (status === 'cancelled') return 'cancelled';
+  if (status === 'entregado') return 'completed';
+  return 'open'; // solicitado → soft teal (registrado / abierto)
 }
 
 export function PurchaseRequestPanel({

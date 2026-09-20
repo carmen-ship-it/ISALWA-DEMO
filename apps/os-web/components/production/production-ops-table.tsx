@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Button, EmptyState, FeedbackNote, ListRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { Button, EmptyState, FeedbackNote, OperatingRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { orderHref } from '@/lib/commercial/navigation';
 import {
   PRODUCTION_UPDATE_REQUEST_COPY,
@@ -71,16 +72,17 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
   }
 
   return (
-    <PageSection card className="p-6 md:p-8" aria-label="Cola de producción por pedido">
+    <OpsDeskSurface className="mb-4">
+    <PageSection className="p-0 shadow-none" aria-label="Cola de producción por pedido">
       <SectionHeader
         kicker="Producción"
         title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
+          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
             Pedidos en contexto
           </h2>
         }
       />
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Hechos de pedido y solicitudes de actualización. No se inventa un estado de fábrica.
       </p>
       {feedback ? (
@@ -96,75 +98,68 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
           />
         </div>
       ) : (
-        <ul className="mt-6">
+        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
           {rows.map((row) => {
             const href = orderHref(row.pedido.partyId, row.pedido.orderId);
             const busy = pending && pendingId === row.pedido.orderId;
+            const meta = [
+              row.pedido.customerLabel,
+              row.requestedAction,
+              row.lastUpdateLabel,
+              `Responsable: ${row.responsibleLabel}`,
+              `Siguiente: ${row.nextAction}`,
+            ].join(' · ');
+            const statusPills = (
+              <>
+                {row.openProductionReviewWorkId ? (
+                  <StatusPill tone="warning">Revisión de producción</StatusPill>
+                ) : null}
+                {row.openUpdate ? (
+                  <StatusPill tone="warning">{PRODUCTION_UPDATE_REQUEST_COPY.requested}</StatusPill>
+                ) : null}
+              </>
+            );
             return (
-              <ListRow key={row.pedido.orderId} as="li" className="items-start gap-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={href}
-                      className="text-sm font-medium text-[var(--isalwa-kiln)] hover:text-[var(--isalwa-glaze)]"
-                    >
-                      {row.pedido.orderLabel}
-                    </Link>
-                    {row.openProductionReviewWorkId ? (
-                      <StatusPill tone="warning">Revisión de producción</StatusPill>
-                    ) : null}
-                    {row.openUpdate ? (
-                      <StatusPill tone="warning">{PRODUCTION_UPDATE_REQUEST_COPY.requested}</StatusPill>
-                    ) : null}
-                  </div>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {row.pedido.customerLabel}
-                    {' · '}
-                    {row.requestedAction}
-                    {' · '}
-                    {row.lastUpdateLabel}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-                    Responsable: {row.responsibleLabel}
-                    {' · '}
-                    {row.dateLabel}
-                    {' · '}
-                    Siguiente: {row.nextAction}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-2">
-                  {row.openProductionReviewWorkId ? (
-                    <Link
-                      href={workItemHref(row.openProductionReviewWorkId)}
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                    >
-                      Ver revisión
-                    </Link>
-                  ) : null}
-                  {row.openUpdate ? (
-                    <Link
-                      href={workItemHref(row.openUpdate.workItemId)}
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                    >
-                      Ver trabajo
-                    </Link>
-                  ) : canMutate && actorMemberId ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      disabled={busy}
-                      onClick={() => requestUpdate(row)}
-                    >
-                      {busy ? 'Solicitando…' : PRODUCTION_UPDATE_REQUEST_COPY.action}
-                    </Button>
-                  ) : null}
-                </div>
-              </ListRow>
+              <li key={row.pedido.orderId}>
+                <OperatingRow
+                  href={href}
+                  subject={row.pedido.orderLabel}
+                  meta={meta}
+                  status={statusPills}
+                  actions={
+                    row.openProductionReviewWorkId ? (
+                      <Link
+                        href={workItemHref(row.openProductionReviewWorkId)}
+                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                      >
+                        Revisión
+                      </Link>
+                    ) : row.openUpdate ? (
+                      <Link
+                        href={workItemHref(row.openUpdate.workItemId)}
+                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                      >
+                        Trabajo
+                      </Link>
+                    ) : canMutate && actorMemberId ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        disabled={busy}
+                        onClick={() => requestUpdate(row)}
+                      >
+                        {busy ? 'Solicitando…' : PRODUCTION_UPDATE_REQUEST_COPY.action}
+                      </Button>
+                    ) : null
+                  }
+                />
+              </li>
             );
           })}
         </ul>
       )}
     </PageSection>
+    </OpsDeskSurface>
   );
 }

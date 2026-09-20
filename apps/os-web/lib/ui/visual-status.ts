@@ -29,7 +29,7 @@ export const clienteTabInactiveClass =
   'inline-flex h-11 items-center rounded-t-[var(--isalwa-radius-control)] border-b-2 border-transparent px-3.5 text-sm text-[var(--isalwa-slate)] outline-none hover:bg-[color-mix(in_srgb,var(--isalwa-teal-100)_55%,transparent)] hover:text-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 export const clienteTabActiveClass =
-  'inline-flex h-11 items-center rounded-t-[var(--isalwa-radius-control)] border-b-2 border-[var(--isalwa-glaze)] bg-[var(--isalwa-surface-active)] px-3.5 text-sm font-medium text-[var(--isalwa-glaze)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'inline-flex h-11 items-center rounded-t-[var(--isalwa-radius-control)] border-b-2 border-[var(--isalwa-glaze)] border-l-[3px] border-l-[var(--isalwa-glaze-deep)] bg-[var(--isalwa-surface-active)] px-3.5 text-sm font-semibold text-[var(--isalwa-glaze-deep)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 /** White work surface on porcelain canvas. */
 export const deskPanelClass =

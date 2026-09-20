@@ -29,6 +29,10 @@ main[aria-label='Producción'] h1 {
   box-shadow: inset 4px 0 0 #287a78;
   padding-left: 0.75rem;
 }
+main[aria-label='Registro financiero operativo'] h1 {
+  box-shadow: inset 4px 0 0 #18324b;
+  padding-left: 0.75rem;
+}
 main[aria-label='Incidencias'] h1 {
   box-shadow: inset 4px 0 0 #fbe9e7;
   padding-left: 0.75rem;

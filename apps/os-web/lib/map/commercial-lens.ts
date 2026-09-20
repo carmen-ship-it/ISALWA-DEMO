@@ -30,6 +30,10 @@ export type MapPartyCommercialSnapshot = {
   quotedValueLabel: string | null;
   /** Sum of order totalCentavos — safe label Valor de pedidos */
   orderValueLabel: string | null;
+  /** Raw centavos for map bubble sizing only — never invent. */
+  opportunityValueCentavos: number | null;
+  quotedValueCentavos: number | null;
+  orderValueCentavos: number | null;
   currency: string;
 };
 
@@ -69,6 +73,17 @@ function sumCentavos(values: readonly (string | null | undefined)[]): string | n
     any = true;
   }
   return any ? total.toString() : null;
+}
+
+/** Safe finite number for display scaling; null when no recorded amount. */
+export function centavosToNumber(centavos: string | null | undefined): number | null {
+  if (centavos == null || centavos === '' || !/^-?\d+$/.test(centavos)) return null;
+  try {
+    const n = Number(BigInt(centavos));
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
 }
 
 function dominantCurrency(items: readonly { currency?: string }[]): string {
@@ -128,6 +143,9 @@ export function buildMapPartyCommercialSnapshot(
       : null,
     quotedValueLabel: quotedValue ? formatCentavos(quotedValue, currency) : null,
     orderValueLabel: orderValue ? formatCentavos(orderValue, currency) : null,
+    opportunityValueCentavos: centavosToNumber(opportunityValue),
+    quotedValueCentavos: centavosToNumber(quotedValue),
+    orderValueCentavos: centavosToNumber(orderValue),
     currency,
   };
 }
