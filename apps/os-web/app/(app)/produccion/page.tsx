@@ -1,7 +1,8 @@
-import { PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
+import { PageContainer, StatGroup } from '@isalwa/ui';
 import { ProductionOpsTable, type ProductionOpsRow } from '@/components/production/production-ops-table';
 import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { ProductionPostSaleDesk } from '@/components/production/production-postsale-desk';
+import { OpsDeskInfoBanner } from '@/components/production/ops-desk-info-banner';
 import { PageHeader } from '@/components/shell/page-header';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -54,12 +55,6 @@ export default async function ProduccionPage({
         kicker={PRODUCTION_PAGE_COPY.kicker}
         title={PRODUCTION_PAGE_COPY.title}
         description={PRODUCTION_PAGE_COPY.intro}
-        action={
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="info">Pedido como contexto</StatusPill>
-            <StatusPill tone="manual">Anotación confirmada</StatusPill>
-          </div>
-        }
       />
       <StatGroup
         className="mb-4"
@@ -69,16 +64,19 @@ export default async function ProduccionPage({
           { label: 'Pedidos en cola', value: String(pedidos.length) },
         ]}
       />
+      <OpsDeskInfoBanner
+        columns={[
+          { label: 'Contexto', value: 'Pedido hereda cliente, cotización y líneas.' },
+          { label: 'Anotación', value: 'Sigue el producto; no hay SLA automático de fábrica.' },
+          { label: 'Ingreso PT', value: PRODUCTION_PAGE_COPY.listoMeaning },
+        ]}
+      />
       <ProductionOpsTable
         rows={rows}
         actorMemberId={identity.memberId}
         canMutate={canMutate}
       />
       <ListCapNotice caps={listCaps} />
-      <p className="mb-3 mt-6 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Seleccione el pedido para heredar cliente, cotización y líneas. La anotación sigue el
-        producto; no hay SLA automático de fábrica.
-      </p>
       {identity.status === 'error' ? (
         <div className="mt-6">
           <ServiceUnavailableState />

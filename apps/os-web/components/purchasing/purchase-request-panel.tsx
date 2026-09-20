@@ -81,15 +81,13 @@ export function PurchaseRequestPanel({
   return (
     <OpsDeskSurface>
       <PageSection card className="p-6 md:p-8" aria-label={COMPRAS_COPY.title}>
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusPill tone="manual">No es inventario</StatusPill>
-        <StatusPill tone="neutral">No prueba falta de stock</StatusPill>
-      </div>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Revise los pedidos que requieren atención de Compras. Las órdenes de compra aún no se generan en ISALWA.
-      </p>
-      <div className="mt-8">{renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}</div>
-    </PageSection>
+        <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+          {COMPRAS_COPY.title}
+        </h2>
+        <div className="mt-4">
+          {renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}
+        </div>
+      </PageSection>
     </OpsDeskSurface>
   );
 }

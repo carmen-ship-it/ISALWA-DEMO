@@ -11,10 +11,6 @@ import {
   StatusPill,
 } from '@isalwa/ui';
 import { SearchableSelect } from '@/components/experience/searchable-select';
-import {
-  OWNER_REVIEW_V1_COPY,
-  V1FlowValidateNotice,
-} from '@/components/owner-review/v1-flow-validate-notice';
 import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
@@ -84,13 +80,6 @@ export function WarehouseDesk({
 
   return (
     <OpsDeskSurface className="space-y-6" data-warehouse-boundary="allocation" data-warehouse-status="ready">
-      <BoundaryNotes />
-      {!persistWriteMounted ? (
-        <V1FlowValidateNotice
-          title={OWNER_REVIEW_V1_COPY.almacenTitle}
-          description={OWNER_REVIEW_V1_COPY.almacenDescription}
-        />
-      ) : null}
       {empty ? (
         <div data-owner-review-state="no-data">
           <EmptyState
@@ -111,24 +100,6 @@ export function WarehouseDesk({
       <HistorySection view={view} canAllocate={canAllocate} onCorrect={onCorrect} />
       <ExitNote />
     </OpsDeskSurface>
-  );
-}
-
-function BoundaryNotes() {
-  return (
-    <PageSection card className="p-6 md:p-8">
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
-        <StatusPill tone="neutral">No es entrega</StatusPill>
-        <StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.notFulfillment}</StatusPill>
-      </div>
-      <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {WAREHOUSE_TASK_COPY.receiptDoesNotAllocate}
-      </p>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {WAREHOUSE_TASK_COPY.partialAllowed}
-      </p>
-    </PageSection>
   );
 }
 
@@ -311,7 +282,7 @@ function AllocateSection({
         </p>
       ) : !persistWriteMounted ? (
         <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          El contexto de pedidos y producto se muestra arriba. No hay un botón de asignación definitiva en esta Versión 1.
+          El contexto de pedidos y producto se muestra arriba. La asignación definitiva aparece cuando el permiso de escritura está montado en esta sesión.
         </p>
       ) : choosable.length === 0 || pedidos.length === 0 ? (
         <div data-owner-review-state="no-data" className="mt-6">

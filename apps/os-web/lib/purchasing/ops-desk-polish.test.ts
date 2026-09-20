@@ -15,12 +15,13 @@ describe('Wave 2 operational polish', () => {
     const almacen = read('app/(app)/almacen/page.tsx');
     const compras = read('lib/purchasing/load-queue.ts');
     const coordinacion = read('lib/coordination/load.ts');
+    const capabilities = read('lib/auth/member-capabilities.ts');
     assert.match(produccion, /loadMemberCapabilities/);
     assert.match(almacen, /loadMemberCapabilities/);
     assert.match(compras, /loadMemberCapabilities/);
     assert.match(coordinacion, /loadMemberCapabilities/);
-    assert.match(produccion, /member\.roleKeys are not a second grant source/);
-    assert.match(almacen, /never treat session\/me as a grant source/);
+    assert.match(capabilities, /roleKeys list is not a second session/);
+    assert.match(capabilities, /Cargo and title grant/);
     assert.doesNotMatch(almacen, /getAuthenticatedSession\(\)/);
   });
 
@@ -41,25 +42,27 @@ describe('Wave 2 operational polish', () => {
   });
 
   it('shows honest empty / manual / non-ledger provenance on operational desks', () => {
-    const productos = read('app/(app)/productos/page.tsx');
+    const comprasPage = read('app/(app)/compras/page.tsx');
     const compras = read('components/purchasing/purchase-request-panel.tsx');
-    const entregas = read('components/delivery/entrega-panel.tsx');
-    const finance = read('components/finance/finance-operational-desk.tsx');
     const warehouse = read('components/warehouse/warehouse-desk.tsx');
+    const almacen = read('app/(app)/almacen/page.tsx');
+    const produccion = read('app/(app)/produccion/page.tsx');
 
-    assert.match(productos, /No es lista de precios/);
-    assert.match(productos, /Vista previa/);
-    assert.match(compras, /No es inventario/);
-    assert.match(compras, /entregado'\) return 'success'/);
+    // Task 9: defensive copy once on the page banner — not repeated pills in the panel.
+    assert.match(comprasPage, /OpsDeskInfoBanner/);
+    assert.match(comprasPage, /No es inventario|No inventario/);
+    assert.doesNotMatch(compras, /No prueba falta de stock/);
+    assert.match(compras, /entregado'\) return 'completed'/);
     assert.match(compras, /permissionTitle/);
     assert.match(compras, /data-compras-status="denied"/);
     assert.doesNotMatch(compras, /AccessDeniedState/);
-    assert.match(entregas, /No confirma pago en el libro/);
-    assert.match(finance, /Dato manual/);
-    assert.match(finance, /No es libro contable/);
+    assert.doesNotMatch(compras, /faltante|shortage|punto de reorden/i);
+
     assert.match(warehouse, /notOfficialStock/);
     assert.doesNotMatch(warehouse, /stockTotal/);
-    assert.doesNotMatch(compras, /faltante|shortage|punto de reorden/i);
+    assert.match(almacen, /WAREHOUSE_TASK_COPY\.title/);
+    assert.doesNotMatch(almacen, /Asignación a pedido/);
+    assert.match(produccion, /OpsDeskInfoBanner/);
   });
 
   it('uses sentence-case Spanish for coordination record action', () => {

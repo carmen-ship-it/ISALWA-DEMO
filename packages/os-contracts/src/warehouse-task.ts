@@ -22,9 +22,9 @@ export const WAREHOUSE_MISSING_NAME = 'El nombre no fue registrado';
 
 export const WAREHOUSE_TASK_COPY = {
   kicker: 'Almacén',
-  title: 'Asignación a pedido',
+  title: 'Registro de ingreso de producto terminado',
   intro:
-    'El encargado de almacén asigna producto terminado a un pedido después de que está en Almacén de Productos Terminados. Esto no es stock y no es una entrega.',
+    'Registre el ingreso de producto terminado vinculado al pedido. Esto no es stock oficial y no es una entrega.',
   waiting: 'Qué está esperando',
   allocatable: 'Qué puedo asignar',
   pedido: 'A qué pedido',

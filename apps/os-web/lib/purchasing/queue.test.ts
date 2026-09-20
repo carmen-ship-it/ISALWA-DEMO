@@ -89,11 +89,12 @@ describe('Compras queue', () => {
     const panel = readFileSync(join(__dirname, '../../components/purchasing/purchase-request-panel.tsx'), 'utf8');
     assert.match(page, /PurchaseRequestPanel/);
     assert.doesNotMatch(panel, /Unmounted/);
-    assert.match(panel, /Solicitado/);
-    assert.match(panel, /Cotizándose/);
-    assert.match(panel, /Pedido y Preparándose/);
-    assert.match(panel, /Entregado/);
-    assert.match(panel, /Cancelado/);
+    assert.match(panel, /PURCHASE_REQUEST_STATUS_LABELS/);
+    assert.match(panel, /solicitado/);
+    assert.match(panel, /cotizandose/);
+    assert.match(panel, /pedido_preparandose/);
+    assert.match(panel, /entregado/);
+    assert.match(panel, /cancelled/);
     assert.doesNotMatch(panel, /faltante|shortage|proveedor|punto de reorden/i);
   });
 

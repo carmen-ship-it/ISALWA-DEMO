@@ -59,7 +59,7 @@ export function ResolvePurchasingReviewForm(props: ResolvePurchasingReviewFormPr
         <textarea name="comment" required maxLength={500} className={fieldClass} rows={3} />
       </label>
       {state?.error ? <p className="text-sm text-[var(--isalwa-danger)]">{state.error}</p> : null}
-      <CommandSubmitButton label="Resolver revisión" pendingLabel="Registrando…" />
+      <CommandSubmitButton label="Resolver revisión" pendingLabel="Registrando…" variant="primary" />
     </form>
   );
 }

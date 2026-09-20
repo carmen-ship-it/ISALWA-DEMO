@@ -35,20 +35,20 @@ type ProductionOpsTableProps = {
 };
 
 const DESKTOP_GRID =
-  'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.95fr)_minmax(0,0.9fr)_minmax(0,1fr)_auto_auto]';
+  'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.95fr)_minmax(0,0.9fr)_auto_auto]';
 
 const HEADER_COLUMNS = [
   { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
   { id: 'client', label: 'Cliente', className: 'min-w-0' },
-  { id: 'requested', label: 'Solicitado', className: 'min-w-0' },
+  { id: 'revision', label: 'Revisión', className: 'min-w-0' },
+  { id: 'updated', label: 'Última actualización', className: 'min-w-0' },
   { id: 'owner', label: 'Responsable', className: 'min-w-0' },
-  { id: 'next', label: 'Siguiente', className: 'min-w-0' },
   { id: 'status', label: 'Estado', className: 'justify-self-end' },
   { id: 'action', label: '', className: 'justify-self-end' },
 ];
 
 /**
- * Production work table — Pedido / Client / requested / last update / responsible / date / next action.
+ * Production work table — Pedido / Cliente / Revisión / Última actualización / Responsable / Estado / Acción.
  */
 export function ProductionOpsTable({ rows, actorMemberId, canMutate }: ProductionOpsTableProps) {
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -97,9 +97,6 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
             </h2>
           }
         />
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Hechos de pedido y solicitudes de actualización. No se inventa un estado de fábrica.
-        </p>
         {feedback ? (
           <div className="mt-4">
             <FeedbackNote tone={feedback.tone} title={feedback.title} detail={feedback.detail} />
@@ -133,7 +130,6 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                     ) : null}
                   </>
                 );
-                const nextLabel = [row.nextAction, row.lastUpdateLabel].filter(Boolean).join(' · ') || '—';
                 const action =
                   row.openProductionReviewWorkId ? (
                     <Link
@@ -170,9 +166,14 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                       fields={[
                         { id: 'client', label: 'Cliente', value: row.pedido.customerLabel },
                         {
-                          id: 'requested',
-                          label: 'Solicitado',
+                          id: 'revision',
+                          label: 'Revisión',
                           value: row.requestedAction || '—',
+                        },
+                        {
+                          id: 'updated',
+                          label: 'Última actualización',
+                          value: row.lastUpdateLabel || '—',
                           hideOnMobile: true,
                         },
                         {
@@ -180,11 +181,6 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                           label: 'Responsable',
                           value: row.responsibleLabel || '—',
                           hideOnMobile: true,
-                        },
-                        {
-                          id: 'next',
-                          label: 'Siguiente',
-                          value: nextLabel,
                         },
                       ]}
                       status={statusPills}

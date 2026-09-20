@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { EmptyState, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
 import '@/components/commercial/commercial-surfaces.css';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
+import { OpsDeskInfoBanner } from '@/components/production/ops-desk-info-banner';
 import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { WarehousePostSaleDesk } from '@/components/warehouse/warehouse-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
@@ -56,12 +57,6 @@ export default async function AlmacenPage({
         kicker={WAREHOUSE_TASK_COPY.kicker}
         title={WAREHOUSE_TASK_COPY.title}
         description={WAREHOUSE_TASK_COPY.intro}
-        action={
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
-            <StatusPill tone="neutral">Ingreso ≠ asignación</StatusPill>
-          </div>
-        }
       />
       <StatGroup
         className="mb-4"
@@ -72,10 +67,16 @@ export default async function AlmacenPage({
         ]}
       />
       <ListCapNotice caps={access.listCaps ?? []} />
-      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Acción principal: registrar ingreso de producto terminado. No se muestra stock disponible
-        sin fuente autoritativa. Los ingresos citados solo confirman un registro vinculado al pedido.
-      </p>
+      <OpsDeskInfoBanner
+        columns={[
+          {
+            label: 'Hecho',
+            value: 'Registro de ingreso de producto terminado vinculado al pedido.',
+          },
+          { label: 'No es stock', value: WAREHOUSE_TASK_COPY.notOfficialStock },
+          { label: 'No es entrega', value: 'El ingreso no es una entrega ni asigna cumplimiento.' },
+        ]}
+      />
       <PedidoWarehouseContextSection rows={contexts} />
       <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
         <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
@@ -123,7 +124,7 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
         }
       />
       <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Revisión de almacén y citas de ingreso PT por pedido. No implica stock oficial ni asignación.
+        Cola por pedido: revisión abierta e ingreso PT citado.
       </p>
       {rows.length === 0 ? (
         <div className="mt-4">
