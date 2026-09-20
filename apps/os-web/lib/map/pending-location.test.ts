@@ -58,7 +58,10 @@ describe('authoritative revenue layer', () => {
   });
 
   it('does not expose a revenue map layer; unknown ids fall back to clientes', () => {
-    assert.equal(MAP_LAYER_REGISTRY.some((layer) => layer.id === 'ingresos'), false);
+    assert.equal(
+      MAP_LAYER_REGISTRY.some((layer) => (layer.id as string) === 'ingresos'),
+      false,
+    );
     assert.equal(resolveMapLayer('ingresos'), 'clientes');
   });
 });
