@@ -397,6 +397,7 @@ export function createOsApiClient(auth: OsAuthContext) {
           partyId: string;
           customerName: string;
           status: string;
+          quoteId: string;
           lines: Array<{
             orderLineId: string;
             description: string;

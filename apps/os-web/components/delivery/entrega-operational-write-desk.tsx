@@ -142,7 +142,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
 
   let quotedProducts: ReturnType<typeof quotedProductsFromQuoteLines> = [];
   let quoteUnavailable = false;
-  const quoteId = typeof (selected as { quoteId?: string }).quoteId === 'string' ? (selected as { quoteId: string }).quoteId.trim() : '';
+  const quoteId = selected.quoteId?.trim() ?? '';
   if (quoteId) {
     try {
       const pack = await client.getQuote(quoteId);
