@@ -20,9 +20,24 @@ const REMAINING_WAVEB = /\bWaveB\b[^,·\n]*/gi;
 const REMAINING_WAVE2 = /\bWave\s*2\b[^,·\n]*/gi;
 const REMAINING_WAVEA = /\bWaveA\b[^,·\n]*/gi;
 
+const INTERNAL_MARKER = /\[\[[^\]]+\]\]/g;
+const PAREN_ULID = /\s*\(\s*[0-9A-HJKMNP-TV-Z]{26}\s*\)/gi;
+const BARE_ULID = /\b[0-9A-HJKMNP-TV-Z]{26}\b/gi;
+const BARE_UUID =
+  /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+
+/** Drop linkage tokens from human copy. Stored text is unchanged. */
+export function stripInternalPresentationTokens(value: string): string {
+  return value
+    .replace(INTERNAL_MARKER, ' ')
+    .replace(PAREN_ULID, '')
+    .replace(BARE_ULID, '')
+    .replace(BARE_UUID, '');
+}
+
 export function presentHumanCopy(value: string | null | undefined): string {
   if (!value) return '';
-  let text = value.replace(/\[\s*is_demo\s*\]/gi, ' ');
+  let text = stripInternalPresentationTokens(value).replace(/\[\s*is_demo\s*\]/gi, ' ');
   for (const row of FIXTURE_PEOPLE) {
     text = text.replace(row.pattern, row.name);
   }

@@ -6,6 +6,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 
 type Props = {
   selectedOrderId?: string | null;
@@ -50,7 +51,13 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
     );
   }
 
-  if (orders.length === 0) {
+  const visibleOrders = orders.filter(
+    (order) =>
+      !isPilotFacingHidden(order.customerName) &&
+      !isPilotFacingHidden(order.orderNumber),
+  );
+
+  if (visibleOrders.length === 0) {
     return (
       <PageSection card className="mb-6 p-5 md:p-6" aria-label="Registro operativo">
         <SectionHeader
@@ -72,7 +79,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
   }
 
   const selected =
-    orders.find((order) => order.orderId === selectedOrderId?.trim()) ?? orders[0]!;
+    visibleOrders.find((order) => order.orderId === selectedOrderId?.trim()) ?? visibleOrders[0]!;
 
   let notes: Array<{
     id: string;
@@ -142,14 +149,16 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
           }
         />
         <ul className="mt-6">
-          {orders.slice(0, 12).map((order) => {
+          {visibleOrders.slice(0, 12).map((order) => {
             const active = order.orderId === selected.orderId;
+            const customer = presentEntregaAuditLabel(order.customerName);
+            const orderLabel = presentEntregaAuditLabel(order.orderNumber);
             return (
               <ListRow key={order.orderId} as="li">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{order.orderNumber}</p>
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{orderLabel}</p>
                   <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {order.customerName} · {order.lines.length} línea(s)
+                    {customer} · {order.lines.length} línea(s)
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -165,7 +174,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
             );
           })}
         </ul>
-        {orders.length > 12 ? (
+        {visibleOrders.length > 12 ? (
           <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
             Se muestran los 12 pedidos abiertos más recientes.
           </p>
@@ -173,7 +182,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
       </PageSection>
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <StatusPill tone="neutral">Pedido {selected.orderNumber}</StatusPill>
+        <StatusPill tone="neutral">Pedido {presentEntregaAuditLabel(selected.orderNumber)}</StatusPill>
         <StatusPill tone="manual">Registro en Entregas</StatusPill>
         {canRecordDelivery(scopes) ? (
           <StatusPill tone="manual">Puede crear nota y entrega</StatusPill>
@@ -185,7 +194,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
         partyId={selected.partyId}
         orderId={selected.orderId}
         orderNumber={selected.orderNumber}
-        customerName={selected.customerName}
+        customerName={presentEntregaAuditLabel(selected.customerName)}
         actorMemberId={capabilities.memberId}
         orderLines={selected.lines}
         notes={notes}

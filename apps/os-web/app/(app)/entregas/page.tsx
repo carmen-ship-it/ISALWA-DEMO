@@ -5,10 +5,6 @@ import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-opera
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
 import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
 import { EntregaSummaryStrip } from '@/components/delivery/entrega-summary-strip';
-import {
-  OWNER_REVIEW_V1_COPY,
-  V1FlowValidateNotice,
-} from '@/components/owner-review/v1-flow-validate-notice';
 import { PageHeader } from '@/components/shell/page-header';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
@@ -60,11 +56,6 @@ export default async function EntregasPage({
             <StatusPill tone="manual">Registro interno</StatusPill>
           </div>
         }
-      />
-      <V1FlowValidateNotice
-        className="mb-6"
-        title={OWNER_REVIEW_V1_COPY.entregasTitle}
-        description={OWNER_REVIEW_V1_COPY.entregasDescription}
       />
       {deliveryOffer.offered ? (
         <div className="mb-6">

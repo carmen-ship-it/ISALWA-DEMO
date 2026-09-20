@@ -18,4 +18,19 @@ describe('pilot display cleanup', () => {
     assert.equal(demoPersonCargo('Synth Gerente'), 'Gerencia');
     assert.equal(demoPersonCargo('Carmen Staging'), null);
   });
+
+  it('hides production-update markers and raw work references', () => {
+    const raw = [
+      'Se solicita el estado actual de producción para responder al cliente o al área comercial.',
+      '',
+      'Contexto: Pedido O-000004 (01M2PMGHWHT6WF044JDV4HEZVT)',
+      '[[production-update:01M2PMGHWHT6WF044JDV4HEZVT]]',
+    ].join('\n');
+    const shown = presentHumanCopy(raw);
+    assert.match(shown, /Se solicita el estado actual de producción/);
+    assert.match(shown, /Contexto: Pedido O-000004$/);
+    assert.equal(shown.includes('production-update'), false);
+    assert.equal(shown.includes('01M2PMGHWHT6WF044JDV4HEZVT'), false);
+    assert.equal(shown.includes('[['), false);
+  });
 });
