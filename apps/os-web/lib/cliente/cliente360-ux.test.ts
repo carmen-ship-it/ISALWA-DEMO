@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
 import {
@@ -93,5 +96,43 @@ describe('displayCliente360NextAction', () => {
     assert.equal(shown.text, 'Llamar al cliente');
     assert.equal(shown.isRegisteredAction, true);
     assert.equal(shown.href, '/trabajo/w-1');
+  });
+});
+
+
+describe('Cliente 360 identity', () => {
+  it('exposes human-facing Cliente 360 label without fused Cliente360', () => {
+    assert.equal(CLIENTE360_UX_COPY.identityLabel, 'Cliente 360');
+    assert.equal(CLIENTE360_UX_COPY.identityLabel.includes(' '), true);
+    assert.equal(CLIENTE360_UX_COPY.identityLabel, 'Cliente 360');
+    for (const value of Object.values(CLIENTE360_UX_COPY)) {
+      assert.equal(value.includes('Cliente360'), false, `fused label in UX copy: ${value}`);
+    }
+  });
+
+  it('keeps Próxima acción as the next-action heading', () => {
+    assert.equal(CLIENTE360_UX_COPY.nextActionHeading, 'Próxima acción');
+  });
+});
+
+describe('Cliente 360 surface copy', () => {
+  it('header kicker uses Cliente 360', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const header = readFileSync(
+      resolve(here, '../../components/cliente/cliente-360-header.tsx'),
+      'utf8',
+    );
+    assert.match(header, /CLIENTE360_UX_COPY\.identityLabel/);
+    assert.equal(header.includes('>Cliente</p>'), false);
+    // Code identifiers (Cliente360Header) are fine; fused UX label is not.
+    assert.doesNotMatch(header, /['">]Cliente360['"<]/);
+  });
+
+  it('resumen does not lead with ¿Por qué veo esto?', () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const now = readFileSync(resolve(here, '../../components/party/cliente-360-now.tsx'), 'utf8');
+    assert.equal(now.includes('¿Por qué veo esto?'), false);
+    assert.match(now, /contextDisclosure/);
+    assert.match(now, /Bloqueos/);
   });
 });

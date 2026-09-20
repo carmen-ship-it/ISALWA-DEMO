@@ -44,7 +44,7 @@ import {
   commercialOwnerView,
 } from '@/lib/party/customer-self-service';
 import { composeCliente360FromLoaded } from '@/lib/party/next-action';
-import { memberLabel } from '@/lib/work/member-resolver';
+import { memberLabel, memberWithCargoLine } from '@/lib/work/member-resolver';
 import { formatTimestamp } from '@/lib/work/labels';
 import {
   contactDisplayName,
@@ -85,9 +85,9 @@ function activeRoleKeys(detail: Awaited<ReturnType<typeof loadCliente360>>['deta
 
 function CustomerNotFound() {
   return (
-    <CommercialPageFrame label="Cliente">
+    <CommercialPageFrame label={CLIENTE360_UX_COPY.identityLabel}>
       <PageHeader
-        kicker="Cliente"
+        kicker={CLIENTE360_UX_COPY.identityLabel}
         title="Cliente no disponible"
         action={
           <Link href="/clientes" className={linkClass}>
@@ -130,6 +130,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       documentLinks,
       financeSummary,
       memberLabels,
+      memberResponsibility,
     } = data;
     const roleKeys = activeRoleKeys(detail);
     const roleHint = multiRoleHint(roleKeys);
@@ -146,7 +147,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
 
     if (evaluationBlocksDirectParty(evaluation, commercialAccount?.ownerMemberId)) {
       return (
-        <CommercialPageFrame label="Cliente">
+        <CommercialPageFrame label={CLIENTE360_UX_COPY.identityLabel}>
           <AccessDeniedState />
         </CommercialPageFrame>
       );
@@ -164,11 +165,12 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
     );
     const canReassignOwner =
       !evaluation.active && detail.commercialAuthority?.canReassignOwner === true;
+    const ownerResolvedLabel = commercialAccount?.ownerMemberId
+      ? memberWithCargoLine(memberResponsibility, commercialAccount.ownerMemberId)
+      : null;
     const owner = commercialOwnerView(
       commercialAccount?.ownerMemberId,
-      commercialAccount?.ownerMemberId
-        ? memberLabel(memberLabels, commercialAccount.ownerMemberId)
-        : null,
+      ownerResolvedLabel,
       canReassignOwner,
     );
     const composition = composeCliente360FromLoaded({
@@ -240,7 +242,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       <CommercialPageFrame label={displayName} data-tour={TOUR_TARGET.customer360}>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 md:mb-4">
           <p className="text-sm text-[var(--isalwa-slate)]">
-            {roleHint ? roleHint : 'Ficha del cliente'}
+            {roleHint ? roleHint : CLIENTE360_UX_COPY.identityLabel}
           </p>
           <Link href="/clientes" className={helpLinkClass}>
             Volver a clientes
@@ -685,7 +687,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
       return <CustomerNotFound />;
     }
     return (
-      <CommercialPageFrame label="Cliente">
+      <CommercialPageFrame label={CLIENTE360_UX_COPY.identityLabel}>
         <QuerySurfaceState error={classifyQueryError(err)} />
       </CommercialPageFrame>
     );

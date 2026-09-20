@@ -1,7 +1,9 @@
 /** Cliente 360 UX-facing copy (human, non-engineering). */
 export const CLIENTE360_UX_COPY = {
+  /** Human-facing product identity — never fuse as "Cliente360". */
+  identityLabel: 'Cliente 360',
   noNextAction: 'No hay una próxima acción registrada.',
-  nextActionHeading: 'Siguiente paso',
+  nextActionHeading: 'Próxima acción',
   scheduleFollowUp: 'Programar seguimiento',
   actionsMenu: '+ Acciones',
   intelligenceTitle: 'Actividad comercial',
@@ -14,7 +16,8 @@ export const CLIENTE360_UX_COPY = {
   quotes: 'Cotizaciones',
   orders: 'Pedidos',
   openOrders: 'Pedidos abiertos',
-  operacionHint:
-    'Ubicación, contexto operativo y resumen de pedidos abiertos. No afirma cobranza ni pagos.',
+  operacionHint: 'Ubicación y pedidos abiertos. No afirma cobranza ni pagos.',
   manualOpsDrawer: 'Registrar hecho operativo',
+  /** Expandable help — truth preserved, not leading the page. */
+  contextDisclosure: 'Cómo se obtuvo esta lectura',
 } as const;

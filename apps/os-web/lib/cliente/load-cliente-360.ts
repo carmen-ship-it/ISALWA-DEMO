@@ -8,7 +8,11 @@ import type {
   QuoteListResponse,
 } from '@/lib/commercial/types';
 import type { WorkListResponse } from '@/lib/work/types';
-import { resolveMemberLabels } from '@/lib/work/member-resolver';
+import {
+  resolveMemberResponsibilityLabels,
+  type MemberLabelMap,
+  type MemberResponsibilityMap,
+} from '@/lib/work/member-resolver';
 import { mergeRelatedWork } from '@/lib/work/follow-up';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
 import { loadDocumentLinks, type DocumentLinksOutcome } from './document-links';
@@ -24,7 +28,8 @@ export type Cliente360Data = {
   locations: FetchOutcome<PartyLocationsResponse>;
   documentLinks: DocumentLinksOutcome;
   financeSummary: FinanceSummaryOutcome;
-  memberLabels: Awaited<ReturnType<typeof resolveMemberLabels>>;
+  memberLabels: MemberLabelMap;
+  memberResponsibility: MemberResponsibilityMap;
   staleFreshness: boolean;
 };
 
@@ -179,7 +184,10 @@ export async function loadCliente360(
     memberIds.add(detail.activeCoverage.recordedByMemberId);
   }
 
-  const memberLabels = await resolveMemberLabels(client, memberIds);
+  const memberResponsibility = await resolveMemberResponsibilityLabels(client, memberIds);
+  const memberLabels: MemberLabelMap = new Map(
+    [...memberResponsibility.entries()].map(([id, row]) => [id, row.displayName]),
+  );
 
   const staleFreshness =
     sectionStale(opportunities) ||
@@ -199,6 +207,7 @@ export async function loadCliente360(
     documentLinks,
     financeSummary,
     memberLabels,
+    memberResponsibility,
     staleFreshness,
   };
 }

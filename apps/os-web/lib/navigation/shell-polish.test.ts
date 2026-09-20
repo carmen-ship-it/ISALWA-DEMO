@@ -33,7 +33,7 @@ describe('shell breadcrumbs', () => {
     assert.equal(trail.back?.href, '/clientes');
     assert.deepEqual(
       trail.crumbs.map((c) => c.label),
-      ['Clientes', 'Cliente'],
+      ['Clientes', 'Cliente 360'],
     );
     assert.equal(trail.crumbs.some((c) => c.label === 'party-1'), false);
   });
@@ -43,7 +43,7 @@ describe('shell breadcrumbs', () => {
     assert.equal(trail.back?.href, '/clientes/party-1');
     assert.deepEqual(
       trail.crumbs.map((c) => c.label),
-      ['Clientes', 'Cliente', 'Oportunidad'],
+      ['Clientes', 'Cliente 360', 'Oportunidad'],
     );
   });
 

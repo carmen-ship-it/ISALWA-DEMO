@@ -99,7 +99,7 @@ export function Cliente360Header({
     <div className="flex flex-col gap-2.5 py-2">
       <ActionBar className="items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="isalwa-kicker text-[10px] tracking-[0.14em]">Cliente</p>
+          <p className="isalwa-kicker text-[10px] tracking-[0.14em]">{CLIENTE360_UX_COPY.identityLabel}</p>
           <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-2">
             <h1 className="truncate text-lg font-semibold leading-snug text-[var(--isalwa-kiln)] md:text-xl">
               {displayName}

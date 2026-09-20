@@ -98,7 +98,7 @@ export function deriveShellBreadcrumbs(pathname: string): ShellTrail {
     const clienteHref = `${rootHref}/${encodeURIComponent(partyId)}`;
     const crumbs: ShellCrumb[] = [
       { href: rootHref, label: rootLabel },
-      { href: parts.length === 2 ? null : clienteHref, label: 'Cliente' },
+      { href: parts.length === 2 ? null : clienteHref, label: 'Cliente 360' },
     ];
 
     if (parts.length === 2) {

@@ -1,10 +1,8 @@
 import Link from 'next/link';
 import { CLIENTE_360_COPY, type Cliente360Composition } from '@/lib/party/next-action';
 import { CLIENTE360_UX_COPY } from '@/lib/cliente/copy';
-import { displayCliente360NextAction } from '@/lib/cliente/next-action-display';
 
 const linkClass = 'text-sm font-medium text-[var(--isalwa-glaze)] hover:underline';
-const helpLinkClass = 'text-sm font-medium text-[var(--isalwa-info)] hover:underline';
 
 const CLIENTE360_IDENTITY_TARGET = 'cliente360-identity';
 
@@ -15,41 +13,39 @@ type Cliente360NowProps = {
 
 /**
  * Resumen facts — next action lives only in the sticky command band.
- * This block summarizes identity / blockers without replaying the hero.
+ * Leads with blockers/alerts, then human facts; explanatory truth stays in disclosure.
  */
 export function Cliente360Now({ composition, compact = false }: Cliente360NowProps) {
   const { location, primaryContact, latestActivity } = composition;
-  const nextAction = displayCliente360NextAction(composition.nextAction);
+  const contactSourceNote =
+    primaryContact.source === 'first_active_contact' ? CLIENTE_360_COPY.contactSource : null;
+  const disclosureLines = [
+    ...composition.why,
+    ...(contactSourceNote ? [contactSourceNote] : []),
+  ].filter((line, index, all) => line.trim().length > 0 && all.indexOf(line) === index);
 
   return (
     <section
-      aria-label="Qué hacer con este cliente"
+      aria-label="Resumen del cliente"
       className={compact ? 'space-y-4' : 'space-y-5'}
       data-tour={CLIENTE360_IDENTITY_TARGET}
     >
-      <p className="text-sm text-[var(--isalwa-slate)]">
-        {nextAction.isRegisteredAction ? CLIENTE360_UX_COPY.nextActionHeading : CLIENTE_360_COPY.now}
-        {': '}
-        <a href="#cliente360-command" className={helpLinkClass}>
-          ver en la barra de comando
-        </a>
-        {nextAction.href && nextAction.hrefLabel ? (
-          <>
-            {' · '}
-            <Link href={nextAction.href} className={linkClass}>
-              {nextAction.hrefLabel}
-            </Link>
-          </>
-        ) : null}
-      </p>
+      <div>
+        <p className="isalwa-section-label">Bloqueos</p>
+        {composition.blockers.length === 0 ? (
+          <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]">{composition.blockersSummary}</p>
+        ) : (
+          <ul className="mt-1.5 space-y-1 text-sm text-[var(--isalwa-danger)]">
+            {composition.blockers.map((blocker) => (
+              <li key={blocker.code}>{blocker.label}</li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <dl className={compact ? 'space-y-3 text-sm' : 'grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2'}>
-        <Fact label="Responsable comercial" value={composition.owner.label} note={composition.owner.note} />
-        <Fact
-          label="Contacto"
-          value={primaryContact.summary}
-          note={primaryContact.source === 'first_active_contact' ? CLIENTE_360_COPY.contactSource : null}
-        />
+        <Fact label="Responsable comercial" value={composition.owner.label} />
+        <Fact label="Contacto" value={primaryContact.summary} />
         {primaryContact.phone ? <Fact label="Teléfono" value={primaryContact.phone} /> : null}
         <div className="min-w-0">
           <dt className="isalwa-section-label">Ubicación</dt>
@@ -104,37 +100,27 @@ export function Cliente360Now({ composition, compact = false }: Cliente360NowPro
         </div>
       </dl>
 
-      <div>
-        <p className="isalwa-section-label">Bloqueos</p>
-        {composition.blockers.length === 0 ? (
-          <p className="mt-1.5 text-sm text-[var(--isalwa-slate)]">{composition.blockersSummary}</p>
-        ) : (
-          <ul className="mt-1.5 space-y-1 text-sm text-[var(--isalwa-danger)]">
-            {composition.blockers.map((blocker) => (
-              <li key={blocker.code}>{blocker.label}</li>
+      {disclosureLines.length > 0 ? (
+        <details className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky-200)_22%,white)] px-4 py-3">
+          <summary className="cursor-pointer list-none text-sm font-medium text-[var(--isalwa-kiln)] [&::-webkit-details-marker]:hidden">
+            {CLIENTE360_UX_COPY.contextDisclosure}
+          </summary>
+          <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {disclosureLines.map((line) => (
+              <li key={line}>{line}</li>
             ))}
           </ul>
-        )}
-      </div>
-
-      <div>
-        <p className="isalwa-section-label">{CLIENTE_360_COPY.why}</p>
-        <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {composition.why.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      </div>
+        </details>
+      ) : null}
     </section>
   );
 }
 
-function Fact({ label, value, note }: { label: string; value: string; note?: string | null }) {
+function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <dt className="isalwa-section-label">{label}</dt>
       <dd className="mt-1.5 break-words text-[var(--isalwa-kiln)]">{value}</dd>
-      {note && note !== value ? <dd className="mt-1 text-sm text-[var(--isalwa-slate)]">{note}</dd> : null}
     </div>
   );
 }
