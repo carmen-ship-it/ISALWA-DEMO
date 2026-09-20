@@ -14,6 +14,7 @@ describe('pilot display cleanup', () => {
     assert.equal(presentHumanCopy('WaveB IssueManager'), 'Carlos Demo');
     assert.equal(presentHumanCopy('WaveB IssueWork'), 'José Demo');
     assert.equal(presentHumanCopy('Synth Otro'), 'Equipo Demo');
+    assert.equal(presentHumanCopy('Wave2 fixture batch'), 'Equipo Demo');
     assert.equal(demoPersonCargo('Synth Gerente'), 'Gerencia');
     assert.equal(demoPersonCargo('Carmen Staging'), null);
   });

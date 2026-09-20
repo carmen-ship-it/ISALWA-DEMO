@@ -14,6 +14,7 @@ import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
+import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
@@ -132,13 +133,21 @@ function LinkedOrdersSection({
         </div>
       ) : (
         <ul className="mt-4 space-y-2">
-          {orders.map((order) => {
+          {orders
+            .filter(
+              (order) =>
+                !isPilotFacingHidden(order.orderNumber) &&
+                !isPilotFacingHidden(order.customerLabel),
+            )
+            .map((order) => {
             const progress = buildDeliveryProgress({
               orderRecorded: true,
               hasNote: noteOrderIds.has(order.orderId),
               hasSalida: exitOrderIds.has(order.orderId),
               hasEntrega: deliveredOrderIds.has(order.orderId),
             });
+            const customer = presentEntregaAuditLabel(order.customerLabel ?? 'Cliente');
+            const orderLabel = presentEntregaAuditLabel(order.orderNumber);
             return (
               <li
                 key={order.orderId}
@@ -146,8 +155,8 @@ function LinkedOrdersSection({
               >
                 <OperatingRow
                   href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                  subject={order.orderNumber}
-                  meta={`${order.customerLabel?.trim() || 'Cliente'} · Pedido abierto`}
+                  subject={orderLabel}
+                  meta={`${customer} · Pedido abierto`}
                   actions={
                     <Link
                       href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}

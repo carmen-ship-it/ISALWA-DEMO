@@ -17,6 +17,8 @@ const FIXTURE_PEOPLE: ReadonlyArray<{ pattern: RegExp; name: string; cargo: stri
 /** Remaining fixture tokens that did not match a named person. */
 const REMAINING_SYNTH = /\bSynth\b[^,·\n]*/gi;
 const REMAINING_WAVEB = /\bWaveB\b[^,·\n]*/gi;
+const REMAINING_WAVE2 = /\bWave\s*2\b[^,·\n]*/gi;
+const REMAINING_WAVEA = /\bWaveA\b[^,·\n]*/gi;
 
 export function presentHumanCopy(value: string | null | undefined): string {
   if (!value) return '';
@@ -26,6 +28,8 @@ export function presentHumanCopy(value: string | null | undefined): string {
   }
   text = text.replace(REMAINING_SYNTH, 'Equipo Demo');
   text = text.replace(REMAINING_WAVEB, 'Equipo Demo');
+  text = text.replace(REMAINING_WAVE2, 'Equipo Demo');
+  text = text.replace(REMAINING_WAVEA, 'Equipo Demo');
   return text.replace(/[ \t]{2,}/g, ' ').replace(/\s+([,·])/g, '$1').trim();
 }
 

@@ -4,6 +4,7 @@ import type {
   EntregaPanelProps,
 } from '@/components/delivery/entrega-panel';
 import type { OrderSummaryReadModel } from '@isalwa/os-contracts';
+import { presentEntregaAuditLabel, presentLineDescription } from '@/lib/delivery/display-labels';
 
 export type FulfillmentDeliveryItem = {
   id: string;
@@ -69,7 +70,7 @@ function toLines(
 ): EntregaLineView[] {
   if (!lines) return [];
   return lines.map((line) => ({
-    description: line.description,
+    description: presentLineDescription(line.description),
     quantity: line.quantity,
     unitLabel: line.unitLabel,
   }));
@@ -82,7 +83,7 @@ function toEvidence(
     .filter((row) => EVIDENCE_ROLES.has(row.role))
     .map((row) => ({
       role: row.role as EntregaEvidenceView['role'],
-      actorLabel: row.recordedByMemberId,
+      actorLabel: presentEntregaAuditLabel(row.recordedByMemberId),
       reference: row.reference,
       note: row.note,
       paymentState:
@@ -102,9 +103,9 @@ export function mapFulfillmentDeliveriesToPanel(
     id: item.id,
     orderId: item.orderId,
     deliveredAt: item.deliveredAt,
-    deliveredTo: item.deliveredTo,
-    recordedByLabel: item.recordedByMemberId,
-    sourceLabel: item.source,
+    deliveredTo: item.deliveredTo ? presentEntregaAuditLabel(item.deliveredTo) : null,
+    recordedByLabel: presentEntregaAuditLabel(item.recordedByMemberId),
+    sourceLabel: presentEntregaAuditLabel(item.source),
     notes: item.notes,
     lines: toLines(item.deliveryNote?.lines),
     evidence: toEvidence(item.evidence),
@@ -118,8 +119,8 @@ export function mapFulfillmentExitsToPanel(
     id: item.id,
     orderId: item.orderId,
     exitedAt: item.exitedAt,
-    recordedByLabel: item.recordedByMemberId,
-    sourceLabel: item.source,
+    recordedByLabel: presentEntregaAuditLabel(item.recordedByMemberId),
+    sourceLabel: presentEntregaAuditLabel(item.source),
     notes: item.notes,
     lines: toLines(item.outboundNote?.lines),
   }));

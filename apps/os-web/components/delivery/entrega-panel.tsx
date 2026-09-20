@@ -8,6 +8,7 @@ import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
 import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
+import { presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 
 export type EntregaLineView = {
   description: string;
@@ -110,8 +111,8 @@ function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
             meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
             body: (
               <span>
-                {item.detail} Registró {item.recordedByLabel}.
-                {item.sourceLabel ? ` Origen: ${item.sourceLabel}.` : ''}
+                {item.detail} Registró {presentEntregaAuditLabel(item.recordedByLabel)}.
+                {item.sourceLabel ? ` Origen: ${presentEntregaAuditLabel(item.sourceLabel)}.` : ''}
               </span>
             ),
           }))}
@@ -218,11 +219,15 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                   </div>
                   <div>
                     <dt className="isalwa-section-label">Registró</dt>
-                    <dd className="mt-2 text-[var(--isalwa-kiln)]">{exit.recordedByLabel}</dd>
+                    <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                      {presentEntregaAuditLabel(exit.recordedByLabel)}
+                    </dd>
                   </div>
                   <div>
                     <dt className="isalwa-section-label">Origen</dt>
-                    <dd className="mt-2 text-[var(--isalwa-kiln)]">{exit.sourceLabel ?? 'Registro interno'}</dd>
+                    <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                      {presentEntregaAuditLabel(exit.sourceLabel ?? 'Registro interno')}
+                    </dd>
                   </div>
                 </dl>
                 {exit.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{exit.notes}</p> : null}
@@ -279,16 +284,22 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                     </div>
                     <div>
                       <dt className="isalwa-section-label">Registró</dt>
-                      <dd className="mt-2 text-[var(--isalwa-kiln)]">{delivery.recordedByLabel}</dd>
+                      <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                        {presentEntregaAuditLabel(delivery.recordedByLabel)}
+                      </dd>
                     </div>
                     <div>
                       <dt className="isalwa-section-label">Origen</dt>
-                      <dd className="mt-2 text-[var(--isalwa-kiln)]">{delivery.sourceLabel ?? 'Registro interno'}</dd>
+                      <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                        {presentEntregaAuditLabel(delivery.sourceLabel ?? 'Registro interno')}
+                      </dd>
                     </div>
                     {delivery.deliveredTo ? (
                       <div>
                         <dt className="isalwa-section-label">Recibió</dt>
-                        <dd className="mt-2 text-[var(--isalwa-kiln)]">{delivery.deliveredTo}</dd>
+                        <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                          {presentEntregaAuditLabel(delivery.deliveredTo)}
+                        </dd>
                       </div>
                     ) : null}
                   </dl>
@@ -300,7 +311,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                         <li key={`${item.role}:${item.actorLabel}`} className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{ROLE_LABEL[item.role]}</p>
-                            <StatusPill tone="neutral">{item.actorLabel}</StatusPill>
+                            <StatusPill tone="neutral">
+                              {presentEntregaAuditLabel(item.actorLabel)}
+                            </StatusPill>
                           </div>
                           {item.reference ? (
                             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Referencia: {item.reference}</p>

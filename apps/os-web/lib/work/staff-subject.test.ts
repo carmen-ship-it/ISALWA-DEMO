@@ -22,6 +22,10 @@ describe('staff-facing subjects', () => {
     assert.equal(isEngineeringFixtureCopy('manual-opp seed'), true);
     assert.equal(isEngineeringFixtureCopy('AUTHORITATIVE_REVENUE_LAYER=NO'), true);
     assert.equal(isEngineeringFixtureCopy('mu5wx57g trace'), true);
+    assert.equal(isEngineeringFixtureCopy('SYNTH Wave2 Cliente'), true);
+    assert.equal(isEngineeringFixtureCopy('FINALV1-1789760568488'), true);
+    assert.equal(isEngineeringFixtureCopy('employee_recorded'), true);
+    assert.equal(isEngineeringFixtureCopy('0f3da8a7-6d31-4e36-8f45-41331e6f5731'), true);
     assert.equal(isEngineeringFixtureCopy('PRUEBA ÁLVARO — recorrido'), false);
     assert.equal(
       staffFacingSubject({

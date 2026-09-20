@@ -12,6 +12,7 @@ import {
   recordSalidaAction,
 } from '@/lib/delivery/actions';
 import { ENTREGA_GATE_COPY, entregaEnabled, entregaGate } from '@/lib/delivery/entrega-gate';
+import { presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 import {
   presentDeliveryNoteLabel,
   scrubPilotDeliveryNoteRefs,
@@ -170,11 +171,11 @@ export function DeliveryDocumentsPanel({
       <dl className="mt-8 grid gap-6 sm:grid-cols-2">
         <div>
           <dt className="isalwa-section-label">Cliente</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">{customerName}</dd>
+          <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentEntregaAuditLabel(customerName)}</dd>
         </div>
         <div>
           <dt className="isalwa-section-label">Pedido</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">{orderNumber}</dd>
+          <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentEntregaAuditLabel(orderNumber)}</dd>
         </div>
       </dl>
 

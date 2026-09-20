@@ -29,6 +29,10 @@ export function isEngineeringFixtureCopy(value: string | null | undefined): bool
     /\bWB\s*Close\b/i.test(trimmed) ||
     /\bCW\s*\d+/i.test(trimmed) ||
     /\bWave\s*B\b/i.test(trimmed) ||
+    /\bWave\s*2\b/i.test(trimmed) ||
+    /\bWaveA\b/i.test(trimmed) ||
+    /\bWave\s*A\b/i.test(trimmed) ||
+    /^employee[_-]?recorded$/i.test(trimmed) ||
     /\bStep17\b/i.test(trimmed) ||
     /\bprobe\b/i.test(trimmed) ||
     /\bClose Test\b/i.test(trimmed) ||
