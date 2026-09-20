@@ -196,7 +196,7 @@ export function AppShell({
     <ShellIdentityContext.Provider value={givenName}>
       <div
         className={cx(
-          'min-h-screen bg-[var(--isalwa-surface-canvas)] lg:grid',
+          'h-svh overflow-hidden bg-[var(--isalwa-surface-canvas)] lg:grid',
           railCollapsed ? 'lg:grid-cols-[4.5rem_1fr]' : 'lg:grid-cols-[17.5rem_1fr]',
         )}
       >
@@ -204,7 +204,7 @@ export function AppShell({
         <aside
           id="desktop-nav-rail"
           className={cx(
-            'hidden border-r border-[color-mix(in_srgb,var(--isalwa-kiln)_28%,var(--isalwa-glaze))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-sky-100))] lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-svh lg:flex-col lg:self-start lg:overflow-y-auto',
+            'hidden border-r border-[color-mix(in_srgb,var(--isalwa-kiln)_28%,var(--isalwa-glaze))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_12%,var(--isalwa-sky-100))] lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto',
             railCollapsed ? 'lg:w-[4.5rem]' : 'lg:w-[17.5rem]',
           )}
           data-sidebar={railCollapsed ? 'collapsed' : 'expanded'}
@@ -252,9 +252,12 @@ export function AppShell({
           </div>
         </aside>
 
-        <div className="flex min-h-screen min-w-0 flex-col">
-          {/* Top chrome — sticky so search/account stay reachable above content scroll. */}
-          <header className="isalwa-glass-light sticky top-0 z-40 flex min-w-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-glass-light-border)] px-4 py-3 sm:gap-4 lg:px-8 lg:py-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="flex h-svh min-h-0 min-w-0 flex-col overflow-hidden">
+          {/* Top chrome stays outside the page scroll so titles never pass underneath. */}
+          <header
+            data-shell-header
+            className="isalwa-glass-light relative z-40 flex min-w-0 shrink-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-glass-light-border)] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-4 lg:px-8 lg:py-4"
+          >
             <div className="flex min-w-0 items-center gap-3">
               <button
                 ref={menuButtonRef}
@@ -373,7 +376,7 @@ export function AppShell({
             </div>
           ) : null}
 
-          <div className="min-w-0 flex-1">
+          <div data-shell-scroll className="isalwa-shell-main min-h-0 min-w-0 flex-1 overflow-y-auto">
             <WalkthroughShell storageScopeKey={actorKey}>{children}</WalkthroughShell>
           </div>
         </div>

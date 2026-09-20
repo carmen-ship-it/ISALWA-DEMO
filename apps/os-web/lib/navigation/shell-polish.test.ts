@@ -10,6 +10,7 @@ import {
   PRIMARY_NAV,
   primaryNavIds,
 } from '@/lib/navigation/nav-config';
+import { navItemIsActive, navSectionIsOpen } from '@/lib/navigation/nav-active';
 import { labelForNavItem, roleNavPresentation } from '@/lib/navigation/role-nav-labels';
 import {
   COMMERCIAL_CUSTOMER_CREATE_SCOPE,
@@ -53,23 +54,25 @@ describe('shell breadcrumbs', () => {
 });
 
 describe('role-aware nav labeling (no authority change)', () => {
-  it('relabels Inicio for asesor without removing ops desks', () => {
+  it('keeps Inicio label as Inicio; role lens stays in focusLabel only', () => {
     const presentation = roleNavPresentation([
       COMMERCIAL_CUSTOMER_CREATE_SCOPE,
       COMMERCIAL_QUOTE_CONVERT_OWN_SCOPE,
     ]);
     assert.equal(presentation.inicioLabel, 'Su trabajo');
-    assert.equal(labelForNavItem('inicio', 'Inicio', presentation), 'Su trabajo');
+    assert.equal(labelForNavItem('inicio', 'Inicio', presentation), 'Inicio');
     assert.equal(labelForNavItem('clientes', 'Clientes', presentation), 'Clientes');
     assert.ok(presentation.emphasizedIds.includes('inicio'));
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
+      'excepciones',
       'clientes',
       'oportunidades',
       'cotizaciones',
       'pedidos',
       'mapa',
       'trabajo',
+      'conversaciones',
       'aprobaciones',
       'incidencias',
       'compromisos',
@@ -127,12 +130,14 @@ describe('nav hierarchy groups', () => {
       sections.flatMap((s) => s.items.map((i) => i.id)),
       [
         'inicio',
+        'excepciones',
         'clientes',
         'oportunidades',
         'cotizaciones',
         'pedidos',
         'mapa',
         'trabajo',
+        'conversaciones',
         'aprobaciones',
         'incidencias',
         'compromisos',
@@ -158,19 +163,50 @@ describe('nav hierarchy groups', () => {
 });
 
 describe('shell sticky contract', () => {
-  it('keeps only the rail and top header sticky — not page headers or breadcrumbs', () => {
+  it('scrolls page content beside the header so titles are not covered', () => {
     const here = dirname(fileURLToPath(import.meta.url));
     const shell = readFileSync(resolve(here, '../../components/shell/app-shell.tsx'), 'utf8');
     const breadcrumbs = readFileSync(resolve(here, '../../components/shell/shell-breadcrumbs.tsx'), 'utf8');
     const pageHeader = readFileSync(resolve(here, '../../components/shell/page-header.tsx'), 'utf8');
-    assert.match(shell, /lg:sticky lg:top-0/);
-    assert.match(shell, /sticky top-0 z-40/);
-    assert.match(shell, /isalwa-glass-light/);
-    assert.match(shell, /isalwa-surface-canvas/);
+    const nav = readFileSync(resolve(here, '../../components/shell/app-nav.tsx'), 'utf8');
+    const palette = readFileSync(resolve(here, '../../components/shell/command-palette.tsx'), 'utf8');
+    assert.match(shell, /data-shell-header/);
+    assert.match(shell, /data-shell-scroll/);
+    assert.match(shell, /overflow-y-auto/);
+    assert.doesNotMatch(shell, /sticky top-0 z-40/);
     assert.match(shell, /role="dialog"/);
     assert.match(shell, /aria-modal="true"/);
     assert.doesNotMatch(breadcrumbs, /className="[^"]*sticky/);
     assert.doesNotMatch(pageHeader, /className=\{?['"`][^'"`]*sticky/);
     assert.match(pageHeader, /Intentionally not sticky/);
+    assert.doesNotMatch(nav, /h-1\.5 w-1\.5 shrink-0 rounded-full/);
+    assert.match(palette, /Cerrar búsqueda/);
+    assert.match(palette, />Cerrar</);
+    assert.match(palette, /event\.key === 'Escape'/);
+    assert.match(palette, /if \(event\.target === event\.currentTarget\) close\(\)/);
+  });
+});
+
+describe('inicio and excepciones are distinct nav destinations', () => {
+  it('highlights Inicio on /inicio and not Excepciones', () => {
+    assert.equal(navItemIsActive('/inicio', '', 'inicio', '/inicio'), true);
+    assert.equal(navItemIsActive('/inicio', '', 'excepciones', '/inicio?vista=excepciones'), false);
+    assert.equal(navItemIsActive('/inicio', '?datos=demo', 'inicio', '/inicio'), true);
+    assert.equal(navItemIsActive('/excepciones', '', 'inicio', '/inicio'), false);
+  });
+
+  it('highlights Excepciones only on the exceptions view', () => {
+    assert.equal(
+      navItemIsActive('/inicio', '?vista=excepciones', 'excepciones', '/inicio?vista=excepciones'),
+      true,
+    );
+    assert.equal(navItemIsActive('/inicio', '?vista=excepciones&datos=demo', 'inicio', '/inicio'), false);
+    assert.equal(navItemIsActive('/trabajo', '', 'excepciones', '/inicio?vista=excepciones'), false);
+  });
+
+  it('keeps the active group open even when the user collapsed it', () => {
+    assert.equal(navSectionIsOpen(true, true), true);
+    assert.equal(navSectionIsOpen(false, true), false);
+    assert.equal(navSectionIsOpen(false, false), true);
   });
 });

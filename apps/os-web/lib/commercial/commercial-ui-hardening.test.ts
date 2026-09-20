@@ -39,6 +39,7 @@ describe('commercial-first primary nav', () => {
       PRIMARY_NAV.map((item) => item.id),
       [
         'inicio',
+        'excepciones',
         'clientes',
         'oportunidades',
         'cotizaciones',
@@ -68,6 +69,7 @@ describe('commercial-first primary nav', () => {
   it('shows Administración only for admin probe', () => {
     assert.deepEqual(primaryNavIds({ showAdmin: true }), [
       'inicio',
+      'excepciones',
       'clientes',
       'oportunidades',
       'cotizaciones',
@@ -93,6 +95,7 @@ describe('commercial-first primary nav', () => {
     ]);
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
+      'excepciones',
       'clientes',
       'oportunidades',
       'cotizaciones',

@@ -68,6 +68,7 @@ export function evaluationAllowsDesk(
 /** Shell nav ids that stay visible under Vista de evaluación regardless of desk. */
 const EVALUATION_ALWAYS_VISIBLE_NAV_IDS = new Set([
   'inicio',
+  'excepciones',
   'trabajo',
   'compromisos',
   'incidencias',

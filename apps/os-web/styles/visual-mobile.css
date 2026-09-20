@@ -22,21 +22,57 @@
 }
 
 /**
- * Prefer this class on page sticky identity/action strips under the shell header.
- * Equivalent intent to historical `sticky top-14`, with a measured offset.
+ * Shell main column — keep in-flow page titles and landmarks below the sticky header
+ * when the document scrolls (anchor jumps, focus restore, keyboard scroll).
  */
-.isalwa-sticky-under-shell {
-  position: sticky;
-  top: var(--isalwa-shell-header-offset);
-  z-index: var(--isalwa-sticky-under-shell-z);
+.isalwa-shell-main {
+  scroll-padding-top: calc(var(--isalwa-shell-header-offset) + env(safe-area-inset-top, 0px));
+}
+
+.isalwa-shell-main :is(.isalwa-page-title, h1.isalwa-page-title) {
+  scroll-margin-top: calc(var(--isalwa-shell-header-offset) + env(safe-area-inset-top, 0px) + 0.5rem);
+}
+
+.isalwa-shell-main .isalwa-page {
+  scroll-margin-top: 0;
 }
 
 /**
- * Bridge: existing `sticky top-14` strips (Cliente 360, commercial bars, nav)
- * until page owners switch to `.isalwa-sticky-under-shell`.
+ * Prefer this class on page sticky identity/action strips under the shell header.
+ * Equivalent intent to historical `sticky top-14`, with a measured offset.
  */
+/**
+ * In-page sticky strips stick to the top of the shell scrollport.
+ * The global header is outside that scroll, so they must not add a second offset.
+ */
+.isalwa-sticky-under-shell {
+  position: sticky;
+  top: 0;
+  z-index: var(--isalwa-sticky-under-shell-z);
+}
+
 .sticky.top-14 {
-  top: var(--isalwa-shell-header-offset);
+  top: 0;
+}
+
+/**
+ * Prevent page titles / kickers from painting under the sticky shell header.
+ * scroll-padding keeps in-page anchors clear of the chrome as well.
+ */
+html {
+  scroll-padding-top: calc(var(--isalwa-shell-header-offset) + 0.75rem);
+}
+
+main.isalwa-page,
+main[class*='isalwa-page'] {
+  scroll-margin-top: var(--isalwa-shell-header-offset);
+}
+
+/* First page heading must clear sticky chrome when scrolled to top of main. */
+main.isalwa-page > :first-child,
+main[aria-label] > .mb-5:first-child,
+main[aria-label] > .mb-6:first-child {
+  scroll-margin-top: calc(var(--isalwa-shell-header-offset) + 0.5rem);
 }
 
 /**

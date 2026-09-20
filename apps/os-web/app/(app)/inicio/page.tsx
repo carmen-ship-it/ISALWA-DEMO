@@ -694,7 +694,9 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
                 </InicioVisualBand>
               ) : null}
 
-              <InicioManagementLens model={management} />
+              <div id="excepciones">
+                <InicioManagementLens model={management} />
+              </div>
 
               <InicioCommandQueueSections
                 model={{

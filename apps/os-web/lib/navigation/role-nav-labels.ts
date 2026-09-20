@@ -85,8 +85,8 @@ export function labelForNavItem(
   defaultLabel: string,
   presentation: RoleNavPresentation,
 ): string {
-  if (itemId === 'inicio' && presentation.inicioLabel) {
-    return presentation.inicioLabel;
-  }
+  // Home must always read "Inicio" — role lens copy lives in focusLabel, not the item label.
+  if (itemId === 'inicio') return defaultLabel;
+  void presentation;
   return defaultLabel;
 }

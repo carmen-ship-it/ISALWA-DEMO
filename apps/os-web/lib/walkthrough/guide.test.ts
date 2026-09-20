@@ -334,9 +334,11 @@ describe('modo guiado', () => {
     }
   });
 
-  it('keeps shell header sticky so mobile logout stays reachable', () => {
+  it('keeps shell header outside page scroll so logout stays reachable', () => {
     const shell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
-    assert.match(shell, /sticky top-0 z-40/);
+    assert.match(shell, /data-shell-header/);
+    assert.match(shell, /data-shell-scroll/);
+    assert.match(shell, /overflow-y-auto/);
     assert.match(shell, /signOutAction/);
     assert.match(shell, /t\('account\.signOut'\)/);
   });

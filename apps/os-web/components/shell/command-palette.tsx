@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
 import { CoverageSummaryPanel } from '@/components/productivity/coverage-summary';
 import { WhatChangedList } from '@/components/productivity/what-changed-list';
@@ -353,7 +353,7 @@ export function CommandPalette({
     <dialog
       ref={dialogRef}
       aria-label="Buscar"
-      className="m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none border-0 bg-transparent p-0 backdrop:bg-[color-mix(in_srgb,var(--isalwa-kiln)_28%,transparent)] open:flex sm:m-auto sm:h-auto sm:max-h-[min(32rem,80dvh)] sm:w-[min(40rem,calc(100vw-2rem))]"
+      className="relative m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none border-0 bg-transparent p-0 backdrop:bg-[color-mix(in_srgb,var(--isalwa-kiln)_28%,transparent)] open:flex sm:m-auto sm:h-auto sm:max-h-[min(32rem,80dvh)] sm:w-[min(40rem,calc(100vw-2rem))]"
       onCancel={(event) => {
         event.preventDefault();
         if (changed) {
@@ -373,16 +373,28 @@ export function CommandPalette({
         close();
       }}
       onClose={close}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) close();
+      }}
     >
+      <button
+        type="button"
+        aria-label="Cerrar búsqueda"
+        className="absolute inset-0 cursor-default bg-transparent"
+        onClick={close}
+      />
       <div
-        className="flex h-full w-full flex-col bg-[var(--isalwa-white)] sm:h-auto sm:max-h-[min(32rem,70vh)] sm:rounded-[var(--isalwa-radius-panel)] sm:shadow-[var(--isalwa-shadow-soft)]"
+        className="relative z-10 flex h-full w-full flex-col bg-[var(--isalwa-white)] sm:h-auto sm:max-h-[min(32rem,70vh)] sm:rounded-[var(--isalwa-radius-panel)] sm:shadow-[var(--isalwa-shadow-soft)]"
         onKeyDown={onKeyDown}
+        onClick={(event) => event.stopPropagation()}
       >
         <div className="border-b border-[var(--isalwa-mist)] px-4 py-3">
-          <label htmlFor="command-palette-input" className="sr-only">
-            Buscar clientes, cotizaciones o trabajo
-          </label>
-          <SearchField
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <label htmlFor="command-palette-input" className="sr-only">
+                Buscar clientes, cotizaciones o trabajo
+              </label>
+              <SearchField
             id="command-palette-input"
             role="combobox"
             aria-expanded="true"
@@ -401,13 +413,24 @@ export function CommandPalette({
             autoComplete="off"
             onChange={(event) => setQuery(event.target.value)}
           />
+            </div>
+            <button
+              type="button"
+              aria-label="Cerrar búsqueda"
+              className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[var(--isalwa-radius-control)] px-2 text-sm font-medium text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-porcelain)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+              onClick={close}
+            >
+              <X size={18} aria-hidden />
+              <span>Cerrar</span>
+            </button>
+          </div>
           {mode === 'changed' ? (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Elija un cliente. Esc vuelve a la búsqueda.</p>
           ) : pick ? (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{PICK_HINT[pick]} Esc cancela la acción.</p>
           ) : (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-              Busque sin recorrer menús. Vencido, en Inicio, significa que la fecha ya pasó.
+              Busque sin recorrer menús. Esc o Cerrar sale de la búsqueda.
             </p>
           )}
         </div>

@@ -119,6 +119,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
     const byId = Object.fromEntries(PRIMARY_NAV.map((item) => [item.id, item.accessClass]));
     assert.deepEqual(byId, {
       inicio: 'VISIBLE+ACTIVE',
+      excepciones: 'VISIBLE+ACTIVE',
       clientes: 'VISIBLE+ACTIVE',
       oportunidades: 'VISIBLE+ACTIVE',
       cotizaciones: 'VISIBLE+ACTIVE',
@@ -151,6 +152,7 @@ describe('PRIMARY_NAV authority classification audit', () => {
     // Ops desks remain visible without people.admin; authority stays inside the page.
     assert.deepEqual(primaryNavIds({ showAdmin: false }), [
       'inicio',
+      'excepciones',
       'clientes',
       'oportunidades',
       'cotizaciones',

@@ -25,12 +25,14 @@ import { resolveShellNavSections } from '@/lib/capabilities/resolve-nav';
 import { buildClientEvaluationProjection } from '@/lib/role-preview/evaluation-projection-model';
 import { evaluationNavItemVisible } from '@/lib/role-preview/evaluation-resource-access';
 import { navItemLabel, type NavItem } from '@/lib/navigation/nav-config';
+import { navItemIsActive } from '@/lib/navigation/nav-active';
 import { navIconTone, navIconToneActive } from '@/lib/navigation/nav-icon-tone';
 import {
   labelForNavItem,
   roleNavPresentation,
   type RoleNavPresentation,
 } from '@/lib/navigation/role-nav-labels';
+import { NavSectionCollapse } from '@/components/shell/nav-section-collapse';
 import { t } from '@/lib/i18n/es';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -61,16 +63,14 @@ type AppNavProps = {
 
 function navLinkHref(href: string, demoMode: boolean): string {
   if (!demoMode) return href;
-  return withStoryDemoDatos(href) ?? href;
+  const hashAt = href.indexOf('#');
+  const hash = hashAt >= 0 ? href.slice(hashAt) : '';
+  const base = hashAt >= 0 ? href.slice(0, hashAt) : href;
+  return `${withStoryDemoDatos(base) ?? base}${hash}`;
 }
 
-function navHrefActive(pathname: string, search: string, href: string): boolean {
-  const [path, query] = href.split('?');
-  if (query) {
-    const normalized = search.startsWith('?') ? search.slice(1) : search;
-    return pathname === path && normalized === query;
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+function navHrefActive(pathname: string, search: string, href: string, itemId: string): boolean {
+  return navItemIsActive(pathname, search, itemId, href);
 }
 
 function NavLink({
@@ -148,16 +148,7 @@ function NavLink({
         <Icon size={18} strokeWidth={active ? 2 : 1.5} />
       </span>
       {collapsed ? null : (
-        <>
-          <span className="min-w-0 flex-1 truncate">{label}</span>
-          {emphasized && !active ? (
-            <span
-              aria-hidden
-              className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--isalwa-glaze)]"
-              title="Su área"
-            />
-          ) : null}
-        </>
+        <span className="min-w-0 flex-1 truncate">{label}</span>
       )}
     </Link>
   );
@@ -212,33 +203,40 @@ export function AppNav({
       {!mobile && !collapsed && presentation.focusLabel ? (
         <p className="isalwa-kicker px-3.5">{presentation.focusLabel}</p>
       ) : null}
-      {visibleSections.map((section) => (
-        <div key={section.group} className="flex flex-col gap-1">
-          {!collapsed ? (
-            <p className="px-3.5 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]">
-              {section.label}
-            </p>
-          ) : null}
-          {section.items.map((item) => {
-            const defaultLabel = navItemLabel(item, t);
-            const label = labelForNavItem(item.id, defaultLabel, presentation);
-            const href = navLinkHref(item.href, demoNav);
-            return (
-              <NavLink
-                key={item.id}
-                item={item}
-                href={href}
-                label={label}
-                emphasized={emphasized.has(item.id)}
-                locked={item.state === 'locked'}
-                collapsed={collapsed && !mobile}
-                active={navHrefActive(pathname, search, href)}
-                onNavigate={onNavigate}
-              />
-            );
-          })}
-        </div>
-      ))}
+      {visibleSections.map((section) => {
+        const containsActive = section.items.some((item) =>
+          navHrefActive(pathname, search, navLinkHref(item.href, demoNav), item.id),
+        );
+        return (
+          <NavSectionCollapse
+            key={section.group}
+            group={section.group}
+            label={section.label}
+            containsActive={containsActive}
+            mobile={Boolean(mobile)}
+            collapsedRail={collapsed && !mobile}
+          >
+            {section.items.map((item) => {
+              const defaultLabel = navItemLabel(item, t);
+              const label = labelForNavItem(item.id, defaultLabel, presentation);
+              const href = navLinkHref(item.href, demoNav);
+              return (
+                <NavLink
+                  key={item.id}
+                  item={item}
+                  href={href}
+                  label={label}
+                  emphasized={emphasized.has(item.id)}
+                  locked={item.state === 'locked'}
+                  collapsed={collapsed && !mobile}
+                  active={navHrefActive(pathname, search, href, item.id)}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
+          </NavSectionCollapse>
+        );
+      })}
     </nav>
   );
 }
