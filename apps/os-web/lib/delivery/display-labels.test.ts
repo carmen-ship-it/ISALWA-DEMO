@@ -5,6 +5,8 @@ import {
   presentEntregaAuditLabel,
   presentLineDescription,
   presentPilotFacingLabel,
+  presentRecibidoPorLabel,
+  RECIBIDO_POR_ABSENT,
 } from './display-labels';
 
 describe('presentEntregaAuditLabel', () => {
@@ -30,5 +32,20 @@ describe('presentEntregaAuditLabel', () => {
     assert.equal(presentEntregaAuditLabel('DEMO FERRETERÍA NORTE'), 'DEMO FERRETERÍA NORTE');
     assert.equal(presentLineDescription('Sanitario Capri'), 'Sanitario Capri');
     assert.equal(presentLineDescription('FINALV1-sku-x'), 'Artículo');
+  });
+});
+
+describe('presentRecibidoPorLabel', () => {
+  it('keeps a human recipient name', () => {
+    assert.equal(presentRecibidoPorLabel('Recepción obra'), 'Recepción obra');
+  });
+
+  it('does not invent Registro interno for missing or technical values', () => {
+    assert.equal(presentRecibidoPorLabel(null), null);
+    assert.equal(presentRecibidoPorLabel(''), null);
+    assert.equal(presentRecibidoPorLabel('employee_recorded'), null);
+    assert.equal(presentRecibidoPorLabel('0f3da8a7-6d31-4e36-8f45-41331e6f5731'), null);
+    assert.equal(presentRecibidoPorLabel('FINALV1-recipient'), null);
+    assert.equal(RECIBIDO_POR_ABSENT, 'No registrado');
   });
 });

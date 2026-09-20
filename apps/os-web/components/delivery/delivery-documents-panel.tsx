@@ -74,6 +74,8 @@ export type DeliveryDocumentsPanelProps = {
   hasSalida?: boolean;
   quotedProducts?: import('@/lib/commercial/quoted-product-context').QuotedProductLine[];
   quoteUnavailable?: boolean;
+  /** How frozen quote lines were resolved — drives empty copy truthfully. */
+  quoteLoadState?: 'lines' | 'empty' | 'unavailable' | 'not_loaded';
 };
 
 function formatWhen(iso: string): string {
@@ -96,6 +98,7 @@ export function DeliveryDocumentsPanel({
   hasSalida = false,
   quotedProducts = [],
   quoteUnavailable = false,
+  quoteLoadState,
 }: DeliveryDocumentsPanelProps) {
   const allowNote = canCreateNote ?? canMutate;
   const allowSalida = canRecordSalida ?? canMutate;
@@ -119,6 +122,9 @@ export function DeliveryDocumentsPanel({
     allowEntrega && entregaEnabled({ hasSalida, receivedBy }) && Boolean(actorMemberId);
 
   const issuedNotes = useMemo(() => notes.filter((note) => note.status === 'issued'), [notes]);
+  const frozenState =
+    quoteLoadState ??
+    (quoteUnavailable ? 'unavailable' : quotedProducts.length > 0 ? 'lines' : 'empty');
 
   function attemptKey(kind: 'nota' | 'salida' | 'entrega'): string {
     if (!attemptKeys.current[kind]) attemptKeys.current[kind] = createId();
@@ -154,7 +160,7 @@ export function DeliveryDocumentsPanel({
     <PageSection
       id="entregas-notas"
       card
-      className="mt-6 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] bg-white p-6 md:p-8"
+      className="mt-6 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] bg-white p-6 md:p-8"
       data-delivery-documents="pedido"
     >
       <SectionHeader
@@ -180,13 +186,11 @@ export function DeliveryDocumentsPanel({
         </div>
       </dl>
 
-      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6" data-frozen-quote-context="">
+      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6" data-frozen-quote-context="" data-quote-load-state={frozenState}>
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
           Productos de la cotización
         </h3>
-        {quoteUnavailable ? (
-          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_UNAVAILABLE}</p>
-        ) : quotedProducts.length > 0 ? (
+        {frozenState === 'lines' ? (
           <>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_NOTE}</p>
             <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas congeladas de cotización">
@@ -207,9 +211,15 @@ export function DeliveryDocumentsPanel({
               ))}
             </ul>
           </>
+        ) : frozenState === 'empty' ? (
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-quote-empty="">
+            Sin productos guardados en la cotización.
+          </p>
+        ) : frozenState === 'unavailable' ? (
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_UNAVAILABLE}</p>
         ) : (
           <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Sin productos guardados en la cotización.
+            Cotización origen no cargada en esta vista.
           </p>
         )}
       </div>
@@ -217,8 +227,13 @@ export function DeliveryDocumentsPanel({
       {orderLines.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>
       ) : (
-        <div className="mt-6">
-          <h3 className="isalwa-section-label">Cantidades a registrar</h3>
+        <div className="mt-6" data-order-quantity-rows="">
+          <h3 className="font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]">
+            Cantidades a registrar
+          </h3>
+          <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+            Líneas del pedido (copia al crear el pedido). No son stock ni cantidades entregadas.
+          </p>
           <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Cantidades del pedido">
           {orderLines.map((line) => (
             <li key={line.orderLineId} className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm">
@@ -293,7 +308,7 @@ export function DeliveryDocumentsPanel({
 
       <div
         id="entregas-pendientes"
-        className="mt-8 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] space-y-3 border-t border-[var(--isalwa-mist)] pt-6"
+        className="mt-8 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] space-y-3 border-t border-[var(--isalwa-mist)] pt-6"
         data-entrega-pendientes=""
       >
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
@@ -493,7 +508,7 @@ export function DeliveryDocumentsPanel({
 
       <div
         id="entregas-historial"
-        className="mt-10 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)]"
+        className="mt-10 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)]"
         data-entrega-historial=""
       >
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">

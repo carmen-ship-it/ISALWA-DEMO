@@ -13,6 +13,8 @@
   --isalwa-shell-header-offset-lg: 4.8125rem; /* 77px */
   --isalwa-mobile-drawer-z: 50; /* above sticky header z-40 */
   --isalwa-sticky-under-shell-z: 20;
+  /* Entregas local nav height under shell sticky (compact single row). */
+  --isalwa-entrega-sticky-nav-offset: 2.75rem;
 }
 
 @media (min-width: 1024px) {
@@ -184,4 +186,10 @@ div.fixed.inset-0.z-30:has(#mobile-nav) {
     min-height: 2.75rem;
     height: auto;
   }
+}
+
+
+/* Entregas section anchors clear shell + local sticky nav. */
+[data-shell-scroll] [id^='entregas-'] {
+  scroll-margin-top: calc(var(--isalwa-entrega-sticky-nav-offset) + 0.5rem);
 }

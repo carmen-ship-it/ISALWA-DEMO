@@ -123,3 +123,38 @@ describe('Task 7 Entregas restructure', () => {
     assert.match(panel, /id="entregas-entregas"/);
   });
 });
+
+describe('Task 7 HOSTED_CORRECTIVE', () => {
+  it('frozen lines present → no empty quote copy; empty only when load state empty', () => {
+    const docs = read('apps/os-web/components/delivery/delivery-documents-panel.tsx');
+    assert.match(docs, /frozenState === 'empty'/);
+    assert.match(docs, /data-quote-empty/);
+    assert.match(docs, /data-order-quantity-rows/);
+    assert.match(docs, /Líneas del pedido/);
+    // Empty message only under frozenState === 'empty', not as default alongside quantity rows
+    assert.match(docs, /frozenState === 'lines'/);
+    assert.match(docs, /quoteLoadState/);
+  });
+
+  it('local nav uses isalwa-sticky-under-shell (top of shell scrollport)', () => {
+    const nav = read('apps/os-web/components/delivery/entrega-section-nav.tsx');
+    assert.match(nav, /isalwa-sticky-under-shell/);
+    assert.doesNotMatch(nav, /top-\[var\(--isalwa-shell-header-offset/);
+    const css = read('apps/os-web/styles/visual-mobile.css');
+    assert.match(css, /--isalwa-entrega-sticky-nav-offset/);
+    assert.match(css, /\[id\^=['"]entregas-['"]\]/);
+  });
+
+  it('recipient fallback is No registrado, not Registro interno', () => {
+    const map = read('apps/os-web/lib/delivery/map-fulfillment.ts');
+    assert.match(map, /presentRecibidoPorLabel/);
+    assert.match(map, /RECIBIDO_POR_ABSENT/);
+    assert.doesNotMatch(
+      map,
+      /deliveredTo: item\.deliveredTo \? presentEntregaAuditLabel\(item\.deliveredTo\)/,
+    );
+    const panel = read('apps/os-web/components/delivery/entrega-panel.tsx');
+    assert.match(panel, /No registrado/);
+    assert.match(panel, /data-recibido-por/);
+  });
+});

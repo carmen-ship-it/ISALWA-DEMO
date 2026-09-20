@@ -142,14 +142,17 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
 
   let quotedProducts: ReturnType<typeof quotedProductsFromQuoteLines> = [];
   let quoteUnavailable = false;
+  let quoteLoadState: 'lines' | 'empty' | 'unavailable' | 'not_loaded' = 'not_loaded';
   const quoteId = selected.quoteId?.trim() ?? '';
   if (quoteId) {
     try {
       const pack = await client.getQuote(quoteId);
       quotedProducts = quotedProductsFromQuoteLines(pack.quote.lines);
+      quoteLoadState = quotedProducts.length > 0 ? 'lines' : 'empty';
     } catch {
       quoteUnavailable = true;
       quotedProducts = [];
+      quoteLoadState = 'unavailable';
     }
   }
 
@@ -236,6 +239,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
         hasSalida={hasSalida}
         quotedProducts={quotedProducts}
         quoteUnavailable={quoteUnavailable}
+        quoteLoadState={quoteLoadState}
       />
       <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
         Este registro no exige abrir la ficha comercial del pedido.{' '}

@@ -35,6 +35,21 @@ describe('mapFulfillment panel adapters', () => {
       },
     ]);
     assert.equal(deliveries[0]?.recordedByLabel, 'm_1');
+    assert.equal(deliveries[0]?.deliveredTo, 'Recepcion');
+    const missing = mapFulfillmentDeliveriesToPanel([
+      {
+        id: 'del_2',
+        orderId: 'ord_1',
+        deliveredAt: '2026-09-16T15:00:00.000Z',
+        deliveredTo: null,
+        recordedByMemberId: 'm_1',
+        source: 'explicit_command',
+        notes: null,
+        deliveryNote: { lines: [] },
+        evidence: [],
+      },
+    ]);
+    assert.equal(missing[0]?.deliveredTo, 'No registrado');
     assert.equal(deliveries[0]?.lines[0]?.description, 'Lavamanos');
     assert.equal(deliveries[0]?.evidence[0]?.confirmedLedgerPayment, false);
 

@@ -11,23 +11,21 @@ type EntregaSectionNavProps = {
 };
 
 /**
- * Compact local navigator. Sticks under the shared shell header on long pages.
- * Single short row — not a second tall sticky chrome layer.
+ * Compact local navigator. Sticks at the top of the shell scrollport
+ * (global header is outside that scroll — use isalwa-sticky-under-shell, top:0).
  */
 export function EntregaSectionNav({ className }: EntregaSectionNavProps) {
   return (
     <nav
-      className={cx('mb-4', className)}
+      className={cx(
+        'isalwa-sticky-under-shell mb-4 border-b border-[var(--isalwa-mist)]',
+        'bg-[color-mix(in_srgb,var(--isalwa-porcelain)_96%,white)] py-1.5 backdrop-blur-md',
+        className,
+      )}
       aria-label="Secciones de entregas"
       data-entrega-section-nav=""
     >
-      <ul
-        className={cx(
-          'flex flex-wrap gap-1.5 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)]',
-          'bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-2 py-1.5 backdrop-blur-md',
-          'sticky z-10 top-[var(--isalwa-shell-header-offset,3.5rem)]',
-        )}
-      >
+      <ul className="flex flex-wrap gap-1.5 px-0.5">
         {ENTREGA_PAGE_SECTIONS.map((section) => (
           <li key={section.id} className="min-w-0">
             <Link

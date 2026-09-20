@@ -137,7 +137,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
       <PageSection
         id="entregas-salidas"
         card
-        className="scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] p-6 md:p-8"
+        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] p-6 md:p-8"
       >
         <SectionHeader
           kicker="Salida"
@@ -197,7 +197,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
       <PageSection
         id="entregas-entregas"
         card
-        className="scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] p-6 md:p-8"
+        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] p-6 md:p-8"
       >
         <SectionHeader
           kicker="Entrega"
@@ -244,14 +244,12 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                         {presentEntregaAuditLabel(delivery.recordedByLabel)}
                       </dd>
                     </div>
-                    {delivery.deliveredTo ? (
-                      <div>
-                        <dt className="isalwa-section-label">Recibido por</dt>
-                        <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
-                          {presentEntregaAuditLabel(delivery.deliveredTo)}
-                        </dd>
-                      </div>
-                    ) : null}
+                    <div>
+                      <dt className="isalwa-section-label">Recibido por</dt>
+                      <dd className="mt-1.5 text-[var(--isalwa-kiln)]" data-recibido-por="">
+                        {delivery.deliveredTo?.trim() || 'No registrado'}
+                      </dd>
+                    </div>
                   </dl>
                   {delivery.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{delivery.notes}</p> : null}
                   <LineList lines={delivery.lines} />

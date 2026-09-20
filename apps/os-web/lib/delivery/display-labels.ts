@@ -41,3 +41,20 @@ export function presentLineDescription(value: string | null | undefined): string
 export function isPilotFacingHidden(value: string | null | undefined): boolean {
   return isEngineeringFixtureCopy(value);
 }
+
+/**
+ * Recibido por — never invent "Registro interno" as a recipient name.
+ * Missing/unreadable historical values surface as null → UI shows "No registrado".
+ */
+export function presentRecibidoPorLabel(value: string | null | undefined): string | null {
+  const raw = value?.trim() ?? '';
+  if (!raw) return null;
+  if (/^employee[_-]?recorded$/i.test(raw)) return null;
+  if (UUID_RE.test(raw)) return null;
+  if (isEngineeringFixtureCopy(raw)) return null;
+  const human = presentHumanCopy(raw);
+  if (!human || isEngineeringFixtureCopy(human)) return null;
+  return human;
+}
+
+export const RECIBIDO_POR_ABSENT = 'No registrado';

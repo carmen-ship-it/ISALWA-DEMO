@@ -4,7 +4,12 @@ import type {
   EntregaPanelProps,
 } from '@/components/delivery/entrega-panel';
 import type { OrderSummaryReadModel } from '@isalwa/os-contracts';
-import { presentEntregaAuditLabel, presentLineDescription } from '@/lib/delivery/display-labels';
+import {
+  presentEntregaAuditLabel,
+  presentLineDescription,
+  presentRecibidoPorLabel,
+  RECIBIDO_POR_ABSENT,
+} from '@/lib/delivery/display-labels';
 
 export type FulfillmentDeliveryItem = {
   id: string;
@@ -103,7 +108,8 @@ export function mapFulfillmentDeliveriesToPanel(
     id: item.id,
     orderId: item.orderId,
     deliveredAt: item.deliveredAt,
-    deliveredTo: item.deliveredTo ? presentEntregaAuditLabel(item.deliveredTo) : null,
+    // Never invent Registro interno as recipient; absent/unreadable → No registrado.
+    deliveredTo: presentRecibidoPorLabel(item.deliveredTo) ?? RECIBIDO_POR_ABSENT,
     recordedByLabel: presentEntregaAuditLabel(item.recordedByMemberId),
     sourceLabel: presentEntregaAuditLabel(item.source),
     notes: item.notes,
