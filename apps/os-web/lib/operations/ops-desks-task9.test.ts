@@ -121,3 +121,104 @@ describe('Task 9 — operations desks productization', () => {
     assert.match(card, /Pendiente/);
   });
 });
+
+describe('Task 9 final hosted corrective', () => {
+  it('Almacén ingreso has a single Pedido field label (field density)', () => {
+    const postsale = read('components/warehouse/warehouse-postsale-desk.tsx');
+    const handoff = read('components/postsale/pedido-handoff-panel.tsx');
+    assert.match(postsale, /density="field"/);
+    assert.match(handoff, /density === 'field'|density = 'section'/);
+    // Field mode returns without SectionHeader Pedido chrome
+    assert.match(handoff, /if \(fieldOnly\)/);
+    assert.match(handoff, /label="Pedido"/);
+  });
+
+  it('allocatable empty copy is not unknown-availability; remains has one section disclaimer', () => {
+    const desk = read('components/warehouse/warehouse-desk.tsx');
+    // Empty allocatable must not reuse unknownAvailability copy
+    const allocateBlock = desk.slice(desk.indexOf('function AllocateSection'), desk.indexOf('function RemainsSection'));
+    assert.doesNotMatch(allocateBlock, /WAREHOUSE_TASK_COPY\.unknownAvailability/);
+    assert.match(allocateBlock, /No hay cantidad asignable/);
+    const remainsBlock = desk.slice(desk.indexOf('function RemainsSection'), desk.indexOf('function HistorySection'));
+    assert.match(remainsBlock, /no representan cumplimiento del pedido/);
+    assert.doesNotMatch(remainsBlock, /notFulfillment\}\s*<\/StatusPill>/);
+    assert.doesNotMatch(remainsBlock, /WAREHOUSE_TASK_COPY\.notFulfillment/);
+  });
+
+  it('waiting vs allocatable source fields stay distinct', () => {
+    const viewKnown = buildWarehouseTaskView({
+      organizationId: 'org-a',
+      receipts: [
+        {
+          organizationId: 'org-a',
+          productId: 'prod-1',
+          productLabel: 'Capri',
+          quantity: '4',
+          receiptId: 'r1',
+        },
+      ],
+      pedidos: [
+        {
+          organizationId: 'org-a',
+          orderId: 'o1',
+          orderLabel: 'O-000005',
+          customerId: 'c1',
+          customerLabel: 'DEMO CONSTRUCTORA ANDINA',
+          orderLineId: 'ol1',
+          productId: 'prod-1',
+          productLabel: 'Capri',
+          orderedQuantity: '4',
+        },
+      ],
+      allocations: [],
+      corrections: [],
+    });
+    assert.equal(viewKnown.waiting.length, 0);
+    assert.equal(viewKnown.allocatable.length, 1);
+    assert.ok(viewKnown.allocatable[0]?.availableQuantity);
+    assert.doesNotMatch(viewKnown.allocatable[0]?.availableText ?? '', /no está registrada|No es cero/i);
+
+    const viewUnknown = buildWarehouseTaskView({
+      organizationId: 'org-a',
+      receipts: null,
+      pedidos: [
+        {
+          organizationId: 'org-a',
+          orderId: 'o1',
+          orderLabel: 'O-000006',
+          customerId: 'c1',
+          customerLabel: 'DEMO MADERAS ORIENTE',
+          orderLineId: 'ol1',
+          productId: 'prod-1',
+          productLabel: 'Capri',
+          orderedQuantity: null,
+        },
+      ],
+      allocations: [],
+      corrections: [],
+    });
+    assert.ok(viewUnknown.waiting.length >= 1);
+    assert.equal(viewUnknown.allocatable.length, 0);
+    assert.match(viewUnknown.waiting[0]?.waitingText ?? '', /No es cero|no está registrada/i);
+  });
+
+  it('Compras pending card can show Solicitado por without internal ids', () => {
+    const page = read('app/(app)/compras/page.tsx');
+    const card = read('components/purchasing/pending-supply-review-card.tsx');
+    assert.match(page, /resolveMemberResponsibilityLabels/);
+    assert.match(page, /requesterLabel/);
+    assert.match(card, /Solicitado por/);
+    assert.match(card, /requesterLabel/);
+    assert.doesNotMatch(card, /createdByMemberId/);
+    assert.match(card, /Cancelar/);
+    assert.match(card, /ResolvePurchasingReviewForm/);
+  });
+
+  it('Producción postsale form stays employee-facing without architecture prose', () => {
+    const desk = read('components/production/production-postsale-desk.tsx');
+    assert.match(desk, /Guardar actualización/);
+    assert.doesNotMatch(desk, /Confirmación humana/);
+    assert.doesNotMatch(desk, /No se inventa un SLA/);
+    assert.doesNotMatch(desk, /selección humana explícita/);
+  });
+});

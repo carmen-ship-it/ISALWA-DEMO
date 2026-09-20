@@ -24,6 +24,11 @@ import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import {
+  memberWithCargoLine,
+  resolveMemberResponsibilityLabels,
+} from '@/lib/work/member-resolver';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 
 /** CROSS_LANE: add 'comprasFilter' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const COMPRAS_FILTER_TARGET = 'compras-filter';
@@ -37,6 +42,8 @@ type LinkedOrderWithSupply = ComprasLinkedOrder & {
     workItemId: string;
     title: string;
     requesterMemberId: string;
+    /** Human label from member directory; null when lookup fails — never invent. */
+    requesterLabel: string | null;
   } | null;
 };
 
@@ -131,23 +138,44 @@ async function loadComprasLinkedWithSupply(): Promise<{
     ]);
     pushListCap(listCaps, workPage, 100);
     const workItems = workPage.items ?? [];
+    const requesterIds = orders
+      .map((order) => {
+        const open = findOpenOrderPrepReviews(workItems, order.orderId, order.partyId);
+        const id =
+          workItems.find((row) => row.workItemId === open.purchasing?.workItemId)?.createdByMemberId ??
+          '';
+        return id.trim();
+      })
+      .filter(Boolean);
+    const responsibility = await resolveMemberResponsibilityLabels(client, requesterIds);
     return {
       listCaps,
       orders: orders.map((order) => {
-      const open = findOpenOrderPrepReviews(workItems, order.orderId, order.partyId);
-      return {
-        ...order,
-        supplyReview: open.purchasing
-          ? {
-              workItemId: open.purchasing.workItemId,
-              title: open.purchasing.title,
-              requesterMemberId:
-                workItems.find((row) => row.workItemId === open.purchasing?.workItemId)
-                  ?.createdByMemberId ?? '',
-            }
-          : null,
-      };
-    }),
+        const open = findOpenOrderPrepReviews(workItems, order.orderId, order.partyId);
+        const requesterMemberId =
+          workItems.find((row) => row.workItemId === open.purchasing?.workItemId)?.createdByMemberId?.trim() ??
+          '';
+        const resolved = requesterMemberId ? responsibility.get(requesterMemberId) : undefined;
+        // Only show when directory returned a real name (not the catch-all placeholder).
+        const requesterLabel =
+          resolved &&
+          resolved.displayName &&
+          resolved.displayName !== 'Miembro del equipo' &&
+          presentHumanCopy(resolved.displayName)
+            ? memberWithCargoLine(responsibility, requesterMemberId)
+            : null;
+        return {
+          ...order,
+          supplyReview: open.purchasing
+            ? {
+                workItemId: open.purchasing.workItemId,
+                title: open.purchasing.title,
+                requesterMemberId,
+                requesterLabel,
+              }
+            : null,
+        };
+      }),
     };
   } catch {
     return { orders: [], listCaps };
@@ -208,6 +236,7 @@ function PendingSupplyReviewsSection({ orders }: { orders: LinkedOrderWithSupply
                   reviewTitle={review.title}
                   workItemId={review.workItemId}
                   requesterMemberId={review.requesterMemberId}
+                  requesterLabel={review.requesterLabel}
                 />
               );
             })}

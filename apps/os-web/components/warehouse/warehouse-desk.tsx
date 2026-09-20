@@ -209,7 +209,9 @@ function AllocateSection({
         Cantidad del registro de ingresos menos asignaciones ya hechas. Desde aquí se asigna al pedido.
       </p>
       {view.allocatable.length === 0 ? (
-        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.unknownAvailability}</p>
+        <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          No hay cantidad asignable todavía. Cuando el ingreso tenga cantidad conocida, aparecerá aquí.
+        </p>
       ) : (
         <ul className="mb-6">
           {view.allocatable
@@ -305,7 +307,7 @@ function AllocateSection({
             description={
               view.pedidos.length === 0
                 ? 'Los pedidos de esta empresa aparecerán cuando existan. No se inventan líneas ni cantidades.'
-                : WAREHOUSE_TASK_COPY.unknownAvailability
+                : 'No hay cantidad asignable para elegir todavía.'
             }
             example="Si falta producto terminado, espere Listo en Producción. Si faltan pedidos, espere carga comercial."
           />
@@ -319,31 +321,42 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.remains}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.remains} />
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Estas cantidades muestran asignaciones pendientes; no representan cumplimiento del pedido.
+      </p>
       {view.remains.length === 0 ? (
-        <EmptyState
-          title="Sin remanente registrado"
-          description={WAREHOUSE_TASK_COPY.noRemainderRecorded}
-          example="Cuando haya una asignación parcial, aquí se verá lo que queda de la línea."
-        />
+        <div className="mt-4">
+          <EmptyState
+            title="Sin remanente registrado"
+            description={WAREHOUSE_TASK_COPY.noRemainderRecorded}
+            example="Cuando haya una asignación parcial, aquí se verá lo que queda de la línea."
+          />
+        </div>
       ) : (
-        <ul>
+        <ul className="mt-4">
           {view.remains.map((row) => {
-            const label = [
-              pedidoHumanLabel(row.orderName.text, row.customerName.text),
-              humanWarehouseText(row.productName.text),
-            ]
-              .filter(Boolean)
-              .join(' · ');
+            const label =
+              pedidoHumanLabel(row.orderName.text, row.customerName.text) ??
+              humanWarehouseText(row.productName.text);
             if (!label) return null;
+            const remainFact =
+              row.remainingQuantity !== null
+                ? `Quedan ${row.remainingQuantity} por asignar`
+                : row.remainingText;
             return (
-            <ListRow key={row.orderLineId} as="li">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{label}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.remainingText}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Asignado {row.allocatedQuantity}</p>
-              </div>
-              <StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.notFulfillment}</StatusPill>
-            </ListRow>
+              <ListRow key={row.orderLineId} as="li">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{label}</p>
+                  {humanWarehouseText(row.productName.text) &&
+                  pedidoHumanLabel(row.orderName.text, row.customerName.text) ? (
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                      {humanWarehouseText(row.productName.text)}
+                    </p>
+                  ) : null}
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{remainFact}</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Asignado {row.allocatedQuantity}</p>
+                </div>
+              </ListRow>
             );
           })}
         </ul>

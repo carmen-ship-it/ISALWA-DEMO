@@ -123,6 +123,7 @@ export function WarehousePostSaleDesk({
   return (
     <div className="space-y-6" data-postsale-spine="warehouse">
       <PedidoHandoffPanel
+        density="field"
         pedidos={pedidos}
         selectedOrderId={orderId}
         selectedOrderLineId={orderLineId}

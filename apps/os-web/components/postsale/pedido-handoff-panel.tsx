@@ -19,6 +19,11 @@ type PedidoHandoffPanelProps = {
   evidence?: readonly PostSaleOperationalEvidence[];
   /** When true, product/line select is shown. */
   showProductSelect?: boolean;
+  /**
+   * section — titled handoff block (Producción).
+   * field — single Pedido control for employee forms (Almacén ingreso); no duplicated Pedido chrome.
+   */
+  density?: 'section' | 'field';
 };
 
 /**
@@ -33,19 +38,19 @@ export function PedidoHandoffPanel({
   onSelectLine,
   evidence = [],
   showProductSelect = true,
+  density = 'section',
 }: PedidoHandoffPanelProps) {
   const selected = pedidos.find((row) => row.orderId === selectedOrderId) ?? null;
   const pedidoOptions = pedidos.map((row) => ({ id: row.orderId, label: row.optionLabel }));
   const lineOptions = productOptionsForPedido(selected).filter(
     (option) => !isEngineeringFixtureCopy(option.label),
   );
+  const fieldOnly = density === 'field';
 
-  return (
-    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedido">
-      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title="Pedido" />
-
+  const selectors = (
+    <>
       {pedidos.length === 0 ? (
-        <div className="mt-6" data-owner-review-state="no-data">
+        <div className={fieldOnly ? undefined : 'mt-6'} data-owner-review-state="no-data">
           <EmptyState
             title="Sin pedidos abiertos"
             description="Cuando exista un pedido en esta empresa, aparecerá aquí para abrirlo o seleccionarlo. Un vacío no es falta de permiso."
@@ -53,7 +58,7 @@ export function PedidoHandoffPanel({
           />
         </div>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className={fieldOnly ? 'space-y-4' : 'mt-6 space-y-4'}>
           <SearchableSelect
             id="postsale-pedido"
             label="Pedido"
@@ -77,7 +82,21 @@ export function PedidoHandoffPanel({
           ) : null}
         </div>
       )}
+    </>
+  );
 
+  if (fieldOnly) {
+    return (
+      <div className="mb-6 space-y-4" aria-label="Pedido">
+        {selectors}
+      </div>
+    );
+  }
+
+  return (
+    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedido">
+      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title="Pedido" />
+      {selectors}
       {selected ? (
         <div className="mt-8 space-y-4" data-postsale-context="pedido">
           <dl className="grid gap-3 text-sm md:grid-cols-2">

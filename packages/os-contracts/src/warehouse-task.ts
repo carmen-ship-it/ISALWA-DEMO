@@ -411,7 +411,7 @@ export function remainForPedido(
     remainingText:
       remainingQuantity === null
         ? WAREHOUSE_TASK_COPY.noRemainderRecorded
-        : `Quedan ${remainingQuantity} por asignar en el pedido. ${WAREHOUSE_TASK_COPY.notFulfillment}`,
+        : `Quedan ${remainingQuantity} por asignar`,
     fulfillmentStatus: null,
     officialStock: false,
   };
