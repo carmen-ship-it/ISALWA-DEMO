@@ -6,6 +6,7 @@ import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import { Button, Chip, Panel, SearchField, StatusPill } from '@isalwa/ui';
 import { ListToolbar } from '@/components/lists/list-toolbar';
 import { APPROVAL_ROW_SUBJECT_FALLBACK } from '@/lib/work/approval-row-subject';
+import { approvalListActionLabel } from '@/lib/work/approval-action-label';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { approvalHref } from '@/lib/work/navigation';
@@ -14,6 +15,8 @@ type ApprovalDeskPanelProps = {
   items: ApprovalSummaryReadModel[];
   memberLabels: MemberLabelMap;
   subjects?: Map<string, string>;
+  currentMemberId: string;
+  evaluationMode?: boolean;
 };
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -30,7 +33,13 @@ function normalizeStatus(status: string): StatusFilter {
   return 'all';
 }
 
-export function ApprovalDeskPanel({ items, memberLabels, subjects }: ApprovalDeskPanelProps) {
+export function ApprovalDeskPanel({
+  items,
+  memberLabels,
+  subjects,
+  currentMemberId,
+  evaluationMode = false,
+}: ApprovalDeskPanelProps) {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
 
@@ -94,6 +103,13 @@ export function ApprovalDeskPanel({ items, memberLabels, subjects }: ApprovalDes
             const subject = subjects?.get(approval.approvalRequestId) ?? APPROVAL_ROW_SUBJECT_FALLBACK;
             const requester = memberLabel(memberLabels, approval.requestedByMemberId);
             const isPending = approval.status === 'pending';
+            const actionLabel = approvalListActionLabel({
+              status: approval.status,
+              approverMemberId: approval.approverMemberId,
+              currentMemberId,
+              evaluationMode,
+            });
+            const primaryDecide = actionLabel === 'Decidir';
             return (
               <li key={approval.approvalRequestId}>
                 <Panel
@@ -116,19 +132,11 @@ export function ApprovalDeskPanel({ items, memberLabels, subjects }: ApprovalDes
                     </StatusPill>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {isPending ? (
-                      <Link href={detailHref} className="inline-flex">
-                        <Button type="button" variant="primary" size="sm">
-                          Decidir
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Link href={detailHref} className="inline-flex">
-                        <Button type="button" variant="secondary" size="sm">
-                          Ver registro
-                        </Button>
-                      </Link>
-                    )}
+                    <Link href={detailHref} className="inline-flex">
+                      <Button type="button" variant={primaryDecide ? 'primary' : 'secondary'} size="sm">
+                        {actionLabel}
+                      </Button>
+                    </Link>
                   </div>
                 </Panel>
               </li>

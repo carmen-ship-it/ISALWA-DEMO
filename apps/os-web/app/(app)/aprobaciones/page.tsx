@@ -63,22 +63,34 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
       result.items.filter((item) => item.status === 'pending'),
       { memberId: session.memberId, scope: approvalsScope },
     );
+    const pendingForMe = pending.filter((item) => item.approverMemberId === session.memberId);
     const subjects = await approvalSubjectsForPage(client, pending);
     const memberLabels = await resolveMemberLabels(
       client,
       pending.flatMap((item) => [item.requestedByMemberId, item.approverMemberId]),
     );
+    const listDescription = (() => {
+      if (evaluation.active) {
+        return 'Vista de evaluación: consulte el contexto de cada solicitud. La decisión no crea un pedido.';
+      }
+      if (pending.length === 0) {
+        return 'Cuando alguien solicite su aprobación, la verá aquí para decidir.';
+      }
+      if (pendingForMe.length === pending.length) {
+        return 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.';
+      }
+      if (pendingForMe.length > 0) {
+        return 'Solicitudes pendientes. Las que requieren su decisión están marcadas para usted.';
+      }
+      return 'Solicitudes pendientes. La decisión no crea un pedido.';
+    })();
 
     return (
       <PageContainer label={t('pages.aprobaciones.title')} data-tour={TOUR_TARGET.approvalConsequence}>
         <PageHeader
           kicker={t('pages.aprobaciones.kicker')}
           title={t('pages.aprobaciones.title')}
-          description={
-            pending.length === 0
-              ? 'Cuando alguien solicite su aprobación, la verá aquí para decidir.'
-              : 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.'
-          }
+          description={listDescription}
           action={
             pending.length > 0 ? (
               <StatusPill tone="pending" icon="pending">
@@ -100,10 +112,13 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
           />
         ) : (
           <>
-            <p className="mb-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              Elija una solicitud para decidir. La decisión no crea un pedido.
-            </p>
-            <ApprovalDeskPanel items={pending} memberLabels={memberLabels} subjects={subjects} />
+            <ApprovalDeskPanel
+              items={pending}
+              memberLabels={memberLabels}
+              subjects={subjects}
+              currentMemberId={session.memberId}
+              evaluationMode={evaluation.active}
+            />
             {(() => {
               const nav = cursorPageLinks(
                 '/aprobaciones',

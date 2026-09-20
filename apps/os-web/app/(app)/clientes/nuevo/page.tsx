@@ -4,6 +4,7 @@ import { CustomerCreateForm } from '@/components/party/customer-create-form';
 import { CustomerSearchFirstForm } from '@/components/party/customer-search-first-form';
 import { PartyList } from '@/components/party/party-list';
 import { PageHeader } from '@/components/shell/page-header';
+import { PermissionDeniedSurface } from '@/components/states/permission-denied-surface';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -27,8 +28,13 @@ export default async function NewCustomerPage({ searchParams }: NewCustomerPageP
   if (!canCreate) {
     return (
       <PageContainer label="Agregar cliente">
-        <PageHeader kicker="Relaciones" title="Agregar cliente" />
-        <p className="text-sm text-[var(--isalwa-slate)]">No tiene permiso para realizar esta acción.</p>
+        <PermissionDeniedSurface
+          title="No puede realizar esta acción"
+          kicker="Relaciones"
+          explanation="Su acceso actual permite consultar clientes, pero no crear uno."
+          backHref="/clientes"
+          backLabel="Volver a clientes"
+        />
       </PageContainer>
     );
   }

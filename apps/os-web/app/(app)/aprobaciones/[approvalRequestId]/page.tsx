@@ -29,6 +29,7 @@ import { approvalStaffSubject } from '@/lib/work/staff-subject';
 import { memberLabel, memberWithCargoLine, resolveMemberResponsibilityLabels } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 
 type ApprovalDetailPageProps = {
   params: Promise<{ approvalRequestId: string }>;
@@ -43,6 +44,7 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
 
   try {
     const { approval, freshness } = await client.getApproval(approvalRequestId);
@@ -68,7 +70,7 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
       orderNumber: approval.subjectType === 'order' ? subjectLink?.label : null,
       customerName: customerName && customerName !== 'Cliente' ? customerName : null,
     });
-    const canDecide = await resolveCanDecide(client, approval);
+    const canDecide = evaluation.active ? false : await resolveCanDecide(client, approval);
     const continueCue = await resolvePostApprovalContinue(client, approval, subjectLink);
 
     return (
@@ -76,7 +78,11 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
         <PageHeader
           kicker="Aprobaciones"
           title={title}
-          description="La decisión no crea un pedido."
+          description={
+            evaluation.active
+              ? 'Vista de evaluación: solo lectura. La decisión no crea un pedido.'
+              : 'La decisión no crea un pedido.'
+          }
           action={
             <div className="flex flex-wrap items-center gap-3">
               <StatusPill tone={statusToneForApproval(approval.status)}>
@@ -103,12 +109,18 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
                   : 'border-l-[var(--isalwa-danger)] border-[color-mix(in_srgb,var(--isalwa-danger)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-red-bg)_40%,white)]',
             )}
           >
-            <p className="isalwa-kicker">Su decisión</p>
+            <p className="isalwa-kicker">{evaluation.active ? 'Vista de evaluación' : 'Su decisión'}</p>
             <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-              {approval.status === 'pending' ? 'Aprobar o rechazar' : 'Decisión registrada'}
+              {evaluation.active
+                ? 'Contexto de la solicitud'
+                : approval.status === 'pending'
+                  ? 'Aprobar o rechazar'
+                  : 'Decisión registrada'}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.
+              {evaluation.active
+                ? 'Solo lectura en vista de evaluación. La decisión no crea un pedido.'
+                : 'La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.'}
             </p>
             {canDecide || approval.status !== 'pending' ? (
               <div className="mt-6" data-tour={APPROVAL_ACTIONS_TARGET}>

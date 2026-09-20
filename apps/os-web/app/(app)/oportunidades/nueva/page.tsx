@@ -10,6 +10,7 @@ import { withExplicitDataMode } from '@/lib/demo/preserve-data-mode';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 
 type PageProps = {
   searchParams: Promise<{ q?: string; cliente?: string; datos?: string }>;
@@ -29,6 +30,7 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
   }
 
   const client = createOsApiClient(auth);
+  const canCreateCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
   const cliente = params.cliente?.trim() ?? '';
   const query = params.q?.trim() ?? '';
   const dataMode = await resolveDemoDataMode(params);
@@ -78,9 +80,14 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
         title="Nueva oportunidad"
         description="Elija un cliente existente. No se crea un cliente desde aquí."
         action={
-          <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-            Crear cliente
-          </Link>
+          canCreateCustomer ? (
+            <Link
+              href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+              className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+            >
+              Crear cliente
+            </Link>
+          ) : null
         }
       />
       <form method="get" action="/oportunidades/nueva" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -105,10 +112,19 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
       </form>
       {query.length >= 2 && matches.length === 0 ? (
         <p className="text-sm text-[var(--isalwa-kiln)]">
-          No encontramos ese cliente.{' '}
-          <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="font-medium text-[var(--isalwa-glaze)] underline">
-            Crear cliente
-          </Link>
+          {canCreateCustomer ? (
+            <>
+              No encontramos ese cliente.{' '}
+              <Link
+                href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+                className="font-medium text-[var(--isalwa-glaze)] underline"
+              >
+                Crear cliente
+              </Link>
+            </>
+          ) : (
+            'No encontramos ese cliente. Solicite a una persona autorizada que lo registre.'
+          )}
         </p>
       ) : (
         <ul className="divide-y divide-[var(--isalwa-mist)] rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white">
@@ -127,13 +143,18 @@ export default async function NuevaOportunidadDesdeListaPage({ searchParams }: P
           ))}
         </ul>
       )}
-      <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
-        Si el cliente no está en la lista,{' '}
-        <Link href={withExplicitDataMode('/clientes/nuevo', dataMode)} className="font-medium text-[var(--isalwa-glaze)] underline">
-          Crear cliente
-        </Link>
-        .
-      </p>
+      {canCreateCustomer ? (
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+          Si el cliente no está en la lista,{' '}
+          <Link
+            href={withExplicitDataMode('/clientes/nuevo', dataMode)}
+            className="font-medium text-[var(--isalwa-glaze)] underline"
+          >
+            Crear cliente
+          </Link>
+          .
+        </p>
+      ) : null}
     </PageContainer>
   );
 }
