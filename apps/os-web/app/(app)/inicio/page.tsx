@@ -35,6 +35,7 @@ import { flattenMiDia } from '@/lib/inicio/mi-dia';
 import {
   availableInicioPageLenses,
   canShowOrgLens,
+  isInicioExceptionsView,
   lensInputForEvaluation,
   parseManagementPeriodPreset,
   resolveInicioPageLens,
@@ -595,6 +596,25 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         : null;
 
     const showExampleAffordance = viewerHasManagementOrgRead(roleKeys);
+    const exceptionsView = isInicioExceptionsView(paramOne(params.vista));
+    const homeHref =
+      paramOne(params.datos) === 'demo' ? '/inicio?datos=demo' : '/inicio';
+
+    if (exceptionsView) {
+      return (
+        <PageContainer label={t('pages.inicio.managementKicker')}>
+          <PageHeader
+            kicker={t('pages.inicio.managementKicker')}
+            title={t('pages.inicio.managementTitle')}
+            description="Condiciones fuera del flujo normal que ya están registradas. No incluye el trabajo del día, oportunidades ni cotizaciones abiertas."
+            action={destinationLink(homeHref, 'Volver a Inicio')}
+          />
+          <div id="excepciones" className="min-w-0">
+            <InicioManagementLens model={management} destination />
+          </div>
+        </PageContainer>
+      );
+    }
 
     return (
       <PageContainer label={t('pages.inicio.title')}>

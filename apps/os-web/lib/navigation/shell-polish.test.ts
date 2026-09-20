@@ -204,6 +204,13 @@ describe('inicio and excepciones are distinct nav destinations', () => {
     assert.equal(navItemIsActive('/trabajo', '', 'excepciones', '/inicio?vista=excepciones'), false);
   });
 
+  it('treats vista=excepciones as a dedicated destination flag', async () => {
+    const { isInicioExceptionsView } = await import('@/lib/inicio/page-lens');
+    assert.equal(isInicioExceptionsView('excepciones'), true);
+    assert.equal(isInicioExceptionsView(undefined), false);
+    assert.equal(isInicioExceptionsView('empresa'), false);
+  });
+
   it('keeps the active group open even when the user collapsed it', () => {
     assert.equal(navSectionIsOpen(true, true), true);
     assert.equal(navSectionIsOpen(false, true), false);

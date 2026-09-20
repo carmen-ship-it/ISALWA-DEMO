@@ -180,4 +180,26 @@ describe('Inicio management lens', () => {
     assert.match(exceptions, /row\.organizationId !== tenant/);
     assert.match(exceptions, /recorded: null/);
   });
+
+  it('keeps vista=excepciones as a distinct destination from normal Inicio', () => {
+    const page = readApp('app/(app)/inicio/page.tsx');
+    const lens = readApp('lib/inicio/page-lens.ts');
+    assert.match(lens, /isInicioExceptionsView/);
+    assert.match(page, /isInicioExceptionsView/);
+    assert.match(page, /exceptionsView/);
+    assert.match(page, /destination/);
+    assert.match(page, /Volver a Inicio/);
+    // Exceptions branch must not mount ordinary home bands.
+    const exceptionsBranch = page.slice(
+      page.indexOf('if (exceptionsView)'),
+      page.indexOf('return (\n      <PageContainer label={t(\'pages.inicio.title\')}>'),
+    );
+    assert.match(exceptionsBranch, /InicioManagementLens/);
+    assert.doesNotMatch(exceptionsBranch, /InicioMiDia/);
+    assert.doesNotMatch(exceptionsBranch, /InicioSummaryCards/);
+    assert.doesNotMatch(exceptionsBranch, /OpportunityOrgList/);
+    assert.doesNotMatch(exceptionsBranch, /QuoteOrgList/);
+    assert.doesNotMatch(exceptionsBranch, /InicioCommandQueueSections/);
+    assert.doesNotMatch(exceptionsBranch, /InicioLensTabs/);
+  });
 });

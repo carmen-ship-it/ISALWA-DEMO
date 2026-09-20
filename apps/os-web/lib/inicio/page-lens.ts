@@ -88,3 +88,8 @@ export function parseManagementPeriodPreset(raw: string | undefined): '7' | '30'
   if (raw === '90') return '90';
   return '7';
 }
+
+/** Shell nav destination: Excepciones is not a second home. */
+export function isInicioExceptionsView(vista: string | undefined): boolean {
+  return vista === 'excepciones';
+}

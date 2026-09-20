@@ -4,6 +4,11 @@ import { t } from '@/lib/i18n/es';
 
 type InicioManagementLensProps = {
   model: ManagementLensModel;
+  /**
+   * Destination chrome already provided by the page header (Excepciones nav).
+   * Avoids a second Inicio-style title block above the same facts.
+   */
+  destination?: boolean;
 };
 
 function cardLine(card: ManagementExceptionCard): string {
@@ -14,22 +19,25 @@ function cardLine(card: ManagementExceptionCard): string {
  * Management exceptions as one command surface — not an equal-weight card grid.
  * Owner lane leads; waiting / stalled sit as subordinate strips beneath.
  */
-export function InicioManagementLens({ model }: InicioManagementLensProps) {
+export function InicioManagementLens({ model, destination = false }: InicioManagementLensProps) {
   const cards = model.canReadOrg ? model.cards : null;
   const ownerLane = model.lanes.find((lane) => lane.id === 'owner');
   const secondaryLanes = model.lanes.filter((lane) => lane.id !== 'owner');
+  const hasRecordedCards = Boolean(cards && cards.length > 0);
 
   return (
     <section aria-label={t('pages.inicio.managementTitle')} className="min-w-0 space-y-4">
-      <div>
-        <p className="isalwa-kicker">{t('pages.inicio.managementKicker')}</p>
-        <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
-          {t('pages.inicio.managementTitle')}
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {model.canReadOrg ? t('pages.inicio.managementDescription') : model.orgFiguresHidden}
-        </p>
-      </div>
+      {destination ? null : (
+        <div>
+          <p className="isalwa-kicker">{t('pages.inicio.managementKicker')}</p>
+          <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
+            {t('pages.inicio.managementTitle')}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {model.canReadOrg ? t('pages.inicio.managementDescription') : model.orgFiguresHidden}
+          </p>
+        </div>
+      )}
 
       <PageSection
         card
@@ -40,9 +48,9 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
         {ownerLane ? (
           <div className="px-5 py-5 md:px-6 md:py-6">
             <p className="isalwa-section-label">{ownerLane.label}</p>
-            {cards && cards.length > 0 ? (
+            {hasRecordedCards ? (
               <ul className="mt-3 space-y-2">
-                {cards.map((card) => (
+                {cards!.map((card) => (
                   <li key={card.id} className="text-sm leading-relaxed text-[var(--isalwa-kiln)]">
                     {card.handledBy}
                   </li>
@@ -100,8 +108,13 @@ export function InicioManagementLens({ model }: InicioManagementLensProps) {
       </PageSection>
 
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-        {model.canReadOrg ? model.emptyMessage : model.orgFiguresHidden}
+        {model.canReadOrg
+          ? hasRecordedCards
+            ? t('pages.inicio.managementDescription')
+            : model.emptyMessage
+          : model.orgFiguresHidden}
       </p>
     </section>
   );
 }
+
