@@ -550,6 +550,7 @@ export function CommandPaletteTrigger({
     <button
       ref={buttonRef}
       type="button"
+      data-shell-search
       className="inline-flex h-10 min-w-0 items-center gap-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-3 text-sm text-[var(--isalwa-slate)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
       onClick={onOpen}
       data-tour={TOUR_TARGET.globalSearch}

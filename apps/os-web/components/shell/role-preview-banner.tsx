@@ -12,12 +12,13 @@ export function RolePreviewBanner() {
   return (
     <div
       role="status"
+      data-shell-evaluation-banner
       className="border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky-100)_55%,var(--isalwa-white))] px-4 py-2.5 lg:px-8"
     >
       <div className="mx-auto flex max-w-[90rem] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--isalwa-kiln)]">
           <span className="font-medium">Vista de evaluación · {label}</span>
-          <span className="text-[var(--isalwa-slate)]">
+          <span data-shell-evaluation-detail className="text-[var(--isalwa-slate)]">
             {' '}
             · Sigue siendo Carmen · Solo lectura
             {blocksMutations ? ' · Las acciones están deshabilitadas' : ''}

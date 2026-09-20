@@ -10,7 +10,8 @@ export function VerEjemploCompletoButton() {
 
   return (
     <Button type="button" variant="secondary" size="sm" onClick={openStory}>
-      Ver recorrido completo
+      <span data-shell-tour-full>Ver recorrido completo</span>
+      <span data-shell-tour-compact>Recorrido</span>
     </Button>
   );
 }

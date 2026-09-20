@@ -12,12 +12,16 @@ export function DemoFictitiousBanner() {
   return (
     <div
       role="status"
+      data-shell-demo-banner
       className="border-b border-[color-mix(in_srgb,#2C8C88_35%,var(--isalwa-mist))] bg-[color-mix(in_srgb,#EAF6F4_80%,var(--isalwa-white))] px-4 py-2 lg:px-8"
     >
       <p className="mx-auto max-w-[90rem] text-xs font-bold tracking-[0.12em] text-[var(--isalwa-kiln)] uppercase">
         {DEMO_FICTITIOUS_BADGE}
       </p>
-      <p className="mx-auto max-w-[90rem] text-sm text-[var(--isalwa-slate)]">
+      <p
+        data-shell-demo-banner-detail
+        className="mx-auto max-w-[90rem] text-sm text-[var(--isalwa-slate)]"
+      >
         Está viendo datos de demostración. No son transacciones reales de la empresa.
       </p>
     </div>

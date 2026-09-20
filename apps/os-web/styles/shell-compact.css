@@ -1,0 +1,80 @@
+/**
+ * Shared shell chrome compact-on-scroll.
+ * Header stays outside the page scrollport; compact only shortens chrome height.
+ * Do not add page-specific sticky offsets here.
+ */
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-header] {
+  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+  padding-bottom: 0.35rem;
+}
+
+@media (min-width: 1024px) {
+  [data-shell-chrome][data-shell-compact='true'] [data-shell-header] {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
+
+/* Drop mobile wordmark when compact — menu + search remain. */
+[data-shell-chrome][data-shell-compact='true'] [data-shell-brand-mobile] {
+  display: none;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-search] {
+  height: 2rem;
+  min-height: 2rem;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-demo-toggle] button {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-tour-full] {
+  display: none;
+}
+
+[data-shell-tour-compact] {
+  display: none;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-tour-compact] {
+  display: inline;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-demo-banner] {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-demo-banner-detail] {
+  display: none;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-evaluation-banner] {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-evaluation-detail] {
+  display: none;
+}
+
+[data-shell-chrome][data-shell-compact='true'] [data-shell-evaluation-banner] button {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Keep chrome from overflowing narrow viewports when compact. */
+[data-shell-chrome][data-shell-compact='true'] [data-shell-header] {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}

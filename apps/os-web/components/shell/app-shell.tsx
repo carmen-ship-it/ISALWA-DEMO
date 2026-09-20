@@ -12,6 +12,7 @@ import { WalkthroughShell } from '@/components/walkthrough/walkthrough-shell';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 import { CommandPalette, CommandPaletteTrigger } from '@/components/shell/command-palette';
 import { UserMenu } from '@/components/shell/user-menu';
+import { ShellChromeBar, ShellChromeProvider } from '@/components/shell/shell-chrome';
 import { RolePreviewProvider } from '@/components/shell/role-preview-provider';
 import { RolePreviewBanner } from '@/components/shell/role-preview-banner';
 import { RolePreviewDesktopControl } from '@/components/shell/role-preview-desktop-control';
@@ -101,6 +102,7 @@ export function AppShell({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const shellScrollRef = useRef<HTMLDivElement>(null);
   const mobileTitleId = useId();
 
   useEffect(() => {
@@ -253,132 +255,144 @@ export function AppShell({
         </aside>
 
         <div className="flex h-svh min-h-0 min-w-0 flex-col overflow-hidden">
-          {/* Top chrome stays outside the page scroll so titles never pass underneath. */}
-          <header
-            data-shell-header
-            className="isalwa-glass-light relative z-40 flex min-w-0 shrink-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-glass-light-border)] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-4 lg:px-8 lg:py-4"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <button
-                ref={menuButtonRef}
-                type="button"
-                data-tour={TOUR_TARGET.navPrimary}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] lg:hidden"
-                aria-expanded={mobileOpen}
-                aria-controls="mobile-nav"
-                aria-haspopup="dialog"
-                onClick={() => setMobileOpen((open) => !open)}
+          <ShellChromeProvider scrollRef={shellScrollRef}>
+            {/* Top chrome stays outside the page scroll so titles never pass underneath. */}
+            <ShellChromeBar>
+              <header
+                data-shell-header
+                className="isalwa-glass-light relative z-40 flex min-w-0 shrink-0 items-center justify-between gap-2 overflow-visible border-b border-[var(--isalwa-glass-light-border)] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-4 lg:px-8 lg:py-4"
               >
-                <span className="sr-only">{mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}</span>
-                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-              </button>
-              <p className="min-w-0 truncate font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)] lg:hidden">
-                {t('app.name')}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <CommandPaletteTrigger
-                buttonRef={searchButtonRef}
-                onOpen={() => {
-                  setMobileOpen(false);
-                  setPaletteOpen(true);
-                }}
-              />
-              {showRolePreview ? <DemoDataFilterToggle /> : null}
-              {showRolePreview ? <VerEjemploCompletoButton /> : null}
-              <RolePreviewDesktopControl grantedScopes={grantedScopes} />
-              {notificationSlot}
-              <UserMenu displayLabel={actorLabel} />
-            </div>
-          </header>
-
-          <RolePreviewBanner />
-          <DemoFictitiousBanner />
-          <OwnerStoryMode />
-
-          <ShellBreadcrumbs />
-
-          <CommandPalette
-            open={paletteOpen}
-            onOpenChange={setPaletteOpen}
-            showAdmin={showAdmin}
-            canCreateCustomer={canCreateCustomer}
-            actorKey={actorKey}
-            returnFocusRef={searchButtonRef}
-          />
-
-          {mobileOpen ? (
-            <div className="fixed inset-0 z-30 lg:hidden" role="presentation">
-              <button
-                type="button"
-                aria-label={t('nav.closeMenu')}
-                className="absolute inset-0 bg-[color-mix(in_srgb,var(--isalwa-kiln)_28%,transparent)]"
-                onClick={() => {
-                  setMobileOpen(false);
-                  menuButtonRef.current?.focus();
-                }}
-              />
-              <div
-                id="mobile-nav"
-                ref={mobileNavRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={mobileTitleId}
-                tabIndex={-1}
-                className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col overflow-y-auto bg-[var(--isalwa-porcelain)] pt-[env(safe-area-inset-top)] shadow-[var(--isalwa-shadow-floating)] outline-none"
-              >
-                <div className="flex items-center justify-between gap-3 border-b border-[var(--isalwa-mist)] px-4 py-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <button
+                    ref={menuButtonRef}
+                    type="button"
+                    data-tour={TOUR_TARGET.navPrimary}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)] lg:hidden"
+                    aria-expanded={mobileOpen}
+                    aria-controls="mobile-nav"
+                    aria-haspopup="dialog"
+                    onClick={() => setMobileOpen((open) => !open)}
+                  >
+                    <span className="sr-only">{mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}</span>
+                    {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+                  </button>
                   <p
-                    id={mobileTitleId}
-                    className="font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]"
+                    data-shell-brand-mobile
+                    className="min-w-0 truncate font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)] lg:hidden"
                   >
                     {t('app.name')}
                   </p>
-                  <button
-                    type="button"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                    aria-label={t('nav.closeMenu')}
-                    onClick={() => {
-                      setMobileOpen(false);
-                      menuButtonRef.current?.focus();
-                    }}
-                  >
-                    <X size={18} />
-                  </button>
                 </div>
-                <AppNav
-                  showAdmin={showAdmin}
-                  grantedScopes={grantedScopes}
-                  capabilities={capabilities}
-                  mobile
-                  onNavigate={() => setMobileOpen(false)}
-                />
-                {showRolePreview ? (
-                  <div className="border-t border-[var(--isalwa-mist)] px-4 py-3">
-                    <RolePreviewMenu onSelect={() => setMobileOpen(false)} />
-                  </div>
-                ) : null}
-                <div className="mt-auto border-t border-[var(--isalwa-mist)] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                  <button
-                    type="button"
-                    disabled={signingOut}
-                    className="isalwa-t-fast flex w-full items-center rounded-[var(--isalwa-radius-control)] px-3.5 py-3 text-left text-sm font-medium text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-white)] focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-60"
-                    onClick={() => {
-                      startSignOut(async () => {
-                        await signOutAction();
-                      });
+                <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                  <CommandPaletteTrigger
+                    buttonRef={searchButtonRef}
+                    onOpen={() => {
+                      setMobileOpen(false);
+                      setPaletteOpen(true);
                     }}
-                  >
-                    {signingOut ? 'Cerrando sesión…' : t('account.signOut')}
-                  </button>
+                  />
+                  {showRolePreview ? <DemoDataFilterToggle /> : null}
+                  {showRolePreview ? <VerEjemploCompletoButton /> : null}
+                  <RolePreviewDesktopControl grantedScopes={grantedScopes} />
+                  {notificationSlot}
+                  <UserMenu displayLabel={actorLabel} />
+                </div>
+              </header>
+
+              <RolePreviewBanner />
+              <DemoFictitiousBanner />
+            </ShellChromeBar>
+
+            <OwnerStoryMode />
+
+            <ShellBreadcrumbs />
+
+            <CommandPalette
+              open={paletteOpen}
+              onOpenChange={setPaletteOpen}
+              showAdmin={showAdmin}
+              canCreateCustomer={canCreateCustomer}
+              actorKey={actorKey}
+              returnFocusRef={searchButtonRef}
+            />
+
+            {mobileOpen ? (
+              <div className="fixed inset-0 z-30 lg:hidden" role="presentation">
+                <button
+                  type="button"
+                  aria-label={t('nav.closeMenu')}
+                  className="absolute inset-0 bg-[color-mix(in_srgb,var(--isalwa-kiln)_28%,transparent)]"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    menuButtonRef.current?.focus();
+                  }}
+                />
+                <div
+                  id="mobile-nav"
+                  ref={mobileNavRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby={mobileTitleId}
+                  tabIndex={-1}
+                  className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col overflow-y-auto bg-[var(--isalwa-porcelain)] pt-[env(safe-area-inset-top)] shadow-[var(--isalwa-shadow-floating)] outline-none"
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-[var(--isalwa-mist)] px-4 py-4">
+                    <p
+                      id={mobileTitleId}
+                      className="font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]"
+                    >
+                      {t('app.name')}
+                    </p>
+                    <button
+                      type="button"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--isalwa-radius-control)] text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                      aria-label={t('nav.closeMenu')}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        menuButtonRef.current?.focus();
+                      }}
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <AppNav
+                    showAdmin={showAdmin}
+                    grantedScopes={grantedScopes}
+                    capabilities={capabilities}
+                    mobile
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                  {showRolePreview ? (
+                    <div className="border-t border-[var(--isalwa-mist)] px-4 py-3">
+                      <RolePreviewMenu onSelect={() => setMobileOpen(false)} />
+                    </div>
+                  ) : null}
+                  <div className="mt-auto border-t border-[var(--isalwa-mist)] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                    <button
+                      type="button"
+                      disabled={signingOut}
+                      className="isalwa-t-fast flex w-full items-center rounded-[var(--isalwa-radius-control)] px-3.5 py-3 text-left text-sm font-medium text-[var(--isalwa-kiln)] outline-none hover:bg-[var(--isalwa-white)] focus-visible:shadow-[var(--isalwa-shadow-focus)] disabled:opacity-60"
+                      onClick={() => {
+                        startSignOut(async () => {
+                          await signOutAction();
+                        });
+                      }}
+                    >
+                      {signingOut ? 'Cerrando sesión…' : t('account.signOut')}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          <div data-shell-scroll className="isalwa-shell-main min-h-0 min-w-0 flex-1 overflow-y-auto">
-            <WalkthroughShell storageScopeKey={actorKey}>{children}</WalkthroughShell>
-          </div>
+            <div
+              ref={shellScrollRef}
+              data-shell-scroll
+              className="isalwa-shell-main min-h-0 min-w-0 flex-1 overflow-y-auto"
+            >
+              <WalkthroughShell storageScopeKey={actorKey}>{children}</WalkthroughShell>
+            </div>
+          </ShellChromeProvider>
         </div>
       </div>
     </ShellIdentityContext.Provider>

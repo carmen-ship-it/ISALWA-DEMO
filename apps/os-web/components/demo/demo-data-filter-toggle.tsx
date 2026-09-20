@@ -28,6 +28,7 @@ export function DemoDataFilterToggle() {
 
   return (
     <div
+      data-shell-demo-toggle
       className="inline-flex items-center gap-1 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] p-0.5"
       role="group"
       aria-label="Filtro de datos"
