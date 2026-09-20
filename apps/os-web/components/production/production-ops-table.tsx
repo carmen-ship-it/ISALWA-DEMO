@@ -132,14 +132,14 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
                         href={workItemHref(row.openProductionReviewWorkId)}
                         className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
                       >
-                        Revisión
+                        Ver revisión
                       </Link>
                     ) : row.openUpdate ? (
                       <Link
                         href={workItemHref(row.openUpdate.workItemId)}
                         className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
                       >
-                        Trabajo
+                        Ver solicitud
                       </Link>
                     ) : canMutate && actorMemberId ? (
                       <Button

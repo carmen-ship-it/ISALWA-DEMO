@@ -31,7 +31,7 @@ export function statusToneForIssue(status: IssueStatus): StatusPillTone {
     case 'triaged':
       return 'info';
     case 'in_progress':
-      return 'info';
+      return 'in_progress'; // En progreso → active, not success
     case 'resolved':
       return 'success';
     case 'closed':

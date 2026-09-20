@@ -34,10 +34,13 @@ export function formatPartyStatus(status: string): string {
   }
 }
 
-export function partyStatusTone(status: string): 'neutral' | 'success' | 'warning' | 'danger' | 'info' {
+/** Activo is active/open — never success green. */
+export function partyStatusTone(
+  status: string,
+): 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'active' {
   switch (status) {
     case 'active':
-      return 'success';
+      return 'active';
     case 'inactive':
     case 'deactivated':
       return 'neutral';

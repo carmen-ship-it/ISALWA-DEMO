@@ -28,7 +28,7 @@ describe('issue status formatting', () => {
   it('returns appropriate pill tones for each status', () => {
     assert.equal(statusToneForIssue('reported'), 'warning');
     assert.equal(statusToneForIssue('triaged'), 'info');
-    assert.equal(statusToneForIssue('in_progress'), 'info');
+    assert.equal(statusToneForIssue('in_progress'), 'in_progress');
     assert.equal(statusToneForIssue('resolved'), 'success');
     assert.equal(statusToneForIssue('closed'), 'neutral');
     assert.equal(statusToneForIssue('reopened'), 'warning');

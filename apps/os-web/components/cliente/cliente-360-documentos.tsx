@@ -43,12 +43,14 @@ function typeTone(type: DocumentLink['type']): 'neutral' | 'info' {
   }
 }
 
-function statusTone(status: DocumentLink['status']): 'neutral' | 'info' | 'success' {
+function statusTone(
+  status: DocumentLink['status'],
+): 'neutral' | 'info' | 'success' | 'in_progress' | 'completed' {
   switch (status) {
     case 'enviada':
-      return 'success';
+      return 'in_progress'; // Enviada = active, not success
     case 'emitida':
-      return 'info';
+      return 'completed';
     default:
       return 'neutral';
   }

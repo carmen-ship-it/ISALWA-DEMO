@@ -146,7 +146,7 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
                       href={workItemHref(row.warehouseReviewWorkId)}
                       className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
                     >
-                      Revisión
+                      Ver revisión
                     </Link>
                   ) : null
                 }

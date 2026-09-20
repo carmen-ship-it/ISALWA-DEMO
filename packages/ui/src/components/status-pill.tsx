@@ -34,6 +34,11 @@ export type StatusPillProps = HTMLAttributes<HTMLSpanElement> & {
   children: ReactNode;
 };
 
+/**
+ * Approved palette only (tokens.css):
+ * neutral/info → sky / porcelain · active → soft teal · attention → amber
+ * success → green · danger → red
+ */
 const tones: Record<StatusPillTone, string> = {
   neutral: 'bg-[var(--isalwa-mist)] text-[var(--isalwa-slate)]',
   success: 'bg-[color-mix(in_srgb,var(--isalwa-success)_12%,white)] text-[var(--isalwa-success)]',
@@ -50,7 +55,8 @@ const tones: Record<StatusPillTone, string> = {
   open: 'bg-[var(--isalwa-soft-teal)] text-[var(--isalwa-glaze-deep)]',
   active: 'bg-[var(--isalwa-soft-teal)] text-[var(--isalwa-glaze-deep)]',
   'soft-teal': 'bg-[var(--isalwa-soft-teal)] text-[var(--isalwa-glaze-deep)]',
-  in_progress: 'bg-[var(--isalwa-sky)] text-[var(--isalwa-glaze)]',
+  /** ACTIVE / IN PROGRESS — soft teal, never success green. */
+  in_progress: 'bg-[var(--isalwa-soft-teal)] text-[var(--isalwa-glaze-deep)]',
   sky: 'bg-[var(--isalwa-sky)] text-[var(--isalwa-info)]',
   pending: 'bg-[var(--isalwa-status-amber-bg)] text-[var(--isalwa-warning)]',
   amber: 'bg-[var(--isalwa-status-amber-bg)] text-[var(--isalwa-warning)]',
@@ -63,17 +69,21 @@ const tones: Record<StatusPillTone, string> = {
   muted: 'bg-[var(--isalwa-tint-gray)] text-[var(--isalwa-tint-gray-ink)]',
 };
 
+/**
+ * Default glyphs by tone. Never use `progress` (plus/cross) for status —
+ * it reads as a create/expand affordance (+ Abierta).
+ */
 const DEFAULT_ICON: Partial<Record<StatusPillTone, StatusPillIcon>> = {
   success: 'success',
   warning: 'attention',
   danger: 'rejected',
   draft: 'none',
   'neutral-sky': 'none',
-  open: 'progress',
-  active: 'progress',
-  'soft-teal': 'progress',
-  in_progress: 'progress',
-  sky: 'progress',
+  open: 'none',
+  active: 'none',
+  'soft-teal': 'none',
+  in_progress: 'pending',
+  sky: 'none',
   pending: 'pending',
   amber: 'pending',
   overdue: 'attention',
@@ -123,6 +133,7 @@ function StatusPillGlyph({ kind }: { kind: Exclude<StatusPillIcon, 'none'> }) {
         </svg>
       );
     case 'progress':
+      // Plus/cross — reserved for genuine create/add UI, not status presentation.
       return (
         <svg {...common}>
           <path d="M2.5 6h5.2M6 2.8v6.4" {...stroke} />
@@ -139,19 +150,59 @@ function StatusPillGlyph({ kind }: { kind: Exclude<StatusPillIcon, 'none'> }) {
   }
 }
 
+/**
+ * Human-visible Spanish labels → semantic StatusPill tones.
+ * Families: neutral · active · attention · success · danger
+ * Open/active ≠ success.
+ */
 const LABEL_TONE_MAP: Record<string, StatusPillTone> = {
+  // NEUTRAL / INFORMATIONAL
   borrador: 'draft',
+  'sin fecha': 'neutral-sky',
+  'sin revisión abierta': 'neutral-sky',
+  'registro interno': 'neutral-sky',
+  'sin número': 'neutral-sky',
+  'sin número oficial': 'neutral-sky',
+  // ACTIVE / IN PROGRESS
   abierta: 'open',
+  abierto: 'open',
   activa: 'active',
+  activo: 'active',
   'en curso': 'in_progress',
-  pendiente: 'pending',
-  vencido: 'overdue',
-  aprobado: 'approved',
-  rechazado: 'rejected',
+  'en progreso': 'in_progress',
   registrado: 'open',
-  cancelado: 'cancelled',
-  entregado: 'completed',
+  registrada: 'open',
+  enviada: 'in_progress',
+  enviado: 'in_progress',
+  // ATTENTION / WAITING
+  pendiente: 'pending',
+  'actualización solicitada': 'pending',
+  'revisión de producción': 'pending',
+  'revisión de almacén': 'pending',
+  'revisión de abastecimiento': 'pending',
+  'requiere revisión': 'pending',
+  // SUCCESS / COMPLETE
+  aceptada: 'approved',
+  aceptado: 'approved',
+  aprobada: 'approved',
+  aprobado: 'approved',
   completado: 'completed',
+  completada: 'completed',
+  emitida: 'completed',
+  emitido: 'completed',
+  entregada: 'completed',
+  entregado: 'completed',
+  'salida registrada': 'completed',
+  ganada: 'approved',
+  // DANGER / PROBLEM
+  vencido: 'overdue',
+  vencida: 'overdue',
+  rechazada: 'rejected',
+  rechazado: 'rejected',
+  perdida: 'rejected',
+  perdido: 'rejected',
+  cancelada: 'cancelled',
+  cancelado: 'cancelled',
 };
 
 /** Map common Spanish workflow labels to semantic StatusPill tones. */
@@ -159,6 +210,25 @@ export function statusToneFromLabel(label: string): StatusPillTone {
   const key = label.trim().toLowerCase();
   return LABEL_TONE_MAP[key] ?? 'neutral';
 }
+
+/** Tones that must never default to the decorative progress (+) glyph. */
+export const STATUS_TONES_WITHOUT_PLUS: readonly StatusPillTone[] = [
+  'open',
+  'active',
+  'soft-teal',
+  'in_progress',
+  'sky',
+  'draft',
+  'neutral-sky',
+  'pending',
+  'amber',
+  'neutral',
+  'info',
+  'manual',
+  'demo',
+  'cancelled',
+  'muted',
+];
 
 function resolveIcon(tone: StatusPillTone, icon: StatusPillIcon | undefined): StatusPillIcon {
   if (icon !== undefined) return icon;

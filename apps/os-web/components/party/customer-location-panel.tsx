@@ -106,7 +106,7 @@ function LocationRow({
           <p className="break-words font-medium text-[var(--isalwa-kiln)]">{location.label}</p>
           <LocationFacts location={location} />
         </div>
-        <StatusPill tone={active ? 'success' : 'neutral'}>{active ? 'Activa' : 'Inactiva'}</StatusPill>
+        <StatusPill tone={active ? 'active' : 'neutral'}>{active ? 'Activa' : 'Inactiva'}</StatusPill>
       </div>
       {canMutate && active ? (
         <div className="mt-4 space-y-3">

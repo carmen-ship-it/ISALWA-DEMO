@@ -2,7 +2,11 @@ export { Button } from './components/button';
 export type { ButtonProps } from './components/button';
 export { Panel } from './components/panel';
 export type { PanelProps } from './components/panel';
-export { StatusPill, statusToneFromLabel } from './components/status-pill';
+export {
+  StatusPill,
+  statusToneFromLabel,
+  STATUS_TONES_WITHOUT_PLUS,
+} from './components/status-pill';
 export type {
   StatusPillProps,
   StatusPillTone,

@@ -123,16 +123,16 @@ export type CommercialStatusTone =
 export function statusTone(status: string): CommercialStatusTone {
   switch (status) {
     case 'draft':
-      return 'draft'; // Borrador → Sky
+      return 'draft'; // Borrador → Sky (neutral/info)
     case 'open':
-      return 'open'; // Abierta / Registrado → Soft teal
+      return 'open'; // Abierta / Registrado → Soft teal (active ≠ success)
     case 'submitted':
-      return 'in_progress'; // Enviada / en curso → Sky
+      return 'in_progress'; // Enviada / en curso → Soft teal (active)
     case 'won':
     case 'accepted':
-      return 'approved'; // Ganada / Aceptada → Green
+      return 'approved'; // Ganada / Aceptada → Green (success)
     case 'lost':
-      return 'cancelled'; // Perdida → muted (not success)
+      return 'rejected'; // Perdida → Red (danger)
     case 'cancelled':
       return 'cancelled';
     default:

@@ -204,7 +204,7 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
                         href={workItemHref(order.supplyReview.workItemId)}
                         className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
                       >
-                        Revisión
+                        Ver revisión
                       </Link>
                       <ResolvePurchasingReviewForm
                         workItemId={order.supplyReview.workItemId}
