@@ -4,6 +4,7 @@ import type { CommercialVisibilityMode } from '@isalwa/os-contracts';
 import { createOsApiClient, type OsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import {
   approvalPaletteItem,
@@ -36,6 +37,7 @@ import {
 import type { IssueListItem } from '@/lib/issue/types';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
+import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
 
 export type PaletteSearchResult =
   | { ok: true; items: PaletteItem[]; partial: boolean }
@@ -74,6 +76,30 @@ function dedupe(items: PaletteItem[]): PaletteItem[] {
     next.push(item);
   }
   return next;
+}
+
+
+/** Prefers human customer context on commercial hits. Never surfaces raw party ids. */
+async function attachCustomerLabels(
+  client: OsApiClient,
+  items: readonly PaletteItem[],
+): Promise<PaletteItem[]> {
+  const kinds = new Set(['opportunity', 'quote', 'order']);
+  const partyIds = items
+    .filter((item) => kinds.has(item.kind) && item.partyId)
+    .map((item) => item.partyId!);
+  if (partyIds.length === 0) return [...items];
+  const labels = await resolvePartyLabels(client, partyIds);
+  return items.map((item) => {
+    if (!kinds.has(item.kind) || !item.partyId) return item;
+    const customer = partyLabel(labels, item.partyId);
+    if (!customer || customer === 'Cliente') return item;
+    if (item.detail?.includes(customer)) return item;
+    return {
+      ...item,
+      detail: item.detail ? `${customer} · ${item.detail}` : customer,
+    };
+  });
 }
 
 function cap(items: PaletteItem[]): { items: PaletteItem[]; truncated: boolean } {
@@ -136,11 +162,17 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         (party) => party.commercialOwnerMemberId,
       );
       for (const party of visibleParties) {
+        if (
+          isEngineeringFixtureCopy(party.displayName) ||
+          isEngineeringFixtureCopy(party.legalName)
+        ) {
+          continue;
+        }
         items.push(
           customerPaletteItem({
             partyId: party.partyId,
-            displayName: party.displayName,
-            legalName: party.legalName,
+            displayName: presentHumanCopy(party.displayName) || party.displayName,
+            legalName: party.legalName ? presentHumanCopy(party.legalName) : null,
             status: party.status,
           }),
         );
@@ -211,7 +243,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
           opportunityPaletteItem({
             opportunityId: item.opportunityId,
             partyId: item.partyId,
-            title: item.title,
+            title: presentHumanCopy(item.title) || item.title,
             status: item.status,
           }),
         ),
@@ -228,7 +260,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
           quotePaletteItem({
             quoteId: item.quoteId,
             partyId: item.partyId,
-            quoteNumber: item.quoteNumber,
+            quoteNumber: presentHumanCopy(item.quoteNumber) || item.quoteNumber,
             status: item.status,
             totalCentavos: item.totalCentavos,
             currency: item.currency,
@@ -251,7 +283,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
           orderPaletteItem({
             orderId: item.orderId,
             partyId: item.partyId,
-            orderNumber: item.orderNumber,
+            orderNumber: presentHumanCopy(item.orderNumber) || item.orderNumber,
             status: item.status,
           }),
         ),
@@ -269,7 +301,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         .map((item) =>
         workPaletteItem({
           workItemId: item.workItemId,
-          title: item.title,
+          title: presentHumanCopy(item.title) || item.title,
           status: item.status,
           subjectType: item.subjectType,
         }),
@@ -310,7 +342,7 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     }
   }
 
-  const grouped = dedupe(items);
+  const grouped = await attachCustomerLabels(client, dedupe(items));
   return { ok: true, items: grouped, partial };
 }
 
@@ -341,7 +373,7 @@ async function relatedForParty(
           opportunityPaletteItem({
             opportunityId: item.opportunityId,
             partyId: item.partyId,
-            title: item.title,
+            title: presentHumanCopy(item.title) || item.title,
             status: item.status,
           }),
         ),
@@ -358,7 +390,7 @@ async function relatedForParty(
           quotePaletteItem({
             quoteId: item.quoteId,
             partyId: item.partyId,
-            quoteNumber: item.quoteNumber,
+            quoteNumber: presentHumanCopy(item.quoteNumber) || item.quoteNumber,
             status: item.status,
             totalCentavos: item.totalCentavos,
             currency: item.currency,
@@ -379,7 +411,7 @@ async function relatedForParty(
             orderPaletteItem({
               orderId: item.orderId,
               partyId: item.partyId,
-              orderNumber: item.orderNumber,
+              orderNumber: presentHumanCopy(item.orderNumber) || item.orderNumber,
               status: item.status,
             }),
           ),
@@ -398,14 +430,19 @@ async function relatedForParty(
         ),
       ],
       (page) =>
-        page.items.map((item) =>
-          workPaletteItem({
-            workItemId: item.workItemId,
-            title: item.title,
-            status: item.status,
-            subjectType: item.subjectType,
-          }),
-        ),
+        page.items
+          .filter(
+            (item) =>
+              !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
+          )
+          .map((item) =>
+            workPaletteItem({
+              workItemId: item.workItemId,
+              title: presentHumanCopy(item.title) || item.title,
+              status: item.status,
+              subjectType: item.subjectType,
+            }),
+          ),
     ),
   ]);
   if (opportunities.session || quotes.session || orders.session || work.session) {
@@ -473,10 +510,11 @@ async function collectPeople(
       continue;
     }
     for (const member of result.page.items) {
+      if (isEngineeringFixtureCopy(member.displayName)) continue;
       items.push(
         peoplePaletteItem({
           memberId: member.memberId,
-          displayName: member.displayName,
+          displayName: presentHumanCopy(member.displayName) || member.displayName,
           accessStatus: member.accessStatus,
         }),
       );
@@ -578,8 +616,8 @@ async function collectIssues(
       items.push(
         issuePaletteItem({
           issueId: item.issueId,
-          title: item.title,
-          description: item.description,
+          title: presentHumanCopy(item.title) || item.title,
+          description: presentHumanCopy(item.description) || item.description,
           status: item.status,
         }),
       );
@@ -624,7 +662,7 @@ async function collectCommitments(
       items.push(
         commitmentPaletteItem({
           commitmentId: item.id,
-          text: item.text,
+          text: presentHumanCopy(item.text) || item.text,
           state: item.state,
           partyId: item.partyId,
         }),

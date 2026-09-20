@@ -26,6 +26,7 @@ import {
   groupPaletteItems,
   matchesPaletteQuery,
   paletteActions,
+  paletteHasLiveEntityHits,
   paletteIncludesActions,
   paletteNav,
   palettePathContext,
@@ -34,6 +35,7 @@ import {
   type PaletteItem,
   type PalettePick,
 } from '@/lib/shell/command-palette';
+import { hrefWithClientDataMode } from '@/lib/demo/preserve-data-mode';
 import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
 
@@ -189,6 +191,10 @@ export function CommandPalette({
     if (q.length < PALETTE_MIN_QUERY) {
       return [...actions, ...recents, ...nav];
     }
+    // Record hits own the result list; shortcuts must not dominate.
+    if (paletteHasLiveEntityHits(remote)) {
+      return remote;
+    }
     return [...actions, ...remote, ...nav.filter((item) => matchesPaletteQuery(item, q))];
   }, [
     canCreateCustomer,
@@ -206,6 +212,7 @@ export function CommandPalette({
   const extraGroups = useMemo(() => {
     if (pick || mode !== 'search') return [];
     const q = query.trim();
+    if (q.length >= PALETTE_MIN_QUERY && paletteHasLiveEntityHits(remote)) return [];
     const savable = canonicalViewHref(currentHref);
     const productivity: PaletteItem[] = [
       {
@@ -243,7 +250,7 @@ export function CommandPalette({
       { id: 'productivity', label: 'Productividad', items: productivity.filter((item) => matchesPaletteQuery(item, q)) },
       { id: 'views', label: 'Vistas', items: views.filter((item) => matchesPaletteQuery(item, q)) },
     ].filter((group) => group.items.length > 0);
-  }, [currentHref, mode, pick, pinned, query]);
+  }, [currentHref, mode, pick, pinned, query, remote]);
 
   const groups = useMemo(() => [...extraGroups, ...groupPaletteItems(items)], [extraGroups, items]);
   const flat = useMemo(() => groups.flatMap((group) => group.items), [groups]);
@@ -313,7 +320,7 @@ export function CommandPalette({
       window.localStorage.setItem(storageKey, JSON.stringify(stored));
     }
     close();
-    router.push(item.href);
+    router.push(hrefWithClientDataMode(item.href));
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -430,7 +437,9 @@ export function CommandPalette({
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{PICK_HINT[pick]} Esc cancela la acción.</p>
           ) : (
             <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-              Busque sin recorrer menús. Esc o Cerrar sale de la búsqueda.
+              {query.trim().length < PALETTE_MIN_QUERY
+                ? 'Escriba al menos 2 caracteres para buscar clientes, cotizaciones, pedidos y trabajo. Esc o Cerrar sale.'
+                : 'Esc o Cerrar sale de la búsqueda.'}
             </p>
           )}
         </div>
@@ -460,7 +469,7 @@ export function CommandPalette({
               {savedNote}
             </p>
           ) : null}
-          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(href); }} /> : null}
+          {mode === 'coverage' ? <CoverageSummaryPanel onNavigate={(href) => { close(); router.push(hrefWithClientDataMode(href)); }} /> : null}
           {mode === 'changed' && changedStatus === 'loading' ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">Consultando el historial…</p>
           ) : null}
@@ -477,13 +486,15 @@ export function CommandPalette({
               partial={changed.partial}
               onNavigate={(href) => {
                 close();
-                router.push(href);
+                router.push(hrefWithClientDataMode(href));
               }}
             />
           ) : null}
           {status === 'empty' && flat.length === 0 && mode !== 'coverage' && !changed ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">
-              No hay coincidencias. Pruebe el nombre comercial, un teléfono o el número de cotización.
+              {query.trim()
+                ? `No encontramos resultados para «${query.trim()}». Pruebe el nombre comercial, un contacto, un teléfono o el número de cotización o pedido.`
+                : 'No hay coincidencias. Pruebe el nombre comercial, un teléfono o el número de cotización.'}
             </p>
           ) : null}
           {groups.map((group) => (

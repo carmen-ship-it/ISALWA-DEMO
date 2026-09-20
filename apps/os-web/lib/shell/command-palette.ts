@@ -264,8 +264,8 @@ export function customerPaletteItem(input: {
   legalName: string | null;
   status: string;
 }): PaletteItem {
-  const name = input.displayName.trim() || 'Cliente';
-  const legal = input.legalName?.trim();
+  const name = presentHumanCopy(input.displayName) || input.displayName.trim() || 'Cliente';
+  const legal = input.legalName ? presentHumanCopy(input.legalName) || input.legalName.trim() : '';
   const inactive = input.status !== 'active' ? 'Inactiva' : null;
   const detail = [legal && legal !== name ? legal : null, inactive].filter(Boolean).join(' · ');
   return {
@@ -283,12 +283,16 @@ export function opportunityPaletteItem(input: {
   partyId: string;
   title: string;
   status: string;
+  customerLabel?: string | null;
 }): PaletteItem {
+  const detail = [input.customerLabel?.trim() || null, formatOpportunityStatus(input.status)]
+    .filter(Boolean)
+    .join(' · ');
   return {
     key: `opportunity:${input.opportunityId}`,
     kind: 'opportunity',
     label: presentHumanCopy(input.title) || 'Oportunidad',
-    detail: formatOpportunityStatus(input.status),
+    detail: detail || undefined,
     href: opportunityHref(input.partyId, input.opportunityId),
     partyId: input.partyId,
     opportunityId: input.opportunityId,
@@ -302,14 +306,23 @@ export function quotePaletteItem(input: {
   status: string;
   totalCentavos: string;
   currency: string;
+  customerLabel?: string | null;
 }): PaletteItem {
   const total = formatOptionalCentavos(input.totalCentavos, input.currency);
+  const detail = [
+    input.customerLabel?.trim() || null,
+    formatQuoteStatus(input.status),
+    total,
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return {
     key: `quote:${input.quoteId}`,
     kind: 'quote',
-    label: input.quoteNumber.trim() || 'Cotización',
-    detail: [formatQuoteStatus(input.status), total].filter(Boolean).join(' · '),
+    label: presentHumanCopy(input.quoteNumber) || input.quoteNumber.trim() || 'Cotización',
+    detail: detail || undefined,
     href: quoteHref(input.partyId, input.quoteId),
+    partyId: input.partyId,
   };
 }
 
@@ -318,13 +331,18 @@ export function orderPaletteItem(input: {
   partyId: string;
   orderNumber: string;
   status: string;
+  customerLabel?: string | null;
 }): PaletteItem {
+  const detail = [input.customerLabel?.trim() || null, formatOrderStatus(input.status)]
+    .filter(Boolean)
+    .join(' · ');
   return {
     key: `order:${input.orderId}`,
     kind: 'order',
-    label: input.orderNumber.trim() || 'Pedido',
-    detail: formatOrderStatus(input.status),
+    label: presentHumanCopy(input.orderNumber) || input.orderNumber.trim() || 'Pedido',
+    detail: detail || undefined,
     href: orderHref(input.partyId, input.orderId),
+    partyId: input.partyId,
   };
 }
 
@@ -461,6 +479,11 @@ const GROUP_ORDER: Array<{ id: PaletteKind | 'action' | 'nav' | 'recent'; label:
   { id: 'approval', label: 'Aprobaciones' },
   { id: 'nav', label: 'Ir a' },
 ];
+
+export function paletteHasLiveEntityHits(items: readonly PaletteItem[]): boolean {
+  const live = new Set<string>(PALETTE_LIVE_ENTITY_KINDS);
+  return items.some((item) => live.has(item.kind));
+}
 
 export function groupPaletteItems(items: readonly PaletteItem[]): Array<{ id: string; label: string; items: PaletteItem[] }> {
   return GROUP_ORDER.map((group) => ({

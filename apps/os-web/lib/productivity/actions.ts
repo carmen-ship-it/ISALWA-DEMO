@@ -16,11 +16,13 @@ import {
   extensionItemsForParty,
   type SearchContactHit,
   type SearchPartyHit,
+  type TrustedContactSession,
 } from './search-extensions';
 import type { PaletteItem } from '@/lib/shell/command-palette';
 import { whatChangedFromTimeline, type WhatChangedItem } from './what-changed';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { filterByCommercialOwner } from '@/lib/role-preview/evaluation-resource-access';
+import { acceptTrustedMemberContext } from '@isalwa/os-domain';
 
 const COVERAGE_LIMIT = 8;
 const LOOKUP_LIMIT = 8;
@@ -101,13 +103,29 @@ export async function extendPaletteSearch(query: string): Promise<
 
   const unique = new Map<string, SearchPartyHit>();
   for (const party of parties) unique.set(party.partyId, party);
+
+  let contactSession: TrustedContactSession | null = null;
+  try {
+    const authz = await client.getTrustedAuthorization();
+    const trusted = acceptTrustedMemberContext(authz);
+    if (trusted) {
+      contactSession = {
+        organizationId: trusted.organizationId,
+        grantedScopes: [...trusted.grantedScopes],
+      };
+    }
+  } catch (err) {
+    if (isSessionFailure(err)) return { ok: false, reason: 'session' };
+    partial = true;
+  }
+
   const items: PaletteItem[] = [];
   let enriched = 0;
   for (const party of unique.values()) {
     let contacts: SearchContactHit[] = [];
     const phoneOnly = Boolean(party.primaryPhone && phoneIncludes(party.primaryPhone, q));
-    const needsContact =
-      enriched < CONTACT_ENRICH_LIMIT && (phoneOnly || !party.displayName.toLocaleLowerCase('es').includes(q.toLocaleLowerCase('es')));
+    const nameMiss = !party.displayName.toLocaleLowerCase('es').includes(q.toLocaleLowerCase('es'));
+    const needsContact = enriched < CONTACT_ENRICH_LIMIT && (phoneOnly || nameMiss);
     if (needsContact) {
       enriched += 1;
       try {
@@ -119,13 +137,14 @@ export async function extendPaletteSearch(query: string): Promise<
           email: contact.email,
           phone: contact.phone,
           status: contact.status,
+          organizationId: contact.organizationId,
         }));
       } catch (err) {
         if (isSessionFailure(err)) return { ok: false, reason: 'session' };
         partial = true;
       }
     }
-    items.push(...extensionItemsForParty(party, contacts, q));
+    items.push(...extensionItemsForParty(party, contacts, q, contactSession));
   }
 
   return { ok: true, items, partial };
