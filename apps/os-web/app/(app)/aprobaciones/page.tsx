@@ -13,6 +13,8 @@ import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver'
 import { t } from '@/lib/i18n/es';
 import { cursorPageLinks, listHref, parseListQuery } from '@/lib/lists/url-state';
 import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
+import { approvalListPageDescription } from '@/lib/work/approval-action-label';
+import { resolveApprovalListCanDecide } from '@/lib/work/approval-list-can-decide';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { TOUR_TARGET } from '@/lib/walkthrough/targets';
@@ -63,27 +65,26 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
       result.items.filter((item) => item.status === 'pending'),
       { memberId: session.memberId, scope: approvalsScope },
     );
-    const pendingForMe = pending.filter((item) => item.approverMemberId === session.memberId);
     const subjects = await approvalSubjectsForPage(client, pending);
     const memberLabels = await resolveMemberLabels(
       client,
       pending.flatMap((item) => [item.requestedByMemberId, item.approverMemberId]),
     );
-    const listDescription = (() => {
-      if (evaluation.active) {
-        return 'Vista de evaluación: consulte el contexto de cada solicitud. La decisión no crea un pedido.';
-      }
-      if (pending.length === 0) {
-        return 'Cuando alguien solicite su aprobación, la verá aquí para decidir.';
-      }
-      if (pendingForMe.length === pending.length) {
-        return 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.';
-      }
-      if (pendingForMe.length > 0) {
-        return 'Solicitudes pendientes. Las que requieren su decisión están marcadas para usted.';
-      }
-      return 'Solicitudes pendientes. La decisión no crea un pedido.';
-    })();
+    // Authoritative decide map — same server truth as detail (not member-id equality alone).
+    const canDecideById = new Map<string, boolean>();
+    if (!evaluation.active) {
+      await Promise.all(
+        pending.map(async (item) => {
+          canDecideById.set(item.approvalRequestId, await resolveApprovalListCanDecide(client, item));
+        }),
+      );
+    }
+    const decidableCount = pending.filter((item) => canDecideById.get(item.approvalRequestId) === true).length;
+    const listDescription = approvalListPageDescription({
+      evaluationMode: evaluation.active,
+      pendingCount: pending.length,
+      decidableCount,
+    });
 
     return (
       <PageContainer label={t('pages.aprobaciones.title')} data-tour={TOUR_TARGET.approvalConsequence}>
@@ -116,8 +117,8 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
               items={pending}
               memberLabels={memberLabels}
               subjects={subjects}
-              currentMemberId={session.memberId}
               evaluationMode={evaluation.active}
+              canDecideById={canDecideById}
             />
             {(() => {
               const nav = cursorPageLinks(

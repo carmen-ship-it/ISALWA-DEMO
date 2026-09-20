@@ -15,8 +15,9 @@ type ApprovalDeskPanelProps = {
   items: ApprovalSummaryReadModel[];
   memberLabels: MemberLabelMap;
   subjects?: Map<string, string>;
-  currentMemberId: string;
   evaluationMode?: boolean;
+  /** Authoritative canDecide per request — same truth as detail. */
+  canDecideById?: Map<string, boolean>;
 };
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -37,8 +38,8 @@ export function ApprovalDeskPanel({
   items,
   memberLabels,
   subjects,
-  currentMemberId,
   evaluationMode = false,
+  canDecideById,
 }: ApprovalDeskPanelProps) {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
@@ -103,10 +104,12 @@ export function ApprovalDeskPanel({
             const subject = subjects?.get(approval.approvalRequestId) ?? APPROVAL_ROW_SUBJECT_FALLBACK;
             const requester = memberLabel(memberLabels, approval.requestedByMemberId);
             const isPending = approval.status === 'pending';
+            const canDecide = evaluationMode
+              ? false
+              : (canDecideById?.get(approval.approvalRequestId) ?? false);
             const actionLabel = approvalListActionLabel({
               status: approval.status,
-              approverMemberId: approval.approverMemberId,
-              currentMemberId,
+              canDecide,
               evaluationMode,
             });
             const primaryDecide = actionLabel === 'Decidir';

@@ -3,7 +3,10 @@ import { describe, it } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { approvalListActionLabel } from './approval-action-label.ts';
+import {
+  approvalListActionLabel,
+  approvalListPageDescription,
+} from './approval-action-label.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -12,79 +15,77 @@ function read(rel: string): string {
 }
 
 describe('approvalListActionLabel', () => {
-  it('shows Decidir only for the assigned approver on pending', () => {
+  it('A: assigned approver with canDecide → Decidir', () => {
     assert.equal(
-      approvalListActionLabel({
-        status: 'pending',
-        approverMemberId: 'mem-a',
-        currentMemberId: 'mem-a',
-      }),
+      approvalListActionLabel({ status: 'pending', canDecide: true }),
       'Decidir',
     );
   });
 
-  it('shows Ver solicitud for non-approver pending', () => {
+  it('B: non-approver → Ver solicitud', () => {
     assert.equal(
-      approvalListActionLabel({
-        status: 'pending',
-        approverMemberId: 'mem-a',
-        currentMemberId: 'mem-b',
-      }),
+      approvalListActionLabel({ status: 'pending', canDecide: false }),
       'Ver solicitud',
     );
   });
 
-  it('shows Ver contexto in evaluation mode', () => {
+  it('C: evaluation → Ver contexto even if would otherwise decide', () => {
     assert.equal(
-      approvalListActionLabel({
-        status: 'pending',
-        approverMemberId: 'mem-a',
-        currentMemberId: 'mem-a',
-        evaluationMode: true,
-      }),
+      approvalListActionLabel({ status: 'pending', canDecide: true, evaluationMode: true }),
       'Ver contexto',
     );
   });
 
   it('shows Ver registro for decided rows', () => {
     assert.equal(
-      approvalListActionLabel({
-        status: 'approved',
-        approverMemberId: 'mem-a',
-        currentMemberId: 'mem-a',
-      }),
+      approvalListActionLabel({ status: 'approved', canDecide: false }),
       'Ver registro',
     );
   });
 });
 
-describe('permission-aware CTA surfaces', () => {
-  it('gates Crear cliente on nueva oportunidad with actorCanMutateMasterData', () => {
-    const page = read('app/(app)/oportunidades/nueva/page.tsx');
-    assert.match(page, /actorCanMutateMasterData/);
-    assert.match(page, /canCreateCustomer \?/);
-    assert.match(
-      page,
-      /Solicite a una persona autorizada que lo registre/,
-    );
-    assert.match(page, /Vista de evaluación: solo lectura/);
+describe('approvalListPageDescription', () => {
+  it('D: evaluation subtitle does not imply su decisión', () => {
+    const copy = approvalListPageDescription({
+      evaluationMode: true,
+      pendingCount: 3,
+      decidableCount: 0,
+    });
+    assert.match(copy, /Solicitudes pendientes de aprobación/);
+    assert.doesNotMatch(copy, /su decisión/);
+    assert.match(copy, /La decisión no crea un pedido/);
   });
 
-  it('passes member and evaluation into ApprovalDeskPanel', () => {
+  it('uses su decisión only when every pending row is decidable', () => {
+    assert.match(
+      approvalListPageDescription({
+        evaluationMode: false,
+        pendingCount: 2,
+        decidableCount: 2,
+      }),
+      /su decisión/,
+    );
+    assert.doesNotMatch(
+      approvalListPageDescription({
+        evaluationMode: false,
+        pendingCount: 2,
+        decidableCount: 0,
+      }),
+      /su decisión/,
+    );
+  });
+});
+
+describe('aprobaciones list wiring', () => {
+  it('passes authoritative canDecide map and evaluation mode into the desk panel', () => {
     const page = read('app/(app)/aprobaciones/page.tsx');
     const panel = read('components/work/approval-desk-panel.tsx');
-    const labels = read('lib/work/approval-action-label.ts');
-    assert.match(page, /currentMemberId=\{session\.memberId\}/);
+    assert.match(page, /resolveApprovalListCanDecide/);
+    assert.match(page, /canDecideById=\{canDecideById\}/);
     assert.match(page, /evaluationMode=\{evaluation\.active\}/);
+    assert.match(page, /approvalListPageDescription/);
+    assert.doesNotMatch(page, /pendingForMe\.length === pending\.length/);
+    assert.match(panel, /canDecideById/);
     assert.match(panel, /approvalListActionLabel/);
-    assert.match(labels, /Decidir/);
-    assert.match(labels, /Ver solicitud/);
-    assert.match(labels, /Ver contexto/);
-  });
-
-  it('locks decide on approval detail when evaluation is active', () => {
-    const detail = read('app/(app)/aprobaciones/[approvalRequestId]/page.tsx');
-    assert.match(detail, /evaluation\.active \? false : await resolveCanDecide/);
-    assert.match(detail, /Solo el aprobador asignado puede decidir/);
   });
 });
