@@ -38,6 +38,7 @@ import type { IssueListItem } from '@/lib/issue/types';
 import type { WorkSummaryReadModel } from '@isalwa/os-contracts';
 import type { CommitmentSummary } from '@/lib/api/os-api-client';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { shouldScanDeliveryDocuments } from '@/lib/shell/palette-search-orchestration';
 
 export type PaletteSearchResult =
   | { ok: true; items: PaletteItem[]; partial: boolean }
@@ -85,11 +86,23 @@ async function attachCustomerLabels(
   items: readonly PaletteItem[],
 ): Promise<PaletteItem[]> {
   const kinds = new Set(['opportunity', 'quote', 'order']);
-  const partyIds = items
-    .filter((item) => kinds.has(item.kind) && item.partyId)
-    .map((item) => item.partyId!);
-  if (partyIds.length === 0) return [...items];
-  const labels = await resolvePartyLabels(client, partyIds);
+  const fromCustomers = new Map<string, string>();
+  for (const item of items) {
+    if (item.kind === 'customer' && item.partyId && item.label.trim()) {
+      fromCustomers.set(item.partyId, item.label.trim());
+    }
+  }
+  const partyIds = [
+    ...new Set(
+      items
+        .filter((item) => kinds.has(item.kind) && item.partyId)
+        .map((item) => item.partyId!)
+        .filter((partyId) => !fromCustomers.has(partyId)),
+    ),
+  ].slice(0, 8);
+  const fetched = partyIds.length > 0 ? await resolvePartyLabels(client, partyIds) : new Map();
+  const labels = new Map<string, string>([...fromCustomers, ...fetched]);
+  if (labels.size === 0) return [...items];
   return items.map((item) => {
     if (!kinds.has(item.kind) || !item.partyId) return item;
     const customer = partyLabel(labels, item.partyId);
@@ -100,6 +113,33 @@ async function attachCustomerLabels(
       detail: item.detail ? `${customer} · ${item.detail}` : customer,
     };
   });
+}
+
+async function resolveCommercialLenses(
+  client: OsApiClient,
+  evaluation: Awaited<ReturnType<typeof getEvaluationProjection>>,
+  commercialOk: boolean,
+): Promise<{ lenses: Lens[]; partial: boolean; session: boolean }> {
+  const lenses: Lens[] = [];
+  let partial = false;
+  if (!commercialOk) return { lenses, partial, session: false };
+  const candidates: Lens[] = [];
+  for (const visibility of ['team', 'org'] as const) {
+    if (evaluation.active && evaluation.commercialVisibility === 'own') continue;
+    if (evaluation.active && evaluation.commercialVisibility === 'team' && visibility === 'org') {
+      continue;
+    }
+    candidates.push(visibility);
+  }
+  const probed = await Promise.all(
+    candidates.map(async (visibility) => [visibility, await probeLens(client, visibility)] as const),
+  );
+  for (const [visibility, result] of probed) {
+    if (result === 'session') return { lenses: [], partial, session: true };
+    if (result === 'partial') partial = true;
+    if (result === true) lenses.push(visibility);
+  }
+  return { lenses, partial, session: false };
 }
 
 function cap(items: PaletteItem[]): { items: PaletteItem[]; truncated: boolean } {
@@ -136,53 +176,10 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     }
   }
 
-  let partial = false;
-  const lenses: Lens[] = [];
-  if (commercialOk) {
-    for (const visibility of ['team', 'org'] as const) {
-      if (evaluation.active && evaluation.commercialVisibility === 'own') continue;
-      if (evaluation.active && evaluation.commercialVisibility === 'team' && visibility === 'org') {
-        continue;
-      }
-      const probed = await probeLens(client, visibility);
-      if (probed === 'session') return { ok: false, reason: 'session' };
-      if (probed === 'partial') partial = true;
-      if (probed === true) lenses.push(visibility);
-    }
-  }
-
-  const items: PaletteItem[] = [];
-
-  if (commercialOk) {
-    try {
-      const parties = await client.searchParties({ q, status: 'active', limit: PALETTE_GROUP_LIMIT });
-      const visibleParties = filterByCommercialOwner(
-        evaluation,
-        parties.items,
-        (party) => party.commercialOwnerMemberId,
-      );
-      for (const party of visibleParties) {
-        if (
-          isEngineeringFixtureCopy(party.displayName) ||
-          isEngineeringFixtureCopy(party.legalName)
-        ) {
-          continue;
-        }
-        items.push(
-          customerPaletteItem({
-            partyId: party.partyId,
-            displayName: presentHumanCopy(party.displayName) || party.displayName,
-            legalName: party.legalName ? presentHumanCopy(party.legalName) : null,
-            status: party.status,
-          }),
-        );
-      }
-      if (parties.meta.hasMore) partial = true;
-    } catch (err) {
-      if (isSessionFailure(err)) return { ok: false, reason: 'session' };
-      if (!isDenied(err)) partial = true;
-    }
-  }
+  const lensResult = await resolveCommercialLenses(client, evaluation, commercialOk);
+  if (lensResult.session) return { ok: false, reason: 'session' };
+  let partial = lensResult.partial;
+  const lenses = lensResult.lenses;
 
   const opportunityCalls = commercialOk
     ? [
@@ -222,7 +219,6 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     ),
   ];
 
-  // Issue and commitment search calls
   const issueCalls = [client.listIssues({ view: 'all', limit: PALETTE_GROUP_LIMIT })];
   const commitmentCalls = [client.listCommitments({ lifecycle: 'open' })];
   const peopleCalls = [
@@ -235,105 +231,187 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
   ];
   const approvalCalls = approvalsOk ? [client.listApprovals({ limit: PALETTE_GROUP_LIMIT })] : [];
 
-  const [opportunities, quotes, orders, work, issues, commitments, people, approvals] = await Promise.all([
-    collect(opportunityCalls, (page) =>
-      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
-        .filter((item) => !isEngineeringFixtureCopy(item.title))
-        .map((item) =>
-          opportunityPaletteItem({
-            opportunityId: item.opportunityId,
-            partyId: item.partyId,
-            title: presentHumanCopy(item.title) || item.title,
-            status: item.status,
-          }),
-        ),
-    ),
-    collect(quoteCalls, (page) =>
-      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
-        .filter(
-          (item) =>
-            item.status !== 'cancelled' &&
-            !isEngineeringFixtureCopy(item.quoteNumber) &&
-            !isEngineeringFixtureCopy(item.notes),
-        )
-        .map((item) =>
-          quotePaletteItem({
-            quoteId: item.quoteId,
-            partyId: item.partyId,
-            quoteNumber: presentHumanCopy(item.quoteNumber) || item.quoteNumber,
-            status: item.status,
-            totalCentavos: item.totalCentavos,
-            currency: item.currency,
-          }),
-        ),
-    ),
-    collect(
-      commercialOk
-        ? [
-            client.listOrders({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
-            ...lenses.map((visibility) =>
-              client.listOrders({ q, visibility, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
-            ),
-          ]
-        : [],
-      (page) =>
-        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
-          .filter((item) => !isEngineeringFixtureCopy(item.orderNumber))
-          .map((item) =>
-          orderPaletteItem({
-            orderId: item.orderId,
-            partyId: item.partyId,
-            orderNumber: presentHumanCopy(item.orderNumber) || item.orderNumber,
-            status: item.status,
-          }),
-        ),
-    ),
-    collect(workCalls, (page) =>
-      filterWorkForEvaluation(
+  const partyPromise = (async (): Promise<{
+    items: PaletteItem[];
+    session: boolean;
+    partial: boolean;
+  }> => {
+    if (!commercialOk) return { items: [], session: false, partial: false };
+    try {
+      const parties = await client.searchParties({ q, status: 'active', limit: PALETTE_GROUP_LIMIT });
+      const visibleParties = filterByCommercialOwner(
         evaluation,
-        page.items as WorkSummaryReadModel[],
-        allowedPartyIds,
-      )
-        .filter(
-          (item) =>
-            !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
-        )
-        .map((item) =>
-        workPaletteItem({
-          workItemId: item.workItemId,
-          title: presentHumanCopy(item.title) || item.title,
-          status: item.status,
-          subjectType: item.subjectType,
-        }),
-      ),
-    ),
-    collectIssues(issueCalls, q, evaluation, allowedPartyIds),
-    collectCommitments(commitmentCalls, q, evaluation, allowedPartyIds),
-    collectPeople(peopleCalls),
-    collectApprovals(approvalCalls, q),
-  ]);
+        parties.items,
+        (party) => party.commercialOwnerMemberId,
+      );
+      const partyItems: PaletteItem[] = [];
+      for (const party of visibleParties) {
+        if (
+          isEngineeringFixtureCopy(party.displayName) ||
+          isEngineeringFixtureCopy(party.legalName)
+        ) {
+          continue;
+        }
+        partyItems.push(
+          customerPaletteItem({
+            partyId: party.partyId,
+            displayName: presentHumanCopy(party.displayName) || party.displayName,
+            legalName: party.legalName ? presentHumanCopy(party.legalName) : null,
+            status: party.status,
+          }),
+        );
+      }
+      return { items: partyItems, session: false, partial: Boolean(parties.meta.hasMore) };
+    } catch (err) {
+      if (isSessionFailure(err)) return { items: [], session: true, partial: false };
+      if (!isDenied(err)) return { items: [], session: false, partial: true };
+      return { items: [], session: false, partial: false };
+    }
+  })();
 
-  for (const result of [opportunities, quotes, orders, work, issues, commitments, people, approvals]) {
+  const [parties, opportunities, quotes, orders, work, issues, commitments, people, approvals] =
+    await Promise.all([
+      partyPromise,
+      collect(opportunityCalls, (page) =>
+        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
+          .filter((item) => !isEngineeringFixtureCopy(item.title))
+          .map((item) =>
+            opportunityPaletteItem({
+              opportunityId: item.opportunityId,
+              partyId: item.partyId,
+              title: presentHumanCopy(item.title) || item.title,
+              status: item.status,
+            }),
+          ),
+      ),
+      collect(quoteCalls, (page) =>
+        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
+          .filter(
+            (item) =>
+              item.status !== 'cancelled' &&
+              !isEngineeringFixtureCopy(item.quoteNumber) &&
+              !isEngineeringFixtureCopy(item.notes),
+          )
+          .map((item) =>
+            quotePaletteItem({
+              quoteId: item.quoteId,
+              partyId: item.partyId,
+              quoteNumber: presentHumanCopy(item.quoteNumber) || item.quoteNumber,
+              status: item.status,
+              totalCentavos: item.totalCentavos,
+              currency: item.currency,
+            }),
+          ),
+      ),
+      collect(
+        commercialOk
+          ? [
+              client.listOrders({ q, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+              ...lenses.map((visibility) =>
+                client.listOrders({ q, visibility, limit: PALETTE_GROUP_LIMIT, ...commercialQuery }),
+              ),
+            ]
+          : [],
+        (page) =>
+          filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
+            .filter((item) => !isEngineeringFixtureCopy(item.orderNumber))
+            .map((item) =>
+              orderPaletteItem({
+                orderId: item.orderId,
+                partyId: item.partyId,
+                orderNumber: presentHumanCopy(item.orderNumber) || item.orderNumber,
+                status: item.status,
+              }),
+            ),
+      ),
+      collect(workCalls, (page) =>
+        filterWorkForEvaluation(
+          evaluation,
+          page.items as WorkSummaryReadModel[],
+          allowedPartyIds,
+        )
+          .filter(
+            (item) =>
+              !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
+          )
+          .map((item) =>
+            workPaletteItem({
+              workItemId: item.workItemId,
+              title: presentHumanCopy(item.title) || item.title,
+              status: item.status,
+              subjectType: item.subjectType,
+            }),
+          ),
+      ),
+      collectIssues(issueCalls, q, evaluation, allowedPartyIds),
+      collectCommitments(commitmentCalls, q, evaluation, allowedPartyIds),
+      collectPeople(peopleCalls),
+      collectApprovals(approvalCalls, q),
+    ]);
+
+  const items: PaletteItem[] = [];
+  for (const result of [
+    parties,
+    opportunities,
+    quotes,
+    orders,
+    work,
+    issues,
+    commitments,
+    people,
+    approvals,
+  ]) {
     if (result.session) return { ok: false, reason: 'session' };
     if (result.partial) partial = true;
     items.push(...result.items);
   }
 
-  const documents =
-    commercialOk || evaluationAllowsDesk(evaluation, 'entregas')
-      ? await collectDeliveryDocuments(client, q)
-      : { items: [] as PaletteItem[], session: false, partial: false };
-  if (documents.session) return { ok: false, reason: 'session' };
-  if (documents.partial) partial = true;
-  items.push(...documents.items);
+  // Primary path stops here — documents + related-party expansion run in searchPaletteFollowUp
+  // so Clientes / Oportunidades / Cotizaciones can paint without waiting on slow optional scans.
+  const grouped = await attachCustomerLabels(client, dedupe(items));
+  return { ok: true, items: grouped, partial };
+}
 
-  const partyIds = items
-    .filter((item) => item.kind === 'customer' && item.partyId)
-    .slice(0, 2)
-    .map((item) => item.partyId!);
+/**
+ * Slow / optional sources that must not block first useful primary groups.
+ * Documents only when the query looks document/order related.
+ */
+export async function searchPaletteFollowUp(
+  query: string,
+  seedCustomerPartyIds: readonly string[] = [],
+): Promise<PaletteSearchResult> {
+  const q = query.trim();
+  if (q.length < PALETTE_MIN_QUERY) return { ok: true, items: [], partial: false };
+
+  const auth = await getServerOsAuthContext();
+  if (!auth) return { ok: false, reason: 'session' };
+  const client = createOsApiClient(auth);
+  const evaluation = await getEvaluationProjection();
+  const commercialQuery = commercialListQueryFromProjection(evaluation);
+  const commercialOk = evaluationAllowsDesk(evaluation, 'commercial');
+
+  let partial = false;
+  const items: PaletteItem[] = [];
+
+  const scanDocs =
+    shouldScanDeliveryDocuments(q) &&
+    (commercialOk || evaluationAllowsDesk(evaluation, 'entregas'));
+  if (scanDocs) {
+    const documents = await collectDeliveryDocuments(client, q);
+    if (documents.session) return { ok: false, reason: 'session' };
+    if (documents.partial) partial = true;
+    items.push(...documents.items);
+  }
+
+  const partyIds = [...new Set(seedCustomerPartyIds.filter(Boolean))].slice(0, 2);
   if (partyIds.length > 0 && commercialOk) {
+    const lensResult = await resolveCommercialLenses(client, evaluation, commercialOk);
+    if (lensResult.session) return { ok: false, reason: 'session' };
+    if (lensResult.partial) partial = true;
     const related = await Promise.all(
-      partyIds.map((partyId) => relatedForParty(client, partyId, lenses, evaluation, commercialQuery)),
+      partyIds.map((partyId) =>
+        relatedForParty(client, partyId, lensResult.lenses, evaluation, commercialQuery),
+      ),
     );
     for (const result of related) {
       if (result.session) return { ok: false, reason: 'session' };
@@ -342,9 +420,11 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     }
   }
 
+  if (items.length === 0) return { ok: true, items: [], partial };
   const grouped = await attachCustomerLabels(client, dedupe(items));
   return { ok: true, items: grouped, partial };
 }
+
 
 async function relatedForParty(
   client: OsApiClient,
@@ -730,56 +810,74 @@ async function collectDeliveryDocuments(
   }
 
   const items: PaletteItem[] = [];
-  for (const seed of seeds) {
+  const DOC_FETCH_CONCURRENCY = 5;
+
+  async function notesForSeed(seed: OrderSeed): Promise<{
+    notes: Array<{ id: string; internalDocumentRef?: string; status: string }>;
+    session: boolean;
+    partial: boolean;
+  }> {
     try {
-      let notes: Array<{
-        id: string;
-        internalDocumentRef?: string;
-        status: string;
-      }> = [];
       try {
         const pack = await client.getDeliveryOperationalDocuments(seed.orderId);
-        notes = (pack.notes ?? []).map((note) => ({
-          id: note.id,
-          internalDocumentRef: note.internalDocumentRef,
-          status: note.status,
-        }));
-      } catch (err) {
-        if (isDenied(err)) {
-          const pack = await client.listDeliveryNotesForOrder(seed.orderId);
-          notes = (pack.notes ?? []).map((note) => ({
+        return {
+          notes: (pack.notes ?? []).map((note) => ({
             id: note.id,
             internalDocumentRef: note.internalDocumentRef,
             status: note.status,
-          }));
-        } else if (isSessionFailure(err)) {
-          return { items: [], session: true, partial: false };
-        } else {
-          throw err;
+          })),
+          session: false,
+          partial: false,
+        };
+      } catch (err) {
+        if (isDenied(err)) {
+          const pack = await client.listDeliveryNotesForOrder(seed.orderId);
+          return {
+            notes: (pack.notes ?? []).map((note) => ({
+              id: note.id,
+              internalDocumentRef: note.internalDocumentRef,
+              status: note.status,
+            })),
+            session: false,
+            partial: false,
+          };
         }
+        if (isSessionFailure(err)) return { notes: [], session: true, partial: false };
+        throw err;
       }
+    } catch (err) {
+      if (isSessionFailure(err)) return { notes: [], session: true, partial: false };
+      if (!isDenied(err)) return { notes: [], session: false, partial: true };
+      return { notes: [], session: false, partial: false };
+    }
+  }
 
-      for (const note of notes) {
+  for (let i = 0; i < seeds.length; i += DOC_FETCH_CONCURRENCY) {
+    if (items.length >= PALETTE_GROUP_LIMIT) break;
+    const batch = seeds.slice(i, i + DOC_FETCH_CONCURRENCY);
+    const settled = await Promise.all(batch.map((seed) => notesForSeed(seed).then((r) => ({ seed, ...r }))));
+    for (const row of settled) {
+      if (row.session) return { items: [], session: true, partial: false };
+      if (row.partial) partial = true;
+      for (const note of row.notes) {
         if (note.status === 'reversed') continue;
         const ref = (note.internalDocumentRef ?? '').trim();
         if (!ref) continue;
-        const hay = `${ref} ${seed.orderNumber} nota`.toLocaleLowerCase('es');
+        const hay = `${ref} ${row.seed.orderNumber} nota`.toLocaleLowerCase('es');
         if (!hay.includes(q)) continue;
-        const item = documentPaletteItem({
-          deliveryNoteId: note.id,
-          documentRef: ref,
-          orderId: seed.orderId,
-          partyId: seed.partyId,
-          orderNumber: seed.orderNumber,
-        });
-        items.push(item);
+        items.push(
+          documentPaletteItem({
+            deliveryNoteId: note.id,
+            documentRef: ref,
+            orderId: row.seed.orderId,
+            partyId: row.seed.partyId,
+            orderNumber: row.seed.orderNumber,
+          }),
+        );
         if (items.length >= PALETTE_GROUP_LIMIT) break;
       }
-    } catch (err) {
-      if (isSessionFailure(err)) return { items: [], session: true, partial: false };
-      if (!isDenied(err)) partial = true;
+      if (items.length >= PALETTE_GROUP_LIMIT) break;
     }
-    if (items.length >= PALETTE_GROUP_LIMIT) break;
   }
 
   const capped = cap(items);

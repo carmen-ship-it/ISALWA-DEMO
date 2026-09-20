@@ -1,12 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { SearchField } from '@isalwa/ui';
 import { CoverageSummaryPanel } from '@/components/productivity/coverage-summary';
 import { WhatChangedList } from '@/components/productivity/what-changed-list';
 import { extendPaletteSearch, loadWhatChanged, lookupCustomers } from '@/lib/productivity/actions';
+import {
+  PALETTE_SEARCH_DEBOUNCE_MS,
+  settlePaletteStatus,
+  shouldFireRecordSearch,
+} from '@/lib/shell/palette-search-orchestration';
 import { parseUsefulRecents, rememberUsefulRecent } from '@/lib/productivity/recents';
 import { mergePaletteSearch } from '@/lib/productivity/search-extensions';
 import {
@@ -19,7 +24,7 @@ import {
   type SavedView,
 } from '@/lib/productivity/saved-views';
 import type { WhatChangedItem } from '@/lib/productivity/what-changed';
-import { searchPalette } from '@/lib/shell/command-search';
+import { searchPalette, searchPaletteFollowUp } from '@/lib/shell/command-search';
 import {
   applyPick,
   contextualPaletteActions,
@@ -72,7 +77,10 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const datosMode = searchParams.get('datos');
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const searchGenRef = useRef(0);
   const listId = useId();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
@@ -87,7 +95,7 @@ export function CommandPalette({
   const [currentHref, setCurrentHref] = useState('');
   const [savedNote, setSavedNote] = useState<string | null>(null);
 
-  const { blocksMutations } = useRolePreview();
+  const { blocksMutations, persona, subjectMemberId } = useRolePreview();
   const storageKey = actorKey ? recentsStorageKey(actorKey) : null;
   const viewsKey = actorKey ? savedViewsStorageKey(actorKey) : null;
   const showPaletteActions = paletteIncludesActions(blocksMutations);
@@ -120,56 +128,119 @@ export function CommandPalette({
   }, [open, storageKey, viewsKey]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      searchGenRef.current += 1;
+      return;
+    }
     const q = query.trim();
     if (mode === 'coverage' || (mode === 'changed' && changed)) return;
-    if (q.length < PALETTE_MIN_QUERY) {
+    if (!shouldFireRecordSearch(q)) {
       setRemote([]);
       setStatus('idle');
       return;
     }
-    let cancelled = false;
+    const gen = ++searchGenRef.current;
     const handle = window.setTimeout(() => {
-      if (cancelled) return;
+      if (gen !== searchGenRef.current) return;
       setStatus('loading');
+      setRemote([]);
       if (mode === 'changed') {
-        void lookupCustomers(q).then((result) => {
-          if (!open || cancelled) return;
-          if (!result.ok) {
+        void lookupCustomers(q)
+          .then((result) => {
+            if (gen !== searchGenRef.current || !open) return;
+            if (!result.ok) {
+              setRemote([]);
+              setStatus(result.reason === 'session' ? 'session' : 'error');
+              return;
+            }
+            setRemote(result.items.map(changedCustomerItem));
+            setStatus(result.items.length === 0 ? 'empty' : 'idle');
+          })
+          .catch(() => {
+            if (gen !== searchGenRef.current || !open) return;
             setRemote([]);
-            setStatus(result.reason === 'session' ? 'session' : 'error');
-            return;
-          }
-          setRemote(result.items.map(changedCustomerItem));
-          setStatus(result.items.length === 0 ? 'empty' : 'idle');
-        });
+            setStatus('error');
+          });
         return;
       }
-      void searchPalette(q).then(async (result) => {
-        if (!open || cancelled) return;
-        if (!result.ok) {
-          setRemote([]);
-          setStatus(result.reason === 'session' ? 'session' : 'error');
-          return;
+
+      const primaryPromise = searchPalette(q);
+      const extendPromise = extendPaletteSearch(q);
+
+      void (async () => {
+        try {
+          const primary = await primaryPromise;
+          if (gen !== searchGenRef.current || !open) return;
+          if (!primary.ok) {
+            setRemote([]);
+            setStatus(primary.reason === 'session' ? 'session' : 'error');
+            return;
+          }
+
+          // First useful results — do not wait for extend / follow-up.
+          setRemote(primary.items);
+          setStatus('loading');
+
+          const seeds = primary.items
+            .filter((item) => item.kind === 'customer' && item.partyId)
+            .slice(0, 2)
+            .map((item) => item.partyId!);
+
+          const [extra, follow] = await Promise.all([
+            extendPromise,
+            searchPaletteFollowUp(q, seeds),
+          ]);
+          if (gen !== searchGenRef.current || !open) return;
+
+          let merged = primary.items;
+          let partialFlag = primary.partial;
+          let anySourceOk = true;
+          let anySourceFailed = false;
+          let sessionFailed = false;
+
+          if (extra.ok) {
+            merged = mergePaletteSearch(merged, extra.items);
+            partialFlag = partialFlag || extra.partial;
+          } else if (extra.reason === 'session') {
+            sessionFailed = true;
+          } else {
+            anySourceFailed = true;
+          }
+
+          if (follow.ok) {
+            merged = mergePaletteSearch(merged, follow.items);
+            partialFlag = partialFlag || follow.partial;
+          } else if (follow.reason === 'session') {
+            sessionFailed = true;
+          } else {
+            anySourceFailed = true;
+          }
+
+          setRemote(merged);
+          setStatus(
+            settlePaletteStatus({
+              pendingWaves: 0,
+              itemCount: merged.length,
+              anySourceOk,
+              anySourceFailed,
+              sessionFailed,
+              partialFlag,
+            }),
+          );
+        } catch {
+          // Palette close / navigation during in-flight work must not surface as a throw.
+          if (gen !== searchGenRef.current || !open) return;
+          setStatus('error');
         }
-        const extra = await extendPaletteSearch(q);
-        if (!open || cancelled) return;
-        if (!extra.ok) {
-          setRemote(result.items);
-          setStatus(extra.reason === 'session' ? 'session' : result.partial || result.items.length > 0 ? 'partial' : 'error');
-          return;
-        }
-        const merged = mergePaletteSearch(result.items, extra.items);
-        setRemote(merged);
-        const incomplete = result.partial || extra.partial;
-        setStatus(merged.length === 0 ? 'empty' : incomplete ? 'partial' : 'idle');
-      });
-    }, 180);
+      })();
+    }, PALETTE_SEARCH_DEBOUNCE_MS);
+
     return () => {
-      cancelled = true;
       window.clearTimeout(handle);
+      // Invalidate in-flight work for this effect instance (stale query / close / View As).
+      if (searchGenRef.current === gen) searchGenRef.current += 1;
     };
-  }, [changed, mode, open, query]);
+  }, [changed, datosMode, mode, open, persona, query, subjectMemberId]);
 
   const items = useMemo(() => {
     const q = query.trim();
@@ -446,7 +517,7 @@ export function CommandPalette({
         <div id={listId} role="listbox" aria-label="Resultados" className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
           {status === 'loading' ? (
             <p className="px-3 py-4 text-sm text-[var(--isalwa-slate)]" role="status">
-              Buscando…
+              {remote.length === 0 ? 'Buscando…' : 'Seguimos buscando…'}
             </p>
           ) : null}
           {status === 'session' ? (
