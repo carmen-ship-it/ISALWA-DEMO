@@ -16,6 +16,9 @@ type SearchableSelectProps = {
   value: string | null;
   onChange: (id: string | null) => void;
   placeholder?: string;
+  /** Shown when the option list is empty (not a typed search miss). */
+  emptyOptionsLabel?: string;
+  /** Shown only after the user typed a query that matches no options. */
   noMatchLabel?: string;
   clearLabel?: string;
   disabled?: boolean;
@@ -33,6 +36,7 @@ export function SearchableSelect({
   value,
   onChange,
   placeholder = 'Buscar',
+  emptyOptionsLabel = 'No hay opciones disponibles',
   noMatchLabel = 'Ningún resultado coincide',
   clearLabel = 'Quitar',
   disabled = false,
@@ -152,7 +156,7 @@ export function SearchableSelect({
         >
           {filtered.length === 0 ? (
             <li className="px-3 py-2 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]" role="status">
-              {noMatchLabel}
+              {options.length === 0 || !query.trim() ? emptyOptionsLabel : noMatchLabel}
             </li>
           ) : (
             filtered.map((option, index) => {

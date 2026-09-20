@@ -8,6 +8,7 @@ import {
   type PostSalePedidoOption,
   productOptionsForPedido,
 } from '@/lib/postsale/pedido-context';
+import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type PedidoHandoffPanelProps = {
@@ -42,10 +43,18 @@ export function PedidoHandoffPanel({
 }: PedidoHandoffPanelProps) {
   const selected = pedidos.find((row) => row.orderId === selectedOrderId) ?? null;
   const pedidoOptions = pedidos.map((row) => ({ id: row.orderId, label: row.optionLabel }));
-  const lineOptions = productOptionsForPedido(selected).filter(
-    (option) => !isEngineeringFixtureCopy(option.label),
-  );
+  // Authoritative Pedido lines — do not hide selectable ingreso lines behind search no-match copy.
+  const lineOptions = productOptionsForPedido(selected).map((option) => ({
+    id: option.id,
+    label: presentHumanCopy(option.label) || option.label,
+  }));
   const fieldOnly = density === 'field';
+  const lineEmptyMessage =
+    selected && selected.lines.length === 0
+      ? 'Este pedido no tiene líneas disponibles para registrar ingreso.'
+      : selected && lineOptions.length === 0
+        ? 'Ninguna línea de este pedido está disponible para registrar ingreso.'
+        : null;
 
   const selectors = (
     <>
@@ -71,14 +80,23 @@ export function PedidoHandoffPanel({
             placeholder="Buscar por cliente o pedido"
           />
           {showProductSelect && selected ? (
-            <SearchableSelect
-              id="postsale-pedido-line"
-              label="Producto / línea"
-              options={lineOptions}
-              value={selectedOrderLineId}
-              onChange={onSelectLine}
-              placeholder="Producto del pedido"
-            />
+            lineEmptyMessage ? (
+              <div data-warehouse-line-state="empty" role="status">
+                <p className="isalwa-section-label">Producto / línea</p>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">{lineEmptyMessage}</p>
+              </div>
+            ) : (
+              <SearchableSelect
+                id="postsale-pedido-line"
+                label="Producto / línea"
+                options={lineOptions}
+                value={selectedOrderLineId}
+                onChange={onSelectLine}
+                placeholder="Producto del pedido"
+                emptyOptionsLabel="Este pedido no tiene líneas disponibles para registrar ingreso."
+                noMatchLabel="Ningún resultado coincide"
+              />
+            )
           ) : null}
         </div>
       )}
@@ -125,18 +143,18 @@ export function PedidoHandoffPanel({
           <div>
             <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{POSTSALE_HANDOFF_COPY.lines}</h3>
             <ul className="mt-2" aria-label={POSTSALE_HANDOFF_COPY.quantities}>
-              {selected.lines
-                .filter((line) => !isEngineeringFixtureCopy(line.productLabel))
-                .map((line) => (
+              {selected.lines.map((line) => (
                 <ListRow key={line.orderLineId} as="li">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{line.productLabel}</p>
+                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                      {presentHumanCopy(line.productLabel) || line.productLabel}
+                    </p>
                     <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
                       {line.quantityLabel ? `Cantidad ${line.quantityLabel}` : 'Cantidad no registrada'}
                     </p>
                   </div>
                 </ListRow>
-              ))}
+              )}
             </ul>
           </div>
 

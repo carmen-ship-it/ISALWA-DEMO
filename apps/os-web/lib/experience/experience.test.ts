@@ -61,6 +61,13 @@ describe('SearchableSelect filter', () => {
     assert.doesNotMatch(searchableSelectSource, /fetch\s*\(/);
     assert.doesNotMatch(searchableSelectSource, /supabase|useSWR|getServerSession|createBrowserClient/i);
   });
+  it('does not use typed no-match copy when the option list is empty', () => {
+    assert.match(searchableSelectSource, /emptyOptionsLabel/);
+    assert.match(
+      searchableSelectSource,
+      /options\.length === 0 \|\| !query\.trim\(\) \? emptyOptionsLabel : noMatchLabel/,
+    );
+  });
 });
 
 describe('WorkState', () => {

@@ -74,7 +74,7 @@ export function PendingSupplyReviewCard({
           Ver pedido
         </Link>
         <Link
-          href={workItemHref(workItemId)}
+          href={workItemHref(workItemId, 'compras')}
           className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
         >
           Ver revisión

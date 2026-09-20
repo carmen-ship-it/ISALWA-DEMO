@@ -1,7 +1,26 @@
 import type { AttentionItemReadModel } from '@isalwa/os-contracts';
 
-export function workItemHref(workItemId: string): string {
-  return `/trabajo/${encodeURIComponent(workItemId)}`;
+const WORK_RETURN_BY_FROM = {
+  compras: { href: '/compras', label: 'Volver a Compras' },
+  trabajo: { href: '/trabajo', label: 'Volver a trabajo' },
+} as const;
+
+export type WorkReturnFrom = keyof typeof WORK_RETURN_BY_FROM;
+
+/** Detail href. Optional `from` sets a deterministic Volver parent (never Inicio). */
+export function workItemHref(workItemId: string, from?: WorkReturnFrom): string {
+  const base = `/trabajo/${encodeURIComponent(workItemId)}`;
+  if (!from || from === 'trabajo') return base;
+  return `${base}?from=${encodeURIComponent(from)}`;
+}
+
+/** Explicit Volver target for work detail. Unknown/missing `from` → Trabajo list. */
+export function workDetailReturn(from: string | null | undefined): {
+  href: string;
+  label: string;
+} {
+  if (from === 'compras') return WORK_RETURN_BY_FROM.compras;
+  return WORK_RETURN_BY_FROM.trabajo;
 }
 
 export function approvalHref(approvalRequestId: string): string {

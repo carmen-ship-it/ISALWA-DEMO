@@ -222,3 +222,39 @@ describe('Task 9 final hosted corrective', () => {
     assert.doesNotMatch(desk, /selección humana explícita/);
   });
 });
+
+  it('WAREHOUSE_LINE_PICKER truthful empty — not generic no-match on Pedido select', () => {
+    const handoff = read('components/postsale/pedido-handoff-panel.tsx');
+    const select = read('components/experience/searchable-select.tsx');
+    // Authoritative lines listed; fixture filter must not empty the ingreso picker.
+    assert.match(handoff, /productOptionsForPedido\(selected\)/);
+    assert.doesNotMatch(
+      handoff,
+      /productOptionsForPedido\(selected\)\s*\.filter\(\s*\(option\)\s*=>\s*!isEngineeringFixtureCopy/,
+    );
+    assert.match(handoff, /Este pedido no tiene líneas disponibles para registrar ingreso/);
+    assert.match(handoff, /data-warehouse-line-state="empty"/);
+    // Generic no-match only after typed query inside SearchableSelect.
+    assert.match(select, /emptyOptionsLabel/);
+    assert.match(
+      select,
+      /options\.length === 0 \|\| !query\.trim\(\) \? emptyOptionsLabel : noMatchLabel/,
+    );
+  });
+
+  it('BACK_RETURN — Compras review Volver parent + datos-safe history assign', () => {
+    const card = read('components/purchasing/pending-supply-review-card.tsx');
+    const workNav = read('lib/work/navigation.ts');
+    const workPage = read('app/(app)/trabajo/[workItemId]/page.tsx');
+    const preserve = read('components/demo/preserve-explicit-data-mode.tsx');
+    const crumbs = read('components/shell/shell-breadcrumbs.tsx');
+    assert.match(card, /workItemHref\(workItemId, 'compras'\)/);
+    assert.match(workNav, /Volver a Compras/);
+    assert.match(workNav, /workDetailReturn/);
+    assert.match(workPage, /workDetailReturn\(from\)/);
+    assert.doesNotMatch(workPage, /href="\/inicio"/);
+    assert.match(preserve, /window\.location\.assign\(next\)/);
+    assert.doesNotMatch(preserve, /router\.push/);
+    assert.match(crumbs, /hrefWithClientDataMode/);
+    assert.match(crumbs, /workDetailReturn/);
+  });

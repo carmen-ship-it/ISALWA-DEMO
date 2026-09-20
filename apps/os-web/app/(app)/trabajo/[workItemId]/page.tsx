@@ -21,7 +21,9 @@ import {
   statusToneForWork,
 } from '@/lib/work/labels';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
-import { approvalHref } from '@/lib/work/navigation';
+import { approvalHref, workDetailReturn } from '@/lib/work/navigation';
+import { withExplicitDataMode, explicitDataMode, DATA_MODE_REQUEST_HEADER } from '@/lib/demo/preserve-data-mode';
+import { headers } from 'next/headers';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { isFollowUpSubjectType, FOLLOW_UP_COPY, followUpStatusLabel } from '@/lib/work/follow-up';
 import { partyHref } from '@/lib/party/navigation';
@@ -39,10 +41,14 @@ import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-co
 
 type WorkDetailPageProps = {
   params: Promise<{ workItemId: string }>;
+  searchParams: Promise<{ from?: string | string[] }>;
 };
 
-export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
+export default async function WorkDetailPage({ params, searchParams }: WorkDetailPageProps) {
   const { workItemId } = await params;
+  const query = await searchParams;
+  const fromRaw = query.from;
+  const from = Array.isArray(fromRaw) ? fromRaw[0] : fromRaw;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -116,15 +122,19 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
       }
     }
 
+    const dataMode = explicitDataMode((await headers()).get(DATA_MODE_REQUEST_HEADER));
+    const back = workDetailReturn(from);
+    const backHref = withExplicitDataMode(back.href, dataMode);
+
     return (
       <PageContainer label={pageTitle}>
         <PageHeader
           kicker={customerFollowUp ? FOLLOW_UP_COPY.section : 'Trabajo'}
           title={pageTitle}
           action={
-            <Link href="/trabajo">
+            <Link href={backHref}>
               <Button type="button" variant="secondary">
-                Volver a trabajo
+                {back.label}
               </Button>
             </Link>
           }

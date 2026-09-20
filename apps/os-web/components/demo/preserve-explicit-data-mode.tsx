@@ -1,21 +1,20 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   explicitDataMode,
   isNavigableAppHref,
-  samePathQueryNavigation,
   withExplicitDataMode,
 } from '@/lib/demo/preserve-data-mode';
 
 /**
  * In-app links built without the current datos query still navigate in that mode.
  * Capture runs before Next's link handler. Does not add datos when the page has none.
+ *
+ * Uses location.assign (not App Router push) so Browser Back returns one real step
+ * after history.replaceState from the demo provider / toggle.
  */
 export function PreserveExplicitDataMode() {
-  const router = useRouter();
-
   useEffect(() => {
     function onClick(event: MouseEvent) {
       if (event.defaultPrevented || event.button !== 0) return;
@@ -35,17 +34,10 @@ export function PreserveExplicitDataMode() {
         return;
       }
       const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      const decision = samePathQueryNavigation(current, next);
-      if (decision.kind === 'assign') {
-        event.preventDefault();
-        event.stopPropagation();
-        window.location.assign(decision.href);
-        return;
-      }
-      if (decision.kind !== 'push') return;
+      if (current === next) return;
       event.preventDefault();
       event.stopPropagation();
-      router.push(next);
+      window.location.assign(next);
     }
 
     function onSubmit(event: SubmitEvent) {
@@ -79,7 +71,7 @@ export function PreserveExplicitDataMode() {
       window.removeEventListener('click', onClick, true);
       window.removeEventListener('submit', onSubmit, true);
     };
-  }, [router]);
+  }, []);
 
   return null;
 }
