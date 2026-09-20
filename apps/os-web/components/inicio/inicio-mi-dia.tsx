@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Button, OperatingRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { Button, OperatingRow, PageSection, SectionHeader, StatusPill, cx } from '@isalwa/ui';
 import { MI_DIA_EMPTY, type MiDiaRow } from '@/lib/inicio/mi-dia';
+import { workDueRailClass } from '@/lib/work/due-visual';
 
 type InicioMiDiaProps = {
   items: MiDiaRow[];
@@ -25,7 +26,10 @@ export function InicioMiDia({ items }: InicioMiDiaProps) {
       ) : (
         <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]" aria-label="Mi día">
           {items.map((item) => (
-            <li key={item.id} className="list-none">
+            <li
+              key={item.id}
+              className={cx('list-none', item.overdue ? workDueRailClass('overdue') : undefined)}
+            >
               <OperatingRow
                 className="py-tight !py-2"
                 href={item.href}
@@ -33,11 +37,11 @@ export function InicioMiDia({ items }: InicioMiDiaProps) {
                 meta={[item.categoryLabel, item.meta].filter(Boolean).join(' · ')}
                 status={
                   item.overdue ? (
-                    <StatusPill tone="danger" className="shrink-0">
+                    <StatusPill tone="overdue" icon="attention" className="shrink-0">
                       Vencido
                     </StatusPill>
                   ) : item.bucket === 'due_today' ? (
-                    <StatusPill tone="warning" className="shrink-0">
+                    <StatusPill tone="pending" icon="pending" className="shrink-0">
                       Hoy
                     </StatusPill>
                   ) : null

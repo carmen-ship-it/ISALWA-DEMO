@@ -86,8 +86,9 @@ describe('map commercial lens', () => {
     assert.equal(portfolio.partyIdsWithOpportunities.has('p1'), true);
     assert.equal(portfolio.partyIdsWithQuotes.has('p1'), true);
     assert.doesNotMatch(portfolio.opportunityValueLabel ?? '', /ingreso|facturaci/i);
-    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /No es ingreso/i);
-    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /facturaci[oó]n/i);
+    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /no representan ingresos contables/i);
+    assert.match(MAP_COMMERCIAL_VALUE_DISCLAIMER, /oportunidades, cotizaciones y pedidos/i);
+    assert.doesNotMatch(MAP_COMMERCIAL_VALUE_DISCLAIMER, /AUTHORITATIVE_|revenue/i);
   });
 
   it('scopes party snapshot to one customer', () => {

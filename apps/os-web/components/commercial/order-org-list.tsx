@@ -1,4 +1,4 @@
-import { OperatingRow, StatusPill } from '@isalwa/ui';
+import { OperatingRow, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { OrderSummaryReadModel } from '@isalwa/os-contracts';
 import '@/components/commercial/commercial-surfaces.css';
 import { formatListAge, formatOrderStatus, statusTone } from '@/lib/commercial/labels';
@@ -13,13 +13,14 @@ type OrderOrgListProps = {
   items: OrderSummaryReadModel[];
   memberLabels: MemberLabelMap;
   partyLabels: PartyLabelMap;
+  density?: OperatingRowDensity;
 };
 
 function metaLine(parts: Array<string | null | undefined>): string {
   return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ');
 }
 
-export function OrderOrgList({ items, memberLabels, partyLabels }: OrderOrgListProps) {
+export function OrderOrgList({ items, memberLabels, partyLabels, density = 'compact' }: OrderOrgListProps) {
   return (
     <ul
       className="commercial-operating-list min-w-0"
@@ -48,6 +49,7 @@ export function OrderOrgList({ items, memberLabels, partyLabels }: OrderOrgListP
             <li key={item.orderId}>
               <OperatingRow
                 href={detailHref}
+                density={density}
                 subject={item.orderNumber}
                 meta={meta || undefined}
                 status={

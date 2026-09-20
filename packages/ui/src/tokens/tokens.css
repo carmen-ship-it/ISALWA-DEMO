@@ -8,9 +8,16 @@
   --isalwa-mist: #e6eaf0;
   --isalwa-glaze: #287a78;
   --isalwa-glaze-deep: #1d635f;
+  --isalwa-sky: #ddeef6;
   --isalwa-sky-100: #edf5f8;
-  --isalwa-sky-200: #d9eaf2;
+  --isalwa-sky-200: var(--isalwa-sky);
   --isalwa-teal-100: #e2f0ed;
+  --isalwa-soft-teal: var(--isalwa-teal-100);
+  /* Semantic status surfaces (Visual UX pass — approved hexes only) */
+  --isalwa-status-green-bg: #e7f4ec;
+  --isalwa-status-amber-bg: #fff5db;
+  --isalwa-status-amber-2: #f6e3a6;
+  --isalwa-status-red-bg: #fbe9e7;
   --isalwa-copper: #b08a5b;
   /* Filled primary actions. Defaults to glaze so existing products stay unchanged.
      os-web remaps this to navy for Isabela’s command center. */
@@ -233,6 +240,24 @@
   --isalwa-tint-gray: color-mix(in srgb, var(--isalwa-slate) 5%, var(--isalwa-white));
   --isalwa-tint-gray-border: color-mix(in srgb, var(--isalwa-slate) 14%, var(--isalwa-mist));
   --isalwa-tint-gray-ink: color-mix(in srgb, var(--isalwa-slate) 85%, var(--isalwa-kiln));
+
+  /* Attention dot pulse — duration follows motion tokens (zeroed when reduced motion) */
+  --isalwa-attention-pulse-duration: 2.4s;
+}
+
+@keyframes isalwa-attention-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--isalwa-danger) 42%, transparent);
+    opacity: 1;
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+    opacity: 0.85;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -247,5 +272,6 @@
     --isalwa-distance-enter: 0px;
     --isalwa-distance-whisper: 0px;
     --isalwa-stagger-step: 0ms;
+    --isalwa-attention-pulse-duration: 0ms;
   }
 }

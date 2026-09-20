@@ -8,14 +8,18 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { opportunityHref } from '@/lib/commercial/navigation';
 import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver';
+import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
+import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
 import { classifyQueryError } from '@/lib/work/query-errors';
 
 type NewQuotePageProps = {
   params: Promise<{ partyId: string; opportunityId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function NewQuotePage({ params }: NewQuotePageProps) {
+export default async function NewQuotePage({ params, searchParams }: NewQuotePageProps) {
   const { partyId, opportunityId } = await params;
+  const dataMode = await resolveDemoDataMode(searchParams);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
@@ -32,6 +36,8 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
     }
     const partyLabels = await resolvePartyLabels(client, [partyId]);
     const customerName = partyLabel(partyLabels, partyId);
+    const memberLabels = await resolveMemberLabels(client, [opportunity.ownerMemberId]);
+    const ownerLabel = memberLabel(memberLabels, opportunity.ownerMemberId);
 
     return (
       <PageContainer label="Nueva cotización">
@@ -53,6 +59,8 @@ export default async function NewQuotePage({ params }: NewQuotePageProps) {
           opportunityId={opportunityId}
           opportunityTitle={opportunity.title}
           customerName={customerName}
+          ownerLabel={ownerLabel}
+          dataModeLabel={dataMode === 'demo' ? 'Demo' : 'Datos reales'}
         />
       </PageContainer>
     );

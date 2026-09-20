@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PageContainer, PageSection, StatusPill } from '@isalwa/ui';
+import { PageContainer, PageSection, StatusPill, cx } from '@isalwa/ui';
 import { ApprovalDecisionForm } from '@/components/commercial/commercial-approval-panel';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -94,7 +94,14 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
         <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
           <PageSection
             card
-            className="order-2 border-[color-mix(in_srgb,var(--isalwa-glaze)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_35%,white)] p-6 shadow-[var(--isalwa-shadow-resting)] lg:order-1 md:p-8"
+            className={cx(
+              'order-2 border-l-4 p-5 shadow-[var(--isalwa-shadow-resting)] lg:order-1 md:p-6',
+              approval.status === 'pending'
+                ? 'border-l-[var(--isalwa-warning)] border-[color-mix(in_srgb,var(--isalwa-warning)_18%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-amber-bg)_50%,white)]'
+                : approval.status === 'approved'
+                  ? 'border-l-[var(--isalwa-success)] border-[color-mix(in_srgb,var(--isalwa-success)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-green-bg)_45%,white)]'
+                  : 'border-l-[var(--isalwa-danger)] border-[color-mix(in_srgb,var(--isalwa-danger)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-red-bg)_40%,white)]',
+            )}
           >
             <p className="isalwa-kicker">Su decisión</p>
             <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">

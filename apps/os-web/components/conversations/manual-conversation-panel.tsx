@@ -164,7 +164,6 @@ export function ManualConversationPanel({ actor, onRecorded }: ManualConversatio
     <section aria-label={MANUAL_CONVERSATION_COPY.title} className="w-full max-w-xl space-y-4 text-left">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">{MANUAL_CONVERSATION_COPY.title}</h2>
-        <StatusPill tone="demo">Canal no conectado</StatusPill>
         <StatusPill tone="manual">{MANUAL_CONVERSATION_COPY.numberPending}</StatusPill>
       </div>
       <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{MANUAL_CONVERSATION_COPY.channelClosed}</p>

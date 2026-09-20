@@ -371,7 +371,8 @@ export function issuePaletteItem(input: {
   description: string;
   status: IssueStatus;
 }): PaletteItem {
-  const label = presentHumanCopy(input.title?.trim() || input.description.slice(0, 50)) || 'Incidencia';
+  const raw = input.title?.trim() || input.description.slice(0, 50);
+  const label = usableStaffTitle(raw) ?? 'Incidencia';
   return {
     key: `issue:${input.issueId}`,
     kind: 'issue',

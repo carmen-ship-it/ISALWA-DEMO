@@ -12,7 +12,6 @@ export type MapLayerId =
   | 'oportunidades'
   | 'cotizaciones'
   | 'pedidos'
-  | 'ingresos'
   | 'equipo'
   | 'cobranza'
   | 'despacho'
@@ -31,63 +30,55 @@ export const MAP_LAYER_REGISTRY: readonly MapLayerDefinition[] = [
     id: 'clientes',
     label: 'Clientes',
     truthClass: 'available',
-    note: 'Solo clientes visibles con hechos de ubicación ya cargados.',
+    note: 'Clientes con ubicación ya cargada en ISALWA.',
   },
   {
     id: 'atencion',
     label: 'Atención',
     truthClass: 'available',
-    note: 'Clientes con atención determinística (trabajo vencido o ítem de atención activo).',
+    note: 'Clientes con trabajo vencido o ítem de atención activo.',
   },
   {
     id: 'oportunidades',
     label: 'Oportunidades',
     truthClass: 'available',
-    note: 'Clientes con oportunidad abierta en registros canónicos. No inventa pines.',
+    note: 'Clientes con oportunidad abierta registrada. No inventa pines.',
   },
   {
     id: 'cotizaciones',
     label: 'Cotizaciones',
     truthClass: 'available',
-    note:
-      'Filtro por clientes con cotización (conteo). Valor cotizado aparece en hover/ficha — no es ingreso.',
+    note: 'Clientes con cotización activa. El valor cotizado aparece en hover — no es contabilidad.',
   },
   {
     id: 'pedidos',
     label: 'Pedidos',
     truthClass: 'available',
-    note:
-      'Filtro por clientes con pedido (conteo). Valor de pedidos aparece en hover/ficha — no es ingreso ni cobranza.',
-  },
-  {
-    id: 'ingresos',
-    label: 'Ingresos',
-    truthClass: 'future',
-    note: 'Desactivado. AUTHORITATIVE_REVENUE_LAYER=NO — no hay ingresos oficiales en el mapa.',
+    note: 'Clientes con pedido activo. El valor del pedido aparece en hover — no es contabilidad ni cobranza.',
   },
   {
     id: 'equipo',
     label: 'Equipo',
     truthClass: 'future',
-    note: 'Próximamente. El responsable se ve en la ficha, no como capa aún.',
+    note: 'Próximamente. El responsable se ve en la ficha del cliente.',
   },
   {
     id: 'cobranza',
     label: 'Cobranza',
     truthClass: 'manual',
-    note: 'Manual / futuro. No hay capa de cobranza ni ingresos oficiales.',
+    note: 'Manual / futuro. Sin capa de cobranza conectada al mapa.',
   },
   {
     id: 'despacho',
     label: 'Despacho',
     truthClass: 'manual',
-    note: 'Manual / futuro. No hay capa de despacho conectada.',
+    note: 'Manual / futuro. Sin capa de despacho conectada.',
   },
   {
     id: 'stock',
     label: 'Stock',
     truthClass: 'manual',
-    note: 'Manual / futuro. No hay capa de stock en el mapa.',
+    note: 'Manual / futuro. Sin capa de stock en el mapa.',
   },
 ] as const;
 

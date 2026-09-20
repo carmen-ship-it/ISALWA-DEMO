@@ -1,4 +1,4 @@
-import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
+import { OperatingRow, OverflowMenu, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
 import '@/components/commercial/commercial-surfaces.css';
 import { formatListAge, formatQuoteStatus, statusTone } from '@/lib/commercial/labels';
@@ -22,6 +22,7 @@ type QuoteOrgListProps = {
   /** Org list context. Overflow stays off unless the owning page passes it. */
   listState?: ListQueryState;
   selectedQuoteId?: string;
+  density?: OperatingRowDensity;
 };
 
 function quotePdfHref(quoteId: string): string {
@@ -47,6 +48,7 @@ export function QuoteOrgList({
   showAmount = true,
   listState,
   selectedQuoteId,
+  density = 'compact',
 }: QuoteOrgListProps) {
   return (
     <ul
@@ -76,6 +78,7 @@ export function QuoteOrgList({
             <li key={item.quoteId}>
               <OperatingRow
                 href={detailHref}
+                density={density}
                 selected={selectedQuoteId === item.quoteId}
                 subject={item.quoteNumber}
                 meta={meta || undefined}

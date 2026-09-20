@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Button } from '@isalwa/ui';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Chip, SearchField, cx } from '@isalwa/ui';
+import { QuantityStepper } from '@/components/commercial/quantity-stepper';
 import { DEMO_PRICE_COPY, getDemoUnitPrice } from '@/lib/commercial/demo-starter-prices';
 import { emptyProductSearchPort, SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 import {
@@ -9,21 +10,23 @@ import {
   KNOWN_PRODUCT_MODE_LABEL,
   PRODUCT_DATA_HEADING,
   PRODUCT_FIELD_LABEL,
-  PRODUCT_PLACEHOLDER,
   SPECIAL_ITEM_HELPER,
   STARTER_LIST_COPY,
   STARTER_PRODUCT_CATEGORIES,
   UNIT_PRICE_LABEL,
   activeStarterQuoteProducts,
-  starterProductsByCategory,
   blankLineEntry,
   prefillFromStarterProduct,
   starterProductByKey,
   type StarterLineEntry,
+  type StarterProductCategory,
+  type StarterQuoteProduct,
 } from '@/lib/commercial/starter-quote-products';
 
 const fieldClass =
   'mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 py-2 text-[var(--isalwa-kiln)] outline-none focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+
+const SPECIAL_ACTION_LABEL = '+ Agregar artículo especial';
 
 type LineMode = 'known' | 'special';
 
@@ -35,6 +38,15 @@ type QuoteProductPickerProps = {
   onReadyChange?: (ready: boolean) => void;
 };
 
+function matchesProduct(product: StarterQuoteProduct, query: string): boolean {
+  const q = query.trim().toLocaleLowerCase('es');
+  if (!q) return true;
+  const haystack = [product.name, product.category, product.description ?? '']
+    .join(' ')
+    .toLocaleLowerCase('es');
+  return haystack.includes(q);
+}
+
 export function QuoteProductPicker({
   organizationId: _organizationId,
   searchPort: _searchPort = emptyProductSearchPort,
@@ -45,12 +57,21 @@ export function QuoteProductPicker({
   const knownAvailable = products.length > 0;
   const [mode, setMode] = useState<LineMode>(knownAvailable ? 'known' : 'special');
   const [productKey, setProductKey] = useState('');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<StarterProductCategory | 'Todas'>('Todas');
   const [entry, setEntry] = useState<StarterLineEntry>(blankLineEntry);
 
   const selected = mode === 'known' ? starterProductByKey(productKey) : null;
   const showFields = mode === 'special' || selected != null;
   const ready =
     entry.name.trim().length > 0 && (mode === 'special' || selected != null);
+
+  const filtered = useMemo(() => {
+    return products.filter((product) => {
+      if (category !== 'Todas' && product.category !== category) return false;
+      return matchesProduct(product, search);
+    });
+  }, [products, category, search]);
 
   useEffect(() => {
     onReadyChange?.(ready);
@@ -64,11 +85,14 @@ export function QuoteProductPicker({
     if (next === 'known' && !knownAvailable) return;
     setMode(next);
     setProductKey('');
+    setSearch('');
+    setCategory('Todas');
     applyEntry(blankLineEntry());
   }
 
   function selectProduct(key: string) {
     setProductKey(key);
+    setMode('known');
     const product = starterProductByKey(key);
     const demoUnitPrice = demoPrices ? getDemoUnitPrice(key) : null;
     applyEntry(product ? prefillFromStarterProduct(product, { demoUnitPrice }) : blankLineEntry());
@@ -97,42 +121,105 @@ export function QuoteProductPicker({
           aria-pressed={mode === 'special'}
           onClick={() => switchMode('special')}
         >
-          {SPECIAL_ITEM_LABEL}
+          {mode === 'special' ? SPECIAL_ITEM_LABEL : SPECIAL_ACTION_LABEL}
         </Button>
       </div>
 
       {mode === 'known' ? (
-        <div>
+        <div className="space-y-4">
           <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{STARTER_LIST_COPY}</p>
-          <label htmlFor="quote-starter-product" className="isalwa-section-label mt-4 block">
-            {PRODUCT_FIELD_LABEL}
-          </label>
-          <select
-            id="quote-starter-product"
-            className={fieldClass}
-            value={productKey}
-            onChange={(event) => selectProduct(event.target.value)}
-          >
-            <option value="">{PRODUCT_PLACEHOLDER}</option>
-            {STARTER_PRODUCT_CATEGORIES.map((category) => (
-              <optgroup key={category} label={category}>
-                {starterProductsByCategory(category).map((product) => (
-                  <option key={product.key} value={product.key}>
-                    {product.name}
-                  </option>
-                ))}
-              </optgroup>
+
+          <div>
+            <label htmlFor="quote-product-search" className="isalwa-section-label">
+              Buscar producto
+            </label>
+            <SearchField
+              id="quote-product-search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Nombre o categoría"
+              className="mt-2"
+              autoComplete="off"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Categorías">
+            <Chip type="button" active={category === 'Todas'} onClick={() => setCategory('Todas')}>
+              Todas
+            </Chip>
+            {STARTER_PRODUCT_CATEGORIES.map((item) => (
+              <Chip
+                key={item}
+                type="button"
+                active={category === item}
+                onClick={() => setCategory(item)}
+              >
+                {item}
+              </Chip>
             ))}
-          </select>
+          </div>
+
+          <div>
+            <p className="isalwa-section-label">{PRODUCT_FIELD_LABEL}</p>
+            <ul
+              className="mt-2 max-h-64 overflow-y-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white"
+              aria-label="Productos para cotizar"
+            >
+              {filtered.length === 0 ? (
+                <li className="px-3 py-4 text-sm text-[var(--isalwa-slate)]">
+                  Ningún producto coincide. Puede agregar un artículo especial.
+                </li>
+              ) : (
+                filtered.map((product) => {
+                  const active = product.key === productKey;
+                  return (
+                    <li key={product.key} className="border-b border-[var(--isalwa-mist)] last:border-b-0">
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => selectProduct(product.key)}
+                        className={cx(
+                          'flex w-full items-start justify-between gap-3 px-3 py-3 text-left transition-colors',
+                          active
+                            ? 'bg-[var(--isalwa-teal-100)]'
+                            : 'hover:bg-[color-mix(in_srgb,var(--isalwa-sky-200)_55%,white)]',
+                        )}
+                      >
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold text-[var(--isalwa-kiln)]">
+                            {product.name}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-[var(--isalwa-slate)]">
+                            {product.category}
+                            {product.description ? ` · ${product.description}` : ''}
+                          </span>
+                        </span>
+                        <span
+                          className={cx(
+                            'shrink-0 text-xs font-medium',
+                            active ? 'text-[var(--isalwa-glaze-deep)]' : 'text-[var(--isalwa-glaze)]',
+                          )}
+                        >
+                          {active ? 'Seleccionado' : 'Agregar'}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+            {/* Keep a named productId for form posts; selection drives the value. */}
+            <input type="hidden" name="productId" value={productKey} />
+          </div>
         </div>
       ) : (
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{SPECIAL_ITEM_HELPER}</p>
       )}
 
       {showFields ? (
-        <div className="space-y-4 border-t border-[var(--isalwa-mist)] pt-5">
+        <div className="space-y-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky-200)_35%,white)] p-4 md:p-5">
           <input type="hidden" name="lineKind" value={mode === 'known' ? 'catalog' : 'special'} />
-          <input type="hidden" name="productId" value={mode === 'known' ? productKey : ''} />
+          {mode === 'special' ? <input type="hidden" name="productId" value="" /> : null}
           {mode === 'known' ? (
             <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
               {PRODUCT_DATA_HEADING}
@@ -158,7 +245,7 @@ export function QuoteProductPicker({
             <textarea
               id="quote-item-detail"
               name="itemDetail"
-              rows={3}
+              rows={2}
               value={entry.detail}
               onChange={(event) => patch({ detail: event.target.value })}
               className={fieldClass}
@@ -179,17 +266,16 @@ export function QuoteProductPicker({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="new-qty" className="isalwa-section-label">
-                Cantidad
+                Cantidad cotizada
               </label>
-              <input
-                id="new-qty"
-                name="quantity"
-                required
-                inputMode="numeric"
-                value={entry.quantity}
-                onChange={(event) => patch({ quantity: event.target.value })}
-                className={fieldClass}
-              />
+              <div className="mt-2">
+                <QuantityStepper
+                  id="new-qty"
+                  name="quantity"
+                  value={entry.quantity}
+                  onChange={(quantity) => patch({ quantity })}
+                />
+              </div>
             </div>
             <div>
               <label htmlFor="new-unit" className="isalwa-section-label">
@@ -203,12 +289,22 @@ export function QuoteProductPicker({
                 className={fieldClass}
               />
             </div>
-            <div>
+            <div className="sm:col-span-2">
               <label htmlFor="new-price" className="isalwa-section-label">
-                {UNIT_PRICE_LABEL}
+                {UNIT_PRICE_LABEL} (Bs.)
               </label>
               {demoPrices && mode === 'known' ? (
-                <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">{DEMO_PRICE_COPY}</p>
+                <p
+                  className="mt-2 rounded-[var(--isalwa-radius-control)] border border-[color-mix(in_srgb,var(--isalwa-warning)_28%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-warning)_10%,white)] px-3 py-2 text-sm leading-relaxed text-[var(--isalwa-kiln)]"
+                  role="note"
+                >
+                  {DEMO_PRICE_COPY}
+                </p>
+              ) : null}
+              {!demoPrices && mode === 'known' ? (
+                <p className="mt-1 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+                  Escriba el precio unitario. No se toma de un listado de precios.
+                </p>
               ) : null}
               <input
                 id="new-price"

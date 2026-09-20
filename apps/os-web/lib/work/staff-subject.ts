@@ -24,13 +24,21 @@ export function isEngineeringFixtureCopy(value: string | null | undefined): bool
     STAGING_MARKER.test(trimmed) ||
     /^Cliente Step17\b/i.test(trimmed) ||
     /^synthetic access line$/i.test(trimmed) ||
+    /\bRC\d/i.test(trimmed) ||
     /\bWB-/i.test(trimmed) ||
+    /\bWB\s*Close\b/i.test(trimmed) ||
+    /\bCW\s*\d+/i.test(trimmed) ||
     /\bWave\s*B\b/i.test(trimmed) ||
     /\bStep17\b/i.test(trimmed) ||
     /\bprobe\b/i.test(trimmed) ||
     /\bClose Test\b/i.test(trimmed) ||
     /\bFINALV1\b/i.test(trimmed) ||
     /\bSynth\b/i.test(trimmed) ||
+    /\bdisposable\b/i.test(trimmed) ||
+    /manual-opp/i.test(trimmed) ||
+    /\bfixture\b/i.test(trimmed) ||
+    /AUTHORITATIVE_/i.test(trimmed) ||
+    /\bmu[0-9a-z]{5,}\b/i.test(trimmed) ||
     /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i.test(trimmed)
   );
 }

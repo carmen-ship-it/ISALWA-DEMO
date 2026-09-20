@@ -1,4 +1,4 @@
-import { OperatingRow, OverflowMenu, StatusPill } from '@isalwa/ui';
+import { OperatingRow, OverflowMenu, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { PartySummaryReadModel } from '@isalwa/os-contracts';
 import { panelHref, parsePanel, type ListQueryState } from '@/lib/lists/url-state';
 import { formatPartyRoles, formatPartyStatus, partyStatusTone } from '@/lib/party/labels';
@@ -13,6 +13,7 @@ type PartyListProps = {
   listPath?: string;
   listQuery?: ListQueryState;
   memberLabels?: MemberLabelMap;
+  density?: OperatingRowDensity;
 };
 
 function relationshipLabel(roleKeys: string[]): string {
@@ -28,7 +29,7 @@ function operatingMeta(party: PartySummaryReadModel, memberLabels?: MemberLabelM
   return [owner, phone, location].filter((part): part is string => Boolean(part)).join(' · ');
 }
 
-export function PartyList({ items, listPath, listQuery, memberLabels }: PartyListProps) {
+export function PartyList({ items, listPath, listQuery, memberLabels, density = 'compact' }: PartyListProps) {
   const openPanel = parsePanel(listQuery?.panel);
 
   return (
@@ -45,6 +46,7 @@ export function PartyList({ items, listPath, listQuery, memberLabels }: PartyLis
           <li key={party.partyId} data-tour={TOUR_TARGET.customerRow}>
             <OperatingRow
               href={detailHref}
+              density={density}
               selected={selected}
               subject={displayName}
               meta={

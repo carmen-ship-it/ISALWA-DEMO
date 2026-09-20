@@ -7,6 +7,7 @@ import { issueHref } from '@/lib/issue/navigation';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { IssueListItem } from '@/lib/issue/types';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type IssueListProps = {
   items: IssueListItem[];
@@ -28,9 +29,11 @@ function formatTimestamp(iso: string | null): string {
 }
 
 function issueTitle(item: IssueListItem): string {
-  if (item.title?.trim()) return presentHumanCopy(item.title);
+  if (item.title?.trim() && !isEngineeringFixtureCopy(item.title)) {
+    return presentHumanCopy(item.title);
+  }
   const desc = item.description?.trim() ?? '';
-  if (!desc) return 'Incidencia';
+  if (!desc || isEngineeringFixtureCopy(desc)) return 'Incidencia';
   const shown = presentHumanCopy(desc);
   return shown.length > 60 ? `${shown.slice(0, 57)}…` : shown;
 }
@@ -59,8 +62,15 @@ function issueMeta(item: IssueListItem, memberLabels: MemberLabelMap): string {
   return parts.join(' · ');
 }
 
+function isVisibleIssue(item: IssueListItem): boolean {
+  return (
+    !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description)
+  );
+}
+
 export function IssueList({ items, memberLabels, showHeader, density = 'compact' }: IssueListProps) {
-  if (items.length === 0) return null;
+  const visible = items.filter(isVisibleIssue);
+  if (visible.length === 0) return null;
 
   return (
     <div className="min-w-0">
@@ -78,7 +88,7 @@ export function IssueList({ items, memberLabels, showHeader, density = 'compact'
         </div>
       ) : null}
       <ul className="min-w-0">
-        {items.map((item) => (
+        {visible.map((item) => (
           <li key={item.issueId}>
             <Link href={issueHref(item.issueId)} className="block">
               <OperatingRow

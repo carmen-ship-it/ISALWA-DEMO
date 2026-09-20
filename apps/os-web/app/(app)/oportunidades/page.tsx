@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { EmptyState, PageSection, SearchField, cx } from '@isalwa/ui';
+import { EmptyState, PageSection, cx } from '@isalwa/ui';
+import { CommercialListToolbar } from '@/components/commercial/commercial-list-toolbar';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { OpportunityOrgList } from '@/components/commercial/opportunity-org-list';
 import {
-  commercialPrimaryButtonClass,
   commercialPrimaryLinkClass,
   commercialToolbarClass,
   commercialWorkSurfaceClass,
@@ -29,6 +29,7 @@ import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projectio
 import { commercialListQueryFromProjection } from '@/lib/role-preview/commercial-list-query';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { readListControls } from '@/lib/productivity/list-controls';
 
 type OportunidadesPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -131,6 +132,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
     const windowed = dataMode === 'demo' ? sliceListPage(loaded, parsePageNumber(listState.pagina)) : null;
     const visible = windowed?.items ?? loaded;
     const hasQuery = Boolean(listState.q);
+    const controls = readListControls(listState);
     const demoNav = windowed?.showChrome
       ? boundedPageHrefs(LIST_PATH, listState, windowed.page, windowed.pageCount)
       : null;
@@ -158,45 +160,26 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
         />
 
         <div className={`commercial-toolbar ${commercialToolbarClass}`}>
-          <form
-            key={`${status}:${listState.q ?? ''}:${listState.view ?? ''}:${stage ?? ''}`}
-            method="get"
-            action={LIST_PATH}
-            className="flex flex-col gap-3 sm:flex-row sm:items-end"
-          >
-            <input type="hidden" name="status" value={status} />
-            {listState.view ? <input type="hidden" name="view" value={listState.view} /> : null}
-            {stage ? <input type="hidden" name="stage" value={stage} /> : null}
-            <div className="min-w-0 flex-1">
-              <label
-                htmlFor="oportunidades-q"
-                className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
-              >
-                Buscar
-              </label>
-              <SearchField
-                id="oportunidades-q"
-                name="q"
-                defaultValue={listState.q ?? ''}
-                placeholder="Título"
-                autoComplete="off"
-              />
-            </div>
-            <button type="submit" className={commercialPrimaryButtonClass}>
-              Buscar
-            </button>
-            {hasQuery ? (
-              <Link
-                href={withExactStage(
-                  listHref(LIST_PATH, { status, view: listState.view }, ['q', 'cursor', 'panel']),
-                  stage,
-                )}
-                className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-              >
-                Limpiar
-              </Link>
-            ) : null}
-          </form>
+          <CommercialListToolbar
+            path={LIST_PATH}
+            state={listState}
+            searchLabel="Buscar"
+            searchPlaceholder="Título"
+            hiddenFields={{
+              status,
+              view: listState.view,
+              stage,
+              density: controls.density === 'compact' ? undefined : controls.density,
+            }}
+            clearSearchHref={withExactStage(
+              listHref(LIST_PATH, { status, view: listState.view, density: listState.density }, [
+                'q',
+                'cursor',
+                'panel',
+              ]),
+              stage,
+            )}
+          />
 
           <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Filtro de oportunidades">
             {OPPORTUNITY_LIST_STATUSES.map((option) => {
@@ -254,6 +237,7 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
               items={visible}
               memberLabels={memberLabels}
               partyLabels={partyLabels}
+              density={controls.density}
               linkedQuotes={linkedQuotePages.flatMap((page) =>
                 page.items.map((item) => ({
                   quoteId: item.quoteId,

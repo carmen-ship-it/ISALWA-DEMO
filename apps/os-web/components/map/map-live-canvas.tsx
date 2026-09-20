@@ -303,7 +303,7 @@ export function MapLiveCanvas({
           {markers.length === 0 && plottableCount > 0 ? (
             <span>Sin lectura de coordenadas en esta página — no se inventan pines</span>
           ) : null}
-          <StatusPill tone="info">Mapbox Light</StatusPill>
+          <StatusPill tone="info">Mapa activo</StatusPill>
         </span>
       </div>
     </div>

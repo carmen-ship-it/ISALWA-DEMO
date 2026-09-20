@@ -16,6 +16,13 @@ describe('staff-facing subjects', () => {
     assert.equal(isEngineeringFixtureCopy('Wave B Close Test'), true);
     assert.equal(isEngineeringFixtureCopy('probe commitment'), true);
     assert.equal(isEngineeringFixtureCopy('Cliente Step17 norte'), true);
+    assert.equal(isEngineeringFixtureCopy('RC4-DISC follow-up'), true);
+    assert.equal(isEngineeringFixtureCopy('WB Close batch'), true);
+    assert.equal(isEngineeringFixtureCopy('CW 12 checkout'), true);
+    assert.equal(isEngineeringFixtureCopy('manual-opp seed'), true);
+    assert.equal(isEngineeringFixtureCopy('AUTHORITATIVE_REVENUE_LAYER=NO'), true);
+    assert.equal(isEngineeringFixtureCopy('mu5wx57g trace'), true);
+    assert.equal(isEngineeringFixtureCopy('PRUEBA ÁLVARO — recorrido'), false);
     assert.equal(
       staffFacingSubject({
         title: 'CC3ORD-mu08fc5t-x',

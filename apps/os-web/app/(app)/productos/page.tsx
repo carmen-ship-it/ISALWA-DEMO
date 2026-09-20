@@ -8,7 +8,7 @@ export default function ProductosPage() {
       <PageHeader
         kicker="Catálogo"
         title="Productos"
-        description="Candidatos leídos de los catálogos. Revise nombre y detalle. No hay stock inventado aquí."
+        description="Candidatos leídos de los catálogos. Revise nombre y detalle. No hay stock inventado aquí. Sin precio de origen en la tarjeta: esto no es una lista de precios; en cada producto solo se muestran excepciones (código comercial o precio)."
         action={
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="manual">Vista previa</StatusPill>

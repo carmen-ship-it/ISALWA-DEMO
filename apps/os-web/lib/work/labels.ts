@@ -217,14 +217,16 @@ export function statusToneForWork(status: string): 'neutral' | 'success' | 'warn
   }
 }
 
-export function statusToneForApproval(status: string): 'neutral' | 'success' | 'warning' | 'danger' | 'info' {
+export function statusToneForApproval(
+  status: string,
+): 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'amber' | 'approved' | 'rejected' {
   switch (status) {
     case 'pending':
-      return 'warning';
+      return 'amber';
     case 'approved':
-      return 'success';
+      return 'approved';
     case 'rejected':
-      return 'danger';
+      return 'rejected';
     default:
       return 'neutral';
   }

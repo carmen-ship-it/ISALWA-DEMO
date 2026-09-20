@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { PageContainer, StatusPill } from '@isalwa/ui';
+import { PageContainer } from '@isalwa/ui';
 import type { ManualConversationActor } from '@/components/conversations/manual-conversation-panel';
 import { ConversationsWorkspace } from '@/components/conversations/conversations-workspace';
 import { PageHeader } from '@/components/shell/page-header';
@@ -128,7 +128,6 @@ export default async function ConversacionesPage({
         kicker={CONVERSATIONS_COPY.kicker}
         title={CONVERSATIONS_COPY.title}
         description={CONVERSATIONS_COPY.description}
-        action={<StatusPill tone="demo">Canal no conectado</StatusPill>}
       />
       <Suspense fallback={<p className="text-sm text-[var(--isalwa-slate)]">Cargando conversaciones…</p>}>
         <ConversationsWorkspace

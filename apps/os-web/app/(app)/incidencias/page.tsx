@@ -24,6 +24,7 @@ import {
 } from '@/lib/role-preview/evaluation-resource-access';
 import { filterIssuesForEvaluation } from '@/lib/inicio/filter-for-evaluation';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 const PAGE_LIMIT = 25;
 
@@ -148,7 +149,9 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
       client.listIssues({ assignedToMe: true, limit: PAGE_LIMIT }),
       client.listIssues({ status: 'resolved', limit: PAGE_LIMIT }),
     ]);
-    const items = filterByDemoDataMode(applyEvaluationIssues(result.items), dataMode, isDemoIssue);
+    const items = filterByDemoDataMode(applyEvaluationIssues(result.items), dataMode, isDemoIssue).filter(
+      (item) => !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
+    );
     const openCount = filterByDemoDataMode(
       applyEvaluationIssues(openPage.items ?? []),
       dataMode,

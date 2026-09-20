@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, type ReactNode, useState } from 'react';
-import { cx } from '@isalwa/ui';
-import { Button, SearchField } from '@isalwa/ui';
+import { cx, Button, SearchField } from '@isalwa/ui';
+import { ListToolbar } from '@/components/lists/list-toolbar';
 import { FILTERABLE_ROLE_KEYS, formatPartyRole } from '@/lib/party/labels';
 import { clientesSearchHref } from '@/lib/party/navigation';
+import { listDensityLabel, type ListDensity } from '@/lib/productivity/list-controls';
 
 /** CROSS_LANE: add 'clientesSearch' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const CLIENTES_SEARCH_TARGET = 'clientes-search';
@@ -15,6 +16,8 @@ type PartySearchFormProps = {
   initialQuery?: string;
   initialRoleKey?: string;
   initialStatus?: string;
+  listDensity?: ListDensity;
+  densityToggleHref?: string;
 };
 
 function FilterChip({ href, active, children }: { href: string; active: boolean; children: ReactNode }) {
@@ -48,6 +51,8 @@ export function PartySearchForm({
   initialQuery = '',
   initialRoleKey,
   initialStatus,
+  listDensity = 'compact',
+  densityToggleHref,
 }: PartySearchFormProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
@@ -67,35 +72,50 @@ export function PartySearchForm({
 
   return (
     <div className="space-y-4" data-tour={CLIENTES_SEARCH_TARGET}>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="min-w-0 flex-1">
-          <label
-            htmlFor="party-search"
-            className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
-          >
-            Buscar clientes y contactos
-          </label>
-          <SearchField
-            id="party-search"
-            name="q"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Nombre, contacto o teléfono"
-            autoComplete="off"
-          />
-        </div>
-        <Button type="submit" variant="primary" className="shrink-0">
-          Buscar
-        </Button>
-        {hasFilters ? (
-          <Link
-            href="/clientes"
-            className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
-          >
-            Limpiar
-          </Link>
-        ) : null}
-      </form>
+      <ListToolbar
+        search={
+          <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="party-search"
+                className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--isalwa-slate)]"
+              >
+                Buscar clientes y contactos
+              </label>
+              <SearchField
+                id="party-search"
+                name="q"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Nombre, contacto o teléfono"
+                autoComplete="off"
+              />
+            </div>
+            <Button type="submit" variant="primary" className="shrink-0">
+              Buscar
+            </Button>
+            {hasFilters ? (
+              <Link
+                href="/clientes"
+                className="inline-flex h-10 shrink-0 items-center text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+              >
+                Limpiar
+              </Link>
+            ) : null}
+          </form>
+        }
+        density={
+          densityToggleHref ? (
+            <Link
+              href={densityToggleHref}
+              className="isalwa-t-fast inline-flex h-9 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm font-medium text-[var(--isalwa-slate)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+              aria-label={`Densidad ${listDensityLabel(listDensity)}. Cambiar.`}
+            >
+              {listDensityLabel(listDensity)}
+            </Link>
+          ) : undefined
+        }
+      />
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por relación">
         <FilterChip href={clientesSearchHref({ q: initialQuery, status: initialStatus })} active={!initialRoleKey}>

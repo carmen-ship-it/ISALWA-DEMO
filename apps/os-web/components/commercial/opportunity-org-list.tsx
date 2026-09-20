@@ -1,4 +1,4 @@
-import { OperatingRow, StatusPill } from '@isalwa/ui';
+import { OperatingRow, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
 import '@/components/commercial/commercial-surfaces.css';
 import { formatListAge, formatOpportunityStatus, presentStage, statusTone } from '@/lib/commercial/labels';
@@ -17,6 +17,7 @@ type OpportunityOrgListProps = {
   compact?: boolean;
   /** Quotes already loaded beside these opportunities. Not a new opportunity field. */
   linkedQuotes?: readonly OpportunityLinkedQuote[];
+  density?: OperatingRowDensity;
 };
 
 function metaLine(parts: Array<string | null | undefined>): string {
@@ -28,6 +29,7 @@ export function OpportunityOrgList({
   memberLabels,
   partyLabels,
   linkedQuotes,
+  density = 'compact',
 }: OpportunityOrgListProps) {
   return (
     <ul
@@ -58,6 +60,7 @@ export function OpportunityOrgList({
             <li key={item.opportunityId}>
               <OperatingRow
                 href={opportunityHref(item.partyId, item.opportunityId)}
+                density={density}
                 subject={presentHumanCopy(item.title)}
                 meta={
                   metaLine([

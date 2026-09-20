@@ -2,8 +2,26 @@ export { Button } from './components/button';
 export type { ButtonProps } from './components/button';
 export { Panel } from './components/panel';
 export type { PanelProps } from './components/panel';
-export { StatusPill } from './components/status-pill';
-export type { StatusPillProps } from './components/status-pill';
+export { StatusPill, statusToneFromLabel } from './components/status-pill';
+export type {
+  StatusPillProps,
+  StatusPillTone,
+  StatusPillIcon,
+} from './components/status-pill';
+/** Alias for product vocabulary — same StatusPill presentation system. */
+export { StatusPill as StatusChip } from './components/status-pill';
+export type {
+  StatusPillProps as StatusChipProps,
+  StatusPillTone as StatusChipTone,
+} from './components/status-pill';
+export { ListToolbar } from './components/list-toolbar';
+export type {
+  ListToolbarProps,
+  ListToolbarDensity,
+  ListToolbarActiveFilter,
+} from './components/list-toolbar';
+export { AttentionDot } from './components/attention-dot';
+export type { AttentionDotProps, AttentionDotTone } from './components/attention-dot';
 export { Skeleton, EmptyState, ExperienceHeader } from './components/experience';
 export type {
   SkeletonProps,

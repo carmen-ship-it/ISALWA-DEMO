@@ -19,6 +19,7 @@ import {
 } from '@/lib/role-preview/evaluation-resource-access';
 import { filterCommitmentsForEvaluation } from '@/lib/inicio/filter-for-evaluation';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 /**
  * Compromisos desk — due soon / team / completed density from recorded facts.
@@ -72,7 +73,7 @@ export default async function CompromisosPage({
     const items = filterByDemoDataMode(raw, dataMode, (item) => {
       if (item.partyId) return isDemoDisplayName(partyLabel(partyLabels, item.partyId));
       return /\bDEMO\b|\[is_demo\]/i.test(item.text ?? '');
-    });
+    }).filter((item) => !isEngineeringFixtureCopy(item.text));
     const buckets = bucketCompromisosDesk(items);
     const memberLabels = await resolveMemberLabels(
       client,

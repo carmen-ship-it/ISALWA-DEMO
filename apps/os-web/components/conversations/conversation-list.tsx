@@ -19,6 +19,23 @@ type ConversationListProps = {
   onSelect: (id: string) => void;
 };
 
+function attentionBadges(conversation: Conversation) {
+  const badges: Array<{ key: string; label: string; tone: 'amber' | 'sky' | 'soft-teal' | 'overdue' }> = [];
+  if (conversation.attention.needsResponse) {
+    badges.push({ key: 'needs_response', label: 'Necesita respuesta', tone: 'amber' });
+  }
+  if (conversation.attention.followUp) {
+    badges.push({ key: 'follow_up', label: 'Seguimiento', tone: 'sky' });
+  }
+  if (conversation.attention.possibleOpportunity) {
+    badges.push({ key: 'possible_opportunity', label: 'Oportunidad posible', tone: 'soft-teal' });
+  }
+  if (conversation.attention.possibleIssue) {
+    badges.push({ key: 'possible_issue', label: 'Incidencia posible', tone: 'overdue' });
+  }
+  return badges;
+}
+
 function formatWhen(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -85,9 +102,11 @@ export function ConversationList({
                       {item.partyLabel}
                     </span>
                     <ConversationDemoBadge conversation={item} />
-                    {item.attention.needsResponse ? (
-                      <StatusPill tone="warning">Respuesta</StatusPill>
-                    ) : null}
+                    {attentionBadges(item).map((badge) => (
+                      <StatusPill key={badge.key} tone={badge.tone} className="max-w-full truncate">
+                        {badge.label}
+                      </StatusPill>
+                    ))}
                   </div>
                   <p className="line-clamp-2 break-words text-sm text-[var(--isalwa-slate)]">{item.preview}</p>
                   <p className="break-words text-[var(--isalwa-text-2xs)] text-[var(--isalwa-slate)]">

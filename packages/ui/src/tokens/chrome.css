@@ -475,4 +475,20 @@
   .isalwa-interactive:active {
     transform: none !important;
   }
+  .isalwa-attention-dot--pulse {
+    animation: none !important;
+  }
+}
+
+/* Attention indicator — semantic dot; pulse class honors prefers-reduced-motion via token duration */
+.isalwa-attention-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--isalwa-radius-pill);
+  flex-shrink: 0;
+}
+.isalwa-attention-dot--pulse {
+  animation: isalwa-attention-dot-pulse var(--isalwa-attention-pulse-duration) var(--isalwa-ease-out)
+    infinite;
 }

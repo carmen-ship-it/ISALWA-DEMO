@@ -101,8 +101,8 @@ function NavLink({
     locked ? 'cursor-not-allowed opacity-70' : '',
     active
       ? cx(
-          'border-l-[3px] border-l-[var(--isalwa-glaze)] font-semibold text-[var(--isalwa-kiln)]',
-          'bg-[color-mix(in_srgb,var(--isalwa-teal-100)_70%,var(--isalwa-sky-100))]',
+          'border-l-[3px] border-l-[var(--isalwa-glaze-deep)] font-semibold text-[var(--isalwa-kiln)]',
+          'bg-[color-mix(in_srgb,var(--isalwa-teal-100)_82%,var(--isalwa-white))] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--isalwa-glaze)_12%,transparent)]',
           collapsed ? 'pl-[calc(0.5rem-3px)]' : 'pl-[calc(0.875rem-3px)]',
         )
       : emphasized

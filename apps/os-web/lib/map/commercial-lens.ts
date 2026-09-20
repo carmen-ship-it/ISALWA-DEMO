@@ -133,4 +133,4 @@ export function buildMapPartyCommercialSnapshot(
 }
 
 export const MAP_COMMERCIAL_VALUE_DISCLAIMER =
-  'Montos comerciales de registros canónicos. No es ingreso, facturación ni cobranza confirmada.';
+  'Explore la actividad comercial por cliente y zona. Los valores mostrados provienen de oportunidades, cotizaciones y pedidos registrados en ISALWA; no representan ingresos contables.';

@@ -1,7 +1,6 @@
 'use client';
 
 import { Chip, StatusPill } from '@isalwa/ui';
-import { AUTHORITATIVE_REVENUE_LAYER_NOTE } from '@/lib/map/authoritative-revenue';
 import { MAP_LAYER_REGISTRY, type MapLayerId } from '@/lib/map/layers';
 
 type MapLayerControlsProps = {
@@ -15,7 +14,6 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
 
   return (
     <div className="space-y-2" role="group" aria-label="Capas del mapa">
-      {/* Primary layer chips - always visible */}
       <div className="flex flex-wrap gap-1.5">
         {availableLayers.map((layer) => {
           const active = activeLayer === layer.id;
@@ -31,7 +29,6 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
             </Chip>
           );
         })}
-        {/* Future layers - collapsed on mobile for less viewport consumption */}
         <div className="hidden sm:contents">
           {futureLayers.map((layer) => (
             <Chip
@@ -49,19 +46,16 @@ export function MapLayerControls({ activeLayer, onChange }: MapLayerControlsProp
           ))}
         </div>
       </div>
-      {/* Compact mobile-only summary of unavailable layers */}
       <p className="text-xs text-[var(--isalwa-slate)] sm:hidden">
         +{futureLayers.length} capas futuras (próximamente)
       </p>
       <div className="hidden flex-wrap gap-2 sm:flex">
         <StatusPill tone="info">Clientes · disponible</StatusPill>
-        <StatusPill tone="info">Oportunidades / Cotizaciones / Pedidos · filtro por registro</StatusPill>
-        <StatusPill tone="manual">Atención / cobranza · futuro o manual</StatusPill>
-        <StatusPill tone="manual">Ingresos · desactivado (AUTHORITATIVE_REVENUE_LAYER=NO)</StatusPill>
+        <StatusPill tone="info">Oportunidades / cotizaciones / pedidos · por registro</StatusPill>
+        <StatusPill tone="info">Atención · disponible</StatusPill>
       </div>
       <p className="hidden text-xs leading-relaxed text-[var(--isalwa-slate)] sm:block">
-        Las capas comerciales filtran clientes con registros canónicos. No inventan pines, ingresos ni
-        geografía. {AUTHORITATIVE_REVENUE_LAYER_NOTE}
+        Las capas filtran clientes con registros canónicos. No inventan pines ni geografía.
       </p>
     </div>
   );

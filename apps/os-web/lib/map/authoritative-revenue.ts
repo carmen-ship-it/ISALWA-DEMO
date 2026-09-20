@@ -10,4 +10,4 @@ export function isAuthoritativeRevenueLayerEnabled(
 }
 
 export const AUTHORITATIVE_REVENUE_LAYER_NOTE =
-  'Capa de ingresos desactivada. No hay libro mayor ni ingresos oficiales en el mapa.';
+  'ISALWA no muestra montos contables en el mapa; solo lectura comercial registrada.';

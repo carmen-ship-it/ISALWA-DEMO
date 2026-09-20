@@ -57,10 +57,8 @@ describe('authoritative revenue layer', () => {
     assert.equal(isAuthoritativeRevenueLayerEnabled('YES'), true);
   });
 
-  it('keeps ingresos layer out of available filters', () => {
-    const ingresos = MAP_LAYER_REGISTRY.find((layer) => layer.id === 'ingresos');
-    assert.ok(ingresos);
-    assert.notEqual(ingresos.truthClass, 'available');
+  it('does not expose a revenue map layer; unknown ids fall back to clientes', () => {
+    assert.equal(MAP_LAYER_REGISTRY.some((layer) => layer.id === 'ingresos'), false);
     assert.equal(resolveMapLayer('ingresos'), 'clientes');
   });
 });

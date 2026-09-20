@@ -71,7 +71,10 @@ export function filterVisibleWorkItems(
 
 export function filterVisibleIssues(items: readonly IssueListItem[]): IssueListItem[] {
   return items
-    .filter((item) => !isEngineeringFixtureCopy(item.description))
+    .filter(
+      (item) =>
+        !isEngineeringFixtureCopy(item.description) && !isEngineeringFixtureCopy(item.title),
+    )
     .slice(0, INICIO_COMMAND_QUEUE_LIMIT);
 }
 

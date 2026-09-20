@@ -13,11 +13,11 @@ type ApprovalPendingCardsProps = {
 };
 
 const cardClass =
-  'rounded-lg border border-[color-mix(in_srgb,var(--isalwa-warning)_22%,var(--isalwa-mist))] bg-white p-5 shadow-[var(--isalwa-shadow-soft)]';
+  'rounded-[var(--isalwa-radius-panel)] border border-[color-mix(in_srgb,var(--isalwa-warning)_24%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-amber-bg)_45%,white)] p-4 shadow-[var(--isalwa-shadow-soft)]';
 
 export function ApprovalPendingCards({ items, memberLabels, subjects }: ApprovalPendingCardsProps) {
   return (
-    <ul className="grid min-w-0 gap-4" aria-label="Aprobaciones pendientes">
+    <ul className="grid min-w-0 gap-3" aria-label="Aprobaciones pendientes">
       {items.map((approval) => {
         const detailHref = approvalHref(approval.approvalRequestId);
         const subject = subjects?.get(approval.approvalRequestId) ?? APPROVAL_ROW_SUBJECT_FALLBACK;
@@ -32,18 +32,18 @@ export function ApprovalPendingCards({ items, memberLabels, subjects }: Approval
                   {approval.decisionReason?.trim() ? ` · ${approval.decisionReason.trim()}` : null}
                 </p>
               </div>
-              <StatusPill tone={statusToneForApproval(approval.status)}>
+              <StatusPill tone="pending" icon="pending">
                 {formatApprovalStatus(approval.status)}
               </StatusPill>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Link href={detailHref} className="inline-flex">
                 <Button type="button" variant="primary" size="sm">
                   Aprobar
                 </Button>
               </Link>
               <Link href={detailHref} className="inline-flex">
-                <Button type="button" variant="secondary" size="sm">
+                <Button type="button" variant="danger" size="sm">
                   Rechazar
                 </Button>
               </Link>

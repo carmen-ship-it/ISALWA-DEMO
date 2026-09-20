@@ -15,6 +15,8 @@ type QuoteCreateFormProps = {
   opportunityId: string;
   opportunityTitle: string;
   customerName: string;
+  ownerLabel?: string | null;
+  dataModeLabel?: string | null;
 };
 
 export function QuoteCreateForm({
@@ -22,6 +24,8 @@ export function QuoteCreateForm({
   opportunityId,
   opportunityTitle,
   customerName,
+  ownerLabel,
+  dataModeLabel,
 }: QuoteCreateFormProps) {
   const router = useRouter();
   const [state, formAction] = useActionState(
@@ -38,8 +42,8 @@ export function QuoteCreateForm({
   );
 
   return (
-    <PageSection card className="bg-white p-8 md:p-10">
-      <dl className="grid gap-4 sm:grid-cols-2">
+    <PageSection card className="bg-white p-6 md:p-8">
+      <dl className="grid gap-4 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky-200)_40%,white)] p-4 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <dt className="isalwa-section-label">Cliente</dt>
           <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{customerName}</dd>
@@ -48,6 +52,18 @@ export function QuoteCreateForm({
           <dt className="isalwa-section-label">Oportunidad</dt>
           <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{opportunityTitle}</dd>
         </div>
+        {ownerLabel ? (
+          <div>
+            <dt className="isalwa-section-label">Responsable</dt>
+            <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{ownerLabel}</dd>
+          </div>
+        ) : null}
+        {dataModeLabel ? (
+          <div>
+            <dt className="isalwa-section-label">Datos</dt>
+            <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{dataModeLabel}</dd>
+          </div>
+        ) : null}
       </dl>
       <FormFeedback error={state?.error} />
       <form action={formAction} className="mt-6 space-y-4">

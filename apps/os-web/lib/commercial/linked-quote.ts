@@ -13,6 +13,7 @@ export type SelectedLinkedQuote = {
   quoteNumber: string;
   partyId: string;
   opportunityId: string;
+  status: string | null;
 };
 
 /**
@@ -27,13 +28,12 @@ export function selectLinkedQuote(
   const preferred = preferredLinkedQuote(quotes, opportunityId);
   if (!preferred || preferred.opportunityId !== opportunityId) return null;
 
-  const quoteNumber =
-    (quotes ?? [])
-      .find(
-        (item) =>
-          item.quoteId === preferred.quoteId && item.opportunityId === opportunityId,
-      )
-      ?.quoteNumber.trim() ?? '';
+  const match =
+    (quotes ?? []).find(
+      (item) =>
+        item.quoteId === preferred.quoteId && item.opportunityId === opportunityId,
+    ) ?? null;
+  const quoteNumber = match?.quoteNumber.trim() ?? '';
   if (!quoteNumber) return null;
 
   return {
@@ -41,5 +41,6 @@ export function selectLinkedQuote(
     quoteNumber,
     partyId: preferred.partyId,
     opportunityId,
+    status: match?.status?.trim() || preferred.status?.trim() || null,
   };
 }

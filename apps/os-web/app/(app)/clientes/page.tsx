@@ -18,7 +18,8 @@ import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
-import { cursorPageLinks, parseListQuery, parsePanel } from '@/lib/lists/url-state';
+import { cursorPageLinks, listHref, parseListQuery, parsePanel } from '@/lib/lists/url-state';
+import { parseListDensity } from '@/lib/productivity/list-controls';
 import { actorCanMutateMasterData } from '@/lib/party/master-data-access';
 import { newCustomerHref } from '@/lib/party/navigation';
 import type { PartySearchParams } from '@/lib/party/types';
@@ -52,6 +53,15 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const cursor = listQuery.cursor;
   const panel = parsePanel(listQuery.panel);
   const canAddCustomer = evaluation.active ? false : await actorCanMutateMasterData(client);
+  const listDensity = parseListDensity(listQuery.density);
+  const densityToggleState: typeof listQuery = { ...listQuery };
+  delete densityToggleState.cursor;
+  if (listDensity === 'compact') {
+    densityToggleState.density = 'comfortable';
+  } else {
+    delete densityToggleState.density;
+  }
+  const densityToggleHref = listHref('/clientes', densityToggleState);
 
   try {
     // Demo mode: prefer DEMO-prefixed search so SYNTH fixtures are not buried under REAL pages.
@@ -99,7 +109,13 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
         />
 
         <div className={`commercial-toolbar ${commercialToolbarClass}`} data-tour="clientes-search">
-          <PartySearchForm initialQuery={q} initialRoleKey={roleKey} initialStatus={status} />
+          <PartySearchForm
+            initialQuery={q}
+            initialRoleKey={roleKey}
+            initialStatus={status}
+            listDensity={listDensity}
+            densityToggleHref={densityToggleHref}
+          />
         </div>
         <p className="mt-3 text-sm">
           <Link href="/mapa" className="font-medium text-[var(--isalwa-glaze)] hover:underline">
@@ -121,6 +137,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                     listPath="/clientes"
                     listQuery={listQuery}
                     memberLabels={memberLabels}
+                    density={listDensity}
                   />
                 </div>
               </PageSection>

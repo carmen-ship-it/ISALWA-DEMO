@@ -3,7 +3,7 @@
  * Does not invent follow-ups, calls, or pipeline rules — only what the stored status already implies.
  */
 
-export const COMMERCIAL_NEXT_STEP_LABEL = 'Próximo paso';
+export const COMMERCIAL_NEXT_STEP_LABEL = 'Próxima acción';
 
 /** Presentation only. Does not change a stored reason. */
 export function presentSentence(text: string): string {
@@ -34,9 +34,13 @@ type OpportunityNextStepInput = {
   newQuoteHref: string;
   /**
    * Already-known quote href. Does not load quotes.
-   * When set on an open opportunity, the primary step is Ver cotización.
+   * When set on an open opportunity, the primary step continues or opens that quote.
    */
   linkedQuoteHref?: string | null;
+  /** Status of the linked quote when already known. Draft → Continuar. */
+  linkedQuoteStatus?: string | null;
+  /** Human quote number when already known (e.g. Q-000018). */
+  linkedQuoteNumber?: string | null;
 };
 
 export type OpportunityLinkedQuote = {
@@ -130,15 +134,25 @@ export function opportunityNextStep(input: OpportunityNextStepInput): Commercial
     case 'open': {
       const linkedQuoteHref = input.linkedQuoteHref?.trim() || null;
       if (linkedQuoteHref) {
+        const status = input.linkedQuoteStatus?.trim() || '';
+        const number = input.linkedQuoteNumber?.trim() || '';
+        if (status === 'draft') {
+          return {
+            statement: 'Continúe la cotización en borrador de esta oportunidad.',
+            href: linkedQuoteHref,
+            hrefLabel: number ? `Continuar cotización ${number}` : 'Continuar cotización',
+            waiting: false,
+          };
+        }
         return {
           statement: 'Esta oportunidad ya tiene una cotización.',
           href: linkedQuoteHref,
-          hrefLabel: 'Ver cotización',
+          hrefLabel: number ? `Ver cotización ${number}` : 'Ver cotización',
           waiting: false,
         };
       }
       return {
-        statement: 'Prepare una cotización desde esta oportunidad.',
+        statement: 'Prepare una cotización para esta oportunidad.',
         href: input.newQuoteHref,
         hrefLabel: 'Crear cotización',
         waiting: false,

@@ -88,7 +88,9 @@ describe('starter quote products', () => {
     assert.match(picker, /SPECIAL_ITEM_LABEL/);
     assert.match(picker, /mode === 'known' \? 'primary'/);
     assert.match(picker, /mode === 'special' \? 'primary'/);
-    assert.match(picker, /<optgroup key=\{category\} label=\{category\}>/);
+    assert.match(picker, /Buscar producto/);
+    assert.match(picker, /STARTER_PRODUCT_CATEGORIES\.map/);
+    assert.match(picker, /QuantityStepper/);
   });
 
   it('prefills name, short detail, and unit, and leaves price blank unless a demo fixture is passed', () => {
@@ -120,7 +122,7 @@ describe('starter quote products', () => {
 
   it('keeps quantity and price editable and saves the edited price, not a starter default', () => {
     assert.match(picker, /name="quantity"/);
-    assert.match(picker, /onChange=\{\(event\) => patch\(\{ quantity: event\.target\.value \}\)\}/);
+    assert.match(picker, /onChange=\{\(quantity\) => patch\(\{ quantity \}\)\}/);
     assert.match(picker, /name="unitPrice"/);
     assert.match(picker, /onChange=\{\(event\) => patch\(\{ unitPrice: event\.target\.value \}\)\}/);
     assert.match(actions, /formData\.get\('unitPrice'\)/);
@@ -139,7 +141,8 @@ describe('starter quote products', () => {
   });
 
   it('saves a special item without a product selection and without a demo price', () => {
-    assert.match(picker, /value=\{mode === 'known' \? productKey : ''\}/);
+    assert.match(picker, /name="productId"/);
+    assert.match(picker, /mode === 'special' \? <input type="hidden" name="productId" value="" \/>/);
     assert.equal(blankLineEntry().unitPrice, '');
     const resolved = resolveAddQuoteLineDraft({
       lineKind: 'special',
@@ -158,7 +161,7 @@ describe('starter quote products', () => {
   it('does not show the starter key or a catalog, stock, or official-price claim', () => {
     const capri = starterProductByKey('sanitario-capri');
     assert.ok(capri);
-    assert.match(picker, /<option key=\{product\.key\} value=\{product\.key\}>\s*\{product\.name\}/);
+    assert.match(picker, /\{product\.name\}/);
     assert.doesNotMatch(picker, />\s*\{product\.key\}/);
     assert.doesNotMatch(picker, FORBIDDEN_CLAIM);
     assert.equal(isStarterQuoteProductKey('test-only'), false);

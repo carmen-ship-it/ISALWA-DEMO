@@ -81,7 +81,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
           }
           action={
             pending.length > 0 ? (
-              <StatusPill tone="warning">
+              <StatusPill tone="pending" icon="pending">
                 {pending.length === 1 ? '1 pendiente' : `${pending.length} pendientes`}
               </StatusPill>
             ) : (

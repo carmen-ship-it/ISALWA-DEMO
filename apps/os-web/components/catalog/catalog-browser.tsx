@@ -77,6 +77,9 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
 
   return (
     <div className="space-y-5">
+      <p className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-sky)] px-3 py-2 text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
+        Esto no es una lista de precios. Un precio aparece solo cuando hay un monto con origen.
+      </p>
       <SearchField
         id="productos-buscar"
         value={query}
@@ -125,10 +128,7 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
                       {CATEGORY_LABEL[product.category] ?? product.category}
                     </p>
                   </div>
-                  <StatusPill tone="neutral">Sin código comercial</StatusPill>
-                </div>
-                <div className="mt-3">
-                  <PriceContextNote productId={product.id} entries={priceEntries} />
+                  <ProductCardExceptions productId={product.id} entries={priceEntries} />
                 </div>
                 <button
                   type="button"
@@ -156,32 +156,23 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
   );
 }
 
-function PriceContextNote({
+function ProductCardExceptions({
   productId,
   entries,
 }: {
   productId: string;
   entries: SourcedEntry[];
 }) {
-  const contexts = labeledPriceContexts(entries, productId);
   const sourced = productHasSourcedPrice(entries, productId);
-  if (!sourced) {
-    return (
-      <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-        Sin precio de origen. Esto no es una lista de precios.
-      </p>
-    );
-  }
   return (
-    <ul className="m-0 list-none space-y-1 p-0">
-      {contexts
-        .filter((item) => item.amountCentavos)
-        .map((item) => (
-          <li key={item.context} className="text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-            {item.context}: {formatFixtureCentavos(item.amountCentavos)} · {item.meaning}
-          </li>
-        ))}
-    </ul>
+    <div className="flex shrink-0 flex-col items-end gap-1.5">
+      <StatusPill tone="neutral">Sin código comercial</StatusPill>
+      {!sourced ? (
+        <StatusPill tone="muted">Precio no disponible</StatusPill>
+      ) : (
+        <StatusPill tone="manual">Precio con origen</StatusPill>
+      )}
+    </div>
   );
 }
 
@@ -219,7 +210,7 @@ function ProductQuickView({
         ) : (
           <div className="mt-2 space-y-2">
             <p className="text-[var(--isalwa-text-sm)] leading-relaxed text-[var(--isalwa-slate)]">
-              Sin precio de origen. Los contextos existen, pero no hay un monto con origen.
+              Precio no disponible. Hay contextos, pero sin monto con origen.
             </p>
             <ul className="m-0 list-none space-y-2 p-0">
               {contexts.map((item) => (

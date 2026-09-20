@@ -169,6 +169,11 @@ export function MapExperience({
         </p>
       </div>
 
+      <p className="max-w-3xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Explore la actividad comercial por cliente y zona. Los valores mostrados provienen de oportunidades,
+        cotizaciones y pedidos registrados en ISALWA; no representan ingresos contables.
+      </p>
+
       <MapLayerControls activeLayer={layer} onChange={setLayer} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

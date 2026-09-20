@@ -17,12 +17,12 @@ const BY_GROUP: Record<NavGroup, NavIconTone> = {
     ink: 'text-[var(--isalwa-kiln)]',
   },
   comercial: {
-    chip: 'bg-[var(--isalwa-sky-100)]',
-    ink: 'text-[var(--isalwa-kiln)]',
+    chip: 'bg-[var(--isalwa-teal-100)]',
+    ink: 'text-[var(--isalwa-glaze-deep)]',
   },
   trabajo: {
-    chip: 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,var(--isalwa-sky-100))]',
-    ink: 'text-[var(--isalwa-kiln)]',
+    chip: 'bg-[var(--isalwa-sky-100)]',
+    ink: 'text-[var(--isalwa-info)]',
   },
   operaciones: {
     chip: 'bg-[var(--isalwa-teal-100)]',
@@ -49,8 +49,16 @@ const BY_ID: Partial<Record<string, NavIconTone>> = {
     ink: 'text-[var(--isalwa-glaze-deep)]',
   },
   incidencias: {
-    chip: 'bg-[color-mix(in_srgb,var(--isalwa-warning)_10%,var(--isalwa-sky-100))]',
-    ink: 'text-[var(--isalwa-kiln)]',
+    chip: 'bg-[var(--isalwa-status-red-bg)]',
+    ink: 'text-[var(--isalwa-danger)]',
+  },
+  aprobaciones: {
+    chip: 'bg-[var(--isalwa-status-amber-bg)]',
+    ink: 'text-[var(--isalwa-warning)]',
+  },
+  conversaciones: {
+    chip: 'bg-[var(--isalwa-sky-100)]',
+    ink: 'text-[var(--isalwa-info)]',
   },
 };
 
@@ -62,7 +70,7 @@ export function navIconTone(item: Pick<NavItem, 'id' | 'group'>): NavIconTone {
 
 export function navIconToneActive(): NavIconTone {
   return {
-    chip: 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_16%,var(--isalwa-sky-100))]',
+    chip: 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_22%,var(--isalwa-teal-100))]',
     ink: 'text-[var(--isalwa-glaze-deep)]',
   };
 }

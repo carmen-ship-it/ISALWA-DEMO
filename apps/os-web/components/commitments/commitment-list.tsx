@@ -12,6 +12,7 @@ import { formatCommitmentDue } from '@/lib/commitments/view';
 import { sliceForListScale } from '@/lib/ui/list-scaling';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { CommitmentState } from '@isalwa/os-contracts';
+import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 
 type CommitmentTone = 'neutral' | 'warning' | 'danger' | 'success';
 
@@ -72,7 +73,7 @@ export function CommitmentList({
   const [fulfillingId, setFulfillingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const rows = [...items].sort((a, b) => {
+  const rows = [...items].filter((item) => !isEngineeringFixtureCopy(item.text)).sort((a, b) => {
     const rankA = RANK[a.state] ?? 99;
     const rankB = RANK[b.state] ?? 99;
     if (rankA !== rankB) return rankA - rankB;

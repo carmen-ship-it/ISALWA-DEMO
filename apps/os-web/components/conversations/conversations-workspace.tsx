@@ -146,14 +146,16 @@ export function ConversationsWorkspace({
 
   return (
     <div className="isalwa-conversations-desk min-w-0 max-w-full space-y-4">
-      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
-        <StatusPill tone="demo">Canal no conectado</StatusPill>
-        <p className="min-w-0 max-w-full flex-1 text-sm text-[var(--isalwa-slate)]">{CONVERSATIONS_COPY.channelClosedBanner}</p>
-        <div className="w-full min-w-0 sm:ml-auto sm:w-auto">
-          <Button type="button" onClick={() => openRegister(true)}>
-            {CONVERSATIONS_COPY.register}
-          </Button>
-        </div>
+      <div className="flex min-w-0 max-w-full flex-col gap-3 rounded-[var(--isalwa-radius-panel)] border border-dashed border-[var(--isalwa-slate)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_50%,white)] px-3 py-2.5 sm:flex-row sm:items-center sm:gap-3">
+        <StatusPill tone="demo" className="shrink-0">
+          Canal no conectado
+        </StatusPill>
+        <p className="min-w-0 flex-1 text-sm leading-snug text-[var(--isalwa-slate)]">
+          {CONVERSATIONS_COPY.channelClosedBanner}
+        </p>
+        <Button type="button" className="w-full shrink-0 sm:w-auto" onClick={() => openRegister(true)}>
+          {CONVERSATIONS_COPY.register}
+        </Button>
       </div>
 
       <div className="isalwa-conversations-desktop hidden min-h-[32rem] min-w-0 gap-4 lg:grid lg:grid-cols-[minmax(0,28%)_minmax(0,44%)_minmax(0,28%)]">

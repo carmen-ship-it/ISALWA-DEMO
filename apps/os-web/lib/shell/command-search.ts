@@ -218,7 +218,12 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
     ),
     collect(quoteCalls, (page) =>
       filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
-        .filter((item) => item.status !== 'cancelled')
+        .filter(
+          (item) =>
+            item.status !== 'cancelled' &&
+            !isEngineeringFixtureCopy(item.quoteNumber) &&
+            !isEngineeringFixtureCopy(item.notes),
+        )
         .map((item) =>
           quotePaletteItem({
             quoteId: item.quoteId,
@@ -240,7 +245,9 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
           ]
         : [],
       (page) =>
-        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
+        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
+          .filter((item) => !isEngineeringFixtureCopy(item.orderNumber))
+          .map((item) =>
           orderPaletteItem({
             orderId: item.orderId,
             partyId: item.partyId,
@@ -254,7 +261,12 @@ export async function searchPalette(query: string): Promise<PaletteSearchResult>
         evaluation,
         page.items as WorkSummaryReadModel[],
         allowedPartyIds,
-      ).map((item) =>
+      )
+        .filter(
+          (item) =>
+            !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
+        )
+        .map((item) =>
         workPaletteItem({
           workItemId: item.workItemId,
           title: item.title,
@@ -336,7 +348,12 @@ async function relatedForParty(
     ),
     collect(quoteCalls, (page) =>
       filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
-        .filter((item) => item.status !== 'cancelled')
+        .filter(
+          (item) =>
+            item.status !== 'cancelled' &&
+            !isEngineeringFixtureCopy(item.quoteNumber) &&
+            !isEngineeringFixtureCopy(item.notes),
+        )
         .map((item) =>
           quotePaletteItem({
             quoteId: item.quoteId,
@@ -356,14 +373,16 @@ async function relatedForParty(
         ),
       ],
       (page) =>
-      filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId).map((item) =>
-        orderPaletteItem({
-          orderId: item.orderId,
-          partyId: item.partyId,
-          orderNumber: item.orderNumber,
-          status: item.status,
-        }),
-      ),
+        filterByCommercialOwner(evaluation, page.items, (item) => item.ownerMemberId)
+          .filter((item) => !isEngineeringFixtureCopy(item.orderNumber))
+          .map((item) =>
+            orderPaletteItem({
+              orderId: item.orderId,
+              partyId: item.partyId,
+              orderNumber: item.orderNumber,
+              status: item.status,
+            }),
+          ),
     ),
     collect(
       [
@@ -551,6 +570,9 @@ async function collectIssues(
     }
     const visible = filterIssuesForEvaluation(evaluation, result.page.items, allowedPartyIds);
     for (const item of visible) {
+      if (isEngineeringFixtureCopy(item.title) || isEngineeringFixtureCopy(item.description)) {
+        continue;
+      }
       const searchText = `${item.title ?? ''} ${item.description}`.toLocaleLowerCase('es');
       if (!searchText.includes(q)) continue;
       items.push(
@@ -597,6 +619,7 @@ async function collectCommitments(
     }
     const visible = filterCommitmentsForEvaluation(evaluation, result.page.items, allowedPartyIds);
     for (const item of visible) {
+      if (isEngineeringFixtureCopy(item.text)) continue;
       if (!item.text.toLocaleLowerCase('es').includes(q)) continue;
       items.push(
         commitmentPaletteItem({

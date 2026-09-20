@@ -18,6 +18,7 @@ import { centavosToBobDisplay, parseBobInputToCentavos, parseQuantityInput } fro
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
 import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { FormFeedback } from '@/components/commercial/form-feedback';
+import { QuantityStepper } from '@/components/commercial/quantity-stepper';
 import { QuoteProductPicker } from '@/components/commercial/quote-product-picker';
 import { GuidanceNotes } from '@/components/guidance/guidance-note';
 import { guidanceForSendQuote } from '@/lib/guidance/select';
@@ -120,6 +121,7 @@ function LineEditForm({
   currency: string;
 }) {
   const router = useRouter();
+  const [quantity, setQuantity] = useState(String(line.quantity));
   const [state, action] = useActionState(async (_prev: typeof feedbackInitial, formData: FormData) => {
     const result = await updateQuoteLineAction(formData);
     if (result.ok) router.refresh();
@@ -137,58 +139,55 @@ function LineEditForm({
   }, feedbackInitial);
 
   const provenance = lineProvenanceView(line.productRef);
+  const title = line.description.split('\n')[0]?.trim() || line.description;
 
   return (
-    <ListRow as="li" className="px-1 py-6">
+    <ListRow
+      as="li"
+      className="bg-[color-mix(in_srgb,var(--isalwa-teal-100)_28%,white)] px-1 py-5 md:bg-transparent"
+    >
       <FormFeedback error={state.error ?? removeState.error} success={state.success ?? removeState.success} />
-      {provenance.caption ? (
-        <p className="mt-3 text-sm text-[var(--isalwa-slate)]">{provenance.caption}</p>
-      ) : null}
-      {provenance.note ? (
-        <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{provenance.note}</p>
-      ) : null}
-      <form action={action} className="mt-3 space-y-4">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-[var(--isalwa-kiln)]">{title}</p>
+        {provenance.caption ? (
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{provenance.caption}</p>
+        ) : null}
+        {provenance.note ? (
+          <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{provenance.note}</p>
+        ) : null}
+      </div>
+      <form action={action} className="mt-4 w-full space-y-4">
         <input type="hidden" name="partyId" value={partyId} />
         <input type="hidden" name="quoteId" value={quoteId} />
         <input type="hidden" name="quoteLineId" value={line.quoteLineId} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+        <div className="grid gap-4 md:grid-cols-12 md:items-end">
+          <div className="md:col-span-5">
             <label className="isalwa-section-label" htmlFor={`desc-${line.quoteLineId}`}>
-              Descripción
+              Producto
             </label>
             <textarea
               id={`desc-${line.quoteLineId}`}
               name="description"
               required
-              rows={3}
+              rows={2}
               defaultValue={line.description}
               className={fieldClass}
             />
           </div>
-          <div>
+          <div className="md:col-span-2">
             <label className="isalwa-section-label" htmlFor={`qty-${line.quoteLineId}`}>
               Cantidad
             </label>
-            <input
-              id={`qty-${line.quoteLineId}`}
-              name="quantity"
-              required
-              defaultValue={String(line.quantity)}
-              className={fieldClass}
-            />
+            <div className="mt-2">
+              <QuantityStepper
+                id={`qty-${line.quoteLineId}`}
+                name="quantity"
+                value={quantity}
+                onChange={setQuantity}
+              />
+            </div>
           </div>
-          <div>
-            <label className="isalwa-section-label" htmlFor={`unit-${line.quoteLineId}`}>
-              Unidad
-            </label>
-            <input
-              id={`unit-${line.quoteLineId}`}
-              name="unitLabel"
-              defaultValue={line.unitLabel ?? ''}
-              className={fieldClass}
-            />
-          </div>
-          <div>
+          <div className="md:col-span-2">
             <label className="isalwa-section-label" htmlFor={`price-${line.quoteLineId}`}>
               {QUOTED_PRICE_LABEL}
             </label>
@@ -199,32 +198,38 @@ function LineEditForm({
               defaultValue={centavosToBobDisplay(line.unitPriceCentavos)}
               className={fieldClass}
             />
-            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
           </div>
-          <div>
-            <label className="isalwa-section-label" htmlFor={`disc-${line.quoteLineId}`}>
-              Descuento (Bs.)
-            </label>
+          <div className="md:col-span-2">
+            <p className="isalwa-section-label">Subtotal</p>
+            <p className="mt-2 text-sm font-semibold text-[var(--isalwa-kiln)]">
+              {formatCentavos(line.lineTotalCentavos, currency)}
+            </p>
+          </div>
+          <div className="hidden">
+            <label htmlFor={`unit-${line.quoteLineId}`}>Unidad</label>
+            <input
+              id={`unit-${line.quoteLineId}`}
+              name="unitLabel"
+              defaultValue={line.unitLabel ?? ''}
+            />
+            <label htmlFor={`disc-${line.quoteLineId}`}>Descuento</label>
             <input
               id={`disc-${line.quoteLineId}`}
               name="discount"
               defaultValue={line.discountCentavos !== '0' ? centavosToBobDisplay(line.discountCentavos) : ''}
-              className={fieldClass}
             />
           </div>
-        </div>
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          Total línea: {formatCentavos(line.lineTotalCentavos, currency)}
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <CommandSubmitButton label="Guardar línea" pendingLabel="Guardando…" variant="primary" />
+          <div className="flex flex-wrap gap-2 md:col-span-1 md:justify-end">
+            <CommandSubmitButton label="Guardar" pendingLabel="…" variant="secondary" className="h-8 px-3 text-sm" />
           </div>
+        </div>
+        <p className="text-xs text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
       </form>
-      <form action={removeAction} className="mt-4">
+      <form action={removeAction} className="mt-3">
         <input type="hidden" name="partyId" value={partyId} />
         <input type="hidden" name="quoteId" value={quoteId} />
         <input type="hidden" name="quoteLineId" value={line.quoteLineId} />
-        <CommandSubmitButton label="Eliminar línea" pendingLabel="Eliminando…" variant="danger" />
+        <CommandSubmitButton label="Quitar" pendingLabel="…" variant="danger" className="h-8 px-3 text-sm" />
       </form>
     </ListRow>
   );
@@ -317,7 +322,7 @@ export function QuoteEditor({
 
   return (
     <div className="mt-12 space-y-10">
-      <PageSection id="agregar-producto" card className="scroll-mt-32 bg-white p-8 md:p-10">
+      <PageSection id="agregar-producto" card className="scroll-mt-32 bg-white p-6 md:p-8">
         <h2 className={documentTitleClass}>Agregar a la cotización</h2>
         <FormFeedback error={addState.error} success={addState.success} />
         <form key={addEpoch} action={addAction} className="mt-8 space-y-6">
@@ -338,9 +343,24 @@ export function QuoteEditor({
       </PageSection>
 
       {quote.lines.length > 0 ? (
-        <PageSection card className="bg-white p-8 md:p-10">
-          <h2 className={documentTitleClass}>Ajustar líneas</h2>
-          <ul className="mt-6 divide-y divide-[var(--isalwa-mist)]" aria-label="Editar líneas de cotización">
+        <PageSection card className="bg-white p-6 md:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className={documentTitleClass}>Líneas</h2>
+            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-teal-100)] px-4 py-3 text-right shadow-[var(--isalwa-shadow-soft)]">
+              <p className="isalwa-section-label">Total</p>
+              <p className="mt-1 text-lg font-semibold text-[var(--isalwa-kiln)]">
+                {formatCentavos(quote.totalCentavos, quote.currency)}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 hidden grid-cols-12 gap-3 border-b border-[var(--isalwa-mist)] pb-2 text-[11px] font-medium tracking-[0.08em] text-[var(--isalwa-slate)] uppercase md:grid">
+            <span className="col-span-5">Producto</span>
+            <span className="col-span-2">Cantidad</span>
+            <span className="col-span-2">Precio unitario</span>
+            <span className="col-span-2">Subtotal</span>
+            <span className="col-span-1 text-right">Acción</span>
+          </div>
+          <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Editar líneas de cotización">
             {quote.lines.map((line) => (
               <LineEditForm
                 key={line.quoteLineId}
@@ -354,7 +374,7 @@ export function QuoteEditor({
         </PageSection>
       ) : null}
 
-      <PageSection card className="bg-white p-8 md:p-10">
+      <PageSection card className="bg-white p-6 md:p-8">
         <h2 className={documentTitleClass}>Notas y descuento</h2>
         <FormFeedback error={headerState.error} success={headerState.success} />
         <form action={headerAction} className="mt-8 space-y-6">
@@ -394,7 +414,7 @@ export function QuoteEditor({
         </form>
       </PageSection>
 
-      <PageSection id="presentar-cotizacion" card className="scroll-mt-32 bg-white p-8 md:p-10">
+      <PageSection id="presentar-cotizacion" card className="scroll-mt-32 bg-white p-6 md:p-8">
         <h2 className={documentTitleClass}>Presentar cotización</h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           ISALWA no envía WhatsApp ni correo. Presente la cotización para ver y descargar el PDF.

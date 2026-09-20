@@ -13,7 +13,7 @@ import {
 
 describe('commercial next-step', () => {
   it('labels the strip in Spanish', () => {
-    assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próximo paso');
+    assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próxima acción');
   });
 
   it('points an open opportunity at a new quote', () => {
@@ -40,6 +40,20 @@ describe('commercial next-step', () => {
     assert.equal(step?.hrefLabel, 'Ver cotización');
     assert.equal(step?.href, '/clientes/party-1/cotizaciones/quote-8');
     assert.equal(step?.waiting, false);
+  });
+
+  it('continues a draft quote instead of opening a new one', () => {
+    const step = opportunityNextStep({
+      status: 'open',
+      partyId: 'party-1',
+      opportunityId: 'opp-1',
+      newQuoteHref: '/clientes/party-1/oportunidades/opp-1/cotizaciones/nueva',
+      linkedQuoteHref: '/clientes/party-1/cotizaciones/quote-8',
+      linkedQuoteStatus: 'draft',
+      linkedQuoteNumber: 'Q-000018',
+    });
+    assert.equal(step?.hrefLabel, 'Continuar cotización Q-000018');
+    assert.match(step?.statement ?? '', /borrador/i);
   });
 
   it('keeps Crear cotización when the linked quote href is blank', () => {
