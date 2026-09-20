@@ -154,7 +154,7 @@ export function PedidoHandoffPanel({
                     </p>
                   </div>
                 </ListRow>
-              )}
+              ))}
             </ul>
           </div>
 
