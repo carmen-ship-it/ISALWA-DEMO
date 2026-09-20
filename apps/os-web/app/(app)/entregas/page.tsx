@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { EmptyState, OperatingRow, PageContainer, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { EmptyState, OperatingRow, PageContainer, PageSection, SectionHeader } from '@isalwa/ui';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { EntregaOperationalWriteDesk } from '@/components/delivery/entrega-operational-write-desk';
 import { EntregaPanel } from '@/components/delivery/entrega-panel';
+import { EntregaPageDisclaimer } from '@/components/delivery/entrega-page-disclaimer';
+import { EntregaSectionNav } from '@/components/delivery/entrega-section-nav';
 import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
 import { EntregaSummaryStrip } from '@/components/delivery/entrega-summary-strip';
 import { PageHeader } from '@/components/shell/page-header';
@@ -26,6 +28,7 @@ export default async function EntregasPage({
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Entregas" />;
   }
   const params = searchParams ? await searchParams : undefined;
+  const selectedOrderId = params?.orderId?.trim() || null;
   const view = await loadEntregaPage();
   const panelStatus =
     view.status === 'ready' || view.status === 'empty' ? 'ready' : view.status;
@@ -44,19 +47,18 @@ export default async function EntregasPage({
   );
   const noteOrderIds = new Set(view.noteOrderIds);
 
+  const warehouseExits = selectedOrderId
+    ? view.warehouseExits.filter((row) => row.orderId?.trim() === selectedOrderId)
+    : view.warehouseExits;
+  const deliveries = selectedOrderId
+    ? view.deliveries.filter((row) => row.orderId?.trim() === selectedOrderId)
+    : view.deliveries;
+
   return (
     <PageContainer label="Entregas">
-      <PageHeader
-        kicker="Entrega"
-        title="Entregas"
-        description="Registro interno de salida y entrega. No reclama un número oficial."
-        action={
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="neutral">Sin número oficial</StatusPill>
-            <StatusPill tone="manual">Registro interno</StatusPill>
-          </div>
-        }
-      />
+      <PageHeader kicker="Operación" title="Entregas" />
+      <EntregaPageDisclaimer />
+      <EntregaSectionNav />
       {deliveryOffer.offered ? (
         <div className="mb-6">
           <EventWorkOfferPanel offer={deliveryOffer} />
@@ -72,7 +74,7 @@ export default async function EntregasPage({
           deliveredAt: row.deliveredAt,
         }))}
       />
-      <EntregaOperationalWriteDesk selectedOrderId={params?.orderId ?? null} />
+      <EntregaOperationalWriteDesk selectedOrderId={selectedOrderId} />
       <LinkedOrdersSection
         orders={view.linkedOrders}
         noteOrderIds={noteOrderIds}
@@ -81,8 +83,8 @@ export default async function EntregasPage({
       />
       <EntregaPanel
         status={panelStatus}
-        warehouseExits={view.warehouseExits}
-        deliveries={view.deliveries}
+        warehouseExits={warehouseExits}
+        deliveries={deliveries}
       />
     </PageContainer>
   );
@@ -101,71 +103,70 @@ function LinkedOrdersSection({
 }) {
   return (
     <OpsDeskSurface className="mb-4">
-    <PageSection className="p-0 shadow-none" aria-label="Pedidos vinculados">
-      <SectionHeader
-        kicker="Pedido"
-        title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
-            Pedidos de esta empresa
-          </h2>
-        }
-      />
-      <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Abra el pedido ya registrado de la lista. El progreso Nota de Entrega / Salida / Entrega usa solo
-        hechos registrados — no se inventa una entrega desde el pedido.
-      </p>
-      {orders.length === 0 ? (
-        <div data-owner-review-state="no-data" className="mt-4">
-          <EmptyState
-            title="Todavía no hay pedidos abiertos"
-            description="Los pedidos aparecen aquí después de convertir una cotización elegible. La nota, la salida y la entrega se registran en el pedido. Aquí no se crean pedidos."
-            example="Convierta una cotización aceptada a pedido desde el cliente. Aquí no se crean pedidos."
-          />
-        </div>
-      ) : (
-        <ul className="mt-4 space-y-2">
-          {orders
-            .filter(
-              (order) =>
-                !isPilotFacingHidden(order.orderNumber) &&
-                !isPilotFacingHidden(order.customerLabel),
-            )
-            .map((order) => {
-            const progress = buildDeliveryProgress({
-              orderRecorded: true,
-              hasNote: noteOrderIds.has(order.orderId),
-              hasSalida: exitOrderIds.has(order.orderId),
-              hasEntrega: deliveredOrderIds.has(order.orderId),
-            });
-            const customer = presentEntregaAuditLabel(order.customerLabel ?? 'Cliente');
-            const orderLabel = presentEntregaAuditLabel(order.orderNumber);
-            return (
-              <li
-                key={order.orderId}
-                className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white"
-              >
-                <OperatingRow
-                  href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                  subject={orderLabel}
-                  meta={`${customer} · Pedido abierto`}
-                  actions={
-                    <Link
+      <PageSection className="p-0 shadow-none" aria-label="Pedidos vinculados">
+        <SectionHeader
+          kicker="Pedido"
+          title={
+            <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+              Pedidos de esta empresa
+            </h2>
+          }
+        />
+        <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          Abra un pedido para ver nota, salida y entrega registradas.
+        </p>
+        {orders.length === 0 ? (
+          <div data-owner-review-state="no-data" className="mt-4">
+            <EmptyState
+              title="Todavía no hay pedidos abiertos"
+              description="Los pedidos aparecen aquí después de convertir una cotización elegible."
+              example="Convierta una cotización aceptada a pedido desde el cliente."
+            />
+          </div>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {orders
+              .filter(
+                (order) =>
+                  !isPilotFacingHidden(order.orderNumber) &&
+                  !isPilotFacingHidden(order.customerLabel),
+              )
+              .map((order) => {
+                const progress = buildDeliveryProgress({
+                  orderRecorded: true,
+                  hasNote: noteOrderIds.has(order.orderId),
+                  hasSalida: exitOrderIds.has(order.orderId),
+                  hasEntrega: deliveredOrderIds.has(order.orderId),
+                });
+                const customer = presentEntregaAuditLabel(order.customerLabel ?? 'Cliente');
+                const orderLabel = presentEntregaAuditLabel(order.orderNumber);
+                return (
+                  <li
+                    key={order.orderId}
+                    className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white"
+                  >
+                    <OperatingRow
                       href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                      className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
-                    >
-                      Registrar
-                    </Link>
-                  }
-                />
-                <div className="border-t border-[var(--isalwa-mist)] px-3 pb-2 pt-1">
-                  <DeliveryProgressStrip className="mt-0" steps={progress} />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </PageSection>
+                      subject={orderLabel}
+                      meta={`${customer} · Pedido abierto`}
+                      actions={
+                        <Link
+                          href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
+                          className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
+                        >
+                          Abrir pedido
+                        </Link>
+                      }
+                    />
+                    <div className="border-t border-[var(--isalwa-mist)] px-3 pb-2 pt-1">
+                      <DeliveryProgressStrip className="mt-0" steps={progress} />
+                    </div>
+                  </li>
+                );
+              })}
+          </ul>
+        )}
+      </PageSection>
     </OpsDeskSurface>
   );
 }

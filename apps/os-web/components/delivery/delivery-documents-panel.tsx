@@ -24,6 +24,8 @@ import {
   QUOTED_QUANTITY_LABEL,
 } from '@/lib/commercial/quoted-product-context';
 import { SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
+import { actionSecondaryClass } from '@/lib/ui/action-hierarchy';
+import { timelineEventLabel } from '@/lib/commercial/timeline-labels';
 
 export type DeliveryDocumentLineView = {
   orderLineId: string;
@@ -149,26 +151,25 @@ export function DeliveryDocumentsPanel({
     .filter((row) => row.quantity >= 1);
 
   return (
-    <PageSection card className="mt-10 bg-white p-8 md:p-10" data-delivery-documents="pedido">
+    <PageSection
+      id="entregas-notas"
+      card
+      className="mt-6 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] bg-white p-6 md:p-8"
+      data-delivery-documents="pedido"
+    >
       <SectionHeader
-        kicker="Documentos de entrega"
+        kicker="Pedido seleccionado"
         title={
           <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-            Nota de entrega · salida · entrega
+            Nota · salida · entrega
           </h2>
         }
       />
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {ENTREGA_PANEL_COPY.beforeDelivery} {ENTREGA_PANEL_COPY.warehouseDistinct}{' '}
-        {ENTREGA_PANEL_COPY.provisionalDisclaimer}
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Tres hechos distintos. Use las acciones de abajo según lo que ya ocurrió.
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <StatusPill tone="neutral">Numeración provisional</StatusPill>
-        <StatusPill tone="neutral">No es factura</StatusPill>
-        <StatusPill tone="info">Almacén ≠ entrega al cliente</StatusPill>
-      </div>
 
-      <dl className="mt-8 grid gap-6 sm:grid-cols-2">
+      <dl className="mt-6 grid gap-6 sm:grid-cols-2">
         <div>
           <dt className="isalwa-section-label">Cliente</dt>
           <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentEntregaAuditLabel(customerName)}</dd>
@@ -179,20 +180,16 @@ export function DeliveryDocumentsPanel({
         </div>
       </dl>
 
-      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6">
+      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6" data-frozen-quote-context="">
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-          {QUOTED_CONTEXT_HEADING}
+          Productos de la cotización
         </h3>
         {quoteUnavailable ? (
           <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_UNAVAILABLE}</p>
-        ) : quotedProducts.length === 0 ? (
-          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Esta cotización no tiene líneas guardadas.
-          </p>
-        ) : (
+        ) : quotedProducts.length > 0 ? (
           <>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_NOTE}</p>
-            <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]">
+            <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas congeladas de cotización">
               {quotedProducts.map((line) => (
                 <li key={line.quoteLineId} className="py-4">
                   <p className="whitespace-pre-line font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
@@ -210,13 +207,19 @@ export function DeliveryDocumentsPanel({
               ))}
             </ul>
           </>
+        ) : (
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Sin productos guardados en la cotización.
+          </p>
         )}
       </div>
 
       {orderLines.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>
       ) : (
-        <ul className="mt-6 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas del pedido">
+        <div className="mt-6">
+          <h3 className="isalwa-section-label">Cantidades a registrar</h3>
+          <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Cantidades del pedido">
           {orderLines.map((line) => (
             <li key={line.orderLineId} className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm">
               <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
@@ -240,7 +243,8 @@ export function DeliveryDocumentsPanel({
               </label>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       )}
 
       {allowNote && actorMemberId ? (
@@ -287,7 +291,16 @@ export function DeliveryDocumentsPanel({
         </p>
       ) : null}
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div
+        id="entregas-pendientes"
+        className="mt-8 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] space-y-3 border-t border-[var(--isalwa-mist)] pt-6"
+        data-entrega-pendientes=""
+      >
+        <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
+          Pendientes
+        </h3>
+        <p className="text-sm text-[var(--isalwa-slate)]">Qué puede hacer ahora con este pedido.</p>
+        <div className="flex flex-wrap gap-3">
         {allowEntrega && gate === 'needs-salida' ? (
           <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
             {ENTREGA_GATE_COPY.needsSalida}
@@ -362,6 +375,7 @@ export function DeliveryDocumentsPanel({
             {ENTREGA_PANEL_COPY.recordEntrega}
           </Button>
         ) : null}
+        </div>
       </div>
 
       {allowEntrega || issuedNotes.length > 0 ? (
@@ -403,7 +417,7 @@ export function DeliveryDocumentsPanel({
 
       <div className="mt-10 space-y-6">
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-          Notas emitidas
+          Notas de entrega
         </h3>
         {notes.length === 0 ? (
           <EmptyState
@@ -446,7 +460,8 @@ export function DeliveryDocumentsPanel({
                 <div className="mt-4 flex flex-wrap gap-3">
                   <a
                     href={`/api/delivery-notes/${encodeURIComponent(note.id)}/pdf`}
-                    className="isalwa-t-fast text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                    className={actionSecondaryClass}
+                    data-delivery-pdf-action=""
                   >
                     {ENTREGA_PANEL_COPY.downloadPdf}
                   </a>
@@ -476,36 +491,46 @@ export function DeliveryDocumentsPanel({
         )}
       </div>
 
-      <div className="mt-10">
+      <div
+        id="entregas-historial"
+        className="mt-10 scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)]"
+        data-entrega-historial=""
+      >
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-          {ENTREGA_PANEL_COPY.chronology}
+          Historial
         </h3>
         {timeline.length === 0 ? (
           <p className="mt-4 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.chronologyEmpty}</p>
         ) : (
           <div className="mt-4">
             <Timeline
-              items={timeline.map((item) => ({
-                id: item.id,
-                label: item.label,
-                meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
-                body: (
-                  <span>
-                    {scrubPilotDeliveryNoteRefs(item.detail, orderNumber)}
-                    {item.href ? (
-                      <>
-                        {' · '}
-                        <a
-                          href={item.href}
-                          className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
-                        >
-                          Abrir
-                        </a>
-                      </>
-                    ) : null}
-                  </span>
-                ),
-              }))}
+              items={timeline.map((item) => {
+                const canonical = timelineEventLabel(item.eventType);
+                const label =
+                  canonical !== 'Actividad registrada' ? canonical : item.label;
+                const detail = scrubPilotDeliveryNoteRefs(item.detail, orderNumber);
+                return {
+                  id: item.id,
+                  label,
+                  meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
+                  body: (
+                    <span>
+                      {detail}
+                      {item.href ? (
+                        <>
+                          {' · '}
+                          <a
+                            href={item.href}
+                            className="isalwa-t-fast font-medium text-[var(--isalwa-glaze)] underline-offset-4 hover:underline"
+                          >
+                            Abrir
+                          </a>
+                        </>
+                      ) : null}
+                    </span>
+                  ),
+                };
+              })}
             />
           </div>
         )}

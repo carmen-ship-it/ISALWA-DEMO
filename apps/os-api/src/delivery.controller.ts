@@ -61,6 +61,7 @@ type OperationalOrder = {
   partyId: string;
   customerName: string;
   status: string;
+  quoteId: string;
   lines: OperationalOrderLine[];
 };
 
@@ -102,6 +103,7 @@ function mapOperationalOrder(
     orderNumber: string;
     partyId: string;
     status: string;
+    quoteId: string;
     lines?: Array<{
       id: string;
       descriptionSnapshot: string;
@@ -118,6 +120,7 @@ function mapOperationalOrder(
     partyId: row.partyId,
     customerName,
     status: row.status,
+    quoteId: row.quoteId,
     lines: (row.lines ?? []).map((line) => ({
       orderLineId: line.id,
       description: line.descriptionSnapshot,

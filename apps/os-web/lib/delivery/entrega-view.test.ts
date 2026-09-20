@@ -59,9 +59,12 @@ describe('entrega surface and chronology', () => {
       items.map((item) => item.kind),
       ['warehouse_exit', 'delivery', 'delivery'],
     );
-    assert.equal(items[0]?.label, 'Nota de salida de almacén');
+    assert.equal(items[0]?.label, 'Salida registrada');
+    assert.equal(items[1]?.label, 'Entrega registrada');
     assert.notEqual(items[0]?.label, 'Nota de entrega');
     assert.match(items[2]?.detail ?? '', /Cantidad registrada: 3/);
     assert.equal(items.some((item) => item.detail.includes('NE-')), false);
+    assert.equal(items.some((item) => /Llegó al cliente/.test(item.detail)), false);
+    assert.equal(items.some((item) => item.label === 'Nota de entrega'), false);
   });
 });

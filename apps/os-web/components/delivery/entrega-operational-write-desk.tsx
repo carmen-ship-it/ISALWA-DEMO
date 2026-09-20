@@ -7,6 +7,9 @@ import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
+import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
+import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
+import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
 
 type Props = {
   selectedOrderId?: string | null;
@@ -137,6 +140,34 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
     timeline = [];
   }
 
+  let quotedProducts: ReturnType<typeof quotedProductsFromQuoteLines> = [];
+  let quoteUnavailable = false;
+  const quoteId = typeof (selected as { quoteId?: string }).quoteId === 'string' ? (selected as { quoteId: string }).quoteId.trim() : '';
+  if (quoteId) {
+    try {
+      const pack = await client.getQuote(quoteId);
+      quotedProducts = quotedProductsFromQuoteLines(pack.quote.lines);
+    } catch {
+      quoteUnavailable = true;
+      quotedProducts = [];
+    }
+  }
+
+  const hasSalida = timeline.some((item) => item.eventType === 'warehouse_exit.recorded');
+  const hasNota = notes.some((note) => note.status === 'issued');
+  const hasEntrega = timeline.some((item) => item.eventType === 'customer_delivery.recorded');
+  const progress = buildDeliveryProgress({
+    orderRecorded: true,
+    hasNote: hasNota,
+    hasSalida,
+    hasEntrega,
+  });
+  const nextHint = !hasSalida
+    ? 'Siguiente: Registrar salida (la nota no es obligatoria).'
+    : !hasEntrega
+      ? 'Siguiente: Registrar entrega (requiere «Recibido por»).'
+      : 'Hay entrega registrada. Puede crear otra nota o registrar otra salida/entrega si corresponde.';
+
   return (
     <div className="mb-6" data-entrega-ops-desk="1">
       <PageSection card className="mb-4 p-5 md:p-6" aria-label="Pedidos disponibles para registrar">
@@ -144,7 +175,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
           kicker="Operación"
           title={
             <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-              Pendientes / disponibles para registrar
+              Pedidos disponibles
             </h2>
           }
         />
@@ -167,7 +198,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
                     href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
                     className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
                   >
-                    Registrar aquí
+                    Abrir pedido
                   </Link>
                 </div>
               </ListRow>
@@ -181,14 +212,13 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
         ) : null}
       </PageSection>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <StatusPill tone="neutral">Pedido {presentEntregaAuditLabel(selected.orderNumber)}</StatusPill>
-        <StatusPill tone="manual">Registro en Entregas</StatusPill>
-        {canRecordDelivery(scopes) ? (
-          <StatusPill tone="manual">Puede crear nota y entrega</StatusPill>
-        ) : (
-          <StatusPill tone="manual">Puede registrar salida</StatusPill>
-        )}
+      <div className="mb-4 space-y-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4" data-entrega-pedido-summary="">
+        <div className="flex flex-wrap gap-2">
+          <StatusPill tone="neutral">Pedido {presentEntregaAuditLabel(selected.orderNumber)}</StatusPill>
+          <StatusPill tone="neutral">{presentEntregaAuditLabel(selected.customerName)}</StatusPill>
+        </div>
+        <DeliveryProgressStrip steps={progress} />
+        <p className="text-sm text-[var(--isalwa-kiln)]">{nextHint}</p>
       </div>
       <DeliveryDocumentsPanel
         partyId={selected.partyId}
@@ -203,7 +233,9 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
         canCreateNote={selected.status === 'open' && canRecordDelivery(scopes)}
         canRecordSalida={selected.status === 'open' && canRecordWarehouseOutbound(scopes)}
         canRecordEntrega={selected.status === 'open' && canRecordDelivery(scopes)}
-        hasSalida={timeline.some((item) => item.eventType === 'warehouse_exit.recorded')}
+        hasSalida={hasSalida}
+        quotedProducts={quotedProducts}
+        quoteUnavailable={quoteUnavailable}
       />
       <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
         Este registro no exige abrir la ficha comercial del pedido.{' '}

@@ -1,13 +1,12 @@
 /**
  * Entrega panel. Mounted on /entregas.
  * Warehouse exit and customer delivery stay in separate sections.
- * Nota de entrega is a human-created operational document (provisional numbering).
+ * Nota de entrega is a separate operational document (not shown as delivery).
  */
 
 import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
-import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill, Timeline } from '@isalwa/ui';
+import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill } from '@isalwa/ui';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
-import { buildEntregaChronology, type EntregaChronologyInput } from '@/lib/delivery/chronology';
 import { presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 
 export type EntregaLineView = {
@@ -56,7 +55,7 @@ export type EntregaPanelProps = {
 const ROLE_LABEL: Record<EntregaEvidenceView['role'], string> = {
   commercial_coordination: 'Coordinación comercial',
   accounting_payment: 'Evidencia de pago',
-  warehouse_outbound: 'Nota de salida de almacén',
+  warehouse_outbound: 'Salida de almacén',
   delivery_confirmation: 'Confirmación de entrega',
 };
 
@@ -84,41 +83,6 @@ function LineList({ lines }: { lines: EntregaLineView[] }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-function Chronology({ warehouseExits, deliveries }: EntregaChronologyInput) {
-  const items = buildEntregaChronology({ warehouseExits, deliveries });
-  return (
-    <section aria-label="Cronología" className="space-y-4">
-      <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-        Cronología
-      </h2>
-      <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Un pedido puede entregarse en partes. La cantidad guardada no declara el pedido como cumplido.
-      </p>
-      {items.length === 0 ? (
-        <EmptyState
-          title="Sin movimientos todavía"
-          description="Aquí aparecerán salidas de almacén y entregas al cliente, en orden. Un vacío es intencional: no hay registro interno guardado aún."
-          example="Cuando exista un registro formalizado, saldrá aquí en orden cronológico."
-        />
-      ) : (
-        <Timeline
-          items={items.map((item) => ({
-            id: item.id,
-            label: item.label,
-            meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
-            body: (
-              <span>
-                {item.detail} Registró {presentEntregaAuditLabel(item.recordedByLabel)}.
-                {item.sourceLabel ? ` Origen: ${presentEntregaAuditLabel(item.sourceLabel)}.` : ''}
-              </span>
-            ),
-          }))}
-        />
-      )}
-    </section>
   );
 }
 
@@ -160,77 +124,69 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
 
   return (
     <OpsDeskSurface className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
-      <p className="max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {ENTREGA_PANEL_COPY.beforeDelivery} {ENTREGA_PANEL_COPY.warehouseDistinct}{' '}
-        {ENTREGA_PANEL_COPY.numberingUnknown} {ENTREGA_PANEL_COPY.notInvoice}{' '}
-        {ENTREGA_PANEL_COPY.internalRecord} {ENTREGA_PANEL_COPY.provisionalDisclaimer}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <StatusPill tone="neutral">Sin número oficial</StatusPill>
-        <StatusPill tone="neutral">No es factura</StatusPill>
-        <StatusPill tone="manual">No confirma pago en el libro</StatusPill>
-      </div>
-
       {warehouseExits.length === 0 && deliveries.length === 0 ? (
         <div data-owner-review-state="no-data">
           <EmptyState
-            title="Todavía no hay entregas registradas"
-            description="La empresa aún no tiene salidas de almacén ni notas de entrega internas guardadas. Un vacío de datos no es falta de permiso."
-            example="Cuando exista un registro formalizado de salida o llegada, aparecerá en la cronología."
+            title="Todavía no hay salidas ni entregas registradas"
+            description="La empresa aún no tiene salidas de almacén ni entregas al cliente guardadas."
+            example="Cuando exista un registro formalizado de salida o entrega, aparecerá en el historial."
           />
         </div>
       ) : null}
 
-      <Chronology warehouseExits={warehouseExits} deliveries={deliveries} />
-
-      <PageSection card className="p-6 md:p-8">
+      <PageSection
+        id="entregas-salidas"
+        card
+        className="scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] p-6 md:p-8"
+      >
         <SectionHeader
-          kicker="Entrega"
+          kicker="Salida"
           title={
             <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-              Nota de salida de almacén
+              Salidas
             </h2>
           }
           action={<StatusPill tone="info">No es entrega</StatusPill>}
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Registra que la mercadería salió del almacén. No es la nota de entrega al cliente. No se
-          genera un número aquí; una referencia impresa externa puede anotarse como origen.
+          Mercadería que salió del almacén. Distinto de la nota de entrega y de la entrega al cliente.
         </p>
         {warehouseExits.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
             <EmptyState
               title="Todavía no hay salida de almacén"
-              description="Una salida de almacén no crea la nota de entrega. El vacío significa que aún no hay un registro guardado de salida."
+              description="Una salida de almacén no crea la nota de entrega ni la entrega al cliente."
               example="El registro definitivo de salida se formalizará después de validar el flujo con la empresa."
             />
           </div>
         ) : (
-          <ul className="mt-8 space-y-8" aria-label="Salidas de almacén">
+          <ul className="mt-8 space-y-6" aria-label="Salidas de almacén">
             {warehouseExits.map((exit) => (
-              <li key={exit.id ?? exit.exitedAt} className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  <StatusPill tone="neutral">Sin número</StatusPill>
-                </div>
-                <dl className="grid gap-6 sm:grid-cols-2">
+              <li
+                key={exit.id ?? exit.exitedAt}
+                className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4"
+              >
+                <dl className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <dt className="isalwa-section-label">Salió</dt>
-                    <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatWhen(exit.exitedAt)}</dd>
+                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{formatWhen(exit.exitedAt)}</dd>
                   </div>
                   <div>
                     <dt className="isalwa-section-label">Registró</dt>
-                    <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
                       {presentEntregaAuditLabel(exit.recordedByLabel)}
                     </dd>
                   </div>
-                  <div>
-                    <dt className="isalwa-section-label">Origen</dt>
-                    <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                      {presentEntregaAuditLabel(exit.sourceLabel ?? 'Registro interno')}
-                    </dd>
-                  </div>
                 </dl>
-                {exit.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{exit.notes}</p> : null}
+                <details>
+                  <summary className="cursor-pointer list-none text-xs font-medium text-[var(--isalwa-slate)] [&::-webkit-details-marker]:hidden">
+                    Origen y detalle
+                  </summary>
+                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                    Origen: {presentEntregaAuditLabel(exit.sourceLabel ?? 'Registro interno')}
+                  </p>
+                  {exit.notes ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{exit.notes}</p> : null}
+                </details>
                 <LineList lines={exit.lines} />
               </li>
             ))}
@@ -238,66 +194,60 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         )}
       </PageSection>
 
-      <PageSection card className="p-6 md:p-8">
+      <PageSection
+        id="entregas-entregas"
+        card
+        className="scroll-mt-[calc(var(--isalwa-shell-header-offset,3.5rem)+2.5rem)] p-6 md:p-8"
+      >
         <SectionHeader
           kicker="Entrega"
           title={
             <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
-              Nota de entrega
+              Entregas
             </h2>
           }
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          La nota de entrega es un documento operativo creado por una persona desde el pedido. No es
-          factura y no tiene significado fiscal. Un pedido no la emite sola. Una salida de almacén
-          tampoco crea la nota. El pago no es requisito. Una excepción autorizada no es un pago
-          confirmado en el libro.
+          Entrega al cliente registrada. Requiere salida previa y «Recibido por». Distinta de la nota de entrega.
         </p>
         {deliveries.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
             <EmptyState
-              title="Todavía no hay una entrega registrada."
-              description="La nota de entrega puede crearse desde el pedido. Este panel muestra salidas y entregas al cliente. Un vacío no inventa llegada ni número oficial."
-              example="El registro definitivo de llegada se formalizará después de validar el flujo con la empresa."
+              title={ENTREGA_PANEL_COPY.noDeliveryYet}
+              description="La entrega no se infiere de la nota ni de la salida. Un vacío no inventa llegada."
+              example="Registre la entrega desde el pedido cuando la salida exista y conozca quién recibió."
             />
           </div>
         ) : (
-          <ul className="mt-8 space-y-10" aria-label="Entregas al cliente">
+          <ul className="mt-8 space-y-6" aria-label="Entregas al cliente">
             {deliveries.map((delivery) => {
               const payment = delivery.evidence.find((item) => item.role === 'accounting_payment') ?? null;
               return (
-                <li key={delivery.id ?? delivery.deliveredAt} className="space-y-6">
+                <li
+                  key={delivery.id ?? delivery.deliveredAt}
+                  className="space-y-4 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4"
+                >
                   <div className="flex flex-wrap gap-2">
                     <StatusPill tone="success">Entregada</StatusPill>
-                    <StatusPill tone="neutral">Sin número</StatusPill>
-                    <StatusPill tone="neutral">No es factura</StatusPill>
                     {payment?.paymentState === 'authorized_exception' ? (
                       <StatusPill tone="warning">Excepción. No es un pago confirmado</StatusPill>
-                    ) : (
-                      <StatusPill tone="manual">Sin confirmación de pago</StatusPill>
-                    )}
+                    ) : null}
                   </div>
-                  <dl className="grid gap-6 sm:grid-cols-2">
+                  <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <dt className="isalwa-section-label">Entregada</dt>
-                      <dd className="mt-2 text-[var(--isalwa-kiln)]">{formatWhen(delivery.deliveredAt)}</dd>
+                      <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{formatWhen(delivery.deliveredAt)}</dd>
                     </div>
                     <div>
                       <dt className="isalwa-section-label">Registró</dt>
-                      <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                      <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
                         {presentEntregaAuditLabel(delivery.recordedByLabel)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="isalwa-section-label">Origen</dt>
-                      <dd className="mt-2 text-[var(--isalwa-kiln)]">
-                        {presentEntregaAuditLabel(delivery.sourceLabel ?? 'Registro interno')}
                       </dd>
                     </div>
                     {delivery.deliveredTo ? (
                       <div>
-                        <dt className="isalwa-section-label">Recibió</dt>
-                        <dd className="mt-2 text-[var(--isalwa-kiln)]">
+                        <dt className="isalwa-section-label">Recibido por</dt>
+                        <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
                           {presentEntregaAuditLabel(delivery.deliveredTo)}
                         </dd>
                       </div>
@@ -306,40 +256,44 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                   {delivery.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{delivery.notes}</p> : null}
                   <LineList lines={delivery.lines} />
                   {delivery.evidence.length > 0 ? (
-                    <ul className="space-y-4" aria-label="Evidencias por actor">
-                      {delivery.evidence.map((item) => (
-                        <li key={`${item.role}:${item.actorLabel}`} className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{ROLE_LABEL[item.role]}</p>
-                            <StatusPill tone="neutral">
-                              {presentEntregaAuditLabel(item.actorLabel)}
-                            </StatusPill>
-                          </div>
-                          {item.reference ? (
-                            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Referencia: {item.reference}</p>
-                          ) : null}
-                          {item.recipient ? (
-                            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Destinatario: {item.recipient}</p>
-                          ) : null}
-                          {item.signatureReference ? (
-                            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                              Referencia de evidencia: {item.signatureReference}
-                            </p>
-                          ) : null}
-                          {item.paymentState === 'authorized_exception' ? (
-                            <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                              Una excepción autorizada no es un pago confirmado en el libro.
-                            </p>
-                          ) : null}
-                          {item.note ? <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{item.note}</p> : null}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
-                      El pago no es requisito para registrar la entrega.
-                    </p>
-                  )}
+                    <details>
+                      <summary className="cursor-pointer list-none text-xs font-medium text-[var(--isalwa-slate)] [&::-webkit-details-marker]:hidden">
+                        Evidencias
+                      </summary>
+                      <ul className="mt-3 space-y-3" aria-label="Evidencias por actor">
+                        {delivery.evidence.map((item) => (
+                          <li
+                            key={`${item.role}:${item.actorLabel}`}
+                            className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{ROLE_LABEL[item.role]}</p>
+                              <StatusPill tone="neutral">
+                                {presentEntregaAuditLabel(item.actorLabel)}
+                              </StatusPill>
+                            </div>
+                            {item.reference ? (
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Referencia: {item.reference}</p>
+                            ) : null}
+                            {item.recipient ? (
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Destinatario: {item.recipient}</p>
+                            ) : null}
+                            {item.signatureReference ? (
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                                Referencia de evidencia: {item.signatureReference}
+                              </p>
+                            ) : null}
+                            {item.paymentState === 'authorized_exception' ? (
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                                {ENTREGA_PANEL_COPY.exceptionNotPayment}
+                              </p>
+                            ) : null}
+                            {item.note ? <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{item.note}</p> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
                 </li>
               );
             })}

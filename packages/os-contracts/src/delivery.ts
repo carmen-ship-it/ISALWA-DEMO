@@ -126,7 +126,7 @@ export const ENTREGA_PANEL_COPY = {
     'La nota de salida registra que la mercadería salió del almacén. No es la nota de entrega al cliente.',
   noDeliveryYet: 'Todavía no hay una entrega registrada.',
   numberingUnknown:
-    'La numeración es provisional interna (NE-PILOT-…). No es un número oficial de ISALWA.',
+    'La numeración es provisional interna. No es un número oficial de ISALWA.',
   externalNumberPreserved:
     'Un número impreso externo puede conservarse como referencia de origen. No se genera aquí un correlativo oficial.',
   factoryNoteDistinct:
