@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {
   PageContainer,
   PageSection,
@@ -8,7 +7,7 @@ import {
 } from '@isalwa/ui';
 import '@/components/commercial/commercial-surfaces.css';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
-import { ResolvePurchasingReviewForm } from '@/components/purchasing/resolve-purchasing-review-form';
+import { PendingSupplyReviewCard } from '@/components/purchasing/pending-supply-review-card';
 import { OpsDeskInfoBanner } from '@/components/production/ops-desk-info-banner';
 import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { PageHeader } from '@/components/shell/page-header';
@@ -22,7 +21,6 @@ import { loadComprasQueue } from '@/lib/purchasing/load-queue';
 import { loadComprasLinkedOrders, type ComprasLinkedOrder } from '@/lib/purchasing/load-linked-orders';
 import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
-import { workItemHref } from '@/lib/work/navigation';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
@@ -102,12 +100,13 @@ export default async function ComprasPage({ searchParams }: ComprasPageProps) {
           state="ready"
           items={queue.items}
           count={queue.count}
+          pendingReviewCount={abastecimientoCount}
           buyerSuggestions={queue.buyerSuggestions}
           query={q}
           statusFilter={estado}
         />
       ) : (
-        <PurchaseRequestPanel state={queue.state} />
+        <PurchaseRequestPanel state={queue.state} pendingReviewCount={abastecimientoCount} />
       )}
       {queue.state === 'ready' || queue.state === 'permission' ? (
         <LinkedOrdersSection orders={linkedOrders} />
@@ -180,16 +179,6 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
 }
 
 function PendingSupplyReviewsSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
-  const desktopGrid =
-    'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]';
-  const headerColumns = [
-    { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
-    { id: 'client', label: 'Cliente', className: 'min-w-0' },
-    { id: 'context', label: 'Contexto', className: 'min-w-0' },
-    { id: 'status', label: 'Estado', className: 'justify-self-end' },
-    { id: 'action', label: '', className: 'justify-self-end' },
-  ];
-
   return (
     <OpsDeskSurface className="mb-4">
       <PageSection className="p-0 shadow-none" aria-label="Revisiones de abastecimiento pendientes">
@@ -206,55 +195,22 @@ function PendingSupplyReviewsSection({ orders }: { orders: LinkedOrderWithSupply
             Sin revisiones de abastecimiento abiertas.
           </p>
         ) : (
-          <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
-            <OperatingScanListHeader columns={headerColumns} className={desktopGrid} />
-            <ul className="m-0 list-none p-0">
-              {orders.map((order) => {
-                const href = orderHref(order.partyId, order.orderId);
-                const review = order.supplyReview!;
-                return (
-                  <li key={order.orderId}>
-                    <OperatingScanRow
-                      href={href}
-                      title={order.orderNumber}
-                      desktopGridClassName={desktopGrid}
-                      fields={[
-                        { id: 'client', label: 'Cliente', value: order.customerLabel },
-                        {
-                          id: 'context',
-                          label: 'Contexto',
-                          value: review.title || 'Revisión de abastecimiento',
-                          hideOnMobile: true,
-                        },
-                      ]}
-                      status={
-                        <StatusPill tone="warning" icon="none">
-                          Revisión de abastecimiento
-                        </StatusPill>
-                      }
-                      actionLabel="Ver pedido"
-                      secondaryActions={
-                        <div className="flex flex-col items-end gap-1">
-                          <Link
-                            href={workItemHref(review.workItemId)}
-                            className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
-                          >
-                            Ver revisión
-                          </Link>
-                          <ResolvePurchasingReviewForm
-                            workItemId={review.workItemId}
-                            requesterMemberId={review.requesterMemberId}
-                            partyId={order.partyId}
-                            orderId={order.orderId}
-                            orderNumber={order.orderNumber}
-                          />
-                        </div>
-                      }
-                    />
-                  </li>
-                );
-              })}
-            </ul>
+          <div className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
+            {orders.map((order) => {
+              const review = order.supplyReview!;
+              return (
+                <PendingSupplyReviewCard
+                  key={order.orderId}
+                  partyId={order.partyId}
+                  orderId={order.orderId}
+                  orderNumber={order.orderNumber}
+                  customerLabel={order.customerLabel}
+                  reviewTitle={review.title}
+                  workItemId={review.workItemId}
+                  requesterMemberId={review.requesterMemberId}
+                />
+              );
+            })}
           </div>
         )}
       </PageSection>

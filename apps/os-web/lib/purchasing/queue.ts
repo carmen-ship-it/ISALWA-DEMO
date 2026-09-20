@@ -19,12 +19,13 @@ import { elapsedAge } from '../time/elapsed';
 export const COMPRAS_COPY = {
   kicker: 'Compras',
   title: 'Cola de compras',
-  description:
-    'Revise los pedidos que requieren atención de Compras. Las órdenes de compra aún no se generan en ISALWA.',
+  description: 'Revise los pedidos que requieren atención de Compras.',
   boundary: PURCHASE_REQUEST_BOUNDARY,
   emptyTitle: 'Sin pedidos que requieran Compras',
-  emptyDescription:
-    'Cuando un pedido requiera atención de Compras, aparecerá aquí. Las órdenes de compra aún no se generan en ISALWA.',
+  emptyDescription: 'Cuando un pedido requiera atención de Compras, aparecerá aquí.',
+  emptyQueueWithPendingTitle: 'No hay nuevas solicitudes en la cola.',
+  emptyQueueWithPendingDescription:
+    'La cola de solicitudes nuevas está vacía. Revise las revisiones pendientes abajo.',
   loading: 'Cargando la cola de compras',
   errorTitle: 'No se pudo cargar la cola de compras',
   errorDescription: 'La cola no se mostró. No hay un resultado de otra empresa.',

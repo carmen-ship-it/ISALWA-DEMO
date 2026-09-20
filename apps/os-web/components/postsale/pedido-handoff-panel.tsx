@@ -41,17 +41,8 @@ export function PedidoHandoffPanel({
   );
 
   return (
-    <PageSection card className="mb-6 p-6 md:p-8" aria-label={POSTSALE_HANDOFF_COPY.title}>
-      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title={POSTSALE_HANDOFF_COPY.title} />
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {POSTSALE_HANDOFF_COPY.inheritOnce}
-      </p>
-      <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {POSTSALE_HANDOFF_COPY.noOpaqueIds}
-      </p>
-      <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        {POSTSALE_HANDOFF_COPY.humanLinkProvenance}
-      </p>
+    <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedido">
+      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title="Pedido" />
 
       {pedidos.length === 0 ? (
         <div className="mt-6" data-owner-review-state="no-data">
@@ -65,7 +56,7 @@ export function PedidoHandoffPanel({
         <div className="mt-6 space-y-4">
           <SearchableSelect
             id="postsale-pedido"
-            label={POSTSALE_HANDOFF_COPY.selectPedido}
+            label="Pedido"
             options={pedidoOptions}
             value={selectedOrderId}
             onChange={(id) => {
@@ -77,7 +68,7 @@ export function PedidoHandoffPanel({
           {showProductSelect && selected ? (
             <SearchableSelect
               id="postsale-pedido-line"
-              label={POSTSALE_HANDOFF_COPY.selectProduct}
+              label="Producto / línea"
               options={lineOptions}
               value={selectedOrderLineId}
               onChange={onSelectLine}
@@ -89,10 +80,6 @@ export function PedidoHandoffPanel({
 
       {selected ? (
         <div className="mt-8 space-y-4" data-postsale-context="pedido">
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="info">{POSTSALE_HANDOFF_COPY.customer}</StatusPill>
-            <StatusPill tone="neutral">{selected.customerLabel}</StatusPill>
-          </div>
           <dl className="grid gap-3 text-sm md:grid-cols-2">
             <div>
               <dt className="text-[var(--isalwa-slate)]">{POSTSALE_HANDOFF_COPY.customer}</dt>

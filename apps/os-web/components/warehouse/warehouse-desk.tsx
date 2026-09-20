@@ -17,6 +17,7 @@ import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import {
   WAREHOUSE_EXIT_HREF,
+  WAREHOUSE_MISSING_NAME,
   WAREHOUSE_TASK_COPY,
   type WarehouseDenialReason,
   type WarehouseTaskView,
@@ -105,10 +106,21 @@ export function WarehouseDesk({
 
 function humanWarehouseText(text: string | null | undefined): string | null {
   const raw = text?.trim() ?? '';
-  if (!raw || isEngineeringFixtureCopy(raw)) return null;
+  if (!raw || raw === WAREHOUSE_MISSING_NAME || isEngineeringFixtureCopy(raw)) return null;
   const human = presentHumanCopy(raw);
-  if (!human || isEngineeringFixtureCopy(human)) return null;
+  if (!human || human === WAREHOUSE_MISSING_NAME || isEngineeringFixtureCopy(human)) return null;
   return human;
+}
+
+/** Pedido O-xxx · Cliente — never “El nombre no fue registrado”. */
+function pedidoHumanLabel(orderText: string | null | undefined, customerText: string | null | undefined): string | null {
+  const order = humanWarehouseText(orderText);
+  const customer = humanWarehouseText(customerText);
+  if (!order && !customer) return null;
+  const orderRef = order
+    ? (order.match(/^Pedido\b/i) ? order : `Pedido ${order}`)
+    : 'Pedido';
+  return customer ? `${orderRef} · ${customer}` : orderRef;
 }
 
 function contextLabel(parts: Array<string | null | undefined>): string | null {
@@ -119,30 +131,24 @@ function contextLabel(parts: Array<string | null | undefined>): string | null {
 }
 
 function WaitingSection({ view }: { view: WarehouseTaskView }) {
+  const rows = view.waiting.filter((row) => humanWarehouseText(row.productName.text));
+  if (rows.length === 0) return null;
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.waiting} />
-      {view.waiting.length === 0 ? (
-        <EmptyState
-          title={WAREHOUSE_TASK_COPY.emptyWaiting}
-          description={`${WAREHOUSE_TASK_COPY.unknownAvailability} ${WAREHOUSE_TASK_COPY.receiptDoesNotAllocate}`}
-          example="Cuando planta registre Listo, el producto aparecerá en esta lista para asignar."
-        />
-      ) : (
-        <ul>
-          {view.waiting
-            .filter((row) => humanWarehouseText(row.productName.text))
-            .map((row) => (
-            <ListRow key={row.productId} as="li">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.waitingText}</p>
-              </div>
-              <StatusPill tone="manual">{WAREHOUSE_TASK_COPY.notOfficialStock}</StatusPill>
-            </ListRow>
-          ))}
-        </ul>
-      )}
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Producto terminado citado sin cantidad asignable todavía.
+      </p>
+      <ul className="mt-4">
+        {rows.map((row) => (
+          <ListRow key={row.productId} as="li">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
+              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.waitingText}</p>
+            </div>
+          </ListRow>
+        ))}
+      </ul>
     </PageSection>
   );
 }
@@ -189,7 +195,7 @@ function AllocateSection({
           id: pedido.orderLineId,
           label:
             humanWarehouseText(pedido.optionLabel) ??
-            contextLabel([pedido.customerName.text, pedido.orderName.text]) ??
+            pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text) ??
             '',
         }))
         .filter((row) => row.label),
@@ -199,6 +205,9 @@ function AllocateSection({
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.allocatable} />
+      <p className="mt-1.5 mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+        Cantidad del registro de ingresos menos asignaciones ya hechas. Desde aquí se asigna al pedido.
+      </p>
       {view.allocatable.length === 0 ? (
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">{WAREHOUSE_TASK_COPY.unknownAvailability}</p>
       ) : (
@@ -225,11 +234,16 @@ function AllocateSection({
       ) : (
         <ul className="mt-3" aria-label={WAREHOUSE_TASK_COPY.pedido}>
           {view.pedidos
-            .filter((pedido) => humanWarehouseText(pedido.optionLabel) || contextLabel([pedido.customerName.text, pedido.orderName.text]))
+            .filter(
+              (pedido) =>
+                humanWarehouseText(pedido.optionLabel) ||
+                pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text),
+            )
             .map((pedido) => (
             <ListRow key={pedido.orderLineId} as="li">
               <p className="text-sm text-[var(--isalwa-kiln)]">
-                {humanWarehouseText(pedido.optionLabel) ?? contextLabel([pedido.customerName.text, pedido.orderName.text])}
+                {humanWarehouseText(pedido.optionLabel) ??
+                  pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text)}
               </p>
             </ListRow>
           ))}
@@ -314,11 +328,12 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
       ) : (
         <ul>
           {view.remains.map((row) => {
-            const label = contextLabel([
-              row.customerName.text,
-              row.orderName.text,
-              row.productName.text,
-            ]);
+            const label = [
+              pedidoHumanLabel(row.orderName.text, row.customerName.text),
+              humanWarehouseText(row.productName.text),
+            ]
+              .filter(Boolean)
+              .join(' · ');
             if (!label) return null;
             return (
             <ListRow key={row.orderLineId} as="li">

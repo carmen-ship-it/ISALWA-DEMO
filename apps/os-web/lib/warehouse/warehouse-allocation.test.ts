@@ -392,10 +392,13 @@ describe('availability stays unknown instead of becoming zero or another tenant'
     const view = desk.view(session(), facts({ receipts: null }));
     assert.equal('waiting' in view, true);
     if (!('waiting' in view)) return;
-    assert.equal(view.allocatable[0]?.availableQuantity, null);
-    assert.equal(view.allocatable[0]?.availableText.includes('No es cero'), true);
+    // Unknown availability surfaces in waiting only — not duplicated as allocatable.
+    assert.equal(view.allocatable.length, 0);
+    assert.equal(view.waiting[0]?.unallocatedQuantity, null);
+    assert.equal(view.waiting[0]?.receiptQuantity, null);
+    assert.equal(view.waiting[0]?.waitingText.includes('No es cero'), true);
     assert.equal(view.officialStock, false);
-    assert.equal(JSON.stringify(view.allocatable).includes('"0"'), false);
+    assert.equal(view.waiting[0]?.waitingText.includes(' 0 ') || view.waiting[0]?.waitingText.startsWith('0'), false);
   });
 
   it('does not treat another tenant receipts as this tenant availability', () => {

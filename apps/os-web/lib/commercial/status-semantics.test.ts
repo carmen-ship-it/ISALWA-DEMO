@@ -66,6 +66,7 @@ describe('Task 3 shared status semantics', () => {
     const production = readRepo('apps/os-web/components/production/production-ops-table.tsx');
     const almacen = readRepo('apps/os-web/app/(app)/almacen/page.tsx');
     const compras = readRepo('apps/os-web/app/(app)/compras/page.tsx');
+    const comprasReview = readRepo('apps/os-web/components/purchasing/pending-supply-review-card.tsx');
 
     // Status pills remain state labels
     assert.match(production, /Revisión de producción/);
@@ -79,8 +80,8 @@ describe('Task 3 shared status semantics', () => {
     assert.doesNotMatch(production, />\s*Revisión\s*</);
     assert.match(almacen, />\s*Ver revisión\s*</);
     assert.doesNotMatch(almacen, />\s*Revisión\s*</);
-    assert.match(compras, />\s*Ver revisión\s*</);
-    assert.doesNotMatch(compras, />\s*Revisión\s*</);
+    assert.match(comprasReview, />\s*Ver revisión\s*</);
+    assert.doesNotMatch(comprasReview, />\s*Revisión\s*</);
   });
 
   it('UNAPPROVED_COLORS = 0 in StatusPill tone classes', () => {

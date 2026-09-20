@@ -1,16 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from 'react';
 import {
   ActionBar,
   Button,
   FeedbackNote,
   PageSection,
   SectionHeader,
-  StatusPill,
 } from '@isalwa/ui';
 import { PedidoHandoffPanel } from '@/components/postsale/pedido-handoff-panel';
-import { ProductionWorkspace } from '@/components/production/production-workspace';
 import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import {
   POSTSALE_HANDOFF_COPY,
@@ -52,7 +50,7 @@ type ProductionPostSaleDeskProps = {
  * Optional expected date creates Work with dueAt (existing Attention overdue rule).
  */
 export function ProductionPostSaleDesk({
-  status,
+  status: _status,
   organizationId,
   memberId,
   actorLabel,
@@ -73,6 +71,7 @@ export function ProductionPostSaleDesk({
     null,
   );
   const [ledger] = useState(() => new ProductionAccessLedger());
+  const [pending, startTransition] = useTransition();
 
   const session = useMemo<ProductionSession>(
     () => ({ organizationId, memberId, grantedScopes, actorLabel }),
@@ -92,8 +91,9 @@ export function ProductionPostSaleDesk({
   const line = resolveLineProduct(pedido, orderLineId);
   const productFromCatalog = line ? catalogContainsProductId(catalog, line.productId) : false;
 
-  async function saveMilestone(event: FormEvent) {
+  function saveMilestone(event: FormEvent) {
     event.preventDefault();
+    if (pending) return;
     setFeedback(null);
     if (!canEnter || !memberId) {
       setFeedback({
@@ -127,61 +127,63 @@ export function ProductionPostSaleDesk({
       return;
     }
 
-    if (productFromCatalog) {
-      const now = new Date().toISOString();
-      const recorded = recordProcess(ledger, session, {
-        id: `proc-${pedido.orderId}-${now}`,
-        organizationId: organizationId ?? '',
-        productId: line.productId,
-        stepKey,
-        quemaId: null,
-        note: [built.annotation, built.note].filter(Boolean).join(' — ') || null,
-        actorMemberId: memberId,
-        actorLabel,
-        source: 'manual',
-        occurredAt: now,
-        recordedAt: now,
-        evidence: {
-          reference: pedido.orderLabel,
-          note: `Pedido ${pedido.orderLabel} · vínculo ${PRODUCTION_PEDIDO_LINK_PROVENANCE}`,
-        },
-        correctsEntryId: null,
-        correctionReason: null,
-        idempotencyKey: null,
+    startTransition(async () => {
+      if (productFromCatalog) {
+        const now = new Date().toISOString();
+        const recorded = recordProcess(ledger, session, {
+          id: `proc-${pedido.orderId}-${now}`,
+          organizationId: organizationId ?? '',
+          productId: line.productId,
+          stepKey,
+          quemaId: null,
+          note: [built.annotation, built.note].filter(Boolean).join(' — ') || null,
+          actorMemberId: memberId,
+          actorLabel,
+          source: 'manual',
+          occurredAt: now,
+          recordedAt: now,
+          evidence: {
+            reference: pedido.orderLabel,
+            note: `Pedido ${pedido.orderLabel} · vínculo ${PRODUCTION_PEDIDO_LINK_PROVENANCE}`,
+          },
+          correctsEntryId: null,
+          correctionReason: null,
+          idempotencyKey: null,
+        });
+        if (!recorded.ok) {
+          setFeedback({
+            tone: 'error',
+            title: 'No se anotó en planta.',
+            detail: recorded.message,
+          });
+          return;
+        }
+      }
+
+      if (built.work && onCreateExpectedWork) {
+        const workResult = await onCreateExpectedWork(built.work.payload);
+        if (!workResult.ok) {
+          setFeedback({
+            tone: 'error',
+            title: 'Actualización guardada; no se pudo registrar la fecha en Trabajo.',
+            detail: workResult.error,
+          });
+          return;
+        }
+      }
+
+      setFeedback({
+        tone: 'success',
+        title: built.work
+          ? 'Actualización guardada. La fecha esperada quedó en Trabajo / Atención.'
+          : productFromCatalog
+            ? 'Actualización de planta guardada para el producto del pedido.'
+            : 'Actualización guardada en el contexto del pedido.',
       });
-      if (!recorded.ok) {
-        setFeedback({
-          tone: 'error',
-          title: 'No se anotó en planta.',
-          detail: recorded.message,
-        });
-        return;
-      }
-    }
-
-    if (built.work && onCreateExpectedWork) {
-      const workResult = await onCreateExpectedWork(built.work.payload);
-      if (!workResult.ok) {
-        setFeedback({
-          tone: 'error',
-          title: 'Anotación lista; no se pudo registrar la fecha en Trabajo.',
-          detail: workResult.error,
-        });
-        return;
-      }
-    }
-
-    setFeedback({
-      tone: 'success',
-      title: built.work
-        ? 'Anotación registrada. La fecha esperada quedó en Trabajo / Atención.'
-        : productFromCatalog
-          ? 'Anotación de planta registrada para el producto del pedido.'
-          : 'Anotación registrada en el contexto del pedido.',
+      setAnnotation('');
+      setNote('');
+      setExpectedAt('');
     });
-    setAnnotation('');
-    setNote('');
-    setExpectedAt('');
   }
 
   return (
@@ -194,16 +196,11 @@ export function ProductionPostSaleDesk({
         onSelectLine={setOrderLineId}
       />
 
-      <PageSection card className="p-6 md:p-8" aria-label={POSTSALE_HANDOFF_COPY.milestone}>
+      <PageSection card className="p-6 md:p-8" aria-label="Registrar actualización de producción">
         <SectionHeader
           kicker="Producción"
-          title={POSTSALE_HANDOFF_COPY.milestone}
-          action={<StatusPill tone="manual">Confirmación humana</StatusPill>}
+          title="Registrar actualización de producción"
         />
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Anote un hito confirmado por una persona. No se inventa un SLA de fábrica ni se marca
-          iniciado/completado desde otros eventos. {POSTSALE_HANDOFF_COPY.humanLinkProvenance}
-        </p>
         <form className="mt-6 space-y-4" onSubmit={saveMilestone}>
           <label className="block text-sm text-[var(--isalwa-slate)]">
             Paso de planta
@@ -222,7 +219,7 @@ export function ProductionPostSaleDesk({
             </select>
           </label>
           <label className="block text-sm text-[var(--isalwa-slate)]">
-            {POSTSALE_HANDOFF_COPY.milestone}
+            Actualización
             <input
               className={fieldClass}
               value={annotation}
@@ -248,15 +245,10 @@ export function ProductionPostSaleDesk({
           <p id="postsale-expected-hint" className="text-sm text-[var(--isalwa-slate)]">
             {POSTSALE_HANDOFF_COPY.expectedDateHint}
           </p>
-          {memberId ? (
-            <p className="text-sm text-[var(--isalwa-slate)]">
-              {POSTSALE_HANDOFF_COPY.responsible}: queda a su nombre cuando la sesión lo autoriza.
-            </p>
-          ) : null}
           <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
             <ActionBar>
-              <Button type="submit" disabled={!canEnter}>
-                Registrar anotación
+              <Button type="submit" disabled={!canEnter || pending}>
+                {pending ? 'Guardando…' : 'Guardar actualización'}
               </Button>
             </ActionBar>
           </div>
@@ -267,17 +259,6 @@ export function ProductionPostSaleDesk({
           </div>
         ) : null}
       </PageSection>
-
-      <ProductionWorkspace
-        status={status}
-        organizationId={organizationId}
-        memberId={memberId}
-        actorLabel={actorLabel}
-        grantedScopes={grantedScopes}
-        scopesConfirmed={scopesConfirmed}
-        catalog={catalog}
-        productionInternalDate={null}
-      />
     </OpsDeskSurface>
   );
 }

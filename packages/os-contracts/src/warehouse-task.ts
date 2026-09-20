@@ -317,6 +317,7 @@ export function buildWarehouseTaskView(input: {
     });
     const productName = productNameFor(productId, sameTenantReceipts, pedidos);
     if (!availability.known || availability.availableQuantity === null || availability.receiptQuantity === null) {
+      // Unknown availability: waiting only (cannot assign yet). Not duplicated in allocatable.
       if (allocations.some((allocation) => allocation.productId === productId) || pedidos.some((pedido) => pedido.productId === productId)) {
         waiting.push({
           productId,
@@ -328,32 +329,16 @@ export function buildWarehouseTaskView(input: {
           officialStock: false,
         });
       }
-      allocatable.push({
-        productId,
-        productName,
-        availableQuantity: null,
-        availableText: WAREHOUSE_TASK_COPY.unknownAvailability,
-        canChooseQuantity: false,
-        officialStock: false,
-      });
       continue;
     }
     const available = parseQuantity(availability.availableQuantity);
     if (available > 0n) {
-      waiting.push({
-        productId,
-        productName,
-        receiptQuantity: availability.receiptQuantity,
-        allocatedQuantity: availability.allocatedQuantity,
-        unallocatedQuantity: availability.availableQuantity,
-        waitingText: `${availability.availableQuantity} sin asignar. ${WAREHOUSE_TASK_COPY.notOfficialStock}`,
-        officialStock: false,
-      });
+      // Known unallocated qty: allocatable only (action surface). Not duplicated in waiting.
       allocatable.push({
         productId,
         productName,
         availableQuantity: availability.availableQuantity,
-        availableText: `${availability.availableQuantity} disponible en el registro de ingresos menos asignaciones. ${WAREHOUSE_TASK_COPY.notOfficialStock}`,
+        availableText: `${availability.availableQuantity} disponible en el registro de ingresos menos asignaciones.`,
         canChooseQuantity: true,
         officialStock: false,
       });
@@ -458,6 +443,12 @@ function toPedidoOption(pedido: WarehousePedidoFact): WarehousePedidoOption {
   const customerName = recordedName(pedido.customerLabel);
   const orderName = recordedName(pedido.orderLabel);
   const productName = recordedName(pedido.productLabel);
+  const orderRef = orderName.recorded
+    ? (orderName.text.match(/^Pedido\b/i) ? orderName.text : `Pedido ${orderName.text}`)
+    : 'Pedido';
+  const parts = [orderRef];
+  if (customerName.recorded) parts.push(customerName.text);
+  if (productName.recorded) parts.push(productName.text);
   return {
     orderLineId: pedido.orderLineId,
     orderId: pedido.orderId,
@@ -466,6 +457,6 @@ function toPedidoOption(pedido: WarehousePedidoFact): WarehousePedidoOption {
     customerName,
     orderName,
     productName,
-    optionLabel: `${customerName.text} · ${orderName.text} · ${productName.text}`,
+    optionLabel: parts.join(' · '),
   };
 }

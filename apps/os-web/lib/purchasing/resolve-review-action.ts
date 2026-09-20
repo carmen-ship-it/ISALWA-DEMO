@@ -1,6 +1,5 @@
 'use server';
 
-import { createId } from '@isalwa/ts-utils';
 import { revalidatePath } from 'next/cache';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -60,6 +59,9 @@ export async function resolvePurchasingReviewAction(
   const complete = buildCompleteWorkPayload(workItemId);
   if (!complete.ok) return complete;
 
+  // Stable keys: retry after lost response must not create a second result Work.
+  const resultKey = `compras-resolve-result:${workItemId}`;
+  const completeKey = `compras-resolve-complete:${workItemId}`;
   try {
     await client.executeWorkCommand(
       'CreateWorkItem',
@@ -70,9 +72,9 @@ export async function resolvePurchasingReviewAction(
         subjectType: 'party',
         subjectId: partyId,
       },
-      createId(),
+      resultKey,
     );
-    await client.executeWorkCommand(complete.command, complete.payload, createId());
+    await client.executeWorkCommand(complete.command, complete.payload, completeKey);
   } catch (err) {
     return { ok: false, error: mapCommandError(err) };
   }

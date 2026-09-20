@@ -6,7 +6,6 @@ import {
   FeedbackNote,
   PageSection,
   SectionHeader,
-  StatusPill,
 } from '@isalwa/ui';
 import { PedidoHandoffPanel } from '@/components/postsale/pedido-handoff-panel';
 import { WarehouseDesk } from '@/components/warehouse/warehouse-desk';
@@ -114,7 +113,7 @@ export function WarehousePostSaleDesk({
       attemptKeyRef.current = null;
       setFeedback({
         tone: 'success',
-        title: 'Ingreso físico registrado. No asigna el pedido ni publica stock oficial.',
+        title: 'Ingreso registrado.',
       });
       setQuantity('');
       setNote('');
@@ -131,16 +130,11 @@ export function WarehousePostSaleDesk({
         onSelectLine={setOrderLineId}
       />
 
-      <PageSection card className="p-6 md:p-8" aria-label="Ingreso de producto terminado">
+      <PageSection card className="p-6 md:p-8" aria-label="Registrar ingreso de producto terminado">
         <SectionHeader
           kicker="Almacén"
-          title="Ingreso físico confirmado"
-          action={<StatusPill tone="manual">No es asignación</StatusPill>}
+          title="Registrar ingreso de producto terminado"
         />
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Registre el ingreso a Almacén de Productos Terminados vinculado al pedido y la línea.
-          La asignación / reserva sigue siendo una decisión de política aparte.
-        </p>
         {canReceive && onReceive ? (
           <form className="mt-6 space-y-4" onSubmit={submitReceive}>
             <label className="block text-sm text-[var(--isalwa-slate)]">
@@ -159,18 +153,17 @@ export function WarehousePostSaleDesk({
             </label>
             <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
               <Button type="submit" disabled={pending}>
-                {pending ? 'Registrando…' : 'Registrar ingreso de producto terminado'}
+                {pending ? 'Registrando…' : 'Registrar ingreso'}
               </Button>
             </div>
           </form>
         ) : canReceive ? (
           <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-owner-review-state="v1-validate">
-            El contexto de pedido y la cantidad se muestran para validar el flujo. La persistencia
-            hospedada del ingreso físico queda para integración (Control Tower). No es asignación.
+            Seleccione pedido, producto y cantidad para registrar el ingreso.
           </p>
         ) : (
           <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-owner-review-state="not-authorized">
-            Hace falta el permiso de ingreso a producto terminado. La asignación es un permiso distinto.
+            Hace falta el permiso de ingreso a producto terminado.
           </p>
         )}
         {feedback ? (

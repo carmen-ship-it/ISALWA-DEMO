@@ -62,6 +62,7 @@ describe('Task 4 lists actions scale', () => {
     const production = read('components/production/production-ops-table.tsx');
     const almacen = read('app/(app)/almacen/page.tsx');
     const compras = read('app/(app)/compras/page.tsx');
+    const comprasReview = read('components/purchasing/pending-supply-review-card.tsx');
 
     assert.match(production, /Ver revisión/);
     assert.match(production, /Ver solicitud/);
@@ -73,8 +74,8 @@ describe('Task 4 lists actions scale', () => {
     assert.match(almacen, /Ver pedido/);
     assert.match(almacen, /Revisión de almacén/);
 
-    assert.match(compras, /Ver revisión/);
-    assert.match(compras, /Ver pedido/);
+    assert.match(comprasReview, /Ver revisión/);
+    assert.match(comprasReview, /Ver pedido/);
     assert.match(compras, /Revisión de abastecimiento/);
   });
 

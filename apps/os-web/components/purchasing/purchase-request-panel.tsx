@@ -38,6 +38,8 @@ type PurchaseRequestPanelProps = {
   state: ComprasQueueState;
   items?: ComprasQueueItem[];
   count?: number;
+  /** Open purchasing reviews elsewhere on the page (not the request queue). */
+  pendingReviewCount?: number;
   buyerSuggestions?: string[];
   query?: string | null;
   statusFilter?: string | null;
@@ -58,6 +60,7 @@ export function PurchaseRequestPanel({
   state,
   items = [],
   count = 0,
+  pendingReviewCount = 0,
   buyerSuggestions = [],
   query = null,
   statusFilter = null,
@@ -85,7 +88,17 @@ export function PurchaseRequestPanel({
           {COMPRAS_COPY.title}
         </h2>
         <div className="mt-4">
-          {renderState(state, items, count, buyerSuggestions, query, statusFilter, onAdvance, onStop)}
+          {renderState(
+            state,
+            items,
+            count,
+            pendingReviewCount,
+            buyerSuggestions,
+            query,
+            statusFilter,
+            onAdvance,
+            onStop,
+          )}
         </div>
       </PageSection>
     </OpsDeskSurface>
@@ -96,6 +109,7 @@ function renderState(
   state: ComprasQueueState,
   items: ComprasQueueItem[],
   count: number,
+  pendingReviewCount: number,
   buyerSuggestions: string[],
   query: string | null,
   statusFilter: string | null,
@@ -117,6 +131,7 @@ function renderState(
     <QueueList
       items={items}
       count={count}
+      pendingReviewCount={pendingReviewCount}
       buyerSuggestions={buyerSuggestions}
       query={query}
       statusFilter={statusFilter}
@@ -129,6 +144,7 @@ function renderState(
 function QueueList({
   items,
   count,
+  pendingReviewCount,
   buyerSuggestions,
   query,
   statusFilter,
@@ -137,6 +153,7 @@ function QueueList({
 }: {
   items: ComprasQueueItem[];
   count: number;
+  pendingReviewCount: number;
   buyerSuggestions: string[];
   query: string | null;
   statusFilter: string | null;
@@ -145,6 +162,7 @@ function QueueList({
 }) {
   const filterActive = Boolean(query?.trim() || statusFilter);
   const clearHref = '/compras';
+  const emptyWithPending = !filterActive && items.length === 0 && pendingReviewCount > 0;
 
   return (
     <div>
@@ -207,16 +225,19 @@ function QueueList({
           data-owner-review-state={filterActive ? 'no-data' : 'v1-flow-to-validate'}
         >
           <EmptyState
-            title={filterActive ? 'Ningún pedido coincide con el filtro' : COMPRAS_COPY.emptyTitle}
+            title={
+              filterActive
+                ? 'Ningún pedido coincide con el filtro'
+                : emptyWithPending
+                  ? COMPRAS_COPY.emptyQueueWithPendingTitle
+                  : COMPRAS_COPY.emptyTitle
+            }
             description={
               filterActive
                 ? 'Pruebe otro estado o quite los filtros. La cola no inventa pedidos.'
-                : COMPRAS_COPY.emptyDescription
-            }
-            example={
-              filterActive
-                ? 'Quitar filtros muestra toda la cola de esta empresa.'
-                : 'Las órdenes de compra aún no se generan en ISALWA.'
+                : emptyWithPending
+                  ? COMPRAS_COPY.emptyQueueWithPendingDescription
+                  : COMPRAS_COPY.emptyDescription
             }
           />
         </div>
