@@ -159,15 +159,15 @@ export function blankLineEntry(): StarterLineEntry {
     name: '',
     detail: '',
     note: '',
-    quantity: EXISTING_QUANTITY_DEFAULT,
+    quantity: '',
     unit: '',
     unitPrice: '',
   };
 }
 
 /**
- * Prefill name, a short description when one exists, and the editable unit.
- * Price is filled only when the caller passes a demo fixture. Product identity has no price.
+ * Prefill only known product identity fields (name / short detail).
+ * Do not invent quantity or unit. Price is filled only when the caller passes a Demo fixture.
  */
 export function prefillFromStarterProduct(
   row: StarterQuoteProduct,
@@ -178,8 +178,8 @@ export function prefillFromStarterProduct(
     name: row.name,
     detail: row.description ?? '',
     note: '',
-    quantity: EXISTING_QUANTITY_DEFAULT,
-    unit: row.unit ?? '',
+    quantity: '',
+    unit: '',
     unitPrice: demoUnitPrice == null ? '' : String(demoUnitPrice),
   };
 }

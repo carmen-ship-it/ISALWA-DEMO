@@ -93,7 +93,7 @@ describe('starter quote products', () => {
     assert.match(picker, /QuantityStepper/);
   });
 
-  it('prefills name, short detail, and unit, and leaves price blank unless a demo fixture is passed', () => {
+  it('prefills identity only and leaves quantity, unit, and price blank unless a demo fixture is passed', () => {
     const capri = starterProductByKey('sanitario-capri');
     const tank = starterProductByKey('tanque-alto');
     assert.ok(capri);
@@ -102,22 +102,25 @@ describe('starter quote products', () => {
     const described = prefillFromStarterProduct(capri);
     assert.equal(described.name, 'Sanitario Capri');
     assert.equal(described.detail, 'Sanitario cerámico');
-    assert.equal(described.unit, 'unidad');
+    assert.equal(described.unit, '');
     assert.equal(described.unitPrice, '');
     assert.equal(described.note, '');
-    assert.equal(described.quantity, '1');
+    assert.equal(described.quantity, '');
 
     const bare = prefillFromStarterProduct(tank);
     assert.equal(bare.name, 'Tanque Alto');
     assert.equal(bare.detail, '');
-    assert.equal(bare.unit, 'unidad');
+    assert.equal(bare.unit, '');
     assert.equal(bare.unitPrice, '');
 
     const demo = prefillFromStarterProduct(capri, { demoUnitPrice: 850 });
     assert.equal(demo.unitPrice, '850');
-    const edited = { ...demo, unitPrice: '800', quantity: '2' };
+    assert.equal(demo.quantity, '');
+    assert.equal(demo.unit, '');
+    const edited = { ...demo, unitPrice: '800', quantity: '2', unit: 'unidad' };
     assert.equal(edited.unitPrice, '800');
     assert.equal(edited.quantity, '2');
+    assert.equal(edited.unit, 'unidad');
   });
 
   it('keeps quantity and price editable and saves the edited price, not a starter default', () => {

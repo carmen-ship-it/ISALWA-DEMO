@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
-import { Button, PageSection, ListRow } from '@isalwa/ui';
+import { PageSection, ListRow } from '@isalwa/ui';
 import type { QuoteDetailReadModel, QuoteLineReadModel } from '@isalwa/os-contracts';
 import {
   addQuoteLineAction,
@@ -16,11 +16,10 @@ import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { formatCentavos } from '@/lib/commercial/money';
 import { centavosToBobDisplay, parseBobInputToCentavos, parseQuantityInput } from '@/lib/commercial/parse-money-input';
 import { CommandSubmitButton } from '@/components/commercial/command-submit-button';
-import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-bar';
 import { FormFeedback } from '@/components/commercial/form-feedback';
 import { QuantityStepper } from '@/components/commercial/quantity-stepper';
 import { QuoteProductPicker } from '@/components/commercial/quote-product-picker';
-import { GuidanceNotes } from '@/components/guidance/guidance-note';
+import { GuidanceCompactDisclosure } from '@/components/guidance/guidance-disclosure';
 import { guidanceForSendQuote } from '@/lib/guidance/select';
 import {
   QUOTED_PRICE_HINT,
@@ -46,6 +45,13 @@ const fieldClass =
 
 const documentTitleClass =
   'font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]';
+
+function newClientCommandId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `local-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 function centavosField(value: unknown): string | null {
   return typeof value === 'string' && /^-?\d+$/.test(value) ? value : null;
@@ -161,9 +167,9 @@ function LineEditForm({
         <input type="hidden" name="quoteId" value={quoteId} />
         <input type="hidden" name="quoteLineId" value={line.quoteLineId} />
         <div className="grid gap-4 md:grid-cols-12 md:items-end">
-          <div className="md:col-span-5">
+          <div className="md:col-span-4">
             <label className="isalwa-section-label" htmlFor={`desc-${line.quoteLineId}`}>
-              Producto
+              Producto / descripción
             </label>
             <textarea
               id={`desc-${line.quoteLineId}`}
@@ -188,6 +194,17 @@ function LineEditForm({
             </div>
           </div>
           <div className="md:col-span-2">
+            <label className="isalwa-section-label" htmlFor={`unit-${line.quoteLineId}`}>
+              Unidad
+            </label>
+            <input
+              id={`unit-${line.quoteLineId}`}
+              name="unitLabel"
+              defaultValue={line.unitLabel ?? ''}
+              className={fieldClass}
+            />
+          </div>
+          <div className="md:col-span-2">
             <label className="isalwa-section-label" htmlFor={`price-${line.quoteLineId}`}>
               {QUOTED_PRICE_LABEL}
             </label>
@@ -206,12 +223,6 @@ function LineEditForm({
             </p>
           </div>
           <div className="hidden">
-            <label htmlFor={`unit-${line.quoteLineId}`}>Unidad</label>
-            <input
-              id={`unit-${line.quoteLineId}`}
-              name="unitLabel"
-              defaultValue={line.unitLabel ?? ''}
-            />
             <label htmlFor={`disc-${line.quoteLineId}`}>Descuento</label>
             <input
               id={`disc-${line.quoteLineId}`}
@@ -219,9 +230,9 @@ function LineEditForm({
               defaultValue={line.discountCentavos !== '0' ? centavosToBobDisplay(line.discountCentavos) : ''}
             />
           </div>
-          <div className="flex flex-wrap gap-2 md:col-span-1 md:justify-end">
-            <CommandSubmitButton label="Guardar" pendingLabel="…" variant="secondary" className="h-8 px-3 text-sm" />
-          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <CommandSubmitButton label="Editar" pendingLabel="…" variant="secondary" className="h-8 px-3 text-sm" />
         </div>
         <p className="text-xs text-[var(--isalwa-slate)]">{QUOTED_PRICE_HINT}</p>
       </form>
@@ -248,6 +259,8 @@ export function QuoteEditor({
   const [sent, setSent] = useState(false);
   const [addReady, setAddReady] = useState(false);
   const [addEpoch, setAddEpoch] = useState(0);
+  const [addCommandId, setAddCommandId] = useState(newClientCommandId);
+  const [presentCommandId, setPresentCommandId] = useState(newClientCommandId);
 
   const [addState, addAction] = useActionState(async (_prev: typeof feedbackInitial, formData: FormData) => {
     const result = await addQuoteLineAction(formData);
@@ -265,9 +278,10 @@ export function QuoteEditor({
       }
       setAddEpoch((epoch) => epoch + 1);
       setAddReady(false);
+      setAddCommandId(newClientCommandId());
     }
     return result.ok
-      ? { error: null, success: 'Línea agregada.' }
+      ? { error: null, success: 'Línea guardada.' }
       : { error: result.error, success: null };
   }, feedbackInitial);
 
@@ -284,6 +298,7 @@ export function QuoteEditor({
     if (result.ok) {
       live?.recordSubmitted();
       setSent(true);
+      setPresentCommandId(newClientCommandId());
       return { error: null, success: 'Cotización presentada.' };
     }
     return { error: result.error, success: null };
@@ -312,72 +327,98 @@ export function QuoteEditor({
   if (!isDraft || sent) {
     if (submitState.success || cancelState.success) {
       return (
-        <div className="mt-12">
+        <div className="mt-12 space-y-3">
           <FormFeedback error={null} success={submitState.success ?? cancelState.success} />
+          {submitState.success ? (
+            <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              Descargue la cotización y envíela por su canal habitual.
+            </p>
+          ) : null}
         </div>
       );
     }
     return null;
   }
 
+  const ruleGuidance = guidanceForSendQuote({ lineCount: quote.lines.length }).filter(
+    (note) => note.kind === 'regla',
+  );
+
   return (
     <div className="mt-12 space-y-10">
-      <PageSection id="agregar-producto" card className="scroll-mt-32 bg-white p-6 md:p-8">
-        <h2 className={documentTitleClass}>Agregar a la cotización</h2>
-        <FormFeedback error={addState.error} success={addState.success} />
-        <form key={addEpoch} action={addAction} className="mt-8 space-y-6">
-          <input type="hidden" name="partyId" value={partyId} />
-          <input type="hidden" name="quoteId" value={quote.quoteId} />
-          <QuoteProductPicker
-            organizationId={quote.organizationId}
-            searchPort={productSearch}
-            demoPrices={demoPrices}
-            onReadyChange={setAddReady}
-          />
-          <CommandSubmitButton
-            label="Agregar a la cotización"
-            pendingLabel="Agregando…"
-            disabled={!addReady}
-          />
-        </form>
-      </PageSection>
-
-      {quote.lines.length > 0 ? (
-        <PageSection card className="bg-white p-6 md:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <h2 className={documentTitleClass}>Líneas</h2>
-            <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-teal-100)] px-4 py-3 text-right shadow-[var(--isalwa-shadow-soft)]">
-              <p className="isalwa-section-label">Total</p>
-              <p className="mt-1 text-lg font-semibold text-[var(--isalwa-kiln)]">
-                {formatCentavos(quote.totalCentavos, quote.currency)}
+      <PageSection id="cotizacion-workspace" card className="scroll-mt-32 bg-white p-6 md:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className={documentTitleClass}>Líneas de cotización</h2>
+          <div className="text-right">
+            <p className="isalwa-section-label">Total</p>
+            <p className="font-[family-name:var(--isalwa-font-display)] text-2xl italic text-[var(--isalwa-kiln)]">
+              {formatCentavos(quote.totalCentavos, quote.currency)}
+            </p>
+            {quote.headerDiscountCentavos !== '0' ? (
+              <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
+                Incluye descuento general de{' '}
+                {formatCentavos(quote.headerDiscountCentavos, quote.currency)}
               </p>
+            ) : null}
+          </div>
+        </div>
+
+        {quote.lines.length > 0 ? (
+          <>
+            <div className="mt-6 hidden grid-cols-12 gap-3 border-b border-[var(--isalwa-mist)] pb-2 text-[11px] font-medium tracking-[0.08em] text-[var(--isalwa-slate)] uppercase md:grid">
+              <span className="col-span-4">Producto</span>
+              <span className="col-span-2">Cantidad</span>
+              <span className="col-span-2">Unidad</span>
+              <span className="col-span-2">Precio unitario</span>
+              <span className="col-span-2">Subtotal</span>
             </div>
-          </div>
-          <div className="mt-4 hidden grid-cols-12 gap-3 border-b border-[var(--isalwa-mist)] pb-2 text-[11px] font-medium tracking-[0.08em] text-[var(--isalwa-slate)] uppercase md:grid">
-            <span className="col-span-5">Producto</span>
-            <span className="col-span-2">Cantidad</span>
-            <span className="col-span-2">Precio unitario</span>
-            <span className="col-span-2">Subtotal</span>
-            <span className="col-span-1 text-right">Acción</span>
-          </div>
-          <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Editar líneas de cotización">
-            {quote.lines.map((line) => (
-              <LineEditForm
-                key={line.quoteLineId}
-                partyId={partyId}
-                quoteId={quote.quoteId}
-                line={line}
-                currency={quote.currency}
-              />
-            ))}
-          </ul>
-        </PageSection>
-      ) : null}
+            <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas guardadas">
+              {quote.lines.map((line) => (
+                <LineEditForm
+                  key={line.quoteLineId}
+                  partyId={partyId}
+                  quoteId={quote.quoteId}
+                  line={line}
+                  currency={quote.currency}
+                />
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Todavía no hay líneas guardadas.
+          </p>
+        )}
+
+        <div id="agregar-producto" className="mt-10 scroll-mt-32 border-t border-[var(--isalwa-mist)] pt-8">
+          <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+            Agregar producto
+          </h3>
+          <FormFeedback error={addState.error} success={addState.success} />
+          <form key={addEpoch} id="quote-add-line-form" action={addAction} className="mt-6 space-y-6">
+            <input type="hidden" name="partyId" value={partyId} />
+            <input type="hidden" name="quoteId" value={quote.quoteId} />
+            <input type="hidden" name="idempotencyKey" value={addCommandId} />
+            <QuoteProductPicker
+              organizationId={quote.organizationId}
+              searchPort={productSearch}
+              demoPrices={demoPrices}
+              onReadyChange={setAddReady}
+              currency={quote.currency}
+            />
+            <CommandSubmitButton
+              label="Guardar línea"
+              pendingLabel="Guardando…"
+              disabled={!addReady}
+            />
+          </form>
+        </div>
+      </PageSection>
 
       <PageSection card className="bg-white p-6 md:p-8">
         <h2 className={documentTitleClass}>Notas y descuento</h2>
         <FormFeedback error={headerState.error} success={headerState.success} />
-        <form action={headerAction} className="mt-8 space-y-6">
+        <form id="quote-header-form" action={headerAction} className="mt-8 space-y-6">
           <input type="hidden" name="partyId" value={partyId} />
           <input type="hidden" name="quoteId" value={quote.quoteId} />
           <div>
@@ -407,69 +448,53 @@ export function QuoteEditor({
               className={fieldClass}
             />
           </div>
-          <p className="text-sm text-[var(--isalwa-slate)]">
-            Total: {formatCentavos(quote.totalCentavos, quote.currency)}
-          </p>
-          <CommandSubmitButton label="Guardar cambios" pendingLabel="Guardando…" />
+          <CommandSubmitButton label="Guardar borrador" pendingLabel="Guardando…" variant="secondary" />
         </form>
       </PageSection>
 
       <PageSection id="presentar-cotizacion" card className="scroll-mt-32 bg-white p-6 md:p-8">
         <h2 className={documentTitleClass}>Presentar cotización</h2>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          ISALWA no envía WhatsApp ni correo. Presente la cotización para ver y descargar el PDF.
-          Después envíela usted y regístrela como enviada.
-        </p>
         {quote.lines.length === 0 ? (
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            Primero agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.
+            Agregue productos a la cotización.
           </p>
-        ) : null}
-        <FormFeedback error={submitState.error} success={submitState.success} />
-        <form action={submitAction} className="mt-8 space-y-4">
-          <GuidanceNotes notes={guidanceForSendQuote({ lineCount: quote.lines.length })} />
-          <input type="hidden" name="partyId" value={partyId} />
-          <input type="hidden" name="quoteId" value={quote.quoteId} />
-          <CommandSubmitButton label="Presentar cotización" pendingLabel="Presentando…" />
-        </form>
-        <form
-          id="cancelar-cotizacion"
-          action={cancelAction}
-          className="mt-10 scroll-mt-32 space-y-4 border-t border-[var(--isalwa-mist)] pt-8"
-        >
-          <input type="hidden" name="partyId" value={partyId} />
-          <input type="hidden" name="quoteId" value={quote.quoteId} />
-          <FormFeedback error={cancelState.error} success={cancelState.success} />
-          <div>
-            <label htmlFor="cancel-reason" className="isalwa-section-label">
-              Motivo de cancelación
-            </label>
-            <input id="cancel-reason" name="reason" className={fieldClass} />
-          </div>
-          <CommandSubmitButton label="Cancelar cotización" pendingLabel="Cancelando…" variant="danger" />
-        </form>
-      </PageSection>
-
-      <CommercialStickyBar className="mt-2">
-        <p className="text-sm text-[var(--isalwa-slate)]">
-          Total: {formatCentavos(quote.totalCentavos, quote.currency)}
-        </p>
-        {quote.lines.length === 0 ? (
-          <Button
-            type="button"
-            onClick={() => document.getElementById('agregar-producto')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            Agregar a la cotización
-          </Button>
         ) : (
-          <Button
-            type="button"
-            onClick={() => document.getElementById('presentar-cotizacion')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            Presentar cotización
-          </Button>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            Revise la cotización y preséntela. Presentar no envía el documento.
+          </p>
         )}
-      </CommercialStickyBar>
+        <FormFeedback error={submitState.error} success={submitState.success} />
+        <form id="quote-submit-form" action={submitAction} className="mt-8 space-y-4">
+          <input type="hidden" name="partyId" value={partyId} />
+          <input type="hidden" name="quoteId" value={quote.quoteId} />
+          <input type="hidden" name="idempotencyKey" value={presentCommandId} />
+          <CommandSubmitButton
+            label="Presentar cotización"
+            pendingLabel="Presentando…"
+            disabled={quote.lines.length === 0}
+          />
+        </form>
+
+        <div className="mt-10 border-t border-[var(--isalwa-mist)] pt-8">
+          <GuidanceCompactDisclosure title="Reglas del flujo" notes={ruleGuidance} />
+          <form
+            id="cancelar-cotizacion"
+            action={cancelAction}
+            className="mt-8 scroll-mt-32 space-y-4"
+          >
+            <input type="hidden" name="partyId" value={partyId} />
+            <input type="hidden" name="quoteId" value={quote.quoteId} />
+            <FormFeedback error={cancelState.error} success={cancelState.success} />
+            <div>
+              <label htmlFor="cancel-reason" className="isalwa-section-label">
+                Motivo de cancelación
+              </label>
+              <input id="cancel-reason" name="reason" className={fieldClass} />
+            </div>
+            <CommandSubmitButton label="Cancelar cotización" pendingLabel="Cancelando…" variant="danger" />
+          </form>
+        </div>
+      </PageSection>
     </div>
   );
 }

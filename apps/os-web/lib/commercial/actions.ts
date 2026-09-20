@@ -242,8 +242,9 @@ export async function addQuoteLineAction(formData: FormData): Promise<CommandAct
     payload.discountCentavos = discountCentavos;
   }
 
+  const idempotencyKey = String(formData.get('idempotencyKey') ?? '').trim() || createId();
   const result = await runCommand((client) =>
-    client.executeCommand('AddQuoteLine', payload, createId()).then((r) => r.data),
+    client.executeCommand('AddQuoteLine', payload, idempotencyKey).then((r) => r.data),
   );
   if (result.ok && partyId && quoteId) {
     revalidateCliente360(partyId);
@@ -338,8 +339,9 @@ export async function submitQuoteAction(formData: FormData): Promise<CommandActi
   const quoteId = String(formData.get('quoteId') ?? '').trim();
   if (!quoteId) return { ok: false, error: 'Cotización no válida.' };
 
+  const idempotencyKey = String(formData.get('idempotencyKey') ?? '').trim() || createId();
   const result = await runCommand((client) =>
-    client.executeCommand('SubmitQuote', { quoteId }, createId()).then((r) => r.data),
+    client.executeCommand('SubmitQuote', { quoteId }, idempotencyKey).then((r) => r.data),
   );
   if (result.ok && partyId && quoteId) {
     revalidateCliente360(partyId);

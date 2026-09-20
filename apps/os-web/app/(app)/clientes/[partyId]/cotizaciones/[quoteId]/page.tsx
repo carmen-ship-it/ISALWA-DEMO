@@ -7,7 +7,13 @@ import { CommercialStickyBar } from '@/components/commercial/commercial-sticky-b
 import { ConvertQuoteForm } from '@/components/commercial/convert-quote-form';
 import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions';
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
+import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
+import { isQuotePdfReady } from '@/lib/commercial/quote-pdf-ready';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
+import {
+  QuoteBuilderUiProvider,
+  QuoteDraftNextStep,
+} from '@/components/commercial/quote-builder-ui';
 import { QuoteLiveFrame, QuoteLiveLines, QuoteLiveStatus } from '@/components/commercial/quote-live-frame';
 import { QuoteEnvioSection } from '@/components/commercial/quote-envio-section';
 import { RecordNextStep } from '@/components/commercial/record-next-step';
@@ -217,6 +223,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
       rejectionReason: rejectedRow?.decisionReason ?? null,
       pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
       pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
+      lineCount: lines.length,
     });
     const ball = whoHasTheBallView({
       commercialOwner: ownerRow
@@ -266,8 +273,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
     const isDraft = quote.status === 'draft';
     const totalLabel = formatCentavos(quote.totalCentavos, quote.currency);
 
-    return (
-      <QuoteLiveFrame quote={quote}>
+    const pageBody = (
       <PageContainer label={quote.quoteNumber}>
         <CommercialPath crumbs={pathCrumbs} />
         <CommercialProgressStrip steps={progress} />
@@ -276,21 +282,32 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           title={quote.quoteNumber}
           description={customerName}
           action={
-            <QuoteDetailActions
-              quoteId={quote.quoteId}
-              quoteNumber={quote.quoteNumber}
-              quoteStatus={quote.status}
-              canRecordSend={manualSendAllowed}
-              canRegisterFollowUp={followUpAllowed}
-              canEdit={isDraft}
-              canCancel={isDraft}
-              canConvertToOrder={authority?.canConvertToOrder === true}
-            />
+            <div className="flex flex-col items-stretch gap-3 sm:items-end">
+              {isQuotePdfReady(quote.status) ? (
+                <QuotePdfDownloadButton
+                  quoteId={quote.quoteId}
+                  quoteNumber={quote.quoteNumber}
+                  quoteStatus={quote.status}
+                  downloadVariant="secondary"
+                  className="[&_p:last-child]:hidden"
+                />
+              ) : null}
+              <QuoteDetailActions
+                quoteId={quote.quoteId}
+                quoteNumber={quote.quoteNumber}
+                quoteStatus={quote.status}
+                canRecordSend={manualSendAllowed}
+                canRegisterFollowUp={followUpAllowed}
+                canEdit={isDraft}
+                canCancel={isDraft}
+                canConvertToOrder={authority?.canConvertToOrder === true}
+              />
+            </div>
           }
         />
 
         <StaleProjectionBanner freshness={freshness} />
-        <RecordNextStep step={nextStep} />
+        {isDraft ? <QuoteDraftNextStep lineCount={lines.length} /> : <RecordNextStep step={nextStep} />}
         <WhoHasTheBallCard
           className="mb-6"
           view={ball}
@@ -406,6 +423,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           </PageSection>
         ) : null}
 
+        {!isDraft ? (
         <QuoteLiveLines>
         <PageSection card className="mt-10 bg-white p-8 md:p-10">
           <SectionHeader title={documentTitle} />
@@ -486,6 +504,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           )}
         </PageSection>
         </QuoteLiveLines>
+        ) : null}
 
         {authority?.canConvertToOrder ? (
           <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
@@ -564,6 +583,11 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           <QuoteEditor partyId={partyId} quote={quote} demoPrices={dataMode === 'demo'} />
         </div>
       </PageContainer>
+    );
+
+    return (
+      <QuoteLiveFrame quote={quote}>
+        {isDraft ? <QuoteBuilderUiProvider>{pageBody}</QuoteBuilderUiProvider> : pageBody}
       </QuoteLiveFrame>
     );
   } catch (err) {

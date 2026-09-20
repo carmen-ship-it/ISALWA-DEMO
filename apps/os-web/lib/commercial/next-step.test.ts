@@ -108,7 +108,7 @@ describe('commercial next-step', () => {
   });
 
   it('keeps draft quotes on complete-and-send without inventing approval', () => {
-    const step = quoteNextStep({
+    const empty = quoteNextStep({
       status: 'draft',
       partyId: 'party-1',
       quoteId: 'quote-1',
@@ -118,10 +118,25 @@ describe('commercial next-step', () => {
       hasPendingApproval: false,
       canRegisterFollowUp: false,
       followUpHref: null,
+      lineCount: 0,
     });
-    assert.equal(step?.waiting, false);
-    assert.match(step?.statement ?? '', /guarde la línea/i);
-    assert.doesNotMatch(step?.statement ?? '', /envíe|aprobación|pedido/i);
+    assert.equal(empty?.waiting, false);
+    assert.equal(empty?.statement, 'Agregue productos a la cotización.');
+    assert.doesNotMatch(empty?.statement ?? '', /envíe|aprobación|pedido/i);
+
+    const ready = quoteNextStep({
+      status: 'draft',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: false,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: false,
+      followUpHref: null,
+      lineCount: 2,
+    });
+    assert.equal(ready?.statement, 'Revise la cotización y preséntela.');
   });
 
   it('explains pending approval without claiming a pedido was created', () => {
@@ -174,6 +189,7 @@ describe('commercial next-step', () => {
       followUpHref: '/clientes/party-1#trabajo',
     });
     assert.equal(step?.waiting, false);
+    assert.match(step?.statement ?? '', /canal habitual/i);
     assert.match(step?.statement ?? '', /regístrela como enviada/i);
     assert.equal(step?.hrefLabel, 'Registrar como enviada');
     assert.equal(step?.href, '#envio');

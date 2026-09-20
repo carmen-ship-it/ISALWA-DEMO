@@ -16,7 +16,7 @@ export const QUOTE_PDF_COPY = {
   available: 'PDF disponible',
   documento: 'Documento',
   manualSend:
-    'Descargue la cotización y envíela por WhatsApp o correo. Después, regístrela como enviada para continuar el seguimiento.',
+    'Descargue la cotización y envíela por su canal habitual. Después, regístrela como enviada para continuar el seguimiento.',
 } as const;
 
 export function quotePdfDownloadFilename(quoteNumber: string): string {

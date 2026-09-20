@@ -94,6 +94,8 @@ type QuoteNextStepInput = {
   /** Human-readable pending approval headline when status is pending. */
   pendingApprovalHeadline?: string | null;
   pendingApprovalHref?: string | null;
+  /** Saved quote lines already on the record. Used for draft next-action copy. */
+  lineCount?: number;
 };
 
 /** Safe CTA copy when approval attention has cleared after a recorded decision. */
@@ -182,7 +184,10 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
   switch (input.status) {
     case 'draft':
       return {
-        statement: 'Agregue el ítem, la cantidad, la unidad y el precio, y guarde la línea.',
+        statement:
+          (input.lineCount ?? 0) > 0
+            ? 'Revise la cotización y preséntela.'
+            : 'Agregue productos a la cotización.',
         href: null,
         hrefLabel: null,
         waiting: false,
@@ -241,7 +246,7 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
       }
       return {
         statement:
-          'Descargue la cotización y envíela por WhatsApp o correo. Después, regístrela como enviada para continuar el seguimiento.',
+          'Descargue la cotización y envíela por su canal habitual. Después, regístrela como enviada para continuar el seguimiento.',
         href: '#envio',
         hrefLabel: 'Registrar como enviada',
         waiting: false,
