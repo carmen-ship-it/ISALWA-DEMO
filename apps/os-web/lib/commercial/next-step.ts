@@ -235,12 +235,21 @@ export function quoteNextStep(input: QuoteNextStepInput): CommercialNextStep | n
           waiting: true,
         };
       }
-      if (input.canRegisterFollowUp && input.followUpHref && input.sendRecorded) {
+      if (input.sendRecorded) {
+        if (input.canRegisterFollowUp && input.followUpHref) {
+          return {
+            statement:
+              'Envío registrado. Programe el seguimiento cuando lo acuerde. ISALWA no envía el mensaje.',
+            href: input.followUpHref,
+            hrefLabel: 'Registrar seguimiento',
+            waiting: false,
+          };
+        }
         return {
           statement:
-            'Envío registrado. Programe el seguimiento cuando lo acuerde. ISALWA no envía el mensaje.',
-          href: input.followUpHref,
-          hrefLabel: 'Registrar seguimiento',
+            'Envío registrado. La cotización ya está marcada como enviada por usted. ISALWA no envía el mensaje.',
+          href: null,
+          hrefLabel: null,
           waiting: false,
         };
       }

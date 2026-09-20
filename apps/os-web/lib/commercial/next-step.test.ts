@@ -196,6 +196,40 @@ describe('commercial next-step', () => {
     assert.doesNotMatch(step?.statement ?? '', /creó un pedido/i);
   });
 
+  it('after send registration never asks to present or register send again', () => {
+    const withFollowUp = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: false,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: true,
+      followUpHref: '/clientes/party-1#trabajo',
+      sendRecorded: true,
+    });
+    assert.match(withFollowUp?.statement ?? '', /Envío registrado/i);
+    assert.doesNotMatch(withFollowUp?.statement ?? '', /preséntela|regístrela como enviada/i);
+    assert.equal(withFollowUp?.hrefLabel, 'Registrar seguimiento');
+
+    const withoutFollowUp = quoteNextStep({
+      status: 'submitted',
+      partyId: 'party-1',
+      quoteId: 'quote-1',
+      canConvertToOrder: false,
+      relatedOrderHref: null,
+      relatedOrderLabel: null,
+      hasPendingApproval: false,
+      canRegisterFollowUp: false,
+      followUpHref: null,
+      sendRecorded: true,
+    });
+    assert.match(withoutFollowUp?.statement ?? '', /Envío registrado/i);
+    assert.doesNotMatch(withoutFollowUp?.statement ?? '', /preséntela|regístrela como enviada/i);
+    assert.equal(withoutFollowUp?.hrefLabel, null);
+  });
+
   it('offers convert only when accepted and conversion is allowed', () => {
     const step = quoteNextStep({
       status: 'accepted',

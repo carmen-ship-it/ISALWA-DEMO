@@ -2,6 +2,8 @@
 
 import { Button, PageSection, StatusPill } from '@isalwa/ui';
 import { QuotePdfDownloadButton } from '@/components/commercial/quote-pdf-download-button';
+import { useQuoteSendUi } from '@/components/commercial/quote-send-ui';
+import { useQuoteLive } from '@/components/commercial/quote-live-frame';
 import { QUOTE_MANUAL_SEND_COPY } from '@/lib/commercial/quote-manual-send';
 import { isQuotePdfReady } from '@/lib/commercial/quote-pdf-ready';
 
@@ -22,10 +24,15 @@ export function QuoteDocumentActions({
   quoteNumber,
   quoteStatus,
   canRecordSend,
-  sendRecorded,
+  sendRecorded: sendRecordedFromServer,
 }: QuoteDocumentActionsProps) {
-  const pdfReady = isQuotePdfReady(quoteStatus);
-  const isDraft = quoteStatus === 'draft';
+  const live = useQuoteLive();
+  const sendUi = useQuoteSendUi();
+  const status = live?.quote.status ?? quoteStatus;
+  const pdfReady = isQuotePdfReady(status);
+  const isDraft = status === 'draft';
+  const sendRecorded = sendRecordedFromServer || Boolean(sendUi?.sendRecorded);
+  const allowRegister = canRecordSend && !sendRecorded && !isDraft;
 
   if (isDraft) {
     return (
@@ -49,7 +56,7 @@ export function QuoteDocumentActions({
       id="quote-document-actions"
       card
       className="scroll-mt-32 bg-[color-mix(in_srgb,var(--isalwa-teal-100)_28%,white)] p-5 md:p-6"
-      data-quote-doc-actions="presented"
+      data-quote-doc-actions={sendRecorded ? 'sent' : 'presented'}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 space-y-2">
@@ -65,15 +72,16 @@ export function QuoteDocumentActions({
           <QuotePdfDownloadButton
             quoteId={quoteId}
             quoteNumber={quoteNumber}
-            quoteStatus={quoteStatus}
+            quoteStatus={status}
             downloadOnly
             downloadVariant="primary"
             showManualSendHint={false}
           />
-          {canRecordSend && !sendRecorded ? (
+          {allowRegister ? (
             <Button
               type="button"
               variant="secondary"
+              data-quote-register-send="cta"
               onClick={() => {
                 document.getElementById('envio')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}

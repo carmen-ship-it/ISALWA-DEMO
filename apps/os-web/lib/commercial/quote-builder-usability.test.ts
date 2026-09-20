@@ -90,7 +90,7 @@ describe('Task 8 quote builder usability', () => {
     assert.match(builderUi, /Agregue productos a la cotización/);
     assert.match(builderUi, /Complete cantidad, unidad y precio y guarde la línea/);
     assert.match(builderUi, /Revise la cotización y preséntela/);
-    assert.match(page, /QuoteDraftNextStep/);
+    assert.match(page, /QuotePageNextStep/);
     assert.match(editor, /note\.kind === 'regla'/);
     assert.match(editor, /GuidanceCompactDisclosure/);
     assert.equal((editor.match(/ISALWA no envía WhatsApp ni correo/g) ?? []).length, 0);

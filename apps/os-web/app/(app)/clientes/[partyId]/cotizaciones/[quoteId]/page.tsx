@@ -9,13 +9,13 @@ import { QuoteDetailActions } from '@/components/commercial/quote-detail-actions
 import { QuoteDocumentoCard } from '@/components/commercial/quote-documento-card';
 import { QuoteDocumentActions } from '@/components/commercial/quote-document-actions';
 import { QuoteEditor } from '@/components/commercial/quote-editor';
+import { QuoteBuilderUiProvider } from '@/components/commercial/quote-builder-ui';
 import {
-  QuoteBuilderUiProvider,
-  QuoteDraftNextStep,
-} from '@/components/commercial/quote-builder-ui';
+  QuotePageNextStep,
+  QuoteSendUiProvider,
+} from '@/components/commercial/quote-send-ui';
 import { QuoteLiveFrame, QuoteLiveLines, QuoteLiveStatus } from '@/components/commercial/quote-live-frame';
 import { QuoteEnvioSection } from '@/components/commercial/quote-envio-section';
-import { RecordNextStep } from '@/components/commercial/record-next-step';
 import { PageHeader } from '@/components/shell/page-header';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
@@ -203,7 +203,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
     const rejectedRow = approvals
       .filter((row) => row.status === 'rejected')
       .sort((a, b) => (b.decidedAt ?? '').localeCompare(a.decidedAt ?? ''))[0];
-    const nextStep = quoteNextStep({
+    const nextStepInput = {
       status: quote.status,
       partyId,
       quoteId: quote.quoteId,
@@ -213,7 +213,6 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
       hasPendingApproval,
       canRegisterFollowUp: followUpAllowed,
       followUpHref: followUpAllowed ? clienteSectionHref(partyId, 'trabajo') : null,
-      sendRecorded: Boolean(sendRecord),
       latestApprovalDecision,
       quoteNumber: quote.quoteNumber,
       rejectedBy: rejectedRow
@@ -223,6 +222,18 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
       pendingApprovalHeadline: pendingResponsibility?.headline ?? null,
       pendingApprovalHref: pendingResponsibility?.requestHref ?? null,
       lineCount: lines.length,
+    };
+    const nextStep = quoteNextStep({
+      ...nextStepInput,
+      sendRecorded: Boolean(sendRecord),
+    });
+    const presentedStep = quoteNextStep({
+      ...nextStepInput,
+      sendRecorded: false,
+    });
+    const sentStep = quoteNextStep({
+      ...nextStepInput,
+      sendRecorded: true,
     });
     const ball = whoHasTheBallView({
       commercialOwner: ownerRow
@@ -295,7 +306,12 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
         />
 
         <StaleProjectionBanner freshness={freshness} />
-        {isDraft ? <QuoteDraftNextStep lineCount={lines.length} /> : <RecordNextStep step={nextStep} />}
+        <QuotePageNextStep
+          serverStatus={quote.status}
+          lineCount={lines.length}
+          presentedStep={presentedStep}
+          sentStep={sentStep}
+        />
         {!isDraft ? (
           <div className="mb-6">
             <QuoteDocumentActions
@@ -595,7 +611,9 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
 
     return (
       <QuoteLiveFrame quote={quote}>
-        {isDraft ? <QuoteBuilderUiProvider>{pageBody}</QuoteBuilderUiProvider> : pageBody}
+        <QuoteSendUiProvider sendRecorded={Boolean(sendRecord)}>
+          {isDraft ? <QuoteBuilderUiProvider>{pageBody}</QuoteBuilderUiProvider> : pageBody}
+        </QuoteSendUiProvider>
       </QuoteLiveFrame>
     );
   } catch (err) {

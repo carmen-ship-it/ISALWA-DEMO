@@ -419,12 +419,14 @@ export async function recordQuoteManualSendAction(
   const auth = await getServerOsAuthContext();
   if (!auth) return { ok: false, error: 'Su sesión venció. Vuelva a iniciar sesión.' };
 
+  const idempotencyKey = String(formData.get('idempotencyKey') ?? '').trim() || createId();
   const client = createOsApiClient(auth);
   try {
-    await client.executeCommand('RecordQuoteManualSend', payload, createId());
+    await client.executeCommand('RecordQuoteManualSend', payload, idempotencyKey);
     if (partyId) {
       revalidateCliente360(partyId);
       revalidatePath(quoteHref(partyId, quoteId));
+      revalidatePath('/cotizaciones');
     }
     return { ok: true, channel };
   } catch (err) {
