@@ -1,6 +1,6 @@
 /**
- * Permission-aware list CTA for approvals.
- * Uses the same decide authority as approval detail (canDecide), not member-id decoration alone.
+ * Permission-aware list CTA + detail chrome for approvals.
+ * Presentation only — does not broaden decide authority.
  */
 
 export type ApprovalListActionLabel = 'Decidir' | 'Ver solicitud' | 'Ver contexto' | 'Ver registro';
@@ -33,4 +33,45 @@ export function approvalListPageDescription(input: {
     return 'Solicitudes pendientes de su decisión. La decisión no crea un pedido.';
   }
   return 'Solicitudes pendientes de aprobación. La decisión no crea un pedido.';
+}
+
+export type ApprovalDetailDecisionChrome = {
+  kicker: string;
+  title: string;
+  body: string;
+};
+
+/**
+ * Detail decision panel copy. Own-decision chrome only when the actor may decide.
+ * Evaluation and non-approver never imply the decision belongs to the viewer.
+ */
+export function approvalDetailDecisionChrome(input: {
+  status: string;
+  canDecide: boolean;
+  evaluationMode?: boolean;
+}): ApprovalDetailDecisionChrome {
+  const pending = input.status === 'pending';
+  const ownDecision = pending && input.canDecide && !input.evaluationMode;
+
+  if (ownDecision) {
+    return {
+      kicker: 'Su decisión',
+      title: 'Aprobar o rechazar',
+      body: 'La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.',
+    };
+  }
+
+  if (pending) {
+    return {
+      kicker: 'Contexto de la decisión',
+      title: 'Revisión',
+      body: 'Esta solicitud está pendiente de decisión por la persona asignada.',
+    };
+  }
+
+  return {
+    kicker: 'Contexto de la decisión',
+    title: 'Decisión registrada',
+    body: 'La decisión no crea un pedido.',
+  };
 }

@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import { Button, Chip, Panel, SearchField, StatusPill } from '@isalwa/ui';
 import { ListToolbar } from '@/components/lists/list-toolbar';
+import { useRolePreview } from '@/components/shell/role-preview-provider';
 import { APPROVAL_ROW_SUBJECT_FALLBACK } from '@/lib/work/approval-row-subject';
 import { approvalListActionLabel } from '@/lib/work/approval-action-label';
 import { formatApprovalStatus, statusToneForApproval } from '@/lib/work/labels';
@@ -41,6 +42,10 @@ export function ApprovalDeskPanel({
   evaluationMode = false,
   canDecideById,
 }: ApprovalDeskPanelProps) {
+  const { active: rolePreviewActive } = useRolePreview();
+  // Prefer live client View As so labels match the Vista de evaluación banner
+  // even if the server cookie lagged the first paint.
+  const evaluationModeEffective = evaluationMode || rolePreviewActive;
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
 
@@ -104,13 +109,13 @@ export function ApprovalDeskPanel({
             const subject = subjects?.get(approval.approvalRequestId) ?? APPROVAL_ROW_SUBJECT_FALLBACK;
             const requester = memberLabel(memberLabels, approval.requestedByMemberId);
             const isPending = approval.status === 'pending';
-            const canDecide = evaluationMode
+            const canDecide = evaluationModeEffective
               ? false
               : (canDecideById?.get(approval.approvalRequestId) ?? false);
             const actionLabel = approvalListActionLabel({
               status: approval.status,
               canDecide,
-              evaluationMode,
+              evaluationMode: evaluationModeEffective,
             });
             const primaryDecide = actionLabel === 'Decidir';
             return (

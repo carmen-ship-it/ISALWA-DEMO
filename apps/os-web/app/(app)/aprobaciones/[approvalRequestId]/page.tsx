@@ -26,6 +26,7 @@ import {
   statusToneForApproval,
 } from '@/lib/work/labels';
 import { approvalStaffSubject } from '@/lib/work/staff-subject';
+import { approvalDetailDecisionChrome } from '@/lib/work/approval-action-label';
 import { memberLabel, memberWithCargoLine, resolveMemberResponsibilityLabels } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -72,17 +73,18 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
     });
     const canDecide = evaluation.active ? false : await resolveCanDecide(client, approval);
     const continueCue = await resolvePostApprovalContinue(client, approval, subjectLink);
+    const decisionChrome = approvalDetailDecisionChrome({
+      status: approval.status,
+      canDecide,
+      evaluationMode: evaluation.active,
+    });
 
     return (
       <PageContainer label="Aprobación">
         <PageHeader
           kicker="Aprobaciones"
           title={title}
-          description={
-            evaluation.active
-              ? 'Vista de evaluación: solo lectura. La decisión no crea un pedido.'
-              : 'La decisión no crea un pedido.'
-          }
+          description="La decisión no crea un pedido."
           action={
             <div className="flex flex-wrap items-center gap-3">
               <StatusPill tone={statusToneForApproval(approval.status)}>
@@ -109,18 +111,12 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
                   : 'border-l-[var(--isalwa-danger)] border-[color-mix(in_srgb,var(--isalwa-danger)_14%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-status-red-bg)_40%,white)]',
             )}
           >
-            <p className="isalwa-kicker">{evaluation.active ? 'Vista de evaluación' : 'Su decisión'}</p>
+            <p className="isalwa-kicker">{decisionChrome.kicker}</p>
             <h2 className="mt-2 font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-              {evaluation.active
-                ? 'Contexto de la solicitud'
-                : approval.status === 'pending'
-                  ? 'Aprobar o rechazar'
-                  : 'Decisión registrada'}
+              {decisionChrome.title}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--isalwa-slate)]">
-              {evaluation.active
-                ? 'Solo lectura en vista de evaluación. La decisión no crea un pedido.'
-                : 'La decisión no crea un pedido. Solo confirma o rechaza esta solicitud.'}
+              {decisionChrome.body}
             </p>
             {canDecide || approval.status !== 'pending' ? (
               <div className="mt-6" data-tour={APPROVAL_ACTIONS_TARGET}>
@@ -134,7 +130,8 @@ export default async function ApprovalDetailPage({ params }: ApprovalDetailPageP
               </div>
             ) : (
               <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
-                Solo el aprobador asignado puede decidir. Usted puede revisar el contexto.
+                <span className="font-medium text-[var(--isalwa-kiln)]">Decisión a cargo de: </span>
+                {memberWithCargoLine(responsibility, currentApproverId)}
               </p>
             )}
             {continueCue?.showContinue ? (

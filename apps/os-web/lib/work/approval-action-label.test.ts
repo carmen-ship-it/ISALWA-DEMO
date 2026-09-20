@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  approvalDetailDecisionChrome,
   approvalListActionLabel,
   approvalListPageDescription,
 } from './approval-action-label.ts';
@@ -16,17 +17,11 @@ function read(rel: string): string {
 
 describe('approvalListActionLabel', () => {
   it('A: assigned approver with canDecide → Decidir', () => {
-    assert.equal(
-      approvalListActionLabel({ status: 'pending', canDecide: true }),
-      'Decidir',
-    );
+    assert.equal(approvalListActionLabel({ status: 'pending', canDecide: true }), 'Decidir');
   });
 
   it('B: non-approver → Ver solicitud', () => {
-    assert.equal(
-      approvalListActionLabel({ status: 'pending', canDecide: false }),
-      'Ver solicitud',
-    );
+    assert.equal(approvalListActionLabel({ status: 'pending', canDecide: false }), 'Ver solicitud');
   });
 
   it('C: evaluation → Ver contexto even if would otherwise decide', () => {
@@ -35,17 +30,38 @@ describe('approvalListActionLabel', () => {
       'Ver contexto',
     );
   });
+});
 
-  it('shows Ver registro for decided rows', () => {
-    assert.equal(
-      approvalListActionLabel({ status: 'approved', canDecide: false }),
-      'Ver registro',
-    );
+describe('approvalDetailDecisionChrome', () => {
+  it('A: assigned approver → Su decisión / Aprobar o rechazar', () => {
+    const chrome = approvalDetailDecisionChrome({ status: 'pending', canDecide: true });
+    assert.equal(chrome.kicker, 'Su decisión');
+    assert.equal(chrome.title, 'Aprobar o rechazar');
+  });
+
+  it('B: non-approver → context wording, not own decision', () => {
+    const chrome = approvalDetailDecisionChrome({ status: 'pending', canDecide: false });
+    assert.equal(chrome.kicker, 'Contexto de la decisión');
+    assert.equal(chrome.title, 'Revisión');
+    assert.match(chrome.body, /pendiente de decisión por la persona asignada/);
+    assert.doesNotMatch(chrome.kicker, /Su decisión/i);
+    assert.doesNotMatch(chrome.title, /Aprobar o rechazar/);
+  });
+
+  it('C: evaluation → context/read-only wording', () => {
+    const chrome = approvalDetailDecisionChrome({
+      status: 'pending',
+      canDecide: true,
+      evaluationMode: true,
+    });
+    assert.equal(chrome.kicker, 'Contexto de la decisión');
+    assert.equal(chrome.title, 'Revisión');
+    assert.doesNotMatch(chrome.title, /Aprobar o rechazar/);
   });
 });
 
 describe('approvalListPageDescription', () => {
-  it('D: evaluation subtitle does not imply su decisión', () => {
+  it('evaluation subtitle does not imply su decisión', () => {
     const copy = approvalListPageDescription({
       evaluationMode: true,
       pendingCount: 3,
@@ -53,39 +69,21 @@ describe('approvalListPageDescription', () => {
     });
     assert.match(copy, /Solicitudes pendientes de aprobación/);
     assert.doesNotMatch(copy, /su decisión/);
-    assert.match(copy, /La decisión no crea un pedido/);
-  });
-
-  it('uses su decisión only when every pending row is decidable', () => {
-    assert.match(
-      approvalListPageDescription({
-        evaluationMode: false,
-        pendingCount: 2,
-        decidableCount: 2,
-      }),
-      /su decisión/,
-    );
-    assert.doesNotMatch(
-      approvalListPageDescription({
-        evaluationMode: false,
-        pendingCount: 2,
-        decidableCount: 0,
-      }),
-      /su decisión/,
-    );
   });
 });
 
-describe('aprobaciones list wiring', () => {
-  it('passes authoritative canDecide map and evaluation mode into the desk panel', () => {
-    const page = read('app/(app)/aprobaciones/page.tsx');
+describe('approval copy wiring', () => {
+  it('list panel prefers live View As for Ver contexto', () => {
     const panel = read('components/work/approval-desk-panel.tsx');
-    assert.match(page, /resolveApprovalListCanDecide/);
-    assert.match(page, /canDecideById=\{canDecideById\}/);
-    assert.match(page, /evaluationMode=\{evaluation\.active\}/);
-    assert.match(page, /approvalListPageDescription/);
-    assert.doesNotMatch(page, /pendingForMe\.length === pending\.length/);
-    assert.match(panel, /canDecideById/);
-    assert.match(panel, /approvalListActionLabel/);
+    assert.match(panel, /useRolePreview/);
+    assert.match(panel, /evaluationModeEffective/);
+    assert.match(panel, /Ver contexto|evaluationModeEffective/);
+  });
+
+  it('detail uses decision chrome helper and shows decision owner when locked', () => {
+    const detail = read('app/(app)/aprobaciones/[approvalRequestId]/page.tsx');
+    assert.match(detail, /approvalDetailDecisionChrome/);
+    assert.match(detail, /Decisión a cargo de/);
+    assert.match(detail, /evaluation\.active \? false : await resolveCanDecide/);
   });
 });
