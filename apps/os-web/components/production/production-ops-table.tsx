@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Button, EmptyState, FeedbackNote, OperatingRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import { Button, EmptyState, FeedbackNote, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import '@/components/commercial/commercial-surfaces.css';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { orderHref } from '@/lib/commercial/navigation';
 import {
@@ -31,6 +33,19 @@ type ProductionOpsTableProps = {
   actorMemberId: string | null;
   canMutate: boolean;
 };
+
+const DESKTOP_GRID =
+  'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.95fr)_minmax(0,0.9fr)_minmax(0,1fr)_auto_auto]';
+
+const HEADER_COLUMNS = [
+  { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
+  { id: 'client', label: 'Cliente', className: 'min-w-0' },
+  { id: 'requested', label: 'Solicitado', className: 'min-w-0' },
+  { id: 'owner', label: 'Responsable', className: 'min-w-0' },
+  { id: 'next', label: 'Siguiente', className: 'min-w-0' },
+  { id: 'status', label: 'Estado', className: 'justify-self-end' },
+  { id: 'action', label: '', className: 'justify-self-end' },
+];
 
 /**
  * Production work table — Pedido / Client / requested / last update / responsible / date / next action.
@@ -73,93 +88,116 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
 
   return (
     <OpsDeskSurface className="mb-4">
-    <PageSection className="p-0 shadow-none" aria-label="Cola de producción por pedido">
-      <SectionHeader
-        kicker="Producción"
-        title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
-            Pedidos en contexto
-          </h2>
-        }
-      />
-      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-        Hechos de pedido y solicitudes de actualización. No se inventa un estado de fábrica.
-      </p>
-      {feedback ? (
-        <div className="mt-4">
-          <FeedbackNote tone={feedback.tone} title={feedback.title} detail={feedback.detail} />
-        </div>
-      ) : null}
-      {rows.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            title="Sin pedidos abiertos"
-            description="Los pedidos abiertos aparecen aquí. La revisión de producción se solicita desde el pedido; no se crea sola."
-          />
-        </div>
-      ) : (
-        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
-          {rows.map((row) => {
-            const href = orderHref(row.pedido.partyId, row.pedido.orderId);
-            const busy = pending && pendingId === row.pedido.orderId;
-            const meta = [
-              row.pedido.customerLabel,
-              row.requestedAction,
-              row.lastUpdateLabel,
-              `Responsable: ${row.responsibleLabel}`,
-              `Siguiente: ${row.nextAction}`,
-            ].join(' · ');
-            const statusPills = (
-              <>
-                {row.openProductionReviewWorkId ? (
-                  <StatusPill tone="warning">Revisión de producción</StatusPill>
-                ) : null}
-                {row.openUpdate ? (
-                  <StatusPill tone="warning">{PRODUCTION_UPDATE_REQUEST_COPY.requested}</StatusPill>
-                ) : null}
-              </>
-            );
-            return (
-              <li key={row.pedido.orderId}>
-                <OperatingRow
-                  href={href}
-                  subject={row.pedido.orderLabel}
-                  meta={meta}
-                  status={statusPills}
-                  actions={
-                    row.openProductionReviewWorkId ? (
-                      <Link
-                        href={workItemHref(row.openProductionReviewWorkId)}
-                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
-                      >
-                        Ver revisión
-                      </Link>
-                    ) : row.openUpdate ? (
-                      <Link
-                        href={workItemHref(row.openUpdate.workItemId)}
-                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
-                      >
-                        Ver solicitud
-                      </Link>
-                    ) : canMutate && actorMemberId ? (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        disabled={busy}
-                        onClick={() => requestUpdate(row)}
-                      >
-                        {busy ? 'Solicitando…' : PRODUCTION_UPDATE_REQUEST_COPY.action}
-                      </Button>
-                    ) : null
-                  }
-                />
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </PageSection>
+      <PageSection className="p-0 shadow-none" aria-label="Cola de producción por pedido">
+        <SectionHeader
+          kicker="Producción"
+          title={
+            <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+              Pedidos en contexto
+            </h2>
+          }
+        />
+        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+          Hechos de pedido y solicitudes de actualización. No se inventa un estado de fábrica.
+        </p>
+        {feedback ? (
+          <div className="mt-4">
+            <FeedbackNote tone={feedback.tone} title={feedback.title} detail={feedback.detail} />
+          </div>
+        ) : null}
+        {rows.length === 0 ? (
+          <div className="mt-6">
+            <EmptyState
+              title="Sin pedidos abiertos"
+              description="Los pedidos abiertos aparecen aquí. La revisión de producción se solicita desde el pedido; no se crea sola."
+            />
+          </div>
+        ) : (
+          <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
+            <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
+            <ul className="m-0 list-none p-0">
+              {rows.map((row) => {
+                const href = orderHref(row.pedido.partyId, row.pedido.orderId);
+                const busy = pending && pendingId === row.pedido.orderId;
+                const statusPills = (
+                  <>
+                    {row.openProductionReviewWorkId ? (
+                      <StatusPill tone="warning" icon="none">
+                        Revisión de producción
+                      </StatusPill>
+                    ) : null}
+                    {row.openUpdate ? (
+                      <StatusPill tone="warning" icon="none">
+                        {PRODUCTION_UPDATE_REQUEST_COPY.requested}
+                      </StatusPill>
+                    ) : null}
+                  </>
+                );
+                const nextLabel = [row.nextAction, row.lastUpdateLabel].filter(Boolean).join(' · ') || '—';
+                const action =
+                  row.openProductionReviewWorkId ? (
+                    <Link
+                      href={workItemHref(row.openProductionReviewWorkId)}
+                      className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                    >
+                      Ver revisión
+                    </Link>
+                  ) : row.openUpdate ? (
+                    <Link
+                      href={workItemHref(row.openUpdate.workItemId)}
+                      className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                    >
+                      Ver solicitud
+                    </Link>
+                  ) : canMutate && actorMemberId ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => requestUpdate(row)}
+                    >
+                      {busy ? 'Solicitando…' : PRODUCTION_UPDATE_REQUEST_COPY.action}
+                    </Button>
+                  ) : null;
+
+                return (
+                  <li key={row.pedido.orderId}>
+                    <OperatingScanRow
+                      href={href}
+                      title={row.pedido.orderLabel}
+                      desktopGridClassName={DESKTOP_GRID}
+                      fields={[
+                        { id: 'client', label: 'Cliente', value: row.pedido.customerLabel },
+                        {
+                          id: 'requested',
+                          label: 'Solicitado',
+                          value: row.requestedAction || '—',
+                          hideOnMobile: true,
+                        },
+                        {
+                          id: 'owner',
+                          label: 'Responsable',
+                          value: row.responsibleLabel || '—',
+                          hideOnMobile: true,
+                        },
+                        {
+                          id: 'next',
+                          label: 'Siguiente',
+                          value: nextLabel,
+                        },
+                      ]}
+                      status={statusPills}
+                      actionLabel="Ver pedido"
+                      secondaryActions={action}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </PageSection>
     </OpsDeskSurface>
   );
 }

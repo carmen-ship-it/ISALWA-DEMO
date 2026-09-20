@@ -226,9 +226,25 @@ export default async function OportunidadesPage({ searchParams }: OportunidadesP
                 : undefined
             }
             action={
-              <Link href="/clientes" className={commercialPrimaryLinkClass}>
-                {t('states.goToClientes')}
-              </Link>
+              hasQuery ? (
+                <Link
+                  href={withExactStage(
+                    listHref(LIST_PATH, { status, view: listState.view, density: listState.density }, [
+                      'q',
+                      'cursor',
+                      'panel',
+                    ]),
+                    stage,
+                  )}
+                  className={commercialPrimaryLinkClass}
+                >
+                  Limpiar búsqueda
+                </Link>
+              ) : (
+                <Link href="/clientes" className={commercialPrimaryLinkClass}>
+                  {t('states.goToClientes')}
+                </Link>
+              )
             }
           />
         ) : (

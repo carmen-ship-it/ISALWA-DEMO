@@ -182,14 +182,22 @@ export default async function PedidosPage({ searchParams }: PedidosPageProps) {
             description={emptyDescription(status, hasQuery)}
             action={
               <div className="flex flex-wrap gap-3">
-                <Link href="/cotizaciones">
-                  <Button type="button">Ver cotizaciones</Button>
-                </Link>
-                <Link href="/clientes">
-                  <Button type="button" variant="secondary">
-                    Ir a clientes
-                  </Button>
-                </Link>
+                {hasQuery ? (
+                  <Link href={workingHref({ ...listState, status, density: listState.density }, ['q', 'cursor', 'panel'])}>
+                    <Button type="button">Limpiar búsqueda</Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/cotizaciones">
+                      <Button type="button">Ver cotizaciones</Button>
+                    </Link>
+                    <Link href="/clientes">
+                      <Button type="button" variant="secondary">
+                        Ir a clientes
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             }
           />

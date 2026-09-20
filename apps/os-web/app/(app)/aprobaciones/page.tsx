@@ -119,6 +119,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
               subjects={subjects}
               evaluationMode={evaluation.active}
               canDecideById={canDecideById}
+              listState={query}
             />
             {(() => {
               const nav = cursorPageLinks(
@@ -129,7 +130,7 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
               );
               return nav.prevHref || nav.nextHref ? (
                 <ListPageNav
-                  from={0}
+                  from={pending.length > 0 ? 1 : 0}
                   to={pending.length}
                   total={null}
                   page={1}

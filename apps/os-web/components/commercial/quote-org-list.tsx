@@ -1,6 +1,7 @@
-import { OperatingRow, OverflowMenu, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
+import { OverflowMenu, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { QuoteSummaryReadModel } from '@isalwa/os-contracts';
 import '@/components/commercial/commercial-surfaces.css';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { formatListAge, formatQuoteStatus, statusTone } from '@/lib/commercial/labels';
 import { formatCentavos } from '@/lib/commercial/money';
 import { quoteHref } from '@/lib/commercial/navigation';
@@ -37,9 +38,18 @@ function quickViewHref(listState: ListQueryState, quoteId: string): string {
   return panelHref('/cotizaciones', listState, panel);
 }
 
-function metaLine(parts: Array<string | null | undefined>): string {
-  return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ');
-}
+const DESKTOP_GRID =
+  'md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,0.9fr)_minmax(0,0.85fr)_4.5rem_auto_auto]';
+
+const HEADER_COLUMNS = [
+  { id: 'title', label: 'Cotización', className: 'min-w-0' },
+  { id: 'client', label: 'Cliente', className: 'min-w-0' },
+  { id: 'owner', label: 'Responsable', className: 'min-w-0' },
+  { id: 'amount', label: 'Monto', className: 'min-w-0' },
+  { id: 'age', label: 'Antigüedad', className: 'min-w-0' },
+  { id: 'status', label: 'Estado', className: 'justify-self-end' },
+  { id: 'action', label: '', className: 'justify-self-end' },
+];
 
 export function QuoteOrgList({
   items,
@@ -51,63 +61,69 @@ export function QuoteOrgList({
   density = 'compact',
 }: QuoteOrgListProps) {
   return (
-    <ul
-      className="commercial-operating-list min-w-0"
-      aria-label="Cotizaciones"
-      data-tour={TOUR_TARGET.quoteList}
-    >
-      {items
-        .filter(
-          (item) =>
-            !isEngineeringFixtureCopy(item.quoteNumber) &&
-            !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
-        )
-        .map((item) => {
-          const customer = partyLabel(partyLabels, item.partyId);
-          const owner = memberLabel(memberLabels, item.ownerMemberId);
-          const dateLabel = formatListAge(item.submittedAt ?? item.createdAt);
-          const detailHref = quoteHref(item.partyId, item.quoteId);
-          const meta = metaLine([
-            customer,
-            showAmount ? formatCentavos(item.totalCentavos, item.currency) : null,
-            owner ? `Responsable: ${owner}` : null,
-            dateLabel,
-          ]);
+    <div className="commercial-operating-list min-w-0" data-tour={TOUR_TARGET.quoteList}>
+      <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
+      <ul className="m-0 list-none p-0" aria-label="Cotizaciones">
+        {items
+          .filter(
+            (item) =>
+              !isEngineeringFixtureCopy(item.quoteNumber) &&
+              !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
+          )
+          .map((item) => {
+            const customer = partyLabel(partyLabels, item.partyId);
+            const owner = memberLabel(memberLabels, item.ownerMemberId);
+            const dateLabel = formatListAge(item.submittedAt ?? item.createdAt);
+            const detailHref = quoteHref(item.partyId, item.quoteId);
 
-          return (
-            <li key={item.quoteId}>
-              <OperatingRow
-                href={detailHref}
-                density={density}
-                selected={selectedQuoteId === item.quoteId}
-                subject={item.quoteNumber}
-                meta={meta || undefined}
-                status={
-                  <StatusPill tone={statusTone(item.status)} data-tour={TOUR_TARGET.quoteStatus}>{formatQuoteStatus(item.status)}</StatusPill>
-                }
-                actions={
-                  listState ? (
-                    <OverflowMenu
-                      label={`Acciones de ${item.quoteNumber}`}
-                      items={[
-                        { id: 'open', label: 'Abrir', href: detailHref },
-                        {
-                          id: 'preview',
-                          label: 'Vista rápida',
-                          href: quickViewHref(listState, item.quoteId),
-                        },
-                        { id: 'pdf', label: 'PDF', href: quotePdfHref(item.quoteId) },
-                        ...(canRegisterQuoteFollowUp(item.status)
-                          ? [{ id: 'follow-up', label: FOLLOW_UP_COPY.action, href: detailHref }]
-                          : []),
-                      ]}
-                    />
-                  ) : undefined
-                }
-              />
-            </li>
-          );
-        })}
-    </ul>
+            return (
+              <li key={item.quoteId}>
+                <OperatingScanRow
+                  href={detailHref}
+                  density={density}
+                  selected={selectedQuoteId === item.quoteId}
+                  title={item.quoteNumber}
+                  desktopGridClassName={DESKTOP_GRID}
+                  fields={[
+                    { id: 'client', label: 'Cliente', value: customer },
+                    { id: 'owner', label: 'Responsable', value: owner || '—' },
+                    {
+                      id: 'amount',
+                      label: 'Monto',
+                      value: showAmount ? formatCentavos(item.totalCentavos, item.currency) : '—',
+                      hideOnMobile: true,
+                    },
+                    { id: 'age', label: 'Antigüedad', value: dateLabel ?? '—', hideOnMobile: true },
+                  ]}
+                  status={
+                    <StatusPill tone={statusTone(item.status)} icon="none" data-tour={TOUR_TARGET.quoteStatus}>
+                      {formatQuoteStatus(item.status)}
+                    </StatusPill>
+                  }
+                  actionLabel="Ver cotización"
+                  secondaryActions={
+                    listState ? (
+                      <OverflowMenu
+                        label={`Más acciones de ${item.quoteNumber}`}
+                        items={[
+                          {
+                            id: 'preview',
+                            label: 'Vista rápida',
+                            href: quickViewHref(listState, item.quoteId),
+                          },
+                          { id: 'pdf', label: 'PDF', href: quotePdfHref(item.quoteId) },
+                          ...(canRegisterQuoteFollowUp(item.status)
+                            ? [{ id: 'follow-up', label: FOLLOW_UP_COPY.action, href: detailHref }]
+                            : []),
+                        ]}
+                      />
+                    ) : undefined
+                  }
+                />
+              </li>
+            );
+          })}
+      </ul>
+    </div>
   );
 }

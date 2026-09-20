@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import {
   EmptyState,
-  OperatingRow,
   PageContainer,
   PageSection,
   SectionHeader,
   StatGroup,
   StatusPill,
 } from '@isalwa/ui';
+import '@/components/commercial/commercial-surfaces.css';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { PurchaseRequestPanel } from '@/components/purchasing/purchase-request-panel';
 import { ResolvePurchasingReviewForm } from '@/components/purchasing/resolve-purchasing-review-form';
 import { PageHeader } from '@/components/shell/page-header';
@@ -159,6 +160,16 @@ async function loadComprasLinkedWithSupply(): Promise<{
  * instead of retyping pedido lines. No automatic PO.
  */
 function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
+  const desktopGrid =
+    'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]';
+  const headerColumns = [
+    { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
+    { id: 'client', label: 'Cliente', className: 'min-w-0' },
+    { id: 'context', label: 'Contexto', className: 'min-w-0' },
+    { id: 'status', label: 'Estado', className: 'justify-self-end' },
+    { id: 'action', label: '', className: 'justify-self-end' },
+  ];
+
   return (
     <OpsDeskSurface className="mb-4">
     <PageSection className="p-0 shadow-none" aria-label="Pedidos para vincular">
@@ -175,51 +186,66 @@ function LinkedOrdersSection({ orders }: { orders: LinkedOrderWithSupply[] }) {
         abastecimiento solo aparece cuando ya hay Trabajo abierto — no se inventa OC ni stock.
       </p>
       {orders.length === 0 ? (
-        <div data-owner-review-state="no-data" className="mt-4">
-          <EmptyState
-            title="Sin pedidos abiertos para vincular"
-            description="Los pedidos aparecen aquí para vincularlos. La revisión de compras se solicita desde el pedido. Esta lista no crea pedidos ni órdenes de compra."
-            example="Abra el pedido desde el cliente. No se duplican líneas comerciales en compras."
-          />
-        </div>
+        <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+          Sin pedidos abiertos para vincular. Abra el pedido desde el cliente cuando exista.
+        </p>
       ) : (
-        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
-          {orders.map((order) => (
-            <li key={order.orderId}>
-              <OperatingRow
-                href={orderHref(order.partyId, order.orderId)}
-                subject={order.orderNumber}
-                meta={`${order.customerLabel} · Pedido abierto · sin obligación automática de compra`}
-                status={
-                  order.supplyReview ? (
-                    <StatusPill tone="warning">Revisión de abastecimiento</StatusPill>
-                  ) : (
-                    <StatusPill tone="neutral">Sin revisión abierta</StatusPill>
-                  )
-                }
-                actions={
-                  order.supplyReview ? (
-                    <div className="flex flex-col items-end gap-1">
-                      <Link
-                        href={workItemHref(order.supplyReview.workItemId)}
-                        className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
-                      >
-                        Ver revisión
-                      </Link>
-                      <ResolvePurchasingReviewForm
-                        workItemId={order.supplyReview.workItemId}
-                        requesterMemberId={order.supplyReview.requesterMemberId}
-                        partyId={order.partyId}
-                        orderId={order.orderId}
-                        orderNumber={order.orderNumber}
-                      />
-                    </div>
-                  ) : null
-                }
-              />
-            </li>
-          ))}
-        </ul>
+        <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
+          <OperatingScanListHeader columns={headerColumns} className={desktopGrid} />
+          <ul className="m-0 list-none p-0">
+            {orders.map((order) => {
+              const href = orderHref(order.partyId, order.orderId);
+              const reviewActions = order.supplyReview ? (
+                <div className="flex flex-col items-end gap-1">
+                  <Link
+                    href={workItemHref(order.supplyReview.workItemId)}
+                    className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                  >
+                    Ver revisión
+                  </Link>
+                  <ResolvePurchasingReviewForm
+                    workItemId={order.supplyReview.workItemId}
+                    requesterMemberId={order.supplyReview.requesterMemberId}
+                    partyId={order.partyId}
+                    orderId={order.orderId}
+                    orderNumber={order.orderNumber}
+                  />
+                </div>
+              ) : null;
+              return (
+                <li key={order.orderId}>
+                  <OperatingScanRow
+                    href={href}
+                    title={order.orderNumber}
+                    desktopGridClassName={desktopGrid}
+                    fields={[
+                      { id: 'client', label: 'Cliente', value: order.customerLabel },
+                      {
+                        id: 'context',
+                        label: 'Contexto',
+                        value: 'Pedido abierto',
+                        hideOnMobile: true,
+                      },
+                    ]}
+                    status={
+                      order.supplyReview ? (
+                        <StatusPill tone="warning" icon="none">
+                          Revisión de abastecimiento
+                        </StatusPill>
+                      ) : (
+                        <StatusPill tone="neutral" icon="none">
+                          Sin revisión abierta
+                        </StatusPill>
+                      )
+                    }
+                    actionLabel="Ver pedido"
+                    secondaryActions={reviewActions}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </PageSection>
     </OpsDeskSurface>

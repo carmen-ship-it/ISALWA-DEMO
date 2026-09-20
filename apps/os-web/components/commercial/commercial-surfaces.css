@@ -43,3 +43,21 @@
 .commercial-toolbar button[type='submit']:hover {
   opacity: 0.95;
 }
+
+.commercial-operating-list .isalwa-operating-scan-row {
+  border-bottom-color: color-mix(in srgb, var(--isalwa-mist) 92%, var(--isalwa-kiln));
+  background: var(--isalwa-white);
+}
+
+.commercial-operating-list li:nth-child(even) .isalwa-operating-scan-row {
+  background: color-mix(in srgb, var(--isalwa-porcelain) 42%, white);
+}
+
+.commercial-operating-list li:hover .isalwa-operating-scan-row,
+.commercial-operating-list .isalwa-operating-scan-row:hover {
+  background: color-mix(in srgb, var(--isalwa-glaze) 5%, white);
+}
+
+.commercial-operating-list .isalwa-operating-scan-row[data-selected='true'] {
+  background: color-mix(in srgb, var(--isalwa-glaze) 9%, white);
+}

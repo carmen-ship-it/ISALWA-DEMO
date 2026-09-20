@@ -1,7 +1,8 @@
-import { OperatingRow, StatusPill, type OperatingRowDensity } from '@isalwa/ui';
+import { StatusPill, type OperatingRowDensity } from '@isalwa/ui';
 import type { OpportunitySummaryReadModel } from '@isalwa/os-contracts';
 import '@/components/commercial/commercial-surfaces.css';
-import { formatListAge, formatOpportunityStatus, presentStage, statusTone } from '@/lib/commercial/labels';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
+import { formatListAge, formatOpportunityStatus, statusTone } from '@/lib/commercial/labels';
 import { newQuoteHref, opportunityHref, quoteHref } from '@/lib/commercial/navigation';
 import { opportunityNextStep, preferredLinkedQuote, type OpportunityLinkedQuote } from '@/lib/commercial/next-step';
 import { partyLabel, type PartyLabelMap } from '@/lib/commercial/party-resolver';
@@ -20,9 +21,18 @@ type OpportunityOrgListProps = {
   density?: OperatingRowDensity;
 };
 
-function metaLine(parts: Array<string | null | undefined>): string {
-  return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ');
-}
+const DESKTOP_GRID =
+  'md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.95fr)_4.5rem_minmax(0,1.1fr)_auto_auto]';
+
+const HEADER_COLUMNS = [
+  { id: 'title', label: 'Oportunidad', className: 'min-w-0' },
+  { id: 'client', label: 'Cliente', className: 'min-w-0' },
+  { id: 'owner', label: 'Responsable', className: 'min-w-0' },
+  { id: 'age', label: 'Antigüedad', className: 'min-w-0' },
+  { id: 'next', label: 'Próximo paso', className: 'min-w-0' },
+  { id: 'status', label: 'Estado', className: 'justify-self-end' },
+  { id: 'action', label: '', className: 'justify-self-end' },
+];
 
 export function OpportunityOrgList({
   items,
@@ -32,54 +42,60 @@ export function OpportunityOrgList({
   density = 'compact',
 }: OpportunityOrgListProps) {
   return (
-    <ul
-      className="commercial-operating-list min-w-0"
-      aria-label="Oportunidades"
-      data-tour={TOUR_TARGET.opportunityList}
-    >
-      {items
-        .filter(
-          (item) =>
-            !isEngineeringFixtureCopy(item.title) &&
-            !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
-        )
-        .map((item) => {
-          const customer = partyLabel(partyLabels, item.partyId);
-          const owner = memberLabel(memberLabels, item.ownerMemberId);
-          const stage = item.stage.trim() ? presentStage(item.stage) : null;
-          const age = formatListAge(item.createdAt);
-          const linked = preferredLinkedQuote(linkedQuotes, item.opportunityId);
-          const next = opportunityNextStep({
-            status: item.status,
-            partyId: item.partyId,
-            opportunityId: item.opportunityId,
-            newQuoteHref: newQuoteHref(item.partyId, item.opportunityId),
-            linkedQuoteHref: linked ? quoteHref(linked.partyId || item.partyId, linked.quoteId) : null,
-          });
-          return (
-            <li key={item.opportunityId}>
-              <OperatingRow
-                href={opportunityHref(item.partyId, item.opportunityId)}
-                density={density}
-                subject={presentHumanCopy(item.title)}
-                meta={
-                  metaLine([
-                    customer,
-                    stage,
-                    owner ? `Responsable: ${owner}` : null,
-                    age,
-                    next && !next.waiting && next.hrefLabel ? `Próximo: ${next.hrefLabel}` : null,
-                  ]) || undefined
-                }
-                status={
-                  <StatusPill tone={statusTone(item.status)}>
-                    {formatOpportunityStatus(item.status)}
-                  </StatusPill>
-                }
-              />
-            </li>
-          );
-        })}
-    </ul>
+    <div className="commercial-operating-list min-w-0" data-tour={TOUR_TARGET.opportunityList}>
+      <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
+      <ul className="m-0 list-none p-0" aria-label="Oportunidades">
+        {items
+          .filter(
+            (item) =>
+              !isEngineeringFixtureCopy(item.title) &&
+              !isEngineeringFixtureCopy(partyLabel(partyLabels, item.partyId)),
+          )
+          .map((item) => {
+            const customer = partyLabel(partyLabels, item.partyId);
+            const owner = memberLabel(memberLabels, item.ownerMemberId);
+            const age = formatListAge(item.createdAt);
+            const linked = preferredLinkedQuote(linkedQuotes, item.opportunityId);
+            const next = opportunityNextStep({
+              status: item.status,
+              partyId: item.partyId,
+              opportunityId: item.opportunityId,
+              newQuoteHref: newQuoteHref(item.partyId, item.opportunityId),
+              linkedQuoteHref: linked ? quoteHref(linked.partyId || item.partyId, linked.quoteId) : null,
+            });
+            const nextLabel =
+              next && !next.waiting && next.hrefLabel ? next.hrefLabel : next?.waiting ? 'En espera' : '—';
+            const href = opportunityHref(item.partyId, item.opportunityId);
+
+            return (
+              <li key={item.opportunityId}>
+                <OperatingScanRow
+                  href={href}
+                  density={density}
+                  title={presentHumanCopy(item.title)}
+                  desktopGridClassName={DESKTOP_GRID}
+                  fields={[
+                    { id: 'client', label: 'Cliente', value: customer },
+                    { id: 'owner', label: 'Responsable', value: owner || '—' },
+                    { id: 'age', label: 'Antigüedad', value: age ?? '—', hideOnMobile: true },
+                    {
+                      id: 'next',
+                      label: 'Próximo paso',
+                      value: nextLabel,
+                      hideOnMobile: true,
+                    },
+                  ]}
+                  status={
+                    <StatusPill tone={statusTone(item.status)} icon="none">
+                      {formatOpportunityStatus(item.status)}
+                    </StatusPill>
+                  }
+                  actionLabel="Ver oportunidad"
+                />
+              </li>
+            );
+          })}
+      </ul>
+    </div>
   );
 }

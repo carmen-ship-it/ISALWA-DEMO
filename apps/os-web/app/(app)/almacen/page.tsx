@@ -1,6 +1,8 @@
 import Link from 'next/link';
-import { EmptyState, OperatingRow, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import { EmptyState, PageContainer, PageSection, SectionHeader, StatGroup, StatusPill } from '@isalwa/ui';
+import '@/components/commercial/commercial-surfaces.css';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { WarehousePostSaleDesk } from '@/components/warehouse/warehouse-postsale-desk';
 import { PageHeader } from '@/components/shell/page-header';
 import { createOsApiClient } from '@/lib/api/os-api-client';
@@ -99,6 +101,16 @@ export default async function AlmacenPage({
 }
 
 function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[] }) {
+  const desktopGrid =
+    'md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,1fr)_auto_auto]';
+  const headerColumns = [
+    { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
+    { id: 'client', label: 'Cliente', className: 'min-w-0' },
+    { id: 'citation', label: 'Ingreso PT', className: 'min-w-0' },
+    { id: 'status', label: 'Estado', className: 'justify-self-end' },
+    { id: 'action', label: '', className: 'justify-self-end' },
+  ];
+
   return (
     <OpsDeskSurface className="mb-4">
     <PageSection className="p-0 shadow-none" aria-label="Pedidos con contexto de almacén">
@@ -121,46 +133,60 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
           />
         </div>
       ) : (
-        <ul className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
-          {rows.map((row) => (
-            <li key={row.pedido.orderId}>
-              <OperatingRow
-                href={orderHref(row.pedido.partyId, row.pedido.orderId)}
-                subject={row.pedido.orderLabel}
-                meta={row.pedido.customerLabel}
-                status={
-                  <>
-                    {row.warehouseReviewWorkId ? (
-                      <StatusPill tone="warning">Revisión de almacén</StatusPill>
-                    ) : null}
-                    {row.hasFinishedGoodsCitation ? (
-                      <StatusPill tone="info">Ingreso PT citado</StatusPill>
-                    ) : (
-                      <StatusPill tone="neutral">Sin ingreso citado</StatusPill>
-                    )}
-                  </>
-                }
-                actions={
-                  row.warehouseReviewWorkId ? (
-                    <Link
-                      href={workItemHref(row.warehouseReviewWorkId)}
-                      className="text-xs font-medium text-[var(--isalwa-glaze)] hover:underline"
-                    >
-                      Ver revisión
-                    </Link>
-                  ) : null
-                }
-              />
-            </li>
-          ))}
-        </ul>
+        <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
+          <OperatingScanListHeader columns={headerColumns} className={desktopGrid} />
+          <ul className="m-0 list-none p-0">
+            {rows.map((row) => {
+              const href = orderHref(row.pedido.partyId, row.pedido.orderId);
+              const reviewAction = row.warehouseReviewWorkId ? (
+                <Link
+                  href={workItemHref(row.warehouseReviewWorkId)}
+                  className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                >
+                  Ver revisión
+                </Link>
+              ) : null;
+              return (
+                <li key={row.pedido.orderId}>
+                  <OperatingScanRow
+                    href={href}
+                    title={row.pedido.orderLabel}
+                    desktopGridClassName={desktopGrid}
+                    fields={[
+                      { id: 'client', label: 'Cliente', value: row.pedido.customerLabel },
+                      {
+                        id: 'citation',
+                        label: 'Ingreso PT',
+                        value: row.hasFinishedGoodsCitation ? 'Ingreso PT citado' : 'Sin ingreso citado',
+                        hideOnMobile: true,
+                      },
+                    ]}
+                    status={
+                      row.warehouseReviewWorkId ? (
+                        <StatusPill tone="warning" icon="none">
+                          Revisión de almacén
+                        </StatusPill>
+                      ) : (
+                        <StatusPill tone="neutral" icon="none">
+                          Sin revisión abierta
+                        </StatusPill>
+                      )
+                    }
+                    actionLabel="Ver pedido"
+                    secondaryActions={reviewAction}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </PageSection>
     </OpsDeskSurface>
   );
 }
 
-async function loadAlmacenAccess() {
+async function loadAlmacenAccessasync function loadAlmacenAccess() {
   const emptySummary = { revisiones: 0, ingresos: 0 };
   const emptyContexts: PedidoWarehouseContext[] = [];
   try {

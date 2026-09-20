@@ -181,7 +181,20 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
             title={emptyTitle(view, filteredByParty, controls)}
             description={emptyDescription(view, filteredByParty, controls)}
             action={
-              view === 'mine' && !filteredByParty && !controls.q && !controls.focus ? (
+              controls.q || controls.focus ? (
+                <Link
+                  href={listHref('/trabajo', { ...listState, q: undefined, focus: undefined }, [
+                    'q',
+                    'focus',
+                    'cursor',
+                  ])}
+                  className="inline-flex"
+                >
+                  <Button type="button" variant="secondary">
+                    Limpiar búsqueda y filtros
+                  </Button>
+                </Link>
+              ) : view === 'mine' && !filteredByParty ? (
                 <Link href="/clientes" className="inline-flex">
                   <Button type="button" variant="primary">
                     {t('states.goToClientes')}
@@ -210,7 +223,7 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
               );
               return nav.prevHref || nav.nextHref ? (
                 <ListPageNav
-                  from={0}
+                  from={items.length > 0 ? 1 : 0}
                   to={items.length}
                   total={null}
                   page={1}

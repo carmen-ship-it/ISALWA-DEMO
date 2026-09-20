@@ -222,14 +222,22 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
             }
             action={
               <div className="flex flex-wrap gap-3">
-                <Link href="/clientes" className={commercialPrimaryLinkClass}>
-                  {t('states.goToClientes')}
-                </Link>
-                <Link href="/oportunidades" className="inline-flex">
-                  <Button type="button" variant="secondary">
-                    {t('states.viewOpportunities')}
-                  </Button>
-                </Link>
+                {hasQuery ? (
+                  <Link href={clearSearchHref(status, listState.view)} className={commercialPrimaryLinkClass}>
+                    Limpiar búsqueda
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/clientes" className={commercialPrimaryLinkClass}>
+                      {t('states.goToClientes')}
+                    </Link>
+                    <Link href="/oportunidades" className="inline-flex">
+                      <Button type="button" variant="secondary">
+                        {t('states.viewOpportunities')}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             }
           />
