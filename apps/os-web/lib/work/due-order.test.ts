@@ -241,7 +241,8 @@ describe('CC-3 surfaces stay scoped', () => {
     assert.match(page, /listWorkItems\(\{[\s\S]*status:\s*'open'/);
     assert.match(page, /presentWorkPage\(/);
     assert.match(controls, /sortOpenWorkByDue\(next,/);
-    assert.doesNotMatch(page, /ownerMemberId\s*:/);
+    // Evaluation View As may narrow with ownerMemberId; reassignment stays off Trabajo.
+    assert.match(page, /ownerMemberId:\s*evaluation\.subjectMemberId/);
     assert.doesNotMatch(page, /orderBy|sortBy|ReassignWork|name="ownerMemberId"/);
     assert.doesNotMatch(page, /reassignWorkAction|Trabajo activo/);
 

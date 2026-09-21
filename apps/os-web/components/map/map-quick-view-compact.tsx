@@ -169,8 +169,7 @@ export function MapQuickViewCompact({
         </dl>
       ) : (
         <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
-          Contexto comercial se carga desde registros canónicos cuando está disponible. Aquí no se
-          inventan pines ni ingresos.
+          El resumen comercial aparece cuando hay oportunidades, cotizaciones o pedidos registrados.
         </p>
       )}
 

@@ -83,15 +83,22 @@ describe('CT3-B commercial completeness helpers', () => {
       resolve('components/cliente/cliente-360-documentos.tsx'),
       'utf8',
     );
-    assert.match(opportunity, /Crear cotización|Ver cotización/);
+    assert.match(opportunity, /RecordNextStep/);
+    assert.match(opportunity, /opportunityNextStep/);
+    assert.match(opportunity, /newQuoteHref\(partyId, opportunityId\)/);
     assert.match(opportunity, /CommercialProgressStrip/);
     assert.match(opportunity, /Qué necesita/);
+    const nextStep = readFileSync(resolve('lib/commercial/next-step.ts'), 'utf8');
+    assert.match(nextStep, /hrefLabel: 'Crear cotización'/);
+    assert.match(nextStep, /hrefLabel: 'Ver cotización'/);
     assert.match(quote, /QuoteDocumentoCard/);
     assert.match(quote, /QuoteEnvioSection/);
     assert.match(quote, /QuoteDetailActions/);
-    assert.match(documentos, /colTipo|DOCUMENTOS_COPY\.colTipo/);
-    assert.match(documentos, /viewPdf|DOCUMENTOS_COPY\.viewPdf/);
-    assert.match(documentos, /<table/);
+    assert.match(documentos, /DOCUMENTOS_COPY\.viewPdf/);
+    assert.match(documentos, /DOCUMENTOS_COPY\.download/);
+    assert.match(documentos, /data-cliente360-documentos="table"/);
+    assert.match(documentos, /data-cliente360-documentos-layout="scan"/);
+    assert.doesNotMatch(documentos, /<table/);
   });
 
   it('fresh opportunity without linked quote keeps Crear cotización (RC4 opp→quote)', () => {
@@ -101,8 +108,11 @@ describe('CT3-B commercial completeness helpers', () => {
     );
     // Must not treat party-level quotes as linked unless opportunityId matches.
     assert.match(opportunity, /preferred\.opportunityId === opportunityId/);
-    assert.match(opportunity, /isOpen && !linkedQuote/);
-    assert.match(opportunity, /Crear cotización/);
+    assert.match(opportunity, /isOpen && linkedQuote/);
+    assert.match(opportunity, /Crear otra cotización/);
+    assert.match(opportunity, /RecordNextStep/);
     assert.match(opportunity, /newQuoteHref\(partyId, opportunityId\)/);
+    const nextStepSrc = readFileSync(resolve('lib/commercial/next-step.ts'), 'utf8');
+    assert.match(nextStepSrc, /hrefLabel: 'Crear cotización'/);
   });
 });

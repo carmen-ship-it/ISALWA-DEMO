@@ -23,6 +23,7 @@ describe('issue status formatting', () => {
     assert.equal(formatIssueStatus('resolved'), 'Resuelto');
     assert.equal(formatIssueStatus('closed'), 'Cerrado');
     assert.equal(formatIssueStatus('reopened'), 'Reabierto');
+    assert.equal(formatIssueStatus('open'), 'Abierta');
   });
 
   it('returns appropriate pill tones for each status', () => {

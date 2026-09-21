@@ -30,7 +30,7 @@ describe('manual conversation on Mensajes', () => {
     assert.match(panel, /listPartyCommercialLinks/);
     assert.match(panel, /SearchableSelect/);
     assert.match(panel, /!customerId\.trim\(\)/);
-    assert.match(panel, /disabled=\{!actor \|\| !customerId\.trim\(\)\}/);
+    assert.match(panel, /disabled=\{!actor \|\| !customerId\.trim\(\) \|\| submitting\}/);
     assert.doesNotMatch(panel, /name="customerId"/);
     assert.doesNotMatch(panel, /name="customerLabel"/);
     assert.doesNotMatch(panel, /name="opportunityId"/);

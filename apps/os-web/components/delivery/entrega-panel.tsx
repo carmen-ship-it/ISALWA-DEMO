@@ -31,7 +31,7 @@ export type EntregaEvidenceView = {
   signatureReference: string | null;
 };
 
-export type EntregaPanelStatus = 'ready' | 'empty' | 'loading' | 'error' | 'permission';
+export type EntregaPanelStatus = 'ready' | 'empty' | 'loading' | 'error' | 'permission' | 'history-withheld';
 
 export type EntregaPanelProps = {
   status?: EntregaPanelStatus;
@@ -127,6 +127,17 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
         <EmptyState
           title="No se pudo cargar el registro de entrega."
           description="Este es un registro interno de entrega. No reclama un número oficial."
+        />
+      </div>
+    );
+  }
+
+  if (surface === 'history-withheld') {
+    return (
+      <div data-entrega-boundary="history-withheld">
+        <EmptyState
+          title="El historial de salidas y entregas no está en esta lectura."
+          description="El registro que esta sesión puede guardar sigue en el escritorio de arriba."
         />
       </div>
     );

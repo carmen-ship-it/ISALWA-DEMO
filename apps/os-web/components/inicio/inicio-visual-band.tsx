@@ -12,7 +12,7 @@ export type InicioVisualBandTone =
 
 const BAND_CLASS: Record<InicioVisualBandTone, string> = {
   attention:
-    'border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)] shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-status-amber-2)] bg-white shadow-[var(--isalwa-shadow-soft)]',
   'mi-dia':
     'border-[color-mix(in_srgb,var(--isalwa-kiln)_18%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_8%,white)] shadow-[var(--isalwa-shadow-resting)]',
   commercial:

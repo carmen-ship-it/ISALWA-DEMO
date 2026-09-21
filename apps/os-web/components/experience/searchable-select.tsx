@@ -114,7 +114,7 @@ export function SearchableSelect({
   }
 
   return (
-    <div className="relative">
+    <div className="relative overflow-visible" data-searchable-select="">
       <label htmlFor={id} className={labelVisibility === 'sr-only' ? 'sr-only' : 'isalwa-section-label'}>
         {label}
       </label>
@@ -155,7 +155,7 @@ export function SearchableSelect({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] py-1 shadow-[var(--isalwa-shadow-floating)]"
+          className="relative z-30 mt-2 max-h-64 w-full overflow-y-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] py-1 shadow-[var(--isalwa-shadow-floating)]"
         >
           {filtered.length === 0 ? (
             <li className="px-3 py-2 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]" role="status">

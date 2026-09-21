@@ -120,8 +120,8 @@ describe('pedido timeline mapping', () => {
       'Ingreso a almacén de productos terminados',
     );
     assert.equal(items.find((i) => i.eventType === 'delivery_note.created')?.label, 'Nota de entrega creada');
-    assert.equal(items.find((i) => i.eventType === 'warehouse_exit.recorded')?.label, 'Salida de almacén');
-    assert.equal(items.find((i) => i.eventType === 'customer_delivery.recorded')?.label, 'Entrega al cliente');
+    assert.equal(items.find((i) => i.eventType === 'warehouse_exit.recorded')?.label, 'Salida registrada');
+    assert.equal(items.find((i) => i.eventType === 'customer_delivery.recorded')?.label, 'Entrega registrada');
     assert.equal(items.find((i) => i.eventType === 'approval.approved')?.href, '/aprobaciones/apr-1');
 
     for (const item of items) {

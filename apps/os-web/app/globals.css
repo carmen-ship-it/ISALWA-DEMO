@@ -36,7 +36,7 @@ body {
     color-mix(in srgb, var(--isalwa-teal-100) 45%, var(--isalwa-porcelain)) 100%
   );
   --isalwa-surface-app: var(--isalwa-surface-hero);
-  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 28%, transparent);
+  --isalwa-shadow-focus: 0 0 0 3px rgba(40, 122, 120, 0.28);
   /* Primary = filled navy; secondary = navy border; contextual = teal ops. */
   --isalwa-btn-primary-bg: var(--isalwa-action);
   --isalwa-btn-primary-bg-hover: var(--isalwa-action-deep);
@@ -153,10 +153,31 @@ a:focus-visible,
 button:focus-visible,
 summary:focus-visible,
 [role='button']:focus-visible,
-input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: none;
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  box-shadow: var(--isalwa-shadow-focus);
+}
+/* Text fields use .isalwa-field:focus-visible in @isalwa/ui chrome — keep one contract. */
+input.isalwa-field:focus,
+input.isalwa-field:focus-visible {
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  border-color: var(--isalwa-glaze);
+  box-shadow: var(--isalwa-shadow-focus);
+}
+input:focus-visible:not(.isalwa-field) {
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
+/* Map search: parent focus-within — Cursor/CDP may gate :focus while :focus-within still matches. */
+[data-surface='map-search']:focus-within .isalwa-field {
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  border-color: var(--isalwa-glaze);
   box-shadow: var(--isalwa-shadow-focus);
 }
 

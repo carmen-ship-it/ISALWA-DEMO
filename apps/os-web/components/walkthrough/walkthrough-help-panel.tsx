@@ -8,8 +8,8 @@ import { useGuide } from './guide-provider';
 import { LearningModeToggle } from './learning-mode-toggle';
 
 /**
- * Ayuda affordances: welcome replay + Story Mode + learning mode.
- * Story Mode is the only multi-step guided walkthrough.
+ * Ayuda affordances: welcome replay + Recorrido completo + learning mode.
+ * Recorrido completo is the only multi-step guided walkthrough.
  */
 export function WalkthroughHelpPanel() {
   const api = useGuide();
@@ -24,7 +24,7 @@ export function WalkthroughHelpPanel() {
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
           La bienvenida corta explica qué es ISALWA. El recorrido guiado completo de evaluación
-          es Story Mode. No hay un segundo recorrido paso a paso en el producto.
+          es Recorrido completo. No hay un segundo recorrido paso a paso en el producto.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button type="button" variant="secondary" onClick={() => api?.replayIntro()}>
@@ -39,7 +39,7 @@ export function WalkthroughHelpPanel() {
             Recorrido completo de evaluación
           </h3>
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-            Único recorrido guiado multi-paso. Usa Story Mode con datos DEMO · ficticios y rutas
+            Único recorrido guiado multi-paso. Usa Recorrido completo con datos DEMO · ficticios y rutas
             normales del producto.
           </p>
           <div className="mt-4">

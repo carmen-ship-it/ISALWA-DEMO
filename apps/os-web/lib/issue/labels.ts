@@ -20,11 +20,14 @@ const STATUS_LABELS: Record<IssueStatus, string> = {
   reopened: 'Reabierto',
 };
 
-export function formatIssueStatus(status: IssueStatus): string {
-  return STATUS_LABELS[status] ?? status;
+export function formatIssueStatus(status: IssueStatus | string): string {
+  // Demo/legacy feeds may still emit "open"; never surface English on customer UI.
+  if (status === 'open') return 'Abierta';
+  return STATUS_LABELS[status as IssueStatus] ?? String(status);
 }
 
-export function statusToneForIssue(status: IssueStatus): StatusPillTone {
+export function statusToneForIssue(status: IssueStatus | string): StatusPillTone {
+  if (status === 'open') return 'warning';
   switch (status) {
     case 'reported':
       return 'warning';

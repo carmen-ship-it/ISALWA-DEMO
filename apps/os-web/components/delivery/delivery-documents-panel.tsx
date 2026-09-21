@@ -24,7 +24,8 @@ import {
   QUOTED_QUANTITY_LABEL,
 } from '@/lib/commercial/quoted-product-context';
 import { SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
-import { actionSecondaryClass } from '@/lib/ui/action-hierarchy';
+import { actionPrimaryClass } from '@/lib/ui/action-hierarchy';
+import { quantityWithUnit, unitWord } from '@/lib/delivery/quantity-unit';
 import { timelineEventLabel } from '@/lib/commercial/timeline-labels';
 import { boundHistoryItems } from '@/lib/lists/ops-collection';
 
@@ -73,6 +74,8 @@ export type DeliveryDocumentsPanelProps = {
   canRecordEntrega?: boolean;
   /** True only when a warehouse exit is already recorded for this pedido. */
   hasSalida?: boolean;
+  /** delivery.record only. Order status does not hide an existing note PDF. */
+  canDownloadNotePdf?: boolean;
   quotedProducts?: import('@/lib/commercial/quoted-product-context').QuotedProductLine[];
   quoteUnavailable?: boolean;
   /** How frozen quote lines were resolved — drives empty copy truthfully. */
@@ -99,6 +102,7 @@ export function DeliveryDocumentsPanel({
   canRecordSalida,
   canRecordEntrega,
   hasSalida = false,
+  canDownloadNotePdf = false,
   quotedProducts = [],
   quoteUnavailable = false,
   quoteLoadState,
@@ -122,6 +126,7 @@ export function DeliveryDocumentsPanel({
     notes.find((n) => n.status === 'issued')?.id ?? '',
   );
   const [receivedBy, setReceivedBy] = useState('');
+  const [confirmingNoteId, setConfirmingNoteId] = useState<string | null>(null);
   const gate = entregaGate({ hasSalida, receivedBy });
   const canSubmitEntrega =
     allowEntrega && entregaEnabled({ hasSalida, receivedBy }) && Boolean(actorMemberId);
@@ -245,7 +250,7 @@ export function DeliveryDocumentsPanel({
       </div>
 
       <div
-        className="mt-6 space-y-6 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)] p-4 md:p-5"
+        className="mt-6 space-y-6 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white p-4 md:p-5"
         data-entrega-form-group=""
       >
       {orderLines.length === 0 ? (
@@ -259,18 +264,32 @@ export function DeliveryDocumentsPanel({
             Líneas del pedido (copia al crear el pedido). No son stock ni cantidades entregadas.
           </p>
           <ul
-            className="mt-2 divide-y divide-[var(--isalwa-mist)]"
+            className="mt-3 divide-y divide-[var(--isalwa-mist)]"
             aria-label="Cantidades del pedido"
           >
-            {orderLines.map((line) => (
+            {orderLines.map((line) => {
+              const inputId = `cantidad-${line.orderLineId}`;
+              const quoted = quantityWithUnit(line.quantity, line.unitLabel);
+              const unit = unitWord(line.unitLabel, line.quantity);
+              return (
               <li
                 key={line.orderLineId}
-                className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm"
+                className="grid gap-3 py-3 md:grid-cols-[minmax(0,1.6fr)_8rem_9rem_6rem] md:items-end"
               >
-                <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
-                <label className="flex items-center gap-2 text-[var(--isalwa-slate)]">
-                  Cantidad
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Producto</p>
+                  <p className="mt-1 break-words text-sm font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Cantidad del pedido</p>
+                  <p className="mt-1 text-right text-sm tabular-nums text-[var(--isalwa-kiln)]">{quoted}</p>
+                </div>
+                <div>
+                  <label htmlFor={inputId} className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">
+                    Cantidad a registrar
+                  </label>
                   <input
+                    id={inputId}
                     type="number"
                     min={1}
                     max={line.quantity}
@@ -281,16 +300,17 @@ export function DeliveryDocumentsPanel({
                         [line.orderLineId]: Number(event.target.value),
                       }))
                     }
-                    className="w-20 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-2 py-1"
+                    className="isalwa-field mt-1 w-full text-right tabular-nums"
                     disabled={!allowAnyWrite || pending}
                   />
-                  <span>
-                    de {line.quantity}
-                    {line.unitLabel ? ` ${line.unitLabel}` : ''}
-                  </span>
-                </label>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-slate)] uppercase">Unidad</p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-kiln)]">{unit ?? '—'}</p>
+                </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       )}
@@ -300,27 +320,30 @@ export function DeliveryDocumentsPanel({
           <label className="text-sm text-[var(--isalwa-slate)]">
             Destinatario
             <input
+              id="entrega-destinatario"
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
-              className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2 text-[var(--isalwa-kiln)]"
+              className="isalwa-field mt-2"
               disabled={pending}
             />
           </label>
           <label className="text-sm text-[var(--isalwa-slate)]">
             Entregado por
             <input
+              id="entrega-entregado-por"
               value={deliveredBy}
               onChange={(e) => setDeliveredBy(e.target.value)}
-              className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2 text-[var(--isalwa-kiln)]"
+              className="isalwa-field mt-2"
               disabled={pending}
             />
           </label>
           <label className="md:col-span-2 text-sm text-[var(--isalwa-slate)]">
             Observaciones (opcional)
             <textarea
+              id="entrega-observaciones"
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
-              className="mt-2 w-full rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-3 py-2 text-[var(--isalwa-kiln)]"
+              className="isalwa-field mt-2 h-auto min-h-[4.5rem] py-2"
               rows={2}
               disabled={pending}
             />
@@ -511,32 +534,55 @@ export function DeliveryDocumentsPanel({
                     <dd className="mt-1 text-[var(--isalwa-kiln)]">{formatWhen(note.bornAt)}</dd>
                   </div>
                 </dl>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <a
-                    href={`/api/delivery-notes/${encodeURIComponent(note.id)}/pdf`}
-                    className={actionSecondaryClass}
-                    data-delivery-pdf-action=""
-                  >
-                    {ENTREGA_PANEL_COPY.downloadPdf}
-                  </a>
-                  {note.status === 'issued' && canMutate ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      disabled={pending}
-                      onClick={() =>
-                        run('correct', () =>
-                          correctDeliveryDocumentAction({
-                            partyId,
-                            orderId,
-                            deliveryNoteId: note.id,
-                            reason: 'Corrección operativa registrada desde el pedido',
-                          }),
-                        )
-                      }
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {canDownloadNotePdf ? (
+                    <a
+                      href={`/api/delivery-notes/${encodeURIComponent(note.id)}/pdf`}
+                      className={actionPrimaryClass}
+                      data-delivery-pdf-action=""
                     >
-                      Corregir / anular
-                    </Button>
+                      {ENTREGA_PANEL_COPY.downloadPdf}
+                    </a>
+                  ) : null}
+                  {note.status === 'issued' && allowNote ? (
+                    confirmingNoteId === note.id ? (
+                      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Confirmar anulación">
+                        <Button
+                          type="button"
+                          variant="danger"
+                          disabled={pending}
+                          onClick={() =>
+                            run('correct', () =>
+                              correctDeliveryDocumentAction({
+                                partyId,
+                                orderId,
+                                deliveryNoteId: note.id,
+                                reason: 'Corrección operativa registrada desde el pedido',
+                              }),
+                            )
+                          }
+                        >
+                          {pending ? 'Registrando…' : 'Anular nota'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={pending}
+                          onClick={() => setConfirmingNoteId(null)}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={pending}
+                        onClick={() => setConfirmingNoteId(note.id)}
+                      >
+                        Corregir o anular
+                      </Button>
+                    )
                   ) : null}
                 </div>
               </li>

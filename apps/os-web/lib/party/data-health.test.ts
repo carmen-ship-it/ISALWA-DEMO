@@ -43,13 +43,15 @@ describe('data health from loaded customers', () => {
     assert.match(shared?.what ?? '', /COMERCIAL MICRISTAL y COMERCIAL TORREZ comparten el mismo enlace/);
     assert.match(shared?.action ?? '', /No se fusiona/);
     assert.match(shared?.boundary ?? '', /No se elige un ganador/);
-    assert.match(shared?.boundary ?? '', /No se geocodifica/);
+    assert.doesNotMatch(shared?.boundary ?? '', /geocodifica|inventan/i);
+    assert.match(shared?.boundary ?? '', /No se fusiona/);
     assert.equal(shared?.type, 'revision');
     assert.equal(shared?.status, 'hallazgo');
     assert.equal('severity' in (shared ?? {}), false);
     assert.equal('resolvedWinner' in (shared ?? {}), false);
     assert.doesNotMatch(JSON.stringify(issues), /ubicación correcta es|coordenada inventada|-16\./);
-    assert.equal(DATA_HEALTH_BOUNDARY.includes('no geocodifica'), true);
+    assert.equal(DATA_HEALTH_BOUNDARY.includes('no fusiona'), true);
+    assert.equal(/geocodifica/i.test(DATA_HEALTH_BOUNDARY), false);
   });
 
   it('counts map coverage only from coordinates', () => {
@@ -92,7 +94,8 @@ describe('data health from loaded customers', () => {
 
     const link = issues.find((issue) => issue.id === 'provenance-not-location');
     assert.match(link?.action ?? '', /No se convierte el enlace/);
-    assert.match(link?.boundary ?? '', /No se geocodifica/);
+    assert.match(link?.boundary ?? '', /ubicación confirmada/);
+    assert.doesNotMatch(link?.boundary ?? '', /geocodifica|inventan/i);
 
     const duplicate = issues.find((issue) => issue.id === 'duplicate-review');
     assert.match(duplicate?.action ?? '', /No se fusiona/);

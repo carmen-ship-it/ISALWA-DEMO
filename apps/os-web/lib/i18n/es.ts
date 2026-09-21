@@ -204,7 +204,7 @@ export const es = {
       title: 'Mapa',
       kicker: 'Cartera',
       description:
-        'Lente geográfica de la cartera: clientes con coordenadas confirmadas, contexto comercial canónico y cobertura honesta. Un enlace de Maps no coloca al cliente. No inventa ingresos ni pines.',
+        'Consulta clientes y oportunidades por ubicación.',
       clientesLink: 'Clientes',
       dataHealth: 'Salud de datos',
       partialNote: 'No incluye todos los clientes.',

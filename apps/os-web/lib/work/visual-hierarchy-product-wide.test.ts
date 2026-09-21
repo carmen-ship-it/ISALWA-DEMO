@@ -16,7 +16,7 @@ describe('product-wide visual hierarchy completion', () => {
     assert.match(cards, /function cardSurface/);
     assert.match(cards, /nonzero \? 'text-\[var\(--isalwa-danger\)\]'/);
     assert.doesNotMatch(cards, /CARD_SURFACE/);
-    assert.match(bands, /bg-\[var\(--isalwa-status-amber-bg\)\]/);
+    assert.match(bands, /border-\[var\(--isalwa-status-amber-2\)\] bg-white/);
     assert.match(bands, /bg-\[var\(--isalwa-teal-100\)\]/);
     assert.match(tabs, /bg-\[var\(--isalwa-teal-100\)\]/);
     assert.match(opp, /compact = false/);

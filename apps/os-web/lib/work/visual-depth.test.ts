@@ -43,10 +43,13 @@ describe('visual color depth and inherited scanability', () => {
     const lens = read('components/management/inicio-management-lens.tsx');
     const trabajo = read('app/(app)/trabajo/page.tsx');
     assert.match(bands, /bg-\[var\(--isalwa-teal-100\)\]/);
-    assert.match(bands, /bg-\[var\(--isalwa-status-amber-bg\)\]/);
+    assert.match(bands, /border-\[var\(--isalwa-status-amber-2\)\] bg-white/);
+    assert.doesNotMatch(bands, /attention:[\s\S]*bg-\[var\(--isalwa-status-amber-bg\)\]/);
     assert.match(cards, /bg-\[var\(--isalwa-status-red-bg\)\]/);
-    assert.match(queues, /pendientes: 'context'/);
-    assert.match(queues, /decisiones: 'attention'/);
+    assert.match(queues, /pendientes: 'ops'/);
+    assert.match(queues, /decisiones: 'ops'/);
+    assert.match(queues, /data-section-tone=\{SECTION_ACCENT/);
+    assert.match(queues, /bg-white/);
     assert.match(lens, /bg-\[var\(--isalwa-status-amber-bg\)\]/);
     assert.match(lens, /bg-\[var\(--isalwa-status-red-bg\)\]/);
     assert.match(trabajo, /fill: 'active'/);

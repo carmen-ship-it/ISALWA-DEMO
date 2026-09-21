@@ -5,7 +5,7 @@ import { GuideProvider, type GuideViewer } from './guide-provider';
 import { IntroWelcome } from './intro-welcome';
 
 /**
- * Onboarding shell: first-use welcome only. Full guided walkthrough is Story Mode.
+ * Onboarding shell: first-use welcome only. Full guided walkthrough is Recorrido completo.
  */
 export function WalkthroughShell({
   children,

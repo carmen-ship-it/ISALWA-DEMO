@@ -14,6 +14,8 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
+import { deliveryPresentationScopes } from '@/lib/delivery/permission-aware-ui';
 import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
 import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
@@ -43,7 +45,12 @@ export async function EntregaOperationalWriteDesk({
 }: Props) {
   const capabilities = await loadMemberCapabilities();
   if (!capabilities) return null;
-  const scopes = capabilities.grantedScopes;
+  const evaluation = await getEvaluationProjection();
+  const scopes = deliveryPresentationScopes({
+    grantedScopes: capabilities.grantedScopes,
+    evaluationActive: evaluation.active,
+    presentationScopes: evaluation.presentationScopes,
+  });
   const canWrite = canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes);
   if (!canWrite) return null;
 
@@ -297,6 +304,7 @@ export async function EntregaOperationalWriteDesk({
         canCreateNote={selected.status === 'open' && canRecordDelivery(scopes)}
         canRecordSalida={selected.status === 'open' && canRecordWarehouseOutbound(scopes)}
         canRecordEntrega={selected.status === 'open' && canRecordDelivery(scopes)}
+        canDownloadNotePdf={canRecordDelivery(scopes)}
         hasSalida={hasSalida}
         quotedProducts={quotedProducts}
         quoteUnavailable={quoteUnavailable}

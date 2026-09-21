@@ -266,7 +266,7 @@ describe('commercial polish helpers', () => {
     assert.equal(formatQuoteStatus('submitted'), 'Enviada');
     assert.equal(formatRecordStatus('submitted', 'quote'), 'Enviada');
     assert.equal(formatOpportunityStatus('open'), 'Abierta');
-    assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próximo paso');
+    assert.equal(COMMERCIAL_NEXT_STEP_LABEL, 'Próxima acción');
   });
 
   it('uses human age on list rows and exact time on detail stamps', () => {
@@ -288,8 +288,8 @@ describe('commercial polish helpers', () => {
       canRegisterFollowUp: true,
       followUpHref: '/clientes/party-1#trabajo',
     });
-    assert.match(step?.statement ?? '', /presentada/i);
-    assert.match(step?.statement ?? '', /envío/i);
+    assert.match(step?.statement ?? '', /Descargue la cotización|envíela por su canal/i);
+    assert.match(step?.statement ?? '', /regístrela como enviada/i);
     assert.doesNotMatch(step?.statement ?? '', /creó un pedido|convertir/i);
   });
 });

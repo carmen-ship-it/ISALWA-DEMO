@@ -20,7 +20,7 @@ import {
 } from '@/lib/map/provider-status';
 import { t } from '@/lib/i18n/es';
 import type { LocationView } from '@/lib/party/types';
-import { DATA_HEALTH_BOUNDARY, dataHealthFromSummaries } from '@/lib/party/data-health';
+import { dataHealthFromSummaries } from '@/lib/party/data-health';
 import type { IssueListItem } from '@/lib/issue/types';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
 import { filterByDemoDataMode, isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
@@ -272,7 +272,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
       <PageSection className="mt-8" aria-label="Salud de datos">
         <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">{t('pages.mapa.dataHealth')}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          {DATA_HEALTH_BOUNDARY}
+          Mostramos únicamente clientes con una ubicación confirmada.
           {model.partial ? ` ${t('pages.mapa.partialNote')}` : null}
         </p>
         {!model.coverage.factsPresent ? (

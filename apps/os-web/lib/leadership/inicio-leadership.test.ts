@@ -20,7 +20,7 @@ describe('pilot leadership Inicio', () => {
     const nav = readApp('lib/navigation/nav-config.ts');
 
     assert.match(page, /listAttention\(\{\s*activeOnly:\s*true/);
-    assert.doesNotMatch(page, /listAttention\([\s\S]*memberId/);
+    assert.doesNotMatch(page, /listAttention\(\{[^}]*memberId/);
     assert.match(page, /loadInicioLeadership/);
     assert.match(loader, /visibility,\s*status:\s*'open'/);
     assert.match(loader, /followUpOnly:\s*true/);

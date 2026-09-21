@@ -17,7 +17,7 @@ export type MapCoverageHonesty = {
   withCoordinates: number;
   provenanceOnly: number;
   total: number;
-  /** Primary honesty line: "N de M tienen coordenadas" */
+  /** Primary line: "N clientes con ubicación en el mapa" */
   honesty: string | null;
   /** Established longer form from party data-health */
   sentence: string | null;
@@ -32,6 +32,12 @@ export type MapDeskViewModel = {
   all: MapCustomerRow[];
   partial: boolean;
 };
+
+export function mapLocationCountLabel(count: number): string {
+  return count === 1
+    ? '1 cliente con ubicación en el mapa'
+    : `${count} clientes con ubicación en el mapa`;
+}
 
 function hasProvenance(item: PartySummaryReadModel): boolean {
   return Boolean(item.locationProvenanceUrl?.trim());
@@ -75,9 +81,7 @@ export function buildMapDeskViewModel(
       withCoordinates: coverageBase.withCoordinates,
       provenanceOnly: coverageBase.provenanceOnly,
       total: coverageBase.total,
-      honesty: factsPresent
-        ? `${coverageBase.withCoordinates} de ${coverageBase.total} tienen coordenadas`
-        : null,
+      honesty: factsPresent ? mapLocationCountLabel(coverageBase.withCoordinates) : null,
       sentence: coverageBase.sentence,
       factsPresent,
     },

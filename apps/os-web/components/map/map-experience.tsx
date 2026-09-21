@@ -208,7 +208,7 @@ export function MapExperience({
         className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)]"
         data-map-commercial-portfolio="summary"
       >
-        <p className="isalwa-kicker">Cartera comercial · lectura canónica</p>
+        <p className="isalwa-kicker">Resumen comercial</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <StatusPill tone="info">Clientes {portfolio.clientCount}</StatusPill>
           <StatusPill tone="info">Oportunidades {portfolio.opportunityCount}</StatusPill>
@@ -225,7 +225,7 @@ export function MapExperience({
         </div>
         <p className="mt-3 text-xs leading-relaxed text-[var(--isalwa-slate)]">
           {MAP_COMMERCIAL_VALUE_DISCLAIMER}
-          {portfolio.partial ? ' Lectura parcial de la cartera comercial.' : null}
+          {portfolio.partial ? ' Esta lectura no incluye todos los clientes.' : null}
         </p>
       </div>
 
@@ -246,7 +246,7 @@ export function MapExperience({
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:max-w-sm" data-tour="map-search">
+        <div className="w-full overflow-visible sm:max-w-sm" data-tour="map-search">
           <label htmlFor="mapa-search" className="text-xs font-medium text-[var(--isalwa-slate)]">
             Buscar en la lista
           </label>
@@ -306,7 +306,7 @@ export function MapExperience({
             </div>
           ) : null}
           <div className="rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4 shadow-[var(--isalwa-shadow-resting)] md:p-5">
-            <p className="isalwa-kicker mb-3">Cartera · lectura honesta</p>
+            <p className="isalwa-kicker mb-3">Clientes</p>
             <MapCustomerLists
               plottable={filteredModel.plottable}
               provenanceOnly={filteredModel.provenanceOnly}

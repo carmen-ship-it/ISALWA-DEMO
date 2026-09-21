@@ -221,10 +221,28 @@
 .isalwa-field:hover {
   border-color: color-mix(in srgb, var(--isalwa-glaze) 28%, var(--isalwa-mist));
 }
-.isalwa-field:focus {
-  outline: none;
+.isalwa-field:focus,
+.isalwa-field:focus-visible {
+  /* Shape + offset — not color alone. outline stays; box-shadow reinforces. */
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
   border-color: var(--isalwa-glaze);
   box-shadow: var(--isalwa-shadow-focus);
+}
+
+/* Parent :focus-within keeps the ring observable when UA :focus matching is gated. */
+[data-tour='map-search']:focus-within .isalwa-field {
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  border-color: var(--isalwa-glaze);
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
+.isalwa-field:disabled,
+.isalwa-field[readonly] {
+  background: var(--isalwa-porcelain);
+  color: var(--isalwa-slate);
+  cursor: not-allowed;
 }
 .isalwa-field::placeholder {
   color: color-mix(in srgb, var(--isalwa-slate) 55%, white);

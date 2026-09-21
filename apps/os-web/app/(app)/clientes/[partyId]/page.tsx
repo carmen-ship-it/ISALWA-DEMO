@@ -69,6 +69,11 @@ import {
   evaluationIsOpsPersona,
 } from '@/lib/role-preview/evaluation-resource-access';
 import { filterTimelineItemsForProjection, filterDocumentLinksForProjection } from '@/lib/role-preview/evaluation-history-filter';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import {
+  deliveryPresentationScopes,
+  omitDeliveryNotePdfWithoutRecord,
+} from '@/lib/delivery/permission-aware-ui';
 
 type PartyDetailPageProps = {
   params: Promise<{ partyId: string }>;
@@ -113,6 +118,12 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
   const evaluation = await getEvaluationProjection();
+  const capabilities = await loadMemberCapabilities();
+  const deliveryScopes = deliveryPresentationScopes({
+    grantedScopes: capabilities?.grantedScopes ?? [],
+    evaluationActive: evaluation.active,
+    presentationScopes: evaluation.presentationScopes,
+  });
   if (!evaluationAllowsDesk(evaluation, 'commercial')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Cliente" />;
   }
@@ -700,7 +711,10 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                 documentLinks.status === 'ok'
                   ? {
                       ...documentLinks,
-                      links: filterDocumentLinksForProjection(evaluation, documentLinks.links),
+                      links: omitDeliveryNotePdfWithoutRecord(
+                        filterDocumentLinksForProjection(evaluation, documentLinks.links),
+                        deliveryScopes,
+                      ),
                     }
                   : documentLinks
               }

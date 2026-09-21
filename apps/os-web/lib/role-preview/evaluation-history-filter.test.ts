@@ -112,7 +112,7 @@ describe('document / history / audit View As negatives', () => {
     assert.deepEqual(filterDocumentLinksForProjection(produccion, docs), []);
     assert.deepEqual(
       filterDocumentLinksForProjection(almacen, docs).map((d) => d.type),
-      ['delivery_note_pdf'],
+      [],
     );
     assert.deepEqual(filterDocumentLinksForProjection(compras, docs), []);
 

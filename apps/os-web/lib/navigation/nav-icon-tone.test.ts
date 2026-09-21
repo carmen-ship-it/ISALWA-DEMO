@@ -5,8 +5,8 @@ import { navIconTone, navIconToneActive } from './nav-icon-tone';
 describe('nav icon category tones', () => {
   it('keeps commercial navy+sky and ops teal', () => {
     const commercial = navIconTone({ id: 'clientes', group: 'comercial' });
-    assert.match(commercial.chip, /sky-100/);
-    assert.match(commercial.ink, /kiln/);
+    assert.match(commercial.chip, /teal-100/);
+    assert.match(commercial.ink, /glaze-deep/);
 
     const ops = navIconTone({ id: 'produccion', group: 'operaciones' });
     assert.match(ops.chip, /teal-100/);
@@ -22,8 +22,8 @@ describe('nav icon category tones', () => {
     assert.match(health.chip, /teal-100/);
 
     const issues = navIconTone({ id: 'incidencias', group: 'trabajo' });
-    assert.match(issues.ink, /kiln/);
-    assert.match(issues.chip, /warning|sky-100/);
+    assert.match(issues.ink, /danger/);
+    assert.match(issues.chip, /status-red-bg|warning|sky-100/);
   });
 
   it('active tone stays teal/sky + glaze ink', () => {
