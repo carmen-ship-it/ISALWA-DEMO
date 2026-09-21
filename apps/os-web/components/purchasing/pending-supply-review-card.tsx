@@ -36,7 +36,7 @@ export function PendingSupplyReviewCard({
   const href = orderHref(partyId, orderId);
 
   return (
-    <article className="border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] p-4 last:border-b-0">
+    <article className="border-b border-l-4 border-l-[var(--isalwa-status-amber-2)] border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] bg-[color-mix(in_srgb,var(--isalwa-status-amber-bg)_35%,white)] p-4 last:border-b-0">
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         <div className="sm:col-span-2">
           <dt className="isalwa-section-label">Pedido</dt>
@@ -80,7 +80,7 @@ export function PendingSupplyReviewCard({
           Ver revisión
         </Link>
         {!resolving ? (
-          <Button type="button" size="sm" variant="primary" onClick={() => setResolving(true)}>
+          <Button type="button" size="md" variant="primary" onClick={() => setResolving(true)}>
             Resolver revisión
           </Button>
         ) : (

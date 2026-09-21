@@ -101,6 +101,7 @@ export default async function AlmacenPage({
       />
       <ListCapNotice caps={access.listCaps ?? []} />
       <OpsDeskInfoBanner
+        presentation="compact-chips"
         columns={[
           {
             label: 'Hecho',
@@ -131,7 +132,7 @@ export default async function AlmacenPage({
         </label>
         <button
           type="submit"
-          className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm font-medium text-[var(--isalwa-kiln)]"
+          className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-kiln)] px-3 text-sm font-medium text-white"
         >
           Buscar
         </button>

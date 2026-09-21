@@ -188,21 +188,6 @@ export function DeliveryDocumentsPanel({
         Tres hechos distintos. Use las acciones de abajo según lo que ya ocurrió.
       </p>
 
-      <dl className="mt-6 grid gap-6 sm:grid-cols-2">
-        <div>
-          <dt className="isalwa-section-label">Cliente</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">
-            {presentEntregaAuditLabel(customerName)}
-          </dd>
-        </div>
-        <div>
-          <dt className="isalwa-section-label">Pedido</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">
-            {presentEntregaAuditLabel(orderNumber)}
-          </dd>
-        </div>
-      </dl>
-
       <div
         className="mt-8 border-t border-[var(--isalwa-mist)] pt-6"
         data-frozen-quote-context=""
@@ -221,19 +206,21 @@ export function DeliveryDocumentsPanel({
               aria-label="Líneas congeladas de cotización"
             >
               {quotedProducts.map((line) => (
-                <li key={line.quoteLineId} className="py-4">
-                  <p className="whitespace-pre-line font-medium text-[var(--isalwa-kiln)]">
-                    {line.description}
-                  </p>
-                  {line.specialItem ? (
-                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{SPECIAL_ITEM_LABEL}</p>
-                  ) : null}
-                  <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
-                    <span className="isalwa-section-label">{QUOTED_QUANTITY_LABEL}</span>
-                    <span className="mt-1 block text-[var(--isalwa-kiln)]">
-                      {line.quantity}
-                      {line.unitLabel ? ` ${line.unitLabel}` : ''}
-                    </span>
+                <li
+                  key={line.quoteLineId}
+                  className="flex flex-wrap items-baseline justify-between gap-3 py-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-[var(--isalwa-kiln)] line-clamp-2 break-words">
+                      {line.description}
+                    </p>
+                    {line.specialItem ? (
+                      <p className="mt-1 text-xs text-[var(--isalwa-slate)]">{SPECIAL_ITEM_LABEL}</p>
+                    ) : null}
+                  </div>
+                  <p className="shrink-0 text-sm text-[var(--isalwa-slate)]">
+                    {QUOTED_QUANTITY_LABEL}: {line.quantity}
+                    {line.unitLabel ? ` ${line.unitLabel}` : ''}
                   </p>
                 </li>
               ))}
@@ -257,10 +244,14 @@ export function DeliveryDocumentsPanel({
         )}
       </div>
 
+      <div
+        className="mt-6 space-y-6 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_55%,white)] p-4 md:p-5"
+        data-entrega-form-group=""
+      >
       {orderLines.length === 0 ? (
-        <p className="mt-6 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>
+        <p className="text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.noLines}</p>
       ) : (
-        <div className="mt-6" data-order-quantity-rows="">
+        <div data-order-quantity-rows="">
           <h3 className="font-[family-name:var(--isalwa-font-display)] text-lg italic text-[var(--isalwa-kiln)]">
             Cantidades a registrar
           </h3>
@@ -336,6 +327,7 @@ export function DeliveryDocumentsPanel({
           </label>
         </div>
       ) : null}
+      </div>
 
       {notice ? (
         <p className="mt-4 text-sm text-[var(--isalwa-kiln)]" data-delivery-retry-notice="open">
@@ -353,8 +345,9 @@ export function DeliveryDocumentsPanel({
         className="mt-8 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] space-y-3 border-t border-[var(--isalwa-mist)] pt-6"
         data-entrega-pendientes=""
       >
+        <p className="isalwa-section-label">Próxima acción</p>
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
-          Pendientes
+          {gate === 'needs-salida' ? 'Registrar salida' : canSubmitEntrega ? 'Registrar entrega' : 'Pendientes'}
         </h3>
         <p className="text-sm text-[var(--isalwa-slate)]">Qué puede hacer ahora con este pedido.</p>
         <div className="flex flex-wrap gap-3">
@@ -371,6 +364,7 @@ export function DeliveryDocumentsPanel({
           {allowNote ? (
             <Button
               type="button"
+              variant="secondary"
               disabled={!allowNote || pending || !actorMemberId}
               onClick={() =>
                 run('nota', () =>
@@ -413,7 +407,7 @@ export function DeliveryDocumentsPanel({
           {allowEntrega ? (
             <Button
               type="button"
-              variant="secondary"
+              variant={canSubmitEntrega ? 'contextual' : 'secondary'}
               disabled={!canSubmitEntrega || pending}
               onClick={() =>
                 run('entrega', () =>

@@ -136,7 +136,7 @@ export function WarehousePostSaleDesk({
           kicker="Almacén"
           title="Registrar ingreso de producto terminado"
         />
-        {canReceive && onReceive ? (
+        {canReceive && onReceive && orderId && orderLineId ? (
           <form className="mt-6 space-y-4" onSubmit={submitReceive}>
             <label className="block text-sm text-[var(--isalwa-slate)]">
               Cantidad
@@ -153,11 +153,15 @@ export function WarehousePostSaleDesk({
               <input className={fieldClass} value={note} onChange={(event) => setNote(event.target.value)} />
             </label>
             <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
-              <Button type="submit" disabled={pending}>
+              <Button type="submit" variant="contextual" disabled={pending || !quantity.trim()}>
                 {pending ? 'Registrando…' : 'Registrar ingreso'}
               </Button>
             </div>
           </form>
+        ) : canReceive && onReceive ? (
+          <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" role="status">
+            Seleccione un pedido y una línea. Registrar ingreso permanece deshabilitado hasta entonces.
+          </p>
         ) : canReceive ? (
           <p className="mt-6 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-owner-review-state="v1-validate">
             Seleccione pedido, producto y cantidad para registrar el ingreso.

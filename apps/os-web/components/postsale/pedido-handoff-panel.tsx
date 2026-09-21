@@ -68,17 +68,34 @@ export function PedidoHandoffPanel({
         </div>
       ) : (
         <div className={fieldOnly ? 'space-y-4' : 'mt-6 space-y-4'}>
-          <SearchableSelect
-            id="postsale-pedido"
-            label="Pedido"
-            options={pedidoOptions}
-            value={selectedOrderId}
-            onChange={(id) => {
-              onSelectPedido(id);
-              onSelectLine(null);
-            }}
-            placeholder="Buscar por cliente o pedido"
-          />
+          {selected ? (
+            <div>
+              {fieldOnly ? <p className="isalwa-section-label">Pedido seleccionado</p> : null}
+              <p className="mt-1 text-base font-semibold text-[var(--isalwa-kiln)]">{selected.orderLabel}</p>
+              <p className="text-sm text-[var(--isalwa-slate)]">{selected.customerLabel}</p>
+              <button
+                type="button"
+                className="mt-2 inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
+                onClick={() => {
+                  onSelectPedido(null);
+                  onSelectLine(null);
+                }}
+              >Cambiar</button>
+            </div>
+          ) : (
+            <SearchableSelect
+              id="postsale-pedido"
+              label="Pedido"
+              labelVisibility={fieldOnly ? 'visible' : 'sr-only'}
+              options={pedidoOptions}
+              value={selectedOrderId}
+              onChange={(id) => {
+                onSelectPedido(id);
+                onSelectLine(null);
+              }}
+              placeholder="Buscar por cliente o pedido"
+            />
+          )}
           {showProductSelect && selected ? (
             lineEmptyMessage ? (
               <div data-warehouse-line-state="empty" role="status">
@@ -113,7 +130,7 @@ export function PedidoHandoffPanel({
 
   return (
     <PageSection card className="mb-6 p-6 md:p-8" aria-label="Pedido">
-      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title="Pedido" />
+      <SectionHeader kicker={POSTSALE_HANDOFF_COPY.kicker} title={selected ? 'Pedido seleccionado' : 'Pedido'} />
       {selectors}
       {selected ? (
         <div className="mt-8 space-y-4" data-postsale-context="pedido">
@@ -121,10 +138,6 @@ export function PedidoHandoffPanel({
             <div>
               <dt className="text-[var(--isalwa-slate)]">{POSTSALE_HANDOFF_COPY.customer}</dt>
               <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{selected.customerLabel}</dd>
-            </div>
-            <div>
-              <dt className="text-[var(--isalwa-slate)]">Pedido</dt>
-              <dd className="mt-1 font-medium text-[var(--isalwa-kiln)]">{selected.orderLabel}</dd>
             </div>
             <div>
               <dt className="text-[var(--isalwa-slate)]">{POSTSALE_HANDOFF_COPY.quote}</dt>

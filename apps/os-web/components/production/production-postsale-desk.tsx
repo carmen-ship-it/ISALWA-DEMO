@@ -257,7 +257,7 @@ export function ProductionPostSaleDesk({
           </p>
           <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
             <ActionBar>
-              <Button type="submit" disabled={!canEnter || pending}>
+              <Button type="submit" variant="primary" disabled={!canEnter || pending}>
                 {pending ? 'Guardando…' : 'Guardar actualización'}
               </Button>
             </ActionBar>

@@ -66,7 +66,7 @@ export function OperatingScanRow({
           <Link
             href={href}
             title={typeof title === 'string' ? title : undefined}
-            className="isalwa-t-fast block break-words text-sm font-medium leading-5 text-[var(--isalwa-kiln)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)] md:truncate"
+            className="isalwa-t-fast block break-words text-sm font-semibold leading-5 text-[var(--isalwa-kiln)] outline-none line-clamp-2 hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
             {title}
           </Link>

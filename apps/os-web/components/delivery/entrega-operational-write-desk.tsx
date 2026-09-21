@@ -279,12 +279,10 @@ export async function EntregaOperationalWriteDesk({
         className="mb-4 space-y-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4"
         data-entrega-pedido-summary=""
       >
-        <div className="flex flex-wrap gap-2">
-          <StatusPill tone="neutral">
-            Pedido {presentEntregaAuditLabel(selected.orderNumber)}
-          </StatusPill>
-          <StatusPill tone="neutral">{presentEntregaAuditLabel(selected.customerName)}</StatusPill>
-        </div>
+        <p className="isalwa-section-label">Pedido seleccionado</p>
+        <p className="text-base font-semibold text-[var(--isalwa-kiln)]">
+          {presentEntregaAuditLabel(selected.orderNumber)} · {presentEntregaAuditLabel(selected.customerName)}
+        </p>
         <DeliveryProgressStrip steps={progress} />
         <p className="text-sm text-[var(--isalwa-kiln)]">{nextHint}</p>
       </div>

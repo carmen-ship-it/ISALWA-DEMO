@@ -157,10 +157,14 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         <StatGroup
           className="mb-4"
           items={[
-            { label: 'Para hoy', value: String(summary.paraHoy) },
-            { label: 'Vencido', value: String(summary.vencido) },
-            { label: 'Próximo', value: String(summary.proximo) },
-            { label: 'Sin fecha', value: String(summary.sinFecha) },
+            { label: 'Para hoy', value: String(summary.paraHoy), tone: 'var(--isalwa-kiln)' },
+            {
+              label: 'Vencido',
+              value: String(summary.vencido),
+              tone: summary.vencido > 0 ? 'var(--isalwa-danger)' : 'var(--isalwa-slate)',
+            },
+            { label: 'Próximo', value: String(summary.proximo), tone: 'var(--isalwa-info)' },
+            { label: 'Sin fecha', value: String(summary.sinFecha), tone: 'var(--isalwa-slate)' },
           ]}
         />
 
@@ -287,7 +291,7 @@ function TrabajoViewTabs({
             className={cx(
               tabClass,
               selected
-                ? 'border-[var(--isalwa-kiln)] bg-white text-[var(--isalwa-kiln)]'
+                ? 'border-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)] text-[var(--isalwa-kiln)]'
                 : 'border-[var(--isalwa-mist)] bg-white text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]',
             )}
           >

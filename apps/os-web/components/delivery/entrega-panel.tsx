@@ -162,7 +162,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
       <PageSection
         id="entregas-salidas"
         card
-        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] p-6 md:p-8"
+        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] border-l-4 border-l-[var(--isalwa-kiln)] p-6 md:p-8"
       >
         <SectionHeader
           kicker="Salida"
@@ -186,26 +186,19 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
             />
           </div>
         ) : (
-          <ul className="mt-8 space-y-6" aria-label="Salidas de almacén">
+          <ul className="mt-6 space-y-3" aria-label="Salidas de almacén">
             {exitWindow.items.map((exit) => (
               <li
                 key={exit.id ?? exit.exitedAt}
-                className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4"
+                className="space-y-2 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-kiln)] p-3 md:p-4"
               >
-                <dl className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <dt className="isalwa-section-label">Salió</dt>
-                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
-                      {formatWhen(exit.exitedAt)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="isalwa-section-label">Registró</dt>
-                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
-                      {presentEntregaAuditLabel(exit.recordedByLabel)}
-                    </dd>
-                  </div>
-                </dl>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{formatWhen(exit.exitedAt)}</p>
+                  <StatusPill tone="info" icon="none">No es entrega</StatusPill>
+                </div>
+                <p className="text-sm text-[var(--isalwa-slate)]">
+                  Registró {presentEntregaAuditLabel(exit.recordedByLabel)}
+                </p>
                 <details>
                   <summary className="cursor-pointer list-none text-xs font-medium text-[var(--isalwa-slate)] [&::-webkit-details-marker]:hidden">
                     Origen y detalle
@@ -232,7 +225,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
       <PageSection
         id="entregas-entregas"
         card
-        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] p-6 md:p-8"
+        className="scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] border-l-4 border-l-[var(--isalwa-success)] bg-[color-mix(in_srgb,var(--isalwa-status-green-bg)_55%,white)] p-6 md:p-8"
       >
         <SectionHeader
           kicker="Entrega"

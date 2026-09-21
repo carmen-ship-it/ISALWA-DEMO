@@ -138,22 +138,32 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
   ).items;
   if (rows.length === 0) return null;
   return (
-    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
-      <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.waiting} />
-      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+    <div
+      className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-sky)] bg-[color-mix(in_srgb,var(--isalwa-sky)_35%,white)] px-4 py-3"
+      aria-label={WAREHOUSE_TASK_COPY.waiting}
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="isalwa-section-label">{WAREHOUSE_TASK_COPY.waiting}</p>
+        <StatusPill tone="info" icon="none">
+          {rows.length} citado{rows.length === 1 ? '' : 's'}
+        </StatusPill>
+      </div>
+      <p className="mt-1 text-sm leading-snug text-[var(--isalwa-slate)]">
         Producto terminado citado sin cantidad asignable todavía.
       </p>
-      <ul className="mt-4">
+      <ul className="mt-3 divide-y divide-[color-mix(in_srgb,var(--isalwa-mist)_70%,white)]">
         {rows.map((row) => (
-          <ListRow key={row.productId} as="li">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
-              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{row.waitingText}</p>
-            </div>
-          </ListRow>
+          <li key={row.productId} className="flex flex-wrap items-baseline justify-between gap-3 py-2.5">
+            <p className="min-w-0 text-sm font-medium text-[var(--isalwa-kiln)] line-clamp-2 break-words">
+              {humanWarehouseText(row.productName.text)}
+            </p>
+            <StatusPill tone="warning" icon="none">
+              {row.waitingText}
+            </StatusPill>
+          </li>
         ))}
       </ul>
-    </PageSection>
+    </div>
   );
 }
 
@@ -255,14 +265,23 @@ function AllocateSection({
         </div>
       ) : (
         <ul className="mt-3" aria-label={WAREHOUSE_TASK_COPY.pedido}>
-          {pedidoRows.map((pedido) => (
-            <ListRow key={pedido.orderLineId} as="li">
-              <p className="text-sm text-[var(--isalwa-kiln)]">
-                {humanWarehouseText(pedido.optionLabel) ??
-                  pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text)}
-              </p>
-            </ListRow>
-          ))}
+          {pedidoRows.map((pedido) => {
+            const order = humanWarehouseText(pedido.orderName.text);
+            const customer = humanWarehouseText(pedido.customerName.text);
+            const product = humanWarehouseText(pedido.productName?.text);
+            return (
+              <ListRow key={pedido.orderLineId} as="li">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[var(--isalwa-kiln)]">{order ?? 'Pedido'}</p>
+                  {customer ? <p className="text-sm text-[var(--isalwa-slate)]">{customer}</p> : null}
+                  {product ? <p className="mt-1 line-clamp-2 text-sm text-[var(--isalwa-kiln)]">{product}</p> : null}
+                  {!canAllocate ? (
+                    <p className="mt-1 text-xs text-[var(--isalwa-slate)]">Asignar no está disponible en esta sesión.</p>
+                  ) : null}
+                </div>
+              </ListRow>
+            );
+          })}
         </ul>
       )}
       {canAllocate && persistWriteMounted && onAllocate && choosable.length > 0 && pedidos.length > 0 ? (
@@ -303,7 +322,7 @@ function AllocateSection({
             {WAREHOUSE_TASK_COPY.partialAllowed}
           </p>
           <div className={`${OPS_STICKY_ACTION_CLASS} -mx-2 px-2 py-3`}>
-            <Button type="submit">Asignar al pedido</Button>
+            <Button type="submit" disabled={!quantity.trim() || !orderLineId || !productId}>Asignar al pedido</Button>
           </div>
         </form>
       ) : !canAllocate ? (
@@ -361,15 +380,22 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
             return (
               <ListRow key={row.orderLineId} as="li">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{label}</p>
-                  {humanWarehouseText(row.productName.text) &&
-                  pedidoHumanLabel(row.orderName.text, row.customerName.text) ? (
-                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  <p className="text-sm font-semibold text-[var(--isalwa-kiln)]">
+                    {pedidoHumanLabel(row.orderName.text, row.customerName.text) ?? label}
+                  </p>
+                  {humanWarehouseText(row.productName.text) ? (
+                    <p className="mt-1 line-clamp-2 text-sm text-[var(--isalwa-slate)]">
                       {humanWarehouseText(row.productName.text)}
                     </p>
                   ) : null}
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{remainFact}</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">Asignado {row.allocatedQuantity}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)] px-2 py-0.5 text-xs font-medium text-[var(--isalwa-kiln)]">
+                      {row.remainingQuantity !== null ? `${row.remainingQuantity} pendientes` : remainFact}
+                    </span>
+                    <span className="inline-flex items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-sky)] bg-[var(--isalwa-sky)] px-2 py-0.5 text-xs font-medium text-[var(--isalwa-kiln)]">
+                      {row.allocatedQuantity} asignados
+                    </span>
+                  </div>
                 </div>
               </ListRow>
             );

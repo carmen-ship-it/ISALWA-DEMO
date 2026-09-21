@@ -530,7 +530,7 @@ function SurfaceSearchForm({
           className="mt-1.5"
         />
       </div>
-      <Button type="submit" size="sm">
+      <Button type="submit" size="sm" variant="secondary">
         Buscar
       </Button>
       {query ? (

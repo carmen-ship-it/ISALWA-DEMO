@@ -22,6 +22,8 @@ type SearchableSelectProps = {
   noMatchLabel?: string;
   clearLabel?: string;
   disabled?: boolean;
+  /** Keep the accessible name without a second visible heading. */
+  labelVisibility?: 'visible' | 'sr-only';
 };
 
 /**
@@ -40,6 +42,7 @@ export function SearchableSelect({
   noMatchLabel = 'Ningún resultado coincide',
   clearLabel = 'Quitar',
   disabled = false,
+  labelVisibility = 'visible',
 }: SearchableSelectProps) {
   const listId = useId();
   const [open, setOpen] = useState(false);
@@ -112,7 +115,7 @@ export function SearchableSelect({
 
   return (
     <div className="relative">
-      <label htmlFor={id} className="isalwa-section-label">
+      <label htmlFor={id} className={labelVisibility === 'sr-only' ? 'sr-only' : 'isalwa-section-label'}>
         {label}
       </label>
       <div className="mt-2 flex items-center gap-2">

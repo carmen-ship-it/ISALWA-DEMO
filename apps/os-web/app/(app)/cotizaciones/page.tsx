@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button, EmptyState, PageSection, StatusPill, cx } from '@isalwa/ui';
+import { statusTone } from '@/lib/commercial/labels';
 import { CommercialListToolbar } from '@/components/commercial/commercial-list-toolbar';
 import { CommercialPageFrame } from '@/components/commercial/commercial-page-frame';
 import { QuoteOrgList } from '@/components/commercial/quote-org-list';
@@ -163,7 +164,7 @@ export default async function CotizacionesPage({ searchParams }: CotizacionesPag
                   Ver oportunidades
                 </Button>
               </Link>
-              <StatusPill tone="neutral">{statusLabel}</StatusPill>
+              <StatusPill tone={statusTone(status)} icon="none">{statusLabel}</StatusPill>
             </div>
           }
         />

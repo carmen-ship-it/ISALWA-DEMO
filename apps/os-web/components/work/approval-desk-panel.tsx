@@ -117,7 +117,9 @@ export function ApprovalDeskPanel({
                     aria-current={active ? 'true' : undefined}
                     className={
                       active
-                        ? 'inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-kiln)] bg-[color-mix(in_srgb,var(--isalwa-glaze)_10%,white)] px-3 text-xs font-medium text-[var(--isalwa-kiln)]'
+                        ? chip.id === 'pending'
+                          ? 'inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)] px-3 text-xs font-semibold text-[var(--isalwa-kiln)]'
+                          : 'inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)] px-3 text-xs font-semibold text-[var(--isalwa-kiln)]'
                         : 'inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-slate)] hover:border-[var(--isalwa-glaze)]'
                     }
                   >
@@ -191,7 +193,7 @@ export function ApprovalDeskPanel({
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <Link href={detailHref} className="inline-flex">
-                      <Button type="button" variant={primaryDecide ? 'primary' : 'secondary'} size="sm">
+                      <Button type="button" variant={primaryDecide ? 'primary' : 'secondary'} size={primaryDecide ? 'md' : 'sm'}>
                         {actionLabel}
                       </Button>
                     </Link>

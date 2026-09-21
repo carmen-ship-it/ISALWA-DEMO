@@ -163,7 +163,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                   ) : canMutate && actorMemberId ? (
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="primary"
                       size="sm"
                       disabled={busy}
                       onClick={() => requestUpdate(row)}
