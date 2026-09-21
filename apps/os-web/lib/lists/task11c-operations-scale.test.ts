@@ -72,7 +72,8 @@ describe('Task 11C — operations scale foundation', () => {
   });
 
   it('search distinguishes zero-match from true empty; long names match', () => {
-    const empty = windowFilteredOpsCollection([], {
+    const emptySource: ReturnType<typeof synthOps> = [];
+    const empty = windowFilteredOpsCollection(emptySource, {
       q: 'nada',
       match: (row, q) => matchesOpsSearch(q, [row.orderLabel, row.customerLabel]),
     });
