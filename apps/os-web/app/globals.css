@@ -173,6 +173,14 @@ input:focus-visible:not(.isalwa-field) {
   box-shadow: var(--isalwa-shadow-focus);
 }
 
+/* Map search: parent focus-within — Cursor/CDP may gate :focus while :focus-within still matches. */
+[data-surface='map-search']:focus-within .isalwa-field {
+  outline: 2px solid var(--isalwa-glaze-deep);
+  outline-offset: 2px;
+  border-color: var(--isalwa-glaze);
+  box-shadow: var(--isalwa-shadow-focus);
+}
+
 /* Operating width band used in polish QA: 390px phone floor → 1440px desk ceiling. */
 .isalwa-operating-width {
   width: 100%;
