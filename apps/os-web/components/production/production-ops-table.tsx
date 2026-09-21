@@ -40,7 +40,7 @@ type ProductionOpsTableProps = {
 };
 
 const DESKTOP_GRID =
-  'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.95fr)_minmax(0,0.9fr)_auto_auto]';
+  'md:grid-cols-[minmax(6.5rem,1.05fr)_minmax(8rem,1.25fr)_minmax(6rem,1fr)_minmax(7rem,0.95fr)_minmax(6rem,0.9fr)_minmax(7.5rem,auto)_minmax(10.5rem,auto)]';
 
 const HEADER_COLUMNS = [
   { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
@@ -48,8 +48,8 @@ const HEADER_COLUMNS = [
   { id: 'revision', label: 'Revisión', className: 'min-w-0' },
   { id: 'updated', label: 'Última actualización', className: 'min-w-0' },
   { id: 'owner', label: 'Responsable', className: 'min-w-0' },
-  { id: 'status', label: 'Estado', className: 'justify-self-end' },
-  { id: 'action', label: '', className: 'justify-self-end' },
+  { id: 'status', label: 'Estado', className: 'justify-self-end text-right' },
+  { id: 'action', label: 'Acciones', className: 'justify-self-end text-right' },
 ];
 
 /**
@@ -125,7 +125,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
             />
           </div>
         ) : (
-          <div className="commercial-operating-list mt-4 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
+          <div className="commercial-operating-list mt-4 overflow-x-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white" data-production-ops-table="">
             <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
             <ul className="m-0 list-none p-0">
               {rows.map((row) => {
@@ -145,10 +145,11 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                     ) : null}
                   </>
                 );
-                const action =
+                const viewAction =
                   row.openProductionReviewWorkId ? (
                     <Link
                       href={workItemHref(row.openProductionReviewWorkId)}
+                      data-production-action="ver-revision"
                       className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                     >
                       Ver revisión
@@ -156,15 +157,20 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                   ) : row.openUpdate ? (
                     <Link
                       href={workItemHref(row.openUpdate.workItemId)}
+                      data-production-action="ver-solicitud"
                       className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                     >
                       Ver solicitud
                     </Link>
-                  ) : canMutate && actorMemberId ? (
+                  ) : null;
+
+                const requestAction =
+                  !viewAction && canMutate && actorMemberId ? (
                     <Button
                       type="button"
                       variant="primary"
                       size="sm"
+                      data-production-action="solicitar-actualizacion"
                       disabled={busy}
                       onClick={() => requestUpdate(row)}
                     >
@@ -179,7 +185,11 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                       title={row.pedido.orderLabel}
                       desktopGridClassName={DESKTOP_GRID}
                       fields={[
-                        { id: 'client', label: 'Cliente', value: row.pedido.customerLabel },
+                        {
+                          id: 'client',
+                          label: 'Cliente',
+                          value: row.pedido.customerLabel,
+                        },
                         {
                           id: 'revision',
                           label: 'Revisión',
@@ -198,9 +208,14 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
                           hideOnMobile: true,
                         },
                       ]}
-                      status={statusPills}
+                      status={
+                        <div className="flex min-h-8 min-w-[7.5rem] flex-wrap items-center justify-end gap-1.5">
+                          {statusPills}
+                        </div>
+                      }
                       actionLabel="Ver pedido"
-                      secondaryActions={action}
+                      primaryAction={requestAction}
+                      secondaryActions={viewAction}
                     />
                   </li>
                 );

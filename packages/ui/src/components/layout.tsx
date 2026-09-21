@@ -37,6 +37,11 @@ export type PageSectionProps = HTMLAttributes<HTMLElement> & {
    * ops = white · context = sky · active = teal · attention = amber
    */
   surface?: 'ops' | 'context' | 'active' | 'attention';
+  /**
+   * When false, card chrome does not clip descendants (selectors, focus rings).
+   * Default true preserves rounded-card clipping.
+   */
+  clip?: boolean;
 };
 
 const SURFACE_BG: Record<NonNullable<PageSectionProps['surface']>, string> = {
@@ -47,13 +52,14 @@ const SURFACE_BG: Record<NonNullable<PageSectionProps['surface']>, string> = {
     'bg-[var(--isalwa-status-amber-bg,var(--isalwa-surface-attention))]',
 };
 
-export function PageSection({ children, className, card, surface = 'ops', ...rest }: PageSectionProps) {
+export function PageSection({ children, className, card, surface = 'ops', clip = true, ...rest }: PageSectionProps) {
   return (
     <section
       className={cx(
         card &&
           cx(
-            'overflow-hidden rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] shadow-[var(--isalwa-shadow-card-resting)]',
+            clip ? 'overflow-hidden' : 'overflow-visible',
+            'rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] shadow-[var(--isalwa-shadow-card-resting)]',
             SURFACE_BG[surface],
           ),
         className,

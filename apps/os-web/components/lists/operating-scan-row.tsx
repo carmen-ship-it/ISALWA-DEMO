@@ -97,16 +97,18 @@ export function OperatingScanRow({
           </div>
         ))}
 
-        {status ? (
-          <div className="isalwa-scan-row-status flex shrink-0 items-center md:justify-end">{status}</div>
+        {status !== undefined && status !== null ? (
+          <div className="isalwa-scan-row-status flex min-h-8 min-w-[7rem] shrink-0 items-center md:justify-end">
+            {status}
+          </div>
         ) : null}
 
-        <div className="isalwa-scan-row-actions flex shrink-0 flex-wrap items-center gap-2 md:flex-nowrap md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
+        <div className="isalwa-scan-row-actions flex min-w-[10rem] shrink-0 flex-wrap items-center gap-2 md:flex-nowrap md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
           {primaryAction}
-          <Link href={href} className={actionLinkClass}>
+          {secondaryActions}
+          <Link href={href} className={actionLinkClass} data-scan-row-open="">
             {actionLabel}
           </Link>
-          {secondaryActions}
         </div>
       </div>
     </div>

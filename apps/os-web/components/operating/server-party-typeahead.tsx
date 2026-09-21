@@ -206,7 +206,7 @@ export function ServerPartyTypeahead({
           id={listId}
           role="listbox"
           aria-label="Clientes"
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white py-1 shadow-[var(--isalwa-shadow-soft)]"
+          className="relative z-20 mt-2 max-h-60 w-full overflow-y-auto rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white py-1 shadow-[var(--isalwa-shadow-soft)]"
         >
           {status === 'loading' ? (
             <li className="px-3 py-2 text-sm text-[var(--isalwa-slate)]" role="status">

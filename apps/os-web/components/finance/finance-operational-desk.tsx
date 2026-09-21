@@ -162,7 +162,7 @@ function ReadyDesk(props: {
 
   return (
     <div data-finance-status="ready" className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start">
-      <PageSection card className="min-w-0 space-y-4 p-5 shadow-[var(--isalwa-shadow-resting)] md:p-6">
+      <PageSection card clip={false} className="min-w-0 space-y-4 overflow-visible p-5 shadow-[var(--isalwa-shadow-resting)] md:p-6" data-finance-contexto="">
         <div>
           <p className="isalwa-kicker">Contexto</p>
           <h2 className="mt-2 text-sm font-medium text-[var(--isalwa-kiln)]">
@@ -299,7 +299,7 @@ function ReadyDesk(props: {
         ) : null}
       </PageSection>
 
-      <PageSection card className="min-w-0 space-y-1 p-5 md:p-6">
+      <PageSection card className="min-w-0 self-start space-y-1 p-5 md:p-6" data-finance-sesion="">
         <p className="isalwa-section-label">Esta sesión</p>
         {facts.length === 0 ? (
           <EmptyState
