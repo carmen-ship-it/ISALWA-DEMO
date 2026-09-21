@@ -162,7 +162,7 @@ export function InicioCommandQueueSections({
   approvalSubjects,
 }: InicioCommandQueueSectionsProps) {
   const asOf = new Date();
-  const lensNote = `Lectura ${inicioRoleLensLabel(model.lens).toLowerCase()}. Colas del contrato, no totales.`;
+  const lensNote = `Lectura ${inicioRoleLensLabel(model.lens).toLowerCase()}. Trabajo pendiente, no totales de la empresa.`;
   const visibleIssues = model.openIssues.filter(
     (item): item is IssueListItem =>
       !isEngineeringFixtureCopy(item.description) && !isEngineeringFixtureCopy(item.title),

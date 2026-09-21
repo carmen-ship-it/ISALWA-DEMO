@@ -147,10 +147,11 @@ export function filterDocumentLinksForProjection<
     case 'asesor':
     case 'jefe-comercial':
     case 'gerencia':
-      return [...links];
+      return links.filter((l) => l.type !== 'delivery_note_pdf');
     case 'entregas':
-    case 'almacen':
       return links.filter((l) => l.type === 'delivery_note_pdf');
+    case 'almacen':
+      return links.filter((l) => l.type !== 'delivery_note_pdf' && l.type !== 'quote_pdf' && l.type !== 'send_evidence');
     case 'produccion':
     case 'compras':
     case 'finanzas':

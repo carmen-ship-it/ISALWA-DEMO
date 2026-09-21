@@ -19,6 +19,12 @@ import { PageHeader } from '@/components/shell/page-header';
 import { EventWorkOfferPanel } from '@/components/work/event-work-offer-panel';
 import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
 import { loadEntregaPage } from '@/lib/delivery/load-entregas';
+import { resolveEntregaHistoryPanel } from '@/lib/delivery/surface';
+import {
+  canOperateEntregaDesk,
+  deliveryPresentationScopes,
+} from '@/lib/delivery/permission-aware-ui';
+import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import type { LinkedOrderFact } from '@/lib/delivery/map-fulfillment';
 import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
 import { offerAfterDeliveryFollowUp } from '@/lib/work/event-work-offer';
@@ -47,7 +53,17 @@ export default async function EntregasPage({
   const datos = params?.datos?.trim() || null;
   const listState: ListQueryState = { q: params?.q, pagina: params?.pagina };
   const view = await loadEntregaPage();
-  const panelStatus = view.status === 'ready' || view.status === 'empty' ? 'ready' : view.status;
+  const capabilities = await loadMemberCapabilities();
+  const deliveryScopes = deliveryPresentationScopes({
+    grantedScopes: capabilities?.grantedScopes ?? [],
+    evaluationActive: evaluation.active,
+    presentationScopes: evaluation.presentationScopes,
+  });
+  const panelStatus = resolveEntregaHistoryPanel({
+    surfaceStatus: view.status,
+    fulfillmentReadDenied: view.fulfillmentReadDenied,
+    canOperateDesk: canOperateEntregaDesk(deliveryScopes),
+  });
   const firstDelivery = view.deliveries[0];
   const deliveryOffer = offerAfterDeliveryFollowUp({
     deliveryId: firstDelivery?.id ?? null,
@@ -95,6 +111,7 @@ export default async function EntregasPage({
         datos={datos}
         listState={listState}
       />
+      {view.commercialReadDenied ? null : (
       <LinkedOrdersSection
         orders={view.linkedOrders}
         noteOrderIds={noteOrderIds}
@@ -104,6 +121,7 @@ export default async function EntregasPage({
         datos={datos}
         listState={listState}
       />
+      )}
       <EntregaPanel status={panelStatus} warehouseExits={warehouseExits} deliveries={deliveries} />
     </PageContainer>
   );

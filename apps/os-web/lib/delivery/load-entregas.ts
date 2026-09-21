@@ -45,6 +45,10 @@ export type EntregaPageModel = {
   /** Order ids with at least one issued delivery note (canonical read). */
   noteOrderIds: string[];
   deliveryNotesCount: number;
+  /** Company fulfillment list was forbidden. Distinct from delivery.record. */
+  fulfillmentReadDenied: boolean;
+  /** Commercial order list was forbidden. Do not invent an empty pedido list. */
+  commercialReadDenied: boolean;
 };
 
 /**
@@ -53,29 +57,31 @@ export type EntregaPageModel = {
  * Open orders are always surfaced from commercial SoR so pedido ids are not retyped.
  * Empty lists are honest. Auto-delivery-from-order is not invented.
  */
+function blankEntregaPage(
+  status: EntregaSurfaceStatus,
+  flags: { fulfillmentReadDenied?: boolean; commercialReadDenied?: boolean } = {},
+): EntregaPageModel {
+  return {
+    status,
+    warehouseExits: [],
+    deliveries: [],
+    linkedOrders: [],
+    noteOrderIds: [],
+    deliveryNotesCount: 0,
+    fulfillmentReadDenied: flags.fulfillmentReadDenied ?? false,
+    commercialReadDenied: flags.commercialReadDenied ?? false,
+  };
+}
+
 export async function loadEntregaPage(): Promise<EntregaPageModel> {
   let auth: Awaited<ReturnType<typeof getServerOsAuthContext>>;
   try {
     auth = await getServerOsAuthContext();
   } catch {
-    return {
-      status: 'error',
-      warehouseExits: [],
-      deliveries: [],
-      linkedOrders: [],
-      noteOrderIds: [],
-      deliveryNotesCount: 0,
-    };
+    return blankEntregaPage('error');
   }
   if (!auth) {
-    return {
-      status: 'permission',
-      warehouseExits: [],
-      deliveries: [],
-      linkedOrders: [],
-      noteOrderIds: [],
-      deliveryNotesCount: 0,
-    };
+    return blankEntregaPage('permission');
   }
 
   const client = createOsApiClient(auth);
@@ -85,6 +91,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
   let deliveries: EntregaPanelProps['deliveries'] = [];
   let fulfillmentDenied = false;
   let fulfillmentFailed = false;
+  let commercialReadDenied = false;
 
   try {
     const orders = await client.listOrders({ status: 'open', limit: 50 });
@@ -101,16 +108,9 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     }));
   } catch (err) {
     if (err instanceof OsApiError && (err.kind === 'forbidden' || err.kind === 'unauthorized')) {
-      // Commercial read denied — still try fulfillment; page permission only if both fail.
+      commercialReadDenied = true;
     } else {
-      return {
-        status: 'error',
-        warehouseExits: [],
-        deliveries: [],
-        linkedOrders: [],
-        noteOrderIds: [],
-        deliveryNotesCount: 0,
-      };
+      return blankEntregaPage('error');
     }
   }
 
@@ -139,36 +139,18 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
 
   const organizationId = auth.mode === 'dev' ? auth.session.organizationId : 'session';
   if (!organizationId) {
-    return {
-      status: 'permission',
-      warehouseExits: [],
-      deliveries: [],
-      linkedOrders: [],
-      noteOrderIds: [],
-      deliveryNotesCount: 0,
-    };
+    return blankEntregaPage('permission', { commercialReadDenied });
   }
 
   // Fulfillment denied without linked orders is permission. Linked orders alone stay ready/empty.
   if (fulfillmentFailed && linkedOrders.length === 0) {
-    return {
-      status: 'error',
-      warehouseExits: [],
-      deliveries: [],
-      linkedOrders: [],
-      noteOrderIds: [],
-      deliveryNotesCount: 0,
-    };
+    return blankEntregaPage('error', { commercialReadDenied });
   }
   if (fulfillmentDenied && linkedOrders.length === 0 && warehouseExits.length === 0 && deliveries.length === 0) {
-    return {
-      status: 'permission',
-      warehouseExits: [],
-      deliveries: [],
-      linkedOrders: [],
-      noteOrderIds: [],
-      deliveryNotesCount: 0,
-    };
+    return blankEntregaPage('permission', {
+      fulfillmentReadDenied: true,
+      commercialReadDenied,
+    });
   }
 
   const status = resolveEntregaSurface({
@@ -185,5 +167,7 @@ export async function loadEntregaPage(): Promise<EntregaPageModel> {
     linkedOrders,
     noteOrderIds,
     deliveryNotesCount,
+    fulfillmentReadDenied: fulfillmentDenied,
+    commercialReadDenied,
   };
 }

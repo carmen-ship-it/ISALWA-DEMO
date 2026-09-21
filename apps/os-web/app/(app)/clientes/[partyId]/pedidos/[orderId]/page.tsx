@@ -32,6 +32,7 @@ import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
+import { deliveryPresentationScopes } from '@/lib/delivery/permission-aware-ui';
 import { composeDocumentDossier } from '@/lib/commercial/document-dossier';
 import {
   formatOrderStatus,
@@ -138,15 +139,21 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     }
 
     const scopes = capabilities?.grantedScopes ?? [];
+    const deliveryScopes = deliveryPresentationScopes({
+      grantedScopes: scopes,
+      evaluationActive: evaluation.active,
+      presentationScopes: evaluation.presentationScopes,
+    });
     const canMutateDelivery =
       order.status === 'open' &&
       Boolean(actorMemberId) &&
-      (canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes));
-    const canCreateNote = order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(scopes);
+      (canRecordDelivery(deliveryScopes) || canRecordWarehouseOutbound(deliveryScopes));
+    const canCreateNote = order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(deliveryScopes);
     const canRecordSalida =
-      order.status === 'open' && Boolean(actorMemberId) && canRecordWarehouseOutbound(scopes);
+      order.status === 'open' && Boolean(actorMemberId) && canRecordWarehouseOutbound(deliveryScopes);
     const canRecordEntrega =
-      order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(scopes);
+      order.status === 'open' && Boolean(actorMemberId) && canRecordDelivery(deliveryScopes);
+    const canDownloadNotePdf = canRecordDelivery(deliveryScopes);
     const operating = buildPedidoOperatingView({
       order: {
         organizationId: order.organizationId,
@@ -280,7 +287,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     const dossierItems = composeDocumentDossier({
       partyId,
       quotes: sourceQuote ? [sourceQuote] : [],
-      deliveryNotes,
+      deliveryNotes: canDownloadNotePdf ? deliveryNotes : [],
       timelineEntries: partyTimelineItems,
       quoteIdFilter: order.quoteId,
     });
@@ -550,6 +557,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             canCreateNote={canCreateNote}
             canRecordSalida={canRecordSalida}
             canRecordEntrega={canRecordEntrega}
+            canDownloadNotePdf={canDownloadNotePdf}
             hasSalida={hasSalidaFact}
           />
         </div>

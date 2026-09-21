@@ -74,6 +74,8 @@ export type DeliveryDocumentsPanelProps = {
   canRecordEntrega?: boolean;
   /** True only when a warehouse exit is already recorded for this pedido. */
   hasSalida?: boolean;
+  /** delivery.record only. Order status does not hide an existing note PDF. */
+  canDownloadNotePdf?: boolean;
   quotedProducts?: import('@/lib/commercial/quoted-product-context').QuotedProductLine[];
   quoteUnavailable?: boolean;
   /** How frozen quote lines were resolved — drives empty copy truthfully. */
@@ -100,6 +102,7 @@ export function DeliveryDocumentsPanel({
   canRecordSalida,
   canRecordEntrega,
   hasSalida = false,
+  canDownloadNotePdf = false,
   quotedProducts = [],
   quoteUnavailable = false,
   quoteLoadState,
@@ -532,14 +535,16 @@ export function DeliveryDocumentsPanel({
                   </div>
                 </dl>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <a
-                    href={`/api/delivery-notes/${encodeURIComponent(note.id)}/pdf`}
-                    className={actionPrimaryClass}
-                    data-delivery-pdf-action=""
-                  >
-                    {ENTREGA_PANEL_COPY.downloadPdf}
-                  </a>
-                  {note.status === 'issued' && canMutate ? (
+                  {canDownloadNotePdf ? (
+                    <a
+                      href={`/api/delivery-notes/${encodeURIComponent(note.id)}/pdf`}
+                      className={actionPrimaryClass}
+                      data-delivery-pdf-action=""
+                    >
+                      {ENTREGA_PANEL_COPY.downloadPdf}
+                    </a>
+                  ) : null}
+                  {note.status === 'issued' && allowNote ? (
                     confirmingNoteId === note.id ? (
                       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Confirmar anulación">
                         <Button
