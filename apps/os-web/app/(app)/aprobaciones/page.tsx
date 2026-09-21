@@ -49,9 +49,21 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
 
   try {
     const session = await client.getAuthenticatedSession();
+    const statusParam =
+      query.status === 'approved' ||
+      query.status === 'rejected' ||
+      query.status === 'all' ||
+      query.status === 'pending'
+        ? query.status
+        : 'pending';
     const result = await client.listApprovals({
       limit: PAGE_LIMIT,
       ...(query.cursor ? { cursor: query.cursor } : {}),
+      ...(statusParam === 'pending'
+        ? {}
+        : statusParam === 'all'
+          ? { status: 'all' }
+          : { status: statusParam }),
     });
     // Same source as Inicio Approvals card / Decisiones:
     // owner personal → pending-for-me; View As Jefe/Gerencia → org pending desk.
@@ -60,11 +72,12 @@ export default async function AprobacionesPage({ searchParams }: AprobacionesPag
       (evaluation.persona === 'jefe-comercial' || evaluation.persona === 'gerencia')
         ? 'org'
         : 'personal';
-    const pending = filterApprovalsForEvaluation(
+    const scopedItems = filterApprovalsForEvaluation(
       evaluation,
-      result.items.filter((item) => item.status === 'pending'),
+      result.items,
       { memberId: session.memberId, scope: approvalsScope },
     );
+    const pending = scopedItems;
     const subjects = await approvalSubjectsForPage(client, pending);
     const memberLabels = await resolveMemberLabels(
       client,

@@ -25,24 +25,25 @@ export async function ShellNotificationSlot() {
   let attention: Awaited<ReturnType<typeof client.listAttention>>['items'] = [];
   let work: Awaited<ReturnType<typeof client.listWorkItems>>['items'] = [];
   try {
-    const page = await client.listAttention({ activeOnly: true, limit: 40 });
+    const page = await client.listAttention({ activeOnly: true, limit: 8 });
     attention = page.items ?? [];
   } catch {
     attention = [];
   }
   try {
-    const page = await client.listWorkItems({ limit: 40 });
+    const page = await client.listWorkItems({ limit: 8 });
     work = page.items ?? [];
   } catch {
     work = [];
   }
 
+  // Shell summary only — never dump an unbounded notification DOM.
   return (
     <NotificationDrawerHost
       organizationId={organizationId}
       recipientMemberId={recipientMemberId}
-      attention={attention}
-      work={work}
+      attention={attention.slice(0, 8)}
+      work={work.slice(0, 8)}
     />
   );
 }

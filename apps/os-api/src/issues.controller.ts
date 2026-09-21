@@ -111,11 +111,19 @@ export class IssuesController {
   @Get()
   async listIssues(
     @Req() req: Request,
-    @Query('view') view: IssueView = 'open',
+    @Query('view') viewParam?: string,
     @Query('partyId') partyId?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-  ): Promise<{ items: IssueSummary[]; total: number; meta: { hasMore: boolean } }> {
+    @Query('cursor') cursor?: string,
+    @Query('status') status?: string,
+    @Query('assignedToMe') assignedToMe?: string,
+    @Query('reportedByMe') reportedByMe?: string,
+  ): Promise<{
+    items: IssueSummary[];
+    total: number;
+    meta: { hasMore: boolean; nextCursor: string | null; limit: number };
+  }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const snap = await this.getAccessSnapshot(
@@ -125,6 +133,22 @@ export class IssuesController {
       );
       if (!snap) throw new Error('AUTH_REQUIRED');
       assertMemberActive(snap);
+
+      // Web desk historically sent assignedToMe/reportedByMe/status; map to canonical view.
+      let view: IssueView = 'open';
+      if (assignedToMe === 'true' || assignedToMe === '1') view = 'assigned_to_me';
+      else if (reportedByMe === 'true' || reportedByMe === '1') view = 'reported_by_me';
+      else if (status === 'resolved') view = 'resolved';
+      else if (status === 'open') view = 'open';
+      else if (
+        viewParam === 'open' ||
+        viewParam === 'assigned_to_me' ||
+        viewParam === 'reported_by_me' ||
+        viewParam === 'resolved' ||
+        viewParam === 'all'
+      ) {
+        view = viewParam;
+      }
 
       let records: IssueRecord[] = [];
       const hasManageScope = memberHasGrantedScope(snap, ISSUE_MANAGE_SCOPE);
@@ -241,14 +265,19 @@ export class IssuesController {
         : withRefs;
 
       const total = filtered.length;
-      const offsetNum = offset ? parseInt(offset, 10) : 0;
-      const limitNum = limit ? parseInt(limit, 10) : 50;
+      const limitNum = Math.min(Math.max(limit ? parseInt(limit, 10) || 25 : 25, 1), 100);
+      let offsetNum = 0;
+      if (cursor && /^\d+$/.test(cursor)) offsetNum = parseInt(cursor, 10);
+      else if (offset) offsetNum = parseInt(offset, 10) || 0;
+      if (!Number.isFinite(offsetNum) || offsetNum < 0) offsetNum = 0;
       const paginated = filtered.slice(offsetNum, offsetNum + limitNum);
+      const hasMore = offsetNum + paginated.length < total;
+      const nextCursor = hasMore ? String(offsetNum + paginated.length) : null;
 
       return {
         items: paginated.map((row) => toSummary(row.record, row.references)),
         total,
-        meta: { hasMore: offsetNum + paginated.length < total },
+        meta: { hasMore, nextCursor, limit: limitNum },
       };
     } catch (err) {
       throw this.toHttp(err);
@@ -259,7 +288,12 @@ export class IssuesController {
   async getIssue(
     @Param('issueId') issueId: string,
     @Req() req: Request,
-  ): Promise<{ issue: ReturnType<typeof toIssueDetailResponse>['issue'] }> {
+    @Query('journalLimit') journalLimit?: string,
+    @Query('journalCursor') journalCursor?: string,
+  ): Promise<{
+    issue: ReturnType<typeof toIssueDetailResponse>['issue'];
+    journalMeta: { hasMore: boolean; nextCursor: string | null; limit: number };
+  }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const snap = await this.getAccessSnapshot(
@@ -283,16 +317,35 @@ export class IssuesController {
         this.issueStore.listRelationsFromIssue(session.organizationId, issue.id),
         this.issueStore.listWorkLinksForIssue(session.organizationId, issue.id),
       ]);
-      return toIssueDetailResponse({
+
+      // Newest-first chronology page — never dump unlimited journal into the detail DOM.
+      const sorted = [...journal].sort(
+        (a, b) => b.recordedAt.getTime() - a.recordedAt.getTime(),
+      );
+      const jLimit = Math.min(Math.max(journalLimit ? parseInt(journalLimit, 10) || 25 : 25, 1), 100);
+      let jOffset = 0;
+      if (journalCursor && /^\d+$/.test(journalCursor)) jOffset = parseInt(journalCursor, 10);
+      if (!Number.isFinite(jOffset) || jOffset < 0) jOffset = 0;
+      const page = sorted.slice(jOffset, jOffset + jLimit);
+      const jHasMore = jOffset + page.length < sorted.length;
+      const body = toIssueDetailResponse({
         record: issue,
         references: refs.map((row) => ({
           referenceType: row.referenceType,
           referenceId: row.referenceId,
         })),
-        journal,
+        journal: page,
         relations,
         workLinks,
       });
+      return {
+        ...body,
+        journalMeta: {
+          hasMore: jHasMore,
+          nextCursor: jHasMore ? String(jOffset + page.length) : null,
+          limit: jLimit,
+        },
+      };
     } catch (err) {
       throw this.toHttp(err);
     }

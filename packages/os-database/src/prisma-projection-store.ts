@@ -656,13 +656,32 @@ export class PrismaOsProjectionStore implements OsProjectionStorePort {
   ): Promise<{ items: StoredApprovalReadModel[]; hasMore: boolean }> {
     const limit = query.limit ?? 25;
     const cursor = decodeApprovalCursor(query.cursor);
-    const where: Record<string, unknown> = { organizationId, status: 'pending' };
+    const statusFilter = query.status ?? 'pending';
+    const where: Record<string, unknown> = { organizationId };
+    if (statusFilter === 'all') {
+      // no status constraint — desk "Todos"
+    } else if (statusFilter === 'decided') {
+      where.status = { in: ['approved', 'rejected'] };
+    } else {
+      where.status = statusFilter;
+    }
     if (query.approverMemberId) where.approverMemberId = query.approverMemberId;
     if (query.workItemId) where.workItemId = query.workItemId;
-    if (cursor) where.approvalRequestId = { gt: cursor.approvalRequestId };
+    if (cursor) {
+      if (statusFilter === 'decided') {
+        // Offset-style cursor encoded as approvalRequestId for decided pages is not used;
+        // decided list uses approvalRequestId desc below with gt inverted via lt.
+        where.approvalRequestId = { lt: cursor.approvalRequestId };
+      } else {
+        where.approvalRequestId = { gt: cursor.approvalRequestId };
+      }
+    }
     const rows = await this.prisma.osApprovalReadModel.findMany({
       where: where as never,
-      orderBy: [{ approvalRequestId: 'asc' }],
+      orderBy:
+        statusFilter === 'decided'
+          ? [{ decidedAt: 'desc' }, { approvalRequestId: 'desc' }]
+          : [{ approvalRequestId: 'asc' }],
       take: limit + 1,
     });
     const hasMore = rows.length > limit;

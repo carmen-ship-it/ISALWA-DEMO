@@ -119,6 +119,8 @@ export type ListOpenWorkQuery = z.infer<typeof ListOpenWorkQuerySchema>;
 export const ListPendingApprovalsQuerySchema = CursorPaginationSchema.extend({
   approverMemberId: z.string().trim().optional(),
   workItemId: z.string().trim().optional(),
+  /** Omit or pending = pending desk. decided = approved|rejected chronology for Memoria. */
+  status: z.enum(['pending', 'approved', 'rejected', 'decided', 'all']).optional(),
 });
 
 export type ListPendingApprovalsQuery = z.infer<typeof ListPendingApprovalsQuerySchema>;

@@ -41,12 +41,18 @@ export class ApprovalsController {
   async listSubjectApprovals(
     @Query('subjectType') subjectType: string,
     @Query('subjectId') subjectId: string,
+    @Query('limit') limit: string | undefined,
+    @Query('cursor') cursor: string | undefined,
     @Req() req: Request,
   ) {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const ctx = await buildQueryContext(session, this.workforceStore);
-      return await this.approvalQuery.listSubjectApprovals(ctx, subjectType ?? '', subjectId ?? '');
+      const parsedLimit = limit ? parseInt(limit, 10) : 25;
+      return await this.approvalQuery.listSubjectApprovals(ctx, subjectType ?? '', subjectId ?? '', {
+        limit: Number.isFinite(parsedLimit) ? parsedLimit : 25,
+        cursor,
+      });
     } catch (err) {
       throw this.toHttp(err);
     }

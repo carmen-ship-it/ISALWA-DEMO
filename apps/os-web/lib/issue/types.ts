@@ -82,6 +82,11 @@ export type IssueListResponse = {
 export type IssueDetailResponse = {
   issue: IssueDetail;
   freshness?: string;
+  journalMeta?: {
+    hasMore: boolean;
+    nextCursor?: string | null;
+    limit?: number;
+  };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

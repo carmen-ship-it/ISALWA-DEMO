@@ -141,7 +141,9 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
   const client = createOsApiClient(auth);
 
   try {
-    const { issue } = await client.getIssue(issueId);
+    const issuePack = await client.getIssue(issueId);
+    const issue = issuePack.issue;
+    const journalMeta = issuePack.journalMeta;
     const memberIds = [
       issue.reporterMemberId,
       issue.ownerMemberId,
@@ -284,6 +286,12 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             <div>
               <h3 className="isalwa-section-label mb-3">Diario de investigación</h3>
               <Timeline items={journalToTimeline(otherJournal, memberLabels)} />
+              {journalMeta?.hasMore ? (
+                <p className="mt-3 text-sm text-[var(--isalwa-slate)]" role="status">
+                  Mostrando las {journalMeta.limit ?? 25} entradas más recientes. Hay más historial en el
+                  registro; la continuación por páginas requiere el cableado de consulta en el cliente API.
+                </p>
+              ) : null}
             </div>
           ) : (
             <EmptyState

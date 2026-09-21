@@ -18,7 +18,7 @@ export default async function SaludDatosPage() {
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
-  const result = await client.searchParties({ status: 'active', limit: 100 });
+  const result = await client.searchParties({ status: 'active', limit: 25 });
   const issues = dataHealthFromSummaries(result.items);
   const partial = result.meta.hasMore;
 
@@ -39,7 +39,7 @@ export default async function SaludDatosPage() {
 
       <p className="mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         {DATA_HEALTH_BOUNDARY}
-        {partial ? ' La lectura está acotada a los primeros clientes visibles.' : null}
+        {' La lectura examina como máximo 25 clientes activos visibles — no implica cobertura de toda la cartera.'}
       </p>
 
       {issues.length === 0 ? (

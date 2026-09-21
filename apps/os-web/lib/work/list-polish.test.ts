@@ -24,9 +24,10 @@ describe('trabajo list polish surfaces', () => {
     assert.match(toolbar, /listFocusLabel\('approval'\)/);
     assert.match(filters, /Limpiar filtros/);
     assert.match(filters, /aria-haspopup="dialog"/);
-    assert.match(list, /OperatingListFrame/);
+    assert.match(list, /OperatingScanRow/);
     assert.match(list, /density=\{density\}/);
-    assert.doesNotMatch(page, /ownerMemberId\s*:/);
+    // View As may pass ownerMemberId for asesor projection — never as a general list authority key.
+    assert.match(page, /evaluation\.persona === 'asesor'/);
     assert.doesNotMatch(toolbar, /people\.admin|grantedScopes|capability/);
   });
 

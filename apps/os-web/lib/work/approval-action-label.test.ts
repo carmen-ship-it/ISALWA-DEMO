@@ -7,7 +7,7 @@ import {
   approvalDetailDecisionChrome,
   approvalListActionLabel,
   approvalListPageDescription,
-} from './approval-action-label.ts';
+} from './approval-action-label';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 

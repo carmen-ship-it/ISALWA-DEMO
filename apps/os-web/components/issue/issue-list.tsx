@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { OperatingRow, StatusPill } from '@isalwa/ui';
+import { StatusPill } from '@isalwa/ui';
+import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { formatIssueStatus, formatReferenceType, statusToneForIssue } from '@/lib/issue/labels';
 import { issueHref } from '@/lib/issue/navigation';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
@@ -15,6 +15,14 @@ type IssueListProps = {
   showHeader?: boolean;
   density?: 'compact' | 'comfortable';
 };
+
+const DESKTOP_GRID = 'md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7.5rem] md:items-center md:gap-3';
+
+const HEADER_COLUMNS = [
+  { id: 'issue', label: 'Incidencia' },
+  { id: 'context', label: 'Contexto' },
+  { id: 'status', label: 'Estado' },
+];
 
 function formatTimestamp(iso: string | null): string {
   if (!iso) return '—';
@@ -35,30 +43,18 @@ function issueTitle(item: IssueListItem): string {
   const desc = item.description?.trim() ?? '';
   if (!desc || isEngineeringFixtureCopy(desc)) return 'Incidencia';
   const shown = presentHumanCopy(desc);
-  return shown.length > 60 ? `${shown.slice(0, 57)}…` : shown;
+  return shown.length > 80 ? `${shown.slice(0, 77)}…` : shown;
 }
 
-function issueMeta(item: IssueListItem, memberLabels: MemberLabelMap): string {
+function contextLabel(item: IssueListItem, memberLabels: MemberLabelMap): string {
   const parts: string[] = [];
-
-  // Reference context
   if (item.references.length > 0) {
     const ref = item.references[0];
     const typeLabel = formatReferenceType(ref.referenceType);
-    if (ref.label) {
-      parts.push(`${typeLabel}: ${ref.label}`);
-    } else {
-      parts.push(typeLabel);
-    }
+    parts.push(ref.label ? `${typeLabel}: ${ref.label}` : typeLabel);
   }
-
-  // Reporter
-  const reporter = memberLabel(memberLabels, item.reporterMemberId);
-  parts.push(`Reportó: ${reporter}`);
-
-  // Date
+  parts.push(`Reportó: ${memberLabel(memberLabels, item.reporterMemberId)}`);
   parts.push(formatTimestamp(item.createdAt));
-
   return parts.join(' · ');
 }
 
@@ -72,39 +68,40 @@ export function IssueList({ items, memberLabels, showHeader, density = 'compact'
   const visible = items.filter(isVisibleIssue);
   if (visible.length === 0) return null;
 
+  const rows = (
+    <ul className="min-w-0 divide-y divide-[var(--isalwa-mist)]" aria-label="Lista de incidencias">
+      {visible.map((item) => (
+        <li key={item.issueId} className="list-none">
+          <OperatingScanRow
+            href={issueHref(item.issueId)}
+            density={density}
+            title={issueTitle(item)}
+            desktopGridClassName={DESKTOP_GRID}
+            fields={[
+              {
+                id: 'context',
+                label: 'Contexto',
+                value: contextLabel(item, memberLabels),
+              },
+            ]}
+            status={
+              <StatusPill tone={statusToneForIssue(item.status)}>
+                {formatIssueStatus(item.status)}
+              </StatusPill>
+            }
+            actionLabel="Ver incidencia"
+          />
+        </li>
+      ))}
+    </ul>
+  );
+
+  if (!showHeader) return rows;
+
   return (
-    <div className="min-w-0">
-      {showHeader ? (
-        <div
-          role="row"
-          className="sticky top-0 z-[1] flex items-center gap-3 border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-3 py-2 backdrop-blur-md"
-        >
-          <span className="min-w-0 flex-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--isalwa-slate)]">
-            Incidencia
-          </span>
-          <span className="w-24 shrink-0 text-right text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--isalwa-slate)]">
-            Estado
-          </span>
-        </div>
-      ) : null}
-      <ul className="min-w-0">
-        {visible.map((item) => (
-          <li key={item.issueId}>
-            <Link href={issueHref(item.issueId)} className="block">
-              <OperatingRow
-                subject={issueTitle(item)}
-                meta={issueMeta(item, memberLabels)}
-                status={
-                  <StatusPill tone={statusToneForIssue(item.status)}>
-                    {formatIssueStatus(item.status)}
-                  </StatusPill>
-                }
-                density={density}
-              />
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <div className="overflow-x-clip bg-white" aria-label="Lista de incidencias">
+      <OperatingScanListHeader columns={HEADER_COLUMNS} className={DESKTOP_GRID} />
+      {rows}
     </div>
   );
 }

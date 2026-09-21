@@ -52,9 +52,14 @@ export class ApprovalQueryService {
       scopedQuery,
     );
 
-    const visible = items.filter(
-      (item) => item.status === 'pending' && canViewApproval(ctx, item),
-    );
+    const statusFilter = query.status ?? 'pending';
+    const visible = items.filter((item) => {
+      if (!canViewApproval(ctx, item)) return false;
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'decided') return item.status === 'approved' || item.status === 'rejected';
+      if (statusFilter === 'pending') return item.status === 'pending';
+      return item.status === statusFilter;
+    });
     const freshness = await this.deps.projectionStore.getFreshness(
       ctx.organizationId,
       OS_PROJECTION_CONSUMER_KEYS.workSummary,
@@ -75,7 +80,11 @@ export class ApprovalQueryService {
     ctx: QueryContext,
     subjectType: string,
     subjectId: string,
-  ): Promise<{ items: SubjectApprovalItem[] }> {
+    options: { limit?: number; cursor?: string } = {},
+  ): Promise<{
+    items: SubjectApprovalItem[];
+    meta: { hasMore: boolean; nextCursor: string | null; limit: number };
+  }> {
     assertQueryScope(ctx, 'member_active');
     assertQueryTenantResource(ctx, ctx.organizationId);
     if (!this.deps.workStore) throw new Error('VALIDATION_FAILED');
@@ -123,8 +132,21 @@ export class ApprovalQueryService {
       throw new Error('PERMISSION_DENIED');
     }
 
+    const sorted = [...visible].sort((a, b) => {
+      const at = a.decidedAt?.getTime() ?? 0;
+      const bt = b.decidedAt?.getTime() ?? 0;
+      if (bt !== at) return bt - at;
+      return b.id.localeCompare(a.id);
+    });
+    const limit = Math.min(Math.max(options.limit ?? 25, 1), 100);
+    let offset = 0;
+    if (options.cursor && /^\d+$/.test(options.cursor)) offset = parseInt(options.cursor, 10);
+    if (!Number.isFinite(offset) || offset < 0) offset = 0;
+    const page = sorted.slice(offset, offset + limit);
+    const hasMore = offset + page.length < sorted.length;
+
     return {
-      items: visible.map((row) => ({
+      items: page.map((row) => ({
         approvalRequestId: row.id,
         organizationId: row.organizationId,
         workItemId: row.workItemId,
@@ -139,6 +161,11 @@ export class ApprovalQueryService {
         requiredScope: null,
         canDecide: row.status === 'pending' && canActAsApproverDelegate(ctx, row.approverMemberId),
       })),
+      meta: {
+        hasMore,
+        nextCursor: hasMore ? String(offset + page.length) : null,
+        limit,
+      },
     };
   }
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import type { ApprovalSummaryReadModel } from '@isalwa/os-contracts';
 import { EmptyState, PageContainer, PageSection, StatusPill } from '@isalwa/ui';
 import { PageHeader } from '@/components/shell/page-header';
@@ -9,8 +10,9 @@ import { partyLabel, resolvePartyLabels } from '@/lib/commercial/party-resolver'
 import { loadCoordinationPage } from '@/lib/coordination/load';
 import { approvalSubjectsForItems } from '@/lib/work/approval-row-subject';
 import { memberLabel, resolveMemberLabels } from '@/lib/work/member-resolver';
+import { cursorPageLinks } from '@/lib/lists/url-state';
 
-const APPROVAL_MEMORY_LIMIT = 40;
+const APPROVAL_MEMORY_LIMIT = 25;
 
 function approvalDecisionLabel(item: ApprovalSummaryReadModel): string {
   if (item.status === 'approved') return 'Aprobación concedida';
@@ -18,24 +20,30 @@ function approvalDecisionLabel(item: ApprovalSummaryReadModel): string {
   return 'Decisión registrada';
 }
 
-export default async function MemoriaDecisionesPage() {
+type MemoriaPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function MemoriaDecisionesPage({ searchParams }: MemoriaPageProps) {
+  const params = await searchParams;
+  const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
+  const trail = typeof params.trail === 'string' ? params.trail : undefined;
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
   const [approvalsResult, coordination] = await Promise.all([
-    client.listApprovals({ limit: APPROVAL_MEMORY_LIMIT }),
+    client.listApprovals({
+      limit: APPROVAL_MEMORY_LIMIT,
+      status: 'decided',
+      ...(cursor ? { cursor } : {}),
+    }),
     loadCoordinationPage(),
   ]);
 
   const decided = approvalsResult.items.filter(
     (item) => item.status === 'approved' || item.status === 'rejected',
   );
-  decided.sort((a, b) => {
-    const at = a.decidedAt ? Date.parse(a.decidedAt) : 0;
-    const bt = b.decidedAt ? Date.parse(b.decidedAt) : 0;
-    return bt - at;
-  });
 
   const subjects = await approvalSubjectsForPage(client, decided);
   const memberIds = decided.flatMap((item) =>
@@ -107,6 +115,27 @@ export default async function MemoriaDecisionesPage() {
               </ul>
             </PageSection>
           ) : null}
+
+          
+          {(() => {
+            const nav = cursorPageLinks(
+              '/memoria-decisiones',
+              { cursor, trail },
+              approvalsResult.meta?.nextCursor ?? null,
+              Boolean(approvalsResult.meta?.hasMore),
+            );
+            return nav.prevHref || nav.nextHref ? (
+              <ListPageNav
+                from={decided.length > 0 ? 1 : 0}
+                to={decided.length}
+                total={null}
+                page={1}
+                pageCount={null}
+                prevHref={nav.prevHref}
+                nextHref={nav.nextHref}
+              />
+            ) : null;
+          })()}
 
           {coordinationDecisions.length > 0 ? (
             <PageSection aria-label="Coordinación">

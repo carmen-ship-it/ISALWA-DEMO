@@ -58,10 +58,6 @@ export function ApprovalDeskPanel({
   const query = listState.q?.trim() ?? '';
   const statusFilter = parseStatusFilter(listState.status);
 
-  const availableStatuses = useMemo(() => {
-    const set = new Set(items.map((item) => normalizeStatus(item.status)));
-    return STATUS_CHIPS.filter((chip) => chip.id === 'all' || set.has(chip.id));
-  }, [items]);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
@@ -101,9 +97,9 @@ export function ApprovalDeskPanel({
           />
         }
         filters={
-          availableStatuses.length > 1 ? (
+          (
             <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por estado">
-              {availableStatuses.map((chip) => {
+              {STATUS_CHIPS.map((chip) => {
                 const href = listHref(
                   '/aprobaciones',
                   {
@@ -130,7 +126,7 @@ export function ApprovalDeskPanel({
                 );
               })}
             </div>
-          ) : null
+          )
         }
       />
 

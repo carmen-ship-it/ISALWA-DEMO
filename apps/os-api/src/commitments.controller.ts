@@ -109,8 +109,13 @@ export class CommitmentsController {
     @Query('partyId') partyId: string | undefined,
     @Query('ownerMemberId') ownerMemberId: string | undefined,
     @Query('lifecycle') lifecycle: 'open' | 'fulfilled' | 'cancelled' | undefined,
+    @Query('limit') limit: string | undefined,
+    @Query('cursor') cursor: string | undefined,
     @Req() req: Request,
-  ): Promise<{ items: CommitmentSummary[] }> {
+  ): Promise<{
+    items: CommitmentSummary[];
+    meta: { hasMore: boolean; nextCursor: string | null; limit: number };
+  }> {
     try {
       const session = await resolveSession(req, this.workforceStore);
       const asOf = new Date();
@@ -140,8 +145,24 @@ export class CommitmentsController {
         records = records.filter((r) => r.lifecycle === lifecycle);
       }
 
-      const items = records.map((r) => toSummary(dbToContract(r), asOf));
-      return { items };
+      // Stable newest-first page for desk navigation.
+      records = [...records].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      const limitNum = Math.min(Math.max(limit ? parseInt(limit, 10) || 25 : 25, 1), 100);
+      let offsetNum = 0;
+      if (cursor && /^\d+$/.test(cursor)) offsetNum = parseInt(cursor, 10);
+      if (!Number.isFinite(offsetNum) || offsetNum < 0) offsetNum = 0;
+      const page = records.slice(offsetNum, offsetNum + limitNum);
+      const hasMore = offsetNum + page.length < records.length;
+      const items = page.map((r) => toSummary(dbToContract(r), asOf));
+      return {
+        items,
+        meta: {
+          hasMore,
+          nextCursor: hasMore ? String(offsetNum + page.length) : null,
+          limit: limitNum,
+        },
+      };
     } catch (err) {
       throw this.toHttp(err);
     }

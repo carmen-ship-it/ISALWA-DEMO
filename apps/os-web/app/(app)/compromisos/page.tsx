@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { Button, EmptyState, PageContainer, StatGroup, StatusPill } from '@isalwa/ui';
 import { CompromisosDeskPanel } from '@/components/commitments/compromisos-desk-panel';
+import { ListPageNav } from '@/components/lists/list-page-nav';
+import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { PageHeader } from '@/components/shell/page-header';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { COMMITMENT_COPY } from '@/lib/commitments/copy';
+import { cursorPageLinks } from '@/lib/lists/url-state';
 import { bucketCompromisosDesk } from '@/lib/commitments/desk-buckets';
 import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveMemberLabels } from '@/lib/work/member-resolver';
@@ -30,6 +33,8 @@ export default async function CompromisosPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
+  const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
+  const trail = typeof params.trail === 'string' ? params.trail : undefined;
   const dataMode = await resolveDemoDataMode(params);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
@@ -41,10 +46,12 @@ export default async function CompromisosPage({
   }
 
   try {
+    const PAGE_LIMIT = 25;
     const [openResult, fulfilledResult] = await Promise.all([
-      client.listCommitments({ lifecycle: 'open' }),
-      client.listCommitments({ lifecycle: 'fulfilled' }),
+      client.listCommitments({ lifecycle: 'open', limit: PAGE_LIMIT, ...(cursor ? { cursor } : {}) }),
+      client.listCommitments({ lifecycle: 'fulfilled', limit: PAGE_LIMIT }),
     ]);
+    const openMeta = (openResult as { meta?: { hasMore?: boolean; nextCursor?: string | null } }).meta;
     let allowedPartyIds: Set<string> | null = null;
     if (evaluation.active && evaluation.persona === 'asesor') {
       if (!evaluation.subjectMemberId) {
@@ -118,6 +125,26 @@ export default async function CompromisosPage({
         />
 
         <CompromisosDeskPanel items={items} memberLabels={memberLabels} partyLabels={partyLabels} />
+        {openMeta?.hasMore ? <ListCapNotice caps={[{ hasMore: true, limit: 25 }]} /> : null}
+        {(() => {
+          const nav = cursorPageLinks(
+            '/compromisos',
+            { cursor, trail },
+            openMeta?.nextCursor ?? null,
+            Boolean(openMeta?.hasMore),
+          );
+          return nav.prevHref || nav.nextHref ? (
+            <ListPageNav
+              from={items.length > 0 ? 1 : 0}
+              to={items.length}
+              total={null}
+              page={1}
+              pageCount={null}
+              prevHref={nav.prevHref}
+              nextHref={nav.nextHref}
+            />
+          ) : null;
+        })()}
       </PageContainer>
     );
   } catch (err) {

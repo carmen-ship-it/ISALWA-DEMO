@@ -45,13 +45,13 @@ function parseView(raw: string | string[] | undefined): IssueView {
 function viewQuery(view: IssueView): Record<string, string | number | boolean> {
   switch (view) {
     case 'open':
-      return { status: 'open', limit: PAGE_LIMIT };
+      return { view: 'open', limit: PAGE_LIMIT };
     case 'assigned':
-      return { assignedToMe: true, limit: PAGE_LIMIT };
+      return { view: 'assigned_to_me', limit: PAGE_LIMIT };
     case 'reported':
-      return { reportedByMe: true, limit: PAGE_LIMIT };
+      return { view: 'reported_by_me', limit: PAGE_LIMIT };
     case 'resolved':
-      return { status: 'resolved', limit: PAGE_LIMIT };
+      return { view: 'resolved', limit: PAGE_LIMIT };
   }
 }
 
@@ -145,9 +145,9 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
 
     const [result, openPage, assignedPage, resolvedPage] = await Promise.all([
       client.listIssues({ ...viewQuery(view), ...(cursor ? { cursor } : {}) }),
-      client.listIssues({ status: 'open', limit: PAGE_LIMIT }),
-      client.listIssues({ assignedToMe: true, limit: PAGE_LIMIT }),
-      client.listIssues({ status: 'resolved', limit: PAGE_LIMIT }),
+      client.listIssues({ view: 'open', limit: PAGE_LIMIT }),
+      client.listIssues({ view: 'assigned_to_me', limit: PAGE_LIMIT }),
+      client.listIssues({ view: 'resolved', limit: PAGE_LIMIT }),
     ]);
     const items = filterByDemoDataMode(applyEvaluationIssues(result.items), dataMode, isDemoIssue).filter(
       (item) => !isEngineeringFixtureCopy(item.title) && !isEngineeringFixtureCopy(item.description),
@@ -230,7 +230,7 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
               );
               return nav.prevHref || nav.nextHref ? (
                 <ListPageNav
-                  from={0}
+                  from={items.length > 0 ? 1 : 0}
                   to={items.length}
                   total={null}
                   page={1}
