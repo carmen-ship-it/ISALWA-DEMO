@@ -121,7 +121,7 @@ export function MapCustomerLists({
         </div>
         {plottableFiltered.length === 0 ? (
           <p className="mt-2 rounded-[var(--isalwa-radius-control)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_80%,white)] px-3 py-2.5 text-sm text-[var(--isalwa-slate)]">
-            Ningún cliente visible tiene coordenadas. No se inventan pines.
+            Ningún cliente de esta lista tiene una ubicación confirmada.
           </p>
         ) : (
           <ul className="mt-2 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">
@@ -138,17 +138,14 @@ export function MapCustomerLists({
         )}
       </section>
 
-      <section aria-label="Ubicación registrada — coordenadas pendientes">
+      <section aria-label="Sin ubicación confirmada">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Ubicación registrada — coordenadas pendientes</h2>
+          <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Sin ubicación confirmada</h2>
           <StatusPill tone="manual">{provenanceFiltered.length}</StatusPill>
         </div>
-        <p className="mt-1 text-xs text-[var(--isalwa-slate)]">
-          Enlace de procedencia presente (e.g. Google Maps). No coloca al cliente en el mapa sin geocodificación.
-        </p>
         {provenanceFiltered.length === 0 ? (
           <p className="mt-2 rounded-[var(--isalwa-radius-control)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_80%,white)] px-3 py-2.5 text-sm text-[var(--isalwa-slate)]">
-            Nadie en esta lectura tiene solo un enlace.
+            No hay clientes sin ubicación confirmada en esta lista.
           </p>
         ) : (
           <ul className="mt-2 overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white">

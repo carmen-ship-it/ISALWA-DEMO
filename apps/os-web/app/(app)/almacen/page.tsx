@@ -11,6 +11,7 @@ import { getServerOsAuthContext } from '@/lib/auth/actions';
 import { loadMemberCapabilities } from '@/lib/auth/member-capabilities';
 import { findOpenOrderPrepReviews } from '@/components/commercial/order-prep-work';
 import { orderHref } from '@/lib/commercial/navigation';
+import { actionPrimaryClass } from '@/lib/ui/action-hierarchy';
 import { receiveFinishedGoodsAction } from '@/lib/postsale/actions';
 import { loadPostSalePedidos } from '@/lib/postsale/load-pedidos';
 import type { PostSalePedidoOption } from '@/lib/postsale/pedido-context';
@@ -162,11 +163,11 @@ export default async function AlmacenPage({
           nextHref={pageLinks.nextHref}
         />
       ) : null}
-      <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
-        <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
-          + Registrar ingreso
+      <details className="mt-6">
+        <summary className="inline-flex h-10 cursor-pointer list-none items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-btn-secondary-border)] bg-white px-4 text-sm font-medium text-[var(--isalwa-kiln)] marker:content-none focus-visible:shadow-[var(--isalwa-shadow-focus)] [&::-webkit-details-marker]:hidden">
+          Registrar ingreso
         </summary>
-        <div className="mt-4">
+        <div className="mt-4 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white p-4">
       <WarehousePostSaleDesk
         status={access.status === 'error' ? 'error' : access.status === 'ready' ? 'ready' : 'denied'}
         denial={access.status === 'denied' ? access.reason : null}
@@ -197,13 +198,13 @@ function PedidoWarehouseContextSection({
   searchQuery: string | null;
 }) {
   const desktopGrid =
-    'md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,1fr)_auto_auto]';
+    'md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,0.9fr)_minmax(9.5rem,auto)_minmax(14rem,max-content)]';
   const headerColumns = [
     { id: 'pedido', label: 'Pedido', className: 'min-w-0' },
     { id: 'client', label: 'Cliente', className: 'min-w-0' },
     { id: 'citation', label: 'Ingreso PT', className: 'min-w-0' },
     { id: 'status', label: 'Estado', className: 'justify-self-end' },
-    { id: 'action', label: '', className: 'justify-self-end' },
+    { id: 'action', label: 'Acciones', className: 'justify-self-end' },
   ];
 
   return (
@@ -243,7 +244,7 @@ function PedidoWarehouseContextSection({
               const reviewAction = row.warehouseReviewWorkId ? (
                 <Link
                   href={workItemHref(row.warehouseReviewWorkId)}
-                  className="isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                  className={`${actionPrimaryClass} h-8 px-3 text-xs`}
                 >
                   Ver revisión
                 </Link>
@@ -275,7 +276,7 @@ function PedidoWarehouseContextSection({
                       )
                     }
                     actionLabel="Ver pedido"
-                    secondaryActions={reviewAction}
+                    primaryAction={reviewAction}
                   />
                 </li>
               );

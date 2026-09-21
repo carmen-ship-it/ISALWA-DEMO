@@ -17,6 +17,8 @@ export type OperatingScanRowProps = {
   fields: OperatingScanField[];
   status?: ReactNode;
   actionLabel?: string;
+  /** Navy next action, shown before the outlined row link. */
+  primaryAction?: ReactNode;
   /** Extra controls beside the primary CTA (e.g. OverflowMenu). */
   secondaryActions?: ReactNode;
   density?: OperatingRowDensity;
@@ -39,6 +41,7 @@ export function OperatingScanRow({
   fields,
   status,
   actionLabel = 'Abrir',
+  primaryAction,
   secondaryActions,
   density = 'compact',
   selected = false,
@@ -98,7 +101,8 @@ export function OperatingScanRow({
           <div className="isalwa-scan-row-status flex shrink-0 items-center md:justify-end">{status}</div>
         ) : null}
 
-        <div className="isalwa-scan-row-actions flex shrink-0 flex-wrap items-center gap-2 md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
+        <div className="isalwa-scan-row-actions flex shrink-0 flex-wrap items-center gap-2 md:flex-nowrap md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
+          {primaryAction}
           <Link href={href} className={actionLinkClass}>
             {actionLabel}
           </Link>

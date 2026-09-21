@@ -226,6 +226,12 @@
   border-color: var(--isalwa-glaze);
   box-shadow: var(--isalwa-shadow-focus);
 }
+.isalwa-field:disabled,
+.isalwa-field[readonly] {
+  background: var(--isalwa-porcelain);
+  color: var(--isalwa-slate);
+  cursor: not-allowed;
+}
 .isalwa-field::placeholder {
   color: color-mix(in srgb, var(--isalwa-slate) 55%, white);
 }

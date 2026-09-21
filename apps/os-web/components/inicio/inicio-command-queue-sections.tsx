@@ -141,9 +141,17 @@ function PendingWorkRows({
 
 /** Differentiated surface weight inside Centro de mando — not equal cards. */
 const SECTION_SURFACE: Record<string, 'ops' | 'context' | 'active' | 'attention'> = {
-  pendientes: 'context',
+  pendientes: 'ops',
+  problemas: 'ops',
+  compromisos: 'ops',
+  decisiones: 'ops',
+};
+
+/** Amber is a section marker, not a fill behind every row. */
+const SECTION_ACCENT: Record<string, 'attention' | undefined> = {
+  pendientes: 'attention',
   problemas: 'attention',
-  compromisos: 'context',
+  compromisos: undefined,
   decisiones: 'attention',
 };
 
@@ -261,7 +269,8 @@ export function InicioCommandQueueSections({
           key={section.id}
           card
           surface={SECTION_SURFACE[section.id]}
-          className={cx('min-w-0 p-3 shadow-[var(--isalwa-shadow-soft)] md:p-4', section.weight === 'lead' && 'md:p-5')}
+          data-section-tone={SECTION_ACCENT[section.id]}
+          className={cx('min-w-0 bg-white p-3 shadow-[var(--isalwa-shadow-soft)] md:p-4', section.weight === 'lead' && 'md:p-5')}
         >
           <SectionHeader
             title={

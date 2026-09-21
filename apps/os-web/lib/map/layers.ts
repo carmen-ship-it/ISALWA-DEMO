@@ -42,19 +42,19 @@ export const MAP_LAYER_REGISTRY: readonly MapLayerDefinition[] = [
     id: 'oportunidades',
     label: 'Oportunidades',
     truthClass: 'available',
-    note: 'Clientes con oportunidad abierta registrada. No inventa pines.',
+    note: 'Clientes con una oportunidad abierta.',
   },
   {
     id: 'cotizaciones',
     label: 'Cotizaciones',
     truthClass: 'available',
-    note: 'Clientes con cotización activa. El valor cotizado aparece en hover — no es contabilidad.',
+    note: 'Clientes con una cotización registrada.',
   },
   {
     id: 'pedidos',
     label: 'Pedidos',
     truthClass: 'available',
-    note: 'Clientes con pedido activo. El valor del pedido aparece en hover — no es contabilidad ni cobranza.',
+    note: 'Clientes con un pedido registrado.',
   },
   {
     id: 'equipo',

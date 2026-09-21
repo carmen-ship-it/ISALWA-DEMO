@@ -17,7 +17,6 @@ import { ListCapNotice } from '@/components/lists/list-cap-notice';
 import { InicioSummaryCards } from '@/components/inicio/inicio-summary-cards';
 import { InicioVisualBand } from '@/components/inicio/inicio-visual-band';
 import { InicioWhatChanged } from '@/components/inicio/inicio-what-changed';
-import { InicioOwnerDemoCard } from '@/components/demo/inicio-owner-demo-card';
 import type { MemoryChangesResponse } from '@/lib/audit/types';
 import { QuerySurfaceState } from '@/components/work/query-surface-state';
 import { StaleProjectionBanner } from '@/components/work/stale-projection-banner';
@@ -69,7 +68,6 @@ import { classifyQueryError } from '@/lib/work/query-errors';
 import { resolveAttentionSubjects } from '@/lib/work/resolve-staff-subjects';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { isProjectionStale } from '@/lib/query/projection-freshness';
-import { canUseRolePreview } from '@/lib/role-preview/access';
 import { isDemoDisplayName } from '@/lib/demo/owner-demo-identity';
 import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
@@ -291,7 +289,6 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
     const periodPreset = parseManagementPeriodPreset(paramOne(params.periodo));
     const managementPeriod = resolveManagementPeriod(periodPreset, undefined, undefined, asOf);
     const dataMode = await resolveDemoDataMode(params);
-    const showOwnerDemoCard = canUseRolePreview(roleKeys);
     const session = await client.getAuthenticatedSession();
 
     const commandQueuesRaw = await loadInicioCommandQueues(client, {
@@ -641,7 +638,6 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
         ) : null}
 
         <div className="min-w-0 space-y-10">
-          {showOwnerDemoCard ? <InicioOwnerDemoCard /> : null}
           <InicioVisualBand tone="recent" label="Resumen">
             <InicioSummaryCards cards={summaryCards} />
           </InicioVisualBand>
