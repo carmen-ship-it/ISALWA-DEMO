@@ -235,6 +235,8 @@ export function recordProcess(
   if (!gate.ok) return gate;
   try {
     const record = buildProcessRecord(stamp(session!, gate.organizationId, input));
+    const replay = findProcessByIdempotency(ledger, record.organizationId, record.idempotencyKey);
+    if (replay) return { ok: true, value: replay };
     if (takenEntry(ledger, record.id, record.organizationId)) return fail('invalid', 'Ese identificador ya existe.');
     ledger.entries.push(record);
     return { ok: true, value: record };
@@ -554,6 +556,21 @@ function collectHits(
     });
   }
   return hits;
+}
+
+function findProcessByIdempotency(
+  ledger: ProductionAccessLedger,
+  organizationId: string,
+  idempotencyKey: string | null | undefined,
+): ProcessRecord | null {
+  const key = idempotencyKey?.trim();
+  if (!key) return null;
+  for (const entry of ledger.entries) {
+    if (entry.kind !== 'process_record') continue;
+    if (entry.organizationId !== organizationId) continue;
+    if (entry.idempotencyKey === key) return entry;
+  }
+  return null;
 }
 
 function takenEntry(ledger: ProductionAccessLedger, id: string, organizationId: string): boolean {

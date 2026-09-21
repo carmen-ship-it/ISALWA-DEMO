@@ -11,6 +11,7 @@ import {
   Skeleton,
   StatusPill,
 } from '@isalwa/ui';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import {
@@ -25,7 +26,9 @@ import { PURCHASE_REQUEST_STATUS_LABELS, type PurchaseRequestStatus } from '@isa
  * Action queue, not a table of records to edit.
  */
 
-const STATUS_FILTERS: Array<{ value: ''; label: string } | { value: PurchaseRequestStatus; label: string }> = [
+const STATUS_FILTERS: Array<
+  { value: ''; label: string } | { value: PurchaseRequestStatus; label: string }
+> = [
   { value: '', label: 'Todos' },
   { value: 'solicitado', label: PURCHASE_REQUEST_STATUS_LABELS.solicitado },
   { value: 'cotizandose', label: PURCHASE_REQUEST_STATUS_LABELS.cotizandose },
@@ -38,11 +41,19 @@ type PurchaseRequestPanelProps = {
   state: ComprasQueueState;
   items?: ComprasQueueItem[];
   count?: number;
+  matchedCount?: number;
   /** Open purchasing reviews elsewhere on the page (not the request queue). */
   pendingReviewCount?: number;
   buyerSuggestions?: string[];
   query?: string | null;
   statusFilter?: string | null;
+  clearSearchHref?: string;
+  page?: number;
+  pageCount?: number;
+  from?: number;
+  to?: number;
+  prevHref?: string | null;
+  nextHref?: string | null;
   onAdvance?: (id: string, status: string) => void;
   onStop?: (id: string) => void;
 };
@@ -60,16 +71,28 @@ export function PurchaseRequestPanel({
   state,
   items = [],
   count = 0,
+  matchedCount = 0,
   pendingReviewCount = 0,
   buyerSuggestions = [],
   query = null,
   statusFilter = null,
+  clearSearchHref = '/compras',
+  page = 1,
+  pageCount = 1,
+  from = 0,
+  to = 0,
+  prevHref = null,
+  nextHref = null,
   onAdvance,
   onStop,
 }: PurchaseRequestPanelProps) {
   if (state === 'permission') {
     return (
-      <OpsDeskSurface data-compras-status="denied" role="alert" data-owner-review-state="not-authorized">
+      <OpsDeskSurface
+        data-compras-status="denied"
+        role="alert"
+        data-owner-review-state="not-authorized"
+      >
         <EmptyState
           title={COMPRAS_COPY.permissionTitle}
           description={COMPRAS_COPY.permissionDescription}
@@ -92,10 +115,18 @@ export function PurchaseRequestPanel({
             state,
             items,
             count,
+            matchedCount,
             pendingReviewCount,
             buyerSuggestions,
             query,
             statusFilter,
+            clearSearchHref,
+            page,
+            pageCount,
+            from,
+            to,
+            prevHref,
+            nextHref,
             onAdvance,
             onStop,
           )}
@@ -109,10 +140,18 @@ function renderState(
   state: ComprasQueueState,
   items: ComprasQueueItem[],
   count: number,
+  matchedCount: number,
   pendingReviewCount: number,
   buyerSuggestions: string[],
   query: string | null,
   statusFilter: string | null,
+  clearSearchHref: string,
+  page: number,
+  pageCount: number,
+  from: number,
+  to: number,
+  prevHref: string | null,
+  nextHref: string | null,
   onAdvance?: (id: string, status: string) => void,
   onStop?: (id: string) => void,
 ) {
@@ -131,10 +170,18 @@ function renderState(
     <QueueList
       items={items}
       count={count}
+      matchedCount={matchedCount}
       pendingReviewCount={pendingReviewCount}
       buyerSuggestions={buyerSuggestions}
       query={query}
       statusFilter={statusFilter}
+      clearSearchHref={clearSearchHref}
+      page={page}
+      pageCount={pageCount}
+      from={from}
+      to={to}
+      prevHref={prevHref}
+      nextHref={nextHref}
       onAdvance={onAdvance}
       onStop={onStop}
     />
@@ -144,24 +191,39 @@ function renderState(
 function QueueList({
   items,
   count,
+  matchedCount,
   pendingReviewCount,
   buyerSuggestions,
   query,
   statusFilter,
+  clearSearchHref,
+  page,
+  pageCount,
+  from,
+  to,
+  prevHref,
+  nextHref,
   onAdvance,
   onStop,
 }: {
   items: ComprasQueueItem[];
   count: number;
+  matchedCount: number;
   pendingReviewCount: number;
   buyerSuggestions: string[];
   query: string | null;
   statusFilter: string | null;
+  clearSearchHref: string;
+  page: number;
+  pageCount: number;
+  from: number;
+  to: number;
+  prevHref: string | null;
+  nextHref: string | null;
   onAdvance?: (id: string, status: string) => void;
   onStop?: (id: string) => void;
 }) {
   const filterActive = Boolean(query?.trim() || statusFilter);
-  const clearHref = '/compras';
   const emptyWithPending = !filterActive && items.length === 0 && pendingReviewCount > 0;
 
   return (
@@ -170,7 +232,12 @@ function QueueList({
         sticky
         className="mb-4 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)]"
       >
-        <form method="get" action="/compras" className="flex w-full flex-wrap items-end gap-3" role="search">
+        <form
+          method="get"
+          action="/compras"
+          className="flex w-full flex-wrap items-end gap-3"
+          role="search"
+        >
           <div className="min-w-[12rem] flex-1">
             <label htmlFor="compras-search" className="isalwa-section-label">
               Buscar
@@ -203,16 +270,26 @@ function QueueList({
           <Button type="submit" size="sm">
             Filtrar
           </Button>
-          {filterActive ? (
-            <Link href={clearHref} className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline">
-              Quitar filtros
+          {query?.trim() ? (
+            <Link
+              href={clearSearchHref}
+              className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+            >
+              Limpiar búsqueda
+            </Link>
+          ) : statusFilter ? (
+            <Link
+              href="/compras"
+              className="text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+            >
+              Quitar filtro
             </Link>
           ) : null}
         </form>
       </ActionBar>
       <p className="text-sm text-[var(--isalwa-kiln)]">
         {COMPRAS_COPY.countLabel} · {count}
-        {filterActive ? ` · mostrando ${items.length}` : null}
+        {filterActive ? ` · ${matchedCount} coinciden` : null}
       </p>
       {buyerSuggestions.length > 0 ? (
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
@@ -250,6 +327,15 @@ function QueueList({
           ))}
         </ul>
       )}
+      <ListPageNav
+        from={from}
+        to={to}
+        total={matchedCount}
+        page={page}
+        pageCount={pageCount}
+        prevHref={prevHref}
+        nextHref={nextHref}
+      />
     </div>
   );
 }
@@ -294,7 +380,9 @@ function QueueRow({
           {item.notes.map((note) => (
             <li key={note.id}>
               {COMPRAS_COPY.notes} · {note.body} · {note.actorLabel}
-              {note.evidenceReference ? ` · ${COMPRAS_COPY.evidence} ${note.evidenceReference}` : null}
+              {note.evidenceReference
+                ? ` · ${COMPRAS_COPY.evidence} ${note.evidenceReference}`
+                : null}
             </li>
           ))}
         </ul>

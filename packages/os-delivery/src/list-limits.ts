@@ -1,0 +1,1 @@
+export const DELIVERY_NOTES_LIST_LIMIT = 25;

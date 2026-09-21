@@ -23,12 +23,21 @@ import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projectio
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 import { ListCapNotice } from '@/components/lists/list-cap-notice';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
+import {
+  matchesOpsSearch,
+  opsBoundedPageHrefs,
+  opsListHref,
+  parseListQuery,
+  windowFilteredOpsCollection,
+} from '@/lib/lists/ops-collection';
 
 /** CROSS_LANE: add 'almacenActions' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const ALMACEN_ACTIONS_TARGET = 'almacen-actions';
 
 const NO_POSTSALE_PEDIDOS: PostSalePedidoOption[] = [];
+const LIST_PATH = '/almacen';
 
 type PedidoWarehouseContext = {
   pedido: PostSalePedidoOption;
@@ -39,9 +48,15 @@ type PedidoWarehouseContext = {
 export default async function AlmacenPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ orderId?: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = searchParams ? await searchParams : undefined;
+  const params = searchParams ? await searchParams : {};
+  const listState = parseListQuery(params);
+  const orderIdRaw = params.orderId;
+  const selectedOrderId = (Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw)?.trim() || null;
+  const datosRaw = params.datos;
+  const datos = (Array.isArray(datosRaw) ? datosRaw[0] : datosRaw)?.trim() || null;
+  const extras = { orderId: selectedOrderId, datos };
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'almacen')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Almacén" />;
@@ -50,6 +65,24 @@ export default async function AlmacenPage({
   const pedidos = access.pedidos;
   const summary = access.summary;
   const contexts = access.contexts;
+  const windowed = windowFilteredOpsCollection(contexts, {
+    q: listState.q,
+    pagina: listState.pagina,
+    match: (row, q) =>
+      matchesOpsSearch(q, [row.pedido.orderLabel, row.pedido.customerLabel, row.pedido.orderId]),
+  });
+  const pageLinks = opsBoundedPageHrefs(
+    LIST_PATH,
+    { ...listState, pagina: undefined },
+    windowed.page,
+    windowed.pageCount,
+    extras,
+  );
+  const searchAction = opsListHref(
+    LIST_PATH,
+    { ...listState, q: undefined, pagina: undefined },
+    extras,
+  );
 
   return (
     <PageContainer label={WAREHOUSE_TASK_COPY.title} data-tour={ALMACEN_ACTIONS_TARGET}>
@@ -77,7 +110,57 @@ export default async function AlmacenPage({
           { label: 'No es entrega', value: 'El ingreso no es una entrega ni asigna cumplimiento.' },
         ]}
       />
-      <PedidoWarehouseContextSection rows={contexts} />
+      <form
+        method="get"
+        action={LIST_PATH}
+        className="mb-4 flex flex-wrap items-end gap-3"
+        role="search"
+        aria-label="Buscar pedidos de almacén"
+      >
+        {selectedOrderId ? <input type="hidden" name="orderId" value={selectedOrderId} /> : null}
+        {datos ? <input type="hidden" name="datos" value={datos} /> : null}
+        <label className="block min-w-[12rem] flex-1 text-sm text-[var(--isalwa-slate)]">
+          Buscar Pedido o cliente
+          <input
+            className="isalwa-field mt-1 w-full"
+            type="search"
+            name="q"
+            defaultValue={listState.q ?? ''}
+            placeholder="Pedido o cliente"
+          />
+        </label>
+        <button
+          type="submit"
+          className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm font-medium text-[var(--isalwa-kiln)]"
+        >
+          Buscar
+        </button>
+        {listState.q ? (
+          <a
+            href={searchAction}
+            className="inline-flex h-10 items-center px-2 text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+          >
+            Limpiar
+          </a>
+        ) : null}
+      </form>
+      <PedidoWarehouseContextSection
+        rows={windowed.items}
+        trueEmpty={windowed.trueEmpty}
+        zeroMatch={windowed.zeroMatch}
+        searchQuery={listState.q ?? null}
+      />
+      {windowed.showChrome ? (
+        <ListPageNav
+          from={windowed.from}
+          to={windowed.to}
+          total={windowed.matchedTotal}
+          page={windowed.page}
+          pageCount={windowed.pageCount}
+          prevHref={pageLinks.prevHref}
+          nextHref={pageLinks.nextHref}
+        />
+      ) : null}
       <details className="mt-6 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3">
         <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
           + Registrar ingreso
@@ -90,7 +173,7 @@ export default async function AlmacenPage({
         canAllocate={access.status === 'ready' ? access.canAllocate : false}
         canReceive={access.status === 'ready' ? access.canReceive : false}
         pedidos={pedidos}
-        initialOrderId={params?.orderId ?? null}
+        initialOrderId={selectedOrderId}
         onReceive={
           access.status === 'ready' && access.canReceive ? receiveFinishedGoodsAction : undefined
         }
@@ -101,7 +184,17 @@ export default async function AlmacenPage({
   );
 }
 
-function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[] }) {
+function PedidoWarehouseContextSection({
+  rows,
+  trueEmpty,
+  zeroMatch,
+  searchQuery,
+}: {
+  rows: PedidoWarehouseContext[];
+  trueEmpty: boolean;
+  zeroMatch: boolean;
+  searchQuery: string | null;
+}) {
   const desktopGrid =
     'md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,1fr)_auto_auto]';
   const headerColumns = [
@@ -126,11 +219,18 @@ function PedidoWarehouseContextSection({ rows }: { rows: PedidoWarehouseContext[
       <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Cola por pedido: revisión abierta e ingreso PT citado.
       </p>
-      {rows.length === 0 ? (
+      {trueEmpty ? (
         <div className="mt-4">
           <EmptyState
             title="Sin pedidos abiertos"
             description="Los pedidos abiertos aparecen aquí. La revisión de almacén se solicita desde el pedido; no se crea sola."
+          />
+        </div>
+      ) : zeroMatch ? (
+        <div className="mt-4">
+          <EmptyState
+            title="Sin coincidencias"
+            description={`No hay pedidos que coincidan con “${searchQuery ?? ''}”. Pruebe con otro Pedido o cliente.`}
           />
         </div>
       ) : (

@@ -8,6 +8,7 @@ import { ENTREGA_PANEL_COPY } from '@isalwa/os-contracts';
 import { EmptyState, PageSection, SectionHeader, Skeleton, StatusPill } from '@isalwa/ui';
 import { OpsDeskSurface } from '@/components/production/ops-desk-surface';
 import { presentEntregaAuditLabel } from '@/lib/delivery/display-labels';
+import { boundHistoryItems } from '@/lib/lists/ops-collection';
 
 export type EntregaLineView = {
   description: string;
@@ -16,7 +17,11 @@ export type EntregaLineView = {
 };
 
 export type EntregaEvidenceView = {
-  role: 'commercial_coordination' | 'accounting_payment' | 'warehouse_outbound' | 'delivery_confirmation';
+  role:
+    | 'commercial_coordination'
+    | 'accounting_payment'
+    | 'warehouse_outbound'
+    | 'delivery_confirmation';
   actorLabel: string;
   reference: string | null;
   note: string | null;
@@ -60,7 +65,9 @@ const ROLE_LABEL: Record<EntregaEvidenceView['role'], string> = {
 };
 
 function formatWhen(iso: string): string {
-  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(
+    new Date(iso),
+  );
 }
 
 function LineList({ lines }: { lines: EntregaLineView[] }) {
@@ -74,7 +81,10 @@ function LineList({ lines }: { lines: EntregaLineView[] }) {
   return (
     <ul className="divide-y divide-[var(--isalwa-mist)]" aria-label="Cantidades conocidas">
       {lines.map((line, index) => (
-        <li key={`${line.description}:${line.quantity}:${index}`} className="flex items-baseline justify-between gap-4 py-3 text-sm">
+        <li
+          key={`${line.description}:${line.quantity}:${index}`}
+          className="flex items-baseline justify-between gap-4 py-3 text-sm"
+        >
           <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
           <span className="text-[var(--isalwa-slate)]">
             {line.quantity}
@@ -87,11 +97,23 @@ function LineList({ lines }: { lines: EntregaLineView[] }) {
 }
 
 export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: EntregaPanelProps) {
-  const surface = status === 'ready' && warehouseExits.length === 0 && deliveries.length === 0 ? 'empty' : status;
+  const surface =
+    status === 'ready' && warehouseExits.length === 0 && deliveries.length === 0 ? 'empty' : status;
+  const exitWindow = boundHistoryItems(
+    [...warehouseExits].sort((left, right) => right.exitedAt.localeCompare(left.exitedAt)),
+  );
+  const deliveryWindow = boundHistoryItems(
+    [...deliveries].sort((left, right) => right.deliveredAt.localeCompare(left.deliveredAt)),
+  );
 
   if (surface === 'loading') {
     return (
-      <div className="space-y-6" data-entrega-boundary="loading" aria-busy="true" aria-live="polite">
+      <div
+        className="space-y-6"
+        data-entrega-boundary="loading"
+        aria-busy="true"
+        aria-live="polite"
+      >
         <p className="text-sm text-[var(--isalwa-slate)]">Cargando el registro de entrega.</p>
         <Skeleton h={18} rounded="pill" />
         <Skeleton h={96} rounded="panel" />
@@ -123,7 +145,10 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
   }
 
   return (
-    <OpsDeskSurface className="space-y-10" data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}>
+    <OpsDeskSurface
+      className="space-y-10"
+      data-entrega-boundary={deliveries.length > 0 ? 'delivered' : 'before-delivery'}
+    >
       {warehouseExits.length === 0 && deliveries.length === 0 ? (
         <div data-owner-review-state="no-data">
           <EmptyState
@@ -149,7 +174,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           action={<StatusPill tone="info">No es entrega</StatusPill>}
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Mercadería que salió del almacén. Distinto de la nota de entrega y de la entrega al cliente.
+          Mercadería que salió del almacén. Distinto de la nota de entrega y de la entrega al
+          cliente.
         </p>
         {warehouseExits.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
@@ -161,7 +187,7 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           </div>
         ) : (
           <ul className="mt-8 space-y-6" aria-label="Salidas de almacén">
-            {warehouseExits.map((exit) => (
+            {exitWindow.items.map((exit) => (
               <li
                 key={exit.id ?? exit.exitedAt}
                 className="space-y-3 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4"
@@ -169,7 +195,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                 <dl className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <dt className="isalwa-section-label">Salió</dt>
-                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{formatWhen(exit.exitedAt)}</dd>
+                    <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
+                      {formatWhen(exit.exitedAt)}
+                    </dd>
                   </div>
                   <div>
                     <dt className="isalwa-section-label">Registró</dt>
@@ -185,13 +213,20 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                   <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
                     Origen: {presentEntregaAuditLabel(exit.sourceLabel ?? 'Registro interno')}
                   </p>
-                  {exit.notes ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{exit.notes}</p> : null}
+                  {exit.notes ? (
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{exit.notes}</p>
+                  ) : null}
                 </details>
                 <LineList lines={exit.lines} />
               </li>
             ))}
           </ul>
         )}
+        {exitWindow.truncated ? (
+          <p className="mt-4 text-sm text-[var(--isalwa-slate)]" role="status">
+            Mostrando las 25 salidas más recientes de esta vista.
+          </p>
+        ) : null}
       </PageSection>
 
       <PageSection
@@ -208,7 +243,8 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           }
         />
         <p className="max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
-          Entrega al cliente registrada. Requiere salida previa y «Recibido por». Distinta de la nota de entrega.
+          Entrega al cliente registrada. Requiere salida previa y «Recibido por». Distinta de la
+          nota de entrega.
         </p>
         {deliveries.length === 0 ? (
           <div data-owner-review-state="no-data" className="mt-8">
@@ -220,8 +256,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
           </div>
         ) : (
           <ul className="mt-8 space-y-6" aria-label="Entregas al cliente">
-            {deliveries.map((delivery) => {
-              const payment = delivery.evidence.find((item) => item.role === 'accounting_payment') ?? null;
+            {deliveryWindow.items.map((delivery) => {
+              const payment =
+                delivery.evidence.find((item) => item.role === 'accounting_payment') ?? null;
               return (
                 <li
                   key={delivery.id ?? delivery.deliveredAt}
@@ -236,7 +273,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <dt className="isalwa-section-label">Entregada</dt>
-                      <dd className="mt-1.5 text-[var(--isalwa-kiln)]">{formatWhen(delivery.deliveredAt)}</dd>
+                      <dd className="mt-1.5 text-[var(--isalwa-kiln)]">
+                        {formatWhen(delivery.deliveredAt)}
+                      </dd>
                     </div>
                     <div>
                       <dt className="isalwa-section-label">Registró</dt>
@@ -251,7 +290,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                       </dd>
                     </div>
                   </dl>
-                  {delivery.notes ? <p className="text-sm text-[var(--isalwa-slate)]">{delivery.notes}</p> : null}
+                  {delivery.notes ? (
+                    <p className="text-sm text-[var(--isalwa-slate)]">{delivery.notes}</p>
+                  ) : null}
                   <LineList lines={delivery.lines} />
                   {delivery.evidence.length > 0 ? (
                     <details>
@@ -265,16 +306,22 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                             className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-3"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{ROLE_LABEL[item.role]}</p>
+                              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                                {ROLE_LABEL[item.role]}
+                              </p>
                               <StatusPill tone="neutral">
                                 {presentEntregaAuditLabel(item.actorLabel)}
                               </StatusPill>
                             </div>
                             {item.reference ? (
-                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Referencia: {item.reference}</p>
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                                Referencia: {item.reference}
+                              </p>
                             ) : null}
                             {item.recipient ? (
-                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">Destinatario: {item.recipient}</p>
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
+                                Destinatario: {item.recipient}
+                              </p>
                             ) : null}
                             {item.signatureReference ? (
                               <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
@@ -286,7 +333,9 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
                                 {ENTREGA_PANEL_COPY.exceptionNotPayment}
                               </p>
                             ) : null}
-                            {item.note ? <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{item.note}</p> : null}
+                            {item.note ? (
+                              <p className="mt-2 text-sm text-[var(--isalwa-slate)]">{item.note}</p>
+                            ) : null}
                           </li>
                         ))}
                       </ul>
@@ -297,6 +346,11 @@ export function EntregaPanel({ status = 'ready', warehouseExits, deliveries }: E
             })}
           </ul>
         )}
+        {deliveryWindow.truncated ? (
+          <p className="mt-4 text-sm text-[var(--isalwa-slate)]" role="status">
+            Mostrando las 25 entregas más recientes de esta vista.
+          </p>
+        ) : null}
       </PageSection>
     </OpsDeskSurface>
   );

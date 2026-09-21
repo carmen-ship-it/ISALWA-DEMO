@@ -1,4 +1,5 @@
 import type { DeliverySubjectType } from '@isalwa/os-contracts';
+import { DELIVERY_NOTES_LIST_LIMIT } from './list-limits';
 import type {
   DeliveryDomainEventRecord,
   DeliveryIdempotencyRecord,
@@ -91,15 +92,30 @@ export class MemoryDeliveryStore implements DeliveryStore {
     this.events.push(row);
   }
 
-  async listWarehouseExits(organizationId: string, orderId: string): Promise<WarehouseExitRecord[]> {
-    return this.exits.filter((row) => row.organizationId === organizationId && row.orderId === orderId);
+  async listWarehouseExits(
+    organizationId: string,
+    orderId: string,
+  ): Promise<WarehouseExitRecord[]> {
+    return this.exits.filter(
+      (row) => row.organizationId === organizationId && row.orderId === orderId,
+    );
   }
 
-  async getWarehouseExit(organizationId: string, warehouseExitId: string): Promise<WarehouseExitRecord | null> {
-    return this.exits.find((row) => row.organizationId === organizationId && row.id === warehouseExitId) ?? null;
+  async getWarehouseExit(
+    organizationId: string,
+    warehouseExitId: string,
+  ): Promise<WarehouseExitRecord | null> {
+    return (
+      this.exits.find(
+        (row) => row.organizationId === organizationId && row.id === warehouseExitId,
+      ) ?? null
+    );
   }
 
-  async getOutboundNote(organizationId: string, warehouseExitId: string): Promise<OutboundNoteRecord | null> {
+  async getOutboundNote(
+    organizationId: string,
+    warehouseExitId: string,
+  ): Promise<OutboundNoteRecord | null> {
     return (
       this.outboundNotes.find(
         (row) => row.organizationId === organizationId && row.warehouseExitId === warehouseExitId,
@@ -108,29 +124,50 @@ export class MemoryDeliveryStore implements DeliveryStore {
   }
 
   async listDeliveries(organizationId: string, orderId: string): Promise<DeliveryRecord[]> {
-    return this.deliveries.filter((row) => row.organizationId === organizationId && row.orderId === orderId);
+    return this.deliveries.filter(
+      (row) => row.organizationId === organizationId && row.orderId === orderId,
+    );
   }
 
   async getDelivery(organizationId: string, deliveryId: string): Promise<DeliveryRecord | null> {
-    return this.deliveries.find((row) => row.organizationId === organizationId && row.id === deliveryId) ?? null;
+    return (
+      this.deliveries.find(
+        (row) => row.organizationId === organizationId && row.id === deliveryId,
+      ) ?? null
+    );
   }
 
-  async getDeliveryNote(organizationId: string, deliveryId: string): Promise<DeliveryNoteRecord | null> {
+  async getDeliveryNote(
+    organizationId: string,
+    deliveryId: string,
+  ): Promise<DeliveryNoteRecord | null> {
     return (
-      this.deliveryNotes.find((row) => row.organizationId === organizationId && row.deliveryId === deliveryId) ?? null
+      this.deliveryNotes.find(
+        (row) => row.organizationId === organizationId && row.deliveryId === deliveryId,
+      ) ?? null
     );
   }
 
   async listDeliveryNotes(organizationId: string, orderId: string): Promise<DeliveryNoteRecord[]> {
-    return this.deliveryNotes.filter((row) => row.organizationId === organizationId && row.orderId === orderId);
+    const matched = this.deliveryNotes.filter(
+      (row) => row.organizationId === organizationId && row.orderId === orderId,
+    );
+    return matched
+      .slice()
+      .sort((a, b) => String(b.bornAt ?? '').localeCompare(String(a.bornAt ?? '')))
+      .slice(0, DELIVERY_NOTES_LIST_LIMIT);
   }
 
   async listOutboundLines(organizationId: string, noteId: string): Promise<NoteLineRecord[]> {
-    return this.outboundLines.filter((row) => row.organizationId === organizationId && row.noteId === noteId);
+    return this.outboundLines.filter(
+      (row) => row.organizationId === organizationId && row.noteId === noteId,
+    );
   }
 
   async listDeliveryNoteLines(organizationId: string, noteId: string): Promise<NoteLineRecord[]> {
-    return this.deliveryLines.filter((row) => row.organizationId === organizationId && row.noteId === noteId);
+    return this.deliveryLines.filter(
+      (row) => row.organizationId === organizationId && row.noteId === noteId,
+    );
   }
 
   async listEvidence(
@@ -139,7 +176,10 @@ export class MemoryDeliveryStore implements DeliveryStore {
     subjectId: string,
   ): Promise<EvidenceRecord[]> {
     return this.evidence.filter(
-      (row) => row.organizationId === organizationId && row.subjectType === subjectType && row.subjectId === subjectId,
+      (row) =>
+        row.organizationId === organizationId &&
+        row.subjectType === subjectType &&
+        row.subjectId === subjectId,
     );
   }
 
@@ -155,8 +195,15 @@ export class MemoryDeliveryStore implements DeliveryStore {
     return this.deliveryNotes.filter((row) => row.organizationId === organizationId);
   }
 
-  async getDeliveryNoteById(organizationId: string, noteId: string): Promise<DeliveryNoteRecord | null> {
-    return this.deliveryNotes.find((row) => row.organizationId === organizationId && row.id === noteId) ?? null;
+  async getDeliveryNoteById(
+    organizationId: string,
+    noteId: string,
+  ): Promise<DeliveryNoteRecord | null> {
+    return (
+      this.deliveryNotes.find(
+        (row) => row.organizationId === organizationId && row.id === noteId,
+      ) ?? null
+    );
   }
 
   async listRecipientCandidates(organizationId: string) {
@@ -172,13 +219,19 @@ export class MemoryDeliveryStore implements DeliveryStore {
     return [...fromNotes, ...fromDeliveries, ...fromEvidence];
   }
 
-  async listDomainEvents(organizationId: string, orderId?: string): Promise<DeliveryDomainEventRecord[]> {
+  async listDomainEvents(
+    organizationId: string,
+    orderId?: string,
+  ): Promise<DeliveryDomainEventRecord[]> {
     return this.events.filter(
       (row) => row.organizationId === organizationId && (!orderId || row.orderId === orderId),
     );
   }
 
-  async findIdempotency(organizationId: string, key: string): Promise<DeliveryIdempotencyRecord | null> {
+  async findIdempotency(
+    organizationId: string,
+    key: string,
+  ): Promise<DeliveryIdempotencyRecord | null> {
     const row = this.idempotency.get(`${organizationId}:${key}`) ?? null;
     if (!row || row.expiresAt.getTime() <= Date.now()) return null;
     return row;

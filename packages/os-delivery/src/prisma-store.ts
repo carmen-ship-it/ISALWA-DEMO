@@ -19,7 +19,7 @@ import type {
   RecipientCandidate,
   WarehouseExitRecord,
 } from './store-types';
-
+import { DELIVERY_NOTES_LIST_LIMIT } from './list-limits';
 /** Memory path default. Customer delivery via this Prisma port is prisma_port. */
 export const CUSTOMER_DELIVERY_PRISMA_LIVE_WRITE = 'prisma_port' as const;
 
@@ -38,6 +38,7 @@ type FindMany<T> = (args: {
   orderBy?: Record<string, 'asc' | 'desc'> | Array<Record<string, 'asc' | 'desc'>>;
   include?: Record<string, unknown>;
   select?: Record<string, unknown>;
+  take?: number;
 }) => Promise<T[]>;
 type Create<T> = (args: { data: Record<string, unknown> }) => Promise<T>;
 type CreateMany = (args: { data: Record<string, unknown>[] }) => Promise<unknown>;
@@ -200,7 +201,10 @@ export type DeliveryPrismaPort = {
     findFirst: FindFirst<DeliveryNoteRow>;
     findMany: FindMany<DeliveryNoteRow>;
     create: Create<DeliveryNoteRow>;
-    update?: (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => Promise<DeliveryNoteRow>;
+    update?: (args: {
+      where: Record<string, unknown>;
+      data: Record<string, unknown>;
+    }) => Promise<DeliveryNoteRow>;
   };
   osDeliveryNoteLine: {
     findMany: FindMany<LineRow>;
@@ -235,7 +239,10 @@ export type DeliveryPrismaPort = {
       expiresAt: Date;
     } | null>;
     create(args: { data: Record<string, unknown> }): Promise<unknown>;
-    updateMany(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<unknown>;
+    updateMany(args: {
+      where: Record<string, unknown>;
+      data: Record<string, unknown>;
+    }): Promise<unknown>;
     deleteMany(args: { where: Record<string, unknown> }): Promise<unknown>;
   };
 };
@@ -456,8 +463,14 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
         });
         for (const delegation of delegations) {
           if (delegation.revokedAt) continue;
-          const starts = delegation.startsAt instanceof Date ? delegation.startsAt : new Date(delegation.startsAt);
-          const expires = delegation.expiresAt instanceof Date ? delegation.expiresAt : new Date(delegation.expiresAt);
+          const starts =
+            delegation.startsAt instanceof Date
+              ? delegation.startsAt
+              : new Date(delegation.startsAt);
+          const expires =
+            delegation.expiresAt instanceof Date
+              ? delegation.expiresAt
+              : new Date(delegation.expiresAt);
           if (starts > asOf || expires <= asOf) continue;
           for (const scope of scopesFromJson(delegation.scopesJson)) scopes.add(scope);
         }
@@ -682,6 +695,8 @@ export function createPrismaDeliveryStore(prisma: DeliveryPrismaPort): DeliveryS
     async listDeliveryNotes(organizationId, orderId) {
       const rows = await prisma.osDeliveryNote.findMany({
         where: { organizationId, orderId },
+        orderBy: { bornAt: 'desc' },
+        take: DELIVERY_NOTES_LIST_LIMIT,
       });
       return rows.map(mapDeliveryNote);
     },

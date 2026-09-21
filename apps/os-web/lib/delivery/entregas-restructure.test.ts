@@ -57,8 +57,14 @@ describe('Task 7 Entregas restructure', () => {
     assert.equal(items[0]?.label, 'Salida registrada');
     assert.equal(items[1]?.label, 'Entrega registrada');
     assert.match(items[1]?.detail ?? '', /Recibido por/);
-    assert.equal(items.some((i) => i.label === 'Nota de entrega'), false);
-    assert.equal(items.some((i) => /Llegó al cliente/.test(i.detail)), false);
+    assert.equal(
+      items.some((i) => i.label === 'Nota de entrega'),
+      false,
+    );
+    assert.equal(
+      items.some((i) => /Llegó al cliente/.test(i.detail)),
+      false,
+    );
   });
 
   it('VISIBLE_NE_PILOT_REFERENCES = 0 in UX copy and surfaces', () => {
@@ -156,5 +162,19 @@ describe('Task 7 HOSTED_CORRECTIVE', () => {
     const panel = read('apps/os-web/components/delivery/entrega-panel.tsx');
     assert.match(panel, /No registrado/);
     assert.match(panel, /data-recibido-por/);
+  });
+  it('bounds delivery collections without silent picker slicing', () => {
+    const page = read('apps/os-web/app/(app)/entregas/page.tsx');
+    const desk = read('apps/os-web/components/delivery/entrega-operational-write-desk.tsx');
+    const docs = read('apps/os-web/components/delivery/delivery-documents-panel.tsx');
+    const panel = read('apps/os-web/components/delivery/entrega-panel.tsx');
+
+    assert.match(page, /windowFilteredOpsCollection/);
+    assert.match(page, /ListPageNav/);
+    assert.match(desk, /windowFilteredOpsCollection/);
+    assert.match(desk, /ListPageNav/);
+    assert.doesNotMatch(desk, /slice\(0, 12\)/);
+    assert.match(docs, /boundHistoryItems/);
+    assert.match(panel, /boundHistoryItems/);
   });
 });

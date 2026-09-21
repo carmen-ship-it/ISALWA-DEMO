@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from 'react';
 import {
   ActionBar,
   Button,
@@ -72,6 +72,7 @@ export function ProductionPostSaleDesk({
   );
   const [ledger] = useState(() => new ProductionAccessLedger());
   const [pending, startTransition] = useTransition();
+  const attemptKeyRef = useRef<string | null>(null);
 
   const session = useMemo<ProductionSession>(
     () => ({ organizationId, memberId, grantedScopes, actorLabel }),
@@ -127,11 +128,19 @@ export function ProductionPostSaleDesk({
       return;
     }
 
+    if (!attemptKeyRef.current) {
+      attemptKeyRef.current =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `proc-${Date.now()}`;
+    }
+    const idempotencyKey = attemptKeyRef.current;
+
     startTransition(async () => {
       if (productFromCatalog) {
         const now = new Date().toISOString();
         const recorded = recordProcess(ledger, session, {
-          id: `proc-${pedido.orderId}-${now}`,
+          id: `proc-${idempotencyKey}`,
           organizationId: organizationId ?? '',
           productId: line.productId,
           stepKey,
@@ -148,7 +157,7 @@ export function ProductionPostSaleDesk({
           },
           correctsEntryId: null,
           correctionReason: null,
-          idempotencyKey: null,
+          idempotencyKey,
         });
         if (!recorded.ok) {
           setFeedback({
@@ -172,6 +181,7 @@ export function ProductionPostSaleDesk({
         }
       }
 
+      attemptKeyRef.current = null;
       setFeedback({
         tone: 'success',
         title: built.work

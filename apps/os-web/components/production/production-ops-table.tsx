@@ -32,6 +32,11 @@ type ProductionOpsTableProps = {
   rows: readonly ProductionOpsRow[];
   actorMemberId: string | null;
   canMutate: boolean;
+  /** True empty queue (no pedidos loaded). */
+  trueEmpty?: boolean;
+  /** Search active with zero matches. */
+  zeroMatch?: boolean;
+  searchQuery?: string | null;
 };
 
 const DESKTOP_GRID =
@@ -50,7 +55,7 @@ const HEADER_COLUMNS = [
 /**
  * Production work table — Pedido / Cliente / Revisión / Última actualización / Responsable / Estado / Acción.
  */
-export function ProductionOpsTable({ rows, actorMemberId, canMutate }: ProductionOpsTableProps) {
+export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty = false, zeroMatch = false, searchQuery = null }: ProductionOpsTableProps) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; title: string; detail?: string } | null>(
     null,
@@ -105,8 +110,18 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate }: Productio
         {rows.length === 0 ? (
           <div className="mt-6">
             <EmptyState
-              title="Sin pedidos abiertos"
-              description="Los pedidos abiertos aparecen aquí. La revisión de producción se solicita desde el pedido; no se crea sola."
+              title={
+                zeroMatch
+                  ? 'Ningún pedido coincide'
+                  : trueEmpty || !searchQuery
+                    ? 'Sin pedidos abiertos'
+                    : 'Sin pedidos abiertos'
+              }
+              description={
+                zeroMatch
+                  ? `No hay pedidos que coincidan con «${searchQuery}». Pruebe otro Pedido o cliente.`
+                  : 'Los pedidos abiertos aparecen aquí. La revisión de producción se solicita desde el pedido; no se crea sola.'
+              }
             />
           </div>
         ) : (

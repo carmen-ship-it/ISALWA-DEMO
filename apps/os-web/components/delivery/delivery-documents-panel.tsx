@@ -26,6 +26,7 @@ import {
 import { SPECIAL_ITEM_LABEL } from '@/lib/commercial/product-picker';
 import { actionSecondaryClass } from '@/lib/ui/action-hierarchy';
 import { timelineEventLabel } from '@/lib/commercial/timeline-labels';
+import { boundHistoryItems } from '@/lib/lists/ops-collection';
 
 export type DeliveryDocumentLineView = {
   orderLineId: string;
@@ -79,7 +80,9 @@ export type DeliveryDocumentsPanelProps = {
 };
 
 function formatWhen(iso: string): string {
-  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(
+    new Date(iso),
+  );
 }
 
 export function DeliveryDocumentsPanel({
@@ -115,13 +118,21 @@ export function DeliveryDocumentsPanel({
   const [recipient, setRecipient] = useState('');
   const [deliveredBy, setDeliveredBy] = useState('');
   const [observations, setObservations] = useState('');
-  const [selectedNoteId, setSelectedNoteId] = useState(notes.find((n) => n.status === 'issued')?.id ?? '');
+  const [selectedNoteId, setSelectedNoteId] = useState(
+    notes.find((n) => n.status === 'issued')?.id ?? '',
+  );
   const [receivedBy, setReceivedBy] = useState('');
   const gate = entregaGate({ hasSalida, receivedBy });
   const canSubmitEntrega =
     allowEntrega && entregaEnabled({ hasSalida, receivedBy }) && Boolean(actorMemberId);
 
   const issuedNotes = useMemo(() => notes.filter((note) => note.status === 'issued'), [notes]);
+  const noteWindow = boundHistoryItems(
+    [...notes].sort((left, right) => right.bornAt.localeCompare(left.bornAt)),
+  );
+  const timelineWindow = boundHistoryItems(
+    [...timeline].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt)),
+  );
   const frozenState =
     quoteLoadState ??
     (quoteUnavailable ? 'unavailable' : quotedProducts.length > 0 ? 'lines' : 'empty');
@@ -144,7 +155,9 @@ export function DeliveryDocumentsPanel({
         return;
       }
       if (kind !== 'correct') attemptKeys.current[kind] = '';
-      setNotice('Quedó registrado. Esta página muestra ese documento. No cree otro por el mismo intento.');
+      setNotice(
+        'Quedó registrado. Esta página muestra ese documento. No cree otro por el mismo intento.',
+      );
       router.refresh();
     });
   }
@@ -178,25 +191,40 @@ export function DeliveryDocumentsPanel({
       <dl className="mt-6 grid gap-6 sm:grid-cols-2">
         <div>
           <dt className="isalwa-section-label">Cliente</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentEntregaAuditLabel(customerName)}</dd>
+          <dd className="mt-2 text-[var(--isalwa-kiln)]">
+            {presentEntregaAuditLabel(customerName)}
+          </dd>
         </div>
         <div>
           <dt className="isalwa-section-label">Pedido</dt>
-          <dd className="mt-2 text-[var(--isalwa-kiln)]">{presentEntregaAuditLabel(orderNumber)}</dd>
+          <dd className="mt-2 text-[var(--isalwa-kiln)]">
+            {presentEntregaAuditLabel(orderNumber)}
+          </dd>
         </div>
       </dl>
 
-      <div className="mt-8 border-t border-[var(--isalwa-mist)] pt-6" data-frozen-quote-context="" data-quote-load-state={frozenState}>
+      <div
+        className="mt-8 border-t border-[var(--isalwa-mist)] pt-6"
+        data-frozen-quote-context=""
+        data-quote-load-state={frozenState}
+      >
         <h3 className="font-[family-name:var(--isalwa-font-display)] text-xl italic text-[var(--isalwa-kiln)]">
           Productos de la cotización
         </h3>
         {frozenState === 'lines' ? (
           <>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_NOTE}</p>
-            <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]" aria-label="Líneas congeladas de cotización">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              {QUOTED_PRODUCTS_NOTE}
+            </p>
+            <ul
+              className="mt-4 divide-y divide-[var(--isalwa-mist)]"
+              aria-label="Líneas congeladas de cotización"
+            >
               {quotedProducts.map((line) => (
                 <li key={line.quoteLineId} className="py-4">
-                  <p className="whitespace-pre-line font-medium text-[var(--isalwa-kiln)]">{line.description}</p>
+                  <p className="whitespace-pre-line font-medium text-[var(--isalwa-kiln)]">
+                    {line.description}
+                  </p>
                   {line.specialItem ? (
                     <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{SPECIAL_ITEM_LABEL}</p>
                   ) : null}
@@ -212,11 +240,16 @@ export function DeliveryDocumentsPanel({
             </ul>
           </>
         ) : frozenState === 'empty' ? (
-          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]" data-quote-empty="">
+          <p
+            className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]"
+            data-quote-empty=""
+          >
             Sin productos guardados en la cotización.
           </p>
         ) : frozenState === 'unavailable' ? (
-          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">{QUOTED_PRODUCTS_UNAVAILABLE}</p>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
+            {QUOTED_PRODUCTS_UNAVAILABLE}
+          </p>
         ) : (
           <p className="mt-3 text-sm leading-relaxed text-[var(--isalwa-slate)]">
             Cotización origen no cargada en esta vista.
@@ -234,30 +267,39 @@ export function DeliveryDocumentsPanel({
           <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
             Líneas del pedido (copia al crear el pedido). No son stock ni cantidades entregadas.
           </p>
-          <ul className="mt-2 divide-y divide-[var(--isalwa-mist)]" aria-label="Cantidades del pedido">
-          {orderLines.map((line) => (
-            <li key={line.orderLineId} className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm">
-              <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
-              <label className="flex items-center gap-2 text-[var(--isalwa-slate)]">
-                Cantidad
-                <input
-                  type="number"
-                  min={1}
-                  max={line.quantity}
-                  value={quantities[line.orderLineId] ?? line.quantity}
-                  onChange={(event) =>
-                    setQuantities((prev) => ({
-                      ...prev,
-                      [line.orderLineId]: Number(event.target.value),
-                    }))
-                  }
-                  className="w-20 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-2 py-1"
-                  disabled={!allowAnyWrite || pending}
-                />
-                <span>de {line.quantity}{line.unitLabel ? ` ${line.unitLabel}` : ''}</span>
-              </label>
-            </li>
-          ))}
+          <ul
+            className="mt-2 divide-y divide-[var(--isalwa-mist)]"
+            aria-label="Cantidades del pedido"
+          >
+            {orderLines.map((line) => (
+              <li
+                key={line.orderLineId}
+                className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm"
+              >
+                <span className="text-[var(--isalwa-kiln)]">{line.description}</span>
+                <label className="flex items-center gap-2 text-[var(--isalwa-slate)]">
+                  Cantidad
+                  <input
+                    type="number"
+                    min={1}
+                    max={line.quantity}
+                    value={quantities[line.orderLineId] ?? line.quantity}
+                    onChange={(event) =>
+                      setQuantities((prev) => ({
+                        ...prev,
+                        [line.orderLineId]: Number(event.target.value),
+                      }))
+                    }
+                    className="w-20 rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] px-2 py-1"
+                    disabled={!allowAnyWrite || pending}
+                  />
+                  <span>
+                    de {line.quantity}
+                    {line.unitLabel ? ` ${line.unitLabel}` : ''}
+                  </span>
+                </label>
+              </li>
+            ))}
           </ul>
         </div>
       )}
@@ -316,80 +358,80 @@ export function DeliveryDocumentsPanel({
         </h3>
         <p className="text-sm text-[var(--isalwa-slate)]">Qué puede hacer ahora con este pedido.</p>
         <div className="flex flex-wrap gap-3">
-        {allowEntrega && gate === 'needs-salida' ? (
-          <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            {ENTREGA_GATE_COPY.needsSalida}
-          </p>
-        ) : null}
-        {allowEntrega && gate === 'needs-received-by' ? (
-          <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
-            {ENTREGA_GATE_COPY.needsReceivedBy}
-          </p>
-        ) : null}
-        {allowNote ? (
-          <Button
-            type="button"
-            disabled={!allowNote || pending || !actorMemberId}
-            onClick={() =>
-              run('nota', () =>
-                createNotaDeEntregaAction({
-                  partyId,
-                  orderId,
-                  recipient,
-                  deliveredBy,
-                  observations: observations || null,
-                  quantities: quantityPayload,
-                  idempotencyKey: attemptKey('nota'),
-                }),
-              )
-            }
-          >
-            {ENTREGA_PANEL_COPY.createNota}
-          </Button>
-        ) : null}
-        {allowSalida ? (
-          <Button
-            type="button"
-            variant={gate === 'needs-salida' ? 'primary' : 'secondary'}
-            disabled={!allowSalida || pending || !actorMemberId}
-            onClick={() =>
-              run('salida', () =>
-                recordSalidaAction({
-                  partyId,
-                  orderId,
-                  deliveryNoteId: selectedNoteId || null,
-                  quantities: quantityPayload,
-                  notes: observations || null,
-                  idempotencyKey: attemptKey('salida'),
-                }),
-              )
-            }
-          >
-            {ENTREGA_PANEL_COPY.recordSalida}
-          </Button>
-        ) : null}
-        {allowEntrega ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={!canSubmitEntrega || pending}
-            onClick={() =>
-              run('entrega', () =>
-                recordEntregaAction({
-                  partyId,
-                  orderId,
-                  receivedBy,
-                  deliveryNoteId: selectedNoteId || null,
-                  quantities: quantityPayload,
-                  notes: observations || null,
-                  idempotencyKey: attemptKey('entrega'),
-                }),
-              )
-            }
-          >
-            {ENTREGA_PANEL_COPY.recordEntrega}
-          </Button>
-        ) : null}
+          {allowEntrega && gate === 'needs-salida' ? (
+            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              {ENTREGA_GATE_COPY.needsSalida}
+            </p>
+          ) : null}
+          {allowEntrega && gate === 'needs-received-by' ? (
+            <p className="w-full text-sm leading-relaxed text-[var(--isalwa-slate)]">
+              {ENTREGA_GATE_COPY.needsReceivedBy}
+            </p>
+          ) : null}
+          {allowNote ? (
+            <Button
+              type="button"
+              disabled={!allowNote || pending || !actorMemberId}
+              onClick={() =>
+                run('nota', () =>
+                  createNotaDeEntregaAction({
+                    partyId,
+                    orderId,
+                    recipient,
+                    deliveredBy,
+                    observations: observations || null,
+                    quantities: quantityPayload,
+                    idempotencyKey: attemptKey('nota'),
+                  }),
+                )
+              }
+            >
+              {ENTREGA_PANEL_COPY.createNota}
+            </Button>
+          ) : null}
+          {allowSalida ? (
+            <Button
+              type="button"
+              variant={gate === 'needs-salida' ? 'primary' : 'secondary'}
+              disabled={!allowSalida || pending || !actorMemberId}
+              onClick={() =>
+                run('salida', () =>
+                  recordSalidaAction({
+                    partyId,
+                    orderId,
+                    deliveryNoteId: selectedNoteId || null,
+                    quantities: quantityPayload,
+                    notes: observations || null,
+                    idempotencyKey: attemptKey('salida'),
+                  }),
+                )
+              }
+            >
+              {ENTREGA_PANEL_COPY.recordSalida}
+            </Button>
+          ) : null}
+          {allowEntrega ? (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={!canSubmitEntrega || pending}
+              onClick={() =>
+                run('entrega', () =>
+                  recordEntregaAction({
+                    partyId,
+                    orderId,
+                    receivedBy,
+                    deliveryNoteId: selectedNoteId || null,
+                    quantities: quantityPayload,
+                    notes: observations || null,
+                    idempotencyKey: attemptKey('entrega'),
+                  }),
+                )
+              }
+            >
+              {ENTREGA_PANEL_COPY.recordEntrega}
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -441,8 +483,11 @@ export function DeliveryDocumentsPanel({
           />
         ) : (
           <ul className="space-y-6">
-            {notes.map((note) => (
-              <li key={note.id} className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4">
+            {noteWindow.items.map((note) => (
+              <li
+                key={note.id}
+                className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] p-4"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusPill tone={note.status === 'issued' ? 'success' : 'warning'}>
                     {note.status === 'issued' ? 'Emitida' : 'Anulada'}
@@ -504,6 +549,11 @@ export function DeliveryDocumentsPanel({
             ))}
           </ul>
         )}
+        {noteWindow.truncated ? (
+          <p className="mt-4 text-sm text-[var(--isalwa-slate)]" role="status">
+            Mostrando las 25 notas de entrega más recientes.
+          </p>
+        ) : null}
       </div>
 
       <div
@@ -515,19 +565,24 @@ export function DeliveryDocumentsPanel({
           Historial
         </h3>
         {timeline.length === 0 ? (
-          <p className="mt-4 text-sm text-[var(--isalwa-slate)]">{ENTREGA_PANEL_COPY.chronologyEmpty}</p>
+          <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
+            {ENTREGA_PANEL_COPY.chronologyEmpty}
+          </p>
         ) : (
           <div className="mt-4">
             <Timeline
-              items={timeline.map((item) => {
+              items={timelineWindow.items.map((item) => {
                 const canonical = timelineEventLabel(item.eventType);
-                const label =
-                  canonical !== 'Actividad registrada' ? canonical : item.label;
+                const label = canonical !== 'Actividad registrada' ? canonical : item.label;
                 const detail = scrubPilotDeliveryNoteRefs(item.detail, orderNumber);
                 return {
                   id: item.id,
                   label,
-                  meta: <span className="text-sm text-[var(--isalwa-slate)]">{formatWhen(item.occurredAt)}</span>,
+                  meta: (
+                    <span className="text-sm text-[var(--isalwa-slate)]">
+                      {formatWhen(item.occurredAt)}
+                    </span>
+                  ),
                   body: (
                     <span>
                       {detail}
@@ -547,6 +602,11 @@ export function DeliveryDocumentsPanel({
                 };
               })}
             />
+            {timelineWindow.truncated ? (
+              <p className="mt-4 text-sm text-[var(--isalwa-slate)]" role="status">
+                Mostrando los 25 eventos más recientes.
+              </p>
+            ) : null}
           </div>
         )}
       </div>

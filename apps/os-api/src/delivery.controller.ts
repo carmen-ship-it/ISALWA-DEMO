@@ -10,10 +10,7 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import {
-  canRecordDelivery,
-  canRecordWarehouseOutbound,
-} from '@isalwa/os-contracts';
+import { canRecordDelivery, canRecordWarehouseOutbound } from '@isalwa/os-contracts';
 import { getOsPrisma } from '@isalwa/os-database';
 import type { DeliveryCommandService } from '@isalwa/os-delivery';
 import type { OsWorkforceStore } from '@isalwa/os-workforce';
@@ -131,6 +128,8 @@ function mapOperationalOrder(
   };
 }
 
+const DELIVERY_NOTES_LIST_LIMIT = 25;
+
 /**
  * Operational Pedido context for Entregas / warehouse writers.
  * Does not use commercial-read. Does not return money/pricing.
@@ -232,7 +231,8 @@ export class DeliveryOpsController {
       }
       const noteRows = await prisma.osDeliveryNote.findMany({
         where: { organizationId: session.organizationId, orderId: order.id },
-        orderBy: { bornAt: 'asc' },
+        orderBy: { bornAt: 'desc' },
+        take: DELIVERY_NOTES_LIST_LIMIT,
       });
       const noteIds = noteRows.map((note) => note.id);
       const lineRows = noteIds.length

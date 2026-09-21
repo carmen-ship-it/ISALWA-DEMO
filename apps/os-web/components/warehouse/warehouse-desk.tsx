@@ -15,6 +15,7 @@ import { OPS_STICKY_ACTION_CLASS, OpsDeskSurface } from '@/components/production
 import { ServiceUnavailableState } from '@/components/states/app-states';
 import { isEngineeringFixtureCopy } from '@/lib/work/staff-subject';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
+import { boundHistoryItems, LIST_PAGE_SIZE } from '@/lib/lists/ops-collection';
 import {
   WAREHOUSE_EXIT_HREF,
   WAREHOUSE_MISSING_NAME,
@@ -131,7 +132,10 @@ function contextLabel(parts: Array<string | null | undefined>): string | null {
 }
 
 function WaitingSection({ view }: { view: WarehouseTaskView }) {
-  const rows = view.waiting.filter((row) => humanWarehouseText(row.productName.text));
+  const rows = boundHistoryItems(
+    view.waiting.filter((row) => humanWarehouseText(row.productName.text)),
+    LIST_PAGE_SIZE,
+  ).items;
   if (rows.length === 0) return null;
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.waiting}>
@@ -178,27 +182,45 @@ function AllocateSection({
   }
 
   const pedidos = view.pedidos.filter((pedido) => !productId || pedido.productId === productId);
+  const allocatableRows = boundHistoryItems(
+    view.allocatable.filter((row) => humanWarehouseText(row.productName.text)),
+    LIST_PAGE_SIZE,
+  ).items;
+  const pedidoRows = boundHistoryItems(
+    view.pedidos.filter(
+      (pedido) =>
+        humanWarehouseText(pedido.optionLabel) ||
+        pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text),
+    ),
+    LIST_PAGE_SIZE,
+  ).items;
   const productOptions = useMemo(
     () =>
-      choosable
-        .map((row) => ({
-          id: row.productId,
-          label: humanWarehouseText(row.productName.text) ?? '',
-        }))
-        .filter((row) => row.label),
+      boundHistoryItems(
+        choosable
+          .map((row) => ({
+            id: row.productId,
+            label: humanWarehouseText(row.productName.text) ?? '',
+          }))
+          .filter((row) => row.label),
+        LIST_PAGE_SIZE,
+      ).items,
     [choosable],
   );
   const pedidoOptions = useMemo(
     () =>
-      pedidos
-        .map((pedido) => ({
-          id: pedido.orderLineId,
-          label:
-            humanWarehouseText(pedido.optionLabel) ??
-            pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text) ??
-            '',
-        }))
-        .filter((row) => row.label),
+      boundHistoryItems(
+        pedidos
+          .map((pedido) => ({
+            id: pedido.orderLineId,
+            label:
+              humanWarehouseText(pedido.optionLabel) ??
+              pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text) ??
+              '',
+          }))
+          .filter((row) => row.label),
+        LIST_PAGE_SIZE,
+      ).items,
     [pedidos],
   );
 
@@ -214,9 +236,7 @@ function AllocateSection({
         </p>
       ) : (
         <ul className="mb-6">
-          {view.allocatable
-            .filter((row) => humanWarehouseText(row.productName.text))
-            .map((row) => (
+          {allocatableRows.map((row) => (
             <ListRow key={row.productId} as="li">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{humanWarehouseText(row.productName.text)}</p>
@@ -235,13 +255,7 @@ function AllocateSection({
         </div>
       ) : (
         <ul className="mt-3" aria-label={WAREHOUSE_TASK_COPY.pedido}>
-          {view.pedidos
-            .filter(
-              (pedido) =>
-                humanWarehouseText(pedido.optionLabel) ||
-                pedidoHumanLabel(pedido.orderName.text, pedido.customerName.text),
-            )
-            .map((pedido) => (
+          {pedidoRows.map((pedido) => (
             <ListRow key={pedido.orderLineId} as="li">
               <p className="text-sm text-[var(--isalwa-kiln)]">
                 {humanWarehouseText(pedido.optionLabel) ??
@@ -318,6 +332,7 @@ function AllocateSection({
 }
 
 function RemainsSection({ view }: { view: WarehouseTaskView }) {
+  const rows = boundHistoryItems(view.remains, LIST_PAGE_SIZE).items;
   return (
     <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.remains}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.remains} />
@@ -334,7 +349,7 @@ function RemainsSection({ view }: { view: WarehouseTaskView }) {
         </div>
       ) : (
         <ul className="mt-4">
-          {view.remains.map((row) => {
+          {rows.map((row) => {
             const label =
               pedidoHumanLabel(row.orderName.text, row.customerName.text) ??
               humanWarehouseText(row.productName.text);
@@ -374,7 +389,17 @@ function HistorySection({
   canAllocate: boolean;
   onCorrect?: (draft: { allocationId: string; quantity: string; reason: string }) => void;
 }) {
-  if (view.allocations.length === 0 && view.corrections.length === 0) return null;
+  const history = [
+    ...view.allocations.map((row) => ({ kind: 'allocation' as const, at: row.allocatedAt, row })),
+    ...view.corrections.map((row) => ({ kind: 'correction' as const, at: row.correctedAt, row })),
+  ].sort((left, right) => {
+    const leftTime = Date.parse(left.at);
+    const rightTime = Date.parse(right.at);
+    if (Number.isNaN(leftTime) || Number.isNaN(rightTime)) return 0;
+    return rightTime - leftTime;
+  });
+  const recent = boundHistoryItems(history, LIST_PAGE_SIZE);
+  if (history.length === 0) return null;
   return (
     <PageSection card className="p-8 md:p-10" aria-label="Asignaciones">
       <SectionHeader
@@ -382,46 +407,58 @@ function HistorySection({
         title="Asignaciones"
         action={<StatusPill tone="neutral">{WAREHOUSE_TASK_COPY.correctionKeepsOriginal}</StatusPill>}
       />
+      {recent.truncated ? (
+        <p className="mt-3 text-sm text-[var(--isalwa-slate)]">
+          Mostrando los {recent.shown} más recientes de esta vista.
+        </p>
+      ) : null}
       <ul>
-        {view.allocations.map((row) => {
+        {recent.items.map((item) => {
+          if (item.kind === 'correction') {
+            const correction = item.row;
+            return (
+              <ListRow key={`correction-${correction.id}`} as="li">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                    Corrección · {correction.quantity}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                    {humanWarehouseText(correction.reason) ?? ''}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                    {[humanWarehouseText(correction.actorLabel), formatWhen(correction.correctedAt)]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                </div>
+                <StatusPill tone="manual">Corrección</StatusPill>
+              </ListRow>
+            );
+          }
+
+          const row = item.row;
           const label = contextLabel([row.productName.text, row.customerName.text, row.orderName.text]);
           const who = contextLabel([row.customerName.text, row.orderName.text]);
           if (!label) return null;
           return (
-          <ListRow key={row.id} as="li">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
-                {humanWarehouseText(row.productName.text)
-                  ? `${humanWarehouseText(row.productName.text)} · ${row.quantity}`
-                  : row.quantity}
-              </p>
-              {who ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{who}</p> : null}
-              <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                {[humanWarehouseText(row.actorLabel), formatWhen(row.allocatedAt)].filter(Boolean).join(' · ')}
-              </p>
-              {canAllocate && onCorrect ? <CorrectionForm allocationId={row.id} onCorrect={onCorrect} /> : null}
-            </div>
-            {row.corrected ? <StatusPill tone="manual">Se conserva</StatusPill> : null}
-          </ListRow>
+            <ListRow key={`allocation-${row.id}`} as="li">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">
+                  {humanWarehouseText(row.productName.text)
+                    ? `${humanWarehouseText(row.productName.text)} · ${row.quantity}`
+                    : row.quantity}
+                </p>
+                {who ? <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{who}</p> : null}
+                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                  {[humanWarehouseText(row.actorLabel), formatWhen(row.allocatedAt)].filter(Boolean).join(' · ')}
+                </p>
+                {canAllocate && onCorrect ? <CorrectionForm allocationId={row.id} onCorrect={onCorrect} /> : null}
+              </div>
+              {row.corrected ? <StatusPill tone="manual">Se conserva</StatusPill> : null}
+            </ListRow>
           );
         })}
       </ul>
-      {view.corrections.length > 0 ? (
-        <ul className="mt-4" aria-label="Correcciones">
-          {view.corrections.map((correction) => (
-            <ListRow key={correction.id} as="li">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">Corrección · {correction.quantity}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{humanWarehouseText(correction.reason) ?? ''}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                  {[humanWarehouseText(correction.actorLabel), formatWhen(correction.correctedAt)].filter(Boolean).join(' · ')}
-                </p>
-              </div>
-              <StatusPill tone="manual">Corrección</StatusPill>
-            </ListRow>
-          ))}
-        </ul>
-      ) : null}
     </PageSection>
   );
 }

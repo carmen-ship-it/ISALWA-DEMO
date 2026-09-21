@@ -1,6 +1,7 @@
 import { PageContainer, StatGroup } from '@isalwa/ui';
 import { ProductionOpsTable, type ProductionOpsRow } from '@/components/production/production-ops-table';
 import { ListCapNotice } from '@/components/lists/list-cap-notice';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { ProductionPostSaleDesk } from '@/components/production/production-postsale-desk';
 import { OpsDeskInfoBanner } from '@/components/production/ops-desk-info-banner';
 import { PageHeader } from '@/components/shell/page-header';
@@ -21,10 +22,18 @@ import { resolveDemoDataMode } from '@/lib/demo/resolve-demo-data-mode';
 import { getEvaluationProjection } from '@/lib/role-preview/evaluation-projection';
 import { evaluationAllowsDesk } from '@/lib/role-preview/evaluation-resource-access';
 import { pushListCap, type ListCap } from '@/lib/lists/list-cap';
+import {
+  matchesOpsSearch,
+  opsBoundedPageHrefs,
+  opsListHref,
+  parseListQuery,
+  windowFilteredOpsCollection,
+} from '@/lib/lists/ops-collection';
 import { EvaluationDeskExcluded } from '@/components/shell/evaluation-desk-excluded';
 
 /** CROSS_LANE: add 'produccionSave' to TOUR_TARGET in lib/walkthrough/targets.ts */
 const PRODUCCION_SAVE_TARGET = 'produccion-save';
+const LIST_PATH = '/produccion';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -36,9 +45,16 @@ export const revalidate = 0;
 export default async function ProduccionPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ orderId?: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = searchParams ? await searchParams : undefined;
+  const params = searchParams ? await searchParams : {};
+  const listState = parseListQuery(params);
+  const orderIdRaw = params.orderId;
+  const selectedOrderId = (Array.isArray(orderIdRaw) ? orderIdRaw[0] : orderIdRaw)?.trim() || null;
+  const datosRaw = params.datos;
+  const datos = (Array.isArray(datosRaw) ? datosRaw[0] : datosRaw)?.trim() || null;
+  const extras = { orderId: selectedOrderId, datos };
+
   const evaluation = await getEvaluationProjection();
   if (!evaluationAllowsDesk(evaluation, 'produccion')) {
     return <EvaluationDeskExcluded evaluation={evaluation} deskLabel="Producción" />;
@@ -48,6 +64,27 @@ export default async function ProduccionPage({
   const catalog = loadProductionCatalog();
   const { pedidos, rows, summary, listCaps } = await loadProductionDeskData();
   const canMutate = !evaluation.active && identity.status === 'ready';
+
+  const windowed = windowFilteredOpsCollection(rows, {
+    q: listState.q,
+    pagina: listState.pagina,
+    match: (row, q) =>
+      matchesOpsSearch(q, [
+        row.pedido.orderLabel,
+        row.pedido.customerLabel,
+        row.pedido.orderId,
+        row.requestedAction,
+        row.responsibleLabel,
+      ]),
+  });
+  const pageLinks = opsBoundedPageHrefs(
+    LIST_PATH,
+    { ...listState, pagina: undefined },
+    windowed.page,
+    windowed.pageCount,
+    extras,
+  );
+  const searchAction = opsListHref(LIST_PATH, { ...listState, q: undefined, pagina: undefined }, extras);
 
   return (
     <PageContainer label="Producción" data-tour={PRODUCCION_SAVE_TARGET}>
@@ -71,11 +108,59 @@ export default async function ProduccionPage({
           { label: 'Ingreso PT', value: PRODUCTION_PAGE_COPY.listoMeaning },
         ]}
       />
+      <form
+        method="get"
+        action={LIST_PATH}
+        className="mb-4 flex flex-wrap items-end gap-3"
+        role="search"
+        aria-label="Buscar pedidos de producción"
+      >
+        {selectedOrderId ? <input type="hidden" name="orderId" value={selectedOrderId} /> : null}
+        {datos ? <input type="hidden" name="datos" value={datos} /> : null}
+        <label className="block min-w-[12rem] flex-1 text-sm text-[var(--isalwa-slate)]">
+          Buscar Pedido o cliente
+          <input
+            className="isalwa-field mt-1 w-full"
+            type="search"
+            name="q"
+            defaultValue={listState.q ?? ''}
+            placeholder="Pedido o cliente"
+          />
+        </label>
+        <button
+          type="submit"
+          className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm font-medium text-[var(--isalwa-kiln)]"
+        >
+          Buscar
+        </button>
+        {listState.q ? (
+          <a
+            href={searchAction}
+            className="inline-flex h-10 items-center px-2 text-sm font-medium text-[var(--isalwa-glaze)] hover:underline"
+          >
+            Limpiar
+          </a>
+        ) : null}
+      </form>
       <ProductionOpsTable
-        rows={rows}
+        rows={windowed.items}
         actorMemberId={identity.memberId}
         canMutate={canMutate}
+        trueEmpty={windowed.trueEmpty}
+        zeroMatch={windowed.zeroMatch}
+        searchQuery={listState.q ?? null}
       />
+      {windowed.showChrome ? (
+        <ListPageNav
+          from={windowed.from}
+          to={windowed.to}
+          total={windowed.matchedTotal}
+          page={windowed.page}
+          pageCount={windowed.pageCount}
+          prevHref={pageLinks.prevHref}
+          nextHref={pageLinks.nextHref}
+        />
+      ) : null}
       <ListCapNotice caps={listCaps} />
       {identity.status === 'error' ? (
         <div className="mt-6">
@@ -100,7 +185,7 @@ export default async function ProduccionPage({
               scopesConfirmed={identity.scopesConfirmed}
               catalog={catalog}
               pedidos={pedidos}
-              initialOrderId={params?.orderId ?? null}
+              initialOrderId={selectedOrderId}
               onCreateExpectedWork={createPostSaleExpectedWorkAction}
             />
           </div>

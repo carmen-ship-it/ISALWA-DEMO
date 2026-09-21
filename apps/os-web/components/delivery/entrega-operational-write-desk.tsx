@@ -1,7 +1,15 @@
 import Link from 'next/link';
 import { canRecordDelivery, canRecordWarehouseOutbound } from '@isalwa/os-contracts';
 import { DeliveryDocumentsPanel } from '@/components/delivery/delivery-documents-panel';
-import { EmptyState, ListRow, PageSection, SectionHeader, StatusPill } from '@isalwa/ui';
+import {
+  EmptyState,
+  ListRow,
+  PageSection,
+  SearchField,
+  SectionHeader,
+  StatusPill,
+} from '@isalwa/ui';
+import { ListPageNav } from '@/components/lists/list-page-nav';
 import { createOsApiClient } from '@/lib/api/os-api-client';
 import { OsApiError } from '@/lib/api/os-api-errors';
 import { getServerOsAuthContext } from '@/lib/auth/actions';
@@ -10,21 +18,33 @@ import { isPilotFacingHidden, presentEntregaAuditLabel } from '@/lib/delivery/di
 import { quotedProductsFromQuoteLines } from '@/lib/commercial/quoted-product-context';
 import { buildDeliveryProgress } from '@/lib/delivery/delivery-progress';
 import { DeliveryProgressStrip } from '@/components/delivery/delivery-progress-strip';
+import {
+  matchesOpsSearch,
+  opsBoundedPageHrefs,
+  opsListHref,
+  windowFilteredOpsCollection,
+  type ListQueryState,
+} from '@/lib/lists/ops-collection';
 
 type Props = {
   selectedOrderId?: string | null;
+  datos?: string | null;
+  listState?: ListQueryState;
 };
 
 /**
  * Entregas write desk: delivery/outbound scopes only.
  * Does not require commercial-read or opening Cliente pedido URL.
  */
-export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Props) {
+export async function EntregaOperationalWriteDesk({
+  selectedOrderId = null,
+  datos = null,
+  listState = {},
+}: Props) {
   const capabilities = await loadMemberCapabilities();
   if (!capabilities) return null;
   const scopes = capabilities.grantedScopes;
-  const canWrite =
-    canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes);
+  const canWrite = canRecordDelivery(scopes) || canRecordWarehouseOutbound(scopes);
   if (!canWrite) return null;
 
   const auth = await getServerOsAuthContext();
@@ -55,9 +75,7 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
   }
 
   const visibleOrders = orders.filter(
-    (order) =>
-      !isPilotFacingHidden(order.customerName) &&
-      !isPilotFacingHidden(order.orderNumber),
+    (order) => !isPilotFacingHidden(order.customerName) && !isPilotFacingHidden(order.orderNumber),
   );
 
   if (visibleOrders.length === 0) {
@@ -83,6 +101,19 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
 
   const selected =
     visibleOrders.find((order) => order.orderId === selectedOrderId?.trim()) ?? visibleOrders[0]!;
+  const orderWindow = windowFilteredOpsCollection(visibleOrders, {
+    q: listState.q,
+    pagina: listState.pagina,
+    match: (order, q) =>
+      matchesOpsSearch(q, [order.orderNumber, order.customerName, order.orderId]),
+  });
+  const orderNav = opsBoundedPageHrefs(
+    '/entregas',
+    listState,
+    orderWindow.page,
+    orderWindow.pageCount,
+    { orderId: selected.orderId, datos },
+  );
 
   let notes: Array<{
     id: string;
@@ -182,42 +213,76 @@ export async function EntregaOperationalWriteDesk({ selectedOrderId = null }: Pr
             </h2>
           }
         />
-        <ul className="mt-6">
-          {visibleOrders.slice(0, 12).map((order) => {
-            const active = order.orderId === selected.orderId;
-            const customer = presentEntregaAuditLabel(order.customerName);
-            const orderLabel = presentEntregaAuditLabel(order.orderNumber);
-            return (
-              <ListRow key={order.orderId} as="li">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{orderLabel}</p>
-                  <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                    {customer} · {order.lines.length} línea(s)
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  {active ? <StatusPill tone="info">Seleccionado</StatusPill> : null}
-                  <Link
-                    href={`/entregas?orderId=${encodeURIComponent(order.orderId)}`}
-                    className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
-                  >
-                    Abrir pedido
-                  </Link>
-                </div>
-              </ListRow>
-            );
-          })}
-        </ul>
-        {visibleOrders.length > 12 ? (
-          <p className="mt-4 text-sm text-[var(--isalwa-slate)]">
-            Se muestran los 12 pedidos abiertos más recientes.
-          </p>
-        ) : null}
+        <form action="/entregas" className="mt-6 flex flex-wrap items-center gap-2">
+          <input type="hidden" name="orderId" value={selected.orderId} />
+          {datos ? <input type="hidden" name="datos" value={datos} /> : null}
+          <SearchField
+            name="q"
+            defaultValue={listState.q}
+            placeholder="Buscar pedido o cliente"
+            aria-label="Buscar pedidos disponibles"
+          />
+          <button
+            type="submit"
+            className="inline-flex h-10 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-sm font-medium text-[var(--isalwa-kiln)]"
+          >
+            Buscar
+          </button>
+        </form>
+        {orderWindow.zeroMatch ? (
+          <div data-owner-review-state="no-match" className="mt-6">
+            <EmptyState
+              title="No hay pedidos que coincidan"
+              description="Cambie la búsqueda para volver a ver los pedidos disponibles."
+            />
+          </div>
+        ) : (
+          <ul className="mt-6">
+            {orderWindow.items.map((order) => {
+              const active = order.orderId === selected.orderId;
+              const customer = presentEntregaAuditLabel(order.customerName);
+              const orderLabel = presentEntregaAuditLabel(order.orderNumber);
+              return (
+                <ListRow key={order.orderId} as="li">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{orderLabel}</p>
+                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
+                      {customer} · {order.lines.length} línea(s)
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {active ? <StatusPill tone="info">Seleccionado</StatusPill> : null}
+                    <Link
+                      href={opsListHref('/entregas', listState, { orderId: order.orderId, datos })}
+                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                    >
+                      Abrir pedido
+                    </Link>
+                  </div>
+                </ListRow>
+              );
+            })}
+          </ul>
+        )}
+        <ListPageNav
+          from={orderWindow.from}
+          to={orderWindow.to}
+          total={orderWindow.total}
+          page={orderWindow.page}
+          pageCount={orderWindow.pageCount}
+          prevHref={orderNav.prevHref}
+          nextHref={orderNav.nextHref}
+        />
       </PageSection>
 
-      <div className="mb-4 space-y-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4" data-entrega-pedido-summary="">
+      <div
+        className="mb-4 space-y-3 rounded-[var(--isalwa-radius-panel)] border border-[var(--isalwa-mist)] bg-white p-4"
+        data-entrega-pedido-summary=""
+      >
         <div className="flex flex-wrap gap-2">
-          <StatusPill tone="neutral">Pedido {presentEntregaAuditLabel(selected.orderNumber)}</StatusPill>
+          <StatusPill tone="neutral">
+            Pedido {presentEntregaAuditLabel(selected.orderNumber)}
+          </StatusPill>
           <StatusPill tone="neutral">{presentEntregaAuditLabel(selected.customerName)}</StatusPill>
         </div>
         <DeliveryProgressStrip steps={progress} />

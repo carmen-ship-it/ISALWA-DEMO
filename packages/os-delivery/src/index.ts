@@ -17,3 +17,4 @@ export {
 } from './prisma-store';
 export type { DeliveryPrismaPort, PrismaDeliveryStore } from './prisma-store';
 export type { DeliveryStore, DeliveryNoteRecord, NoteLineRecord } from './store-types';
+export { DELIVERY_NOTES_LIST_LIMIT } from './list-limits';
