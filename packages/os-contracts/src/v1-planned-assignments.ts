@@ -232,6 +232,7 @@ export const V1_PLANNED_ASSIGNMENTS: readonly V1PlannedAssignment[] = [
   row('auxiliar-coordinacion', 'Auxiliar Administrativa / Coordinación', 'auxiliar', 'business', [
     OPERATIONS_COORDINATOR_RECORD_SCOPE,
     COORDINATION_DECISION_CAPABILITY,
+    DELIVERY_RECORD_SCOPE,
   ]),
   // Business view and technical panel are both explicit. system.admin does not imply the read.
   row('isalwa-manager', 'ISALWA Manager / Owner / Super Admin', 'system-controls', 'technical', [
@@ -245,7 +246,6 @@ export const V1_PLANNED_ASSIGNMENTS: readonly V1PlannedAssignment[] = [
  * Not granted to a nearby function to fill a gap.
  */
 export const V1_UNASSIGNED_CAPABILITIES = [
-  DELIVERY_RECORD_SCOPE,
   COMMERCIAL_PRICE_APPROVE_SCOPE,
   PRODUCTION_REVIEW_MEMBER_SCOPE,
   PEOPLE_ADMIN_SCOPE,
@@ -256,12 +256,6 @@ export const V1_UNASSIGNED_CAPABILITIES = [
 ] as const;
 
 export const V1_UNASSIGNED_NOTES: readonly UnassignedCapabilityNote[] = [
-  {
-    capability: DELIVERY_RECORD_SCOPE,
-    assignedToFunctionId: null,
-    reason:
-      'No confirmed person or function. Not assigned to Encargado de Almacén. Receive, allocate, and outbound do not cover delivery.',
-  },
   {
     capability: COMMERCIAL_PRICE_APPROVE_SCOPE,
     assignedToFunctionId: null,
@@ -358,6 +352,7 @@ export const V1_CROSS_LANE_CHANGE_REQUESTS: readonly V1CrossLaneChangeRequest[] 
     existingWriteCapabilities: [
       OPERATIONS_COORDINATOR_RECORD_SCOPE,
       COORDINATION_DECISION_CAPABILITY,
+      DELIVERY_RECORD_SCOPE,
     ],
     requestedCapabilityString: null,
     reason: READ_GAP,
@@ -450,11 +445,25 @@ export function peopleAdminBundledIntoGerente(): boolean {
   return listed.includes(PEOPLE_ADMIN_SCOPE);
 }
 
+/**
+ * True only when delivery.record appears outside the explicit Coordinación
+ * intended capability: another function, or an auto-grant slot. The owner
+ * assignment on Auxiliar Administrativa / Coordinación is not silent.
+ */
 export function deliveryRecordSilentlyAssigned(): boolean {
-  if (capabilityAssignedToFunction(DELIVERY_RECORD_SCOPE) !== null) return true;
-  return V1_PLANNED_ASSIGNMENTS.some((item) =>
-    item.explicitSlotsNotAutoGranted.some((slot) => slot.capability === DELIVERY_RECORD_SCOPE),
-  );
+  for (const item of V1_PLANNED_ASSIGNMENTS) {
+    const onSlot = item.explicitSlotsNotAutoGranted.some(
+      (slot) => slot.capability === DELIVERY_RECORD_SCOPE,
+    );
+    if (onSlot) return true;
+    if (
+      item.functionId !== 'auxiliar-coordinacion' &&
+      item.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 const IDENTITY_KEYS = new Set([

@@ -785,7 +785,6 @@ async function main(): Promise<void> {
       reused: r.reused,
     })),
     explicitlyUnassigned: [
-      'delivery.record',
       'commercial.order.convert',
       'commercial.exception.authorize',
       'production.review.member',

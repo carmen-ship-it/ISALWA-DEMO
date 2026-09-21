@@ -2,7 +2,11 @@
  * Pure helpers for Wave 2 staging role fixtures (tooling only).
  * No network I/O. Safe to unit-test without a live database.
  */
-import { canConvertQuoteToOrder, V1_PLANNED_ASSIGNMENTS } from '@isalwa/os-contracts';
+import {
+  canConvertQuoteToOrder,
+  DELIVERY_RECORD_SCOPE,
+  V1_PLANNED_ASSIGNMENTS,
+} from '@isalwa/os-contracts';
 import {
   WAVE2_FIXTURE_SEED_EMAIL,
   WAVE2_FIXTURE_SEED_FAMILY_NAME,
@@ -32,6 +36,28 @@ export function reconcileActiveGrants(
 
 export function plannedActiveGrantCount(): number {
   return V1_PLANNED_ASSIGNMENTS.reduce((n, row) => n + row.intendedCapabilities.length, 0);
+}
+
+/**
+ * Materialize the permanent Coordinación assignment of delivery.record.
+ * Adds only that capability. Refuses any other grant or any revocation.
+ */
+export function planCoordinacionDeliveryRecordMaterialization(
+  currentActiveKeys: readonly string[],
+  plannedCoordinacionCapabilities: readonly string[],
+): { toGrant: readonly string[]; alreadyActive: readonly string[] } {
+  if (!plannedCoordinacionCapabilities.includes(DELIVERY_RECORD_SCOPE)) {
+    throw new Error('DELIVERY_RECORD_NOT_IN_COORDINACION_PLAN');
+  }
+  const plan = reconcileActiveGrants(currentActiveKeys, plannedCoordinacionCapabilities);
+  if (plan.toEnd.length > 0) {
+    throw new Error(`UNEXPECTED_ROLE_DRIFT_TO_END:${plan.toEnd.join(',')}`);
+  }
+  const unexpected = plan.toGrant.filter((key) => key !== DELIVERY_RECORD_SCOPE);
+  if (unexpected.length > 0) {
+    throw new Error(`UNEXPECTED_ROLE_DRIFT_TO_GRANT:${unexpected.join(',')}`);
+  }
+  return { toGrant: plan.toGrant, alreadyActive: plan.alreadyActive };
 }
 
 /**
