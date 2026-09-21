@@ -38,6 +38,7 @@ import {
   expectedWave2FixtureCounts,
   fixtureSeedActorSpec,
   plannedActiveGrantCount,
+  planCoordinacionDeliveryRecordMaterialization,
   planSynthCommercialOwnership,
   reconcileActiveGrants,
 } from './staging-wave2-role-fixtures-lib';
@@ -226,6 +227,26 @@ describe('staging-wave2-role-fixtures guards', () => {
     assertPreConnectGuards(validEnv);
   });
 
+
+  it('assigns delivery.record only to Coordinación fixtures', () => {
+    assert.equal(
+      plannedCapabilitiesFor('encargado-almacen').includes('delivery.record'),
+      false,
+    );
+    assert.equal(plannedCapabilitiesFor('asesor-comercial').includes('delivery.record'), false);
+    assert.deepEqual([...plannedCapabilitiesFor('auxiliar-coordinacion')].sort(), [
+      'coordination.decision.record',
+      'delivery.record',
+      'operations.coordinator.record',
+    ]);
+    const unrelated = V1_PLANNED_ASSIGNMENTS.filter(
+      (row) => row.functionId !== 'auxiliar-coordinacion',
+    );
+    for (const row of unrelated) {
+      assert.equal(row.intendedCapabilities.includes('delivery.record'), false, row.functionId);
+    }
+  });
+
   it('auxiliar email is w2.coordinacion@isalwa.demo', () => {
     assert.equal(ROLE_EMAILS['auxiliar-coordinacion'].email, 'w2.coordinacion@isalwa.demo');
   });
@@ -250,8 +271,8 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
   it('expected fixture counts match intended commercial-only setup', () => {
     const counts = expectedWave2FixtureCounts();
     assert.equal(counts.businessRoles, 9);
-    assert.equal(counts.plannedActiveGrants, 15);
-    assert.equal(plannedActiveGrantCount(), 15);
+    assert.equal(counts.plannedActiveGrants, 16);
+    assert.equal(plannedActiveGrantCount(), 16);
     assert.equal(counts.seedActors, 1);
     assert.equal(counts.seedScopes, 2);
     assert.equal(counts.parties, 1);
@@ -309,7 +330,44 @@ describe('staging-wave2-role-fixtures seed actor + recovery', () => {
       assert.deepEqual(again.toGrant, []);
       assert.deepEqual(again.toEnd, []);
     }
-    assert.equal(plannedActiveGrantCount(), 15);
+    assert.equal(plannedActiveGrantCount(), 16);
+  });
+
+  it('materializes delivery.record on Coordinación without duplicating or broadening', () => {
+    const before = ['coordination.decision.record', 'operations.coordinator.record'];
+    const planned = [...plannedCapabilitiesFor('auxiliar-coordinacion')];
+    const first = planCoordinacionDeliveryRecordMaterialization(before, planned);
+    assert.deepEqual(first.toGrant, ['delivery.record']);
+    const second = planCoordinacionDeliveryRecordMaterialization(
+      [...before, 'delivery.record'],
+      planned,
+    );
+    assert.deepEqual(second.toGrant, []);
+    const duplicated = planCoordinacionDeliveryRecordMaterialization(
+      [...before, 'delivery.record', 'delivery.record'],
+      planned,
+    );
+    assert.deepEqual(duplicated.toGrant, []);
+    assert.throws(
+      () =>
+        planCoordinacionDeliveryRecordMaterialization(
+          [...before, 'people.admin'],
+          planned,
+        ),
+      /UNEXPECTED_ROLE_DRIFT_TO_END:people\.admin/,
+    );
+    assert.throws(
+      () => planCoordinacionDeliveryRecordMaterialization(before, before),
+      /DELIVERY_RECORD_NOT_IN_COORDINACION_PLAN/,
+    );
+    assert.throws(
+      () =>
+        planCoordinacionDeliveryRecordMaterialization([], [
+          ...planned,
+          'warehouse.outbound.record',
+        ]),
+      /UNEXPECTED_ROLE_DRIFT_TO_GRANT/,
+    );
   });
 
   it('idempotent grant reconcile ends drift without duplicating', () => {

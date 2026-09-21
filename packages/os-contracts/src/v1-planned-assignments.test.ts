@@ -77,7 +77,11 @@ const EXPECTED_INTENDED: Record<V1PlannedFunctionId, readonly string[]> = {
   ],
   'encargada-compras': [PURCHASING_OPERATIONAL_RECORD_SCOPE],
   contabilidad: [FINANCE_OPERATIONAL_RECORD_SCOPE],
-  'auxiliar-coordinacion': [OPERATIONS_COORDINATOR_RECORD_SCOPE, COORDINATION_DECISION_CAPABILITY],
+  'auxiliar-coordinacion': [
+    OPERATIONS_COORDINATOR_RECORD_SCOPE,
+    COORDINATION_DECISION_CAPABILITY,
+    DELIVERY_RECORD_SCOPE,
+  ],
   'isalwa-manager': [MANAGEMENT_ORG_READ_SCOPE, SYSTEM_ADMIN_SCOPE],
 };
 
@@ -196,29 +200,57 @@ describe('V1 planned function map', () => {
     }
   });
 
-  it('does not silently assign delivery.record', () => {
+  it('assigns delivery.record only to Coordinación', () => {
     assert.equal(deliveryRecordSilentlyAssigned(), false);
-    assert.equal(capabilityAssignedToFunction(DELIVERY_RECORD_SCOPE), null);
-    assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(DELIVERY_RECORD_SCOPE), true);
+    assert.equal(capabilityAssignedToFunction(DELIVERY_RECORD_SCOPE), 'auxiliar-coordinacion');
+    assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(DELIVERY_RECORD_SCOPE), false);
+    const coordinacion = plannedAssignmentByFunction('auxiliar-coordinacion');
+    const warehouse = plannedAssignmentByFunction('encargado-almacen');
+    const asesor = plannedAssignmentByFunction('asesor-comercial');
+    const jefe = plannedAssignmentByFunction('jefe-comercial');
+    const owner = plannedAssignmentByFunction('isalwa-manager');
+    assert.ok(coordinacion);
+    assert.ok(warehouse);
+    assert.ok(asesor);
+    assert.ok(jefe);
+    assert.ok(owner);
+    assert.deepEqual(coordinacion.intendedCapabilities, [
+      OPERATIONS_COORDINATOR_RECORD_SCOPE,
+      COORDINATION_DECISION_CAPABILITY,
+      DELIVERY_RECORD_SCOPE,
+    ]);
     for (const row of V1_PLANNED_ASSIGNMENTS) {
-      assert.equal(row.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false, row.functionId);
+      assert.equal(
+        row.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE),
+        row.functionId === 'auxiliar-coordinacion',
+        row.functionId,
+      );
       assert.equal(
         row.explicitSlotsNotAutoGranted.some((slot) => slot.capability === DELIVERY_RECORD_SCOPE),
         false,
         row.functionId,
       );
     }
-    const warehouse = plannedAssignmentByFunction('encargado-almacen');
-    assert.ok(warehouse);
     assert.equal(warehouse.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
     assert.equal(warehouse.intendedCapabilities.includes(WAREHOUSE_EXIT_RECORD_SCOPE), true);
+    assert.equal(asesor.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
+    assert.equal(jefe.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
+    assert.equal(owner.intendedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
+    assert.equal(scopeImpliedBySibling(WAREHOUSE_EXIT_RECORD_SCOPE, DELIVERY_RECORD_SCOPE), false);
+    assert.equal(
+      scopeImpliedBySibling(OPERATIONS_COORDINATOR_RECORD_SCOPE, DELIVERY_RECORD_SCOPE),
+      false,
+    );
+    assert.equal(scopeImpliedBySibling(COORDINATION_DECISION_CAPABILITY, DELIVERY_RECORD_SCOPE), false);
     assert.equal(V1_UNASSIGNED_CAPABILITIES.includes(WAREHOUSE_EXIT_RECORD_SCOPE), false);
     assert.equal(capabilityAssignedToFunction(WAREHOUSE_EXIT_RECORD_SCOPE), 'encargado-almacen');
     const receipt = v1FunctionMapReceipt();
-    assert.equal(receipt.unassignedCapabilities.includes(DELIVERY_RECORD_SCOPE), true);
-    const note = receipt.unassignedNotes.find((item) => item.capability === DELIVERY_RECORD_SCOPE);
-    assert.ok(note);
-    assert.equal(note.assignedToFunctionId, null);
+    assert.equal(receipt.unassignedCapabilities.includes(DELIVERY_RECORD_SCOPE), false);
+    assert.equal(
+      receipt.unassignedNotes.some((item) => item.capability === DELIVERY_RECORD_SCOPE),
+      false,
+    );
+    assert.equal(receipt.notImpliedByFunction.includes(DELIVERY_RECORD_SCOPE), true);
   });
 
   it('does not bundle people.admin into Gerente as a business shortcut', () => {
