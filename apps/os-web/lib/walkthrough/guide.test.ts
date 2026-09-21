@@ -163,7 +163,7 @@ describe('modo guiado', () => {
     assert.notEqual(resumed.currentJourneyId, 'gerencia');
   });
 
-  it('Ayuda mounts help panel with Story Mode and welcome replay only', () => {
+  it('Ayuda mounts help panel with Recorrido completo and welcome replay only', () => {
     const ayuda = readFileSync(join(here, '../../app/(app)/ayuda/page.tsx'), 'utf8');
     const panel = readFileSync(
       join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'),
@@ -296,7 +296,7 @@ describe('modo guiado', () => {
     assert.notEqual(guideStorageKey(a), guideStorageKey(b));
   });
 
-  it('retires floating GuidePanel full-tour launcher in favor of Story Mode', () => {
+  it('retires floating GuidePanel full-tour launcher in favor of Recorrido completo', () => {
     const shell = readFileSync(join(here, '../../components/walkthrough/walkthrough-shell.tsx'), 'utf8');
     const help = readFileSync(join(here, '../../components/walkthrough/walkthrough-help-panel.tsx'), 'utf8');
     const appShell = readFileSync(join(here, '../../components/shell/app-shell.tsx'), 'utf8');
@@ -309,7 +309,8 @@ describe('modo guiado', () => {
     assert.match(appShell, /DemoDataFilterToggle/);
     assert.doesNotMatch(copy, /show: 'Mostrar recorrido'/);
     assert.match(copy, /show: 'Ver recorrido completo'/);
-    assert.match(shell, /Story Mode/);
+    assert.match(shell, /Recorrido completo/);
+    assert.doesNotMatch(shell, /Story Mode/);
     assert.doesNotMatch(help, /api\?\.replay\(/);
     assert.doesNotMatch(help, /GUIDE_CHROME\.title/);
     assert.doesNotMatch(help, /GUIDE_CHROME\.reset/);
@@ -317,6 +318,8 @@ describe('modo guiado', () => {
     assert.doesNotMatch(help, /Recorridos de sección/);
     assert.doesNotMatch(help, /Recorrido de esta página/);
     assert.match(help, /Ver recorrido completo/);
+    assert.match(help, /Recorrido completo/);
+    assert.doesNotMatch(help, /Story Mode/);
     assert.match(help, /openStory/);
     assert.match(help, /LearningModeToggle/);
   });

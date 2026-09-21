@@ -101,7 +101,8 @@ describe('decideCommercialApprovalAction redirect (structural)', () => {
       actions.indexOf('export async function decideCommercialApprovalAction'),
       actions.indexOf('export async function reassignCommercialAccountOwnerAction'),
     );
-    assert.match(decideSlice, /redirectKeepingDataMode\(quoteHref\(partyId,\s*subjectId\)\)/);
+    assert.match(decideSlice, /subjectType === 'quote'/);
+    assert.match(decideSlice, /redirectKeepingDataMode\(quoteHref\(partyId,\s*subjectId\)/);
     assert.doesNotMatch(decideSlice, /CreateOrder|insertOrder|order\.created/);
   });
 
@@ -112,6 +113,6 @@ describe('decideCommercialApprovalAction redirect (structural)', () => {
       'utf8',
     );
     assert.match(panel, /result\.redirectTo/);
-    assert.match(panel, /router\.push\(result\.redirectTo\)/);
+    assert.match(panel, /router\.push\(hrefWithClientDataMode\(result\.redirectTo\)\)/);
   });
 });

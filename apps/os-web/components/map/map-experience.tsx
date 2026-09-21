@@ -246,7 +246,7 @@ export function MapExperience({
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:max-w-sm" data-tour="map-search">
+        <div className="w-full overflow-visible sm:max-w-sm" data-tour="map-search">
           <label htmlFor="mapa-search" className="text-xs font-medium text-[var(--isalwa-slate)]">
             Buscar en la lista
           </label>

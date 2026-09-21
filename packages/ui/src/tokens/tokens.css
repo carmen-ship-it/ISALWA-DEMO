@@ -108,7 +108,7 @@
 
   --isalwa-shadow-soft: 0 1px 0 rgba(28, 36, 48, 0.03), 0 10px 28px rgba(28, 36, 48, 0.05);
   --isalwa-shadow-lift: 0 2px 0 rgba(28, 36, 48, 0.02), 0 18px 44px rgba(28, 36, 48, 0.09);
-  --isalwa-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--isalwa-glaze) 26%, transparent);
+  --isalwa-shadow-focus: 0 0 0 3px rgba(40, 122, 120, 0.28);
   /* Card depth vocabulary (Mission 9) — three named elevations, same physics
      as soft/lift, so a reader can distinguish resting vs. hovered vs.
      floating (menus, popovers) chrome without a fourth bespoke shadow. */

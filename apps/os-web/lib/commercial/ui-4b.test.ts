@@ -53,7 +53,7 @@ describe('UI-4B approval timeline labels', () => {
   });
 
   it('labels approval.approved', () => {
-    assert.equal(timelineEventLabel('approval.approved'), 'Aprobación aprobada');
+    assert.equal(timelineEventLabel('approval.approved'), 'Aprobación concedida');
   });
 
   it('labels approval.rejected with bounded reason', () => {

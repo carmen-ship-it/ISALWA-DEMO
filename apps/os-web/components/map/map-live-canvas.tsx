@@ -316,7 +316,7 @@ export function MapLiveCanvas({
         <span>{coverageLine}</span>
         <span className="flex items-center gap-2">
           {markers.length === 0 && plottableCount > 0 ? (
-            <span>Sin lectura de coordenadas en esta página — no se inventan pines</span>
+            <span>Todavía no hay ubicaciones confirmadas para mostrar en el mapa</span>
           ) : null}
           <StatusPill tone="info">Mapa activo</StatusPill>
         </span>

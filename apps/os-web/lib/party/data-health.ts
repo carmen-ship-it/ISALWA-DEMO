@@ -1,10 +1,10 @@
 import { normalizeProvenanceUrl, type PartySummaryReadModel } from '@isalwa/os-contracts';
 
 export const DATA_HEALTH_BOUNDARY =
-  'Esta lectura no fusiona clientes, no elige cuál dato es correcto y no geocodifica.';
+  'Esta lectura no fusiona clientes ni elige cuál dato es correcto.';
 
 export const MAP_COVERAGE_LIMIT =
-  'Un enlace de Maps no cuenta como ubicación. No se inventan coordenadas ni se geocodifica.';
+  'Se muestran clientes con ubicación confirmada.';
 
 /** Category for scanability — not severity. Never invent critical/high/low. */
 export type DataHealthIssueType =
@@ -96,9 +96,9 @@ export function dataHealthFromSummaries(items: readonly PartySummaryReadModel[])
         type: 'ubicacion',
         title: 'Sin ubicación en mapa',
         what: `${noCoordinates.length} cliente${noCoordinates.length === 1 ? '' : 's'} visible${noCoordinates.length === 1 ? '' : 's'} no tiene coordenadas.`,
-        why: 'Un enlace de Maps no es una ubicación. No se geocodifica en silencio.',
+        why: 'Un enlace de Maps no es una ubicación confirmada en el mapa.',
         action: 'Revise la ficha si el origen está incompleto. No se corrige solo.',
-        boundary: 'No se geocodifica. No se inventan coordenadas.',
+        boundary: 'Se muestran clientes con ubicación confirmada.',
       }),
     );
   }
@@ -127,7 +127,7 @@ export function dataHealthFromSummaries(items: readonly PartySummaryReadModel[])
         what: `${names} comparten el mismo enlace de ubicación.`,
         why: 'Puede ser el mismo lugar o un dato repetido. Esta lectura no decide cuál es correcto.',
         action: 'Revise el origen con quien conozca a esos clientes. No se fusiona ni se corrige solo.',
-        boundary: 'No se elige un ganador. No se geocodifica. No se fusiona.',
+        boundary: 'No se elige un ganador. No se fusiona.',
       }),
     );
   }
@@ -146,7 +146,7 @@ export function dataHealthFromSummaries(items: readonly PartySummaryReadModel[])
         )}.`,
         why: 'El enlace es procedencia. No coloca al cliente en el mapa.',
         action: 'No se convierte el enlace en un punto desde aquí.',
-        boundary: 'No se geocodifica.',
+        boundary: 'Se muestran clientes con ubicación confirmada.',
       }),
     );
   }

@@ -42,10 +42,10 @@ describe('visual system — canvas + chrome', () => {
 
   it('makes active nav obvious with teal edge + navy ink + sky/teal tint', () => {
     const nav = readFileSync(resolve(root, 'components/shell/app-nav.tsx'), 'utf8');
-    assert.match(nav, /border-l-\[var\(--isalwa-glaze\)\]/);
+    assert.match(nav, /border-l-\[var\(--isalwa-glaze-deep\)\]/);
     assert.match(nav, /font-semibold text-\[var\(--isalwa-kiln\)\]/);
     assert.match(nav, /--isalwa-teal-100/);
-    assert.match(nav, /--isalwa-sky-100/);
+    assert.match(nav, /navIconTone/);
   });
 
   it('keeps desktop sidebar collapsible with local UI prefs, not auth', () => {
@@ -79,7 +79,9 @@ describe('visual system — inicio + salud weight', () => {
     );
     assert.match(page, /Centro de mando/);
     assert.match(page, /Atención de hoy/);
-    assert.match(page, /--isalwa-sky-100/);
+    assert.match(page, /InicioVisualBand tone="attention"/);
+    const band = readFileSync(resolve(root, 'components/inicio/inicio-visual-band.tsx'), 'utf8');
+    assert.match(band, /attention:[\s\S]*bg-white/);
     assert.match(queues, /surface=\{SECTION_SURFACE/);
     assert.match(queues, /weight === 'lead'/);
     assert.match(queues, /EmptyPanel/);

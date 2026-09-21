@@ -7,7 +7,7 @@ export const GUIDE_CHROME = {
   continue: 'Continuar',
   close: 'Cerrar',
   /**
-   * Canonical full-walkthrough label (Story Mode).
+   * Canonical full-walkthrough label (Recorrido completo).
    * Do not reintroduce a floating "Mostrar recorrido" GuidePanel launcher.
    */
   show: 'Ver recorrido completo',
@@ -29,7 +29,7 @@ export const INTRO_COPY = {
     title: 'Bienvenido a ISALWA',
     body: 'ISALWA reúne clientes, trabajo, decisiones y operación en un solo lugar para que puedas entender qué está pasando, qué necesita atención y qué debería pasar después.',
     secondary:
-      'Esta bienvenida es solo una orientación corta. El recorrido guiado completo de evaluación está en Story Mode (Ver recorrido completo).',
+      'Esta bienvenida es solo una orientación corta. El recorrido guiado completo de evaluación está en Recorrido completo.',
     primary: 'Entendido',
     skip: 'Explorar por mi cuenta',
     footer: 'Puedes volver a ver esta bienvenida desde Ayuda.',
