@@ -1,0 +1,116 @@
+/* Product-wide color depth — existing palette only. */
+.isalwa-section-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--isalwa-mist) 70%, white);
+}
+.isalwa-section-band--teal { background: var(--isalwa-teal-100); }
+.isalwa-section-band--sky { background: var(--isalwa-sky); }
+.isalwa-section-band--amber { background: var(--isalwa-status-amber-bg); }
+.isalwa-section-band--green { background: var(--isalwa-status-green-bg); }
+.isalwa-section-band--red { background: var(--isalwa-status-red-bg); }
+.isalwa-section-band--navy {
+  background: color-mix(in srgb, var(--isalwa-kiln) 10%, var(--isalwa-sky));
+}
+
+.isalwa-operating-scan-header {
+  background: var(--isalwa-teal-100) !important;
+}
+
+[data-list-page-nav] a {
+  border-color: var(--isalwa-kiln);
+  background: white;
+  font-weight: 600;
+}
+
+[data-section-tone='active'] { border-color: color-mix(in srgb, var(--isalwa-glaze) 35%, var(--isalwa-mist)); }
+[data-section-tone='context'] { border-color: color-mix(in srgb, var(--isalwa-sky) 55%, var(--isalwa-mist)); }
+[data-section-tone='attention'] { border-color: var(--isalwa-status-amber-2); }
+[data-section-tone='complete'] { border-color: color-mix(in srgb, var(--isalwa-success) 28%, var(--isalwa-mist)); }
+[data-section-tone='danger'] { border-color: color-mix(in srgb, var(--isalwa-danger) 28%, var(--isalwa-mist)); }
+
+[data-section-tone] > .mb-4 {
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  margin-top: -1.25rem;
+  padding: 0.85rem 1.25rem 0.75rem;
+}
+@media (min-width: 768px) {
+  [data-section-tone] > .mb-4 {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    margin-top: -1.5rem;
+    padding: 0.95rem 1.5rem 0.8rem;
+  }
+}
+[data-section-tone='active'] > .mb-4 { background: var(--isalwa-teal-100); }
+[data-section-tone='context'] > .mb-4 { background: var(--isalwa-sky); }
+[data-section-tone='attention'] > .mb-4 { background: var(--isalwa-status-amber-bg); }
+[data-section-tone='complete'] > .mb-4 { background: var(--isalwa-status-green-bg); }
+[data-section-tone='danger'] > .mb-4 { background: var(--isalwa-status-red-bg); }
+[data-section-tone='navy'] > .mb-4 {
+  background: color-mix(in srgb, var(--isalwa-kiln) 10%, var(--isalwa-sky));
+}
+
+[data-entrega-section-nav] a[aria-current='true'] {
+  background: var(--isalwa-teal-100);
+  color: var(--isalwa-kiln);
+  font-weight: 700;
+}
+
+.isalwa-chip.is-active,
+.isalwa-chip[aria-pressed="true"] {
+  background: var(--isalwa-teal-100) !important;
+  border-color: var(--isalwa-glaze) !important;
+  color: var(--isalwa-glaze-deep) !important;
+}
+
+[data-search-group-label] {
+  background: var(--isalwa-sky);
+}
+
+[data-notification-unread] {
+  background: var(--isalwa-sky);
+}
+
+[data-entrega-pendientes] {
+  background: var(--isalwa-status-amber-bg);
+  margin-left: -0.25rem;
+  margin-right: -0.25rem;
+  padding: 1rem 1.25rem 1.25rem;
+  border-radius: var(--isalwa-radius-panel);
+  border-top: 0;
+}
+
+[data-section-tone] > h2:first-child,
+[data-section-tone] > .isalwa-section-label:first-child {
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  margin-top: -1.25rem;
+  padding: 0.85rem 1.25rem 0.75rem;
+}
+@media (min-width: 768px) {
+  [data-section-tone] > h2:first-child,
+  [data-section-tone] > .isalwa-section-label:first-child {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    margin-top: -1.5rem;
+    padding: 0.95rem 1.5rem 0.8rem;
+  }
+}
+[data-section-tone='active'] > h2:first-child,
+[data-section-tone='active'] > .isalwa-section-label:first-child { background: var(--isalwa-teal-100); }
+[data-section-tone='context'] > h2:first-child,
+[data-section-tone='context'] > .isalwa-section-label:first-child { background: var(--isalwa-sky); }
+[data-section-tone='attention'] > h2:first-child,
+[data-section-tone='attention'] > .isalwa-section-label:first-child { background: var(--isalwa-status-amber-bg); }
+[data-section-tone='complete'] > h2:first-child,
+[data-section-tone='complete'] > .isalwa-section-label:first-child { background: var(--isalwa-status-green-bg); }
+[data-section-tone='navy'] > h2:first-child,
+[data-section-tone='navy'] > .isalwa-section-label:first-child {
+  background: color-mix(in srgb, var(--isalwa-kiln) 10%, var(--isalwa-sky));
+}

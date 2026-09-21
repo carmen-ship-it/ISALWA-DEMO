@@ -93,7 +93,7 @@ export function ProductionOpsTable({ rows, actorMemberId, canMutate, trueEmpty =
 
   return (
     <OpsDeskSurface className="mb-4">
-      <PageSection className="p-0 shadow-none" aria-label="Cola de producción por pedido">
+      <PageSection className="p-0 shadow-none" data-section-tone="active" aria-label="Cola de producción por pedido">
         <SectionHeader
           kicker="Producción"
           title={

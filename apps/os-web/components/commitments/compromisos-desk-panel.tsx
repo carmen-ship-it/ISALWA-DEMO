@@ -44,16 +44,19 @@ type BucketProps = {
 
 function CommitmentBucket({ kicker, title, items, memberLabels, emptyTitle, emptyDescription, accent }: BucketProps & { accent?: string }) {
   return (
-    <section className={`mb-4 ${deskPanelClass} border-l-4 p-4 md:p-5 ${accent ?? 'border-l-[var(--isalwa-mist)]'}`}>
-      <SectionHeader
-        kicker={kicker}
-        title={
-          <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
-            {title}
-          </h2>
-        }
-      />
-      <div className="mt-3">
+    <section className={`mb-4 overflow-hidden ${deskPanelClass} p-0`}>
+      <div className={`px-4 py-3 md:px-5 ${accent ?? 'bg-[var(--isalwa-sky-100)]'}`}>
+        <SectionHeader
+          kicker={kicker}
+          title={
+            <h2 className="font-[family-name:var(--isalwa-font-display)] text-xl font-normal italic text-[var(--isalwa-kiln)]">
+              {title}
+            </h2>
+          }
+          className="mb-0"
+        />
+      </div>
+      <div className="bg-white px-4 py-3 md:px-5 md:py-4">
         <CommitmentList
           items={items}
           memberLabels={memberLabels}
@@ -102,7 +105,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Próximos"
         title="Vence pronto"
-        accent="border-l-[var(--isalwa-status-amber-2)]"
+        accent="bg-[var(--isalwa-status-amber-bg)]"
         items={buckets.dueSoon}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos próximos"
@@ -111,7 +114,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Equipo"
         title="Compromisos de equipo"
-        accent="border-l-[var(--isalwa-sky)]"
+        accent="bg-[var(--isalwa-sky)]"
         items={buckets.team}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos internos"
@@ -120,7 +123,7 @@ export function CompromisosDeskPanel({ items, memberLabels, partyLabels }: Compr
       <CommitmentBucket
         kicker="Historial"
         title="Cumplidos"
-        accent="border-l-[var(--isalwa-success)]"
+        accent="bg-[var(--isalwa-status-green-bg)]"
         items={buckets.completed}
         memberLabels={memberLabels}
         emptyTitle="Sin compromisos cumplidos"

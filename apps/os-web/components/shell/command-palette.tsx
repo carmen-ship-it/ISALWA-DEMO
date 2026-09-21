@@ -570,7 +570,7 @@ export function CommandPalette({
           ) : null}
           {groups.map((group) => (
             <div key={group.id} className="mb-2">
-              <p className="isalwa-section-label px-3 py-2">{group.label}</p>
+              <p className="isalwa-section-label px-3 py-2" data-search-group-label="">{group.label}</p>
               <ul>
                 {group.items.map((item) => {
                   cursor += 1;

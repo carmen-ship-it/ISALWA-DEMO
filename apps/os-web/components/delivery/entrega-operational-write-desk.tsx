@@ -204,7 +204,7 @@ export async function EntregaOperationalWriteDesk({
 
   return (
     <div className="mb-6" data-entrega-ops-desk="1">
-      <PageSection card className="mb-4 p-5 md:p-6" aria-label="Pedidos disponibles para registrar">
+      <PageSection card className="mb-4 p-5 md:p-6" data-section-tone="navy" aria-label="Pedidos disponibles para registrar">
         <SectionHeader
           kicker="Operación"
           title={
@@ -243,13 +243,13 @@ export async function EntregaOperationalWriteDesk({
               const customer = presentEntregaAuditLabel(order.customerName);
               const orderLabel = presentEntregaAuditLabel(order.orderNumber);
               return (
-                <ListRow key={order.orderId} as="li">
+                <ListRow key={order.orderId} as="li" className={active ? 'bg-[var(--isalwa-teal-100)]' : undefined}>
                   <div className="min-w-0">
                     <p className="text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)]">{orderLabel}</p>
                     <p className="mt-1 text-xs leading-4 text-[var(--isalwa-slate)]">{customer}</p>
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center gap-2 md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
-                    {active ? <StatusPill tone="info">Seleccionado</StatusPill> : null}
+                    {active ? <StatusPill tone="active">Seleccionado</StatusPill> : null}
                     <Link
                       href={opsListHref('/entregas', listState, { orderId: order.orderId, datos })}
                       className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"

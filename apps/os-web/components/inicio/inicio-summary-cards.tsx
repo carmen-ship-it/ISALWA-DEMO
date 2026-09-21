@@ -20,13 +20,13 @@ function cardSurface(id: InicioSummaryCardId, count: number | null): {
   dotLabel: string;
 } {
   const nonzero = typeof count === 'number' && count > 0;
-  const base = 'border bg-white';
+  const base = 'border';
   switch (id) {
     case 'attention':
       return {
         panel: nonzero
-          ? `${base} border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))]`
-          : `${base} border-[var(--isalwa-mist)]`,
+          ? `${base} border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-red-bg)]`
+          : `${base} border-[var(--isalwa-mist)] bg-white`,
         value: nonzero ? 'text-[var(--isalwa-danger)]' : 'text-[var(--isalwa-kiln)]',
         dot: nonzero ? 'urgent' : 'neutral',
         pulse: nonzero,
@@ -34,7 +34,7 @@ function cardSurface(id: InicioSummaryCardId, count: number | null): {
       };
     case 'today':
       return {
-        panel: `${base} border-[color-mix(in_srgb,var(--isalwa-sky)_70%,var(--isalwa-mist))]`,
+        panel: `${base} border-[color-mix(in_srgb,var(--isalwa-sky)_70%,var(--isalwa-mist))] bg-[var(--isalwa-sky)]`,
         value: 'text-[var(--isalwa-kiln)]',
         dot: 'active',
         pulse: false,
@@ -43,8 +43,8 @@ function cardSurface(id: InicioSummaryCardId, count: number | null): {
     case 'approvals':
       return {
         panel: nonzero
-          ? `${base} border-[var(--isalwa-status-amber-2)]`
-          : `${base} border-[var(--isalwa-mist)]`,
+          ? `${base} border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)]`
+          : `${base} border-[var(--isalwa-mist)] bg-white`,
         value: 'text-[var(--isalwa-kiln)]',
         dot: nonzero ? 'attention' : 'neutral',
         pulse: false,
@@ -53,8 +53,8 @@ function cardSurface(id: InicioSummaryCardId, count: number | null): {
     case 'issues':
       return {
         panel: nonzero
-          ? `${base} border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))]`
-          : `${base} border-[var(--isalwa-mist)]`,
+          ? `${base} border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-red-bg)]`
+          : `${base} border-[var(--isalwa-mist)] bg-white`,
         value: nonzero ? 'text-[var(--isalwa-danger)]' : 'text-[var(--isalwa-kiln)]',
         dot: nonzero ? 'urgent' : 'neutral',
         pulse: nonzero,

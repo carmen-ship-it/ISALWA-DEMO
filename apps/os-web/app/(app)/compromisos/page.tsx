@@ -122,12 +122,14 @@ export default async function CompromisosPage({
               label: 'Vence pronto',
               value: String(buckets.dueSoon.length),
               tone: buckets.dueSoon.length > 0 ? 'var(--isalwa-warning)' : 'var(--isalwa-slate)',
+              fill: buckets.dueSoon.length > 0 ? 'attention' : 'neutral',
             },
-            { label: 'Equipo', value: String(buckets.team.length), tone: 'var(--isalwa-info)' },
+            { label: 'Equipo', value: String(buckets.team.length), tone: 'var(--isalwa-info)', fill: 'info' },
             {
               label: 'Cumplidos',
               value: String(buckets.completed.length),
               tone: buckets.completed.length > 0 ? 'var(--isalwa-success)' : 'var(--isalwa-slate)',
+              fill: buckets.completed.length > 0 ? 'success' : 'neutral',
             },
           ]}
         />

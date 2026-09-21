@@ -41,10 +41,10 @@ export type StatusPillProps = HTMLAttributes<HTMLSpanElement> & {
  */
 const tones: Record<StatusPillTone, string> = {
   neutral: 'bg-[var(--isalwa-mist)] text-[var(--isalwa-slate)]',
-  success: 'bg-[color-mix(in_srgb,var(--isalwa-success)_12%,white)] text-[var(--isalwa-success)]',
-  warning: 'bg-[color-mix(in_srgb,var(--isalwa-warning)_12%,white)] text-[var(--isalwa-warning)]',
-  danger: 'bg-[color-mix(in_srgb,var(--isalwa-danger)_10%,white)] text-[var(--isalwa-danger)]',
-  info: 'bg-[color-mix(in_srgb,var(--isalwa-info)_10%,white)] text-[var(--isalwa-info)]',
+  success: 'bg-[var(--isalwa-status-green-bg)] text-[var(--isalwa-success)]',
+  warning: 'bg-[var(--isalwa-status-amber-bg)] text-[var(--isalwa-warning)]',
+  danger: 'bg-[var(--isalwa-status-red-bg)] text-[var(--isalwa-danger)]',
+  info: 'bg-[var(--isalwa-sky)] text-[var(--isalwa-info)]',
   /** User-reported fact. Beige, not a system confirmation. */
   manual:
     'bg-[color-mix(in_srgb,var(--isalwa-copper)_16%,white)] text-[color-mix(in_srgb,var(--isalwa-copper)_55%,var(--isalwa-kiln))]',
@@ -174,6 +174,9 @@ const LABEL_TONE_MAP: Record<string, StatusPillTone> = {
   registrada: 'open',
   enviada: 'in_progress',
   enviado: 'in_progress',
+  presentada: 'in_progress',
+  presentado: 'in_progress',
+  'revisión requerida': 'pending',
   // ATTENTION / WAITING
   pendiente: 'pending',
   'actualización solicitada': 'pending',

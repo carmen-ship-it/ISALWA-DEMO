@@ -35,7 +35,7 @@ describe('visual hierarchy contract', () => {
     const delivery = read('components/delivery/delivery-documents-panel.tsx');
     assert.match(review, /variant="primary"/);
     assert.match(review, /Resolver revisión/);
-    assert.match(review, /border-l-\[var\(--isalwa-status-amber-2\)\]/);
+    assert.match(review, /bg-\[var\(--isalwa-status-amber-bg\)\]/);
     assert.match(delivery, /Próxima acción/);
     assert.match(delivery, /variant="secondary"/);
     assert.match(delivery, /canSubmitEntrega \? 'contextual' : 'secondary'/);

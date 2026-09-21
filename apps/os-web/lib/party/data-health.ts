@@ -34,9 +34,9 @@ export const DATA_HEALTH_TYPE_MARKER: Record<DataHealthIssueType, string> = {
   asignacion: 'border-l-[var(--isalwa-kiln)] bg-[color-mix(in_srgb,var(--isalwa-kiln)_6%,white)]',
   /* Duplicate marks on record — red edge without inventing "critical". */
   duplicado:
-    'border-l-[var(--isalwa-danger)] bg-[color-mix(in_srgb,var(--isalwa-danger)_6%,white)]',
+    'border-l-[var(--isalwa-danger)] bg-[var(--isalwa-status-red-bg)]',
   identidad: 'border-l-[var(--isalwa-kiln)] bg-[var(--isalwa-surface-ops)]',
-  revision: 'border-l-[var(--isalwa-warning)] bg-[var(--isalwa-surface-attention)]',
+  revision: 'border-l-[var(--isalwa-warning)] bg-[var(--isalwa-status-amber-bg)]',
 };
 
 export function dataHealthPillTone(

@@ -371,13 +371,13 @@ function LinkedOrdersSection({
       />
       <details
         id="pedidos-para-vincular"
-        className="mt-4 rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white px-4 py-3"
+        className="mt-4 overflow-hidden rounded-[var(--isalwa-radius-card)] border border-[var(--isalwa-mist)] bg-white"
         open={Boolean(states.linkable.q || states.linkable.pagina)}
       >
-        <summary className="cursor-pointer text-sm font-semibold text-[var(--isalwa-kiln)]">
+        <summary className="cursor-pointer bg-[var(--isalwa-teal-100)] px-4 py-3 text-sm font-semibold text-[var(--isalwa-kiln)]">
           Pedidos para vincular ({linkableWindow.matchedTotal})
         </summary>
-        <div className="mt-4 space-y-4">
+        <div className="space-y-4 px-4 py-3">
           <SurfaceSearchForm
             name="vincularQ"
             id="compras-vincular-search"
@@ -422,7 +422,7 @@ function PendingSupplyReviewsSection({
 }) {
   return (
     <OpsDeskSurface id="revisiones-pendientes" className="mb-4">
-      <PageSection className="p-0 shadow-none" aria-label="Revisiones de abastecimiento pendientes">
+      <PageSection className="p-0 shadow-none" data-section-tone="attention" aria-label="Revisiones de abastecimiento pendientes">
         <SectionHeader
           kicker="Compras"
           title={

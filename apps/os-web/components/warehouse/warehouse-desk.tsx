@@ -139,16 +139,17 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
   if (rows.length === 0) return null;
   return (
     <div
-      className="rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-sky)] bg-[color-mix(in_srgb,var(--isalwa-sky)_35%,white)] px-4 py-3"
+      className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-status-amber-2)] bg-white"
       aria-label={WAREHOUSE_TASK_COPY.waiting}
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 bg-[var(--isalwa-status-amber-bg)] px-4 py-3">
         <p className="isalwa-section-label">{WAREHOUSE_TASK_COPY.waiting}</p>
         <StatusPill tone="info" icon="none">
           {rows.length} citado{rows.length === 1 ? '' : 's'}
         </StatusPill>
       </div>
-      <p className="mt-1 text-sm leading-snug text-[var(--isalwa-slate)]">
+      <div className="px-4 py-3">
+      <p className="text-sm leading-snug text-[var(--isalwa-slate)]">
         Producto terminado citado sin cantidad asignable todavía.
       </p>
       <ul className="mt-3 divide-y divide-[color-mix(in_srgb,var(--isalwa-mist)_70%,white)]">
@@ -163,6 +164,7 @@ function WaitingSection({ view }: { view: WarehouseTaskView }) {
           </li>
         ))}
       </ul>
+      </div>
     </div>
   );
 }
@@ -235,7 +237,7 @@ function AllocateSection({
   );
 
   return (
-    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
+    <PageSection card className="p-8 md:p-10" data-section-tone="context" aria-label={WAREHOUSE_TASK_COPY.allocatable}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.allocatable} />
       <p className="mt-1.5 mb-4 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Cantidad del registro de ingresos menos asignaciones ya hechas. Desde aquí se asigna al pedido.
@@ -353,7 +355,7 @@ function AllocateSection({
 function RemainsSection({ view }: { view: WarehouseTaskView }) {
   const rows = boundHistoryItems(view.remains, LIST_PAGE_SIZE).items;
   return (
-    <PageSection card className="p-8 md:p-10" aria-label={WAREHOUSE_TASK_COPY.remains}>
+    <PageSection card className="p-8 md:p-10" data-section-tone="attention" aria-label={WAREHOUSE_TASK_COPY.remains}>
       <SectionHeader kicker={WAREHOUSE_TASK_COPY.kicker} title={WAREHOUSE_TASK_COPY.remains} />
       <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--isalwa-slate)]">
         Estas cantidades muestran asignaciones pendientes; no representan cumplimiento del pedido.

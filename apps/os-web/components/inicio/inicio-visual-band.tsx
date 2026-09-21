@@ -12,17 +12,17 @@ export type InicioVisualBandTone =
 
 const BAND_CLASS: Record<InicioVisualBandTone, string> = {
   attention:
-    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-status-amber-2)] bg-white shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)] shadow-[var(--isalwa-shadow-soft)]',
   'mi-dia':
-    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-kiln)] bg-white shadow-[var(--isalwa-shadow-resting)]',
+    'border-[color-mix(in_srgb,var(--isalwa-kiln)_18%,var(--isalwa-mist))] bg-[color-mix(in_srgb,var(--isalwa-kiln)_8%,white)] shadow-[var(--isalwa-shadow-resting)]',
   commercial:
-    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-glaze)] bg-white shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)] shadow-[var(--isalwa-shadow-soft)]',
   operations:
-    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-sky)] bg-white shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-sky)] bg-[var(--isalwa-sky)] shadow-[var(--isalwa-shadow-soft)]',
   issues:
-    'border-[var(--isalwa-mist)] border-l-4 border-l-[var(--isalwa-danger)] bg-white shadow-[var(--isalwa-shadow-soft)]',
+    'border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-red-bg)] shadow-[var(--isalwa-shadow-soft)]',
   recent:
-    'border-[var(--isalwa-mist)] bg-white shadow-[var(--isalwa-shadow-soft)]',
+    'border-[var(--isalwa-mist)] bg-[var(--isalwa-sky-100)] shadow-[var(--isalwa-shadow-soft)]',
   neutral:
     'border-[var(--isalwa-mist)] bg-white shadow-[var(--isalwa-shadow-resting)]',
 };
@@ -34,7 +34,7 @@ type InicioVisualBandProps = {
   label?: string;
 };
 
-/** Semantic band chrome for Inicio sections — color communicates meaning. */
+/** Semantic filled band for Inicio — color is readable before text. */
 export function InicioVisualBand({ tone, children, className, label }: InicioVisualBandProps) {
   return (
     <div

@@ -46,10 +46,22 @@ export function MetricCard({
   );
 }
 
+export type StatGroupFill = 'attention' | 'danger' | 'info' | 'active' | 'success' | 'neutral';
+
+const STAT_FILL: Record<StatGroupFill, string> = {
+  attention: 'border-[var(--isalwa-status-amber-2)] bg-[var(--isalwa-status-amber-bg)]',
+  danger: 'border-[color-mix(in_srgb,var(--isalwa-danger)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-red-bg)]',
+  info: 'border-[var(--isalwa-sky)] bg-[var(--isalwa-sky)]',
+  active: 'border-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)]',
+  success: 'border-[color-mix(in_srgb,var(--isalwa-success)_28%,var(--isalwa-mist))] bg-[var(--isalwa-status-green-bg)]',
+  neutral: 'border-[var(--isalwa-mist)] bg-[var(--isalwa-sky-100)]',
+};
+
 export type StatGroupItem = {
   label: string;
   value: ReactNode;
   tone?: string;
+  fill?: StatGroupFill;
 };
 
 export type StatGroupProps = {
@@ -63,7 +75,10 @@ export function StatGroup({ items, className }: StatGroupProps) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="min-w-[88px] rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-[var(--isalwa-white)] px-3 py-2 shadow-[var(--isalwa-shadow-soft)]"
+          className={cx(
+            'min-w-[88px] rounded-[var(--isalwa-radius-control)] border px-3 py-2 shadow-[var(--isalwa-shadow-soft)]',
+            item.fill ? STAT_FILL[item.fill] : 'border-[var(--isalwa-mist)] bg-[var(--isalwa-white)]',
+          )}
         >
           <p className="text-[10px] font-semibold tracking-[0.1em] text-[var(--isalwa-slate)] uppercase">
             {item.label}

@@ -41,12 +41,12 @@ export function InicioManagementLens({ model, destination = false }: InicioManag
 
       <PageSection
         card
-        surface="active"
+        surface="ops"
         className="min-w-0 overflow-hidden p-0 shadow-[var(--isalwa-shadow-soft)]"
         aria-label={t('pages.inicio.managementTitle')}
       >
         {ownerLane ? (
-          <div className="px-5 py-5 md:px-6 md:py-6">
+          <div className="bg-[var(--isalwa-sky)] px-5 py-4 md:px-6">
             <p className="isalwa-section-label">{ownerLane.label}</p>
             {hasRecordedCards ? (
               <ul className="mt-3 space-y-2">
@@ -68,9 +68,18 @@ export function InicioManagementLens({ model, destination = false }: InicioManag
           <div className="grid min-w-0 grid-cols-1 divide-y divide-[var(--isalwa-mist)] border-t border-[var(--isalwa-mist)] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
             {secondaryLanes.map((lane) => {
               const labels = model.labels.filter((item) => item.lane === lane.id);
+              const laneTone =
+                lane.id === 'waiting'
+                  ? 'bg-[var(--isalwa-status-amber-bg)]'
+                  : lane.id === 'attention'
+                    ? 'bg-[var(--isalwa-status-red-bg)]'
+                    : 'bg-[var(--isalwa-sky)]';
               return (
-                <div key={lane.id} className="min-w-0 px-5 py-5 md:px-6 md:py-6" aria-label={lane.label}>
-                  <h3 className="text-sm font-medium text-[var(--isalwa-kiln)]">{lane.label}</h3>
+                <div key={lane.id} className="min-w-0" aria-label={lane.label}>
+                  <h3 className={`px-5 py-3 text-sm font-semibold text-[var(--isalwa-kiln)] md:px-6 ${laneTone}`}>
+                    {lane.label}
+                  </h3>
+                  <div className="bg-white px-5 py-4 md:px-6 md:py-5">
                   <ul className="mt-3 space-y-3">
                     {labels.map((item) => {
                       const recorded = cards?.filter((card) => card.exceptionId === item.id) ?? [];
@@ -100,6 +109,7 @@ export function InicioManagementLens({ model, destination = false }: InicioManag
                       );
                     })}
                   </ul>
+                  </div>
                 </div>
               );
             })}

@@ -41,6 +41,7 @@ export default function AyudaPage() {
           <PageSection
             card
             className="border-l-4 border-l-[var(--isalwa-sky)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+            data-section-tone="context"
             data-tour={TOUR_TARGET.helpAccess}
             aria-labelledby="guidance-access-explanation"
           >
@@ -57,6 +58,7 @@ export default function AyudaPage() {
           <PageSection
             card
             className="border-l-4 border-l-[var(--isalwa-sky)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+            data-section-tone="context"
             data-tour={TOUR_TARGET.helpGlossary}
             aria-labelledby="guidance-glossary-short"
           >
@@ -75,6 +77,7 @@ export default function AyudaPage() {
               key={section.id}
               card
               className="border-l-4 border-l-[var(--isalwa-mist)] bg-white p-5 shadow-[var(--isalwa-shadow-soft)] md:p-6"
+              data-section-tone="navy"
               aria-labelledby={`guidance-${section.id}`}
             >
               <h2 id={`guidance-${section.id}`} className="isalwa-section-label">

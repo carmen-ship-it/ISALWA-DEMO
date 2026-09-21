@@ -12,7 +12,7 @@ export function NotificationList({ rows, onMarkRead }: NotificationListProps) {
   return (
     <ul className="min-w-0" aria-label="Avisos">
       {rows.map((row) => (
-        <ListRow key={row.id} as="li">
+        <ListRow key={row.id} as="li" className={row.readState === 'unread' && !row.resolved ? 'bg-[var(--isalwa-sky)]' : undefined} data-notification-unread={row.readState === 'unread' && !row.resolved ? 'true' : undefined}>
           <div className="min-w-0">
             <p className="isalwa-section-label">{row.kindLabel}</p>
             <p className="mt-1 text-sm font-semibold text-[var(--isalwa-kiln)]">{row.title}</p>

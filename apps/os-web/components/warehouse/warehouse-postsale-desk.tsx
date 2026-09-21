@@ -131,7 +131,7 @@ export function WarehousePostSaleDesk({
         onSelectLine={setOrderLineId}
       />
 
-      <PageSection card className="p-6 md:p-8" aria-label="Registrar ingreso de producto terminado">
+      <PageSection card className="p-6 md:p-8" data-section-tone="active" aria-label="Registrar ingreso de producto terminado">
         <SectionHeader
           kicker="Almacén"
           title="Registrar ingreso de producto terminado"

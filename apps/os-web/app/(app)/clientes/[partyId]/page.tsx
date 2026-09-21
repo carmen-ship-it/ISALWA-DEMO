@@ -288,7 +288,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
 
         <div className="mt-5 min-w-0 space-y-6 md:mt-6 md:space-y-8">
           {tab === 'resumen' ? (
-          <PageSection id="resumen" card className={sectionClass} data-tour="cliente360-identity">
+          <PageSection id="resumen" card className={sectionClass} data-section-tone="active" data-tour="cliente360-identity">
             <SectionHeader title="Resumen" className="mb-4" />
             <div className="space-y-6">
               <Cliente360Intelligence facts={intelligence} />
@@ -402,7 +402,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           ) : null}
 
           {tab === 'comercial' ? (
-          <PageSection id="comercial" card className={sectionClass}>
+          <PageSection id="comercial" card className={sectionClass} data-section-tone="active">
             <SectionHeader
               title="Comercial"
               action={
@@ -412,8 +412,11 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
               }
             />
             <div className="space-y-8">
-              <div className="border-l-4 border-l-[var(--isalwa-glaze)] pl-4">
-                <SectionHeader title="Oportunidades" />
+              <div className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)]">
+                <div className="border-l-4 border-l-[var(--isalwa-glaze)] bg-[var(--isalwa-teal-100)] px-4 py-3">
+                <SectionHeader title="Oportunidades" className="mb-0" />
+                </div>
+                <div className="bg-white px-4 py-4">
                 <CommercialSectionState
                   outcome={opportunities}
                   emptyTitle="Todavía no hay oportunidades activas para este cliente"
@@ -459,9 +462,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     </>
                   )}
                 </CommercialSectionState>
+                </div>
               </div>
-              <div className="border-l-4 border-l-[var(--isalwa-sky)] pl-4">
-                <SectionHeader title="Cotizaciones" />
+              <div className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)]">
+                <div className="border-l-4 border-l-[var(--isalwa-sky)] bg-[var(--isalwa-sky)] px-4 py-3">
+                <SectionHeader title="Cotizaciones" className="mb-0" />
+                </div>
+                <div className="bg-white px-4 py-4">
                 <CommercialSectionState
                   outcome={quotes}
                   emptyTitle="Todavía no hay cotizaciones activas"
@@ -507,9 +514,13 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     </>
                   )}
                 </CommercialSectionState>
+                </div>
               </div>
-              <div className="border-l-4 border-l-[var(--isalwa-kiln)] pl-4">
-                <SectionHeader title="Pedidos" />
+              <div className="overflow-hidden rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)]">
+                <div className="border-l-4 border-l-[var(--isalwa-kiln)] bg-[color-mix(in_srgb,var(--isalwa-kiln)_10%,var(--isalwa-sky))] px-4 py-3">
+                <SectionHeader title="Pedidos" className="mb-0" />
+                </div>
+                <div className="bg-white px-4 py-4">
                 <CommercialSectionState
                   outcome={orders}
                   emptyTitle="Sin pedidos todavía"
@@ -548,13 +559,14 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                     </>
                   )}
                 </CommercialSectionState>
+                </div>
               </div>
             </div>
           </PageSection>
           ) : null}
 
           {tab === 'operacion' ? (
-          <PageSection id="operacion" card className={sectionClass}>
+          <PageSection id="operacion" card className={sectionClass} data-section-tone="context">
             <SectionHeader title="Operación" />
             <p className="mb-6 text-sm leading-relaxed text-[var(--isalwa-slate)]">{CLIENTE360_UX_COPY.operacionHint}</p>
             <div className="space-y-8">
@@ -584,7 +596,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           ) : null}
 
           {tab === 'trabajo' ? (
-          <PageSection id="trabajo" card className={sectionClass}>
+          <PageSection id="trabajo" card className={sectionClass} data-section-tone="navy">
             <SectionHeader
               title="Trabajo"
               action={
@@ -666,7 +678,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           ) : null}
 
           {tab === 'documentos' ? (
-          <PageSection id="documentos" card className={sectionClass}>
+          <PageSection id="documentos" card className={sectionClass} data-section-tone="context">
             <Cliente360Documentos
               outcome={
                 documentLinks.status === 'ok'
@@ -681,7 +693,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
           ) : null}
 
           {tab === 'historial' ? (
-          <PageSection id="historial" card className={sectionClass}>
+          <PageSection id="historial" card className={sectionClass} data-section-tone="context">
             <SectionHeader title="Historial" />
             <CommercialSectionState
               outcome={timeline}

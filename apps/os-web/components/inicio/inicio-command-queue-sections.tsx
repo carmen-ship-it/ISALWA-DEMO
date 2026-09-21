@@ -141,10 +141,10 @@ function PendingWorkRows({
 
 /** Differentiated surface weight inside Centro de mando — not equal cards. */
 const SECTION_SURFACE: Record<string, 'ops' | 'context' | 'active' | 'attention'> = {
-  pendientes: 'ops',
+  pendientes: 'context',
   problemas: 'attention',
   compromisos: 'context',
-  decisiones: 'active',
+  decisiones: 'attention',
 };
 
 export function InicioCommandQueueSections({

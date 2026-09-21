@@ -10,7 +10,7 @@ export function FinanceDisclaimer({ className }: { className?: string }) {
       card
       className={
         className ??
-        'mb-6 border border-[var(--isalwa-sky)] border-l-4 border-l-[var(--isalwa-sky)] bg-[color-mix(in_srgb,var(--isalwa-sky)_35%,white)] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5'
+        'mb-6 border border-[var(--isalwa-sky)] bg-[var(--isalwa-sky)] p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5'
       }
       aria-label="Alcance del registro financiero"
     >

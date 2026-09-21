@@ -49,7 +49,7 @@ export default async function SaludDatosPage() {
           description="Cuando falte teléfono, ubicación o responsable en clientes visibles, lo verá aquí."
         />
       ) : (
-        <PageSection aria-label="Hallazgos">
+        <PageSection card className="p-5 md:p-6" data-section-tone="attention" aria-label="Hallazgos">
           <ul className="space-y-3">
             {issues.map((issue) => {
               const cta = dataHealthCta(issue);

@@ -208,7 +208,7 @@ function PedidoWarehouseContextSection({
 
   return (
     <OpsDeskSurface className="mb-4">
-    <PageSection className="p-0 shadow-none" aria-label="Pedidos con contexto de almacén">
+    <PageSection className="p-0 shadow-none" data-section-tone="context" aria-label="Pedidos con contexto de almacén">
       <SectionHeader
         kicker="Pedido"
         title={

@@ -36,7 +36,12 @@ export function PendingSupplyReviewCard({
   const href = orderHref(partyId, orderId);
 
   return (
-    <article className="border-b border-l-4 border-l-[var(--isalwa-status-amber-2)] border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] bg-[color-mix(in_srgb,var(--isalwa-status-amber-bg)_35%,white)] p-4 last:border-b-0">
+    <article className="overflow-hidden border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] last:border-b-0">
+      <div className="bg-[var(--isalwa-status-amber-bg)] px-4 py-2.5">
+        <p className="text-[0.9375rem] font-semibold text-[var(--isalwa-kiln)]">{pedidoLabel}</p>
+        <p className="mt-0.5 text-xs text-[var(--isalwa-slate)]">{customerLabel}</p>
+      </div>
+      <div className="bg-white px-4 py-3">
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         <div className="sm:col-span-2">
           <dt className="isalwa-section-label">Pedido</dt>
@@ -101,6 +106,7 @@ export function PendingSupplyReviewCard({
           />
         </div>
       ) : null}
+      </div>
     </article>
   );
 }

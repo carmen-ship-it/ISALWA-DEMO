@@ -39,7 +39,7 @@ export function QuoteDocumentActions({
       <PageSection
         id="quote-document-actions"
         card
-        className="scroll-mt-32 bg-[color-mix(in_srgb,var(--isalwa-teal-100)_28%,white)] p-5 md:p-6"
+        className="scroll-mt-32 bg-[var(--isalwa-teal-100)] p-5 md:p-6"
         data-quote-doc-actions="draft"
       >
         <p className="text-sm leading-relaxed text-[var(--isalwa-slate)]">
@@ -55,7 +55,7 @@ export function QuoteDocumentActions({
     <PageSection
       id="quote-document-actions"
       card
-      className="scroll-mt-32 bg-[color-mix(in_srgb,var(--isalwa-teal-100)_28%,white)] p-5 md:p-6"
+      className="scroll-mt-32 bg-[var(--isalwa-teal-100)] p-5 md:p-6"
       data-quote-doc-actions={sendRecorded ? 'sent' : 'presented'}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

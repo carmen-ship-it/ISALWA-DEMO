@@ -349,7 +349,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
           </CommercialStickyBar>
         ) : null}
 
-        <PageSection card className="bg-white p-8 md:p-10">
+        <PageSection card className="bg-white p-8 md:p-10" data-section-tone="active">
           <QuoteLiveStatus />
 
           <dl className="mt-10 grid gap-8 sm:grid-cols-2">
@@ -449,7 +449,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
 
         {!isDraft ? (
         <QuoteLiveLines>
-        <PageSection card className="mt-10 bg-white p-8 md:p-10">
+        <PageSection card className="mt-10 bg-white p-8 md:p-10" data-section-tone="context">
           <SectionHeader title={documentTitle} />
           {lines.length > 0 ? (
             <>
@@ -531,7 +531,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
         ) : null}
 
         {authority?.canConvertToOrder ? (
-          <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
+          <PageSection id="convertir-pedido" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10" data-section-tone="active">
             <SectionHeader
               title={
                 <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">
@@ -571,7 +571,7 @@ export default async function QuoteDetailPage({ params, searchParams }: QuoteDet
         ) : null}
 
         {quote.status === 'submitted' || approvals.length > 0 ? (
-          <PageSection id="aprobacion" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10">
+          <PageSection id="aprobacion" card className="mt-10 scroll-mt-32 bg-white p-8 md:p-10" data-section-tone="attention">
             <SectionHeader
               title={
                 <h2 className="font-[family-name:var(--isalwa-font-display)] text-2xl font-normal italic text-[var(--isalwa-kiln)]">

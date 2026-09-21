@@ -44,7 +44,7 @@ const SURFACE_BG: Record<NonNullable<PageSectionProps['surface']>, string> = {
   context: 'bg-[var(--isalwa-surface-context,var(--isalwa-sky-100))]',
   active: 'bg-[var(--isalwa-surface-active,var(--isalwa-teal-100))]',
   attention:
-    'bg-[var(--isalwa-surface-attention,color-mix(in_srgb,var(--isalwa-warning)_8%,white))]',
+    'bg-[var(--isalwa-status-amber-bg,var(--isalwa-surface-attention))]',
 };
 
 export function PageSection({ children, className, card, surface = 'ops', ...rest }: PageSectionProps) {

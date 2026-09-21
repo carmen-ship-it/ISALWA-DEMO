@@ -78,7 +78,7 @@ export default async function MemoriaDecisionesPage({ searchParams }: MemoriaPag
       ) : (
         <div className="space-y-10">
           {decided.length > 0 ? (
-            <PageSection aria-label="Aprobaciones decididas">
+            <PageSection card className="p-5 md:p-6" data-section-tone="complete" aria-label="Aprobaciones decididas">
               <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Aprobaciones</h2>
               <ul className="mt-4 divide-y divide-[var(--isalwa-mist)]">
                 {decided.map((item) => {
@@ -143,7 +143,7 @@ export default async function MemoriaDecisionesPage({ searchParams }: MemoriaPag
           })()}
 
           {coordinationDecisions.length > 0 ? (
-            <PageSection aria-label="Coordinación">
+            <PageSection card className="p-5 md:p-6" data-section-tone="context" aria-label="Coordinación">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-sm font-medium text-[var(--isalwa-kiln)]">Coordinación</h2>
                 <StatusPill tone="neutral">Comité</StatusPill>

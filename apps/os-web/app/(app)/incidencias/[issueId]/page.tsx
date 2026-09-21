@@ -208,7 +208,7 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
         />
 
         {canResolve ? (
-          <PageSection card className="p-6 md:p-8">
+          <PageSection card className="p-6 md:p-8" data-section-tone="attention">
             <SectionHeader kicker="Acción" title={ISSUE_COPY.resolveIssue} />
             <ResolveIssueForm issueId={issue.issueId} expectedVersion={issue.version} />
           </PageSection>
@@ -266,7 +266,7 @@ export default async function IssueDetailPage({ params, searchParams }: IssueDet
         </PageSection>
 
         {/* Investigation section */}
-        <PageSection card className="mt-6 p-6 md:p-8">
+        <PageSection card className="mt-6 p-6 md:p-8" data-section-tone="context">
           <SectionHeader kicker="Ciclo de vida" title={ISSUE_COPY.investigation} />
 
           {/* Possible causes */}

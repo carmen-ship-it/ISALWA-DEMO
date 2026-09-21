@@ -206,7 +206,7 @@ export function ProductionPostSaleDesk({
         onSelectLine={setOrderLineId}
       />
 
-      <PageSection card className="p-6 md:p-8" aria-label="Registrar actualización de producción">
+      <PageSection card className="p-6 md:p-8" data-section-tone="active" aria-label="Registrar actualización de producción">
         <SectionHeader
           kicker="Producción"
           title="Registrar actualización de producción"

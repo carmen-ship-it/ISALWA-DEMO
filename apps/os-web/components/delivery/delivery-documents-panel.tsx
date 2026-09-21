@@ -173,7 +173,7 @@ export function DeliveryDocumentsPanel({
     <PageSection
       id="entregas-notas"
       card
-      className="mt-6 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] bg-white p-6 md:p-8"
+      className="mt-6 scroll-mt-[calc(var(--isalwa-entrega-sticky-nav-offset,2.75rem)+0.5rem)] bg-white p-6 md:p-8" data-section-tone="navy"
       data-delivery-documents="pedido"
     >
       <SectionHeader

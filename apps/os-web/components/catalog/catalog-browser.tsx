@@ -115,25 +115,27 @@ export function CatalogBrowser({ status, products, priceEntries }: CatalogBrowse
         <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
           {surface.items.map((product) => (
             <li key={product.id}>
-              <Panel className="h-full p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[var(--isalwa-text-md)] font-semibold text-[var(--isalwa-kiln)]">
-                      {product.name}
-                    </p>
-                    <p className="mt-1 text-[var(--isalwa-text-sm)] text-[var(--isalwa-slate)]">
-                      {CATEGORY_LABEL[product.category] ?? product.category}
-                    </p>
-                  </div>
+              <Panel className="h-full overflow-hidden p-0 hover:bg-[var(--isalwa-teal-100)]">
+                <div className="bg-[var(--isalwa-teal-100)] px-4 py-3">
+                  <p className="text-[var(--isalwa-text-md)] font-semibold text-[var(--isalwa-kiln)]">
+                    {product.name}
+                  </p>
+                  <p className="mt-1 inline-flex rounded-[var(--isalwa-radius-control)] bg-[var(--isalwa-sky)] px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-[var(--isalwa-kiln)] uppercase">
+                    {CATEGORY_LABEL[product.category] ?? product.category}
+                  </p>
+                </div>
+                <div className="flex items-start justify-between gap-3 px-4 py-3">
                   <ProductCardExceptions productId={product.id} entries={priceEntries} />
                 </div>
-                <button
-                  type="button"
-                  className="mt-4 text-[var(--isalwa-text-sm)] font-medium text-[var(--isalwa-kiln)] underline-offset-2 hover:underline"
-                  onClick={() => setOpenId(product.id)}
-                >
-                  Ver ficha
-                </button>
+                <div className="px-4 pb-4">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
+                    onClick={() => setOpenId(product.id)}
+                  >
+                    Ver ficha
+                  </button>
+                </div>
               </Panel>
             </li>
           ))}
@@ -163,7 +165,7 @@ function ProductCardExceptions({
   const sourced = productHasSourcedPrice(entries, productId);
   return (
     <div className="flex shrink-0 flex-col items-end gap-1.5">
-      <StatusPill tone="neutral">Sin código comercial</StatusPill>
+      <StatusPill tone="sky">Sin código comercial</StatusPill>
       {!sourced ? (
         <StatusPill tone="muted">Precio no disponible</StatusPill>
       ) : (

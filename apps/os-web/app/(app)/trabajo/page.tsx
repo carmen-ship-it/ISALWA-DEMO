@@ -157,14 +157,15 @@ export default async function TrabajoPage({ searchParams }: TrabajoPageProps) {
         <StatGroup
           className="mb-4"
           items={[
-            { label: 'Para hoy', value: String(summary.paraHoy), tone: 'var(--isalwa-kiln)' },
+            { label: 'Para hoy', value: String(summary.paraHoy), tone: 'var(--isalwa-kiln)', fill: 'active' },
             {
               label: 'Vencido',
               value: String(summary.vencido),
               tone: summary.vencido > 0 ? 'var(--isalwa-danger)' : 'var(--isalwa-slate)',
+              fill: summary.vencido > 0 ? 'danger' : 'neutral',
             },
-            { label: 'Próximo', value: String(summary.proximo), tone: 'var(--isalwa-info)' },
-            { label: 'Sin fecha', value: String(summary.sinFecha), tone: 'var(--isalwa-slate)' },
+            { label: 'Próximo', value: String(summary.proximo), tone: 'var(--isalwa-info)', fill: 'info' },
+            { label: 'Sin fecha', value: String(summary.sinFecha), tone: 'var(--isalwa-slate)', fill: 'neutral' },
           ]}
         />
 

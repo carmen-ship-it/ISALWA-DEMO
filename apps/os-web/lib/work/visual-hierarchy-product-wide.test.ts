@@ -16,7 +16,8 @@ describe('product-wide visual hierarchy completion', () => {
     assert.match(cards, /function cardSurface/);
     assert.match(cards, /nonzero \? 'text-\[var\(--isalwa-danger\)\]'/);
     assert.doesNotMatch(cards, /CARD_SURFACE/);
-    assert.match(bands, /border-l-4 border-l-\[var\(--isalwa-status-amber-2\)\]/);
+    assert.match(bands, /bg-\[var\(--isalwa-status-amber-bg\)\]/);
+    assert.match(bands, /bg-\[var\(--isalwa-teal-100\)\]/);
     assert.match(tabs, /bg-\[var\(--isalwa-teal-100\)\]/);
     assert.match(opp, /compact = false/);
     assert.match(opp, /data-opportunity-list-layout="summary"/);
@@ -36,9 +37,11 @@ describe('product-wide visual hierarchy completion', () => {
     const now = read('components/party/cliente-360-now.tsx');
     assert.match(docs, /data-cliente360-documentos-layout="scan"/);
     assert.doesNotMatch(docs, /<table/);
-    assert.match(page, /border-l-\[var\(--isalwa-glaze\)\][\s\S]{0,80}Oportunidades/);
-    assert.match(page, /border-l-\[var\(--isalwa-sky\)\][\s\S]{0,80}Cotizaciones/);
-    assert.match(page, /border-l-\[var\(--isalwa-kiln\)\][\s\S]{0,80}Pedidos/);
+    assert.match(page, /border-l-\[var\(--isalwa-glaze\)\][\s\S]{0,200}Oportunidades/);
+    assert.match(page, /border-l-\[var\(--isalwa-sky\)\][\s\S]{0,200}Cotizaciones/);
+    assert.match(page, /border-l-\[var\(--isalwa-kiln\)\][\s\S]{0,200}Pedidos/);
+    assert.match(page, /bg-\[var\(--isalwa-teal-100\)\]/);
+    assert.match(page, /data-section-tone="active"/);
     assert.match(now, /status-red-bg/);
   });
 
