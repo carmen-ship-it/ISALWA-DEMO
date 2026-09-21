@@ -219,7 +219,15 @@ export default async function IncidenciasPage({ searchParams }: IncidenciasPageP
               card
               className="overflow-hidden border-[color-mix(in_srgb,var(--isalwa-glaze)_12%,var(--isalwa-mist))] p-3 shadow-[var(--isalwa-shadow-resting)] md:p-4"
             >
-              <IncidenciasDeskPanel items={items} memberLabels={memberLabels} />
+              <IncidenciasDeskPanel
+                items={items}
+                memberLabels={memberLabels}
+                listReturn={{
+                  view: view === 'open' ? undefined : view,
+                  cursor,
+                  trail,
+                }}
+              />
             </PageSection>
             {(() => {
               const nav = cursorPageLinks(

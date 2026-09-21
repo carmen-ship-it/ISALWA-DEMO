@@ -6,11 +6,13 @@ import { IssueList } from '@/components/issue/issue-list';
 import { ListToolbar } from '@/components/lists/list-toolbar';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
+import type { IssueListReturn } from '@/lib/issue/journal-page';
 import type { IssueListItem } from '@/lib/issue/types';
 
 type IncidenciasDeskPanelProps = {
   items: IssueListItem[];
   memberLabels: MemberLabelMap;
+  listReturn?: IssueListReturn;
 };
 
 function searchableText(item: IssueListItem, memberLabels: MemberLabelMap): string {
@@ -22,7 +24,7 @@ function searchableText(item: IssueListItem, memberLabels: MemberLabelMap): stri
   return [title, description, owner, reporter, refs].join(' ').toLowerCase();
 }
 
-export function IncidenciasDeskPanel({ items, memberLabels }: IncidenciasDeskPanelProps) {
+export function IncidenciasDeskPanel({ items, memberLabels, listReturn }: IncidenciasDeskPanelProps) {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -46,7 +48,7 @@ export function IncidenciasDeskPanel({ items, memberLabels }: IncidenciasDeskPan
           />
         }
       />
-      <IssueList items={filtered} memberLabels={memberLabels} showHeader density="compact" />
+      <IssueList items={filtered} memberLabels={memberLabels} showHeader density="compact" listReturn={listReturn} />
       {filtered.length === 0 && items.length > 0 ? (
         <p className="mt-2 text-sm text-[var(--isalwa-slate)]">
           Ninguna incidencia coincide con la búsqueda en esta vista.

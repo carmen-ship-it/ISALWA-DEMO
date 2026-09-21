@@ -483,8 +483,11 @@ export function createOsApiClient(auth: OsAuthContext) {
     // ─────────────────────────────────────────────────────────────────────────
     listIssues: (query?: Record<string, string | number | boolean>) =>
       request<IssueListResponse>('/issues', { method: 'GET', query }),
-    getIssue: (issueId: string) =>
-      request<IssueDetailResponse>(`/issues/${encodeURIComponent(issueId)}`),
+    getIssue: (issueId: string, query?: Record<string, string | number | boolean>) =>
+      request<IssueDetailResponse>(`/issues/${encodeURIComponent(issueId)}`, {
+        method: 'GET',
+        query,
+      }),
     executeIssueCommand: <T extends IssueCommandName>(
       commandName: T,
       payload: Record<string, unknown>,

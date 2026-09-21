@@ -21,7 +21,17 @@ import {
   formatRelationType,
   statusToneForIssue,
 } from '@/lib/issue/labels';
-import { issueHref, issueListHref } from '@/lib/issue/navigation';
+import { ListPageNav } from '@/components/lists/list-page-nav';
+import {
+  issueListReturnHref,
+  journalPageLinks,
+  journalRequestQuery,
+  journalSurface,
+  parseIssueListReturn,
+  parseJournalCursor,
+  parseJournalTrail,
+} from '@/lib/issue/journal-page';
+import { issueHref } from '@/lib/issue/navigation';
 import { resolveMemberLabels, memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import { workItemHref } from '@/lib/work/navigation';
 import { classifyQueryError } from '@/lib/work/query-errors';
@@ -30,6 +40,7 @@ import { AiAssistShell } from '@/components/ai/ai-assist-shell';
 
 type IssueDetailPageProps = {
   params: Promise<{ issueId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 function formatTimestamp(iso: string | null): string {
@@ -133,15 +144,20 @@ function LinkedWorkList({ workItemIds }: { workItemIds: string[] }) {
   );
 }
 
-export default async function IssueDetailPage({ params }: IssueDetailPageProps) {
+export default async function IssueDetailPage({ params, searchParams }: IssueDetailPageProps) {
   const { issueId } = await params;
+  const query = await searchParams;
+  const listReturn = parseIssueListReturn(query);
+  const journalCursor = parseJournalCursor(query);
+  const journalTrail = parseJournalTrail(query);
+  const volverHref = issueListReturnHref(listReturn);
   const auth = await getServerOsAuthContext();
   if (!auth) return null;
 
   const client = createOsApiClient(auth);
 
   try {
-    const issuePack = await client.getIssue(issueId);
+    const issuePack = await client.getIssue(issueId, journalRequestQuery(journalCursor));
     const issue = issuePack.issue;
     const journalMeta = issuePack.journalMeta;
     const memberIds = [
@@ -182,7 +198,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
               <StatusPill tone={statusToneForIssue(issue.status)}>
                 {formatIssueStatus(issue.status)}
               </StatusPill>
-              <Link href={issueListHref()}>
+              <Link href={volverHref}>
                 <Button type="button" variant="secondary">
                   Volver a incidencias
                 </Button>
@@ -282,24 +298,43 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
           </div>
 
           {/* Journal timeline */}
-          {otherJournal.length > 0 ? (
-            <div>
-              <h3 className="isalwa-section-label mb-3">Diario de investigación</h3>
+          <div>
+            <h3 className="isalwa-section-label mb-3">Diario de investigación</h3>
+            {otherJournal.length > 0 ? (
               <Timeline items={journalToTimeline(otherJournal, memberLabels)} />
-              {journalMeta?.hasMore ? (
-                <p className="mt-3 text-sm text-[var(--isalwa-slate)]" role="status">
-                  Mostrando las {journalMeta.limit ?? 25} entradas más recientes. Hay más historial en el
-                  registro; la continuación por páginas requiere el cableado de consulta en el cliente API.
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <EmptyState
-              title="Sin entradas de investigación"
-              description="Todavía nadie documentó observaciones ni intentos en el diario."
-              example="Registre observaciones, intentos y referencias a evidencia mientras avanza el caso."
-            />
-          )}
+            ) : journalSurface(issue.journal.length, journalCursor) === 'stale' ? (
+              <p className="text-sm text-[var(--isalwa-slate)]" role="status">
+                Esta continuación del diario ya no tiene entradas. Vuelva a la página anterior.
+              </p>
+            ) : possibleCauses.length === 0 ? (
+              <EmptyState
+                title="Sin entradas de investigación"
+                description="Todavía nadie documentó observaciones ni intentos en el diario."
+                example="Registre observaciones, intentos y referencias a evidencia mientras avanza el caso."
+              />
+            ) : null}
+            {(() => {
+              const nav = journalPageLinks({
+                issueId,
+                journalCursor,
+                journalTrail,
+                nextCursor: journalMeta?.nextCursor,
+                hasMore: Boolean(journalMeta?.hasMore),
+                list: listReturn,
+              });
+              return (
+                <ListPageNav
+                  from={issue.journal.length > 0 ? 1 : 0}
+                  to={issue.journal.length}
+                  total={null}
+                  page={1}
+                  pageCount={null}
+                  prevHref={nav.prevHref}
+                  nextHref={nav.nextHref}
+                />
+              );
+            })()}
+          </div>
         </PageSection>
 
         {/* Resolution section */}
@@ -377,7 +412,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
             kicker={ISSUE_COPY.detailKicker}
             title="Incidencia no encontrada"
             action={
-              <Link href={issueListHref()}>
+              <Link href={volverHref}>
                 <Button type="button" variant="secondary">
                   Volver a incidencias
                 </Button>

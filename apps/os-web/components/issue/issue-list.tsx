@@ -3,7 +3,7 @@
 import { StatusPill } from '@isalwa/ui';
 import { OperatingScanListHeader, OperatingScanRow } from '@/components/lists/operating-scan-row';
 import { formatIssueStatus, formatReferenceType, statusToneForIssue } from '@/lib/issue/labels';
-import { issueHref } from '@/lib/issue/navigation';
+import { issueDetailHref, type IssueListReturn } from '@/lib/issue/journal-page';
 import { presentHumanCopy } from '@/lib/demo/human-facing-copy';
 import { memberLabel, type MemberLabelMap } from '@/lib/work/member-resolver';
 import type { IssueListItem } from '@/lib/issue/types';
@@ -14,6 +14,8 @@ type IssueListProps = {
   memberLabels: MemberLabelMap;
   showHeader?: boolean;
   density?: 'compact' | 'comfortable';
+  /** List URL state to restore on explicit Volver. Does not change desk pagination. */
+  listReturn?: IssueListReturn;
 };
 
 const DESKTOP_GRID = 'md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7.5rem] md:items-center md:gap-3';
@@ -64,7 +66,7 @@ function isVisibleIssue(item: IssueListItem): boolean {
   );
 }
 
-export function IssueList({ items, memberLabels, showHeader, density = 'compact' }: IssueListProps) {
+export function IssueList({ items, memberLabels, showHeader, density = 'compact', listReturn }: IssueListProps) {
   const visible = items.filter(isVisibleIssue);
   if (visible.length === 0) return null;
 
@@ -73,7 +75,7 @@ export function IssueList({ items, memberLabels, showHeader, density = 'compact'
       {visible.map((item) => (
         <li key={item.issueId} className="list-none">
           <OperatingScanRow
-            href={issueHref(item.issueId)}
+            href={issueDetailHref(item.issueId, listReturn)}
             density={density}
             title={issueTitle(item)}
             desktopGridClassName={DESKTOP_GRID}
