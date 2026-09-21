@@ -171,6 +171,9 @@ describe('Task 10 — global search depth', () => {
     assert.match(actions, /getTrustedAuthorization/);
     assert.match(actions, /organizationId: contact\.organizationId/);
     assert.match(actions, /extensionItemsForParty\(party, contacts, q, contactSession\)/);
+    assert.match(actions, /client\.getParty\(party\.partyId\)/);
+    assert.doesNotMatch(actions, /listPartyContacts/);
+
 
     assert.match(search, /attachCustomerLabels/);
     assert.match(search, /resolvePartyLabels/);

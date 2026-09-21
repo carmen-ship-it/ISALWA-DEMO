@@ -445,6 +445,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                       <ScaledListReveal
                         total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        allowExpand={false}
                         empty={
                           <EmptyState
                             title="Todavía no hay oportunidades activas para este cliente"
@@ -499,6 +500,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                       <ScaledListReveal
                         total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        allowExpand={false}
                         empty={
                           <EmptyState
                             title="Todavía no hay cotizaciones activas"
@@ -544,6 +546,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                       <ScaledListReveal
                         total={list.items.length}
                         previewCount={LIST_SCALE_PREVIEW_LARGE}
+                        allowExpand={false}
                         empty={
                           <EmptyState
                             title="Sin pedidos todavía"
@@ -632,6 +635,7 @@ export default async function PartyDetailPage({ params, searchParams }: PartyDet
                       <StaleProjectionBanner freshness={workData.freshness} />
                       <ScaledListReveal
                         total={workData.items.length}
+                        allowExpand={false}
                         empty={
                           <EmptyState
                             title={FOLLOW_UP_COPY.emptyTitle}
