@@ -1,0 +1,14 @@
+/* Scan-row chrome — identity lists, not spreadsheets. */
+.isalwa-operating-scan-row {
+  background: var(--isalwa-white);
+}
+li:nth-child(even) > .isalwa-operating-scan-row {
+  background: color-mix(in srgb, var(--isalwa-porcelain) 38%, white);
+}
+li:hover > .isalwa-operating-scan-row,
+.isalwa-operating-scan-row:hover {
+  background: color-mix(in srgb, var(--isalwa-teal-100) 72%, white);
+}
+.isalwa-operating-scan-row[data-selected='true'] {
+  background: var(--isalwa-teal-100);
+}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { cx, type OperatingRowDensity } from '@isalwa/ui';
 import type { ReactNode } from 'react';
+import '@/components/lists/operating-scan.css';
 
 export type OperatingScanField = {
   id: string;
@@ -26,10 +27,11 @@ export type OperatingScanRowProps = {
 };
 
 const actionLinkClass =
-  'isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
+  'isalwa-scan-row-action isalwa-t-fast inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)] outline-none hover:border-[var(--isalwa-glaze)] focus-visible:shadow-[var(--isalwa-shadow-focus)]';
 
 /**
  * Operating list row with labeled scan zones — stacked card on phone, column grid on md+.
+ * Identity is strongest. Metadata is quiet. Status is a chip. Action is isolated.
  */
 export function OperatingScanRow({
   href,
@@ -51,14 +53,14 @@ export function OperatingScanRow({
       data-density={density}
       className={cx(
         'isalwa-operating-scan-row border-b border-[color-mix(in_srgb,var(--isalwa-mist)_80%,white)] px-3 last:border-b-0',
-        density === 'comfortable' ? 'py-3' : 'py-2.5',
-        selected && 'bg-[color-mix(in_srgb,var(--isalwa-glaze)_8%,white)]',
+        density === 'comfortable' ? 'py-3' : 'py-2',
+        selected && 'bg-[var(--isalwa-teal-100)]',
         className,
       )}
     >
       <div
         className={cx(
-          'flex flex-col gap-2.5 md:grid md:items-center md:gap-x-3 md:gap-y-0',
+          'flex flex-col gap-2 md:grid md:items-center md:gap-x-3 md:gap-y-0',
           desktopGridClassName,
         )}
       >
@@ -66,7 +68,7 @@ export function OperatingScanRow({
           <Link
             href={href}
             title={typeof title === 'string' ? title : undefined}
-            className="isalwa-t-fast block break-words text-sm font-semibold leading-5 text-[var(--isalwa-kiln)] outline-none line-clamp-2 hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+            className="isalwa-scan-row-identity isalwa-t-fast block break-words text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)] outline-none line-clamp-2 hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
           >
             {title}
           </Link>
@@ -76,15 +78,15 @@ export function OperatingScanRow({
           <div
             key={field.id}
             className={cx(
-              'min-w-0 text-xs leading-4',
+              'isalwa-scan-row-meta min-w-0 text-xs leading-4',
               field.hideOnMobile ? 'hidden md:block' : 'grid grid-cols-[auto_1fr] gap-x-2 md:block',
             )}
           >
-            <span className="font-semibold tracking-[0.06em] text-[var(--isalwa-slate)] uppercase md:mb-0.5 md:block md:text-[10px] md:tracking-[0.1em]">
+            <span className="font-semibold tracking-[0.06em] text-[var(--isalwa-slate)] uppercase md:sr-only">
               {field.label}
             </span>
             <span
-              className="truncate text-[var(--isalwa-kiln)] md:mt-0.5 md:block"
+              className="line-clamp-2 break-words text-[var(--isalwa-slate)] md:mt-0"
               title={typeof field.value === 'string' ? field.value : undefined}
             >
               {field.value}
@@ -92,9 +94,11 @@ export function OperatingScanRow({
           </div>
         ))}
 
-        {status ? <div className="flex shrink-0 items-center md:justify-end">{status}</div> : null}
+        {status ? (
+          <div className="isalwa-scan-row-status flex shrink-0 items-center md:justify-end">{status}</div>
+        ) : null}
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2 md:justify-end">
+        <div className="isalwa-scan-row-actions flex shrink-0 flex-wrap items-center gap-2 md:justify-end md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
           <Link href={href} className={actionLinkClass}>
             {actionLabel}
           </Link>
@@ -116,7 +120,7 @@ export function OperatingScanListHeader({
     <div
       role="row"
       className={cx(
-        'isalwa-sticky-under-shell hidden border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_92%,white)] px-3 py-2 backdrop-blur-md md:grid md:items-center md:gap-x-3',
+        'isalwa-operating-scan-header isalwa-sticky-under-shell hidden border-b border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-sky)_28%,var(--isalwa-porcelain))] px-3 py-2 backdrop-blur-md md:grid md:items-center md:gap-x-3',
         className,
       )}
     >

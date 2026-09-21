@@ -116,7 +116,7 @@ export function QuoteOrgList({
                 <div className="min-w-0 flex-1">
                   <Link
                     href={detailHref}
-                    className="isalwa-t-fast block break-words text-sm font-medium leading-5 text-[var(--isalwa-kiln)] outline-none hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
+                    className="isalwa-t-fast block break-words text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)] outline-none line-clamp-2 hover:text-[var(--isalwa-glaze-deep)] focus-visible:shadow-[var(--isalwa-shadow-focus)]"
                   >
                     {item.quoteNumber}
                   </Link>

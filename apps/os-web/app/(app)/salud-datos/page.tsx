@@ -57,7 +57,7 @@ export default async function SaludDatosPage() {
               <li
                 key={issue.id}
                 className={cx(
-                  'rounded-lg border border-[var(--isalwa-mist)] border-l-4 p-4 shadow-[var(--isalwa-shadow-soft)] md:p-5',
+                  'rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] border-l-4 px-3 py-2.5',
                   DATA_HEALTH_TYPE_MARKER[issue.type],
                 )}
               >
@@ -65,9 +65,9 @@ export default async function SaludDatosPage() {
                   <StatusPill tone={dataHealthPillTone(issue.type)}>
                     {DATA_HEALTH_TYPE_LABEL[issue.type]}
                   </StatusPill>
-                  <h2 className="text-sm font-semibold text-[var(--isalwa-kiln)]">{issue.title}</h2>
+                  <h2 className="line-clamp-2 text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)]">{issue.title}</h2>
                 </div>
-                <dl className="mt-4 grid gap-3 text-sm text-[var(--isalwa-slate)] sm:grid-cols-2 lg:grid-cols-3">
+                <dl className="mt-2 grid gap-2 text-xs text-[var(--isalwa-slate)] sm:grid-cols-2 lg:grid-cols-3">
                   <div>
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--isalwa-kiln)]">
                       Tipo

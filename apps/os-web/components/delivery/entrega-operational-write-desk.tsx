@@ -245,16 +245,14 @@ export async function EntregaOperationalWriteDesk({
               return (
                 <ListRow key={order.orderId} as="li">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{orderLabel}</p>
-                    <p className="mt-1 text-sm text-[var(--isalwa-slate)]">
-                      {customer} · {order.lines.length} línea(s)
-                    </p>
+                    <p className="text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)]">{orderLabel}</p>
+                    <p className="mt-1 text-xs leading-4 text-[var(--isalwa-slate)]">{customer}</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2 md:border-l md:border-[var(--isalwa-mist)] md:pl-3">
                     {active ? <StatusPill tone="info">Seleccionado</StatusPill> : null}
                     <Link
                       href={opsListHref('/entregas', listState, { orderId: order.orderId, datos })}
-                      className="text-sm font-medium text-[var(--isalwa-glaze)] underline-offset-2 hover:underline"
+                      className="inline-flex h-8 items-center rounded-[var(--isalwa-radius-control)] border border-[var(--isalwa-mist)] bg-white px-3 text-xs font-medium text-[var(--isalwa-kiln)]"
                     >
                       Abrir pedido
                     </Link>

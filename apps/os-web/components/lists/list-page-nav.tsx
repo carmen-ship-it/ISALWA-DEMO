@@ -31,7 +31,11 @@ export function ListPageNav({
     pageCount != null ? `Página ${page} de ${pageCount}` : 'Página actual';
 
   return (
-    <nav className="mt-6 flex flex-wrap items-center justify-between gap-3" aria-label="Páginas">
+    <nav
+      className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--isalwa-mist)] bg-[color-mix(in_srgb,var(--isalwa-porcelain)_72%,white)] px-3 py-3"
+      aria-label="Páginas"
+      data-list-page-nav=""
+    >
       <p className="text-sm text-[var(--isalwa-kiln)]">{range}</p>
       <div className="flex flex-wrap items-center gap-2">
         {prevHref ? (

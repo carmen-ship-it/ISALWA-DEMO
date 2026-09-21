@@ -176,11 +176,11 @@ export function ApprovalDeskPanel({
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-[var(--isalwa-kiln)]" title={subject}>
+                      <p className="line-clamp-2 text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)]" title={subject}>
                         {subject}
                       </p>
                       <p
-                        className="mt-0.5 truncate text-xs leading-relaxed text-[var(--isalwa-slate)]"
+                        className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-[var(--isalwa-slate)]"
                         title={reason ? `Solicitado por ${requester} · ${reason}` : `Solicitado por ${requester}`}
                       >
                         Solicitado por {requester}

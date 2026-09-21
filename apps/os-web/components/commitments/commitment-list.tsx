@@ -134,8 +134,10 @@ export function CommitmentList({
           return (
             <ListRow key={row.id} as="li" railColor={row.state === 'overdue' ? 'var(--isalwa-danger)' : undefined}>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-[var(--isalwa-kiln)]">{presentHumanCopy(row.text) || 'Compromiso'}</p>
-                <p className="mt-1 text-sm text-[var(--isalwa-slate)]">{meta}</p>
+                <p className="line-clamp-2 text-[0.9375rem] font-semibold leading-5 text-[var(--isalwa-kiln)]">
+                  {presentHumanCopy(row.text) || 'Compromiso'}
+                </p>
+                <p className="mt-1 line-clamp-2 text-xs leading-4 text-[var(--isalwa-slate)]">{meta}</p>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-2">
                 {showOrigin ? (
